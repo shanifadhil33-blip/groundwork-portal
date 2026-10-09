@@ -137,7 +137,7 @@ export async function runSync(ws:string,operation:'check'|'repair',trigger:'manu
 export function check(user:string,ws:string){return runSync(ws,'check','manual',undefined,user);}
 export async function repair(user:string,ws:string,body:unknown){await access(user,ws,true,async()=>undefined);const {cobalt_ref}=z.object({cobalt_ref:z.string().min(1).max(200).optional()}).strict().parse(body);return runSync(ws,'repair','manual',cobalt_ref,user);}
 export async function cronSync(){
- const workspaces=await withSystem(async db=>(await db.query('SELECT DISTINCT workspace_id FROM supplier_orders ORDER BY workspace_id')).rows);
+ const workspaces=await withSystem(async db=>(await db.query('SELECT DISTINCT s.workspace_id FROM supplier_orders s JOIN workspaces w ON w.id=s.workspace_id WHERE NOT w.is_demo ORDER BY s.workspace_id')).rows);
  let checked=0,repaired=0,errors=0;const results=[];
  for(const {workspace_id:ws} of workspaces){try{const result=await runSync(ws,'check','cron');checked++;const fixed=await runSync(ws,'repair','cron');repaired+=fixed.repaired;results.push({workspace_id:ws,mismatches:result.mismatches.length,repaired:fixed.repaired});}catch{errors++;results.push({workspace_id:ws,error:'Supplier sync failed. Try again.'});}}
  return {workspaces:workspaces.length,checked,repaired,errors,results};

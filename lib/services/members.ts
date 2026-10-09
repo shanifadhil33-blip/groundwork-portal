@@ -1,3 +1,4 @@
+import { assertRealUser } from './demo';
 import { z } from 'zod';
 import { ApiError, invalid } from '../http';
 import { allow, inWorkspace, role, row, update, uuid } from './shared';
@@ -8,6 +9,7 @@ export async function listMembers(user:string,ws:string) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin','staff']);return (await c.db.query('SELECT m.*,u.name,u.email FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true WHERE m.workspace_id=$1 ORDER BY u.name,m.user_id',[ws])).rows;});
 }
 export async function changeMember(user:string,ws:string,id:string,body?:unknown) {
+ await assertRealUser(user);
  return inWorkspace(user,ws,async c=>{
   allow(c,['admin']);
   // Lock the parent to serialize all removals/demotions, including different admins.

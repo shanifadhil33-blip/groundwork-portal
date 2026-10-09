@@ -1,3 +1,4 @@
+import { assertRealUser } from './demo';
 import { z } from 'zod';
 import { withUser } from '../db';
 import { invalid } from '../http';
@@ -11,6 +12,7 @@ export async function me(user: string) {
  }));
 }
 export async function createWorkspace(user:string,body:unknown,key?:string) {
+ await assertRealUser(user);
  const data=schema.parse(body);
  return withUser(user,db=>replay(db,user,'workspaces',key,data,async()=>(await db.query('SELECT * FROM create_workspace($1,$2)',[data.name,data.timezone])).rows[0]));
 }
@@ -19,6 +21,7 @@ export async function patchWorkspace(user:string,ws:string,body:unknown) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin']);const data=z.object({name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional()}).strict().parse(body);if(!Object.keys(data).length)throw invalid('Provide at least one change.');return update(c,'workspaces',ws,data);});
 }
 export async function deleteWorkspace(user:string,ws:string,body:unknown) {
+ await assertRealUser(user);
  return inWorkspace(user,ws,async c=>{
   allow(c,['admin']);const data=z.object({confirm_name:z.string()}).strict().parse(body);
   const w=await row(c,'workspaces',ws,true);
@@ -37,3 +40,5 @@ export async function dashboard(user:string,ws:string) {
   return {by_status,overdue,waiting_on_parts:by_status.waiting_on_parts,pending_queue_rows,last_supplier_sync_at};
  });
 }
+
+export async function listWorkspaces(user:string){return withUser(user,async db=>(await db.query('SELECT w.* FROM workspaces w JOIN members m ON m.workspace_id=w.id WHERE m.user_id=$1 ORDER BY w.name',[user])).rows);}

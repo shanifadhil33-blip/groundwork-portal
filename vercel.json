@@ -1,1 +1,1 @@
-{"crons":[{"path":"/api/cron/supplier-sync","schedule":"0 3 * * *"}]}
+{"crons":[{"path":"/api/cron/supplier-sync","schedule":"0 3 * * *"},{"path":"/api/cron/demo-cleanup","schedule":"0 4 * * *"}]}

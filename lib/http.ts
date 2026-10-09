@@ -17,6 +17,7 @@ export function errorResponse(error: unknown) {
   if (code === '23505') return errorResponse(new ApiError(409,'conflict','That record already exists.'));
   if (code === '23503') return errorResponse(new ApiError(409,'conflict','This record is still in use, or a related record is unavailable.'));
   if (code === 'P0409') return errorResponse(new ApiError(409,'last_admin','Keep at least one workspace admin.'));
+  if (code === 'P0403') return errorResponse(forbidden());
   if (code === 'P0404') return errorResponse(missing());
   if (code === 'P0401') return errorResponse(new ApiError(401,'unauthenticated','Sign in to continue.'));
   return json({error:{code:'internal',message:"Something went wrong on our side. Your changes weren't saved. Try again."}},500);
