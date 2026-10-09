@@ -9,7 +9,7 @@ export function redact(value:unknown):unknown {
 function item(r:Record<string,any>) {
  const before=redact(r.before),after=redact(r.after);
  const summary=r.before?.status!==r.after?.status&&r.before?.status&&r.after?.status?`Status changed from ${r.before.status.replaceAll('_',' ')} to ${r.after.status.replaceAll('_',' ')}`:`${r.entity.replaceAll('_',' ')} ${r.action==='insert'?'created':r.action==='delete'?'deleted':'updated'}`;
- return {id:r.id,at:new Date(r.at).toISOString(),actor:r.actor_id?{id:r.actor_id,name:r.actor_name??null,email:r.actor_email??null}:null,action:r.action,entity:r.entity,entity_id:r.entity_id,summary,before,after};
+ return {actor_kind:r.actor_kind,via_token_id:r.via_token_id,via_token_name:r.via_token_name,id:r.id,at:new Date(r.at).toISOString(),actor:r.actor_id?{id:r.actor_id,name:r.actor_name??null,email:r.actor_email??null}:null,action:r.action,entity:r.entity,entity_id:r.entity_id,summary,before,after};
 }
 const select='SELECT a.*,u.name AS actor_name,u.email AS actor_email FROM audit_log a LEFT JOIN LATERAL visible_user(a.actor_id) u ON true';
 export async function listAudit(user:string,ws:string,params:URLSearchParams) {

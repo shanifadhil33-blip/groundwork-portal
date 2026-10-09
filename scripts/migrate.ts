@@ -39,6 +39,10 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT EXECUTE ON FUNCTION require_real_user() TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE ON user_preferences TO ${role}`);
     await client.query(`GRANT SELECT(id,name,email,image),UPDATE(name) ON users TO ${role}`);
+    await client.query(`GRANT SELECT,INSERT ON api_tokens TO ${role}`);
+    await client.query(`GRANT UPDATE(revoked_at) ON api_tokens TO ${role}`);
+    await client.query(`GRANT SELECT,INSERT,UPDATE ON assistant_actions TO ${role}`);
+    await client.query(`GRANT EXECUTE ON FUNCTION verify_api_token(text) TO ${role}`);
     await client.query('COMMIT');
   } catch(error) { await client.query('ROLLBACK'); throw error; }
 }

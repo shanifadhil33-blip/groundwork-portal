@@ -1,4 +1,4 @@
-# Groundwork API — Milestone 3
+# Groundwork API — Complete backend (Batches 1–7)
 
 Backend only. JSON bodies and query parameters are validated with Zod. Auth.js v5 Google sign-in uses database sessions and the owner-only pg adapter. Tenant operations use the non-owner app role inside `withUser`. Signing in never accepts an invite automatically. Tests inject identity through `setAuthResolverForTests`, which throws outside `NODE_ENV=test`; there is no auth header bypass.
 
@@ -201,3 +201,69 @@ Start serializes live-cap/rate checks and creation in one transaction. `DEMO_MAX
 Demo users receive 403 for workspace creation/deletion, invite creation/revocation/acceptance, and member mutation. Member/invite reads retain ordinary role permissions. Other work-order/client/site/import/settings/supplier operations retain their sandbox role rules. Inviting a reserved demo address returns 422; DB triggers also reject demo targets and invites into demo workspaces. DB triggers prevent real/demo mixed membership, cross-sandbox membership, and Google account attachment to demo users; no auth accounts are seeded for demo identities. Auth.js sign-in also rejects demo identities/reserved emails. Real workspace deletion continues to retain its audit history.
 
 Cleanup requires constant-time Bearer CRON_SECRET authentication for both methods (401 otherwise), deletes only expired demos, and is idempotent. It removes dependent tenant data, Cobalt state, demo audit history, request replay records, users, preferences and sessions. Counts represent actual deleted workspaces/users/sessions. Daily Vercel cleanup is scheduled at 04:00 UTC; the existing supplier cron stays at 03:00 UTC. Start opportunistically cleans up at most ten expired sandboxes. Scheduled supplier sync skips all demos to preserve their missed-delivery scenario; manual sync and authenticated webhooks still work within their scoped sandbox until deletion.
+
+## Agent access: API tokens, MCP server, assistant
+
+All paths below include `/api`. Token management and the assistant require a session (including a live demo cookie). Bearer tokens authenticate **only** MCP and cannot create further tokens or access session routes.
+
+| Method | Path | Authentication / role | Input | Response |
+|---|---|---|---|---|
+| POST | /workspaces/[ws]/tokens | Session, any member; creates own | `{name,scope:"read"\|"write",expires_in_days?:1..365}` | 201 token metadata plus `token`, shown once |
+| GET | /workspaces/[ws]/tokens | Session, own tokens; admin may list workspace | `all=true` for admins (other roles still own only) | Token metadata array, never hash/plaintext |
+| POST | /workspaces/[ws]/tokens/[id]/revoke | Session, owner or workspace admin | No body | Revoked metadata; repeats preserve revoked_at; hidden id 404 |
+| POST | /mcp | Bearer API token | Streamable HTTP JSON-RPC initialize, tools/list, tools/call, notifications | Official MCP protocol responses; tool errors have `isError:true` |
+| GET | /mcp | Bearer API token | Accept text/event-stream | SDK SSE response; closed at request completion, no persistent notifications |
+| DELETE | /mcp | Bearer API token | No body | 200; stateless, no session retained |
+| POST | /workspaces/[ws]/assistant | Session, any member | `{messages:[{role:"user"\|"assistant",content}],confirm_action_id?:uuid}` | Read reply, pending action, confirmation result, or unavailable response |
+
+Tokens use `gw_` plus 32 cryptographically random bytes encoded base64url. Only SHA-256 hashes are stored; the nonsecret short prefix supports display. Names are trimmed, 1–80 characters. Real users may omit expiry (null); supplied days are integer 1–365. Demo expiry is always capped to both 24 hours and the sandbox deadline, even when omitted. Workspace/user cascade deletion removes tokens and pending actions during demo reset/cleanup and workspace deletion. Removed membership invalidates the capability immediately; changing a role/client takes effect on subsequent tool calls through the current membership. Revoked/expired/demo-expired/unknown/missing tokens yield 401 with `WWW-Authenticate: Bearer` and the same message: `Invalid or expired token.` Hash lookup is parameterized on a fixed-length SHA-256 digest; no plaintext equality comparison occurs. Successful authentication updates last_used_at at most once per five minutes.
+
+The official SDK server is named `groundwork`, with the package.json version. Each HTTP request gets a fresh McpServer and WebStandardStreamableHTTPServerTransport, `sessionIdGenerator:undefined`, JSON responses enabled: no sticky sessions, persistent MCP session IDs or owner-connection business-data access. POST requires `Accept: application/json, text/event-stream` and JSON content type. SDK protocol errors preserve protocol status codes. Per-token rate limiting is **not implemented**; deployment-level limits can be added later.
+
+MCP and the assistant use the single registry in `lib/agent/tools.ts` and the existing REST services. All tenant data runs through `withUser` on the non-owner app role and FORCE RLS. Results include JSON in text content and `{result:...}` structuredContent; sanitized API errors include isError, a plain text message and structuredContent.error. Read-scoped tokens **list write tools but reject every write call** with `This token is read-only.` before argument validation or mutation. MCP input validation uses the same plain error boundary as REST. No bulk approval, management, supplier or token-creation tools are exposed.
+
+| Tool | Scope required | Roles / inputs |
+|---|---|---|
+| list_work_orders | read or write | Any member; q, status[], priority[], client_id, sort, dir, page, pageSize; same REST filters/pagination |
+| get_work_order | read or write | Any member; id; clients never receive internal comments, hidden/cross-workspace ids return neutral not found |
+| create_request | write | Any member; title, site_id, description?, client_id?, priority?; client company/source forced |
+| update_work_order_status | write | Staff/admin; id, status, **updated_at required** from get_work_order; stale 409, same workflow transitions |
+| add_comment | write | Any member on visible work; work_order_id, body, visibility; clients only client visibility |
+| list_approval_queue | read or write | Staff/admin; page, status?, decision?; client access neutral not found |
+| approve_queue_row | write | Staff/admin; row_id, edits? with mapped spreadsheet fields; existing validation and replay behavior |
+| reject_queue_row | write | Staff/admin; row_id, reason |
+| get_dashboard | read or write | Any member; visible metrics only |
+| list_sites | read or write | Any member; visible sites only, useful for request IDs |
+| whoami | read or write | Any member; current user/workspace/role/client/scope |
+
+Token tool writes retain actor_id = token owner and record actor_kind=`agent`, via_token_id and a snapshot via_token_name in audit rows. Assistant confirmed writes record actor_kind=`assistant`, with null token attribution. Session writes retain actor_kind=`user`. GET audit list/detail now include actor_kind, via_token_id and via_token_name under their existing admin/all and staff/own RLS. Token management is audit-triggered, and hashes are omitted from stored token audit snapshots. Before/after response redaction remains unchanged; token ids/names are exposed only in the explicit attribution fields. Attribution settings are transaction-local and isolated with AsyncLocalStorage; they never persist on pooled connections.
+
+Assistant messages accept at most 30 entries, each 1–20,000 characters. Function calling uses the configured Gemini model chain from lib/ai.ts, then Groq; missing keys are skipped, provider errors/timeouts/malformed responses fall through, output is capped at 2,000 tokens per turn, with at most four tool iterations and eight calls per iteration. Native provider function-call/result messages carry read results. Read tools execute immediately. A proposed write never executes: the backend validates and stores `{user_id,workspace_id,tool,args}` for ten minutes and returns `{available:true,reply,pending_action:{id,tool,args,summary}}`. The summary is generated server-side for review; work-order actions use the visible order title. The assistant acts with current session permissions, including demos.
+
+Confirm with `{messages:[],confirm_action_id:"..."}`. The same user and workspace must own the action. The backend locks the pending row and executes its stored arguments through the shared registry, then consumes it **in the same app-role transaction**. Simultaneous/repeated confirmations cannot double-write: consumed actions return plain 409. Expired actions return plain 409; other-user/workspace/unknown ids return neutral 404. Service permission or validation failures return a sanitized isError result and consume the action when the transaction remains valid; DB failures roll back both mutation and consumption. Confirmation needs no AI key and makes no provider calls. No cancel route is implemented; unconfirmed actions expire.
+
+When no provider is configured or all fail, HTTP 200 returns exactly:
+`{"available":false,"message":"The assistant is unavailable right now. You can still do everything from the app."}`.
+Live provider calls and interactive Google OAuth remain deployment verification tasks; automated tests mock providers.
+
+For clients supporting remote HTTP MCP, use a token created in the desired workspace:
+
+```json
+{"mcpServers":{"groundwork":{"url":"https://<your-deployment>/api/mcp","headers":{"Authorization":"Bearer gw_..."}}}}
+```
+
+For stdio-only clients with `mcp-remote` available:
+
+```json
+{"mcpServers":{"groundwork":{"command":"npx","args":["-y","mcp-remote","https://<your-deployment>/api/mcp","--header","Authorization:${GROUNDWORK_AUTH}"],"env":{"GROUNDWORK_AUTH":"Bearer gw_..."}}}}
+```
+
+Keep the actual token in the client's private configuration/secret storage, never source control. An initialize request (set GROUNDWORK_TOKEN privately first):
+
+```sh
+curl 'https://<your-deployment>/api/mcp' \
+  -H "Authorization: Bearer $GROUNDWORK_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
+```
