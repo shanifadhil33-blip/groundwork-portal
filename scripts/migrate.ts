@@ -35,6 +35,8 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT EXECUTE ON FUNCTION app_user_id(),my_role(uuid),my_client(uuid),is_member(uuid),is_staff(uuid) TO ${role}`);
     await client.query(`GRANT SELECT,INSERT ON idempotency_keys TO ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION remove_member(uuid,uuid),visible_assignee(uuid,uuid),visible_user(uuid),create_workspace(text,text),accept_invite(text),delete_workspace(uuid) TO ${role}`);
+    await client.query(`GRANT SELECT,INSERT,UPDATE ON user_preferences TO ${role}`);
+    await client.query(`GRANT SELECT(id,name,email,image),UPDATE(name) ON users TO ${role}`);
     await client.query('COMMIT');
   } catch(error) { await client.query('ROLLBACK'); throw error; }
 }

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { withUser } from '../db';
 import { invalid } from '../http';
 import { allow, inWorkspace, name, replay, row, update } from './shared';
-const timezone = z.string().refine(value => { try { new Intl.DateTimeFormat('en',{timeZone:value}); return true; } catch { return false; } },'Choose a valid IANA timezone.');
+export const timezone = z.string().refine(value => { try { new Intl.DateTimeFormat('en',{timeZone:value}); return true; } catch { return false; } },'Choose a valid IANA timezone.');
 const schema=z.object({name,timezone:timezone.default('Asia/Dubai')}).strict();
 export async function me(user: string) {
  return withUser(user,async db=>({
@@ -16,7 +16,7 @@ export async function createWorkspace(user:string,body:unknown,key?:string) {
 }
 export async function getWorkspace(user:string,ws:string) { return inWorkspace(user,ws,c=>row(c,'workspaces',ws)); }
 export async function patchWorkspace(user:string,ws:string,body:unknown) {
- return inWorkspace(user,ws,async c=>{allow(c,['admin']);const data=z.object({name:name.optional(),timezone:timezone.optional()}).strict().parse(body);if(!Object.keys(data).length)throw invalid('Provide at least one change.');return update(c,'workspaces',ws,data);});
+ return inWorkspace(user,ws,async c=>{allow(c,['admin']);const data=z.object({name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional()}).strict().parse(body);if(!Object.keys(data).length)throw invalid('Provide at least one change.');return update(c,'workspaces',ws,data);});
 }
 export async function deleteWorkspace(user:string,ws:string,body:unknown) {
  return inWorkspace(user,ws,async c=>{

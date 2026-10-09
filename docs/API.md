@@ -149,3 +149,30 @@ A mismatch has `{cobalt_ref,work_order_id,cobalt_status,local_status,missing_eve
 Simulator source writes commit before signed in-process delivery, so delivery failures remain recoverable by repair. Placement/advance can succeed with `webhook_delivered:false` / `delivered:false` and a plain retry message; the source event remains durable. The outage flag blocks source reads and reconciliation with 503 `cobalt_unavailable`, message `Cobalt is unavailable right now. Try again.`; a failed check/repair persists a finished error sync run. Toggle the flag off to retry.
 
 Cron processes every workspace with supplier orders, including demos, checks then repairs each, and records separate `trigger="cron"` runs. One workspace failure is counted and does not prevent processing the others. `vercel.json` schedules the path daily at 03:00 UTC. Dashboard `last_supplier_sync_at` is the latest finished sync-run time (including failed runs), null before any run and always null for clients.
+
+## Audit, notifications, and settings (Batch 5)
+
+All paths below have the `/api` prefix and require a session. Unknown body/query keys and invalid values return 422. Cross-workspace access returns neutral 404.
+
+| Method | Path | Roles | Input | Response |
+|---|---|---|---|---|
+| GET | /workspaces/[ws]/audit | Admin: all; staff: own actor rows; client: 404 | `actor` UUID, `action`, `entity`, `entity_id` UUID, `from`, `to` ISO timestamps, `sort=newest\|oldest`, `page`, `pageSize`, `cursor` | `{data,total,page,pageSize,next_cursor}` |
+| GET | /workspaces/[ws]/audit/[id] | Same audit RLS | — | Audit item; hidden actor row gives 404 |
+| GET | /workspaces/[ws]/notifications | Any member, own notifications only | `unread=true\|false`, `page`, `pageSize`, `cursor` | `{data,total,unread_count,page,pageSize,next_cursor}` |
+| GET | /notifications/unread-count | Any signed-in user | — | `{unread_count,workspaces:[{workspace_id,unread_count}]}` across current memberships |
+| POST | /workspaces/[ws]/notifications/[id]/read | Recipient member | No body | `{id,read_at}`; repeated read preserves timestamp |
+| POST | /workspaces/[ws]/notifications/[id]/unread | Recipient member | No body | `{id,read_at:null}` |
+| POST | /workspaces/[ws]/notifications/read-all | Recipient member | No body | `{changed}`; repeat returns zero |
+| GET | /me/preferences | Any signed-in user | — | `{user_id,theme,email_notifications,timezone,updated_at}` |
+| PATCH | /me/preferences | Any signed-in user | Nonempty `{theme?,email_notifications?,timezone?}` | Updated preferences |
+| PATCH | /me | Any signed-in user | `{name}` trimmed, 1–80 characters | `{id,name,email,image}` |
+| GET | /workspaces/[ws]/settings | Any member | — | `{id,name,timezone}` |
+| PATCH | /workspaces/[ws]/settings | Admin; staff/client 403 | Nonempty `{name?,timezone?}` | Updated workspace |
+
+Audit items contain `id,at,actor,action,entity,entity_id,summary,before,after`. `actor` is `{id,name,email}` (identity fields may be null), or null for system operations. Snapshot redaction recursively removes token, secret, password, credential, authorization and API/private-key fields. Status summaries use human wording. Audit is read-only with no write routes or app INSERT/UPDATE/DELETE privilege. There is no stored result column, so `result` filtering is unsupported (422). Dates are inclusive; from must not exceed to.
+
+Both feeds default to newest first, page 1 and pageSize 25 (1–100). Total is after RLS and filters. Sort ties use id. Opaque cursors are scoped to user, workspace, filters, sort and pageSize; use the same query without `page`. As with work-order pagination, offsets may shift under concurrent writes. Notifications contain `id,kind,entity,entity_id,message,created_at,read_at,link_target`; the link is `{entity,id}` only when the referenced work order is still visible through RLS, otherwise null. Current event producers and the existing fixture use work-order targets. Another recipient's id or an id in another workspace gives 404. List `unread_count` counts all unread notifications in that workspace regardless of list filter; cross-workspace counts omit zero-count workspaces. Management never creates synthetic notifications.
+
+Preferences initialize on first GET/PATCH with theme `system`, email notifications enabled, timezone null. Theme accepts `light|dark|system`; timezone accepts a valid IANA name or null. Email preference is stored for future delivery; this backend sends no email. Personal preferences and profile changes are excluded from workspace audit because they have no workspace scope.
+
+Workspace settings reuse Batch 2's existing service, RLS and audit trigger. The original `/workspaces/[ws]` PATCH remains available with the same admin permission and now the same trimmed 1–80 character name limit. Workspace timezone is non-null and validated using Intl. Existing confirmed deletion at DELETE `/workspaces/[ws]` is reused without a second deletion route.
