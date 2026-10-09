@@ -37,6 +37,19 @@ export async function seed(client: PoolClient) {
    if(n<=18) for(const visibility of ['client','internal']) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id) VALUES($1,$2,$3,$4,$5,$6)',[ws,company,orderId(n),visibility==='client'?'We have received your request and are arranging access.':'Check stock and technician availability before scheduling.',visibility,actor]);
    if(n<=4) await client.query('INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,$3)',[ws,orderId(n),`COBALT-DEMO-${n}`]);
   }
+  // Simulated supplier, part of this repo: four matching source orders, with
+  // one delivered event deliberately absent from the portal receipt ledger.
+  await client.query('INSERT INTO cobalt_state(workspace_id,sequence) VALUES($1,6)',[ids.ridgeline]);
+  for(let n=1;n<=4;n++) {
+   const ref=`COBALT-DEMO-${n}`;
+   await client.query("INSERT INTO cobalt_orders(workspace_id,work_order_id,cobalt_ref,status) VALUES($1,$2,$3,$4)",[ids.ridgeline,orderId(n),ref,n===4?'delivered':'ordered']);
+   await client.query("INSERT INTO cobalt_events(workspace_id,cobalt_ref,event_id,sequence,status) VALUES($1,$2,$3,$4,'ordered')",[ids.ridgeline,ref,`demo-ordered-${n}`,n]);
+   await client.query("INSERT INTO supplier_events(workspace_id,cobalt_ref,event_id,sequence,status,received_via) VALUES($1,$2,$3,$4,'ordered','webhook')",[ids.ridgeline,ref,`demo-ordered-${n}`,n]);
+   await client.query('UPDATE supplier_orders SET last_sequence=$3 WHERE workspace_id=$1 AND cobalt_ref=$2',[ids.ridgeline,ref,n]);
+  }
+  await client.query("INSERT INTO cobalt_events(workspace_id,cobalt_ref,event_id,sequence,status,dropped) VALUES($1,'COBALT-DEMO-4','demo-shipped-4',5,'shipped',false),($1,'COBALT-DEMO-4','demo-delivered-4',6,'delivered',true)",[ids.ridgeline]);
+  await client.query("INSERT INTO supplier_events(workspace_id,cobalt_ref,event_id,sequence,status,received_via) VALUES($1,'COBALT-DEMO-4','demo-shipped-4',5,'shipped','webhook')",[ids.ridgeline]);
+  await client.query("UPDATE supplier_orders SET local_status='shipped',last_sequence=5 WHERE workspace_id=$1 AND cobalt_ref='COBALT-DEMO-4'",[ids.ridgeline]);
   await client.query('INSERT INTO notifications(user_id,workspace_id,kind,entity_id) VALUES($1,$2,$3,$4)',[ids.priya,ids.ridgeline,'request_created',orderId(1)]);
   await client.query('COMMIT');
  } catch(error) { await client.query('ROLLBACK'); throw error; }

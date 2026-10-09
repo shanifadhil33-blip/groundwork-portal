@@ -289,7 +289,7 @@ describe('transaction and lifecycle edge cases',()=>{
    await db.query("INSERT INTO import_rows(workspace_id,import_id,row_number,data,work_order_id,queued) VALUES($1,$2,1,'{}',$3,true)",[ws,imp.id,order.body.id]);
   });
   const dashboard=await call(dashboardRoute.GET,'GET',undefined,{ws});
-  expect(dashboard.body.pending_queue_rows).toBe(1);expect(dashboard.body.last_supplier_sync_at).toBeTruthy();
+  expect(dashboard.body.pending_queue_rows).toBe(1);expect(dashboard.body.last_supplier_sync_at).toBeNull();
   expect((await call(orderRoute.PATCH,'PATCH',{status:'scheduled',assignee_id:ids.dana,updated_at:order.body.updated_at},{ws,id:order.body.id})).status).toBe(200);
   expect((await call(workspaceRoute.DELETE,'DELETE',{confirm_name:workspace.name},{ws})).status).toBe(200);
   const audit=await withSystem(async db=>(await db.query("SELECT action FROM audit_log WHERE workspace_id=$1 AND entity='workspaces'",[ws])).rows);

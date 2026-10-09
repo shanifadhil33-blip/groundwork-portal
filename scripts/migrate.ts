@@ -30,7 +30,7 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT USAGE ON SCHEMA public TO ${role}`);
     await client.query(`REVOKE ALL ON ALL TABLES IN SCHEMA public FROM ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON workspaces,members,clients,sites,work_orders,comments,invites,imports,import_rows,supplier_orders,supplier_events TO ${role}`);
-    await client.query(`GRANT SELECT ON audit_log,work_order_events,notifications TO ${role}`);
+    await client.query(`GRANT SELECT ON cobalt_state,cobalt_orders,cobalt_events,supplier_sync_runs,audit_log,work_order_events,notifications TO ${role}`);
     await client.query(`GRANT UPDATE(read_at) ON notifications TO ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION app_user_id(),my_role(uuid),my_client(uuid),is_member(uuid),is_staff(uuid) TO ${role}`);
     await client.query(`GRANT SELECT,INSERT ON idempotency_keys TO ${role}`);

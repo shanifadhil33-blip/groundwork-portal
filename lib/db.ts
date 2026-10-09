@@ -2,7 +2,7 @@ import { Pool, type PoolClient } from 'pg';
 import { requiredEnv } from './env';
 const testing = process.env.NODE_ENV === 'test';
 export const appPool = new Pool({ connectionString: requiredEnv(testing ? 'TEST_DATABASE_URL' : 'DATABASE_URL'), max: 10 });
-// Owner access is reserved for auth, migrations/seed, and future documented system jobs.
+// Owner access is reserved for auth, migrations/seed, signed Cobalt ingest, authorized simulator/sync operations, and cron.
 export const ownerPool = new Pool({ connectionString: requiredEnv(testing ? 'TEST_DATABASE_URL_OWNER' : 'DATABASE_URL_OWNER'), max: 5 });
 async function transaction<T>(pool: Pool, userId: string | null, fn: (client: PoolClient) => Promise<T>): Promise<T> {
   const client = await pool.connect();
