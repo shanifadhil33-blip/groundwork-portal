@@ -1,4 +1,4 @@
-# Groundwork API — Milestone 2
+# Groundwork API — Milestone 3
 
 Backend only. JSON bodies and query parameters are validated with Zod. Auth.js v5 Google sign-in uses database sessions and the owner-only pg adapter. Tenant operations use the non-owner app role inside `withUser`. Signing in never accepts an invite automatically. Tests inject identity through `setAuthResolverForTests`, which throws outside `NODE_ENV=test`; there is no auth header bypass.
 
@@ -71,7 +71,7 @@ Invite tokens expire seven days after creation. Only their SHA-256 hash is store
 
 Acceptance requires a signed-in email matching case-insensitively. Wrong email and unknown token return neutral 404. Expired/revoked tokens give 409. Accepted-token reuse by the same user returns the original successful acceptance; another user cannot reuse it. An existing workspace member cannot replace their role through an invite (409). Capability functions perform these operations with explicit caller/token checks, without granting the app general owner access.
 
-All POST create routes and invite acceptance support an optional `Idempotency-Key` header (1–200 characters). A key is scoped to the authenticated user and operation/path. Same key and parsed input return the original result with the original success status; a changed body gives 409. Advisory locking prevents concurrent duplicates. RLS isolates stored results by user, and the result and business write commit atomically. Failed writes roll back the key. Keys currently have no expiry. Revocation is state-idempotent and does not create records.
+Core POST create routes (workspaces, clients, sites, invites, work orders, comments) and invite acceptance support an optional `Idempotency-Key` header (1–200 characters). A key is scoped to the authenticated user and operation/path. Same key and parsed input return the original result with the original success status; a changed body gives 409. Advisory locking prevents concurrent duplicates. RLS isolates stored results by user, and the result and business write commit atomically. Failed writes roll back the key. Keys currently have no expiry. Revocation is state-idempotent and does not create records.
 
 ## Errors
 
@@ -87,3 +87,38 @@ Uniform JSON: `{error:{code,message,fields?}}`. No raw database/provider message
 | 500 | Unexpected failure | Something went wrong on our side. Your changes weren't saved. Try again. |
 
 Priya PATCH on her own work order returns **403**. PATCH on a Northgate order returns **404**, as do all cross-workspace record requests.
+
+## Spreadsheet imports and approval queue
+
+All import/queue routes require staff or admin. Client members consistently receive **404**, including list/upload routes; other workspace users also receive neutral 404. Authentication is required first. `[rowId]` is a UUID. Writes use the existing audit triggers and tenant transaction context.
+
+| Method | Path | Allowed roles | Body / query | Successful response |
+|---|---|---|---|---|
+| POST | /workspaces/[ws]/imports | Admin, staff | Multipart `file` (CSV/XLSX), or JSON `{sample:true}`; `force=true` optional | 200 `{id,status,headers,mapping,row_count}` |
+| GET | /workspaces/[ws]/imports | Admin, staff | — | 200 import array, newest first |
+| GET | /workspaces/[ws]/imports/[id] | Admin, staff | — | 200 import metadata, `counts`, `result_summary` |
+| POST | /workspaces/[ws]/imports/[id]/mapping | Admin, staff | `{mapping:{title,description?,client?,site?,priority?,scheduled_for?,external_ref?}}`, values are detected headers | 200 import summary plus `rows:{data,total,page,pageSize}` |
+| GET | /workspaces/[ws]/imports/[id]/rows | Admin, staff | `status=valid|warning|error`, `decision=pending|approved|rejected`, `page` | 200 `{data,total,page,pageSize}` |
+| GET | /workspaces/[ws]/imports/[id]/error-report | Admin, staff | — | 200 `text/csv` attachment; error rows, mapped columns and `reason` |
+| POST | /workspaces/[ws]/imports/[id]/queue | Admin, staff | — | 200 summary and `excluded:[{id,row_number,errors}]` |
+| GET | /workspaces/[ws]/queue | Admin, staff | Same row filters and `page` | 200 pending queued rows across imports, `{data,total,page,pageSize}` |
+| POST | /workspaces/[ws]/queue/[rowId]/approve | Admin, staff | `{edits?}`, mapped field names with string values | 200 created work order, or original work order on replay |
+| POST | /workspaces/[ws]/queue/[rowId]/reject | Admin, staff | `{reason}` (nonblank, at most 2,000 characters) | 200 rejected row and ISO `undo_until` |
+| POST | /workspaces/[ws]/queue/[rowId]/undo | Admin, staff | — | 200 row returned to pending; expired/inapplicable undo gives 409 |
+| POST | /workspaces/[ws]/queue/bulk-approve | Admin, staff | `{row_ids:[uuid,...]}` (1–500) | 200 `{data:[work_order,...],created}`; staff over 25 gives 403 |
+| POST | /workspaces/[ws]/imports/[id]/draft-summaries | Admin, staff | — | 200 `{available:true,stored,suggestion:true}` or unavailable response below |
+| GET | /ai-health | Any signed-in user | — | 200 `{providers:[{provider,status:"ok"|"error"}]}`; one entry per configured Gemini model/Groq provider |
+
+CSV and XLSX use SheetJS CE 0.20.3. The first sheet contains unique, nonempty headers and at most 500 nonblank data rows; file content must be at most 2 MiB (displayed as “2 MB”). Limit/format errors are 422 and name the file and applicable limit. UTF-8 CSV is supported. Header guessing uses normalized aliases and substring matching; reviewers can replace the mapping. Header-only files are accepted. The bundled fictional sample has 40 data rows: 37 eligible, one unknown site, one invalid date, and one duplicate of a seeded open work order. Reject two eligible rows and approve 35 to get `result_summary:"35 created, 2 rejected"`.
+
+The SHA-256 content hash is scoped to workspace. Re-upload returns 409 `already_imported`, message `You already imported this file on <date>.`, and the existing id in `error.fields.import_id[0]`. `?force=true` creates a fresh import. The dedupe check is serialized against concurrent uploads. Imports use their own content/state idempotency rather than `Idempotency-Key`.
+
+States: `uploaded` → `mapped` → `queued` → `completed`. Remapping is allowed before queueing and replaces the validation rows atomically; it gives 409 after queueing. Rows store normalized `data`, `errors` and `warnings` (each a list of `{field,code,message}`), and `status=valid|warning|error`. Titles are required, trimmed and at most 200 characters. Site names/addresses and supplied client names match case-insensitively within the workspace; ambiguous or mismatched sites are errors. Blank client means derive the client from the site. Blank priority becomes normal; unknown priority becomes normal with a warning. Dates accept `YYYY-MM-DD`, `M/D/YYYY` (two-digit years interpreted as 20xx), or explicit ISO timestamps with offsets. Date-only values mean midnight in the workspace timezone; impossible dates are errors.
+
+Within-file duplicates use site plus whitespace-normalized lowercase title, and the later row gets `Duplicate of row N`. Open-order duplicates use the same site/title or the same nonblank external reference in the workspace; done/cancelled orders do not block. The error says `Already open as work order <title>`. Row numbers start at 1 for the first data row.
+
+Queueing is idempotent: only valid/warning rows get `queued=true`; errors are excluded, remain undecided, and never appear in the queue. Rows initially have `decision=pending`, even before queueing; summary `counts.pending` counts only queued pending rows. Other counts are `valid,warning,error,approved,rejected`. Pagination defaults to page 1, 50 rows per page. Rows with AI fields carry `ai_is_suggestion:true`; AI never changes the mapped priority or summary/title automatically. Dashboard pending counts include only queued pending rows.
+
+Approval validates edits with the same rules and rechecks live work-order duplicates. Workspace advisory locking and row locking serialize concurrent approvals, and the work order plus decision/link commit atomically. Approved replay returns the linked original order; it never creates a second order. Orders have `source="import"`. Bulk approval is atomic: any invalid/inaccessible row rolls back the entire batch. Duplicate ids in an allowed batch are processed once; `created` is the number of unique returned work orders, including replayed approvals. Rejected and unqueued rows cannot be approved (409). Undo is available for ten minutes, including after import completion; it reopens the queue. Completion occurs when no queued pending rows remain, including imports with only errors.
+
+AI drafts process the next at most 25 pending queued rows without summaries per call. The provider chain tries Gemini `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-2.5-flash-lite`, then Groq `openai/gpt-oss-120b`. Missing keys are skipped; errors/timeouts, invalid JSON and unavailable models fall through. Requests use a ten-second timeout and approximately 2,000 output tokens. Zod accepts only known row ids, summaries at most 140 characters, and valid priority values; invalid items are ignored. AI runs outside the tenant transaction; storage rechecks pending state and tenant scope. No raw provider response, exception or key is exposed. When unavailable, HTTP 200 returns `{available:false,message:"AI summaries are unavailable right now. You can still review and approve rows."}` and review/approval continue normally. Health pings configured endpoints with a minimal prompt; no configured keys yields an empty provider list. Live provider availability is optional and is not needed for tests or approval.

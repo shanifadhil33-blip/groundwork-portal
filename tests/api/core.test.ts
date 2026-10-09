@@ -286,7 +286,7 @@ describe('transaction and lifecycle edge cases',()=>{
    await db.query("INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,'TEST-DELETE')",[ws,order.body.id]);
    await db.query("INSERT INTO supplier_events(workspace_id,cobalt_ref,event_id,status,received_via) VALUES($1,'TEST-DELETE','DELETE-EVENT','shipped','webhook')",[ws]);
    const imp=(await db.query("INSERT INTO imports(workspace_id,filename,row_count,created_by) VALUES($1,'test.csv',1,$2) RETURNING id",[ws,ids.dana])).rows[0];
-   await db.query("INSERT INTO import_rows(workspace_id,import_id,row_number,data,work_order_id) VALUES($1,$2,1,'{}',$3)",[ws,imp.id,order.body.id]);
+   await db.query("INSERT INTO import_rows(workspace_id,import_id,row_number,data,work_order_id,queued) VALUES($1,$2,1,'{}',$3,true)",[ws,imp.id,order.body.id]);
   });
   const dashboard=await call(dashboardRoute.GET,'GET',undefined,{ws});
   expect(dashboard.body.pending_queue_rows).toBe(1);expect(dashboard.body.last_supplier_sync_at).toBeTruthy();

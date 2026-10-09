@@ -32,7 +32,7 @@ export async function dashboard(user:string,ws:string) {
   const by_status=Object.fromEntries(['open','scheduled','in_progress','waiting_on_parts','done','cancelled'].map(s=>[s,0]));
   for(const item of counts)by_status[item.status]=item.count;
   const overdue=(await c.db.query("SELECT count(*)::int AS count FROM work_orders WHERE workspace_id=$1 AND scheduled_for<now() AND status NOT IN ('done','cancelled')",[ws])).rows[0].count;
-  const pending_queue_rows=(await c.db.query("SELECT count(*)::int AS count FROM import_rows WHERE workspace_id=$1 AND decision='pending'",[ws])).rows[0].count;
+  const pending_queue_rows=(await c.db.query("SELECT count(*)::int AS count FROM import_rows WHERE workspace_id=$1 AND queued AND decision='pending'",[ws])).rows[0].count;
   const last_supplier_sync_at=(await c.db.query('SELECT max(created_at) AS at FROM supplier_events WHERE workspace_id=$1',[ws])).rows[0].at;
   return {by_status,overdue,waiting_on_parts:by_status.waiting_on_parts,pending_queue_rows,last_supplier_sync_at};
  });
