@@ -186,7 +186,7 @@ All demo names/data are fictional. Demo entry is public and requires no Google s
 | POST | /demo/start | Public | `{persona:"dana"|"sam"|"priya"|"omar"}` | 201 `{workspace_id,persona,expires_at}` plus session cookie |
 | POST | /demo/switch | Current live demo session | Same persona body | 200 same sandbox id and deadline, chosen persona, replacement session cookie |
 | POST | /demo/reset | Current live demo session | `{confirm:true}` | 200 replacement sandbox id, preserved persona, new 24-hour deadline and session cookie |
-| GET | /demo/isolation-check | Current live demo session | — | 200 `{role,client,query,params,row_count,cross_workspace,explanation?}` |
+| GET | /demo/isolation-check | Current live demo session | — | 200 `{database_role,role,client,query,params,row_count,cross_workspace,explanation?}` |
 | GET, POST | /cron/demo-cleanup | Bearer CRON_SECRET | — | 200 `{workspaces,users,sessions}` deleted counts |
 | GET | /workspaces | Signed in | — | 200 accessible workspace array, ordered by name; real accounts never list demo sandboxes |
 
@@ -267,3 +267,5 @@ curl 'https://<your-deployment>/api/mcp' \
   -H 'Accept: application/json, text/event-stream' \
   --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
 ```
+
+Client request form lookup: `GET /api/workspaces/[ws]/request-sites` is client-only and returns `{id,client_id,name,address}[]` for the current membership’s company, ordered by name/id under app-role RLS. Provider roles receive 403; missing workspace membership receives neutral 404. Isolation evidence also includes `database_role`, read with `current_user` on the same non-owner connection that ran the evidence query.

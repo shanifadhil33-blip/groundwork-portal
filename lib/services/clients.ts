@@ -30,3 +30,8 @@ export async function patchSite(user:string,ws:string,id:string,body:unknown) {
 export async function deleteSite(user:string,ws:string,id:string) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'sites',id);await c.db.query('DELETE FROM sites WHERE workspace_id=$1 AND id=$2',[ws,id]);return {deleted:true};});
 }
+
+// A narrow client form lookup; RLS and membership scope every returned site.
+export async function requestSites(user:string,ws:string) {
+ return inWorkspace(user,ws,async c=>{allow(c,['client']);return (await c.db.query('SELECT id,client_id,name,address FROM sites WHERE workspace_id=$1 AND client_id=$2 ORDER BY name,id',[ws,c.client_id])).rows;});
+}

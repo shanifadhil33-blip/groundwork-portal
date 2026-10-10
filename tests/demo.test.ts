@@ -55,7 +55,7 @@ it('reset requires confirm, replaces fixture mutations, keeps persona and extend
  expect(new Date(result.body.expires_at).getTime()-Date.now()).toBeGreaterThan(23*3600000);expect((await call(isolation.GET,undefined,result.cookie)).body.role).toBe('staff');
 });
 it('Priya isolation evidence uses real app role and Northgate exists; staff see all clients but zero cross-workspace rows',async()=>{
- const a=await sandbox('priya');const result=await call(isolation.GET,undefined,a.cookie);expect(result.status).toBe(200);expect(result.body).toMatchObject({role:'client',client:'Harbor & Pine Coworking',row_count:0,cross_workspace:{row_count:0}});
+ const a=await sandbox('priya');const result=await call(isolation.GET,undefined,a.cookie);expect(result.status).toBe(200);expect(result.body.database_role).toEqual(expect.any(String));expect(result.body.database_role).not.toBe('postgres');expect(result.body).toMatchObject({role:'client',client:'Harbor & Pine Coworking',row_count:0,cross_workspace:{row_count:0}});
  expect(result.body.query).toContain('$2');expect(result.body.params).toHaveLength(2);
  expect(await withSystem(async db=>(await db.query(result.body.query,result.body.params)).rowCount)).toBe(24);
  expect(await withUser(await identity(a.cookie),async db=>(await db.query('SELECT current_user AS role')).rows[0].role)).toBe(process.env.APP_DB_ROLE??'portal_app');

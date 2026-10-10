@@ -1,3 +1,6 @@
+
+'use client';
 import Link from 'next/link';
-import { BackLink } from '../public/chrome';
-export function NoAccess() { return <div className="not-found"><BackLink /><h1>This page is unavailable.</h1><p>We couldn’t find that, or you don’t have access.</p><Link href="/dashboard" className="link-button secondary">Go to your home</Link></div>; }
+import { useContext } from 'react';
+import { AppContext } from './context';
+export function NoAccess() { const member=useContext(AppContext)?.member;const home=member?.role==='client'?'/home':'/dashboard';return <div className="page stack"><Link className="back-link" href={home}>← Home</Link><h1>This page is unavailable.</h1><p>We couldn’t find that, or you don’t have access.</p><Link href={home} className="button secondary">Go to your home</Link></div>; }

@@ -73,6 +73,7 @@ export async function isolationCheck(user:string){
  const params=[m.workspace_id,northgate];const row_count=(await db.query(query,params)).rowCount??0;
  const other=await withSystem(async owner=>(await owner.query('SELECT id FROM workspaces WHERE id<>$1 ORDER BY id LIMIT 1',[m.workspace_id])).rows[0]?.id??randomUUID());
  const crossQuery='SELECT id FROM work_orders WHERE workspace_id=$1';
- return {role:m.role,client,query,params,row_count,...(m.role==='client'?{}:{explanation:'Staff and admins can see all clients in their sandbox.'}),cross_workspace:{query:crossQuery,params:[other],row_count:(await db.query(crossQuery,[other])).rowCount??0}};
+ const database_role=(await db.query('SELECT current_user AS name')).rows[0].name;
+ return {database_role,role:m.role,client,query,params,row_count,...(m.role==='client'?{}:{explanation:'Staff and admins can see all clients in their sandbox.'}),cross_workspace:{query:crossQuery,params:[other],row_count:(await db.query(crossQuery,[other])).rowCount??0}};
  });
 }
