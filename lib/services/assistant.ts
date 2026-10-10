@@ -5,7 +5,7 @@ import { ApiError,missing } from '../http';
 import { inWorkspace,uuid } from './shared';
 import { getWorkOrder } from './work-orders';
 import { tools,callTool,type AgentContext } from '../agent/tools';
-export const assistantUnavailable={available:false,message:'The assistant is unavailable right now. You can still do everything from the app.'};
+export const assistantUnavailable={available:false,message:'The assistant is unavailable right now. Everything else works as normal.'};
 const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant']),content:z.string().min(1).max(20000)}).strict()).max(30),confirm_action_id:uuid.optional()}).strict();
 export async function assistant(user:string,ws:string,body:unknown) {
  const d=schema.parse(body),c:AgentContext={user,ws,scope:'write',kind:'assistant'};
@@ -26,17 +26,24 @@ export async function assistant(user:string,ws:string,body:unknown) {
  for(let i=0;i<4;i++){
   const turn=await assistantTurn(history,declarations);if(!turn)return assistantUnavailable;
   if(!turn.calls.length)return {available:true,reply:turn.text??'How can I help?'};
-  for(const call of turn.calls.slice(0,8)){
-   const t=tools[call.name];
-   if(t?.write){
-    const args=t.schema.parse(call.args);
+  history.push(...turn.calls.map(call=>({role:'call' as const,...call,raw:turn.raw})));
+  for(const [index,call] of turn.calls.entries()){
+   const t=Object.hasOwn(tools,call.name)?tools[call.name]:undefined;
+   if(index>=8){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Tool limit reached for this turn.'}]},id:call.id});continue;}
+   const parsed=t?.schema.safeParse(call.args);
+   if(!t||!parsed?.success){
+    history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:!t?'Unknown tool.':'Invalid tool arguments. Please check the tool schema.'}]},id:call.id});
+    continue;
+   }
+   if(t.write){
+    const args=parsed.data;
     const order=call.name==='update_work_order_status'||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
     const summary=call.name==='create_request'?`Create request '${(args as any).title}'`:call.name==='update_work_order_status'?`Change status of '${order.title}' to ${(args as any).status.replaceAll('_',' ')}`:call.name==='add_comment'?`Add a ${(args as any).visibility} comment to '${order.title}'`:call.name==='approve_queue_row'?`Approve queue row ${(args as any).row_id}`:`Reject queue row ${(args as any).row_id}`;
     const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args) VALUES($1,$2,$3,$4) RETURNING id',[ws,user,call.name,JSON.stringify(args)])).rows[0].id);
     return {available:true,reply:'Please confirm this action before I make the change.',pending_action:{id,tool:call.name,args,summary}};
    }
    const result=await callTool(c,call.name,call.args);
-   history.push({role:'call',name:call.name,args:call.args,id:call.id},{role:'result',name:call.name,result,id:call.id});
+   history.push({role:'result',name:call.name,result,id:call.id});
   }
  }
  return {available:true,reply:'I reached the tool limit. Please ask a more specific question.'};
