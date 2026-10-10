@@ -1,3 +1,4 @@
+import { activitySentence } from '../ui/polish';
 import { z } from 'zod';
 import { missing, invalid } from '../http';
 import { inWorkspace, uuid } from './shared';
@@ -7,11 +8,11 @@ export function redact(value:unknown):unknown {
  if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).filter(([key])=>!/(token|secret|password|credential|authorization|api[_-]?key|private[_-]?key)/i.test(key)).map(([key,v])=>[key,redact(v)]));return value;
 }
 function item(r:Record<string,any>) {
- const before=redact(r.before),after=redact(r.after);
- const summary=r.before?.status!==r.after?.status&&r.before?.status&&r.after?.status?`Status changed from ${r.before.status.replaceAll('_',' ')} to ${r.after.status.replaceAll('_',' ')}`:`${r.entity.replaceAll('_',' ')} ${r.action==='insert'?'created':r.action==='delete'?'deleted':'updated'}`;
+ const before=redact(r.before?{...r.before,...('assignee_id' in r.before?{assignee_name:r.before_assignee_name??null}:{})}:null),after=redact(r.after?{...r.after,...('assignee_id' in r.after?{assignee_name:r.after_assignee_name??null}:{})}:null);
+ const summary=activitySentence({...r,before,after,entity:r.entity,action:r.action});
  return {actor_kind:r.actor_kind,via_token_id:r.via_token_id,via_token_name:r.via_token_name,id:r.id,at:new Date(r.at).toISOString(),actor:r.actor_id?{id:r.actor_id,name:r.actor_name??null,email:r.actor_email??null}:null,action:r.action,entity:r.entity,entity_id:r.entity_id,summary,before,after};
 }
-const select='SELECT a.*,u.name AS actor_name,u.email AS actor_email FROM audit_log a LEFT JOIN LATERAL visible_user(a.actor_id) u ON true';
+const select=`SELECT a.*,u.name AS actor_name,u.email AS actor_email,w.title AS work_order_title,bu.name AS before_assignee_name,au.name AS after_assignee_name FROM audit_log a LEFT JOIN LATERAL visible_user(a.actor_id) u ON true LEFT JOIN work_orders w ON w.workspace_id=a.workspace_id AND w.id=CASE WHEN a.entity='work_orders' THEN a.entity_id ELSE nullif(coalesce(a.after->>'work_order_id',a.before->>'work_order_id'),'')::uuid END LEFT JOIN LATERAL visible_user(nullif(a.before->>'assignee_id','')::uuid) bu ON true LEFT JOIN LATERAL visible_user(nullif(a.after->>'assignee_id','')::uuid) au ON true`;
 export async function listAudit(user:string,ws:string,params:URLSearchParams) {
  return inWorkspace(user,ws,async c=>{
   if(c.role==='client')throw missing();

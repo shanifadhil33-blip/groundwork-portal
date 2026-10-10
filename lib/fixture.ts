@@ -10,11 +10,18 @@ export const ids = {
 export const siteId = (n: number) => `40000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 export const orderId = (n: number) => `50000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 
+// Preserve the early lifecycle examples and Northgate pagination fixtures.
+export function fixtureStatus(n:number) {
+ if([13,37,43,12].includes(n))return 'in_progress';
+ if([8,14,20,26,32,10,16,22,28,34,40,46,18,24,30,36,42,48,54].includes(n))return 'done';
+ return ['open','scheduled','in_progress','waiting_on_parts','done','cancelled'][(n-1)%6];
+}
+
 type FixtureIds=typeof ids;
 export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n:number)=>string,orderId:(n:number)=>string,demo=false) {
- const prefix=demo?ids.ridgeline+':':'';
+ const prefix=demo?ids.ridgeline+':':''; // Supplier references and event IDs stay unique across sandboxes.
   for (const [id,name] of ([[ids.dana,'Dana'],[ids.sam,'Sam'],[ids.priya,'Priya'],[ids.omar,'Omar'],...(demo?[]:[[ids.summitAdmin,'Alex']])])) {
-   await client.query('INSERT INTO users(id,name,email,is_demo,demo_workspace_id,demo_persona) VALUES($1,$2,$3,$4,$5,$6)',[id,name,demo?`${name.toLowerCase()}.${ids.ridgeline}@demo.groundwork.invalid`:`${name.toLowerCase()}@${name==='Alex'?'summit':'ridgeline'}.example`,demo,demo?ids.ridgeline:null,demo?name.toLowerCase():null]);
+   await client.query('INSERT INTO users(id,name,email,is_demo,demo_workspace_id,demo_persona) VALUES($1,$2,$3,$4,$5,$6)',[id,name,demo?`${name.toLowerCase()}.${ids.ridgeline}@demo.groundwork.invalid`:`${name.toLowerCase()}@${name==='Alex'?'summit':'ridgeline'}.demo`,demo,demo?ids.ridgeline:null,demo?name.toLowerCase():null]);
   }
   await client.query("SELECT set_config('app.user_id',$1,true)",[ids.dana]);
   if(!demo) await client.query('INSERT INTO workspaces(id,name,is_demo) VALUES($1,$2,false),($3,$4,false)',[ids.ridgeline,'Ridgeline Facility Services',ids.summit,'Summit Property Care']);
@@ -23,17 +30,16 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   const names=['Marina Exchange','Pine Terrace','Harbor Annex','Northgate East','Northgate West','Larkspur Loft','Juniper Court'];
   for (let n=1;n<=(demo?6:7);n++) await client.query('INSERT INTO sites(id,workspace_id,client_id,name,address) VALUES($1,$2,$3,$4,$5)',[siteId(n),n===7?ids.summit:ids.ridgeline,n<=3?ids.harbor:n<=5?ids.northgate:n===6?ids.larkspur:ids.summitClient,names[n-1],`${n*12} Example Avenue, Suite ${n}`]);
   const tasks=['Replace lobby light fixture','Service rooftop ventilation','Repair entry door closer','Inspect emergency lighting','Seal loading bay threshold','Replace washroom tap','Adjust meeting room cooling','Repair stairwell handrail','Clear courtyard drainage','Test access control reader','Replace corridor ceiling tile','Service water pump'];
-  const statuses=['open','scheduled','in_progress','waiting_on_parts','done','cancelled'];
   const priorities=['low','normal','high','urgent'];
   for(let n=1;n<=(demo?60:66);n++) {
    const summit=n>60; const site=summit?7:((n-1)%5)+1;
    const ws=summit?ids.summit:ids.ridgeline; const company=summit?ids.summitClient:site<=3?ids.harbor:ids.northgate; const actor=summit?ids.summitAdmin:n%3===0?ids.sam:ids.dana;
    await client.query("SELECT set_config('app.user_id',$1,true)",[actor]);
-   await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$12)',[orderId(n),ws,company,siteId(site),`${tasks[(n-1)%tasks.length]} — ${names[site-1]} / ${n}`,`Routine facilities request ${n}; coordinate access with the site manager.`,statuses[(n-1)%6],priorities[Math.floor((n-1)/6)%4],summit?ids.summitAdmin:ids.sam,new Date(Date.now()+(n-30)*86400000),actor,new Date(Date.now()-(70-n)*86400000)]);
-   if(n<=18) for(const visibility of ['client','internal']) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id) VALUES($1,$2,$3,$4,$5,$6)',[ws,company,orderId(n),visibility==='client'?'We have received your request and are arranging access.':'Check stock and technician availability before scheduling.',visibility,actor]);
+   await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$12)',[orderId(n),ws,company,siteId(site),`${tasks[(n-1)%tasks.length]} — ${names[site-1]} / ${n}`,`Routine facilities request ${n}; coordinate access with the site manager.`,fixtureStatus(n),priorities[Math.floor((n-1)/6)%4],summit?ids.summitAdmin:ids.sam,new Date(Date.now()+(n-30)*86400000),actor,new Date(Date.now()-(70-n)*86400000)]);
+   if(n<=18) for(const visibility of ['client','internal']) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,company,orderId(n),visibility==='client'?'We have received your request and are arranging access.':'Check stock and technician availability before scheduling.',visibility,actor,new Date(Date.now()-n*n*137000)]);
    if(n<=4) await client.query('INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,$3)',[ws,orderId(n),`${prefix}COBALT-DEMO-${n}`]);
   }
-  // Simulated supplier, part of this repo: four matching source orders, with
+  // Simulated supplier, part of this portfolio demo: four matching source orders, with
   // one delivered event deliberately absent from the portal receipt ledger.
   await client.query('INSERT INTO cobalt_state(workspace_id,sequence) VALUES($1,6)',[ids.ridgeline]);
   for(let n=1;n<=4;n++) {
@@ -53,4 +59,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
  await client.query("INSERT INTO import_rows(workspace_id,import_id,row_number,data,queued) VALUES($1,$2,1,$3,true)",[ids.ridgeline,imp,JSON.stringify({title:'Inspect reception lighting',site_id:siteId(1),client_id:ids.harbor,priority:'normal',description:'Sample request',scheduled_for:null})]);
  for(const user of [ids.sam,ids.omar])await client.query("INSERT INTO notifications(user_id,workspace_id,kind,entity_id) VALUES($1,$2,'request_created',$3)",[user,ids.ridgeline,orderId(user===ids.sam?1:4)]);
  }
+ // Spread generated activity over minutes, hours and days without changing row counts.
+ for(const [table,column] of [['work_order_events','created_at'],['notifications','created_at'],['audit_log','at']]) await client.query(`WITH spread AS (SELECT id,row_number() OVER (ORDER BY id) AS n FROM ${table} WHERE workspace_id=$1) UPDATE ${table} t SET ${column}=clock_timestamp()-((s.n*s.n*137)::text||' seconds')::interval FROM spread s WHERE t.id=s.id`,[ids.ridgeline]);
+
 }
