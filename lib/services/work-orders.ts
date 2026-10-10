@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ApiError, invalid } from '../http';
+import { ApiError, invalid, missing } from '../http';
 import { parseListQuery } from '../pagination';
 import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, update, uuid } from './shared';
 const timestamp=z.iso.datetime({offset:true});
@@ -90,5 +90,16 @@ export async function createComment(user:string,ws:string,id:string,body:unknown
   const data=z.object({body:z.string().trim().min(1).max(20000),visibility:z.enum(['client','internal'])}).strict().parse(body);
   if(c.role==='client' && data.visibility!=='client')throw invalid('Client comments must be client-visible.','visibility');
   return replay(c.db,user,ws+'/work-orders/'+id+'/comments',key,data,()=>insert(c,'comments',{...data,workspace_id:ws,client_id:order.client_id,work_order_id:id,author_id:user}));
+ });
+}
+
+// Existing order labels use either WO-<number> or the fixture's trailing / <number>.
+export async function getWorkOrderByNumber(user:string,ws:string,number:number) {
+ z.number().int().positive().parse(number);
+ return inWorkspace(user,ws,async c=>{
+  const rows=(await c.db.query("SELECT id FROM work_orders WHERE workspace_id=$1 AND (title ~* $2 OR title ~ $3) LIMIT 2",[ws,`\\mWO-${number}\\M`,`/\\s*${number}\\s*$`])).rows;
+  if(!rows.length)throw missing();
+  if(rows.length>1)throw invalid('More than one work order has this number. Search by title.');
+  return getWorkOrder(user,ws,rows[0].id);
  });
 }

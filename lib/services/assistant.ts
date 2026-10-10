@@ -23,7 +23,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
  const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema)}));
  const history:AssistantMessage[]=[...d.messages];
  if(!history.length)history.push({role:'user',content:'Help me with my workspace.'});
- for(let i=0;i<4;i++){
+ for(let i=0;i<10;i++){
   const turn=await assistantTurn(history,declarations);if(!turn)return assistantUnavailable;
   if(!turn.calls.length)return {available:true,reply:turn.text??'How can I help?'};
   history.push(...turn.calls.map(call=>({role:'call' as const,...call,raw:turn.raw})));

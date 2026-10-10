@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { asAgent } from '../db';
 import { ApiError,errorResponse } from '../http';
 import { inWorkspace,priority,status,uuid } from '../services/shared';
-import { createWorkOrder,createComment,getWorkOrder,listWorkOrders,patchWorkOrder } from '../services/work-orders';
+import { createWorkOrder,createComment,getWorkOrder,getWorkOrderByNumber,listWorkOrders,patchWorkOrder } from '../services/work-orders';
 import { approveRow,rejectRow,listQueue } from '../services/imports';
 import { dashboard } from '../services/workspaces';
 export type AgentContext={user:string;ws:string;scope:'read'|'write';kind:'agent'|'assistant';tokenId?:string};
@@ -10,6 +10,7 @@ type Tool={description:string;write:boolean;schema:z.ZodObject;run:(c:AgentConte
 function query(a:Record<string,unknown>) {const p=new URLSearchParams();for(const [k,v] of Object.entries(a))if(v!==undefined){if(Array.isArray(v))for(const value of v)p.append(k+'[]',String(value));else p.set(k,String(v));}return p;}
 export const tools:Record<string,Tool>={
  list_work_orders:{description:'List visible work orders in your token workspace. Clients see their company only. Supports search, filters and pagination.',write:false,schema:z.object({q:z.string().max(500).optional(),status:z.array(status).optional(),priority:z.array(priority).optional(),client_id:uuid.optional(),sort:z.enum(['updated_at','created_at','scheduled_for','priority','title']).optional(),dir:z.enum(['asc','desc']).optional(),page:z.number().int().min(1).optional(),pageSize:z.number().int().min(1).max(100).optional()}).strict(),run:(c,a)=>listWorkOrders(c.user,c.ws,query(a))},
+ get_work_order_by_number:{description:'Look up a visible work order directly by its displayed number (55 or WO-55). Use this first when the user supplies a number; returns the real id and updated_at.',write:false,schema:z.object({number:z.number().int().positive()}).strict(),run:(c,a)=>getWorkOrderByNumber(c.user,c.ws,a.number)},
  get_work_order:{description:'Read one visible work order, including comments and timeline. Save updated_at for subsequent status updates. Internal comments are hidden from clients.',write:false,schema:z.object({id:uuid}).strict(),run:(c,a)=>getWorkOrder(c.user,c.ws,a.id)},
  create_request:{description:'Create an open maintenance request for a visible site. Clients are restricted to their own company.',write:true,schema:z.object({title:z.string().trim().min(1).max(200),description:z.string().max(20000).optional(),site_id:uuid,client_id:uuid.optional(),priority:priority.optional()}).strict(),run:(c,a)=>createWorkOrder(c.user,c.ws,a)},
  update_work_order_status:{description:'Staff/admin only: change status using updated_at from get_work_order. Stale versions fail; follow allowed workflow transitions.',write:true,schema:z.object({id:uuid,status,updated_at:z.iso.datetime({offset:true})}).strict(),run:(c,a)=>patchWorkOrder(c.user,c.ws,a.id,{status:a.status,updated_at:a.updated_at})},

@@ -7,7 +7,7 @@ import { ids,orderId,siteId } from '../scripts/seed';
 import { hash } from '../lib/services/shared';
 import { createToken } from '../lib/services/tokens';
 import { startDemo,cleanupDemo } from '../lib/services/demo';
-import { getWorkOrder,createWorkOrder } from '../lib/services/work-orders';
+import { getWorkOrder,createWorkOrder,createComment } from '../lib/services/work-orders';
 import { tools } from '../lib/agent/tools';
 import { assistantUnavailable } from '../lib/services/assistant';
 import { listAudit,getAudit } from '../lib/services/audit';
@@ -103,7 +103,7 @@ it('other-user, other-workspace, and expired pending actions fail plainly',async
 it('client assistant staff-only status call is forbidden on confirm',async()=>{user=ids.priya;const o=await createWorkOrder(user,ids.ridgeline,{title:'Client assistant',site_id:siteId(1)});const p=await pending('update_work_order_status',{id:o.id,status:'scheduled',updated_at:o.updated_at.toISOString()});const r=await confirm(p.id);expect(r.body.result.isError).toBe(true);expect(r.body.reply).toBe("You don't have permission to make this change.");expect((await getWorkOrder(user,ids.ridgeline,o.id)).status).toBe('open');});
 it('Gemini failures fall through to Groq function calling',async()=>{const mock=vi.fn().mockImplementation(async(url:string)=>url.includes('googleapis')?new Response('PRIVATE',{status:429}):Response.json({choices:[{message:{tool_calls:[{id:'1',function:{name:'create_request',arguments:JSON.stringify({title:'Groq request',site_id:siteId(1)})}}]}}]}));vi.stubGlobal('fetch',mock);const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Create'}]});expect(r.body.pending_action.tool).toBe('create_request');expect(mock).toHaveBeenCalledTimes(4);});
 it.each(['no keys','all fail'])('assistant gracefully unavailable: %s',async mode=>{if(mode==='no keys'){vi.stubEnv('GEMINI_API_KEY','');vi.stubEnv('GROQ_API_KEY','');}vi.stubGlobal('fetch',vi.fn().mockImplementation(async()=>new Response('PRIVATE PROVIDER TEXT',{status:503})));const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Help'}]});expect(r.status).toBe(200);expect(r.body).toEqual(assistantUnavailable);});
-it('assistant bounds repeated read tool calls',async()=>{writeMock('whoami',{});const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Help'}]});expect(r.body.reply).toContain('tool limit');expect(fetch).toHaveBeenCalledTimes(4);});
+it('assistant bounds repeated read tool calls',async()=>{writeMock('whoami',{});const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Help'}]});expect(r.body.reply).toContain('tool limit');expect(fetch).toHaveBeenCalledTimes(10);});
 it('assistant accepts a real demo session and confirms a proposal in its sandbox',async()=>{
  const demo=await startDemo({persona:'sam'},'assistant-demo');setAuthResolverForTests();
  const ws=demo.body.workspace_id,site=await withSystem(async db=>(await db.query('SELECT id FROM sites WHERE workspace_id=$1 LIMIT 1',[ws])).rows[0].id);
@@ -137,4 +137,28 @@ it('authentication bookkeeping carries token attribution and restores caller tra
  });
  const audit=await listAudit(ids.sam,ids.ridgeline,new URLSearchParams({entity_id:t.id}));expect(audit.data.some(a=>a.action==='update'&&a.actor_kind==='agent'&&a.actor?.id===ids.sam&&a.via_token_id===t.id)).toBe(true);
  const before=audit.total;await rpc(t.token,'tools/list');expect((await listAudit(ids.sam,ids.ridgeline,new URLSearchParams({entity_id:t.id}))).total).toBe(before);
+});
+
+it('number lookup leads directly to a pending comment without writing before confirmation',async()=>{
+ const mock=vi.fn().mockImplementationOnce(async()=>gemini([{functionCall:{name:'get_work_order_by_number',args:{number:55}}}])).mockImplementationOnce(async()=>gemini([{functionCall:{name:'add_comment',args:{work_order_id:orderId(55),body:'Technician confirmed',visibility:'client'}}}]));
+ vi.stubGlobal('fetch',mock);
+ const before=await withUser(ids.sam,async db=>(await db.query('SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1',[orderId(55)])).rows[0].n);
+ const r=await route(assistantRoute.POST,{messages:[{role:'user',content:"add a comment 'Technician confirmed' to work order 55"}]});
+ expect(r.body.pending_action.tool).toBe('add_comment');expect(mock).toHaveBeenCalledTimes(2);
+ expect(await withUser(ids.sam,async db=>(await db.query('SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1',[orderId(55)])).rows[0].n)).toBe(before);
+ expect((await confirm(r.body.pending_action.id)).status).toBe(200);
+});
+it('number lookup respects client and workspace isolation',async()=>{
+ const token=await mint(ids.priya);
+ expect((await tool(token.token,'get_work_order_by_number',{number:1})).structuredContent.result.id).toBe(orderId(1));
+ for(const number of [4,61,99999])expect((await tool(token.token,'get_work_order_by_number',{number})).isError).toBe(true);
+});
+it('staff client-visible replies notify the client requester once on replay, internal notes do not',async()=>{
+ const order=await createWorkOrder(ids.priya,ids.ridgeline,{title:'Requester notification',site_id:siteId(1)});
+ await createComment(ids.sam,ids.ridgeline,order.id,{body:'Internal',visibility:'internal'});
+ const body={body:'Technician confirmed',visibility:'client'};
+ await createComment(ids.sam,ids.ridgeline,order.id,body,'comment-replay');
+ await createComment(ids.sam,ids.ridgeline,order.id,body,'comment-replay');
+ const rows=await withUser(ids.priya,async db=>(await db.query("SELECT kind FROM notifications WHERE entity_id=$1 AND kind='comment_added'",[order.id])).rows);
+ expect(rows).toEqual([{kind:'comment_added'}]);
 });

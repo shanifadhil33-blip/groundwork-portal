@@ -3,11 +3,13 @@ export const readableLabel = (value:string) => value.replaceAll('_',' ').replace
 export function demoEmail(value:string|null|undefined) { return value?.replace(/^([a-z]+)\.[0-9a-f-]+@demo\.groundwork\.invalid$/i,'$1@ridgeline.demo')??''; }
 export const supplierReference = (value:string) => value.replace(/^[0-9a-f-]+:/i,'');
 export const entityLabels:Record<string,string>={work_orders:'Work order',work_order_events:'Work order activity',comments:'Comment',clients:'Client',sites:'Site',members:'Team member',imports:'Import',import_rows:'Import row',supplier_orders:'Supplier order',supplier_events:'Supplier update',tokens:'API key',invites:'Invite',workspaces:'Workspace',notifications:'Notification'};
-type Activity={actor?:{name?:string|null}|null;actor_name?:string|null;entity:string;action:string;before?:unknown;after?:unknown;work_order_title?:string|null};
+type Activity={actor?:{name?:string|null}|null;actor_name?:string|null;entity:string;action:string;before?:unknown;after?:unknown;work_order_title?:string|null;member_name?:string|null};
 function record(value:unknown):Record<string,unknown> { return value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{}; }
 export function activitySentence(item:Activity) {
  const before=record(item.before),after=record(item.after),actor=item.actor?.name??item.actor_name??'System',title=item.work_order_title??after.title??before.title;
  const subject=item.entity==='work_orders'?String(title??'a work order'):item.entity==='comments'?`a comment${title?` on ${title}`:''}`:(entityLabels[item.entity]??'Record').toLowerCase();
+ if(item.entity==='members'){const name=item.member_name??after.name??before.name??'a team member',role=String(after.role??before.role??'member');return item.action==='insert'?`${actor} added ${name} as ${role}`:item.action==='delete'?`${actor} removed ${name} from the team`:`${actor} changed ${name}’s role to ${role}`;}
+ if(item.entity==='notifications')return `${actor} ${after.read_at?'marked a notification as read':'marked a notification as unread'}`;
  if(item.entity==='work_orders'&&item.action==='update'&&before.status!==after.status&&after.status)return `${actor} changed ${subject} status to ${readableLabel(String(after.status))}`;
  if(item.entity==='work_order_events')return `${actor} ${after.to_status?`moved ${title??'a work order'} to ${readableLabel(String(after.to_status))}`:`recorded activity for ${title??'a work order'}`}`;
  return `${actor} ${item.action==='insert'?'created':item.action==='delete'?'deleted':'updated'} ${subject}`;

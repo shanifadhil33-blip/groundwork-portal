@@ -23,7 +23,7 @@ async function call(handler:any,method='GET',body?:unknown){return handler(new R
 it('audit admin sees all, staff only own, clients and other tenants get 404; RLS independently enforces it',async()=>{
  await orders.createComment(ids.sam,ws,orderId(1),{body:'Staff action',visibility:'internal'});
  const all=await audit.listAudit(ids.dana,ws,q('pageSize=100'));
- expect(all.total).toBe(await withSystem(async db=>(await db.query('SELECT count(*)::int AS n FROM audit_log WHERE workspace_id=$1',[ws])).rows[0].n));
+ expect(all.total).toBe(await withSystem(async db=>(await db.query('SELECT count(*)::int AS n FROM audit_log WHERE workspace_id=$1 AND NOT (entity=\'notifications\' AND action=\'update\')',[ws])).rows[0].n));
  const staff=await audit.listAudit(ids.sam,ws,q());expect(staff.data.length).toBeGreaterThan(0);expect(staff.data.every(r=>r.actor?.id===ids.sam)).toBe(true);
  expect(await withUser(ids.sam,async db=>(await db.query('SELECT * FROM audit_log WHERE actor_id IS DISTINCT FROM $1',[ids.sam])).rows)).toEqual([]);
  expect(await withUser(ids.summitAdmin,async db=>(await db.query('SELECT * FROM audit_log WHERE workspace_id=$1',[ws])).rows)).toEqual([]);
@@ -91,3 +91,9 @@ it('workspace settings admin update audited, all members read, staff/client 403,
  user=ids.dana;for(const body of [{timezone:'Invalid/Zone'},{name:' '},{name:'x'.repeat(81)},{other:true}])expect((await call(settingsRoute.PATCH,'PATCH',body)).status).toBe(422);
 });
 it('profile only changes own name and rejects extra fields',async()=>{expect((await settings.patchProfile(ids.priya,{name:' Priya Updated '})).name).toBe('Priya Updated');await expect(settings.patchProfile(ids.priya,{name:'Name',email:'no'})).rejects.toThrow();});
+it('notification read events stay in audit storage but do not appear in the feed',async()=>{
+ const notification=await withUser(ids.priya,async db=>(await db.query('SELECT id FROM notifications WHERE workspace_id=$1 LIMIT 1',[ws])).rows[0]);
+ await notifications.markNotification(ids.priya,ws,notification.id,true);
+ expect(await withSystem(async db=>(await db.query("SELECT id FROM audit_log WHERE entity='notifications' AND action='update' AND entity_id=$1",[notification.id])).rows.length)).toBeGreaterThanOrEqual(1);
+ expect((await audit.listAudit(ids.dana,ws,q(`entity=notifications&action=update&entity_id=${notification.id}`))).total).toBe(0);
+});

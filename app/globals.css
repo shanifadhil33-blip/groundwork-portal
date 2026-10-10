@@ -43,3 +43,7 @@
 .dialog:has(.assistant-chat){display:flex;flex-direction:column}.dialog:has(.assistant-chat) .dialog-header,.dialog:has(.assistant-chat) .dialog-footer{flex-shrink:0}.dialog:has(.assistant-chat) .dialog-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}.dialog:has(.assistant-chat) .dialog-footer{margin-top:auto;background:var(--surface);padding-bottom:max(var(--s4),env(safe-area-inset-bottom))}
 @media(max-width:640px){.batch-five .tabs{flex-wrap:nowrap;overflow-x:auto;max-width:100%;white-space:nowrap}.batch-five .tabs button{flex:0 0 auto}.demo-banner{flex-wrap:nowrap;padding:0 var(--s3);min-height:40px;gap:var(--s1)}.demo-banner>span{white-space:nowrap}.demo-description{display:none}.demo-banner .row{width:auto;gap:0}.demo-banner .button{min-height:40px;padding:var(--s2);white-space:nowrap}.dialog:has(.assistant-chat) .dialog-footer .button{flex:none}.dialog:has(.assistant-chat) .assistant-composer textarea{min-height:64px;max-height:110px}.dialog:has(.assistant-chat) .dialog-footer{padding-top:var(--s3)}}
 @media(prefers-reduced-motion:reduce){.button,a,button,[role=button],.clickable-row{transition:none}.primary:hover:not(:disabled){transform:none}}
+
+.tabs{scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+@media (hover:none){.tooltip{display:none!important}}
+.assistant-markdown p{white-space:pre-wrap}.assistant-markdown ul,.assistant-markdown ol{padding-left:1.5rem}.assistant-markdown code{background:var(--surface-raised);padding:2px 4px;border-radius:4px}

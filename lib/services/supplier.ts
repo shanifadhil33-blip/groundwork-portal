@@ -48,7 +48,7 @@ export async function ingestWebhook(req:Request) {
  const event=eventSchema.parse(payload);
  return withSystem(async db=>{await lock(db,event.workspace_id);return apply(db,event,'webhook');});
 }
-export function listOrders(user:string,ws:string){return access(user,ws,false,async c=>({supplier:supplierLabel,data:(await c.db.query('SELECT s.*,c.status AS cobalt_status FROM supplier_orders s LEFT JOIN cobalt_orders c ON c.workspace_id=s.workspace_id AND c.cobalt_ref=s.cobalt_ref WHERE s.workspace_id=$1 ORDER BY s.cobalt_ref',[ws])).rows}));}
+export function listOrders(user:string,ws:string){return access(user,ws,false,async c=>({supplier:supplierLabel,data:(await c.db.query('SELECT s.*,w.title AS work_order_title,c.status AS cobalt_status FROM supplier_orders s JOIN work_orders w ON w.workspace_id=s.workspace_id AND w.id=s.work_order_id LEFT JOIN cobalt_orders c ON c.workspace_id=s.workspace_id AND c.cobalt_ref=s.cobalt_ref WHERE s.workspace_id=$1 ORDER BY s.cobalt_ref',[ws])).rows}));}
 export async function placeOrder(user:string,ws:string,body:unknown) {
  const placed=await systemAction(user,ws,false,async db=>{
   const {work_order_id}=z.object({work_order_id:uuid}).strict().parse(body);await lock(db,ws);
