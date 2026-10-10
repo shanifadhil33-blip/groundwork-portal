@@ -1,0 +1,9 @@
+import { describe, expect, it } from 'vitest';
+import { auditBadge, expiryOptions, mcpSnippet, tokenExpiry, tokenStatus, supplierNextStatuses } from '../lib/ui/batch-five';
+describe('Batch 5 presentation',()=>{
+ it('offers only valid next supplier states and keeps terminal orders terminal',()=>{expect(supplierNextStatuses('ordered')).toEqual(['shipped','cancelled']);expect(supplierNextStatuses('shipped')).toEqual(['delivered','cancelled']);expect(supplierNextStatuses('delivered')).toEqual([]);expect(supplierNextStatuses('cancelled')).toEqual([]);});
+ it('labels token and assistant attribution without labeling session activity',()=>{expect(auditBadge({actor_kind:'agent',via_token_name:'Coordinator'})).toBe('via AI agent: Coordinator');expect(auditBadge({actor_kind:'assistant'})).toBe('via assistant');expect(auditBadge({actor_kind:'user'})).toBeNull();});
+ it('builds a remote MCP config with a placeholder only',()=>{const config=JSON.parse(mcpSnippet()).mcpServers.groundwork;expect(config.url).toBe('https://groundwork-portal.vercel.app/api/mcp');expect(config.headers.Authorization).toBe('Bearer <your key>');});
+ it('omits optional expiry and keeps offered days within the API range',()=>{expect(tokenExpiry('')).toEqual({});for(const option of expiryOptions.filter(o=>o.value)){expect(tokenExpiry(option.value).expires_in_days).toBeGreaterThanOrEqual(1);expect(tokenExpiry(option.value).expires_in_days).toBeLessThanOrEqual(365);}});
+ it('gives revocation priority and treats the expiry boundary as expired',()=>{expect(tokenStatus({revoked_at:'2026-01-01',expires_at:null})).toBe('Revoked');expect(tokenStatus({revoked_at:null,expires_at:'2026-01-01T00:00:00Z'},Date.parse('2026-01-01T00:00:00Z'))).toBe('Expired');expect(tokenStatus({revoked_at:null,expires_at:null})).toBe('Active');});
+});

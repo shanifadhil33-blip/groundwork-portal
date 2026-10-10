@@ -1,13 +1,2 @@
-'use client';
-import { useState } from 'react';
-import { useApp } from '../../../components/app/context';
-import { BackLink } from '../../../components/public/chrome';
-import { Button, Card, Dropdown } from '../../../components/ui';
-import { useTheme } from '../../../components/ui/theme';
-import { request } from '../../../lib/ui/api';
-import { themes, type Theme } from '../../../lib/ui/helpers';
-export default function Settings() {
-  const { me, member, updateName } = useApp(), { theme, setTheme, error: themeError, sync, saving } = useTheme();
-  const [name, setName] = useState(me.user.name ?? ''), [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null), [saved, setSaved] = useState(false);
-  return <div className="page narrow"><BackLink href={member?.role === 'client' ? '/home' : '/dashboard'} label={member?.role === 'client' ? 'Home' : 'Dashboard'} /><div className="page-heading"><h1>Settings</h1><p>Your account and appearance preferences.</p></div><Card className="settings-section"><h2>Profile</h2><p>{me.user.email} · {member?.role ?? 'Account'}</p><form className="stack" onSubmit={async event => { event.preventDefault(); if (busy) return; setBusy(true); setError(null); setSaved(false); try { const result = await request<{ name: string }>('/api/me', { method: 'PATCH', body: JSON.stringify({ name }) }); updateName(result.name); setSaved(true); } catch { setError('We couldn’t save your name. Please try again.'); } finally { setBusy(false); } }}><div className="form-field"><label htmlFor="name">Name</label><input id="name" name="name" autoComplete="name" value={name} required maxLength={80} aria-describedby={error ? 'profile-error' : undefined} onChange={event => { setName(event.target.value); setSaved(false); }} /></div>{error && <p id="profile-error" className="inline-error" role="alert">{error}</p>}<div className="row"><Button type="submit" busy={busy} busyLabel="Saving name…" disabled={saved || name.trim() === (me.user.name ?? '')}>Save name</Button>{saved && <span role="status" className="muted">Name saved.</span>}</div></form></Card><Card className="settings-section"><h2>Appearance</h2><p>Choose a theme, or follow your device. This preference is saved to your account.</p><Dropdown label="Theme" disabled={saving} width={220} value={theme} options={themes.map(value => ({ value, label: value[0].toUpperCase() + value.slice(1) }))} onChange={value => { void setTheme(value as Theme); }} />{saving && <small role="status">Saving appearance…</small>}{themeError && <div role="alert"><p className="inline-error">{themeError}</p><Button variant="secondary" onClick={sync}>Retry</Button></div>}</Card></div>;
-}
+import { Settings } from '../../../components/app/settings';
+export default Settings;
