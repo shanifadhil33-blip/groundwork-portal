@@ -1,3 +1,4 @@
+import { plural } from './polish';
 import { RequestError } from './api';
 export const importFields = ['title', 'description', 'client', 'site', 'priority', 'scheduled_for', 'external_ref'] as const;
 export type ImportField = typeof importFields[number];
@@ -8,7 +9,7 @@ export type ImportRow = { id: string; import_id: string; row_number: number; dat
 export type ImportRecord = { id: string; filename: string; status: 'uploaded' | 'mapped' | 'queued' | 'completed'; row_count: number; created_at: string; headers: string[]; mapping: Mapping; counts: { valid: number; warning: number; error: number; pending: number; approved: number; rejected: number }; result_summary: string };
 export const mappingOptions = (headers: string[]) => [{ value: '', label: "Don't import" }, ...headers.map(header => ({ value: header, label: header }))];
 export const cleanMapping = (mapping: Mapping): Mapping => Object.fromEntries(importFields.filter(field => !!mapping[field]).map(field => [field, mapping[field]]));
-export const sendLabel = (counts: { valid: number; warning: number }) => `Send ${counts.valid + counts.warning} valid rows to queue`;
+export const sendLabel = (counts: { valid: number; warning: number }) => `Send ${plural(counts.valid + counts.warning,'valid row')} to queue`;
 export const canUndo = (until: string, now = Date.now()) => Number.isFinite(Date.parse(until)) && Date.parse(until) > now;
 export const bulkLimitCopy = (role: string, count: number) => role === 'staff' && count > 25 ? 'Staff can approve up to 25 rows at a time. Select 25 or fewer rows.' : null;
 export function issueCopy(issue: Issue) {
