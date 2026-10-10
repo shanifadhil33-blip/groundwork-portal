@@ -1,8 +1,8 @@
-export class RequestError extends Error { constructor(public status: number, message: string) { super(message); } }
+export class RequestError extends Error { constructor(public status: number, message: string, public fields?: Record<string, string[]>, public code?: string) { super(message); } }
 export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, { ...init, headers: { ...(init?.body ? { 'Content-Type': 'application/json' } : {}), ...init?.headers }, cache: 'no-store' });
   const data = await response.json().catch(() => null);
-  if (!response.ok) throw new RequestError(response.status, data?.error?.message ?? 'We couldn’t complete that. Please try again.');
+  if (!response.ok) throw new RequestError(response.status, data?.error?.message ?? 'We couldn’t complete that. Please try again.', data?.error?.fields, data?.error?.code);
   return data as T;
 }
 export const post = <T,>(url: string, body?: unknown) => request<T>(url, { method: 'POST', ...(body ? { body: JSON.stringify(body) } : {}) });
