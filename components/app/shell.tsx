@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Building2, ClipboardList, Bell, House, LayoutDashboard, Menu, PanelLeftClose, PanelLeftOpen, Settings, UserRound } from 'lucide-react';
+import { Building2, ClipboardList, Bell, House, LayoutDashboard, Menu, PanelLeftClose, PanelLeftOpen, Settings, UserRound, Upload, ListChecks } from 'lucide-react';
 import { request, post, RequestError } from '../../lib/ui/api';
 import { homeForPersona } from '../../lib/ui/helpers';
 import { Badge, BottomSheet, Button, ConfirmDialog, Dropdown, ErrorState, IconButton, PageSkeleton } from '../ui';
@@ -17,7 +17,7 @@ import { Notifications } from './notifications';
 export function AppShell({ children }: { children: ReactNode }) {
   const path = usePathname(), router = useRouter(), { sync } = useTheme();
   const [me, setMe] = useState<Me | null>(null), [workspace, setWorkspace] = useState<Workspace | null>(null), [error, setError] = useState(false), [loading, setLoading] = useState(true);
-  const [collapsed, setCollapsed] = useState(false), [drawer, setDrawer] = useState(false), [notifications, setNotifications] = useState(false), [unread, setUnread] = useState<number | null>(null), [countError, setCountError] = useState(false);
+  const [collapsed, setCollapsed] = useState(false), [drawer, setDrawer] = useState(false), [notifications, setNotifications] = useState(false), [unread, setUnread] = useState<number | null>(null), [countError, setCountError] = useState(false), [pending, setPending] = useState<number | null>(null);
   const [confirm, setConfirm] = useState<'signout' | 'reset' | 'switch' | null>(null), [busy, setBusy] = useState(false), [actionError, setActionError] = useState<string | null>(null), [persona, setPersona] = useState('dana');
   const member = me?.memberships[0] ?? null;
   const home = member?.role === 'client' ? '/home' : '/dashboard';
@@ -26,6 +26,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => { if (!me) return; if (!member && path !== '/onboarding' && path !== '/invites/accept') router.replace('/onboarding'); if (member && path === '/onboarding') router.replace(home); if (member && path === (member.role === 'client' ? '/dashboard' : '/home')) router.replace(home); }, [me, member, path, home, router]);
   const refreshUnread = useCallback(async () => { try { const result = await request<{ unread_count: number }>('/api/notifications/unread-count'); setUnread(result.unread_count); setCountError(false); } catch { setCountError(true); } }, []);
   useEffect(() => { if (!member) return; void refreshUnread(); const timer = setInterval(refreshUnread, 60000); const focus = () => { void refreshUnread(); }; window.addEventListener('focus', focus); return () => { clearInterval(timer); window.removeEventListener('focus', focus); }; }, [member, refreshUnread]);
+  useEffect(() => {
+    if (!member || member.role === 'client') { setPending(null); return; }
+    let active = true;
+    const refresh = async () => { try { const result = await request<{ pending_queue_rows: number }>(`/api/workspaces/${member.workspace_id}/dashboard`); if (active) setPending(result.pending_queue_rows); } catch { if (active) setPending(null); } };
+    void refresh();
+    window.addEventListener('groundwork-queue-changed', refresh); window.addEventListener('focus', refresh);
+    return () => { active = false; window.removeEventListener('groundwork-queue-changed', refresh); window.removeEventListener('focus', refresh); };
+  }, [member, path]);
   function openConfirm(action: typeof confirm) { guardedAction(() => { setActionError(null); setConfirm(action); }); }
   async function execute() {
     if (busy) return; setBusy(true); setActionError(null);
@@ -34,8 +42,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
   if (error) return <div className="public-page"><Brand /><ErrorState message="We couldn’t open your workspace. Please try again." retry={load} /></div>;
   if (loading || !me || (member && (!workspace || path === '/onboarding')) || (!member && path !== '/onboarding' && path !== '/invites/accept') || (member?.role === 'client' && path === '/dashboard') || (member && member.role !== 'client' && path === '/home')) return <><div className="public-header"><Brand /></div><PageSkeleton /></>;
-  const nav = [{ href: home, label: member?.role === 'client' ? 'Home' : 'Dashboard', icon: member?.role === 'client' ? House : LayoutDashboard }, ...(member && member.role !== 'client' ? [{ href: '/work-orders', label: 'Work orders', icon: ClipboardList }, { href: '/clients', label: 'Clients', icon: Building2 }] : member ? [{href:'/work-orders',label:'Requests',icon:ClipboardList}] : []), { href: '/settings', label: 'Settings', icon: Settings }];
-  const navLinks = nav.map(item => <Link href={item.href} key={item.href} className="nav-link" aria-label={item.label} aria-current={path === item.href || path.startsWith(item.href + '/') ? 'page' : undefined} title={collapsed ? item.label : undefined} onClick={() => setDrawer(false)}><item.icon size={20} /><span className="nav-label">{item.label}</span></Link>);
+  const nav = [{ href: home, label: member?.role === 'client' ? 'Home' : 'Dashboard', icon: member?.role === 'client' ? House : LayoutDashboard }, ...(member && member.role !== 'client' ? [{ href: '/work-orders', label: 'Work orders', icon: ClipboardList }, { href: '/clients', label: 'Clients', icon: Building2 }, { href: '/import', label: 'Import', icon: Upload }, { href: '/queue', label: 'Approval queue', icon: ListChecks }] : member ? [{href:'/work-orders',label:'Requests',icon:ClipboardList}] : []), { href: '/settings', label: 'Settings', icon: Settings }];
+  const navLinks = nav.map(item => <Link href={item.href} key={item.href} className="nav-link" aria-label={item.href === '/queue' && pending ? `${item.label}, ${pending} pending` : item.label} aria-current={path === item.href || path.startsWith(item.href + '/') ? 'page' : undefined} title={collapsed ? item.label : undefined} onClick={() => setDrawer(false)}><item.icon size={20} /><span className="nav-label">{item.label}</span>{item.href === '/queue' && pending !== null && pending > 0 && <span className="nav-queue-count"><Badge>{pending > 99 ? '99+' : pending}</Badge></span>}</Link>);
   const currentPersona = personas.find(p => p.key === me.user.email.split('.')[0])?.name ?? me.user.name ?? 'a demo user';
   const accountOptions = [{ value: 'settings', label: 'Settings' }, { value: 'signout', label: 'Sign out' }];
   const context = member?.client_name ?? workspace?.name ?? 'Your workspace';
