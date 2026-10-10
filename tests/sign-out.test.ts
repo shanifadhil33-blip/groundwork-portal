@@ -1,0 +1,10 @@
+import { beforeEach, expect, it, vi } from 'vitest';
+const { signOut, getSessionUserId } = vi.hoisted(() => ({ signOut: vi.fn(), getSessionUserId: vi.fn() }));
+vi.mock('../lib/auth', () => ({ signOut, getSessionUserId }));
+import { POST } from '../app/api/auth/sign-out/route';
+beforeEach(() => { signOut.mockReset(); getSessionUserId.mockReset(); getSessionUserId.mockResolvedValue(null); });
+it('ends Auth.js sessions without redirecting, including the shared demo session cookie', async () => { signOut.mockResolvedValue(undefined); const result = await POST(new Request('https://groundwork.example/api/auth/sign-out', { method: 'POST', headers: { origin: 'https://groundwork.example' } })); expect(result.status).toBe(200); expect(signOut).toHaveBeenCalledWith({ redirect: false }); });
+it('rejects cross-origin sign-out requests', async () => { const result = await POST(new Request('https://groundwork.example/api/auth/sign-out', { method: 'POST', headers: { origin: 'https://other.example' } })); expect(result.status).toBe(403); expect(signOut).not.toHaveBeenCalled(); });
+it('returns a plain error only when sign-out fails', async () => { signOut.mockRejectedValue(new Error('private provider detail')); const result = await POST(new Request('https://groundwork.example/api/auth/sign-out', { method: 'POST', headers: { origin: 'https://groundwork.example' } })); expect(result.status).toBe(500); expect(JSON.stringify(await result.json())).not.toContain('private provider'); });
+
+it('keeps the user signed in with a plain failure if Auth.js silently leaves the session active', async () => { signOut.mockResolvedValue(undefined); getSessionUserId.mockResolvedValue('still-signed-in'); const result = await POST(new Request('https://groundwork.example/api/auth/sign-out', { method: 'POST', headers: { origin: 'https://groundwork.example' } })); expect(result.status).toBe(500); expect(await result.json()).not.toHaveProperty('signed_out'); });

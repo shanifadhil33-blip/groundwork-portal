@@ -1,0 +1,3 @@
+import { Skeleton } from '../ui/states';
+export function WorkspaceFormSkeleton() { return <div className="page narrow stack" role="status" aria-label="Loading form"><Skeleton className="skeleton-line" /><div className="card stack"><Skeleton className="skeleton-title" /><Skeleton className="skeleton-line" /><Skeleton style={{ height: 48 }} /><Skeleton style={{ height: 44, width: 200 }} /></div></div>; }
+export function SettingsSkeleton() { return <div className="page narrow stack" role="status" aria-label="Loading settings"><Skeleton className="skeleton-line" /><Skeleton className="skeleton-title" />{[1, 2].map(n => <div key={n} className="card stack"><Skeleton className="skeleton-line" /><Skeleton style={{ height: n === 1 ? 120 : 80 }} /></div>)}</div>; }
