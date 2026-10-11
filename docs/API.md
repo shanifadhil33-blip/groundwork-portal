@@ -47,6 +47,8 @@ Optional query: `q` (title/description substring, case-insensitive; literal SQL 
 
 Defaults: updated_at descending, page 1, pageSize 25. Page size must be 1–100. Total is the count after all filters and RLS, before pagination. Sorts use id as a deterministic tie breaker and put null schedules last. Priority sorts low → normal → high → urgent ascending. Cursor is opaque and bound to user/workspace/filter/sort/pageSize; pass it with the same query and without page. Cursor pagination uses an offset, so concurrent inserts or updates can shift page boundaries. Invalid or unknown query values give 422.
 
+Each listed order also includes `client_name`, `site_name`, and nullable `assignee_name`. Client/site names use the existing tenant-scoped RLS reads; assignee names use the same permission-checked lookup as order detail.
+
 ## Work-order writes
 
 Create: `{title,description?,client_id?,site_id,priority?,status?,assignee_id?,due_on?,scheduled_for?}`. Requests start `open`; supplying a visit on an Open order automatically sets `scheduled`. Staff/admin may set assignment/schedule/priority and omit client_id to use the site's company. Assignee must be a staff/admin member of the same workspace. `due_on` is a nullable `YYYY-MM-DD` deadline. `scheduled_for` is a nullable offset ISO timestamp or calendar date; calendar visits resolve to 09:00 in the workspace timezone. Every source gets a permanent, workspace-unique `order_number` (display as `WO-N`).

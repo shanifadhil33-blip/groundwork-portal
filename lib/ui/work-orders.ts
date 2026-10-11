@@ -8,7 +8,7 @@ export type Client = { id: string; name: string };
 export type Site = { id: string; client_id: string; name: string; address: string };
 export type Member = { user_id: string; role: string; client_id: string | null; name: string | null; email: string | null };
 export type Comment = { id: string; body: string; visibility: 'client' | 'internal'; author_id: string; created_at: string };
-export type WorkOrder = { id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
+export type WorkOrder = { site_name?: string; client_name?: string; assignee_name?: string | null; id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
 export type Detail = WorkOrder & { client: Client; site: Site; assignee: { id: string; name?: string } | null; comments: Comment[]; timeline: { id: string; kind: string; actor_id: string | null; body?: string; details?: {to_status?:string;from_status?:string;scheduled_for?:string|null;due_on?:string|null;assignee_name?:string|null;priority?:string|null;title_changed?:boolean;description_changed?:boolean}; from_status?: string; to_status?: string; created_at: string }[] };
 export type Page<T> = { data: T[]; total: number; page: number; pageSize: number };
 export function sortOrders(orders: WorkOrder[], sort: string, dir: string) {
@@ -52,3 +52,10 @@ export function transitionOptions(current:string) {
  return Object.entries(statusLabels).map(([value,title])=>({value,label:value===current?`${title} — Current status`:statusTransitions[current]?.includes(value)?title:`${title} — ${current==='open'?'Move to Scheduled first':current==='scheduled'?'Move to In Progress first':'Unavailable from this status'}`,disabled:value===current||!statusTransitions[current]?.includes(value)}));
 }
 export function providerOnlyPath(path:string) { return /^\/(dashboard|imports?|queue|supplier|clients|audit)(\/|$)/.test(path)||/^\/work-orders\/[^/]+\/edit$/.test(path); }
+
+// Older demo titles repeated the site and sequence after an em dash.
+// Only remove that exact metadata suffix; preserve user-entered titles.
+export function workOrderTitle(order: Pick<WorkOrder,'title'|'site_name'|'order_number'>) {
+ const suffix = order.site_name ? ` — ${order.site_name} / ${order.order_number}` : '';
+ return suffix && order.title.endsWith(suffix) ? order.title.slice(0,-suffix.length) : order.title;
+}

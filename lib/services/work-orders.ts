@@ -41,7 +41,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
     offset=cursor.offset;
    }catch{throw invalid('This cursor does not match the list filters.','cursor');}
   }
-  const data=(await c.db.query(`SELECT * FROM work_orders WHERE ${where} ORDER BY ${query.sort} ${query.dir} NULLS LAST,id ${query.dir} LIMIT $${values.length+1} OFFSET $${values.length+2}`,[...values,query.pageSize,offset])).rows;
+  const data=(await c.db.query(`SELECT work_orders.*,(SELECT name FROM sites WHERE id=work_orders.site_id AND workspace_id=work_orders.workspace_id) AS site_name,(SELECT name FROM clients WHERE id=work_orders.client_id AND workspace_id=work_orders.workspace_id) AS client_name,(SELECT name FROM visible_assignee(work_orders.workspace_id,work_orders.id)) AS assignee_name FROM work_orders WHERE ${where} ORDER BY ${query.sort} ${query.dir} NULLS LAST,id ${query.dir} LIMIT $${values.length+1} OFFSET $${values.length+2}`,[...values,query.pageSize,offset])).rows;
   const next_cursor=offset+data.length<total?Buffer.from(JSON.stringify({offset:offset+data.length,signature})).toString('base64url'):null;
   return {data:data.map(order=>({...order,overdue:isOverdue(order,now,timezone)})),timezone,today:localDate(now,timezone),total,page:Math.floor(offset/query.pageSize)+1,pageSize:query.pageSize,next_cursor};
  });
