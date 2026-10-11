@@ -82,3 +82,7 @@ it('provides names for phone cards while preserving client and workspace isolati
  expect(client.data.some((o:{client_name:string})=>o.client_name==='Northgate Self Storage')).toBe(false);
  await expect(listWorkOrders(ids.priya,ids.summit,new URLSearchParams())).rejects.toMatchObject({status:404});
 });
+it('Unassigned filters return only orders with no assignment and retain client isolation',async()=>{
+ const staff=await listWorkOrders(ids.sam,ids.ridgeline,new URLSearchParams('assignee_id=unassigned&pageSize=100'));expect(staff.total).toBeGreaterThan(0);expect(staff.data.every(o=>o.assignee_id===null)).toBe(true);
+ const client=await listWorkOrders(ids.priya,ids.ridgeline,new URLSearchParams('assignee_id=unassigned&pageSize=100'));expect(client.data.every(o=>o.assignee_id===null&&o.client_id===ids.harbor)).toBe(true);
+});

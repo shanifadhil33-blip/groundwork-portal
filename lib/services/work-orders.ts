@@ -28,7 +28,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   if(query.status.length)add('status::text=ANY(?::text[])',query.status);
   if(query.priority.length)add('priority::text=ANY(?::text[])',query.priority);
   if(query.client_id)add('client_id=?',query.client_id);
-  if(query.assignee_id)add('assignee_id=?',query.assignee_id);
+  if(query.assignee_id==='unassigned')clauses.push('assignee_id IS NULL');else if(query.assignee_id)add('assignee_id=?',query.assignee_id);
   if(query.overdue)clauses.push('('+overdueSql+')');
   const where=clauses.join(' AND ');
   const total=(await c.db.query('SELECT count(*)::int AS n FROM work_orders WHERE '+where,values)).rows[0].n;

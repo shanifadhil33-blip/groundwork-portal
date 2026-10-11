@@ -5,7 +5,7 @@ export type ImportField = typeof importFields[number];
 export const fieldLabels: Record<ImportField, string> = { title: 'Title', description: 'Description', client: 'Client', site: 'Site', priority: 'Priority', due_on: 'Due', scheduled_for: 'Scheduled for', external_ref: 'External reference' };
 export type Mapping = Partial<Record<ImportField, string>>;
 export type Issue = { field: string; code: string; message: string };
-export type ImportRow = { id: string; import_id: string; row_number: number; data: Record<ImportField, string>; status: 'valid' | 'warning' | 'error'; decision: string; errors: Issue[]; warnings: Issue[]; ai_summary: string | null; ai_priority: string | null; ai_is_suggestion: boolean; work_order_id: string | null };
+export type ImportRow = { id: string; import_id: string; row_number: number; data: Record<ImportField, string>; status: 'valid' | 'warning' | 'error'; decision: string; reason?:string|null; rejected_at?:string|null; errors: Issue[]; warnings: Issue[]; ai_summary: string | null; ai_priority: string | null; ai_is_suggestion: boolean; work_order_id: string | null };
 export type ImportRecord = { id: string; filename: string; status: 'uploaded' | 'mapped' | 'queued' | 'completed'; row_count: number; created_at: string; headers: string[]; mapping: Mapping; counts: { valid: number; warning: number; error: number; pending: number; approved: number; rejected: number }; result_summary: string };
 export const mappingOptions = (headers: string[]) => [{ value: '', label: "Don't import" }, ...headers.map(header => ({ value: header, label: header }))];
 export const cleanMapping = (mapping: Mapping): Mapping => Object.fromEntries(importFields.filter(field => !!mapping[field]).map(field => [field, mapping[field]]));

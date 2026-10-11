@@ -103,7 +103,7 @@ it('other-user, other-workspace, and expired pending actions fail plainly',async
 it('client assistant staff-only status call is forbidden on confirm',async()=>{user=ids.priya;const o=await createWorkOrder(user,ids.ridgeline,{title:'Client assistant',site_id:siteId(1)});const p=await pending('update_work_order_status',{id:o.id,status:'scheduled',updated_at:o.updated_at.toISOString()});const r=await confirm(p.id);expect(r.body.result.isError).toBe(true);expect(r.body.reply).toBe("You don't have permission to make this change.");expect((await getWorkOrder(user,ids.ridgeline,o.id)).status).toBe('open');});
 it('Gemini failures fall through to Groq function calling',async()=>{const mock=vi.fn().mockImplementation(async(url:string)=>url.includes('googleapis')?new Response('PRIVATE',{status:429}):Response.json({choices:[{message:{tool_calls:[{id:'1',function:{name:'create_request',arguments:JSON.stringify({title:'Groq request',site_id:siteId(1)})}}]}}]}));vi.stubGlobal('fetch',mock);const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Create'}]});expect(r.body.pending_action.tool).toBe('create_request');expect(mock).toHaveBeenCalledTimes(4);});
 it.each(['no keys','all fail'])('assistant gracefully unavailable: %s',async mode=>{if(mode==='no keys'){vi.stubEnv('GEMINI_API_KEY','');vi.stubEnv('GROQ_API_KEY','');}vi.stubGlobal('fetch',vi.fn().mockImplementation(async()=>new Response('PRIVATE PROVIDER TEXT',{status:503})));const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Help'}]});expect(r.status).toBe(200);expect(r.body).toEqual(assistantUnavailable);});
-it('assistant bounds repeated read tool calls',async()=>{writeMock('whoami',{});const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Help'}]});expect(r.body.reply).toContain('tool limit');expect(fetch).toHaveBeenCalledTimes(10);});
+it('assistant bounds repeated read tool calls',async()=>{writeMock('whoami',{});const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Help'}]});expect(r.body.reply).toContain('limit for workspace actions');expect(fetch).toHaveBeenCalledTimes(10);});
 it('assistant accepts a real demo session and confirms a proposal in its sandbox',async()=>{
  const demo=await startDemo({persona:'sam'},'assistant-demo');setAuthResolverForTests();
  const ws=demo.body.workspace_id,site=await withSystem(async db=>(await db.query('SELECT id FROM sites WHERE workspace_id=$1 LIMIT 1',[ws])).rows[0].id);
@@ -162,4 +162,10 @@ it('staff client-visible replies notify the client requester once on replay, int
  await createComment(ids.sam,ids.ridgeline,order.id,body,'comment-replay');
  const rows=await withUser(ids.priya,async db=>(await db.query("SELECT kind FROM notifications WHERE entity_id=$1 AND kind='comment_added'",[order.id])).rows);
  expect(rows).toEqual([{kind:'comment_added'}]);
+});
+it('priority changes respect staff permissions, client restrictions and stale versions',async()=>{
+ const t=await mint(ids.sam,'write'),order=await getWorkOrder(ids.sam,ids.ridgeline,orderId(58));
+ const changed=await tool(t.token,'set_priority',{id:order.id,priority:'urgent',updated_at:order.updated_at.toISOString()});expect(changed.isError).toBeUndefined();expect(changed.structuredContent.result.priority).toBe('urgent');
+ expect((await tool(t.token,'set_priority',{id:order.id,priority:'low',updated_at:order.updated_at.toISOString()})).isError).toBe(true);
+ const client=await mint(ids.priya,'write'),own=await getWorkOrder(ids.priya,ids.ridgeline,orderId(1));expect((await tool(client.token,'set_priority',{id:own.id,priority:'urgent',updated_at:own.updated_at.toISOString()})).isError).toBe(true);
 });

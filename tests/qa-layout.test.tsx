@@ -11,8 +11,8 @@ const member:Membership={workspace_id:'workspace',workspace_name:'Ridgeline',rol
 function render(element:React.ReactNode,role:Membership['role']='client') {return renderToStaticMarkup(<AppContext.Provider value={{member:{...member,role},workspace:{id:'workspace',name:'Ridgeline',timezone:'Asia/Dubai',is_demo:true},me:{user:{id:'user',name:'Priya',email:'priya@example.com',image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}>{element}</AppContext.Provider>);}
 it('offers sign in without a dashboard loop when signed out',()=>{
  const html=renderToStaticMarkup(<NoAccess/>);
- expect(html).toContain('href="/sign-in"');expect(html).toContain('Sign in');expect(html).toContain('Back to home');expect(html).not.toContain('/dashboard');
- expect(render(<NoAccess/>)).toContain('Go to requests');expect(render(<NoAccess/>,'admin')).toContain('Go to dashboard');
+ expect(html).toContain('href="/sign-in"');expect(html).toContain('Sign in');expect(html).toContain('Go back');expect(html).not.toContain('/dashboard');
+ expect(render(<NoAccess/>)).toContain('Go to home');expect(render(<NoAccess/>)).toContain('This page is for your maintenance team.');expect(render(<NoAccess/>,'admin')).toContain('Go to home');
 });
 it('groups recent update badges and time below the request title',()=>{
  const html=render(<ClientHome/>);
@@ -20,9 +20,9 @@ it('groups recent update badges and time below the request title',()=>{
  expect(html).toMatch(/request-update-meta"><span class="badge[^>]*>Request Received<\/span><span class="small muted">Updated /);
  expect(html).toContain('My open requests');expect(html).toContain('Repair entry door');
 });
-it('keeps a short phone attention label and the full desktop explanation',()=>{
+it('uses short linked attention stats at every viewport',()=>{
  const html=render(<Dashboard/>,'admin');
- expect(html).toContain('phone-attention-label">Overdue');expect(html).toContain('overdue work orders across open statuses');expect(html).toContain('phone-attention-label">Waiting on parts');
+ expect(html).toContain('13 overdue</a>');expect(html).toContain('3 waiting on parts</a>');expect(html).toContain('2 awaiting approval</a>');expect(html).toContain('/work-orders?overdue=true');expect(html).not.toContain('across open statuses');
 });
 it('defines pure canvases and prevents badge stretching in flex columns',()=>{
  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');

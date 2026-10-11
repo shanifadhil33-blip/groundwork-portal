@@ -77,7 +77,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
 
  if(demo){
  const imp=(await client.query("INSERT INTO imports(workspace_id,filename,row_count,status,created_by) VALUES($1,'sample.csv',1,'queued',$2) RETURNING id",[ids.ridgeline,ids.sam])).rows[0].id;
- await client.query("INSERT INTO import_rows(workspace_id,import_id,row_number,data,queued) VALUES($1,$2,1,$3,true)",[ids.ridgeline,imp,JSON.stringify({title:'Inspect reception lighting',site:'Marina Exchange',client:'Harbor & Pine Coworking',site_id:siteId(1),client_id:ids.harbor,priority:'normal',description:'Sample request',due_on:dayOffset(today,8),scheduled_for:dayOffset(today,6),external_ref:''})]);
+ await client.query("INSERT INTO import_rows(workspace_id,import_id,row_number,data,queued) VALUES($1,$2,1,$3,true)",[ids.ridgeline,imp,JSON.stringify({title:'Inspect reception lighting',site:'Marina Exchange',client:'Harbor & Pine Coworking',site_id:siteId(1),client_id:ids.harbor,priority:'normal',description:'Two reception downlights flicker after switching on. Check the drivers and replace any failed units.',due_on:dayOffset(today,8),scheduled_for:dayOffset(today,6),external_ref:''})]);
  for(const user of [ids.sam,ids.omar])await client.query("INSERT INTO notifications(user_id,workspace_id,kind,entity_id) VALUES($1,$2,'request_created',$3)",[user,ids.ridgeline,orderId(user===ids.sam?1:4)]);
  }
  // Creation events are inserted at record creation; updates/comments follow them.

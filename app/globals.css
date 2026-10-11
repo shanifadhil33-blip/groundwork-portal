@@ -454,3 +454,13 @@ body:has(.app-shell) .primary:active:not(:disabled){background:#2e5255}
  body:has(.app-shell) :is(.button,.dropdown-trigger,.menu-option,.nav-link,.search-control input){min-height:44px}
  .sidebar-brand .icon-button{width:44px;min-width:44px;height:44px}
 }
+
+/* App QA: theme canvas, unobtrusive feedback, and aligned settings controls. */
+html:not(:has(.lx-root)),body:not(:has(.lx-root)){background:var(--bg)}
+body:has(.app-shell){background:var(--bg);min-height:100dvh}
+.toast-region{left:calc(var(--sidebar-width, 260px) + 24px);right:auto;bottom:calc(24px + env(safe-area-inset-bottom));max-width:min(420px,calc(100vw - 32px))}
+.invite-form,.key-form{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.invite-form>.form-field,.key-form>.form-field{flex:1;min-width:200px}
+.invite-form>button,.key-form>button{flex:none}
+@media(max-width:640px){.toast-region{left:16px;bottom:calc(80px + env(safe-area-inset-bottom))}.invite-form,.key-form{flex-direction:column;align-items:stretch}.invite-form>.form-field,.key-form>.form-field{width:100%;min-width:0}.key-form .filter-bar{align-items:stretch}.key-form .dropdown-trigger{flex:1}}
+@media(max-width:640px){.invite-form>.dropdown-trigger{width:100%!important}.error-actions{align-items:center}.error-actions>.button{flex:1;justify-content:center}}

@@ -1,7 +1,6 @@
 import { explicitClientComment } from '../ui/comments';
 import { z } from 'zod';
-import { formatDate } from '../dates';
-import { statusLabels } from '../ui/work-orders';
+import { actionSummary,actionResult,plainAssistantReply } from '../ui/assistant-replies';
 import { asAgent } from '../db';
 import { assistantTurn,type AssistantMessage } from '../ai';
 import { ApiError,missing } from '../http';
@@ -18,9 +17,13 @@ export async function assistant(user:string,ws:string,body:unknown) {
   if(a.consumed_at)throw new ApiError(409,'consumed','This action has already been confirmed.');
   if(new Date(a.expires_at)<=new Date())throw new ApiError(409,'expired','This action has expired. Ask the assistant again.');
   // Shared services reuse this same app-role transaction: write and consume commit together.
+  const previous=['update_work_order_status','update_work_order_dates','set_priority','add_comment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
+  const queueTarget=['approve_queue_row','reject_queue_row'].includes(a.tool)?(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,a.args.row_id])).rows[0]:null;
   const result=await callTool(c,a.tool,a.args);
+  const value=result.structuredContent as {result?:any};
+  const order=result.isError?null:previous??(['create_request','approve_queue_row'].includes(a.tool)?value.result:null);
   await x.db.query('UPDATE assistant_actions SET consumed_at=now() WHERE id=$1',[a.id]);
-  return {available:true,reply:result.isError?result.content[0].text:'Action completed.',result};
+  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text):actionResult(a.tool,a.args,order,queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined),result};
  }));
  const role=await inWorkspace(user,ws,async c=>c.role);
  const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
@@ -28,7 +31,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
  if(!history.length)history.push({role:'user',content:'Help me with my workspace.'});
  for(let i=0;i<10;i++){
   const turn=await assistantTurn(history,declarations);if(!turn)return assistantUnavailable;
-  if(!turn.calls.length)return {available:true,reply:turn.text??'How can I help?'};
+  if(!turn.calls.length){const text=plainAssistantReply(turn.text??'How can I help?');return {available:true,reply:/please confirm|confirm this (?:action|change)|action completed|(?:I(?:’|')ve|I have|successfully) (?:changed|moved|updated|added|created|approved|rejected)/i.test(text)?'No changes have been made. Ask me to make the change so you can review and confirm it.':text};}
   history.push(...turn.calls.map(call=>({role:'call' as const,...call,raw:turn.raw})));
   for(const [index,call] of turn.calls.entries()){
    const t=Object.hasOwn(tools,call.name)?tools[call.name]:undefined;
@@ -41,8 +44,13 @@ export async function assistant(user:string,ws:string,body:unknown) {
    }
    if(t.write){
     const args=parsed.data;
-    const order=['update_work_order_status','update_work_order_dates'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
-    const summary=call.name==='create_request'?`Create request '${(args as any).title}'`:call.name==='update_work_order_status'?`Change status of '${order.title}' to ${statusLabels[(args as any).status]}`:call.name==='update_work_order_dates'?`Change dates for '${order.title}': ${['due_on','scheduled_for'].filter(key=>key in args).map(key=>`${key==='due_on'?'Due':'Visit'} ${(args as any)[key]?formatDate((args as any)[key],order.timezone):'cleared'}`).join('; ')}`:call.name==='add_comment'?`Add ${(args as any).visibility==='internal'?'an internal':'a client-visible'} comment to '${order.title}'`:call.name==='approve_queue_row'?'Approve the selected import row':'Reject the selected import row';
+    const order=['update_work_order_status','update_work_order_dates','set_priority'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
+    const target=await inWorkspace(user,ws,async x=>{
+     if(call.name==='create_request'){const site=(await x.db.query('SELECT s.name,c.name AS client,w.timezone FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id JOIN workspaces w ON w.id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,(args as any).site_id])).rows[0];if(!site)throw missing();return {label:`${site.client} · ${site.name}`,timezone:site.timezone};}
+     if(['approve_queue_row','reject_queue_row'].includes(call.name)){const row=(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,(args as any).row_id])).rows[0];if(!row)throw missing();return {label:`row ${row.row_number}: ${row.data.title}`,timezone:undefined};}
+     return undefined;
+    });
+    const summary=actionSummary(call.name,args,order,target?.label,target?.timezone);
     const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args) VALUES($1,$2,$3,$4) RETURNING id',[ws,user,call.name,JSON.stringify(args)])).rows[0].id);
     return {available:true,reply:'Please confirm this action before I make the change.',pending_action:{id,tool:call.name,args,summary}};
    }
@@ -50,5 +58,5 @@ export async function assistant(user:string,ws:string,body:unknown) {
    history.push({role:'result',name:call.name,result,id:call.id});
   }
  }
- return {available:true,reply:'I reached the tool limit. Please ask a more specific question.'};
+ return {available:true,reply:'I reached the limit for workspace actions. Please ask a more specific question.'};
 }

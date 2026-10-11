@@ -1,41 +1,41 @@
 Title,Description,Client,Site,Priority,Due Date,Scheduled For,External Ref
-Inspect sample equipment 1,Fictional maintenance request 1,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-001
-Inspect sample equipment 2,Fictional maintenance request 2,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-002
-Inspect sample equipment 3,Fictional maintenance request 3,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-003
-Inspect sample equipment 4,Fictional maintenance request 4,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-004
-Inspect sample equipment 5,Fictional maintenance request 5,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-005
-Inspect sample equipment 6,Fictional maintenance request 6,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-006
-Inspect sample equipment 7,Fictional maintenance request 7,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-007
-Inspect sample equipment 8,Fictional maintenance request 8,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-008
-Inspect sample equipment 9,Fictional maintenance request 9,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-009
-Inspect sample equipment 10,Fictional maintenance request 10,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-010
-Inspect sample equipment 11,Fictional maintenance request 11,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-011
-Inspect sample equipment 12,Fictional maintenance request 12,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-012
-Inspect sample equipment 13,Fictional maintenance request 13,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-013
-Inspect sample equipment 14,Fictional maintenance request 14,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-014
-Inspect sample equipment 15,Fictional maintenance request 15,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-015
-Inspect sample equipment 16,Fictional maintenance request 16,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-016
-Inspect sample equipment 17,Fictional maintenance request 17,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-017
-Inspect sample equipment 18,Fictional maintenance request 18,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-018
-Inspect sample equipment 19,Fictional maintenance request 19,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-019
-Inspect sample equipment 20,Fictional maintenance request 20,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-020
-Inspect sample equipment 21,Fictional maintenance request 21,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-021
-Inspect sample equipment 22,Fictional maintenance request 22,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-022
-Inspect sample equipment 23,Fictional maintenance request 23,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-023
-Inspect sample equipment 24,Fictional maintenance request 24,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-024
-Inspect sample equipment 25,Fictional maintenance request 25,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-025
-Inspect sample equipment 26,Fictional maintenance request 26,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-026
-Inspect sample equipment 27,Fictional maintenance request 27,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-027
-Inspect sample equipment 28,Fictional maintenance request 28,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-028
-Inspect sample equipment 29,Fictional maintenance request 29,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-029
-Inspect sample equipment 30,Fictional maintenance request 30,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-030
-Inspect sample equipment 31,Fictional maintenance request 31,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-031
-Inspect sample equipment 32,Fictional maintenance request 32,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-032
-Inspect sample equipment 33,Fictional maintenance request 33,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-033
-Inspect sample equipment 34,Fictional maintenance request 34,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-034
-Inspect sample equipment 35,Fictional maintenance request 35,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-035
-Inspect sample equipment 36,Fictional maintenance request 36,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-036
-Inspect sample equipment 37,Fictional maintenance request 37,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-037
-Inspect imaginary annex,Fictional unknown site,Harbor & Pine Coworking,Unknown Annex,normal,2026-11-20,2026-11-18,SAMPLE-038
-Inspect sample date problem,Fictional invalid date,Harbor & Pine Coworking,Marina Exchange,normal,not-a-date,2026-11-18,SAMPLE-039
-Replace lobby light fixture,Duplicate of seeded open request,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,QA-1001
+Repair meeting room cooling,The large meeting room stays warm despite the cooling being on. Check airflow and service the fan coil.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-001
+Replace reception downlight driver,The reception downlights flicker after switching on. Check the driver and replace the faulty unit.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-002
+Repair accessible washroom tap,The accessible washroom tap drips continuously. Replace the cartridge and check for leaks.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-003
+Adjust loading bay door closer,The loading bay fire door slams shut. Adjust the closer and verify safe closing.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-004
+Clear kitchenette sink blockage,Water backs up in the kitchenette sink. Clear the trap and test drainage.,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-005
+Replace stairwell emergency light battery,The second-floor emergency light failed its monthly test. Replace the battery and retest.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-006
+Inspect rooftop ventilation noise,The rooftop extractor makes a rattling noise. Check mountings and fan bearings.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-007
+Repair lobby access control reader,The lobby reader intermittently rejects valid badges. Check wiring and reader alignment.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-008
+Seal condensation leak above reception,Condensation drips from the ceiling near reception. Inspect insulation and drain lines.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-009
+Replace corridor inspection hatch,The corridor inspection hatch has a broken hinge. Replace the hinge and secure the panel.,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-010
+Service parking gate safety sensor,The parking gate reverses without an obstruction. Clean and align the safety sensors.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-011
+Repair shower drain odour,An odour is coming from the staff shower drain. Check the trap seal and flush the drain.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-012
+Secure loose handrail bracket,A stairwell handrail bracket is loose. Secure the bracket and check the surrounding fixings.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-013
+Replace storage unit door seal,Dust is entering under the storage door. Fit a new bottom seal and check clearance.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-014
+Restore lift lobby ventilation,The lift lobby extractor does not start. Test the supply and replace the failed control if needed.,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-015
+Repair pantry cabinet hinge,The pantry cabinet door hangs unevenly. Replace the damaged hinge and align the door.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-016
+Inspect water booster pump vibration,The water pump vibrates during morning demand. Check mountings and coupling alignment.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-017
+Replace car park floodlight,The rear car park floodlight does not illuminate. Test power and replace the failed fitting.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-018
+Clean air handling unit filters,Dust buildup is reducing airflow. Replace filters and record the pressure difference.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-019
+Repair washroom exhaust timer,The washroom fan stops too soon. Check the timer setting and test operation.,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-020
+Replace damaged socket faceplate,A cracked socket faceplate was found in the print room. Isolate the circuit and replace it.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-021
+Adjust roof access door latch,The roof access door does not latch reliably. Align the strike plate and verify closure.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-022
+Repair irrigation valve leak,A valve box fills with water after watering. Locate the leak and replace the seal.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-023
+Test emergency exit signage,The east exit sign is dim. Check the fitting and test backup operation.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-024
+Repair reception desk cable grommet,A damaged grommet exposes a sharp desk edge. Replace it and secure the cables.,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-025
+Inspect chilled water valve operation,The office cooling cycles unevenly. Check actuator travel and valve operation.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-026
+Replace broken soap dispenser,The washroom dispenser pump is stuck. Fit a replacement and test dispensing.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-027
+Repair service yard drain cover,The drain cover rocks when walked on. Reseat the frame and secure the cover.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-028
+Inspect corridor motion sensor,Corridor lights remain on overnight. Test the sensor and adjust its timeout.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-029
+Repair washroom cistern inlet valve,The cistern refills slowly. Clean the strainer and check the inlet valve.,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-030
+Replace entrance mat edging,The entrance mat edge is lifting. Secure the edge to remove the trip hazard.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-031
+Service fresh air intake damper,The intake damper sticks halfway open. Clean the linkage and test full travel.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-032
+Repair cleaner cupboard lock,The cleaner cupboard key turns without releasing the latch. Replace the lock cylinder.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-033
+Inspect roof drain after heavy rain,Water remains around the roof outlet. Clear debris and confirm free drainage.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-034
+Replace loading bay warning beacon,The loading bay beacon no longer flashes. Check its supply and replace the failed unit.,Harbor & Pine Coworking,Marina Exchange,high,2026-11-20,2026-11-18,SAMPLE-035
+Repair acoustic panel fixing,A meeting room wall panel has a loose corner. Refix it and check adjacent panels.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-036
+Calibrate server room temperature sensor,The displayed room temperature differs from a handheld reading. Check and calibrate the sensor.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,SAMPLE-037
+Inspect west washroom ventilation,A ventilation service request needs the missing visit date corrected before scheduling.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,date-to-confirm,SAMPLE-038
+Service lobby fan coil unit,The lobby fan coil needs a routine clean and airflow check. Confirm the deadline before booking.,Harbor & Pine Coworking,Marina Exchange,normal,not-a-date,2026-11-18,SAMPLE-039
+Replace lobby light fixture,The same lobby fixture is already on the maintenance list. Check the reference before approving.,Harbor & Pine Coworking,Marina Exchange,normal,2026-11-20,2026-11-18,QA-1001

@@ -1,9 +1,9 @@
 import React, { Fragment, type ReactNode } from 'react';
 function inline(text:string):ReactNode[] {
- const parts=text.split(/(`[^`\n]+`|\*\*[^*\n]+\*\*|\*[^*\n]+\*|_[^_\n]+_)/g);
- return parts.map((part,i)=>part.startsWith('`')?<code key={i}>{part.slice(1,-1)}</code>:part.startsWith('**')?<strong key={i}>{part.slice(2,-2)}</strong>:(part.startsWith('*')||part.startsWith('_'))&&part.length>2?<em key={i}>{part.slice(1,-1)}</em>:<Fragment key={i}>{part}</Fragment>);
+ const parts=text.split(/(\[[^\]\n]+\]\(\/work-orders\/[0-9a-f-]{36}\)|`[^`\n]+`|\*\*[^*\n]+\*\*|\*[^*\n]+\*|_[^_\n]+_)/g);
+ return parts.map((part,i)=>{const link=part.match(/^\[([^\]]+)\]\((\/work-orders\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\)$/i);return link?<a key={i} href={link[2]}>{link[1]}</a>:part.startsWith('`')?<code key={i}>{part.slice(1,-1)}</code>:part.startsWith('**')?<strong key={i}>{part.slice(2,-2)}</strong>:(part.startsWith('*')||part.startsWith('_'))&&part.length>2?<em key={i}>{part.slice(1,-1)}</em>:<Fragment key={i}>{part}</Fragment>;});
 }
-// Deliberately supports only text formatting. HTML and links remain escaped text.
+// Only local work-order links are clickable. HTML and all other links remain escaped text.
 export function AssistantMarkdown({text}:{text:string}) {
  const blocks:ReactNode[]=[],lines=text.split('\n');
  for(let i=0;i<lines.length;) {

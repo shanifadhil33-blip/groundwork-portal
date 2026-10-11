@@ -13,8 +13,8 @@ async function get(c:Context,table:'imports'|'import_rows',id:string){uuid.parse
 const querySchema=z.object({status:z.enum(['valid','warning','error']).optional(),decision:z.enum(['pending','approved','rejected']).optional(),page:z.coerce.number().int().min(1).default(1)}).strict();
 async function rows(c:Context,id:string|undefined,params:URLSearchParams,queue=false){
  const q=querySchema.parse(Object.fromEntries(params));
- const where=`workspace_id=$1 AND ($2::uuid IS NULL OR import_id=$2) AND ($3::text IS NULL OR status=$3) AND ($4::text IS NULL OR decision=$4)${queue?" AND queued AND decision='pending'":''}`;
- const values=[c.ws,id??null,q.status??null,q.decision??null];
+ const where=`workspace_id=$1 AND ($2::uuid IS NULL OR import_id=$2) AND ($3::text IS NULL OR status=$3) AND ($4::text IS NULL OR decision=$4)${queue?" AND queued":''}`;
+ const values=[c.ws,id??null,q.status??null,q.decision??(queue?'pending':null)];
  const total=(await c.db.query(`SELECT count(*)::int AS n FROM import_rows WHERE ${where}`,values)).rows[0].n;
  const data=(await c.db.query(`SELECT *, true AS ai_is_suggestion FROM import_rows WHERE ${where} ORDER BY created_at,import_id,row_number LIMIT 50 OFFSET $5`,[...values,(q.page-1)*50])).rows;
  return {data,total,page:q.page,pageSize:50};
@@ -79,6 +79,11 @@ export function bulkApprove(user:string,ws:string,body:unknown){return staff(use
 });}
 export function rejectRow(user:string,ws:string,id:string,body:unknown){return staff(user,ws,async c=>{await lock(c);const {reason}=z.object({reason:z.string().trim().min(1).max(2000)}).strict().parse(body);const r=await get(c,'import_rows',id);if(!r.queued||r.decision!=='pending')throw new ApiError(409,'not_pending','This row is not awaiting review.');const result=(await c.db.query("UPDATE import_rows SET decision='rejected',reason=$3,rejected_at=clock_timestamp() WHERE workspace_id=$1 AND id=$2 RETURNING *",[ws,id,reason])).rows[0];await complete(c,r.import_id);return {...result,undo_until:new Date(result.rejected_at.getTime()+600000).toISOString()};});}
 export function undoRow(user:string,ws:string,id:string){return staff(user,ws,async c=>{await lock(c);const r=await get(c,'import_rows',id);const result=(await c.db.query("UPDATE import_rows SET decision='pending',reason=NULL,rejected_at=NULL WHERE workspace_id=$1 AND id=$2 AND decision='rejected' AND rejected_at>clock_timestamp()-interval '10 minutes' RETURNING *",[ws,id])).rows[0];if(!result)throw new ApiError(409,'undo_expired','Undo is available for 10 minutes after rejecting a row.');await complete(c,r.import_id);return result;});}
+export function restoreRow(user:string,ws:string,id:string){return staff(user,ws,async c=>{
+ if(c.role!=='admin')throw forbidden();await lock(c);const r=await get(c,'import_rows',id);
+ const result=(await c.db.query("UPDATE import_rows SET decision='pending',reason=NULL,rejected_at=NULL WHERE workspace_id=$1 AND id=$2 AND queued AND decision='rejected' RETURNING *",[ws,id])).rows[0];
+ if(!result)throw new ApiError(409,'not_rejected','This row is no longer rejected.');await complete(c,r.import_id);return result;
+});}
 export function errorReport(user:string,ws:string,id:string){return staff(user,ws,async c=>{await get(c,'imports',id);const data=(await c.db.query("SELECT row_number,data,errors FROM import_rows WHERE workspace_id=$1 AND import_id=$2 AND status='error' ORDER BY row_number",[ws,id])).rows;const timezone=(await c.db.query('SELECT timezone FROM workspaces WHERE id=$1',[ws])).rows[0].timezone;const cell=(v:unknown)=>'"'+String(v??'').replace(/^[=+@-]/,"'$&").replaceAll('"','""')+'"';return [['row_number',...fields,'reason'],...data.map(r=>[r.row_number,...fields.map(f=>['due_on','scheduled_for'].includes(f)&&r.data[f]&&localDate(r.data[f],timezone)?formatDate(r.data[f],timezone):f==='priority'?String(r.data[f]).replace(/^./,s=>s.toUpperCase()):r.data[f]),r.errors.map((e:{message:string})=>e.message).join('; ')])].map(r=>r.map(cell).join(',')).join('\r\n');});}
 export async function importDrafts(user:string,ws:string,id:string){
  const pending=await staff(user,ws,async c=>{await get(c,'imports',id);return (await c.db.query("SELECT id,data FROM import_rows WHERE workspace_id=$1 AND import_id=$2 AND queued AND decision='pending' AND ai_summary IS NULL ORDER BY row_number LIMIT 25",[ws,id])).rows;});

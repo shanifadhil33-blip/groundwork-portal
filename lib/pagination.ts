@@ -5,7 +5,7 @@ const querySchema=z.object({
  q:z.string().trim().max(500).optional(),
  status:z.array(status).default([]),priority:z.array(priority).default([]),
  overdue:z.enum(['true','false']).transform(v=>v==='true').optional(),
- client_id:uuid.optional(),assignee_id:uuid.optional(),
+ client_id:uuid.optional(),assignee_id:z.union([uuid,z.literal('unassigned')]).optional(),
  sort:z.enum(['updated_at','created_at','scheduled_for','due_on','priority','title']).default('updated_at'),
  dir:z.enum(['asc','desc']).default('desc'),
  page:z.coerce.number().int().min(1).max(1000000).default(1),
