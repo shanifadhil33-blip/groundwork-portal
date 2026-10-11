@@ -1,0 +1,39 @@
+import React from 'react';
+import { readFileSync } from 'node:fs';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { expect, it, vi } from 'vitest';
+import { AppContext, type Membership } from '../components/app/context';
+import { NoAccess } from '../components/app/no-access';
+import { ClientHome } from '../components/app/client-home';
+import { Dashboard } from '../components/app/dashboard';
+vi.mock('../components/app/resource',()=>({useResource:(url:string|null)=>({loading:false,error:null,reload:()=>{},data:url?.includes('/work-orders')?{total:1,data:[{id:'order',order_number:1,title:'Repair entry door',status:'open',updated_at:'2026-10-10T12:00:00Z',due_on:null}]}:url?.includes('/dashboard')?{by_status:{open:1},overdue:13,waiting_on_parts:3,pending_queue_rows:2}:url?.includes('/supplier/sync-runs')?[]: {data:[]}})}));
+const member:Membership={workspace_id:'workspace',workspace_name:'Ridgeline',role:'client',client_id:'client',client_name:'Harbor & Pine'};
+function render(element:React.ReactNode,role:Membership['role']='client') {return renderToStaticMarkup(<AppContext.Provider value={{member:{...member,role},workspace:{id:'workspace',name:'Ridgeline',timezone:'Asia/Dubai',is_demo:true},me:{user:{id:'user',name:'Priya',email:'priya@example.com',image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}>{element}</AppContext.Provider>);}
+it('offers sign in without a dashboard loop when signed out',()=>{
+ const html=renderToStaticMarkup(<NoAccess/>);
+ expect(html).toContain('href="/sign-in"');expect(html).toContain('Sign in');expect(html).toContain('Back to home');expect(html).not.toContain('/dashboard');
+ expect(render(<NoAccess/>)).toContain('Go to requests');expect(render(<NoAccess/>,'admin')).toContain('Go to dashboard');
+});
+it('groups recent update badges and time below the request title',()=>{
+ const html=render(<ClientHome/>);
+ expect(html).toContain('page stack client-home');
+ expect(html).toMatch(/request-update-meta"><span class="badge[^>]*>Request Received<\/span><span class="small muted">Updated /);
+ expect(html).toContain('My open requests');expect(html).toContain('Repair entry door');
+});
+it('keeps a short phone attention label and the full desktop explanation',()=>{
+ const html=render(<Dashboard/>,'admin');
+ expect(html).toContain('phone-attention-label">Overdue');expect(html).toContain('overdue work orders across open statuses');expect(html).toContain('phone-attention-label">Waiting on parts');
+});
+it('defines pure canvases and prevents badge stretching in flex columns',()=>{
+ const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+ expect(css).toMatch(/:root\{[^}]*--bg:#FFFFFF;--surface:#ffffff/);
+ expect(css).toMatch(/\[data-theme=dark\]\{[^}]*--bg:#000000;--surface:#000000/);
+ expect(css).toMatch(/\.badge\{[^}]*width:max-content;[^}]*align-self:flex-start/);
+ expect(css).toContain('.client-home .update-list{gap:0}');
+ expect(css).toContain('padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))');
+ expect(css).toMatch(/\.assistant-send:disabled\{opacity:1;background:var\(--surface-subtle\);color:var\(--text-muted\);border:1px/);
+ const touch=css.slice(css.lastIndexOf('@media(pointer:coarse)'));
+ expect(touch).toMatch(/\.inline-hint \.button[^}]*min-height:44px;min-width:44px/);
+ expect(touch).toMatch(/\.public-footer a[^}]*min-width:44px;min-height:44px/);
+ expect(touch).toMatch(/\.settings-page form>\.queue-check[^}]*min-width:44px;min-height:44px;padding:14px/);
+});

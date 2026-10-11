@@ -71,3 +71,14 @@ it('seed creation activity matches record dates and precedes comments and later 
  expect(rows.every(r=>r.created_at.getTime()===r.event_at.getTime())).toBe(true);
  const invalid=(await withSystem(db=>db.query('SELECT c.id FROM comments c JOIN work_orders o ON o.id=c.work_order_id WHERE c.created_at<o.created_at'))).rows;expect(invalid).toEqual([]);
 });
+
+it('provides names for phone cards while preserving client and workspace isolation',async()=>{
+ const staff=await listWorkOrders(ids.sam,ws,new URLSearchParams('pageSize=100'));
+ const first=staff.data.find((o:{id:string})=>o.id===orderId(1));
+ expect(first).toMatchObject({site_name:'Marina Exchange',client_name:'Harbor & Pine Coworking',assignee_name:'Sam'});
+ const client=await listWorkOrders(ids.priya,ws,new URLSearchParams('pageSize=100'));
+ expect(client.data.length).toBeGreaterThan(0);
+ for(const item of client.data){expect(item.client_id).toBe(ids.harbor);expect(item.client_name).toBe('Harbor & Pine Coworking');expect(item.site_name).toBeTruthy();}
+ expect(client.data.some((o:{client_name:string})=>o.client_name==='Northgate Self Storage')).toBe(false);
+ await expect(listWorkOrders(ids.priya,ids.summit,new URLSearchParams())).rejects.toMatchObject({status:404});
+});
