@@ -133,6 +133,7 @@ describe('pre-rendered building sequence for phones', () => {
   it('fits frames as cover or contain', () => {
     expect(fitFrame(900, 1250, 'cover')).toEqual({ x: 0, y: 0, width: 900, height: 1250 });
     const cover = fitFrame(390, 400, 'cover', .55); expect(cover.width).toBe(390); expect(cover.height).toBeGreaterThan(400);
+    const inset = fitFrame(390, 439, 'cover', .5, 24); expect(inset.y).toBeCloseTo(24 + (415 - inset.height) / 2); expect(inset.width).toBe(390);
     const contain = fitFrame(1400, 1250, 'contain'); expect(contain.height).toBe(1250); expect(contain.x).toBe(250);
   });
 });

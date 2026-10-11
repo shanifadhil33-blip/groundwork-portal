@@ -180,7 +180,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-header .lx-button{font-size:12px;padding:10px 12px;min-height:44px}
 .lx-root .lx-header-link{font-size:12px;padding:0 4px}
 .lx-root .lx-story{display:flex;flex-direction:column;position:relative}
-.lx-root .lx-hero{order:0;min-height:0;padding-top:112px;padding-bottom:20px;align-items:flex-start}
+.lx-root .lx-hero{order:0;min-height:0;padding-top:112px;padding-bottom:36px;align-items:flex-start}
 .lx-root .lx-hero-copy{width:100%;max-width:640px}
 .lx-root h1{font-size:clamp(44px,9vw,70px)}
 .lx-root .lx-hero p{font-size:16px;max-width:360px;margin-top:24px}
@@ -192,7 +192,9 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
    below it when it scrolls away; the rise section's negative margin cancels it in the flow. */
 .lx-root .lx-scene{order:1;position:sticky;inset:auto;top:var(--lx-header-h);z-index:3;flex-shrink:0;height:var(--lx-stage-h);background:#000;margin-bottom:var(--lx-release)}
 .lx-root .lx-scene::after{content:"";position:absolute;left:0;right:0;top:100%;height:28px;background:linear-gradient(#000,rgba(0,0,0,0));pointer-events:none}
-.lx-root .lx-seq-poster{object-fit:cover;object-position:50% 95%}
+.lx-root .lx-seq-poster{object-fit:cover;object-position:50% 95%;top:24px;height:calc(100% - 24px)}
+/* Floors that drop in from above fade in under the clear band instead of cutting at a hard edge. */
+.lx-root .lx-scene-sticky::before{content:"";position:absolute;left:0;right:0;top:24px;height:36px;z-index:2;background:linear-gradient(#000,rgba(0,0,0,0));pointer-events:none}
 .lx-root .lx-scene-sticky{position:relative;top:auto;height:100%;overflow:hidden}
 .lx-root .lx-visual{inset:0;width:100%;height:100%;opacity:1}
 .lx-root .lx-rise{order:2;min-height:0;margin-top:calc(-1 * var(--lx-release));padding-block:32px;align-items:flex-start}

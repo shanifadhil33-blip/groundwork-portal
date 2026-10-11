@@ -1,5 +1,5 @@
 import { clamp } from '../../lib/landing/hero';
-import { FRAME_COUNT, PHONE_KEYFRAMES, SEQ_START, fitFrame, frameIndex, frameSrc, type FrameFormat, loadOrder, nearestLoaded, phoneAnchor, piecewise } from '../../lib/landing/sequence';
+import { FRAME_COUNT, PHONE_KEYFRAMES, SEQ_START, fitFrame, frameIndex, frameSrc, type FrameFormat, loadOrder, nearestLoaded, PHONE_INSET_TOP, phoneAnchor, piecewise } from '../../lib/landing/sequence';
 
 export type SequenceOptions = { reducedMotion: boolean; saveData: boolean; phone: () => boolean };
 const CONCURRENCY = 4;
@@ -53,10 +53,15 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     const index = nearestLoaded(frameIndex(progress()), loaded);
     if (index < 0 || (index === drawn && !dirty)) return;
     const phone = options.phone();
-    const box = fitFrame(canvas!.width, canvas!.height, phone ? 'cover' : 'contain', phone ? phoneAnchor(index) : .5);
+    const inset = phone ? PHONE_INSET_TOP * canvas!.height / Math.max(1, canvas!.clientHeight) : 0;
+    const box = fitFrame(canvas!.width, canvas!.height, phone ? 'cover' : 'contain', phone ? phoneAnchor(index) : .5, inset);
     context!.fillStyle = '#000';
     context!.fillRect(0, 0, canvas!.width, canvas!.height);
+    context!.save();
+    // Nothing is drawn into the clear band; floors dropping in from above enter below it.
+    context!.beginPath(); context!.rect(0, inset, canvas!.width, canvas!.height - inset); context!.clip();
     context!.drawImage(images[index], box.x, box.y, box.width, box.height);
+    context!.restore();
     drawn = index; dirty = false;
     visual!.classList.add('lx-seq-live');
   }

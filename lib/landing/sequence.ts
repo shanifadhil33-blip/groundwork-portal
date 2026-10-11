@@ -63,10 +63,14 @@ export function phoneAnchor(index: number) {
 }
 
 /** Destination rectangle for drawing a frame into a box, as cover (anchored) or contain. */
-export function fitFrame(boxWidth: number, boxHeight: number, mode: 'cover' | 'contain', anchorY = .5) {
+export function fitFrame(boxWidth: number, boxHeight: number, mode: 'cover' | 'contain', anchorY = .5, insetTop = 0) {
+  const area = Math.max(1, boxHeight - insetTop);
   const scale = mode === 'cover'
-    ? Math.max(boxWidth / FRAME_WIDTH, boxHeight / FRAME_HEIGHT)
-    : Math.min(boxWidth / FRAME_WIDTH, boxHeight / FRAME_HEIGHT);
+    ? Math.max(boxWidth / FRAME_WIDTH, area / FRAME_HEIGHT)
+    : Math.min(boxWidth / FRAME_WIDTH, area / FRAME_HEIGHT);
   const width = FRAME_WIDTH * scale, height = FRAME_HEIGHT * scale;
-  return { x: (boxWidth - width) / 2, y: (boxHeight - height) * anchorY, width, height };
+  return { x: (boxWidth - width) / 2, y: insetTop + (area - height) * anchorY, width, height };
 }
+
+/** Clear band (CSS px) kept above the image on the phone stage, so the roof never touches the header. */
+export const PHONE_INSET_TOP = 24;
