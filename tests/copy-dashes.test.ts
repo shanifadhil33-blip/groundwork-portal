@@ -25,7 +25,7 @@ const technicalValues = new Set([
 const technicalProperties = new Set(['variable', 'powerPreference', 'cache', 'fontFamily']);
 const domMethods = new Set([
   'getElementById', 'querySelector', 'querySelectorAll', 'closest', 'matches',
-  'setProperty', 'setAttribute',
+  'setProperty', 'setAttribute', 'supports',
 ]);
 
 function technical(node: Node, ancestors: Node[]) {

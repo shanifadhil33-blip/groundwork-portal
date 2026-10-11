@@ -496,3 +496,15 @@ body:has(.app-shell) .empty-state,body:has(.app-shell) .error-state{border:0;bor
  .settings-page .tabs-scroll .tabs{display:flex;flex-wrap:wrap;overflow:visible;gap:0 16px;padding-right:0;border:0}
  .settings-page .tabs-scroll .tabs button{flex:0 0 auto;min-height:44px;padding:8px 0;font-size:13px}
 }
+
+/* Public pages: the signed in header variant is picked without animation (see PublicHeader). */
+.public-header .session-variant{display:contents}
+html:not([data-session]) .public-header [data-variant=in],html[data-session=out] .public-header [data-variant=in],html[data-session=in] .public-header [data-variant=out]{display:none}
+html:not([data-session]) .public-header [data-variant=out] > *{visibility:hidden}
+/* Public pages use the earthy landing palette, not the app's teal. White on #8a5d24 is 5.7:1; #120d06 on #c08a3e 6.9:1. */
+body:has(.public-header){--primary:#8a5d24;--accent:#8a5d24;--primary-fg:#fff}
+[data-theme=dark] body:has(.public-header){--primary:#c08a3e;--accent:#d2a464;--primary-fg:#120d06}
+body:has(.public-header) .link-button,body:has(.public-header) .button{transition:background-color .14s ease-out,color .14s ease-out,transform .14s ease-out}
+body:has(.public-header) .primary:active:not(:disabled){background:color-mix(in srgb,var(--primary) 82%,#3a2208);transform:translateY(1px)}
+@media(hover:hover){body:has(.public-header) .primary:hover:not(:disabled){background:color-mix(in srgb,var(--primary) 90%,#3a2208)}}
+@media(prefers-reduced-motion:reduce){body:has(.public-header) .link-button,body:has(.public-header) .button{transition:none}body:has(.public-header) .primary:active:not(:disabled){transform:none}}

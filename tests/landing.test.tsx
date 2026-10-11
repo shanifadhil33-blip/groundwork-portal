@@ -182,3 +182,23 @@ describe('phone path', () => {
     expect(phoneFade(.5)).toBe(1); expect(phoneFade(.95)).toBeCloseTo(0, 9);
   });
 });
+
+describe('compositor driven phone stage', () => {
+  it('builds scroll timeline keyframes from the same curve, with a px range and no smoothing', async () => {
+    const { phonePath, phoneGeometry, phoneKeyframes, flowState, phoneLength } = await import('../lib/landing/sequence');
+    const layout = { range: 1035, startTop: 414, boxHeight: 430, viewHeight: 844, path: phonePath(1035, 335) };
+    const css = phoneKeyframes(layout, [900, 1200]);
+    expect(css).toContain('@keyframes lx-stage{0.000%{transform:translate3d(0,0.00px,0)');
+    expect(css).toContain(`animation-timeline:scroll(root block);animation-range:0px ${phoneLength(layout)}px`);
+    expect(css).toContain('@keyframes lx-flow-1');
+    // The stage element scrolls with the page; the animation only adds the path's offset on top.
+    for (const y of [0, 200, 600, 1000]) {
+      const g = phoneGeometry(layout, y);
+      expect(layout.startTop - y + g.shift).toBeCloseTo(layout.startTop + layout.path.offset(y / layout.range), 6);
+    }
+    // Text is fully gone before its top reaches the building's bottom edge.
+    const y = 700, edge = phoneGeometry(layout, y).bottom;
+    expect(flowState(layout, edge + y, y).opacity).toBeLessThan(1e-9);
+    expect(flowState(layout, edge + y + 200, y).opacity).toBeGreaterThan(.9);
+  });
+});

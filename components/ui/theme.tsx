@@ -17,4 +17,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <Context.Provider value={{ theme, setTheme, sync, error, saving }}>{children}</Context.Provider>;
 }
 export const useTheme = () => useContext(Context);
-export const themeScript = `try{var t=localStorage.getItem('groundwork-theme')||'system';document.documentElement.dataset.theme=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'}catch(e){document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}`;
+export { themeScript } from '../../lib/head-scripts';

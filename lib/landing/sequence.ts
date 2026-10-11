@@ -131,3 +131,68 @@ export function fitFrame(boxWidth: number, boxHeight: number, mode: 'cover' | 'c
 
 /** Clear band (CSS px) kept above the image on the phone stage, so the roof never touches the header. */
 export const PHONE_INSET_TOP = 24;
+
+/** Phone stage tuning: end scale, tilt and turn (degrees), the text fade zone and the entry fade (px). */
+export const PHONE_STAGE = { endScale: .54, tilt: 8, turn: -5, fadeZone: 72, sink: 8, entry: 90 } as const;
+
+export type PhoneLayout = { range: number; startTop: number; boxHeight: number; viewHeight: number; path: ReturnType<typeof phonePath> };
+
+/**
+ * Where the building is at scroll position y, relative to its place in the document flow. The element itself
+ * scrolls with the page (compositor, zero lag); this only adds the path's offset, scale, tilt and dissolve.
+ */
+export function phoneGeometry(layout: PhoneLayout, y: number) {
+  const p = Math.max(0, y) / Math.max(1, layout.range), g = layout.path.settle(p), fade = phoneFade(p);
+  const scale = (1 + (PHONE_STAGE.endScale - 1) * g) * (1 - .08 * (1 - fade));
+  const shift = layout.path.offset(p) + Math.max(0, y);
+  return { shift, scale, tilt: PHONE_STAGE.tilt * g, turn: PHONE_STAGE.turn * g, opacity: fade, top: layout.startTop + layout.path.offset(p), bottom: layout.startTop + layout.path.offset(p) + layout.boxHeight * scale };
+}
+
+export function phoneTransform(geometry: ReturnType<typeof phoneGeometry>) {
+  return `translate3d(0,${geometry.shift.toFixed(2)}px,0) perspective(900px) rotateX(${geometry.tilt.toFixed(3)}deg) rotateY(${geometry.turn.toFixed(3)}deg) scale(${geometry.scale.toFixed(4)})`;
+}
+
+/** Text at scroll y: eases in as it enters from the bottom, dissolves (and sinks a few px) before reaching the building. */
+export function flowState(layout: PhoneLayout, documentTop: number, y: number) {
+  const top = documentTop - y, edge = phoneGeometry(layout, y).bottom;
+  const smooth01 = (x: number) => { const u = clamp(x); return u * u * (3 - 2 * u); };
+  const away = smooth01((top - edge) / PHONE_STAGE.fadeZone), entry = smooth01((layout.viewHeight - top) / PHONE_STAGE.entry);
+  return { opacity: away * entry, sink: PHONE_STAGE.sink * (1 - away) };
+}
+
+/** The scroll length the stage animation covers; past it the building simply scrolls with the page. */
+export function phoneLength(layout: PhoneLayout) { return Math.ceil(PATH.fallTo * layout.range) + 40; }
+
+/**
+ * CSS for a compositor driven stage: keyframes sampled from the same curve, on a root scroll timeline with a
+ * px range, so they do not depend on the page height or the browser's toolbar. Linear between dense samples.
+ */
+export function phoneKeyframes(layout: PhoneLayout, flowTops: number[], step = 16) {
+  const length = phoneLength(layout), rows: string[] = [];
+  const at = (y: number) => `${(y / length * 100).toFixed(3)}%`;
+  const frames: string[] = [];
+  for (let y = 0; y <= length; y += step) {
+    const g = phoneGeometry(layout, y);
+    frames.push(`${at(y)}{transform:${phoneTransform(g)};opacity:${g.opacity.toFixed(3)}}`);
+  }
+  if ((length / step) % 1) { const g = phoneGeometry(layout, length); frames.push(`100%{transform:${phoneTransform(g)};opacity:${g.opacity.toFixed(3)}}`); }
+  rows.push(`@keyframes lx-stage{${frames.join('')}}`);
+  // Text: only the stretch where its opacity changes needs keyframes; outside it the value holds.
+  const textLength = length + layout.viewHeight * 2;
+  flowTops.forEach((top, index) => {
+    const from = Math.max(0, top - layout.viewHeight - 8), to = Math.min(textLength, top + 40);
+    const key = (y: number) => { const f = flowState(layout, top, y); return `${(y / textLength * 100).toFixed(3)}%{opacity:${f.opacity.toFixed(3)};translate:0 ${f.sink.toFixed(2)}px}`; };
+    const points: string[] = [key(0)];
+    let last = -1;
+    for (let y = from; y <= to; y += 6) {
+      const o = flowState(layout, top, y).opacity;
+      if (Math.abs(o - last) < .004 && y + 6 <= to) continue;
+      points.push(key(y)); last = o;
+    }
+    points.push(key(textLength));
+    rows.push(`@keyframes lx-flow-${index}{${points.join('')}}`);
+    rows.push(`.lx-root[data-timeline=css] [data-flow="${index}"]{animation:lx-flow-${index} linear both;animation-timeline:scroll(root block);animation-range:0px ${textLength}px}`);
+  });
+  rows.push(`.lx-root[data-timeline=css] .lx-visual{animation:lx-stage linear both;animation-timeline:scroll(root block);animation-range:0px ${length}px}`);
+  return rows.join('\n');
+}

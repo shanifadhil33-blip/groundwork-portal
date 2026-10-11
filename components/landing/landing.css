@@ -1,9 +1,10 @@
 body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root{--lx-ghost:1;--primary-fg:#000;color-scheme:dark;background:#000;color:#fff;font-family:var(--font-ui),Arial,sans-serif;position:relative;isolation:isolate}
 .lx-root p{color:#a1a1a1;line-height:1.65;font-size:17px}
-.lx-root a,.lx-root button{transition:background .18s,color .18s,transform .18s;border-radius:4px}
+.lx-root a,.lx-root button{transition:background-color .14s ease-out,color .14s ease-out,transform .14s ease-out;border-radius:4px}
 .lx-root a:hover{color:#c69753}
-.lx-root a:active,.lx-root button:active{transform:translateY(1px);background:#242424}
+.lx-root a:active,.lx-root button:active{transform:translateY(1px)}
+.lx-root .lx-header-link:active,.lx-root .lx-config button:active{background:#242424}
 .lx-root :focus-visible{outline:2px solid #89a9b0;outline-offset:5px}
 .lx-root .lx-skip{position:fixed;left:24px;top:-80px;background:#c69753;color:#000;padding:12px 20px;z-index:60}
 .lx-root .lx-skip:focus{top:90px}
@@ -33,10 +34,9 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
     0 1px 2px rgba(0,0,0,.5),
     0 8px 22px rgba(0,0,0,.45),
     0 2px 12px rgba(198,151,83,.22);
-  -webkit-backdrop-filter:blur(8px) saturate(150%);
-  backdrop-filter:blur(8px) saturate(150%);
   text-shadow:0 1px 0 rgba(255,240,215,.35);
-  transition:background .18s,box-shadow .18s,transform .18s,filter .18s;
+  /* Colour and a small sink only; the label never animates. */
+  transition:color .14s ease-out,transform .14s ease-out;
 }
 .lx-root .lx-primary:hover{
   color:#120d06;
@@ -56,8 +56,8 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-primary:active{
   color:#120d06;
   background:
-    linear-gradient(to bottom,rgba(255,255,255,.22),rgba(255,255,255,0) 45%),
-    linear-gradient(to bottom,#b4833c,#a06f2e);
+    linear-gradient(to bottom,rgba(255,255,255,.24),rgba(255,255,255,0) 45%),
+    linear-gradient(to bottom,#c48a36,#a8732a);
   box-shadow:
     inset 0 2px 5px rgba(70,42,10,.55),
     inset 0 0 0 1px rgba(255,232,196,.14),
@@ -112,17 +112,8 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
     inset 0 -.055em .12em rgba(255,255,255,.08),
     inset 0 -.12em .2em rgba(0,0,0,.18),
     0 .06em .18em rgba(0,0,0,.2);
-  -webkit-backdrop-filter:blur(8px) saturate(140%);
-  backdrop-filter:blur(8px) saturate(140%);
   -webkit-box-decoration-break:clone;
   box-decoration-break:clone;
-}
-@media(prefers-reduced-transparency:reduce){
-  .lx-root .lx-primary{-webkit-backdrop-filter:none;backdrop-filter:none}
-  .lx-root .lx-highlight::before{
-    -webkit-backdrop-filter:none;
-    backdrop-filter:none;
-  }
 }
 .lx-root .lx-hero p{max-width:375px;margin-top:28px}
 .lx-root .lx-scroll{display:flex;align-items:center;gap:12px;color:#a1a1a1;font-size:12px;margin-top:72px}
@@ -187,16 +178,20 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-actions{margin-top:24px}
 .lx-root .lx-scroll{margin-top:24px}
 .lx-root .lx-scroll>span{height:22px}
-/* The building floats over the page: fixed, no box, feathered into the black by a radial mask, and moved
-   by the sequence runtime (rise, shrink, slight tilt). The stage is wider than the screen so the mask's
-   soft edge is never cut by the box; the viewport clips it, so no edge is ever visible. */
-.lx-root{--lx-hero-b:438px}
-.lx-root .lx-scene{position:fixed;inset:0;z-index:3;height:auto;background:none;margin:0;overflow:hidden;pointer-events:none}
-.lx-root .lx-scene-sticky{position:absolute;inset:0;height:auto;overflow:visible}
-.lx-root .lx-visual{left:-20vw;right:auto;width:140vw;top:0;height:calc(100svh - var(--lx-hero-b) + 24px);opacity:1;transform-origin:50% 0;
-  transform:translate3d(0,calc(var(--lx-hero-b) - 24px),0);will-change:transform,opacity;
+/* The building lives in the document flow (absolute inside the story), so the compositor scrolls it with the
+   page: zero lag. Its extra rise, shrink, tilt and dissolve come from scroll driven keyframes the runtime builds
+   (data-timeline=css) or, without scroll timelines, from transforms set in the scroll handler. The stage is wider
+   than the screen so the mask's soft edge is never cut by the box; the root clips the overflow. */
+.lx-root{--lx-hero-b:438px;overflow-x:clip}
+.lx-root .lx-story{position:relative}
+.lx-root .lx-scene{position:absolute;inset:0 0 auto 0;height:0;z-index:3;background:none;margin:0;overflow:visible;pointer-events:none}
+.lx-root .lx-scene-sticky{position:static;height:0;overflow:visible}
+.lx-root .lx-visual{left:-20vw;right:auto;width:140vw;top:calc(var(--lx-hero-b) - 24px);height:calc(100svh - var(--lx-hero-b) + 24px);opacity:1;transform-origin:50% 0;
+  will-change:transform,opacity;
   -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 80%,rgba(0,0,0,.55) 90%,transparent 100%);
   mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 80%,rgba(0,0,0,.55) 90%,transparent 100%)}
+/* On phones the scroll timeline fades the story text in and out instead of the one shot reveal. */
+.lx-root[data-timeline] .lx-observed{opacity:1;transform:none;transition:none}
 /* Until the canvas draws, the poster sits where the runtime will draw frame 0 (building box at 62% height). */
 .lx-root .lx-seq-poster{inset:auto;left:50%;top:4.6%;width:auto;height:85.4%;transform:translateX(-50%);object-fit:contain}
 /* The text starts below the building and flows up beneath it. */
@@ -220,7 +215,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 }
 @media (prefers-reduced-motion:reduce) and (max-width:768px),(prefers-reduced-motion:reduce) and (pointer:coarse){
 .lx-root .lx-scene{position:relative;inset:auto;order:1;height:52svh;overflow:visible}
-.lx-root .lx-visual{left:-20vw;width:140vw;height:100%;transform:none}
+.lx-root .lx-visual{left:-20vw;width:140vw;top:0;height:100%;transform:none;animation:none}
 .lx-root .lx-rise{margin-top:0}
 }
 @media(prefers-reduced-motion:reduce){

@@ -60,3 +60,12 @@ describe('history and local formatting',()=>{
 });
 
 it('never offers invite acceptance before validating a bogus token',()=>{mocks.query='token=bogus';const html=renderToStaticMarkup(<InviteAccept/>);expect(html).not.toContain('Join a workspace');expect(html).not.toContain('>Accept invite<');});
+
+describe('static public header', () => {
+  it('renders both states without animation when the session is not known yet', async () => {
+    const { PublicHeader } = await import('../components/public/chrome');
+    const html = renderToStaticMarkup(<PublicHeader />);
+    expect(html).toContain('data-variant="out"'); expect(html).toContain('data-variant="in"');
+    expect(html).toContain('Try the demo'); expect(html).toContain('Go to dashboard');
+  });
+});
