@@ -359,3 +359,17 @@ Changed files for this task:
 - `tests/error-pages.test.tsx`
 - `tests/request-errors.test.ts`
 - `vitest.frontend.config.ts`
+
+## Immersive landing
+
+Replaced only the public `/` landing with a black, Geist-based scroll narrative: a fixed Groundwork bar, request-to-done hero, nine-floor procedural building, three workflow steps, agent MCP configuration with copy feedback, large final reveal, and legal footer. All copy and navigation remain server-rendered; application screens, shared public chrome, APIs, authentication, database behavior, and metadata are unchanged. New styles are scoped beneath `.lx-root` with `lx-` classes; existing landing CSS was retained.
+
+The inline isometric SVG is rendered on the server and remains the complete fallback for reduced motion, small/coarse-pointer devices, low CPU/memory hints, data saving, unavailable WebGL, renderer initialization errors, and lost contexts. Mobile illustrations sit below content and behind the final reveal. IntersectionObserver reveals respect reduced motion. Ochre/black contrast is 7.95:1; muted text/black is 8.13:1. Links and buttons have hover, pressed, and keyboard focus states; copy feedback uses an aria-live region.
+
+The scene module and Three.js load only after desktop eligibility checks. The low-power, antialiased renderer caps pixel ratio at 1.5, uses procedural matte geometry and thin edges with state-colored emissive bands, and renders on demand for scroll, pointer, and resize changes. It pauses while hidden or offscreen and disposes its renderer, geometry, materials, observers, and listeners. There are no models, textures, images, video, animation libraries, or continuous idle rendering.
+
+Review pass (outside the Codex sandbox): installed `three@0.180.0` + `@types/three` and updated the lockfile. Desktop workflow steps moved to a left column so the 3D building is never cut by a text panel; floor lighting now paces with the steps (Scheduled from ~33% scroll, Done ~49%); removed the arrow glyph from "Try the demo"; page background forced to pure #000 on overscroll.
+
+Size: the Three.js + scene chunk is ~174 KB gzip and loads only after the desktop eligibility and WebGL checks pass; the landing's own client code is ~3.4 KB gzip and CSS ~2.3 KB gzip. Verified in headless Chrome against the production build: desktop with WebGL renders the canvas (SVG hidden), while phone viewport, prefers-reduced-motion, and blocked WebGL keep the SVG and never request the Three.js chunk. No console errors.
+
+Validation: `pnpm typecheck && pnpm test && pnpm build` green (all suites, including the landing render and eligibility tests).

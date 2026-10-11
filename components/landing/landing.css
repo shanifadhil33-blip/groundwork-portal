@@ -1,0 +1,94 @@
+body:has(.lx-root),html:has(.lx-root){background:#000}
+.lx-root{--lx-ghost:1;--primary-fg:#000;color-scheme:dark;background:#000;color:#fff;font-family:var(--font-ui),Arial,sans-serif;position:relative;isolation:isolate}
+.lx-root p{color:#a1a1a1;line-height:1.65;font-size:17px}
+.lx-root a,.lx-root button{transition:background .18s,color .18s,transform .18s;border-radius:4px}
+.lx-root a:hover{color:#c69753}
+.lx-root a:active,.lx-root button:active{transform:translateY(1px);background:#242424}
+.lx-root :focus-visible{outline:2px solid #89a9b0;outline-offset:5px}
+.lx-root .lx-skip{position:fixed;left:24px;top:-80px;background:#c69753;color:#000;padding:12px 20px;z-index:60}
+.lx-root .lx-skip:focus{top:90px}
+.lx-root .lx-header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:20px clamp(20px,5vw,88px);background:#000;border-bottom:1px solid #202020}
+.lx-root .lx-brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:600;letter-spacing:-.6px}
+.lx-root .lx-brand svg{width:28px;height:28px;color:#c69753}
+.lx-root .lx-header nav{display:flex;align-items:center;gap:24px}
+.lx-root .lx-header-link{display:flex;align-items:center;min-height:44px;padding:0 8px;font-size:14px}
+.lx-root .lx-button{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:50px;padding:14px 22px;font-size:14px;font-weight:600;border:1px solid transparent}
+.lx-root .lx-primary{background:#c69753;color:#000}
+.lx-root .lx-primary:hover{background:#d5ac71;color:#000}
+.lx-root .lx-primary:active{background:#b78746;color:#000}
+.lx-root .lx-secondary{background:transparent;border-color:#3a3a3a;color:#fff}
+.lx-root .lx-secondary:hover{background:#1a1a1a;border-color:#737373;color:#fff}
+.lx-root .lx-secondary:active{background:#292929}
+.lx-root .lx-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.lx-root .lx-main{position:relative}
+.lx-root .lx-mobile-building{display:none}
+.lx-root .lx-scene{position:absolute;inset:0;pointer-events:none;z-index:0}
+.lx-root .lx-scene-sticky{position:sticky;top:0;height:100svh;overflow:hidden}
+.lx-root .lx-visual{position:absolute;right:-4%;top:8%;width:64%;height:88%;opacity:var(--lx-ghost)}
+.lx-root .lx-building,.lx-root .lx-canvas{position:absolute;width:100%;height:100%;inset:0}
+.lx-root .lx-building{padding:30px;opacity:.9}
+.lx-root .lx-canvas{opacity:0;pointer-events:none}
+.lx-root .lx-canvas canvas{display:block;width:100%;height:100%}
+.lx-root .lx-ready .lx-building{visibility:hidden}
+.lx-root .lx-ready .lx-canvas{opacity:1}
+.lx-root .lx-hero,.lx-root .lx-rise,.lx-root .lx-workflow,.lx-root .lx-agent,.lx-root .lx-finale{position:relative;z-index:1;padding-inline:clamp(24px,7vw,112px)}
+.lx-root .lx-hero{min-height:100svh;display:flex;align-items:center;padding-top:128px;padding-bottom:60px}
+.lx-root .lx-hero-copy{width:52%;max-width:740px}
+.lx-root h1{font-size:clamp(48px,5.8vw,88px);font-weight:500;letter-spacing:-.065em;line-height:1.05;text-wrap:balance}
+.lx-root .lx-highlight{background:#c69753;color:#000;padding:0 .1em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.lx-root .lx-hero p{max-width:375px;margin-top:28px}
+.lx-root .lx-scroll{display:flex;align-items:center;gap:12px;color:#a1a1a1;font-size:12px;margin-top:72px}
+.lx-root .lx-scroll>span{height:34px;width:1px;background:#737373}
+.lx-root .lx-rise{min-height:90svh;display:flex;align-items:center}
+.lx-root .lx-rise p{font-size:clamp(25px,3vw,42px);color:#fff;letter-spacing:-.04em;line-height:1.3}
+.lx-root .lx-workflow{min-height:120svh;display:flex;flex-direction:column;justify-content:center;padding-block:100px;gap:40px}
+.lx-root .lx-legend{display:flex;gap:20px;align-self:flex-start;font-size:13px;color:#b5b5b5;order:2}
+.lx-root .lx-legend span{display:flex;gap:7px;align-items:center}
+.lx-root .lx-legend i{width:7px;height:7px;border-radius:1px;display:inline-block}
+.lx-root .lx-open{border:1px solid #a1a1a1}
+.lx-root .lx-scheduled{background:#89a9b0}
+.lx-root .lx-done{background:#c69753}
+.lx-root .lx-steps{display:grid;grid-template-columns:1fr;gap:44px;max-width:480px;width:44%;min-width:320px}
+.lx-root .lx-steps article{border-left:1px solid #333;padding-left:24px}
+.lx-root .lx-number{font-size:14px;color:#c69753;display:block;margin-bottom:10px;font-variant-numeric:tabular-nums}
+.lx-root .lx-steps h2{font-size:26px;font-weight:500;letter-spacing:-.04em}
+.lx-root .lx-steps p{font-size:15px;margin-top:10px;max-width:400px}
+.lx-root .lx-agent{min-height:90svh;display:flex;align-items:center}
+.lx-root .lx-agent-copy{max-width:540px}
+.lx-root .lx-agent h2{font-size:clamp(36px,4vw,58px);font-weight:500;letter-spacing:-.055em;line-height:1.1}
+.lx-root .lx-agent p{margin-top:24px;max-width:450px}
+.lx-root .lx-config{display:flex;align-items:center;gap:12px;margin-top:28px;border:1px solid #3a3a3a;padding:12px;background:#0d0d0d;max-width:100%;border-radius:4px}
+.lx-root .lx-config code{font-size:12px;overflow-wrap:anywhere;line-height:1.8;user-select:all;color:#bdbdbd;min-width:0}
+.lx-root .lx-config button{color:#fff;background:transparent;min-height:44px;padding:8px 12px;border:1px solid #3a3a3a;white-space:nowrap;font-size:12px}
+.lx-root .lx-config button:hover{background:#242424;border-color:#737373}
+.lx-root .lx-config button:active{background:#333}
+.lx-root .lx-finale{min-height:110svh;display:flex;align-items:center;padding-block:100px}
+.lx-root .lx-finale h2{font-size:clamp(60px,8.8vw,134px);font-weight:500;letter-spacing:-.07em;line-height:1.03}
+.lx-root .lx-note{margin-top:22px;font-size:13px}
+.lx-root .lx-footer{position:relative;z-index:2;border-top:1px solid #262626;margin:0 clamp(24px,7vw,112px);padding:32px 0 40px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;background:#000}
+.lx-root .lx-footer-brand{font-size:18px;font-weight:600}
+.lx-root .lx-footer nav{display:flex;gap:24px}
+.lx-root .lx-footer a{display:inline-flex;align-items:center;min-height:44px;font-size:13px}
+.lx-root .lx-footer p{margin-left:auto;font-size:12px}
+.lx-root .lx-observed{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
+.lx-root .lx-visible{opacity:1;transform:none}
+@media(max-width:768px){
+.lx-root .lx-header{padding:12px 20px}.lx-root .lx-brand{font-size:17px;gap:7px}.lx-root .lx-brand svg{width:24px;height:24px}.lx-root .lx-header nav{gap:8px}.lx-root .lx-header .lx-button{font-size:12px;padding:10px 12px;min-height:44px}.lx-root .lx-header-link{font-size:12px;padding:0 4px}
+.lx-root .lx-hero{align-items:flex-start;padding-top:150px;min-height:1000px;padding-bottom:420px}.lx-root .lx-hero-copy{width:100%;max-width:510px}.lx-root h1{font-size:clamp(48px,9vw,70px)}.lx-root .lx-hero p{font-size:16px;max-width:320px}.lx-root .lx-scroll{margin-top:36px}
+.lx-root .lx-visual{top:auto;bottom:0;right:-10%;width:100%;height:48%;max-height:450px}.lx-root .lx-building{padding:0;opacity:.65}.lx-root .lx-rise{min-height:65svh;align-items:flex-start;padding-top:80px}.lx-root .lx-rise p{font-size:28px}.lx-root .lx-workflow{min-height:100svh;padding-bottom:64px;justify-content:center}.lx-root .lx-legend{align-self:flex-start}.lx-root .lx-steps{grid-template-columns:1fr;gap:32px;width:100%;min-width:0}.lx-root .lx-steps article{max-width:450px}.lx-root .lx-number{margin-bottom:10px}.lx-root .lx-steps h2{min-height:0;font-size:24px;max-width:none}.lx-root .lx-steps p{max-width:none;margin-top:10px}.lx-root .lx-agent{min-height:85svh;align-items:flex-start;padding-top:90px}.lx-root .lx-agent-copy{background:#000;padding-bottom:24px}.lx-root .lx-agent h2{font-size:42px}.lx-root .lx-config{gap:8px;padding:8px}.lx-root .lx-config code{font-size:11px}.lx-root .lx-config button{padding:8px}
+.lx-root .lx-finale{min-height:100svh}.lx-root .lx-finale h2{font-size:clamp(55px,11vw,84px)}.lx-root .lx-note{max-width:280px}.lx-root .lx-footer{gap:12px 28px}.lx-root .lx-footer p{margin-left:0;flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){.lx-root .lx-observed{opacity:1;transform:none;transition:none}.lx-root a,.lx-root button{transition:none}.lx-root a:active,.lx-root button:active{transform:none}}
+
+/* Phones use illustrations in the document flow so artwork never covers actions. */
+@media(max-width:768px){
+.lx-root .lx-scene{height:1000px;bottom:auto}
+.lx-root .lx-scene-sticky{position:relative;height:100%;overflow:hidden}
+.lx-root .lx-visual{top:610px;bottom:auto;height:390px;max-height:none;opacity:1}
+.lx-root .lx-workflow{padding-bottom:440px}
+.lx-root .lx-mobile-building{display:block;position:absolute;bottom:16px;right:0;width:100%;height:380px;pointer-events:none;z-index:-1}
+.lx-root .lx-finale{isolation:isolate}
+.lx-root .lx-finale .lx-mobile-building{inset:0;height:100%;opacity:.16}
+.lx-root .lx-workflow .lx-mobile-building{z-index:0}
+.lx-root .lx-workflow .lx-steps,.lx-root .lx-workflow .lx-legend{position:relative;z-index:1}
+}
