@@ -4,7 +4,17 @@ import { BUILDING_CROP, FRAME_COUNT, blendFrames, easeToward, fitFrame, frameFlo
 export type SequenceOptions = { reducedMotion: boolean; saveData: boolean; phone: () => boolean };
 const CONCURRENCY = 4;
 // Phone motion targets: end scale, tilt and turn (degrees). Kept subtle on purpose.
-const END_SCALE = .62, TILT = 8, TURN = -5;
+const END_SCALE = .54, TILT = 8, TURN = -5;
+// Text blocks that flow up under the building. Each fades out over this distance above the building's bottom edge.
+const FLOW_TEXT = '.lx-rise p, .lx-legend, .lx-steps article > *, .lx-agent-copy > *';
+const FADE_ZONE = 72, SINK = 8;
+
+function documentTop(element: HTMLElement) {
+  // offsetTop ignores transforms and translate, so the fade below never feeds back into its own measurement.
+  let top = 0;
+  for (let node: HTMLElement | null = element; node; node = node.offsetParent as HTMLElement | null) top += node.offsetTop;
+  return top;
+}
 
 /**
  * Draws the pre-rendered building into .lx-seq-canvas from scroll position. Returns a cleanup.
@@ -30,6 +40,8 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
   let progress = -1, drawnKey = '', geometryKey = '';
   // Layout values that only change on resize.
   let heroBottom = 0, range = 1, headerBottom = 69;
+  const flow = [...root.querySelectorAll<HTMLElement>(FLOW_TEXT)];
+  let flowTops: number[] = [], flowKeys: string[] = [];
   const floating = () => options.phone() && !options.reducedMotion;
 
   function measure() {
@@ -38,6 +50,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     // The story ends (and the building has faded) once its last line passes a little above mid screen.
     range = Math.max(1, story!.offsetTop + story!.offsetHeight - innerHeight * .55);
     root.style.setProperty('--lx-hero-b', `${Math.round(heroBottom)}px`);
+    flowTops = flow.map(documentTop); flowKeys = [];
   }
   function target() {
     if (options.phone()) return clamp(scrollY / range);
@@ -50,18 +63,37 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     measure(); dirty = true; geometryKey = ''; schedule();
   }
   function place(p: number) {
-    if (!floating()) { if (geometryKey) { visual!.style.transform = visual!.style.opacity = visual!.style.visibility = ''; geometryKey = ''; } return; }
+    if (!floating()) { if (geometryKey) { visual!.style.transform = visual!.style.opacity = visual!.style.visibility = ''; geometryKey = ''; clearText(); } return; }
     const startTop = heroBottom - 24, endTop = headerBottom - 28;
     const g = phoneMotion(p, range / Math.max(1, startTop - endTop)), fade = phoneFade(p);
-    const top = startTop + (endTop - startTop) * g, scale = 1 + (END_SCALE - 1) * g;
+    const scale = 1 + (END_SCALE - 1) * g;
+    // At the end it keeps going, up and out under the header, so text below it is never left behind it.
+    const exit = clamp((p - .86) / .14), leave = exit * exit * (3 - 2 * exit);
+    const height = visual!.offsetHeight;
+    const top = startTop + (endTop - startTop) * g - leave * (endTop + height * scale + 40);
     const transform = `translate3d(0,${top.toFixed(2)}px,0) perspective(900px) rotateX(${(TILT * g).toFixed(2)}deg) rotateY(${(TURN * g).toFixed(2)}deg) scale(${scale.toFixed(4)})`;
     const key = `${transform}|${fade.toFixed(3)}`;
-    if (key === geometryKey) return;
-    visual!.style.transform = transform;
-    visual!.style.opacity = fade.toFixed(3);
-    visual!.style.visibility = fade <= 0 ? 'hidden' : '';
-    geometryKey = key;
+    if (key !== geometryKey) {
+      visual!.style.transform = transform;
+      visual!.style.opacity = fade.toFixed(3);
+      visual!.style.visibility = fade <= 0 ? 'hidden' : '';
+      geometryKey = key;
+    }
+    fadeText(fade <= 0 ? -Infinity : visual!.getBoundingClientRect().bottom);
   }
+  /** Each text block dissolves (and sinks a few px) as its top nears the building's bottom edge, gone before it gets there. */
+  function fadeText(edge: number) {
+    flow.forEach((element, index) => {
+      const distance = flowTops[index] - scrollY - edge;
+      const u = clamp(distance / FADE_ZONE), opacity = u * u * (3 - 2 * u);
+      const key = opacity.toFixed(3);
+      if (flowKeys[index] === key) return;
+      flowKeys[index] = key;
+      element.style.filter = opacity >= 1 ? '' : `opacity(${key})`;
+      element.style.translate = opacity >= 1 ? '' : `0 ${(SINK * (1 - opacity)).toFixed(2)}px`;
+    });
+  }
+  function clearText() { flow.forEach(element => { element.style.filter = element.style.translate = ''; }); flowKeys = []; }
   function paint(image: HTMLImageElement, alpha: number) {
     const w = canvas!.width, h = canvas!.height;
     context!.globalAlpha = alpha;
@@ -139,7 +171,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     if (visible) { dirty = true; schedule(); }
   }, { rootMargin: '120px' });
   const sizing = new ResizeObserver(resize);
-  observer.observe(visual); sizing.observe(canvas);
+  observer.observe(visual); sizing.observe(canvas); sizing.observe(main);
   if (!still || options.phone()) window.addEventListener('scroll', schedule, { passive: true });
   document.addEventListener('visibilitychange', schedule);
   poster?.addEventListener('load', usePoster);
@@ -155,6 +187,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     images.forEach((image, index) => { if (image && image !== poster && !loaded[index]) image.src = ''; });
     visual.classList.remove('lx-seq-live');
     visual.style.transform = visual.style.opacity = visual.style.visibility = '';
+    clearText();
     root.style.removeProperty('--lx-hero-b');
     context.clearRect(0, 0, canvas.width, canvas.height);
   };
