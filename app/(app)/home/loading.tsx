@@ -1,2 +1,2 @@
-import { PageSkeleton } from '../../../components/ui/states';
-export default PageSkeleton;
+import { DashboardLoading } from '../../../components/app/workflow-loading';
+export default DashboardLoading;

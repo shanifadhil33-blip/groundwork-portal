@@ -200,3 +200,26 @@ Files changed:
 - app/(public)/sign-in/page.tsx; app/(public)/demo/page.tsx; app/(app)/onboarding/page.tsx
 - components/app/shell.tsx; components/app/dashboard.tsx; components/app/approval-queue.tsx; components/app/import-upload.tsx
 - components/public/chrome.tsx; components/ui/states.tsx; PROGRESS.md
+
+## Redesign batch 2 — dashboard, first run, work orders
+
+Reused batch 1 light/dark tokens and primitives. Dashboard now has a real workspace/count header, linked six-status strip and proportional muted bar, independently loaded attention items, avatar activity rows with the permitted audit link, and compact supplier sync. Real workspaces with zero orders show the checklist instead of zero metrics/activity. The five setup checks use existing read-only clients/imports/members/invites/tokens endpoints independently with inline Retry; team invitation is admin-only, staff client setup directs them to an admin, and the real Settings tab is `agent-access`. Existing `first-use:<workspace>` started/dismissed persistence remains compatible, and the checklist hides when complete. No demo data enters a real workspace.
+
+Demo safety: `/demo` renders the public picker, whose `/api/demo/start` response sets the session cookie even for an already signed-in user. Opening a new tab would still share that cookie. The checklist therefore uses the requested fallback: “Explore the demo” links to `/`, without invoking demo entry or replacing the current session.
+
+Work-order list now uses a compact search/filter toolbar, plain count header, priority indicators, assignee initials, right-aligned overdue dates, compact pagination, guided first-use/filter empty states, and phone rows with hairline dividers. Detail now places description/comments/composer in the main column, properties and existing assignment/supplier/activity controls on the right, and properties above comments on phones. Staff status/Edit controls remain available; client restrictions, visible comment filtering, retry/conflict/confirmation/undo handlers are retained. Added shared `InlineHint` with browser/user remembered “Got it” dismissal for staff internal-note guidance. Client home uses the same header/status strip and compact request rows with a New request empty-state action.
+
+New/edit forms are narrow with hairline sections and header actions. The sole original submit button targets the same form via its `form` attribute; busy, validation, idempotency, draft restore/guard, conflict and Cancel behavior are unchanged. Dashboard/home and existing shared work-order route skeletons now follow the new header/strip/table/form/detail layouts.
+
+Data limits: the current API has no dedicated work-order number or due-date field. Numbers are displayed only where existing title labels contain WO-number or trailing `/ number`; other orders receive no invented number. Due display follows the existing scheduled-date/overdue semantics. The list endpoint also has no site display name; retained its existing client column rather than fabricating site names.
+
+Verification: `pnpm typecheck` and `pnpm build` passed. `pnpm vitest run --config vitest.frontend.config.ts` passed all 23 existing tests across four files. `git diff --check` passed. Responsive and light/dark presentation reviewed statically; signed-in browser interactions and measured 320px/390px layouts were not verified. No database suite, dependencies, backend/API/auth/database changes, commits or pushes.
+
+Files changed:
+- app/globals.css
+- app/(app)/dashboard/loading.tsx; app/(app)/home/loading.tsx
+- components/app/dashboard.tsx; components/app/client-home.tsx
+- components/app/work-order-list.tsx; components/app/work-order-detail.tsx; components/app/work-order-form.tsx
+- components/app/workflow-loading.tsx
+- components/ui/inline-hint.tsx; components/ui/index.ts
+- PROGRESS.md
