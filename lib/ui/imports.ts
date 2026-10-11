@@ -1,8 +1,8 @@
 import { plural } from './polish';
 import { RequestError } from './api';
-export const importFields = ['title', 'description', 'client', 'site', 'priority', 'scheduled_for', 'external_ref'] as const;
+export const importFields = ['title', 'description', 'client', 'site', 'priority', 'due_on', 'scheduled_for', 'external_ref'] as const;
 export type ImportField = typeof importFields[number];
-export const fieldLabels: Record<ImportField, string> = { title: 'Title', description: 'Description', client: 'Client', site: 'Site', priority: 'Priority', scheduled_for: 'Scheduled for', external_ref: 'External reference' };
+export const fieldLabels: Record<ImportField, string> = { title: 'Title', description: 'Description', client: 'Client', site: 'Site', priority: 'Priority', due_on: 'Due', scheduled_for: 'Scheduled for', external_ref: 'External reference' };
 export type Mapping = Partial<Record<ImportField, string>>;
 export type Issue = { field: string; code: string; message: string };
 export type ImportRow = { id: string; import_id: string; row_number: number; data: Record<ImportField, string>; status: 'valid' | 'warning' | 'error'; decision: string; errors: Issue[]; warnings: Issue[]; ai_summary: string | null; ai_priority: string | null; ai_is_suggestion: boolean; work_order_id: string | null };
@@ -13,13 +13,13 @@ export const sendLabel = (counts: { valid: number; warning: number }) => `Send $
 export const canUndo = (until: string, now = Date.now()) => Number.isFinite(Date.parse(until)) && Date.parse(until) > now;
 export const bulkLimitCopy = (role: string, count: number) => role === 'staff' && count > 25 ? 'Staff can approve up to 25 rows at a time. Select 25 or fewer rows.' : null;
 export function issueCopy(issue: Issue) {
-  const copy: Record<string, string> = { required: 'Enter a title of 1 to 200 characters.', length: 'Use 20,000 characters or fewer.', unknown_site: 'Choose a known site and its matching client.', unknown_priority: 'Priority was not recognised. Normal will be used.', bad_date: 'Enter a valid date, such as 2026-10-10.', duplicate_open: 'A matching work order is already open.' };
+  const copy: Record<string, string> = { required: 'Enter a title of 1 to 200 characters.', length: 'Use 20,000 characters or fewer.', unknown_site: 'Choose a known site and its matching client.', unknown_priority: 'Priority was not recognised. Normal will be used.', bad_date: 'Enter a valid date, such as 2026-10-10.', duplicate_open: 'A matching work order is already open.', duplicate_ref:'This external reference is already used by a work order.', similar_title:'A work order has a similar title. Check the site, reference and dates.' };
   if (issue.code === 'duplicate_file') { const row = issue.message.match(/^Duplicate of row (\d+)$/)?.[1]; return row ? `Duplicate of row ${row}.` : 'This row is repeated in the file.'; }
   return copy[issue.code] ?? 'Check this field before approving.';
 }
 export function validationCopy(fields?: Record<string, string[]>) {
   const result: Partial<Record<ImportField, string>> = {};
-  for (const field of importFields) if (fields?.[field] || fields?.[`edits.${field}`]) result[field] = field === 'title' ? 'Enter a unique title of 1 to 200 characters.' : field === 'site' || field === 'client' ? 'Choose a known site and matching client.' : field === 'scheduled_for' ? 'Enter a valid date or a timestamp with a timezone.' : field === 'description' ? 'Use 20,000 characters or fewer.' : 'Check this value and try again.';
+  for (const field of importFields) if (fields?.[field] || fields?.[`edits.${field}`]) result[field] = field === 'title' ? (fields?.[field]?.some(message=>message.startsWith('Already open as work order'))?'A matching work order is already open.':'Enter a title of 1 to 200 characters.') : field === 'site' || field === 'client' ? 'Choose a known site and matching client.' : field === 'scheduled_for' || field === 'due_on' ? 'Enter a valid date or a timestamp with a timezone.' : field === 'description' ? 'Use 20,000 characters or fewer.' : field === 'external_ref' ? 'This external reference is already used. Choose a unique reference.' : 'Check this value and try again.';
   return result;
 }
 export function importError(error: unknown, action: 'upload' | 'mapping' | 'queue' | 'approve' | 'reject' | 'bulk' | 'undo') {

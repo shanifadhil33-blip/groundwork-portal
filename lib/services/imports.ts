@@ -1,3 +1,4 @@
+import { formatDate, localDate } from '../dates';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { z } from 'zod';
@@ -34,7 +35,7 @@ export async function uploadImport(user:string,ws:string,req:Request){return sta
  const parsed=parseFile(content,filename),hash=createHash('sha256').update(content).digest('hex');
  await lock(c);
  const existing=(await c.db.query('SELECT id,created_at FROM imports WHERE workspace_id=$1 AND content_hash=$2 ORDER BY created_at LIMIT 1',[ws,hash])).rows[0];
- if(existing&&query.force!=='true')throw new ApiError(409,'already_imported',`You already imported this file on ${existing.created_at.toISOString().slice(0,10)}.`,{import_id:[existing.id]});
+ if(existing&&query.force!=='true')throw new ApiError(409,'already_imported',`You already imported this file on ${localDate(existing.created_at,(await c.db.query('SELECT timezone FROM workspaces WHERE id=$1',[ws])).rows[0].timezone)}.`,{import_id:[existing.id]});
  const imp=(await c.db.query(`INSERT INTO imports(workspace_id,filename,row_count,created_by,content_hash,headers,raw_rows,mapping) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id,status`,[ws,filename,parsed.rows.length,user,hash,JSON.stringify(parsed.headers),JSON.stringify(parsed.rows),JSON.stringify(parsed.mapping)])).rows[0];
  return {...imp,headers:parsed.headers,mapping:parsed.mapping,row_count:parsed.rows.length};
 });}
@@ -67,7 +68,8 @@ async function approve(c:Context,id:string,edits?:Partial<RowData>){
  const result=await validateRow(c,{...r.data,...edits});
  if(result.errors.length)throw new ApiError(422,'validation','Fix the row before approving it.',Object.fromEntries(result.errors.map(e=>[e.field,[e.message]])));
  const d=result.data;
- const order=await insert(c,'work_orders',{workspace_id:c.ws,client_id:d.client_id,site_id:d.site_id,title:d.title,description:d.description,priority:d.priority,scheduled_for:d.scheduled_for||null,external_ref:d.external_ref||null,source:'import',created_by:c.user});
+ const schedule=d.scheduled_for?(d.scheduled_for.length===10?(await c.db.query("SELECT ($1::date + time '09:00') AT TIME ZONE timezone AS value FROM workspaces WHERE id=$2",[d.scheduled_for,c.ws])).rows[0].value.toISOString():d.scheduled_for):null;
+ const order=await insert(c,'work_orders',{workspace_id:c.ws,client_id:d.client_id,site_id:d.site_id,title:d.title,description:d.description,priority:d.priority,due_on:d.due_on||null,scheduled_for:schedule,external_ref:d.external_ref||null,source:'import',created_by:c.user});
  await c.db.query("UPDATE import_rows SET decision='approved',work_order_id=$3,data=$4,errors='[]',warnings=$5,status=$6 WHERE workspace_id=$1 AND id=$2",[c.ws,id,order.id,JSON.stringify(d),JSON.stringify(result.warnings),result.status]);await complete(c,r.import_id);return order;
 }
 export function approveRow(user:string,ws:string,id:string,body:unknown){return staff(user,ws,async c=>{await lock(c);const parsed=z.object({edits:editsSchema.optional()}).strict().parse(body);return approve(c,id,parsed.edits);});}
@@ -77,7 +79,7 @@ export function bulkApprove(user:string,ws:string,body:unknown){return staff(use
 });}
 export function rejectRow(user:string,ws:string,id:string,body:unknown){return staff(user,ws,async c=>{await lock(c);const {reason}=z.object({reason:z.string().trim().min(1).max(2000)}).strict().parse(body);const r=await get(c,'import_rows',id);if(!r.queued||r.decision!=='pending')throw new ApiError(409,'not_pending','This row is not awaiting review.');const result=(await c.db.query("UPDATE import_rows SET decision='rejected',reason=$3,rejected_at=clock_timestamp() WHERE workspace_id=$1 AND id=$2 RETURNING *",[ws,id,reason])).rows[0];await complete(c,r.import_id);return {...result,undo_until:new Date(result.rejected_at.getTime()+600000).toISOString()};});}
 export function undoRow(user:string,ws:string,id:string){return staff(user,ws,async c=>{await lock(c);const r=await get(c,'import_rows',id);const result=(await c.db.query("UPDATE import_rows SET decision='pending',reason=NULL,rejected_at=NULL WHERE workspace_id=$1 AND id=$2 AND decision='rejected' AND rejected_at>clock_timestamp()-interval '10 minutes' RETURNING *",[ws,id])).rows[0];if(!result)throw new ApiError(409,'undo_expired','Undo is available for 10 minutes after rejecting a row.');await complete(c,r.import_id);return result;});}
-export function errorReport(user:string,ws:string,id:string){return staff(user,ws,async c=>{await get(c,'imports',id);const data=(await c.db.query("SELECT row_number,data,errors FROM import_rows WHERE workspace_id=$1 AND import_id=$2 AND status='error' ORDER BY row_number",[ws,id])).rows;const cell=(v:unknown)=>'"'+String(v??'').replace(/^[=+@-]/,"'$&").replaceAll('"','""')+'"';return [['row_number',...fields,'reason'],...data.map(r=>[r.row_number,...fields.map(f=>r.data[f]),r.errors.map((e:{message:string})=>e.message).join('; ')])].map(r=>r.map(cell).join(',')).join('\r\n');});}
+export function errorReport(user:string,ws:string,id:string){return staff(user,ws,async c=>{await get(c,'imports',id);const data=(await c.db.query("SELECT row_number,data,errors FROM import_rows WHERE workspace_id=$1 AND import_id=$2 AND status='error' ORDER BY row_number",[ws,id])).rows;const timezone=(await c.db.query('SELECT timezone FROM workspaces WHERE id=$1',[ws])).rows[0].timezone;const cell=(v:unknown)=>'"'+String(v??'').replace(/^[=+@-]/,"'$&").replaceAll('"','""')+'"';return [['row_number',...fields,'reason'],...data.map(r=>[r.row_number,...fields.map(f=>['due_on','scheduled_for'].includes(f)&&r.data[f]&&localDate(r.data[f],timezone)?formatDate(r.data[f],timezone):f==='priority'?String(r.data[f]).replace(/^./,s=>s.toUpperCase()):r.data[f]),r.errors.map((e:{message:string})=>e.message).join('; ')])].map(r=>r.map(cell).join(',')).join('\r\n');});}
 export async function importDrafts(user:string,ws:string,id:string){
  const pending=await staff(user,ws,async c=>{await get(c,'imports',id);return (await c.db.query("SELECT id,data FROM import_rows WHERE workspace_id=$1 AND import_id=$2 AND queued AND decision='pending' AND ai_summary IS NULL ORDER BY row_number LIMIT 25",[ws,id])).rows;});
  if(!pending.length)return {available:true,stored:0,suggestion:true};

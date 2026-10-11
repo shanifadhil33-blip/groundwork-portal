@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { localDate } from '../dates';
 import type { Context } from '../services/shared';
 export type Issue={field:string;code:string;message:string};
 export const normalTitle=(s:string)=>s.trim().toLowerCase().replace(/\s+/g,' ');
-export type RowData={title:string;description:string;client:string;site:string;priority:string;scheduled_for:string;external_ref:string;site_id?:string;client_id?:string};
+export type RowData={title:string;description:string;client:string;site:string;priority:string;scheduled_for:string;due_on:string;external_ref:string;site_id?:string;client_id?:string};
 export async function validateRow(c:Context,input:Partial<RowData>,seen?:Map<string,number>,number=1) {
- const data:RowData={title:'',description:'',client:'',site:'',priority:'',scheduled_for:'',external_ref:'',...input};
+ const data:RowData={title:'',description:'',client:'',site:'',priority:'',scheduled_for:'',due_on:'',external_ref:'',...input};
  const errors:Issue[]=[],warnings:Issue[]=[];
  const error=(field:string,code:string,message:string)=>errors.push({field,code,message});
  data.title=data.title.trim();
@@ -16,27 +17,32 @@ export async function validateRow(c:Context,input:Partial<RowData>,seen?:Map<str
  else {data.site_id=sites[0].id;data.client_id=sites[0].client_id;data.site=sites[0].name;data.client=sites[0].client_name;}
  data.priority=data.priority.trim().toLowerCase()||'normal';
  if(!['low','normal','high','urgent'].includes(data.priority)){warnings.push({field:'priority',code:'unknown_priority',message:'Unknown priority; using normal.'});data.priority='normal';}
- if(data.scheduled_for) {
-  // Spreadsheet date-only values mean midnight in the workspace; explicit ISO instants keep their offset.
-  const instant=z.iso.datetime({offset:true}).safeParse(data.scheduled_for);
-  if(instant.success) data.scheduled_for=new Date(instant.data).toISOString();
-  else {
-   let date:string|undefined;
-   if(/^\d{4}-\d{2}-\d{2}$/.test(data.scheduled_for))date=data.scheduled_for;
-   else {const m=data.scheduled_for.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);if(m)date=`${m[3].length===2?'20'+m[3]:m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;}
-   if(!date||!Number.isFinite(Date.parse(date))||new Date(date).toISOString().slice(0,10)!==date)error('scheduled_for','bad_date','Use a valid scheduled date.');
-   else {
-    const timezone=(await c.db.query('SELECT timezone FROM workspaces WHERE id=$1',[c.ws])).rows[0].timezone;
-    const value=(await c.db.query('SELECT $1::date::timestamp AT TIME ZONE $2 AS value',[date,timezone])).rows[0].value;
-    data.scheduled_for=value.toISOString();
-   }
-  }
+ const timezone=(await c.db.query('SELECT timezone FROM workspaces WHERE id=$1',[c.ws])).rows[0].timezone;
+ for(const field of ['due_on','scheduled_for'] as const) {
+  if(!data[field])continue;
+  const instant=z.iso.datetime({offset:true}).safeParse(data[field]);
+  if(instant.success){data[field]=field==='due_on'?localDate(instant.data,timezone):new Date(instant.data).toISOString();continue;}
+  let date=data[field];
+  const m=date.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
+  if(m)date=`${m[3].length===2?'20'+m[3]:m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+  if(!z.iso.date().safeParse(date).success)error(field,'bad_date','Use a valid date.');
+  else data[field]=date; // Preserve date-only cells as calendar dates throughout review.
+ }
+ data.external_ref=data.external_ref.trim();
+ if(data.external_ref) {
+  const key='ref:'+data.external_ref.toLowerCase();
+  if(seen?.has(key))error('external_ref','duplicate_file',`Duplicate of row ${seen.get(key)}`);else seen?.set(key,number);
+  const duplicate=(await c.db.query('SELECT order_number FROM work_orders WHERE workspace_id=$1 AND lower(external_ref)=lower($2) LIMIT 1',[c.ws,data.external_ref])).rows[0];
+  if(duplicate)error('external_ref','duplicate_ref',`External reference already used by WO-${duplicate.order_number}.`);
  }
  if(data.site_id) {
-  const key=data.site_id+':'+normalTitle(data.title);
+  // A repeated title is only a duplicate when site, reference and dates also match.
+  const key=JSON.stringify([data.site_id,normalTitle(data.title),data.external_ref.toLowerCase(),data.due_on,data.scheduled_for]);
   if(seen?.has(key))error('title','duplicate_file',`Duplicate of row ${seen.get(key)}`);else seen?.set(key,number);
-  const duplicate=(await c.db.query(`SELECT title FROM work_orders WHERE workspace_id=$1 AND status NOT IN ('done','cancelled') AND ((site_id=$2 AND lower(regexp_replace(trim(title),'\\s+',' ','g'))=$3) OR ($4<>'' AND external_ref=$4)) LIMIT 1`,[c.ws,data.site_id,normalTitle(data.title),data.external_ref])).rows[0];
-  if(duplicate)error('title','duplicate_open',`Already open as work order ${duplicate.title}`);
+  const matches=(await c.db.query(`SELECT order_number,site_id,external_ref,due_on,scheduled_for FROM work_orders WHERE workspace_id=$1 AND status NOT IN ('done','cancelled') AND lower(regexp_replace(trim(title),'\\s+',' ','g'))=$2`,[c.ws,normalTitle(data.title)])).rows;
+  const same=matches.find(order=>order.site_id===data.site_id && (order.external_ref??'').toLowerCase()===data.external_ref.toLowerCase() && (order.due_on??'')===data.due_on && (order.scheduled_for?localDate(order.scheduled_for,timezone):'')===(data.scheduled_for?localDate(data.scheduled_for,timezone):''));
+  if(same)error('title','duplicate_open',`Already open as work order WO-${same.order_number}`);
+  else if(matches.length)warnings.push({field:'title',code:'similar_title',message:'A work order has a similar title. Check the site, reference and dates.'});
  }
  return {data,errors,warnings,status:errors.length?'error':warnings.length?'warning':'valid'};
 }

@@ -39,21 +39,21 @@ Workspace timezone defaults to `Asia/Dubai`; supplied values must be valid IANA 
 
 Client role membership and invites require `client_id`; admin/staff roles require it absent or null. Client must belong to this workspace. Last-admin removal or demotion gives 409, and parent-row locking serializes competing admin changes. A member assigned work cannot be converted to a client until unassigned (422).
 
-Dashboard returns all six status counts, overdue nonterminal orders (`scheduled_for < now`), waiting-on-parts count, pending import-row count, and latest finished supplier sync-run time (null until one exists). Client counts cover only their company, and internal queue/supplier regions return zero/null.
+Dashboard returns all six status counts, overdue nonterminal orders (`due_on < today` in the workspace timezone, excluding `done` and `cancelled`), waiting-on-parts count, pending import-row count, and latest finished supplier sync-run time (null until one exists). Client counts cover only their company, and internal queue/supplier regions return zero/null.
 
 ## Work-order list
 
-Optional query: `q` (title/description substring, case-insensitive; literal SQL wildcard characters are escaped), repeated `status[]` and `priority[]` (plain repeated `status`/`priority` also supported), `client_id`, `assignee_id`, `sort=updated_at|created_at|scheduled_for|priority|title`, `dir=asc|desc`, `page`, `pageSize`, `cursor`.
+Optional query: `q` (title/description substring, case-insensitive; literal SQL wildcard characters are escaped), repeated `status[]` and `priority[]` (plain repeated `status`/`priority` also supported), `client_id`, `assignee_id`, `overdue=true|false`, `sort=updated_at|created_at|due_on|scheduled_for|priority|title`, `dir=asc|desc`, `page`, `pageSize`, `cursor`.
 
 Defaults: updated_at descending, page 1, pageSize 25. Page size must be 1–100. Total is the count after all filters and RLS, before pagination. Sorts use id as a deterministic tie breaker and put null schedules last. Priority sorts low → normal → high → urgent ascending. Cursor is opaque and bound to user/workspace/filter/sort/pageSize; pass it with the same query and without page. Cursor pagination uses an offset, so concurrent inserts or updates can shift page boundaries. Invalid or unknown query values give 422.
 
 ## Work-order writes
 
-Create: `{title,description?,client_id?,site_id,priority?,status?,assignee_id?,scheduled_for?}`. Requests start `open`; staff/admin may set assignment/schedule/priority and omit client_id to use the site's company. Assignee must be a staff/admin member of the same workspace.
+Create: `{title,description?,client_id?,site_id,priority?,status?,assignee_id?,due_on?,scheduled_for?}`. Requests start `open`; supplying a visit on an Open order automatically sets `scheduled`. Staff/admin may set assignment/schedule/priority and omit client_id to use the site's company. Assignee must be a staff/admin member of the same workspace. `due_on` is a nullable `YYYY-MM-DD` deadline. `scheduled_for` is a nullable offset ISO timestamp or calendar date; calendar visits resolve to 09:00 in the workspace timezone. Every source gets a permanent, workspace-unique `order_number` (display as `WO-N`).
 
 Clients use `{title,description?,client_id?,site_id,priority?}`. The service forces their own client and `source="client"`, accepts only their sites, and rejects status/assignee/schedule fields (422). Hidden sites return neutral 404.
 
-Patch: `{title?,description?,priority?,status?,assignee_id?,scheduled_for?,updated_at?}`, at least one mutable field. Provide the quoted ISO `ETag` from detail/create/update as `If-Match`, or provide the original ISO `updated_at` in the body. If-Match takes precedence. Missing/invalid version gives 422; stale version gives 409. Database versions advance monotonically at millisecond precision, including rapid updates. Changes lock the row; timeline, audit, and notifications commit together.
+Patch: `{title?,description?,priority?,status?,assignee_id?,due_on?,scheduled_for?,updated_at?,reopen?}`, at least one mutable field. Provide the quoted ISO `ETag` from detail/create/update as `If-Match`, or provide the original ISO `updated_at` in the body. If-Match takes precedence. Missing/invalid version gives 422; stale version gives 409. Database versions advance monotonically at millisecond precision, including rapid updates. Changes lock the row; specific assignment, visit, deadline, details and status timeline entries, audit, and notifications commit together. Done orders allow comments but reject edits. An admin may explicitly send `reopen:true` with only `status` (Scheduled when a visit is retained, otherwise Open). Reopen has a confirmation in the UI. Other transitions remain unchanged. Lists/details and dashboard expose workspace timezone; lists expose `today` and each order’s `overdue` flag.
 
 PLAN §5's progression is enforced as:
 
@@ -97,7 +97,7 @@ All import/queue routes require staff or admin. Client members consistently rece
 | POST | /workspaces/[ws]/imports | Admin, staff | Multipart `file` (CSV/XLSX), or JSON `{sample:true}`; `force=true` optional | 200 `{id,status,headers,mapping,row_count}` |
 | GET | /workspaces/[ws]/imports | Admin, staff | — | 200 import array, newest first |
 | GET | /workspaces/[ws]/imports/[id] | Admin, staff | — | 200 import metadata, `counts`, `result_summary` |
-| POST | /workspaces/[ws]/imports/[id]/mapping | Admin, staff | `{mapping:{title,description?,client?,site?,priority?,scheduled_for?,external_ref?}}`, values are detected headers | 200 import summary plus `rows:{data,total,page,pageSize}` |
+| POST | /workspaces/[ws]/imports/[id]/mapping | Admin, staff | `{mapping:{title,description?,client?,site?,priority?,due_on?,scheduled_for?,external_ref?}}`, values are detected headers | 200 import summary plus `rows:{data,total,page,pageSize}` |
 | GET | /workspaces/[ws]/imports/[id]/rows | Admin, staff | `status=valid|warning|error`, `decision=pending|approved|rejected`, `page` | 200 `{data,total,page,pageSize}` |
 | GET | /workspaces/[ws]/imports/[id]/error-report | Admin, staff | — | 200 `text/csv` attachment; error rows, mapped columns and `reason` |
 | POST | /workspaces/[ws]/imports/[id]/queue | Admin, staff | — | 200 summary and `excluded:[{id,row_number,errors}]` |
@@ -113,7 +113,7 @@ CSV and XLSX use SheetJS CE 0.20.3. The first sheet contains unique, nonempty he
 
 The SHA-256 content hash is scoped to workspace. Re-upload returns 409 `already_imported`, message `You already imported this file on <date>.`, and the existing id in `error.fields.import_id[0]`. `?force=true` creates a fresh import. The dedupe check is serialized against concurrent uploads. Imports use their own content/state idempotency rather than `Idempotency-Key`.
 
-States: `uploaded` → `mapped` → `queued` → `completed`. Remapping is allowed before queueing and replaces the validation rows atomically; it gives 409 after queueing. Rows store normalized `data`, `errors` and `warnings` (each a list of `{field,code,message}`), and `status=valid|warning|error`. Titles are required, trimmed and at most 200 characters. Site names/addresses and supplied client names match case-insensitively within the workspace; ambiguous or mismatched sites are errors. Blank client means derive the client from the site. Blank priority becomes normal; unknown priority becomes normal with a warning. Dates accept `YYYY-MM-DD`, `M/D/YYYY` (two-digit years interpreted as 20xx), or explicit ISO timestamps with offsets. Date-only values mean midnight in the workspace timezone; impossible dates are errors.
+States: `uploaded` → `mapped` → `queued` → `completed`. Remapping is allowed before queueing and replaces the validation rows atomically; it gives 409 after queueing. Rows store normalized `data`, `errors` and `warnings` (each a list of `{field,code,message}`), and `status=valid|warning|error`. Titles are required, trimmed and at most 200 characters. Site names/addresses and supplied client names match case-insensitively within the workspace; ambiguous or mismatched sites are errors. Blank client means derive the client from the site. Blank priority becomes normal; unknown priority becomes normal with a warning. Dates accept `YYYY-MM-DD`, `M/D/YYYY` (two-digit years interpreted as 20xx), or explicit ISO timestamps with offsets. Date-only values stay calendar dates during review. On approval, visit dates resolve to 09:00 in the workspace timezone; deadline dates remain dates. Impossible dates are errors.
 
 Within-file duplicates use site plus whitespace-normalized lowercase title, and the later row gets `Duplicate of row N`. Open-order duplicates use the same site/title or the same nonblank external reference in the workspace; done/cancelled orders do not block. The error says `Already open as work order <title>`. Row numbers start at 1 for the first data row.
 
@@ -269,3 +269,11 @@ curl 'https://<your-deployment>/api/mcp' \
 ```
 
 Client request form lookup: `GET /api/workspaces/[ws]/request-sites` is client-only and returns `{id,client_id,name,address}[]` for the current membership’s company, ordered by name/id under app-role RLS. Provider roles receive 403; missing workspace membership receives neutral 404. Isolation evidence also includes `database_role`, read with `current_user` on the same non-owner connection that ran the evidence query.
+
+## QA date and import behavior (2026-10-11)
+
+Import mapping separates `due_on` (Due date / Due / Deadline / Date) from `scheduled_for` (Scheduled for / Scheduled date / Visit date). Calendar cells remain YYYY-MM-DD throughout validation and review. Visits become workspace-local 09:00 timestamps only on approval. Explicit offset timestamps remain instants; deadlines derived from them use the workspace day. Review and error CSV render readable workspace-local dates and priorities.
+
+A reused external reference, even on completed work, is an error under `external_ref`. Exact repeats match title, site, reference and dates; similar titles with another site/reference/date are warnings under `title`. Approval rechecks the same rules. The sample still has 37 eligible and 3 error rows, with 35 created and 2 rejected after the sample review. Demo rows include actual client/site names and both calendar date fields.
+
+Assistant/MCP `list_work_orders` supports `overdue:true` and `sort:due_on`; `update_work_order_dates` sets independent deadlines and visits through the same versioned service. `get_dashboard` and work-order lookups use the shared overdue definition. `get_work_order_by_number` uses the stored number, never title parsing.

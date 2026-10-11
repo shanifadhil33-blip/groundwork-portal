@@ -1,6 +1,8 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { Pool, type PoolClient } from 'pg';
+import { Pool, types, type PoolClient } from 'pg';
 import { requiredEnv } from './env';
+// Postgres date values are calendar dates, not midnight instants.
+types.setTypeParser(1082, value => value);
 const testing = process.env.NODE_ENV === 'test';
 export const appPool = new Pool({ connectionString: requiredEnv(testing ? 'TEST_DATABASE_URL' : 'DATABASE_URL'), max: 10 });
 // Owner access is reserved for auth, migrations/seed, signed Cobalt ingest, authorized simulator/sync operations, and cron.

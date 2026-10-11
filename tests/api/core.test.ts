@@ -95,7 +95,7 @@ describe('core API tenancy and auth',()=>{
   const own=await withUser(ids.priya,async db=>(await db.query('SELECT status,count(*)::int AS n FROM work_orders WHERE workspace_id=$1 GROUP BY status',[ids.ridgeline])).rows);
   for(const group of own)expect(r.body.by_status[group.status]).toBe(group.n);
   expect(r.body.pending_queue_rows).toBe(0);expect(r.body.last_supplier_sync_at).toBeNull();
-  const overdue=await withUser(ids.priya,async db=>(await db.query("SELECT count(*)::int AS n FROM work_orders WHERE workspace_id=$1 AND scheduled_for<now() AND status NOT IN ('done','cancelled')",[ids.ridgeline])).rows[0].n);
+  const overdue=await withUser(ids.priya,async db=>(await db.query("SELECT count(*)::int AS n FROM work_orders WHERE workspace_id=$1 AND due_on<(now() AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=work_orders.workspace_id))::date AND status NOT IN ('done','cancelled')",[ids.ridgeline])).rows[0].n);
   expect(r.body.overdue).toBe(overdue);
  });
 });
@@ -318,6 +318,6 @@ it('member removal clears assignments and notifications without deleting work hi
  expect((await call(orderRoute.PATCH,'PATCH',{status:'scheduled',updated_at:order.updated_at},{ws,id:order.id})).status).toBe(200);
  expect((await call(memberRoute.DELETE,'DELETE',undefined,{ws,userId:joined})).status).toBe(200);
  const detail=await call(orderRoute.GET,'GET',undefined,{ws,id:order.id});
- expect(detail.status).toBe(200);expect(detail.body.assignee_id).toBeNull();expect(detail.body.timeline).toHaveLength(2);
+ expect(detail.status).toBe(200);expect(detail.body.assignee_id).toBeNull();expect(detail.body.timeline).toHaveLength(4);
  expect((await call(workspaceRoute.DELETE,'DELETE',{confirm_name:'Remove assigned member'},{ws})).status).toBe(200);
 });

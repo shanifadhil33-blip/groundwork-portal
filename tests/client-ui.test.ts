@@ -5,7 +5,7 @@ import { ids } from '../scripts/seed';
 import type { Comment, Detail } from '../lib/ui/work-orders';
 describe('client presentation and lookups',()=>{
  it('uses client wording without exposing raw timeline bodies or internal comments',()=>{
-  expect(clientStatusLabels.waiting_on_parts).toBe("Waiting on parts — we've ordered what's needed");
+  expect(clientStatusLabels.waiting_on_parts).toBe("Waiting on Parts — we've ordered what's needed");
   const comments=[{visibility:'internal',body:'Private note'},{visibility:'client',body:'Public update'}] as Comment[];
   expect(visibleComments(comments,true).map(c=>c.body)).toEqual(['Public update']);
   expect(visibleComments(comments,false)).toHaveLength(2);

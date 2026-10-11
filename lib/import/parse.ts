@@ -1,9 +1,9 @@
 import * as XLSX from 'xlsx';
 import { invalid } from '../http';
-export const fields=['title','description','client','site','priority','scheduled_for','external_ref'] as const;
+export const fields=['title','description','client','site','priority','due_on','scheduled_for','external_ref'] as const;
 export type Field=typeof fields[number];
 export type Mapping=Partial<Record<Field,string>>;
-const aliases:Record<Field,string[]>={title:['title','task','work order','job','request','issue'],description:['description','details','notes'],client:['client','customer','company'],site:['site','location','address','building'],priority:['priority','urgency'],scheduled_for:['scheduled for','scheduled date','date','due date'],external_ref:['external ref','reference','ref','external id']};
+const aliases:Record<Field,string[]>={title:['title','task','work order','job','request','issue'],description:['description','details','notes'],client:['client','customer','company'],site:['site','location','address','building'],priority:['priority','urgency'],due_on:['due date','due','deadline','date'],scheduled_for:['scheduled for','scheduled date','visit date'],external_ref:['external ref','reference','ref','external id']};
 const normal=(s:string)=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
 export function guessMapping(headers:string[]):Mapping {
  const mapping:Mapping={};

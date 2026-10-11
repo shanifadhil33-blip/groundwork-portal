@@ -1,3 +1,4 @@
+import { localDate, scheduledInstant } from './dates';
 import type { PoolClient } from 'pg';
 export const ids = {
   dana: '10000000-0000-4000-8000-000000000001', sam: '10000000-0000-4000-8000-000000000002',
@@ -17,6 +18,16 @@ export function fixtureStatus(n:number) {
  return ['open','scheduled','in_progress','waiting_on_parts','done','cancelled'][(n-1)%6];
 }
 
+const dayOffset=(day:string,offset:number)=>new Date(Date.parse(`${day}T12:00:00Z`)+offset*86400000).toISOString().slice(0,10);
+// Repeatable values for a given workspace day; independent of the seed's clock time.
+export function fixtureDates(n:number,today:string,timezone:string) {
+ const createdDay=dayOffset(today,-(8+(n*13)%74));
+ const created=new Date(scheduledInstant(createdDay,timezone,[8,10,14,16,11,9,15][n%7])!);
+ created.setUTCMinutes([5,20,35,45,10,25][n%6]);
+ const due=n%11===0?null:dayOffset(today,(n*17)%47-25);
+ const visit=fixtureStatus(n)==='open'?null:scheduledInstant(dayOffset(due??today,-(n%3)),timezone,[9,11,14,16][n%4]);
+ return {created,due,visit,updated:new Date(created.getTime()+2*86400000+((n*23)%180)*60000)};
+}
 type FixtureIds=typeof ids;
 export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n:number)=>string,orderId:(n:number)=>string,demo=false) {
  const prefix=demo?ids.ridgeline+':':''; // Supplier references and event IDs stay unique across sandboxes.
@@ -31,12 +42,21 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   for (let n=1;n<=(demo?6:7);n++) await client.query('INSERT INTO sites(id,workspace_id,client_id,name,address) VALUES($1,$2,$3,$4,$5)',[siteId(n),n===7?ids.summit:ids.ridgeline,n<=3?ids.harbor:n<=5?ids.northgate:n===6?ids.larkspur:ids.summitClient,names[n-1],`${n*12} Example Avenue, Suite ${n}`]);
   const tasks=['Replace lobby light fixture','Service rooftop ventilation','Repair entry door closer','Inspect emergency lighting','Seal loading bay threshold','Replace washroom tap','Adjust meeting room cooling','Repair stairwell handrail','Clear courtyard drainage','Test access control reader','Replace corridor ceiling tile','Service water pump'];
   const priorities=['low','normal','high','urgent'];
+  const timezone=(await client.query('SELECT timezone FROM workspaces WHERE id=$1',[ids.ridgeline])).rows[0].timezone;
+  const today=localDate(Date.now(),timezone);
   for(let n=1;n<=(demo?60:66);n++) {
    const summit=n>60; const site=summit?7:((n-1)%5)+1;
    const ws=summit?ids.summit:ids.ridgeline; const company=summit?ids.summitClient:site<=3?ids.harbor:ids.northgate; const actor=summit?ids.summitAdmin:n%3===0?ids.sam:ids.dana;
    await client.query("SELECT set_config('app.user_id',$1,true)",[actor]);
-   await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$12)',[orderId(n),ws,company,siteId(site),`${tasks[(n-1)%tasks.length]} — ${names[site-1]} / ${n}`,`Routine facilities request ${n}; coordinate access with the site manager.`,fixtureStatus(n),priorities[Math.floor((n-1)/6)%4],summit?ids.summitAdmin:ids.sam,new Date(Date.now()+(n-30)*86400000),actor,new Date(Date.now()-(70-n)*86400000)]);
-   if(n<=18) for(const visibility of ['client','internal']) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,company,orderId(n),visibility==='client'?'We have received your request and are arranging access.':'Check stock and technician availability before scheduling.',visibility,actor,new Date(Date.now()-n*n*137000)]);
+   const dates=fixtureDates(n,today,timezone), assigned=summit?ids.summitAdmin:[ids.sam,ids.dana,null,ids.sam,ids.sam,ids.dana,null][(n-1)%7];
+   const title=tasks[(n-1)%tasks.length];
+   await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)',[orderId(n),ws,company,siteId(site),title,`Routine facilities request ${n}; coordinate access with the site manager.`,fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated]);
+   const history: {kind:string;body:string;details:Record<string,unknown>}[]=[];
+   const finalStatus=fixtureStatus(n);
+   const stages=finalStatus==='open'?[]:finalStatus==='cancelled'?['scheduled','cancelled']:finalStatus==='scheduled'?['scheduled']:finalStatus==='in_progress'?['scheduled','in_progress']:finalStatus==='waiting_on_parts'?['scheduled','in_progress','waiting_on_parts']:['scheduled','in_progress','done'];
+   for(const [index,to_status] of stages.entries())history.push({kind:'status_changed',body:'Status updated',details:{from_status:stages[index-1]??'open',to_status}});
+   for(const [index,event] of history.entries())await client.query('INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[ws,company,orderId(n),actor,event.kind,event.body,JSON.stringify(event.details),new Date(dates.created.getTime()+(index+1)*7200000)]);
+   if(n<=18) for(const [index,visibility] of ['client','internal'].entries()) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,company,orderId(n),visibility==='client'?'We have received your request and confirmed access with the site manager.':'Check stock and technician availability before the next visit.',visibility,actor,new Date(dates.updated.getTime()-(2-index)*3600000)]);
    if(n<=4) await client.query('INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,$3)',[ws,orderId(n),`${prefix}COBALT-DEMO-${n}`]);
   }
   // Simulated supplier, part of this portfolio demo: four matching source orders, with
@@ -56,10 +76,12 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
 
  if(demo){
  const imp=(await client.query("INSERT INTO imports(workspace_id,filename,row_count,status,created_by) VALUES($1,'sample.csv',1,'queued',$2) RETURNING id",[ids.ridgeline,ids.sam])).rows[0].id;
- await client.query("INSERT INTO import_rows(workspace_id,import_id,row_number,data,queued) VALUES($1,$2,1,$3,true)",[ids.ridgeline,imp,JSON.stringify({title:'Inspect reception lighting',site_id:siteId(1),client_id:ids.harbor,priority:'normal',description:'Sample request',scheduled_for:null})]);
+ await client.query("INSERT INTO import_rows(workspace_id,import_id,row_number,data,queued) VALUES($1,$2,1,$3,true)",[ids.ridgeline,imp,JSON.stringify({title:'Inspect reception lighting',site:'Marina Exchange',client:'Harbor & Pine Coworking',site_id:siteId(1),client_id:ids.harbor,priority:'normal',description:'Sample request',due_on:dayOffset(today,8),scheduled_for:dayOffset(today,6),external_ref:''})]);
  for(const user of [ids.sam,ids.omar])await client.query("INSERT INTO notifications(user_id,workspace_id,kind,entity_id) VALUES($1,$2,'request_created',$3)",[user,ids.ridgeline,orderId(user===ids.sam?1:4)]);
  }
- // Spread generated activity over minutes, hours and days without changing row counts.
- for(const [table,column] of [['work_order_events','created_at'],['notifications','created_at'],['audit_log','at']]) await client.query(`WITH spread AS (SELECT id,row_number() OVER (ORDER BY id) AS n FROM ${table} WHERE workspace_id=$1) UPDATE ${table} t SET ${column}=clock_timestamp()-((s.n*s.n*137)::text||' seconds')::interval FROM spread s WHERE t.id=s.id`,[ids.ridgeline]);
-
+ // Creation events are inserted at record creation; updates/comments follow them.
+ await client.query("UPDATE notifications n SET created_at=o.updated_at FROM work_orders o WHERE n.workspace_id=$1 AND n.entity_id=o.id",[ids.ridgeline]);
+ await client.query("UPDATE audit_log a SET at=o.created_at FROM work_orders o WHERE a.workspace_id=$1 AND a.entity_id=o.id AND a.entity='work_orders' AND a.action='insert'",[ids.ridgeline]);
+ await client.query("UPDATE audit_log a SET at=e.created_at FROM work_order_events e WHERE a.workspace_id=$1 AND a.entity_id=e.id AND a.entity='work_order_events'",[ids.ridgeline]);
+ await client.query("UPDATE audit_log a SET at=c.created_at FROM comments c WHERE a.workspace_id=$1 AND a.entity_id=c.id AND a.entity='comments'",[ids.ridgeline]);
 }

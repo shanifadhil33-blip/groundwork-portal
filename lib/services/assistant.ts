@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { formatDate } from '../dates';
+import { statusLabels } from '../ui/work-orders';
 import { asAgent } from '../db';
 import { assistantTurn,type AssistantMessage } from '../ai';
 import { ApiError,missing } from '../http';
@@ -37,8 +39,8 @@ export async function assistant(user:string,ws:string,body:unknown) {
    }
    if(t.write){
     const args=parsed.data;
-    const order=call.name==='update_work_order_status'||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
-    const summary=call.name==='create_request'?`Create request '${(args as any).title}'`:call.name==='update_work_order_status'?`Change status of '${order.title}' to ${(args as any).status.replaceAll('_',' ')}`:call.name==='add_comment'?`Add ${(args as any).visibility==='internal'?'an internal':'a client-visible'} comment to '${order.title}'`:call.name==='approve_queue_row'?`Approve queue row ${(args as any).row_id}`:`Reject queue row ${(args as any).row_id}`;
+    const order=['update_work_order_status','update_work_order_dates'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
+    const summary=call.name==='create_request'?`Create request '${(args as any).title}'`:call.name==='update_work_order_status'?`Change status of '${order.title}' to ${statusLabels[(args as any).status]}`:call.name==='update_work_order_dates'?`Change dates for '${order.title}': ${['due_on','scheduled_for'].filter(key=>key in args).map(key=>`${key==='due_on'?'Due':'Visit'} ${(args as any)[key]?formatDate((args as any)[key],order.timezone):'cleared'}`).join('; ')}`:call.name==='add_comment'?`Add ${(args as any).visibility==='internal'?'an internal':'a client-visible'} comment to '${order.title}'`:call.name==='approve_queue_row'?'Approve the selected import row':'Reject the selected import row';
     const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args) VALUES($1,$2,$3,$4) RETURNING id',[ws,user,call.name,JSON.stringify(args)])).rows[0].id);
     return {available:true,reply:'Please confirm this action before I make the change.',pending_action:{id,tool:call.name,args,summary}};
    }

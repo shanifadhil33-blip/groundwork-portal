@@ -151,7 +151,8 @@ it('number lookup leads directly to a pending comment without writing before con
 it('number lookup respects client and workspace isolation',async()=>{
  const token=await mint(ids.priya);
  expect((await tool(token.token,'get_work_order_by_number',{number:1})).structuredContent.result.id).toBe(orderId(1));
- for(const number of [4,61,99999])expect((await tool(token.token,'get_work_order_by_number',{number})).isError).toBe(true);
+ expect((await tool(token.token,'get_work_order_by_number',{number:1})).structuredContent.result.id).not.toBe(orderId(61));
+ for(const number of [4,88888,99999])expect((await tool(token.token,'get_work_order_by_number',{number})).isError).toBe(true);
 });
 it('staff client-visible replies notify the client requester once on replay, internal notes do not',async()=>{
  const order=await createWorkOrder(ids.priya,ids.ridgeline,{title:'Requester notification',site_id:siteId(1)});

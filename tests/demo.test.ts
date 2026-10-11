@@ -49,7 +49,7 @@ it('switch rotates the session and keeps the sandbox; non-demo and anonymous ses
 });
 it('reset requires confirm, replaces fixture mutations, keeps persona and extends expiry',async()=>{
  const a=await sandbox('sam');const user=await identity(a.cookie);await withUser(user,db=>db.query("UPDATE users SET name='Changed profile' WHERE id=$1",[user]));expect((await call(reset.POST,{},a.cookie)).status).toBe(422);
- await withUser(await identity(a.cookie),db=>db.query("UPDATE work_orders SET title='Changed' WHERE workspace_id=$1",[a.body.workspace_id]));
+ await withUser(await identity(a.cookie),db=>db.query("UPDATE work_orders SET title='Changed' WHERE workspace_id=$1 AND status<>'done'",[a.body.workspace_id]));
  await withSystem(db=>db.query("UPDATE workspaces SET demo_expires_at=now()+interval '1 hour' WHERE id=$1",[a.body.workspace_id]));
  const result=await call(reset.POST,{confirm:true},a.cookie);expect(result.status).toBe(200);expect(result.body.persona).toBe('sam');expect(result.body.workspace_id).not.toBe(a.body.workspace_id);expect(await count('work_orders',a.body.workspace_id)).toBe(0);expect(await count('work_orders',result.body.workspace_id)).toBe(60);
  expect(new Date(result.body.expires_at).getTime()-Date.now()).toBeGreaterThan(23*3600000);expect((await call(isolation.GET,undefined,result.cookie)).body.role).toBe('staff');

@@ -36,7 +36,7 @@ describe('spreadsheet review presentation', () => {
     expect(issueCopy({ field: 'title', code: 'unexpected', message: 'secret' })).not.toContain('secret');
   });
   it('maps server validation keys to safe labeled field errors', () => {
-    expect(validationCopy({ title: ['secret'], 'edits.site': ['secret'], scheduled_for: ['secret'], arbitrary: ['secret'] })).toEqual({ title: 'Enter a unique title of 1 to 200 characters.', site: 'Choose a known site and matching client.', scheduled_for: 'Enter a valid date or a timestamp with a timezone.' });
+    expect(validationCopy({ title: ['secret'], 'edits.site': ['secret'], scheduled_for: ['secret'], arbitrary: ['secret'] })).toEqual({ title: 'Enter a title of 1 to 200 characters.', site: 'Choose a known site and matching client.', scheduled_for: 'Enter a valid date or a timestamp with a timezone.' });
     expect(validationCopy()).toEqual({});
   });
   it('reconstructs duplicate copy using only the date and existing import id', () => {
@@ -46,3 +46,5 @@ describe('spreadsheet review presentation', () => {
     expect(duplicateImport(new RequestError(500, 'secret'))).toBeNull();
   });
 });
+
+it('places external reference conflicts under their own field',()=>{expect(validationCopy({external_ref:['External reference already used by WO-1.']})).toEqual({external_ref:'This external reference is already used. Choose a unique reference.'});});
