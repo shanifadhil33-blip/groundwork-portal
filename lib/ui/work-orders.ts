@@ -27,7 +27,8 @@ export function scheduleValue(value: string, timezone = workspaceTimezone) { ret
 export type Draft = { title: string; description: string; client_id: string; site_id: string; priority: string; assignee_id: string; scheduled_for: string; due_on: string };
 export function draftErrors(draft: Draft) { const errors: Record<string, string> = {}; if (!draft.title.trim()) errors.title = 'Enter a title.'; else if (draft.title.trim().length > 200) errors.title = 'Use 200 characters or fewer.'; if (draft.description.length > 20000) errors.description = 'Use 20,000 characters or fewer.'; if (!draft.client_id) errors.client_id = 'Choose a client.'; if (!draft.site_id) errors.site_id = 'Choose a site.'; return errors; }
 
-export const clientStatusLabels:Record<string,string> = {open:'Request Received',scheduled:'Visit Scheduled',in_progress:'Work in Progress',waiting_on_parts:"Waiting on parts. We've ordered what's needed.",done:'Completed',cancelled:'Cancelled'};
+export const clientStatusHints:Record<string,string> = {waiting_on_parts:"We've ordered what's needed."};
+export const clientStatusLabels:Record<string,string> = {open:'Request Received',scheduled:'Visit Scheduled',in_progress:'Work in Progress',waiting_on_parts:'Waiting on Parts',done:'Completed',cancelled:'Cancelled'};
 export function visibleComments(comments:Comment[],client:boolean) { return client ? comments.filter(c=>c.visibility==='client') : comments; }
 export function clientEvent(event:Detail['timeline'][number],timezone=workspaceTimezone) {
  const details=event.details;
