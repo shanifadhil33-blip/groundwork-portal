@@ -26,6 +26,13 @@ export function importError(error: unknown, action: 'upload' | 'mapping' | 'queu
   if (error instanceof RequestError) {
     if (action === 'undo' && error.status === 409) return 'Undo has expired';
     if (action === 'bulk' && error.status === 403) return 'Staff can approve up to 25 rows at a time. Select 25 or fewer rows.';
+    if (error.status === 422 && action === 'upload') {
+      if (error.message.includes('empty')) return 'This file is empty. Choose a file with column headings and data rows.';
+      if (error.message.includes('no data rows')) return 'This file has no data rows. Add rows beneath the column headings.';
+      if (error.message.includes('could not be read')) return 'We couldn’t read this file. Save it as CSV or XLSX and choose it again.';
+      if (error.message.includes('headers')) return 'Add a header row with a unique, non-empty name for each column.';
+      if (error.message.includes('2 MB')) return 'This file is too large or has the wrong file type. Choose a CSV or XLSX file up to 2 MB.';
+    }
     if (error.status === 422) return action === 'upload' ? 'Choose a CSV or XLSX file with unique column headings, no more than 2 MB and 500 rows.' : action === 'mapping' ? 'Choose a title column and check your mapping.' : action === 'reject' ? 'Enter a reason of 1 to 2,000 characters.' : 'Check the highlighted fields. Rows may also match an already open work order.';
     if (error.status === 409) return action === 'mapping' ? 'This import is already queued. Its mapping can no longer be changed.' : 'This row or import has changed. Refresh and try again.';
   }

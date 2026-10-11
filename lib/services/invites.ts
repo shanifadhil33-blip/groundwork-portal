@@ -44,6 +44,6 @@ export async function acceptInvite(user:string,body:unknown,key?:string) {
  const result=await withUser(user,db=>replay(db,user,'invites/accept',key,{token_hash:hash(data.token)},async()=>(await db.query('SELECT accept_invite($1) AS result',[hash(data.token)])).rows[0].result));
  if(result.error==='unauthenticated')throw new ApiError(401,'unauthenticated','Sign in to continue.');
  if(result.error==='not_found')throw missing();
- if(result.error)throw new ApiError(409,'invite_unavailable',result.error==='expired'?'This invite has expired.':'This invite is no longer available.');
+ if(result.error)throw new ApiError(409,result.error==='expired'?'invite_expired':result.error==='accepted'?'invite_used':'invite_unavailable',result.error==='expired'?'This invite has expired.':'This invite is no longer available.');
  return result;
 }

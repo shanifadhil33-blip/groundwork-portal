@@ -15,6 +15,7 @@ export function guessMapping(headers:string[]):Mapping {
  return mapping;
 }
 export function parseFile(content:Buffer,filename:string) {
+ if(!content.length)throw invalid('This file is empty. Choose a file with column headings and data rows.','file');
  if(content.length>2*1024*1024)throw invalid(`${filename}: the file limit is 2 MB.`,'file');
  if(!/\.(csv|xlsx)$/i.test(filename))throw invalid(`${filename}: use a CSV or XLSX file (maximum 2 MB).`,'file');
  try {
@@ -24,6 +25,7 @@ export function parseFile(content:Buffer,filename:string) {
   const grid=XLSX.utils.sheet_to_json<unknown[]>(sheet,{header:1,defval:'',raw:false,blankrows:false});
   const headers=(grid.shift()??[]).map(v=>String(v).trim());
   if(!headers.length||new Set(headers).size!==headers.length||headers.some(h=>!h))throw invalid(`${filename}: use unique, non-empty column headers.`,'file');
+  if(!grid.length)throw invalid('This file has no data rows. Add rows beneath the column headings.','file');
   if(grid.length>500)throw invalid(`${filename}: the limit is 500 data rows.`,'file');
   const rows=grid.map(values=>Object.fromEntries(headers.map((h,i)=>[h,String(values[i]??'').trim()])));
   return {headers,rows,mapping:guessMapping(headers)};

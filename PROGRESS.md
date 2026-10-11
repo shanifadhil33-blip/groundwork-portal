@@ -277,3 +277,85 @@ Files changed:
 **Files changed:** `app/globals.css`; `components/app/work-order-list.tsx`; `components/app/shell.tsx`; `components/app/agent-access.tsx`; `components/app/assistant.tsx`; `components/app/work-order-detail.tsx`; `components/app/import-detail.tsx`; `components/app/dashboard.tsx`; `tests/polish-ui.test.ts`; `PROGRESS.md`. Frontend/CSS only; no backend, API, auth, database, dependencies, commits, or pushes changed.
 
 Follow-up after live check (390px): the assistant input row still rendered the send button under the textarea with the hint beside it. Replaced it with a two-column grid (auto-growing textarea, 44px send button beside it, hint on its own line and hidden on touch devices). Typecheck, all 202 tests and build pass.
+
+## Error states
+
+Google sign-in now discards the incoming database session for provider sign-in/callback requests before Auth.js runs. OAuth state, PKCE, CSRF and callback cookies are preserved, including POST bodies. The adapter refuses to link any provider to a demo user. Only Google allows email account linking, and Google email verification must be strictly `true`.
+
+| Error | Branded page/state | Recovery buttons |
+| --- | --- | --- |
+| Auth AccessDenied (demo or unverified Google email) | `/auth/error`; shared `lib/ui/auth-errors.ts` copy also used on `/sign-in` | Try again, Back to home; Google sign-in on sign-in page |
+| OAuthAccountNotLinked | Same public auth page; explains previous session ended and different workspace login | Try again, Back to home |
+| Auth Configuration | Same public auth page; temporary sign-in outage | Try again, Back to home |
+| Auth Verification | Same public auth page; expired sign-in link | Try again, Back to home |
+| OAuthCallbackError, OAuthSignin, CallbackRouteError, unknown auth codes | Same public auth page; safe default, never echoes codes | Try again, Back to home |
+| 404 / missing route | `app/not-found.tsx` inherited by route groups (no group overrides) | Try again, Go to dashboard, Back to home |
+| Unexpected page/render failure | `app/error.tsx`, `app/(public)/error.tsx`, `app/(app)/error.tsx`; shared ErrorState | Try again (Next.js 16 retry), Back to home, Sign in again |
+| Root layout failure | `app/global-error.tsx`, own html/body, inline styling, no CSS dependency | Try again, Back to home, Sign in again |
+| Expired session / unauthenticated API (401) | `lib/ui/api.ts` sends all client requests, including uploads, to public `/session-ended` | Sign in again with safe local callbackUrl, Back to home, Start a new demo |
+| Expired or deleted demo sandbox | Demo marker set on start/reset/switch and existing demo shell loads; `requireUser` also recognizes expired demo sessions still in DB; public `/demo-ended` | Start a new demo, Back to home |
+| No access (403) | Public `/no-access`, `components/app/no-access.tsx`; shared request recovery notice for denied actions | Go to dashboard, Back to home; notice also Try again |
+| Network/offline fetch or server outage | `lib/ui/api.ts` normalizes transport/server messages; ErrorState in resources; persistent `components/ui/request-recovery.tsx` also covers background requests and mutation failures | Try again, Back to home; preserves drafts, resource retry reloads data, failed mutations are retried from their existing controls |
+| Demo start 429 / sandbox creation outage | DemoPicker with plain wait-and-retry copy; persistent request recovery notice | Try again, Sign in, Back to home |
+| Invite missing/invalid token | Invite acceptance page, specific missing/422 copy; asks admin for a new invite | Go to dashboard, Sign in with a different account, Back to home |
+| Invite expired/revoked/no longer available | Invite acceptance page, expired code from service and friendly unavailable fallback | Accept invite (retry), Go to dashboard, Sign in with a different account, Back to home; ask admin for a new invite |
+| Invite already used | Invite acceptance page; friendly used copy. Same-user reuse remains idempotent and goes to dashboard | Go to dashboard, Sign in with a different account, Back to home |
+| Invite wrong account / unknown token | Invite acceptance page; shared 404 wording avoids disclosing invite existence | Sign in with a different account, Go to dashboard, Back to home; ask admin for a new invite |
+| Upload wrong type, too large, empty, no data rows, unreadable, missing/duplicate header | ImportUpload, parser validation and `lib/ui/imports.ts` reason mapping | Choose another file, Try again |
+| Duplicate import | Existing import conflict state | Open that import, Import again anyway; Choose file remains available |
+| Import mapping/queue/row validation, conflicting updates, bulk permission, expired undo | Existing import/queue inline validation and refresh states; form/dialog controls stay available | Save/approve/reject again, Refresh import, Change mapping, Cancel; shared recovery for transport/permission failures |
+| AI assistant provider down/quota/missing key | Assistant ErrorState; unavailable response retains failed payload for retry, rest of screen works | Try again, Back to home, Sign in again |
+| AI summaries down/quota/missing key | Approval queue draft notice/error; manual review remains available | Try again, Draft summaries |
+| Resource loading failures (dashboard, orders, clients/sites, imports/rows, queue, audit, supplier, settings, members/invites/tokens, isolation, notifications) | Existing resource ErrorState, now standardized with navigation; persistent recovery also catches background count failures | Try again, Back to home, Sign in again |
+| Action failures (settings/preferences, work orders/comments, client/site edits, invites/members/tokens, supplier actions, demo reset/switch/sign-out) | Existing plain inline form/dialog messages and action controls, plus persistent request recovery on offline/403/429/5xx | Existing submit/confirm action retries and Cancel; recovery notice Try again, Back to home |
+| Toast undo failure | Existing ToastItem plain error copy and retained undo action | Undo again, Dismiss notification |
+| Clipboard unavailable | Existing invite/token dialogs keep selectable link/token fields and explain manual copying | Copy again or manually copy; Close/Cancel |
+| Appearance preference load/save failure | Existing settings inline theme error; shared recovery for request failures | Retry in Settings / appearance selection again; recovery Try again, Back to home |
+
+Recovery surfaces use pure white/black backgrounds. Unknown errors and provider/transport details are not displayed. The demo marker is a non-authoritative UI hint only and never grants access. Older already-deleted demo sessions whose browsers never received the marker cannot be distinguished from other missing sessions; they get the session-ended page, which also offers Start a new demo.
+
+Validation: `pnpm typecheck`, full `pnpm test` (21 files, 223 tests) and `pnpm build` pass (verified outside the Codex sandbox).
+
+Changed files for this task:
+
+- `PROGRESS.md`
+- `app/(app)/error.tsx`
+- `app/(app)/invites/accept/page.tsx`
+- `app/(public)/auth/error/page.tsx`
+- `app/(public)/demo-ended/page.tsx`
+- `app/(public)/error.tsx`
+- `app/(public)/session-ended/page.tsx`
+- `app/(public)/sign-in/page.tsx`
+- `app/api/auth/[...nextauth]/route.ts`
+- `app/api/auth/sign-out/route.ts`
+- `app/api/demo/reset/route.ts`
+- `app/api/demo/start/route.ts`
+- `app/api/demo/switch/route.ts`
+- `app/error.tsx`
+- `app/global-error.tsx`
+- `app/globals.css`
+- `app/layout.tsx`
+- `app/not-found.tsx`
+- `components/app/approval-queue.tsx`
+- `components/app/assistant.tsx`
+- `components/app/import-upload.tsx`
+- `components/app/no-access.tsx`
+- `components/app/resource.ts`
+- `components/app/shell.tsx`
+- `components/public/demo-picker.tsx`
+- `components/ui/request-recovery.tsx`
+- `components/ui/states.tsx`
+- `lib/auth-callback.ts`
+- `lib/auth-guards.ts`
+- `lib/auth.ts`
+- `lib/import/parse.ts`
+- `lib/services/invites.ts`
+- `lib/ui/api.ts`
+- `lib/ui/auth-errors.ts`
+- `lib/ui/imports.ts`
+- `lib/ui/request-errors.ts`
+- `tests/auth-route.test.ts`
+- `tests/auth-safety.test.ts`
+- `tests/error-pages.test.tsx`
+- `tests/request-errors.test.ts`
+- `vitest.frontend.config.ts`

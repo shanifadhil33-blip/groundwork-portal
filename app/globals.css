@@ -203,3 +203,9 @@ table{font-size:13px}th,td{height:42px;padding:10px 12px}th{font-size:12px;backg
 .dialog-footer form.assistant-composer .assistant-send{grid-column:2;grid-row:1;position:static;width:44px!important;height:44px;min-height:44px}
 .dialog-footer form.assistant-composer .composer-hint{grid-column:1/-1;grid-row:2;position:static}
 @media(pointer:coarse){.dialog-footer form.assistant-composer .composer-hint{display:none}}
+
+/* Recovery surfaces use the same pure light/dark canvas as public auth. */
+.auth-page,.error-page,.error-state,.not-found,.request-recovery{background:#FFFFFF}
+[data-theme=dark] .auth-page,[data-theme=dark] .error-page,[data-theme=dark] .error-state,[data-theme=dark] .not-found,[data-theme=dark] .request-recovery{background:#000000}
+.request-recovery{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 32px));padding:20px;z-index:var(--z-toast);box-shadow:var(--shadow)}
+.request-recovery .row{flex-wrap:wrap}
