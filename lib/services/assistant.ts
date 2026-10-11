@@ -1,12 +1,19 @@
 import { explicitClientComment } from '../ui/comments';
 import { z } from 'zod';
-import { actionSummary,actionResult,plainAssistantReply,audienceStatusReply } from '../ui/assistant-replies';
+import { actionSummary,actionResult,plainAssistantReply,audienceStatusReply,recordResult,recordSummary,recordTools } from '../ui/assistant-replies';
 import { asAgent } from '../db';
 import { assistantTurn,type AssistantMessage } from '../ai';
 import { ApiError,missing } from '../http';
 import { inWorkspace,uuid } from './shared';
 import { getWorkOrder } from './work-orders';
 import { tools,callTool,type AgentContext } from '../agent/tools';
+/** The client or site a record write touches: its name for the card, and the current values to show what changes. */
+async function recordTarget(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:any[]}>}},ws:string,tool:string,args:any){
+ if(tool==='create_client')return {label:args.name as string,record:null};
+ if(tool==='update_client'){const r=(await x.db.query('SELECT * FROM clients WHERE workspace_id=$1 AND id=$2',[ws,args.id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:r};}
+ if(tool==='create_site'){const r=(await x.db.query('SELECT name FROM clients WHERE workspace_id=$1 AND id=$2',[ws,args.client_id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:null};}
+ const r=(await x.db.query('SELECT s.*,c.name AS client_name FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,args.id])).rows[0];if(!r)throw missing();return {label:`${r.name} (${r.client_name})`,record:r};
+}
 export const assistantUnavailable={available:false,message:'The assistant is unavailable right now. Everything else works as normal.'};
 const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant']),content:z.string().min(1).max(20000)}).strict()).max(30),confirm_action_id:uuid.optional()}).strict();
 export async function assistant(user:string,ws:string,body:unknown) {
@@ -19,11 +26,12 @@ export async function assistant(user:string,ws:string,body:unknown) {
   // Shared services reuse this same app-role transaction: write and consume commit together.
   const previous=['update_work_order_status','update_work_order_dates','set_priority','add_comment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
   const queueTarget=['approve_queue_row','reject_queue_row'].includes(a.tool)?(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,a.args.row_id])).rows[0]:null;
+  const record=recordTools.includes(a.tool)?await recordTarget(x,ws,a.tool,a.args):null;
   const result=await callTool(c,a.tool,a.args);
   const value=result.structuredContent as {result?:any};
   const order=result.isError?null:previous??(['create_request','approve_queue_row'].includes(a.tool)?value.result:null);
   await x.db.query('UPDATE assistant_actions SET consumed_at=now() WHERE id=$1',[a.id]);
-  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):audienceStatusReply(actionResult(a.tool,a.args,order,queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined),x.role==='client'),result};
+  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?recordResult(a.tool,a.args,record):audienceStatusReply(actionResult(a.tool,a.args,order,queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined),x.role==='client'),result};
  }));
  const role=await inWorkspace(user,ws,async c=>c.role);
  const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
@@ -50,7 +58,10 @@ export async function assistant(user:string,ws:string,body:unknown) {
      if(['approve_queue_row','reject_queue_row'].includes(call.name)){const row=(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,(args as any).row_id])).rows[0];if(!row)throw missing();return {label:`row ${row.row_number}: ${row.data.title}`,timezone:undefined};}
      return undefined;
     });
-    const summary=audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');
+    // Record writes are admin only; a role that cannot make them gets the refusal now, not after a confirmation.
+    if(recordTools.includes(call.name)&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only workspace admins can add or change clients and sites.'}]},id:call.id});continue;}
+    const record=recordTools.includes(call.name)?await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args)):null;
+    const summary=record?recordSummary(call.name,args as Record<string,any>,record):audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');
     const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args) VALUES($1,$2,$3,$4) RETURNING id',[ws,user,call.name,JSON.stringify(args)])).rows[0].id);
     return {available:true,reply:'Please confirm this action before I make the change.',pending_action:{id,tool:call.name,args,summary}};
    }

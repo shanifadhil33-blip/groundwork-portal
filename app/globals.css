@@ -508,3 +508,13 @@ body:has(.public-header) .link-button,body:has(.public-header) .button{transitio
 body:has(.public-header) .primary:active:not(:disabled){background:color-mix(in srgb,var(--primary) 82%,#3a2208);transform:translateY(1px)}
 @media(hover:hover){body:has(.public-header) .primary:hover:not(:disabled){background:color-mix(in srgb,var(--primary) 90%,#3a2208)}}
 @media(prefers-reduced-motion:reduce){body:has(.public-header) .link-button,body:has(.public-header) .button{transition:none}body:has(.public-header) .primary:active:not(:disabled){transform:none}}
+
+/* Client and site records */
+.record-section{border:0;margin:0;padding:20px 0 0;border-top:1px solid var(--border);min-width:0}
+.record-section legend{font-weight:600;font-size:14px;padding:0 0 4px}
+.form-field .optional{font-weight:400;color:var(--text-muted,var(--muted))}
+.record-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;margin:0}
+.record-detail{min-width:0}.record-detail dt{font-size:13px;color:var(--text-muted,var(--muted));margin-bottom:2px}.record-detail dd{margin:0;overflow-wrap:anywhere}
+.record-notes{white-space:pre-line}
+.record-contact{display:flex;flex-direction:column;gap:2px;min-width:0}.record-contact a{width:fit-content}
+@media(max-width:640px){.record-details{grid-template-columns:1fr}}

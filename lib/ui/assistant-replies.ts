@@ -1,6 +1,7 @@
 import { formatDate } from '../dates';
 import { readableLabel } from './polish';
 import { clientStatusLabels, statusLabels } from './work-orders';
+import { formatPhone, formatTrn } from '../records';
 
 export function audienceStatusReply(value:string, client=false) {
  const labels=client?clientStatusLabels:statusLabels;
@@ -25,6 +26,32 @@ export function plainAssistantReply(value: string, client=false) {
     .replace(/\b[0-9a-f]{8}\b/gi,'the linked record')
     .replace(/LINKPLACEHOLDER(\d+)END/g,(_,index) => links[Number(index)]);
   return audienceStatusReply(text,client);
+}
+export const recordTools = ['create_client','update_client','create_site','update_site'];
+const recordLabels: Record<string,string> = { name:'Name', contact_name:'Main contact', phone:'Phone', email:'Email', billing_building:'Building', billing_street:'Street', billing_area:'Area', billing_city:'City', billing_emirate:'Emirate', trn:'TRN', notes:'Notes', address:'Address', building:'Building name or number', area:'Area', access_notes:'Access notes', contact_phone:'Site contact phone' };
+function recordValue(key: string, value: unknown) {
+  if (value === null || value === undefined || value === '') return 'None';
+  if (key === 'phone' || key === 'contact_phone') return formatPhone(String(value));
+  if (key === 'trn') return formatTrn(String(value));
+  return plainAssistantReply(String(value));
+}
+function recordLines(tool: string, args: Record<string,any>, previous?: Record<string,any> | null) {
+  return Object.entries(args).filter(([key, value]) => !['id','client_id'].includes(key) && value !== undefined && !(tool.startsWith('create') && (key === 'name' || value === null)))
+    .map(([key, value]) => `${tool.endsWith('site') && key === 'contact_name' ? 'Site contact' : recordLabels[key] ?? readableLabel(key)}: ${previous ? `${recordValue(key, previous[key])} → ` : ''}${recordValue(key, value)}`).join('\n');
+}
+/** Confirmation card text for client and site writes. target is the record (update) or the client name (create site). */
+export function recordSummary(tool: string, args: Record<string,any>, target?: { label: string; record?: Record<string,any> | null }) {
+  const lines = recordLines(tool, args, tool.startsWith('update') ? target?.record : null);
+  const name = plainAssistantReply(target?.label ?? 'the selected record');
+  if (tool === 'create_client') return `Add client “${plainAssistantReply(args.name)}”${lines ? `\n${lines}` : ''}`;
+  if (tool === 'create_site') return `Add site “${plainAssistantReply(args.name)}” for ${name}${lines ? `\n${lines}` : ''}`;
+  return `Update ${tool === 'update_site' ? 'site' : 'client'} ${name}:\n${lines || 'No changes'}`;
+}
+export function recordResult(tool: string, args: Record<string,any>, target?: { label: string }) {
+  const name = plainAssistantReply(target?.label ?? 'the selected record');
+  if (tool === 'create_client') return `Added client ${plainAssistantReply(args.name)}.`;
+  if (tool === 'create_site') return `Added site ${plainAssistantReply(args.name)} for ${name}.`;
+  return `Updated ${tool === 'update_site' ? 'site' : 'client'} ${name}.`;
 }
 type Order = {id:string;order_number:number;title:string;status:string;priority:string;timezone?:string;due_on?:string|null;scheduled_for?:string|null};
 export function assistantTarget(order: Order) { return `WO-${order.order_number} ${plainAssistantReply(order.title)}`; }

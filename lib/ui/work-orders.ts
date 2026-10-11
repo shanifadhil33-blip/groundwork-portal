@@ -4,8 +4,9 @@ export const statusLabels: Record<string, string> = { open: 'Open', scheduled: '
 export const statusTransitions: Record<string, string[]> = { open: ['scheduled', 'cancelled'], scheduled: ['in_progress', 'cancelled'], in_progress: ['waiting_on_parts', 'done', 'cancelled'], waiting_on_parts: ['in_progress', 'done', 'cancelled'], done: [], cancelled: [] };
 export const priorities = ['low', 'normal', 'high', 'urgent'];
 export const label = (value: string) => statusLabels[value] ?? value.replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
-export type Client = { id: string; name: string };
-export type Site = { id: string; client_id: string; name: string; address: string };
+import type { ClientRecord, SiteRecord } from '../records';
+export type Client = ClientRecord;
+export type Site = SiteRecord;
 export type Member = { user_id: string; role: string; client_id: string | null; name: string | null; email: string | null };
 export type EventAttribution = { work_order_title?:string|null; actor_kind?:string; via_token_name?:string|null };
 export type Comment = EventAttribution & { id: string; body: string; visibility: 'client' | 'internal'; author_id: string; created_at: string };

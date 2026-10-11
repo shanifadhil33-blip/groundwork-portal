@@ -9,7 +9,8 @@ afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs();vi.restoreAllMocks();});
 describe('Gemini assistant schemas',()=>{
  it('sanitizes every tool without changing its source schema',()=>{
   for(const tool of Object.values(tools)){
-   const source=z.toJSONSchema(tool.schema),before=JSON.stringify(source);
+   // The assistant declares input schemas (lib/services/assistant.ts), so transforms are represented by their input.
+   const source=z.toJSONSchema(tool.schema,{io:'input'}),before=JSON.stringify(source);
    const sanitized=JSON.stringify(toGeminiSchema(source));
    for(const key of ['$schema','additionalProperties','pattern'])expect(sanitized).not.toContain(`"${key}":`);
    expect(JSON.stringify(source)).toBe(before);
