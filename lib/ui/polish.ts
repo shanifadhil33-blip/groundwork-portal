@@ -1,6 +1,7 @@
 import { formatDate } from '../dates';
+import { statusLabels } from './work-orders';
 export const plural = (count:number, singular:string, multiple=`${singular}s`) => `${count} ${count===1?singular:multiple}`;
-export const readableLabel = (value:string) => ({in_progress:'In Progress',waiting_on_parts:'Waiting on Parts'} as Record<string,string>)[value] ?? value.replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
+export const readableLabel = (value:string) => statusLabels[value] ?? value.replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 export function demoEmail(value:string|null|undefined) { return value?.replace(/^([a-z]+)\.[0-9a-f-]+@demo\.groundwork\.invalid$/i,'$1@ridgeline.demo')??''; }
 export const supplierReference = (value:string) => value.replace(/^[0-9a-f-]+:/i,'');
 export const entityLabels:Record<string,string>={work_orders:'Work order',work_order_events:'Work order activity',comments:'Comment',clients:'Client',sites:'Site',members:'Team member',imports:'Import',import_rows:'Import row',supplier_orders:'Supplier order',supplier_events:'Supplier delivery update',api_tokens:'Agent key',tokens:'Agent key',supplier_sync_runs:'Supplier update',invites:'Invite',workspaces:'Workspace',notifications:'Notification'};

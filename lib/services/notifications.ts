@@ -15,7 +15,7 @@ export async function listNotifications(user:string,ws:string,params:URLSearchPa
   const counts=(await c.db.query(`SELECT count(*) FILTER (WHERE ${readFilter})::int AS total,count(*) FILTER (WHERE read_at IS NULL)::int AS unread_count FROM notifications WHERE workspace_id=$1 AND user_id=$2`,[ws,user])).rows[0];
   const {total,unread_count}=counts;
   const rows=(await c.db.query(`SELECT n.*,w.id AS visible_id,w.title AS current_title FROM notifications n LEFT JOIN work_orders w ON n.entity='work_orders' AND w.workspace_id=n.workspace_id AND w.id=n.entity_id WHERE ${where} ORDER BY n.created_at DESC,n.id DESC LIMIT $2 OFFSET $3`,[ws,q.pageSize,page.offset,user])).rows;
-  return {data:rows.map(r=>({id:r.id,kind:r.kind,entity:r.entity,entity_id:r.entity_id,message:notificationMessage(r),created_at:r.created_at,read_at:r.read_at,link_target:r.visible_id?{entity:r.entity,id:r.visible_id}:null})),total,unread_count,page:Math.floor(page.offset/q.pageSize)+1,pageSize:q.pageSize,next_cursor:page.next(total)};
+  return {data:rows.map(r=>({id:r.id,kind:r.kind,entity:r.entity,entity_id:r.entity_id,message:notificationMessage(r,c.role==='client'),created_at:r.created_at,read_at:r.read_at,link_target:r.visible_id?{entity:r.entity,id:r.visible_id}:null})),total,unread_count,page:Math.floor(page.offset/q.pageSize)+1,pageSize:q.pageSize,next_cursor:page.next(total)};
  });
 }
 export async function markNotification(user:string,ws:string,id:string,read:boolean) {

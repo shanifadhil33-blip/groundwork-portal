@@ -55,3 +55,11 @@ it('names the site and full request contents in a creation proposal and dates in
  const proposal=await propose('create_request',{site_id:'40000000-0000-4000-8000-000000000001',title:'Repair cooling',description:'Meeting room cooling is not running.'});const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('Harbor & Pine · Marina Exchange');expect(pending?.summary).toContain('Meeting room cooling is not running.');expect(state.call).not.toHaveBeenCalled();
  expect(actionSummary('update_work_order_dates',{due_on:'2026-11-15'},state.order)).toContain('Due date: Nov 10, 2026 → Nov 15, 2026');
 });
+
+it('formats client model replies and staff replies using their audience labels',async()=>{
+ state.turn.mockResolvedValue({calls:[],text:'Status: in_progress. Next: scheduled.'});
+ state.role='client';
+ expect(await assistant(user,ws,{messages:[{role:'user',content:'What is the status?'}]})).toMatchObject({reply:'Status: Work in Progress. Next: Visit Scheduled.'});
+ state.role='staff';
+ expect(await assistant(user,ws,{messages:[{role:'user',content:'What is the status?'}]})).toMatchObject({reply:'Status: In Progress. Next: Scheduled.'});
+});
