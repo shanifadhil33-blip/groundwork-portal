@@ -242,3 +242,20 @@ Files changed:
 - components/app/loading.tsx; work-order-form.tsx (unused import cleanup)
 - components/ui/states.tsx; dialog.tsx; assistant-markdown.tsx
 - PROGRESS.md
+
+
+## Redesign batch 4 — live review polish
+
+Flattened the work-order toolbar into one desktop row with a roughly 260px search, 32px filter triggers sized by all option labels, and sort aligned right. Removed the table’s padded card wrapper in favor of one flush hairline-bordered, 8px-radius container and subtle header background. Due dates and table dates across imports, supplier orders/sync history, audit, invites and agent keys now show short local dates, including the year only outside the current year, with full local date-time titles. Overdue dates retain danger text. Removed top-level Work orders, Clients, Supplier, Audit and Settings back links; Import and Queue already had none. Detail/new/edit navigation remains intact.
+
+Tightened dashboard activity rows and matched their panel header padding to table headers. Times stay on one line, moving below summaries on phones. Phone demo strip is one 36px line with a Demo options sheet retaining Isolation check and the existing Switch persona/Reset confirmations. Dashboard, requests and work-order headers keep compact New actions beside titles with descriptive accessible labels. Phone status cells use one consistent 3-column divider grid and flush bottom bar; attention items form one bordered list with right-aligned View actions. Reduced phone panel padding. Retained 44px touch targets, existing handlers, filters, roles and confirmation flows.
+
+Verification: `pnpm typecheck` and `pnpm build` passed. `pnpm vitest run --config vitest.frontend.config.ts` passed all 23 tests in four files. Responsive rules reviewed statically; live browser rendering at 1440px/390px was not verified. No dependencies, backend/API/auth/database/data/test changes, database suite, commits or pushes.
+
+Files changed:
+- app/globals.css
+- components/ui/dropdown.tsx; components/ui/time.tsx
+- components/app/work-order-list.tsx; dashboard.tsx; client-home.tsx; shell.tsx
+- components/app/clients.tsx; supplier.tsx; audit.tsx; settings.tsx
+- components/app/import-upload.tsx; settings-invites.tsx; agent-access.tsx
+- PROGRESS.md

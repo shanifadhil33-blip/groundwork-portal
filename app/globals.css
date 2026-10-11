@@ -100,3 +100,58 @@ table{font-size:13px}th,td{height:42px;padding:10px 12px}th{font-size:12px;backg
 /* Runtime-generated presentation and status classes. */
 .presentation-drawer{justify-content:flex-end;padding:0}.presentation-popover{align-items:flex-start;justify-content:flex-end;padding-top:76px;background:transparent}.dot-open{background:var(--text-muted)}.dot-scheduled{background:var(--info)}.dot-in_progress{background:var(--primary)}.dot-waiting_on_parts{background:var(--warning)}.priority-urgent i{background:var(--danger)}.priority-high i{background:var(--warning)}
 @media(max-width:640px){.presentation-drawer,.presentation-popover{align-items:flex-end;justify-content:center;padding:0;background:var(--backdrop)}}
+
+/* Redesign batch 4: live review polish. */
+.phone-action-label,.phone-demo-options{display:none}
+.dropdown-trigger.fit-options{flex-shrink:0;max-width:none}
+.dropdown-label{display:grid;text-align:left;min-width:0}
+.dropdown-label>span{grid-area:1/1;white-space:nowrap}
+.dropdown-sizing{visibility:hidden;display:grid}.dropdown-sizing>span{grid-area:1/1}
+.list-toolbar{padding:0;border:0;background:transparent;gap:10px}
+.toolbar-controls{flex-wrap:nowrap;gap:8px}
+.toolbar-controls .search-control{flex:0 1 260px;max-width:260px;min-width:160px}
+.toolbar-controls .filter-bar{flex-wrap:nowrap;min-width:0;gap:6px}
+.toolbar-controls .dropdown-trigger{max-width:none}
+.toolbar-controls .filter-bar>.dropdown-trigger:last-child{margin-left:auto}
+.work-list-page .table-wrap{padding:0}
+.work-list-page th,.table-wrap th{background:var(--surface-subtle)}
+.local-time,.time-button{white-space:nowrap;font-variant-numeric:tabular-nums}
+.table-wrap td .local-time{overflow-wrap:normal}
+.work-list-page td.overdue{color:var(--danger)}
+.activity-panel{padding:0;overflow:hidden}
+.activity-panel .section-header{padding:10px 12px;margin:0;background:var(--surface-subtle)}
+.activity-panel .activity-list li{padding:8px 12px;min-height:40px}
+.activity-list .time-button{font-size:12px;color:var(--text-muted);padding:0;min-height:24px}
+.activity-panel>.stack,.activity-panel>.state-block{padding:12px}
+@media(max-width:1100px) and (min-width:641px){.work-list-page .toolbar-controls{overflow-x:auto;padding-bottom:4px}.toolbar-controls .search-control{flex-shrink:0}.toolbar-controls .filter-bar{flex-shrink:0}}
+@media(max-width:640px){
+ .demo-banner{height:36px;min-height:36px;padding:0 12px;flex-wrap:nowrap;gap:8px;position:relative}
+ .demo-banner>span{white-space:nowrap;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+ .demo-banner .demo-actions{display:none}
+ .demo-banner .phone-demo-options{display:inline-flex;min-height:44px;padding:0 4px;font-size:12px;flex-shrink:0}
+ .page>.heading-row{flex-wrap:nowrap;align-items:flex-start;gap:12px}
+ .page>.heading-row>div:first-child{min-width:0;flex:1}
+ .page>.heading-row> .button{flex-shrink:0;min-height:44px;height:44px;padding:4px 10px}
+ .desktop-action-label{display:none}.phone-action-label{display:inline}
+ .page>.heading-row h1{font-size:20px}
+ .page>.heading-row p{font-size:12px}
+ .stat-cells{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .stat-cell{border:0;border-radius:0;padding:10px 12px;gap:4px}
+ .stat-cell:not(:nth-child(3n)){border-right:1px solid var(--border)}
+ .stat-cell:nth-child(-n+3){border-bottom:0}
+ .stat-cell:nth-child(n+4){border-top:1px solid var(--border)}
+ .stat-cell>span{font-size:12px;gap:4px;line-height:1.4}
+ .stat-cell strong{font-size:20px}.segmented-bar{margin:0}
+ .attention-row{display:flex;flex-direction:column;gap:0;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--surface);overflow:hidden}
+ .attention-item{padding:0 12px;min-height:44px;gap:10px}
+ .attention-item+.attention-item{border-top:1px solid var(--border)}
+ .attention-item>strong{min-width:24px}.attention-item a{margin-left:auto;display:flex;align-items:center;min-height:44px}
+ .dashboard-columns .card,.page .card{padding:12px}
+ .dashboard-columns .activity-panel{padding:0}
+ .activity-list li{grid-template-columns:20px minmax(0,1fr);gap:4px 10px}
+ .activity-list li>.initials{grid-row:1/3;align-self:start;margin-top:2px}
+ .activity-list li>.time-button{grid-column:2;justify-self:start;text-align:left;min-height:44px;line-height:16px;margin:0}
+ .toolbar-controls .search-control{flex:1;min-width:0;max-width:none}
+ .toolbar-controls .dropdown-trigger{min-height:44px}
+ .list-toolbar .filter-bar{flex-wrap:wrap}
+}
