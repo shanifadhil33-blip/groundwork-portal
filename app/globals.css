@@ -464,3 +464,35 @@ body:has(.app-shell){background:var(--bg);min-height:100dvh}
 .invite-form>button,.key-form>button{flex:none}
 @media(max-width:640px){.toast-region{left:16px;bottom:calc(80px + env(safe-area-inset-bottom))}.invite-form,.key-form{flex-direction:column;align-items:stretch}.invite-form>.form-field,.key-form>.form-field{width:100%;min-width:0}.key-form .filter-bar{align-items:stretch}.key-form .dropdown-trigger{flex:1}}
 @media(max-width:640px){.invite-form>.dropdown-trigger{width:100%!important}.error-actions{align-items:center}.error-actions>.button{flex:1;justify-content:center}}
+
+/* Borders separate structured data and controls; text groups use spacing. */
+.auth-card,.auth-page>.card,.persona-card,.editorial-section,.code{border:0;border-radius:0;background:transparent;box-shadow:none}
+.code{background:var(--surface-subtle)}
+.app-header,.demo-banner,.nav-group{border:0}
+body:has(.app-shell) .user-initials,body:has(.app-shell) .badge{border:0}
+.page>section,.import-steps,.settings-page .tabs,.form-page .form-section,.settings-page section+section,.settings-page form>.form-field,.settings-page form>.queue-check{border:0}
+.settings-page section+section{padding-top:32px}
+.settings-page form{gap:8px}
+body:has(.app-shell) :is(.stat-strip,.attention-row,.supplier-summary,.first-run){border:0;border-radius:0;background:transparent;box-shadow:none}
+body:has(.app-shell) .stat-cells{gap:16px}
+body:has(.app-shell) .stat-cell,body:has(.app-shell) .stat-cell:nth-child(n){border:0;border-radius:0;background:transparent;padding:8px 0}
+body:has(.app-shell) .attention-row{gap:16px;overflow:visible}
+body:has(.app-shell) .attention-item{border:0;padding:0}
+body:has(.app-shell) .supplier-summary,body:has(.app-shell) .first-run{padding:0}
+body:has(.app-shell) .setup-list li{border:0}
+body:has(.app-shell) .check-circle{border:0;background:var(--surface-subtle)}
+body:has(.app-shell) :is(.inline-hint,.suggestion,.conflict){border:0;border-radius:0;background:var(--surface-subtle)}
+body:has(.app-shell) :is(.code-panel,.result-code){border:0;border-radius:0;background:var(--surface-subtle)}
+body:has(.app-shell) .code-panel .result-code{background:transparent}
+body:has(.app-shell) .card:has(>.empty-state:only-child),body:has(.app-shell) .card:has(>.error-state:only-child){border:0;border-radius:0;background:transparent}
+body:has(.app-shell) .description-panel{border:0;border-radius:0;background:transparent;padding:0}
+body:has(.app-shell) .comment,body:has(.app-shell) .assistant-message.user{border:0;border-radius:0;background:transparent}
+body:has(.app-shell) .comment.internal-note{background:var(--surface-subtle)}
+body:has(.app-shell) .client-home .work-list-item{border:0;border-radius:0;background:transparent;padding:12px 0}
+.client-home .update-list>li,.notification-item{border:0}
+body:has(.app-shell) .empty-state,body:has(.app-shell) .error-state{border:0;border-radius:0}
+@media(max-width:640px){
+ .settings-page .tabs-scroll:after{display:none}
+ .settings-page .tabs-scroll .tabs{display:flex;flex-wrap:wrap;overflow:visible;gap:0 16px;padding-right:0;border:0}
+ .settings-page .tabs-scroll .tabs button{flex:0 0 auto;min-height:44px;padding:8px 0;font-size:13px}
+}

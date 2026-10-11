@@ -1,6 +1,6 @@
 import { explicitClientComment } from '../ui/comments';
 import { z } from 'zod';
-import { actionSummary,actionResult,plainAssistantReply } from '../ui/assistant-replies';
+import { actionSummary,actionResult,plainAssistantReply,audienceStatusReply } from '../ui/assistant-replies';
 import { asAgent } from '../db';
 import { assistantTurn,type AssistantMessage } from '../ai';
 import { ApiError,missing } from '../http';
@@ -23,7 +23,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
   const value=result.structuredContent as {result?:any};
   const order=result.isError?null:previous??(['create_request','approve_queue_row'].includes(a.tool)?value.result:null);
   await x.db.query('UPDATE assistant_actions SET consumed_at=now() WHERE id=$1',[a.id]);
-  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text):actionResult(a.tool,a.args,order,queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined),result};
+  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):audienceStatusReply(actionResult(a.tool,a.args,order,queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined),x.role==='client'),result};
  }));
  const role=await inWorkspace(user,ws,async c=>c.role);
  const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
@@ -31,7 +31,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
  if(!history.length)history.push({role:'user',content:'Help me with my workspace.'});
  for(let i=0;i<10;i++){
   const turn=await assistantTurn(history,declarations);if(!turn)return assistantUnavailable;
-  if(!turn.calls.length){const text=plainAssistantReply(turn.text??'How can I help?');return {available:true,reply:/please confirm|confirm this (?:action|change)|action completed|(?:I(?:’|')ve|I have|successfully) (?:changed|moved|updated|added|created|approved|rejected)/i.test(text)?'No changes have been made. Ask me to make the change so you can review and confirm it.':text};}
+  if(!turn.calls.length){const text=plainAssistantReply(turn.text??'How can I help?',role==='client');return {available:true,reply:/please confirm|confirm this (?:action|change)|action completed|(?:I(?:’|')ve|I have|successfully) (?:changed|moved|updated|added|created|approved|rejected)/i.test(text)?'No changes have been made. Ask me to make the change so you can review and confirm it.':text};}
   history.push(...turn.calls.map(call=>({role:'call' as const,...call,raw:turn.raw})));
   for(const [index,call] of turn.calls.entries()){
    const t=Object.hasOwn(tools,call.name)?tools[call.name]:undefined;
@@ -50,7 +50,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
      if(['approve_queue_row','reject_queue_row'].includes(call.name)){const row=(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,(args as any).row_id])).rows[0];if(!row)throw missing();return {label:`row ${row.row_number}: ${row.data.title}`,timezone:undefined};}
      return undefined;
     });
-    const summary=actionSummary(call.name,args,order,target?.label,target?.timezone);
+    const summary=audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');
     const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args) VALUES($1,$2,$3,$4) RETURNING id',[ws,user,call.name,JSON.stringify(args)])).rows[0].id);
     return {available:true,reply:'Please confirm this action before I make the change.',pending_action:{id,tool:call.name,args,summary}};
    }

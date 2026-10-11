@@ -6,7 +6,7 @@ export function StaticSessionHeader() {
   useEffect(()=>{
     let active=true;
     // An anonymous visit is expected here; it must not trigger session recovery.
-    void fetch('/api/me',{cache:'no-store'}).then(response=>{if(active)setSignedIn(response.ok);}).catch(()=>{});
+    void fetch('/api/session',{cache:'no-store'}).then(response=>response.ok?response.json():null).then(session=>{if(active)setSignedIn(session?.signedIn===true);}).catch(()=>{});
     return ()=>{active=false;};
   },[]);
   return <PublicHeader signedIn={signedIn}/>;

@@ -48,7 +48,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-scheduled{background:#c69753}
 .lx-root .lx-done{background:#a6a78c}
 .lx-root .lx-steps{display:grid;grid-template-columns:1fr;gap:44px;max-width:480px;width:44%;min-width:320px}
-.lx-root .lx-steps article{border-left:1px solid #333;padding-left:24px}
+.lx-root .lx-steps article{padding-left:0}
 .lx-root .lx-number{font-size:14px;color:#c69753;display:block;margin-bottom:10px;font-variant-numeric:tabular-nums}
 .lx-root .lx-steps h2{font-size:26px;font-weight:500;letter-spacing:-.04em}
 .lx-root .lx-steps p{font-size:15px;margin-top:10px;max-width:400px}
@@ -56,7 +56,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-agent-copy{max-width:540px}
 .lx-root .lx-agent h2{font-size:clamp(36px,4vw,58px);font-weight:500;letter-spacing:-.055em;line-height:1.1}
 .lx-root .lx-agent p{margin-top:24px;max-width:450px}
-.lx-root .lx-config{display:flex;align-items:center;gap:12px;margin-top:28px;border:1px solid #3a3a3a;padding:12px;background:#0d0d0d;max-width:100%;border-radius:4px}
+.lx-root .lx-config{display:flex;align-items:center;gap:12px;margin-top:28px;padding:12px;background:#0d0d0d;max-width:100%}
 .lx-root .lx-config code{font-size:12px;overflow-wrap:anywhere;line-height:1.8;user-select:all;color:#bdbdbd;min-width:0}
 .lx-root .lx-config button{color:#fff;background:transparent;min-height:44px;padding:8px 12px;border:1px solid #3a3a3a;white-space:nowrap;font-size:12px}
 .lx-root .lx-config button:hover{background:#242424;border-color:#737373}
@@ -110,7 +110,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-workflow{order:3;min-height:0;padding-block:0 32px;gap:24px}
 .lx-root .lx-legend{order:0;gap:20px;font-size:12px}
 .lx-root .lx-steps{order:1;gap:36px;width:100%;min-width:0;max-width:600px}
-.lx-root .lx-steps article{scroll-margin-top:320px;padding-left:18px}
+.lx-root .lx-steps article{scroll-margin-top:320px;padding-left:0}
 .lx-root .lx-steps h2{font-size:24px;line-height:1.2}
 .lx-root .lx-steps p{font-size:15px;margin-top:10px}
 .lx-root .lx-agent{min-height:0;padding-block:48px;align-items:flex-start}
