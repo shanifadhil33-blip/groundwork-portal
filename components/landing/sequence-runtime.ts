@@ -5,8 +5,7 @@ export type SequenceOptions = { reducedMotion: boolean; saveData: boolean; phone
 const CONCURRENCY = 4;
 // Phone motion targets: end scale, tilt and turn (degrees). Kept subtle on purpose.
 const END_SCALE = .54, TILT = 8, TURN = -5;
-// Text blocks that flow up under the building. Each fades out over this distance above the building's bottom edge.
-const FLOW_TEXT = '.lx-rise p, .lx-legend, .lx-steps article > *, .lx-agent-copy > *';
+// Text blocks flowing up under the building fade out over this distance above its bottom edge.
 const FADE_ZONE = 72, SINK = 8;
 
 function documentTop(element: HTMLElement) {
@@ -40,7 +39,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
   let progress = -1, drawnKey = '', geometryKey = '';
   // Layout values that only change on resize.
   let heroBottom = 0, range = 1, headerBottom = 69;
-  const flow = [...root.querySelectorAll<HTMLElement>(FLOW_TEXT)];
+  const flow = [...root.querySelectorAll<HTMLElement>('.lx-rise p, .lx-legend, .lx-steps article > *, .lx-agent-copy > *')];
   let flowTops: number[] = [], flowKeys: string[] = [];
   const floating = () => options.phone() && !options.reducedMotion;
 
