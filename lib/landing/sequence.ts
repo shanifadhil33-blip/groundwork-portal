@@ -1,14 +1,19 @@
 // Pure helpers for the pre-rendered building sequence (public/landing/seq).
-// Frame i was rendered from the desktop scene at scroll progress i / (FRAME_COUNT - 1).
+// Frame i was rendered from the desktop scene at progress SEQ_START + (1 - SEQ_START) * i / (FRAME_COUNT - 1).
+// It starts once the first floors already reach the top of the frame, so the stage is never mostly empty.
+// AVIF frames are 900x1250; the WebP fallback is 720x1000 (same aspect).
 import { clamp } from './hero';
 
 export const FRAME_COUNT = 120;
-export const FRAME_WIDTH = 600;
-export const FRAME_HEIGHT = 833;
-export const frameSrc = (index: number) => `/landing/seq/f${String(index).padStart(3, '0')}.webp`;
+export const FRAME_WIDTH = 900;
+export const FRAME_HEIGHT = 1250;
+export const SEQ_START = .07;
+export type FrameFormat = 'avif' | 'webp';
+export const frameSrc = (index: number, format: FrameFormat = 'avif') => `/landing/seq/f${String(index).padStart(3, '0')}.${format}`;
 
+/** Frame for a desktop scene progress value (0..1); anything before SEQ_START shows the first frame. */
 export function frameIndex(progress: number, count = FRAME_COUNT) {
-  return Math.round(clamp(progress) * (count - 1));
+  return Math.round(clamp((progress - SEQ_START) / (1 - SEQ_START)) * (count - 1));
 }
 
 /** The loaded frame closest to target, preferring the earlier one on ties; -1 when none is loaded. */
@@ -29,12 +34,12 @@ export function loadOrder(count = FRAME_COUNT) {
 }
 
 /**
- * Phone pacing keyed to the copy: the frame progress (desktop scene progress) to reach as each
- * text block arrives at the reading line. Floors assemble during the hero, the building is complete
- * for "A request becomes a plan", lights blue (Open) for step 01, turns gold (Scheduled) through
- * step 02, is fully lit for step 03, and finishes its turn as the stage releases.
+ * Phone pacing keyed to the copy, in desktop scene progress, reached as each text block arrives at the
+ * reading line. The scene's bands go unlit (Open) -> blue (Scheduled, from .33) -> ochre (Done, from .49,
+ * all floors by .65). So: building complete and unlit for "A request becomes a plan" and step 01,
+ * fully blue for step 02, fully ochre for step 03, then it finishes its turn as the stage releases.
  */
-export const PHONE_KEYFRAMES = [.3, .47, .57, .68] as const;
+export const PHONE_KEYFRAMES = [.26, .32, .48, .68] as const;
 
 /** Piecewise linear map through (xs[i], ys[i]); xs are forced non decreasing. */
 export function piecewise(x: number, xs: readonly number[], ys: readonly number[]) {
@@ -46,6 +51,15 @@ export function piecewise(x: number, xs: readonly number[], ys: readonly number[
     if (x <= x1) return x1 === x0 ? y1 : y0 + (y1 - y0) * (x - x0) / (x1 - x0);
   }
   return points[points.length - 1][1];
+}
+
+/**
+ * Vertical cover anchor on the phone stage. Early frames have empty sky above the floors, so they sit low
+ * in the image: anchor near the bottom so the floors fill the stage right under the hero; ease back toward
+ * centre as the building rises so the roof is never cropped. Reads as a gentle camera tilt.
+ */
+export function phoneAnchor(index: number) {
+  return .95 - .45 * clamp(index / 40);
 }
 
 /** Destination rectangle for drawing a frame into a box, as cover (anchored) or contain. */

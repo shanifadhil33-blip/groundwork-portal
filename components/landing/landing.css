@@ -133,9 +133,10 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-legend{display:flex;gap:20px;align-self:flex-start;font-size:13px;color:#b5b5b5}
 .lx-root .lx-legend span{display:flex;gap:7px;align-items:center}
 .lx-root .lx-legend i{width:7px;height:7px;border-radius:1px;display:inline-block}
-.lx-root .lx-open{background:#89a9b0}
-.lx-root .lx-scheduled{background:#c69753}
-.lx-root .lx-done{background:#a6a78c}
+/* The key mirrors the 3D bands exactly: unlit (Open) -> blue (Scheduled) -> ochre (Done). */
+.lx-root .lx-open{background:#292929;box-shadow:inset 0 0 0 1px #6e6e6e}
+.lx-root .lx-scheduled{background:#89a9b0}
+.lx-root .lx-done{background:#c69753}
 .lx-root .lx-steps{display:grid;grid-template-columns:1fr;gap:44px;max-width:480px;width:44%;min-width:320px}
 .lx-root .lx-steps article{padding-left:0}
 .lx-root .lx-number{font-size:14px;color:#c69753;display:block;margin-bottom:10px;font-variant-numeric:tabular-nums}
@@ -191,7 +192,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
    below it when it scrolls away; the rise section's negative margin cancels it in the flow. */
 .lx-root .lx-scene{order:1;position:sticky;inset:auto;top:var(--lx-header-h);z-index:3;flex-shrink:0;height:var(--lx-stage-h);background:#000;margin-bottom:var(--lx-release)}
 .lx-root .lx-scene::after{content:"";position:absolute;left:0;right:0;top:100%;height:28px;background:linear-gradient(#000,rgba(0,0,0,0));pointer-events:none}
-.lx-root .lx-seq-poster{object-fit:cover;object-position:50% 55%}
+.lx-root .lx-seq-poster{object-fit:cover;object-position:50% 95%}
 .lx-root .lx-scene-sticky{position:relative;top:auto;height:100%;overflow:hidden}
 .lx-root .lx-visual{inset:0;width:100%;height:100%;opacity:1}
 .lx-root .lx-rise{order:2;min-height:0;margin-top:calc(-1 * var(--lx-release));padding-block:32px;align-items:flex-start}

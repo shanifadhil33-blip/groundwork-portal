@@ -94,22 +94,24 @@ it('positions the product as real: no portfolio or fictional wording on public p
   expect(readFileSync('app/page.tsx', 'utf8')).not.toContain('lx-scroll');
 });
 
-import { FRAME_COUNT, fitFrame, frameIndex, frameSrc, loadOrder, nearestLoaded, PHONE_KEYFRAMES, piecewise } from '../lib/landing/sequence';
+import { FRAME_COUNT, SEQ_START, fitFrame, phoneAnchor, frameIndex, frameSrc, loadOrder, nearestLoaded, PHONE_KEYFRAMES, piecewise } from '../lib/landing/sequence';
 describe('pre-rendered building sequence for phones', () => {
   it('server renders a dimensioned first-frame poster and the canvas', () => {
     const html = renderToStaticMarkup(<Landing />);
-    expect(html).toMatch(/<img class="lx-seq-poster" src="\/landing\/seq\/f000\.webp" width="600" height="833" alt=""/);
+    expect(html).toMatch(/<picture><source type="image\/avif" srcSet="\/landing\/seq\/f000\.avif"\/><img class="lx-seq-poster" src="\/landing\/seq\/f000\.webp" width="900" height="1250" alt=""/);
   });
   it('ships every frame within the byte budget', () => {
-    let total = 0;
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const size = statSync(new URL(`../public${frameSrc(i)}`, import.meta.url)).size;
-      expect(size).toBeLessThanOrEqual(40_000); total += size;
+    for (const [format, each, budget] of [['avif', 25_000, 1_500_000], ['webp', 30_000, 2_000_000]] as const) {
+      let total = 0;
+      for (let i = 0; i < FRAME_COUNT; i++) {
+        const size = statSync(new URL(`../public${frameSrc(i, format)}`, import.meta.url)).size;
+        expect(size).toBeLessThanOrEqual(each); total += size;
+      }
+      expect(total).toBeLessThanOrEqual(budget);
     }
-    expect(total).toBeLessThanOrEqual(1_600_000);
   });
   it('maps progress to frames and falls back to the nearest loaded frame', () => {
-    expect(frameIndex(0)).toBe(0); expect(frameIndex(1)).toBe(119); expect(frameIndex(.5)).toBe(60); expect(frameIndex(2)).toBe(119);
+    expect(frameIndex(0)).toBe(0); expect(frameIndex(SEQ_START)).toBe(0); expect(frameIndex(1)).toBe(119); expect([59, 60]).toContain(frameIndex(SEQ_START + (1 - SEQ_START) / 2)); expect(frameIndex(2)).toBe(119);
     const loaded = new Array(120).fill(false); expect(nearestLoaded(50, loaded)).toBe(-1);
     loaded[0] = loaded[56] = true; expect(nearestLoaded(50, loaded)).toBe(56); expect(nearestLoaded(20, loaded)).toBe(0);
     loaded[44] = true; expect(nearestLoaded(50, loaded)).toBe(44);
@@ -120,14 +122,25 @@ describe('pre-rendered building sequence for phones', () => {
   });
   it('paces the phone animation through the copy keyframes', () => {
     const xs = [0, 200, 400, 600, 800, 1000], ys = [0, ...PHONE_KEYFRAMES, 1];
-    expect(piecewise(-50, xs, ys)).toBe(0); expect(piecewise(200, xs, ys)).toBe(.3); expect(piecewise(100, xs, ys)).toBeCloseTo(.15);
+    expect(piecewise(-50, xs, ys)).toBe(0); expect(piecewise(200, xs, ys)).toBe(PHONE_KEYFRAMES[0]); expect(piecewise(100, xs, ys)).toBeCloseTo(PHONE_KEYFRAMES[0] / 2);
     expect(piecewise(5000, xs, ys)).toBe(1);
     expect(piecewise(300, [0, 400, 300, 1000], [0, .5, .6, 1])).toBeCloseTo(.375);
     expect([...PHONE_KEYFRAMES]).toEqual([...PHONE_KEYFRAMES].sort());
   });
-  it('fits frames as cover or contain', () => {
-    expect(fitFrame(600, 833, 'cover')).toEqual({ x: 0, y: 0, width: 600, height: 833 });
-    const cover = fitFrame(390, 400, 'cover', .55); expect(cover.width).toBe(390); expect(cover.height).toBeGreaterThan(400);
-    const contain = fitFrame(1000, 833, 'contain'); expect(contain.height).toBe(833); expect(contain.x).toBe(200);
+  it('tilts the phone framing from low to centred as the building rises', () => {
+    expect(phoneAnchor(0)).toBe(.95); expect(phoneAnchor(40)).toBeCloseTo(.5); expect(phoneAnchor(119)).toBeCloseTo(.5);
   });
+  it('fits frames as cover or contain', () => {
+    expect(fitFrame(900, 1250, 'cover')).toEqual({ x: 0, y: 0, width: 900, height: 1250 });
+    const cover = fitFrame(390, 400, 'cover', .55); expect(cover.width).toBe(390); expect(cover.height).toBeGreaterThan(400);
+    const contain = fitFrame(1400, 1250, 'contain'); expect(contain.height).toBe(1250); expect(contain.x).toBe(250);
+  });
+});
+
+it('labels the key with the colours the 3D bands actually use', () => {
+  const css = readFileSync(new URL('../components/landing/landing.css', import.meta.url), 'utf8');
+  const scene = readFileSync(new URL('../components/landing/scene.ts', import.meta.url), 'utf8');
+  expect(scene).toContain('0x89a9b0'); expect(scene).toContain('0xc69753');
+  expect(css).toMatch(/\.lx-scheduled\{background:#89a9b0\}/); expect(css).toMatch(/\.lx-done\{background:#c69753\}/);
+  expect(css).toMatch(/\.lx-open\{background:#292929/);
 });
