@@ -49,16 +49,7 @@ export function phoneCurve(t: number) {
   return .25 * x + .75 * Math.pow(x, 2.2);
 }
 
-/** Scene progress for the phone story: scrolled fraction from the top of the page to where the stage releases. */
-export function phoneProgress(scrollY: number, release: number) {
-  return SEQ_START + (1 - SEQ_START) * phoneCurve(release > 0 ? scrollY / release : 1);
-}
 
-/** One smoothing step toward the scroll target (per animation frame). Snaps when close enough. */
-export function easeToward(current: number, target: number, rate = .15) {
-  const next = current + (target - current) * rate;
-  return Math.abs(target - next) < .02 ? target : next;
-}
 
 /**
  * Frames to draw for a fractional position: the two neighbours and the crossfade amount when both are
@@ -71,14 +62,6 @@ export function blendFrames(position: number, loaded: ArrayLike<boolean>) {
   return nearest < 0 ? null : { base: nearest, over: nearest, mix: 0 };
 }
 
-/**
- * Vertical cover anchor on the phone stage. Early frames have empty sky above the floors, so they sit low
- * in the image: anchor near the bottom so the floors fill the stage right under the hero; ease back toward
- * centre as the building rises so the roof is never cropped. Reads as a gentle camera tilt.
- */
-export function phoneAnchor(index: number) {
-  return .95 - .45 * clamp(index / 40);
-}
 
 /** Building bounding box inside every frame (fractions of the frame), so it can be fitted without cropping. */
 export const BUILDING_CROP = { x: .056, y: .133, w: .898, h: .82 } as const;
@@ -90,7 +73,7 @@ export const BUILDING_CROP = { x: .056, y: .133, w: .898, h: .82 } as const;
  * scrolls away with the content. w is built from sin^2 ramps, so velocity and acceleration are continuous:
  * no holds, no pushes, no jumps. The building dissolves (fade + a little scale) before it could reach the header.
  */
-export const PATH = { hold: .97, rampFrom: .08, fallFrom: .78, fallTo: 1.2, fadeFrom: .62, fadeTo: .95 } as const;
+const PATH = { hold: .97, rampFrom: .08, fallFrom: .78, fallTo: 1.2, fadeFrom: .62, fadeTo: .95 } as const;
 const smooth = (x: number) => { const u = clamp(x); return u * u * (3 - 2 * u); };
 const sin2 = (x: number) => Math.sin(Math.PI / 2 * clamp(x)) ** 2;
 
@@ -129,11 +112,9 @@ export function fitFrame(boxWidth: number, boxHeight: number, mode: 'cover' | 'c
   return { x: (boxWidth - width) / 2, y: insetTop + (area - height) * anchorY, width, height };
 }
 
-/** Clear band (CSS px) kept above the image on the phone stage, so the roof never touches the header. */
-export const PHONE_INSET_TOP = 24;
 
 /** Phone stage tuning: end scale, tilt and turn (degrees), the text fade zone and the entry fade (px). */
-export const PHONE_STAGE = { endScale: .54, tilt: 8, turn: -5, fadeZone: 72, sink: 8, entry: 90 } as const;
+const PHONE_STAGE = { endScale: .54, tilt: 8, turn: -5, fadeZone: 72, sink: 8, entry: 90 } as const;
 
 export type PhoneLayout = { range: number; startTop: number; boxHeight: number; viewHeight: number; path: ReturnType<typeof phonePath> };
 

@@ -8,9 +8,9 @@ const phone=z.string().trim().max(40).nullable().optional().transform((v,ctx)=>{
 const email=z.string().trim().max(320).nullable().optional().transform((v,ctx)=>{if(!v)return v===undefined?undefined:null;if(!EMAIL_PATTERN.test(v)){ctx.addIssue({code:'custom',message:'Enter a valid email address.'});return z.NEVER;}return v.toLowerCase();});
 const trn=z.string().trim().max(40).nullable().optional().transform((v,ctx)=>{if(!v)return v===undefined?undefined:null;const n=normalizeTrn(v);if(!n){ctx.addIssue({code:'custom',message:'A UAE TRN has 15 digits and starts with 100.'});return z.NEVER;}return n;});
 export const clientFields={contact_name:text(200),phone,email,billing_building:text(200),billing_street:text(200),billing_area:text(120),billing_city:text(120),billing_emirate:z.enum(EMIRATES).nullable().optional().or(z.literal('').transform(()=>null)),trn,notes:text(2000)};
-export const clientSchema=z.object({name,...clientFields}).strict();
+const clientSchema=z.object({name,...clientFields}).strict();
 export const siteFields={building:text(200),area:text(120),access_notes:text(2000),contact_name:text(200),contact_phone:phone};
-export const siteSchema=z.object({name,address:z.string().trim().min(1).max(2000),...siteFields}).strict();
+const siteSchema=z.object({name,address:z.string().trim().min(1).max(2000),...siteFields}).strict();
 // Leave out keys the caller did not send, so a partial update never clears other fields.
 const defined=<T extends Record<string,unknown>>(data:T)=>Object.fromEntries(Object.entries(data).filter(([,v])=>v!==undefined)) as Partial<T>;
 export async function listClients(user:string,ws:string) {

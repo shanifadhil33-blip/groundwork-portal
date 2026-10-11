@@ -71,6 +71,7 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
   }));
  });
 }
+const CLIENT_HIDDEN_SITE=['access_notes','contact_name','contact_phone'],CLIENT_HIDDEN_CLIENT=['notes','trn','contact_name','phone','email','billing_building','billing_street','billing_area','billing_city','billing_emirate'];
 export async function getWorkOrder(user:string,ws:string,id:string) {
  return inWorkspace(user,ws,async c=>{
   uuid.parse(id);
@@ -84,6 +85,8 @@ export async function getWorkOrder(user:string,ws:string,id:string) {
   if(!order)throw missing();
   // Match node-postgres timestamp types and the API's existing ISO serialization.
   for(const nested of [order.site,order.client,...order.comments,...order.timeline])for(const key of ['created_at','updated_at'])if(nested[key])nested[key]=new Date(nested[key]);
+  // Client users see where the work is, never the team's access notes, site contact or internal client notes.
+  if(c.role==='client'){for(const key of CLIENT_HIDDEN_SITE)delete order.site?.[key];for(const key of CLIENT_HIDDEN_CLIENT)delete order.client?.[key];}
   return {...order,overdue:isOverdue(order,Date.now(),order.timezone)};
  });
 }

@@ -94,7 +94,7 @@ it('positions the product as real: no portfolio or fictional wording on public p
   expect(readFileSync('app/page.tsx', 'utf8')).not.toContain('lx-scroll');
 });
 
-import { FRAME_COUNT, SEQ_START, fitFrame, phoneAnchor, frameIndex, frameSrc, loadOrder, nearestLoaded, phoneCurve, phoneProgress, easeToward, blendFrames, frameFloat } from '../lib/landing/sequence';
+import { FRAME_COUNT, SEQ_START, fitFrame, frameIndex, frameSrc, loadOrder, nearestLoaded, phoneCurve, blendFrames, frameFloat } from '../lib/landing/sequence';
 describe('pre-rendered building sequence for phones', () => {
   it('server renders a dimensioned first-frame poster and the canvas', () => {
     const html = renderToStaticMarkup(<Landing />);
@@ -130,19 +130,12 @@ describe('pre-rendered building sequence for phones', () => {
       previous = value;
     }
     expect(minSlope).toBeGreaterThanOrEqual(.25);
-    expect(phoneProgress(0, 1000)).toBeCloseTo(SEQ_START); expect(phoneProgress(1000, 1000)).toBe(1); expect(phoneProgress(5000, 1000)).toBe(1);
-    expect(frameFloat(phoneProgress(500, 1000))).toBeCloseTo(119 * (.125 + .75 * Math.pow(.5, 2.2)));
   });
-  it('eases toward the target and crossfades neighbouring frames', () => {
-    expect(easeToward(0, 10, .15)).toBeCloseTo(1.5); expect(easeToward(9.99, 10)).toBe(10);
-    let p = 0; for (let i = 0; i < 60; i++) p = easeToward(p, 10); expect(p).toBe(10);
+  it('crossfades neighbouring frames', () => {
     const loaded = new Array(120).fill(false); expect(blendFrames(10.4, loaded)).toBeNull();
     loaded[10] = loaded[11] = true; expect(blendFrames(10.4, loaded)).toEqual({ base: 10, over: 11, mix: expect.closeTo(.4) });
     loaded[11] = false; expect(blendFrames(10.6, loaded)).toEqual({ base: 10, over: 10, mix: 0 });
     loaded[119] = true; expect(blendFrames(119, loaded)).toEqual({ base: 119, over: 119, mix: 0 });
-  });
-  it('tilts the phone framing from low to centred as the building rises', () => {
-    expect(phoneAnchor(0)).toBe(.95); expect(phoneAnchor(40)).toBeCloseTo(.5); expect(phoneAnchor(119)).toBeCloseTo(.5);
   });
   it('fits frames as cover or contain', () => {
     expect(fitFrame(900, 1250, 'cover')).toEqual({ x: 0, y: 0, width: 900, height: 1250 });

@@ -11,6 +11,8 @@ import * as mcp from '../app/api/mcp/route';
 import { createToken } from '../lib/services/tokens';
 import { formatPhone, formatTrn, normalizePhone, normalizeTrn } from '../lib/records';
 import { recordSummary } from '../lib/ui/assistant-replies';
+import { getWorkOrder } from '../lib/services/work-orders';
+import { orderId } from '../scripts/seed';
 import type { RouteContext } from '../lib/api';
 type Handler=(req:Request,ctx?:RouteContext)=>Promise<Response>;
 let user:string|null=ids.dana;
@@ -80,6 +82,17 @@ describe('site records', () => {
   const seeded=visible.body.find((s:any)=>s.id===siteId(1));expect(seeded).toMatchObject({building:'Marina Exchange, Tower B',area:'Dubai Marina'});
   expect(seeded).not.toHaveProperty('access_notes');expect(seeded).not.toHaveProperty('contact_phone');
   user=ids.dana;await call(siteRoute.DELETE,'DELETE',undefined,{id:created.body.id});
+ });
+});
+
+describe('work order detail', () => {
+ it('client users never get access notes, the site contact or internal client fields through a work order', async () => {
+  const own=await getWorkOrder(ids.priya,ids.ridgeline,orderId(1));
+  expect(own.site.name).toBeTruthy();expect(own.site).toHaveProperty('building');
+  for (const key of ['access_notes','contact_name','contact_phone']) expect(own.site).not.toHaveProperty(key);
+  for (const key of ['notes','trn','phone']) expect(own.client).not.toHaveProperty(key);
+  const staff=await getWorkOrder(ids.sam,ids.ridgeline,orderId(1));
+  expect(staff.site).toHaveProperty('access_notes');expect(staff.client).toHaveProperty('trn');
  });
 });
 

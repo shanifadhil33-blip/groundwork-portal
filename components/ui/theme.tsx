@@ -17,4 +17,3 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <Context.Provider value={{ theme, setTheme, sync, error, saving }}>{children}</Context.Provider>;
 }
 export const useTheme = () => useContext(Context);
-export { themeScript } from '../../lib/head-scripts';
