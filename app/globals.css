@@ -197,3 +197,9 @@ table{font-size:13px}th,td{height:42px;padding:10px 12px}th{font-size:12px;backg
  .queue-row:hover:not(:disabled),.queue-check:hover{background:transparent}
  .queue-row[aria-pressed=true]{background:var(--surface-raised)}
 }
+/* Assistant input row: textarea and send button side by side, hint underneath. */
+.dialog-footer form.assistant-composer{display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:end;gap:6px 8px;width:100%;padding:0}
+.dialog-footer form.assistant-composer textarea{grid-column:1;grid-row:1;width:100%;min-height:44px;max-height:156px;resize:none}
+.dialog-footer form.assistant-composer .assistant-send{grid-column:2;grid-row:1;position:static;width:44px!important;height:44px;min-height:44px}
+.dialog-footer form.assistant-composer .composer-hint{grid-column:1/-1;grid-row:2;position:static}
+@media(pointer:coarse){.dialog-footer form.assistant-composer .composer-hint{display:none}}
