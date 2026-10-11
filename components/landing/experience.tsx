@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { shouldUse3D } from '../../lib/landing/capabilities';
-import { buildingFrame, clamp, selectHero, shouldLoadHeroVideo } from '../../lib/landing/hero';
+import { clamp, selectHero, shouldLoadHeroVideo } from '../../lib/landing/hero';
+import { startSequence } from './sequence-runtime';
 const endpoint = 'https://groundwork-portal.vercel.app/api/mcp';
 export function CopyConfig() {
   const [message, setMessage] = useState('Copy');
@@ -13,7 +14,7 @@ export function CopyConfig() {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setMessage('Copy'), 2500);
   }
-  return <div className="lx-config"><code>"url": "{endpoint}"</code><button type="button" onClick={copy} aria-label="Copy MCP configuration"><span aria-live="polite">{message}</span></button></div>;
+  return <div className="lx-config"><div className="lx-config-head"><span>MCP server</span><button type="button" onClick={copy} aria-label="Copy MCP configuration"><span aria-live="polite">{message}</span></button></div><code>"url": "{endpoint}"</code></div>;
 }
 export function LandingExperience() {
   const mount = useRef<HTMLDivElement>(null);
@@ -25,11 +26,8 @@ export function LandingExperience() {
     const small = matchMedia('(max-width: 768px)');
     const coarse = matchMedia('(pointer: coarse)');
     const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean; addEventListener?: (type: string, listener: () => void) => void; removeEventListener?: (type: string, listener: () => void) => void } };
-    let cleanupScene: (() => void) | undefined;
-    const hero = root.querySelector<HTMLElement>('.lx-hero')!;
+    let cleanupScene: (() => void) | undefined, cleanupSequence: (() => void) | undefined;
     const story = root.querySelector<HTMLElement>('.lx-story')!;
-    const steps = [...root.querySelectorAll<HTMLElement>('.lx-steps article')];
-    const floors = [...root.querySelectorAll<SVGElement>('.lx-floor')];
     const video = root.querySelector<HTMLVideoElement>('.lx-media video')!;
     const visual = root.querySelector<HTMLElement>('.lx-visual')!;
     let variant = selectHero(location.search);
@@ -74,24 +72,6 @@ export function LandingExperience() {
       if (document.hidden) return;
       const progress = clamp(-main.getBoundingClientRect().top / Math.max(1, main.offsetHeight - innerHeight));
       root.style.setProperty('--lx-ghost', String(1 - clamp((progress - .72) / .18) * .88));
-      const heroBottom = hero.getBoundingClientRect().bottom;
-      const assembly = clamp(.22 + (innerHeight - heroBottom) / (innerHeight * .65));
-      const positions = steps.map(step => step.getBoundingClientRect().top);
-      const trigger = innerHeight * .72;
-      let stage = clamp((trigger - positions[0]) / 100);
-      if (trigger >= positions[1]) stage = 1 + clamp((trigger - positions[1]) / 100);
-      if (trigger >= positions[2]) stage = 2 + clamp((trigger - positions[2]) / 100);
-      // Each floor has a static set of colored paths. Only opacity and transform change.
-      if (variant === 'code' && !visual.classList.contains('lx-ready')) {
-        floors.forEach((floor, index) => {
-          const state = buildingFrame(assembly, stage, index, motion.matches);
-          floor.style.setProperty('--floor-rise', `${(1 - state.rise) * 48}px`);
-          floor.style.setProperty('--floor-opacity', String(state.rise));
-          floor.style.setProperty('--light-open', String(state.open));
-          floor.style.setProperty('--light-scheduled', String(state.scheduled));
-          floor.style.setProperty('--light-done', String(state.done));
-        });
-      }
       if (variant === 'media' && videoLoaded && near && !motion.matches) {
         const rect = story.getBoundingClientRect();
         const scrub = clamp(-rect.top / Math.max(1, story.offsetHeight - innerHeight));
@@ -105,22 +85,32 @@ export function LandingExperience() {
       variant = selectHero(location.search); root.dataset.hero = variant;
       mediaEligibility(); scroll();
       cleanupScene?.(); cleanupScene = undefined;
+      cleanupSequence?.(); cleanupSequence = undefined;
+      // Wherever the live scene is skipped or fails, the pre-rendered frames of that same scene play instead.
+      const fallback = () => {
+        if (disposed || ticket !== generation || variant !== 'code' || cleanupSequence) return;
+        root.dataset.scene = 'seq';
+        cleanupSequence = startSequence(root, { reducedMotion: motion.matches, saveData: !!nav.connection?.saveData, phone: () => small.matches || coarse.matches });
+      };
       const allowed = shouldUse3D({ reducedMotion: motion.matches, smallScreen: small.matches, coarsePointer: coarse.matches,
         hardwareConcurrency: nav.hardwareConcurrency, deviceMemory: nav.deviceMemory, saveData: nav.connection?.saveData,
         webgl: 'WebGLRenderingContext' in window });
-      if (!allowed || variant !== 'code') return;
+      if (variant !== 'code') { delete root.dataset.scene; return; }
+      if (!allowed) { fallback(); return; }
+      root.dataset.scene = '3d';
       const canvas = document.createElement('canvas');
       let context: WebGL2RenderingContext | null = null;
       const release = () => context?.getExtension('WEBGL_lose_context')?.loseContext();
       try {
         context = canvas.getContext('webgl2', { antialias: true, alpha: true, powerPreference: 'low-power' });
-        if (!context) return;
+        if (!context) { fallback(); return; }
         const { createScene } = await import('./scene');
-        if (disposed || ticket !== generation || context.isContextLost()) { release(); return; }
+        if (disposed || ticket !== generation) { release(); return; }
+        if (context.isContextLost()) { release(); fallback(); return; }
         const disposeScene = await createScene(host, main, canvas, context);
         if (disposed || ticket !== generation) disposeScene();
         else cleanupScene = disposeScene;
-      } catch { release(); host.parentElement?.classList.remove('lx-ready'); }
+      } catch { release(); host.parentElement?.classList.remove('lx-ready'); fallback(); }
     }
     void eligibility(); scroll();
     window.addEventListener('scroll', scroll, { passive: true });
@@ -130,7 +120,7 @@ export function LandingExperience() {
     [motion, small, coarse].forEach(m => m.addEventListener('change', eligibility));
     nav.connection?.addEventListener?.('change', eligibility);
     return () => {
-      disposed = true; generation++; cleanupScene?.(); reveal.disconnect(); mediaObserver.disconnect(); cancelAnimationFrame(frame);
+      disposed = true; generation++; cleanupScene?.(); cleanupSequence?.(); reveal.disconnect(); mediaObserver.disconnect(); cancelAnimationFrame(frame);
       video.removeEventListener('loadeddata', videoReady); video.removeEventListener('seeked', scroll);
       video.removeEventListener('error', videoError);
       video.querySelectorAll('source').forEach(source => source.removeAttribute('src'));

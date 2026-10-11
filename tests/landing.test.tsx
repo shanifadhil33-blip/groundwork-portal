@@ -13,7 +13,7 @@ it('renders accessible landing copy, hero and reveal actions, and legal footer o
   const footer = html.split('<footer')[1];
   expect(footer).toContain('href="/privacy"'); expect(footer).toContain('href="/terms"');
   expect(footer).not.toMatch(/portfolio|fictional/i);
-  expect(html).toContain('lx-building'); expect(html).toContain('Skip to content');
+  expect(html).toContain('lx-seq-poster'); expect(html).toContain('Skip to content');
   expect(html).not.toMatch(/Sparkles|✨|🚀/i);
 });
 const desktop: LandingCapabilities = { reducedMotion: false, smallScreen: false, coarsePointer: false, hardwareConcurrency: 8, deviceMemory: 8, saveData: false, webgl: true };
@@ -31,7 +31,7 @@ describe('3D eligibility', () => {
 // These tests are intentionally independent of the portal/database.
 import { readFileSync, statSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
-import { buildingFrame, DEFAULT_HERO, heroBootstrap, selectHero, shouldLoadHeroVideo } from '../lib/landing/hero';
+import { DEFAULT_HERO, heroBootstrap, selectHero, shouldLoadHeroVideo } from '../lib/landing/hero';
 
 describe('static hero variants', () => {
   it.each([
@@ -47,8 +47,9 @@ describe('static hero variants', () => {
   it('keeps the route server rendered with one illustration and all sections in order', () => {
     const html = renderToStaticMarkup(<Landing />);
     expect(html).toContain(`data-hero="${DEFAULT_HERO}"`);
-    expect(html.match(/class="lx-building"/g)).toHaveLength(1);
-    expect(html.match(/class="lx-floor"/g)).toHaveLength(9);
+    expect(html.match(/class="lx-seq-poster"/g)).toHaveLength(1);
+    expect(html.match(/class="lx-seq-canvas"/g)).toHaveLength(1);
+    expect(html).not.toMatch(/lx-building|lx-floor|<svg[^>]*viewBox="90 70/);
     const copy = ['Run every work order', 'A request becomes a plan.', 'Requests come in', 'Your team schedules and works them', 'Clients see progress', 'Your AI agents can work here too.', 'Every job,', 'Privacy'];
     const positions = copy.map(text => html.indexOf(text));
     expect(positions.every(index => index >= 0)).toBe(true);
@@ -75,16 +76,6 @@ describe('static hero variants', () => {
 });
 
 describe('scroll and motion fallbacks', () => {
-  it('assembles bottom to top, then lights Open → Scheduled → Done', () => {
-    expect(buildingFrame(.4, 0, 0, false).rise).toBe(1);
-    expect(buildingFrame(.4, 0, 8, false).rise).toBe(0);
-    for (let floor = 0; floor < 9; floor++) {
-      expect(buildingFrame(1, 1, floor, false)).toEqual({ rise: 1, open: 1, scheduled: 0, done: 0 });
-      expect(buildingFrame(1, 2, floor, false)).toEqual({ rise: 1, open: 1, scheduled: 1, done: 0 });
-      expect(buildingFrame(1, 3, floor, false)).toEqual({ rise: 1, open: 1, scheduled: 1, done: 1 });
-      expect(buildingFrame(0, 0, floor, true)).toEqual({ rise: 1, open: 1, scheduled: 1, done: 1 });
-    }
-  });
   it('loads media only near the viewport, with motion allowed and data saving off', () => {
     expect(shouldLoadHeroVideo('media', false, false, true)).toBe(true);
     expect(shouldLoadHeroVideo('code', false, false, true)).toBe(false);
@@ -101,4 +92,42 @@ it('positions the product as real: no portfolio or fictional wording on public p
     expect(src, f).not.toMatch(/portfolio|fictional/i);
   }
   expect(readFileSync('app/page.tsx', 'utf8')).not.toContain('lx-scroll');
+});
+
+import { FRAME_COUNT, fitFrame, frameIndex, frameSrc, loadOrder, nearestLoaded, PHONE_KEYFRAMES, piecewise } from '../lib/landing/sequence';
+describe('pre-rendered building sequence for phones', () => {
+  it('server renders a dimensioned first-frame poster and the canvas', () => {
+    const html = renderToStaticMarkup(<Landing />);
+    expect(html).toMatch(/<img class="lx-seq-poster" src="\/landing\/seq\/f000\.webp" width="600" height="833" alt=""/);
+  });
+  it('ships every frame within the byte budget', () => {
+    let total = 0;
+    for (let i = 0; i < FRAME_COUNT; i++) {
+      const size = statSync(new URL(`../public${frameSrc(i)}`, import.meta.url)).size;
+      expect(size).toBeLessThanOrEqual(40_000); total += size;
+    }
+    expect(total).toBeLessThanOrEqual(1_600_000);
+  });
+  it('maps progress to frames and falls back to the nearest loaded frame', () => {
+    expect(frameIndex(0)).toBe(0); expect(frameIndex(1)).toBe(119); expect(frameIndex(.5)).toBe(60); expect(frameIndex(2)).toBe(119);
+    const loaded = new Array(120).fill(false); expect(nearestLoaded(50, loaded)).toBe(-1);
+    loaded[0] = loaded[56] = true; expect(nearestLoaded(50, loaded)).toBe(56); expect(nearestLoaded(20, loaded)).toBe(0);
+    loaded[44] = true; expect(nearestLoaded(50, loaded)).toBe(44);
+  });
+  it('loads coarse to fine and covers every frame once', () => {
+    const order = loadOrder(); expect(order.slice(0, 3)).toEqual([0, 119, 8]);
+    expect(new Set(order).size).toBe(120); expect(order).toHaveLength(120);
+  });
+  it('paces the phone animation through the copy keyframes', () => {
+    const xs = [0, 200, 400, 600, 800, 1000], ys = [0, ...PHONE_KEYFRAMES, 1];
+    expect(piecewise(-50, xs, ys)).toBe(0); expect(piecewise(200, xs, ys)).toBe(.3); expect(piecewise(100, xs, ys)).toBeCloseTo(.15);
+    expect(piecewise(5000, xs, ys)).toBe(1);
+    expect(piecewise(300, [0, 400, 300, 1000], [0, .5, .6, 1])).toBeCloseTo(.375);
+    expect([...PHONE_KEYFRAMES]).toEqual([...PHONE_KEYFRAMES].sort());
+  });
+  it('fits frames as cover or contain', () => {
+    expect(fitFrame(600, 833, 'cover')).toEqual({ x: 0, y: 0, width: 600, height: 833 });
+    const cover = fitFrame(390, 400, 'cover', .55); expect(cover.width).toBe(390); expect(cover.height).toBeGreaterThan(400);
+    const contain = fitFrame(1000, 833, 'contain'); expect(contain.height).toBe(833); expect(contain.x).toBe(200);
+  });
 });
