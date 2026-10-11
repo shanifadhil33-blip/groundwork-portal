@@ -177,3 +177,26 @@ Added a scoped, RLS-protected work-order-number lookup for existing WO-number an
 Migration 0009 adds atomic client-requester notifications for staff/admin client-visible comments, including MCP and assistant writes; internal notes do not notify. Added regressions for lookup/isolation, proposal-before-confirmation, notification replay/internal visibility, membership wording and safe markdown rendering.
 
 Verification: `pnpm typecheck` passes. All **23 tests across four files** in the isolated frontend configuration pass. `pnpm test` was run but cannot execute database tests: global setup receives sandbox `EPERM` connecting to both `::1:5432` and `127.0.0.1:5432`, despite the local server running. No permission escalation is available. Migration 0009 remains to be applied to the development database in an environment permitting Postgres connections; full database test results and live assistant behavior are not certified here. No development database reset, seed changes, commits or pushes.
+
+# Redesign
+
+## Redesign batch 1 — tokens, shell, assistant entry, landing
+
+- Mood: calm, precise, dense operational tool, with quiet controls and plain copy.
+- Palette: neutral light and dark surfaces with one deep teal accent and small status dots.
+- Type: Geist at 14px for app surfaces, compact titles, and tabular numbers for tables, stats, and counts.
+- Surfaces: flat hairline borders, 4/6/8/12px radii, compact spacing, and restrained overlay shadows.
+
+Rewrote the light/dark tokens and restyled shared buttons, inputs, dropdowns, tabs, badges, cards, tables, skeletons, state blocks, dialogs, drawers, popovers, and toasts. Removed button lift/shadow hover effects and all UI eyebrow labels and Sparkles references. Kept keyboard focus, reduced motion, overlay stacking, the theme pre-paint script, and 44px touch targets.
+
+Rebuilt the shell presentation around a 232px sidebar workspace block, quiet navigation with queue counts, bottom Settings/account controls, a 48px page-context header, and a slim demo strip. Added a labeled desktop Assistant control with platform-specific Cmd/Ctrl+J toggling and a neutral phone Assistant icon. Preserved persona/reset/sign-out confirmations, collapse persistence, unread polling, queue updates, client path guards, draft guards, and existing sheet dismissal behavior. The phone More sheet retains navigation and sign-out.
+
+Replaced the landing hero and decorative feature sections with plain product copy, demo/sign-in links, a framed HTML app preview with seven work orders and a compact stat strip, and six short capability descriptions. Updated public header/footer and compact sign-in/demo picker presentation. The preview clips within its frame and hides the miniature sidebar on phones. Google sign-in and demo start handlers are unchanged. Assistant conversation content is deferred to batch 3.
+
+Verification: `pnpm typecheck` and `pnpm build` passed. All 23 existing isolated frontend tests across four files passed with `pnpm vitest run --config vitest.frontend.config.ts`. Source grep found no Sparkles or eyebrow references in app/components. No database suite was run. Responsive layout and light/dark styles were reviewed statically; interactive browser flows and measured 320px/390px rendering were not verified in this batch. No dependencies, backend/API/auth/database changes, commits, pushes, or .git writes.
+
+Files changed:
+- app/globals.css; app/page.tsx; app/not-found.tsx
+- app/(public)/sign-in/page.tsx; app/(public)/demo/page.tsx; app/(app)/onboarding/page.tsx
+- components/app/shell.tsx; components/app/dashboard.tsx; components/app/approval-queue.tsx; components/app/import-upload.tsx
+- components/public/chrome.tsx; components/ui/states.tsx; PROGRESS.md
