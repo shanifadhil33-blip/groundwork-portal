@@ -6,7 +6,7 @@
 
 ## Assets
 
-All derivatives are in `public/landing/`. The generated original is archived at `public/landing/src/building-night.png` and is never referenced by the page.
+All derivatives are in `public/landing/`. The generated original is archived at `design/building-night-source.png` and is never referenced by the page.
 
 | Asset | Dimensions | Bytes |
 | --- | --- | ---: |

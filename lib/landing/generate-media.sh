@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run from the repository root. Requires ffmpeg with libwebp/libvpx-vp9/libx264.
 set -euo pipefail
-original=public/landing/src/building-night.png
+original=design/building-night-source.png
 for width in 1600 800; do
   ffmpeg -y -hide_banner -loglevel error -i "$original" -vf "scale=$width:-2" -c:v libwebp -quality 76 -frames:v 1 "public/landing/building-$width.webp"
 done
