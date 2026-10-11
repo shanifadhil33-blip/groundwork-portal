@@ -14,5 +14,5 @@ export function AssistantMarkdown({text}:{text:string}) {
    blocks.push(ordered?<ol key={start}>{items}</ol>:<ul key={start}>{items}</ul>);
   }else{const start=i,paragraph:string[]=[];while(i<lines.length&&lines[i].trim()&&!/^\s*(?:[-*]|\d+\.)\s+/.test(lines[i]))paragraph.push(lines[i++]);blocks.push(<p key={start}>{inline(paragraph.join('\n'))}</p>);}
  }
- return <div className="assistant-markdown">{blocks}</div>;
+ return <div className="assistant-markdown prose-message">{blocks}</div>;
 }

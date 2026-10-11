@@ -9,7 +9,7 @@ import { DraftGuard, guardedAction } from './draft-guard';
 import { Conflict, WorkOrderBack } from './work-order-detail';
 import { request, RequestError } from '../../lib/ui/api';
 import { dateInput, draftErrors, label, priorities, scheduleValue, type Client, type Detail, type Draft, type Member, type Site, type WorkOrder } from '../../lib/ui/work-orders';
-import { Button, Card, DatePicker, Dropdown, EmptyState, ErrorState, PageSkeleton, useToast } from '../ui';
+import { Button, DatePicker, Dropdown, EmptyState, ErrorState, PageSkeleton, useToast } from '../ui';
 const blank:Draft={title:'',description:'',client_id:'',site_id:'',priority:'normal',assignee_id:'',scheduled_for:''};
 function fromOrder(o:Detail):Draft{return {title:o.title,description:o.description??'',client_id:o.client_id,site_id:o.site_id,priority:o.priority,assignee_id:o.assignee_id??'',scheduled_for:dateInput(o.scheduled_for)};}
 export function WorkOrderForm({ id }: { id?: string }) {

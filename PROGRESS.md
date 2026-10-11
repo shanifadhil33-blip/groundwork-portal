@@ -223,3 +223,22 @@ Files changed:
 - components/app/workflow-loading.tsx
 - components/ui/inline-hint.tsx; components/ui/index.ts
 - PROGRESS.md
+
+## Redesign batch 3 — remaining screens and sweep
+
+Reused the existing neutral light/dark tokens, compact heading rows, table wrappers, badges, hairlines and guided empty states. Import now has a compact dashed upload area, recent-import table, four-step progress indicator, two-column mapping table and dense validation table retaining all mapped values and issues. Mapping keeps the existing field-to-column selectors, including the ability to reuse a spreadsheet column. Approval queue has pending metadata and bulk action in its header, a compact list/detail split, properties and edit controls, and distinct first-use/caught-up states linked to Import. Mapping, queue and agent access reuse InlineHint with user-scoped browser dismissal.
+
+Supplier orders and sync runs, clients, members, invites, audit entries and agent keys use compact tables. Supplier check/repair actions sit beside last-sync metadata; mismatch indicators remain small, with muted row backgrounds; demo controls remain at the bottom. Client sites use compact hairline rows. Audit retains filters, date range, sorting and pagination, with actor initials, attribution pills, a properties drawer and readable diffs. Settings retains every original tab key and ?tab= deep link, adds underline tabs and label/control rows within 760px, and uses Light/Dark/System segmented buttons. Agent access retains creation/revocation and one-time secret behavior, with monospace secrets and a bordered copyable MCP code panel.
+
+Notifications have compact rows, accent unread dots, tabular times and Mark all read in the overlay header. Assistant uses a plain Assistant title, three role-appropriate prompts through the existing submit/send path, right-aligned neutral user messages, plain assistant markdown, bordered confirmation panels and an inset send button with keyboard hint. Confirm payload, retry, busy locks, session persistence, scrolling and header-only swipe dismissal remain intact. Client home sections, isolation, onboarding, invite acceptance and shared loading skeletons follow the same density. Existing no-access, not-found and error boundaries inherit the shared 22px titles and neutral state styles. Swept obsolete card sections and unused CSS rules; retained runtime-generated presentation/status/priority selectors. No native selects, sparkle/eyebrow, gradient or glow components were found in the final source sweep.
+
+Verification: `pnpm typecheck` passed. `pnpm vitest run --config vitest.frontend.config.ts` passed all 23 tests in four files. `pnpm build` passed. `git diff --check` passed. Responsive and dark-mode rules were reviewed statically; signed-in browser interactions and measured 320px/390px layouts were not verified. No dependencies, tests, backend/API/auth/database/data changes, database suite, commits or pushes.
+
+Files changed:
+- app/globals.css; app/(app)/onboarding/page.tsx; app/(app)/invites/accept/page.tsx
+- components/app/import-upload.tsx; import-detail.tsx; import-shared.tsx; approval-queue.tsx
+- components/app/supplier.tsx; audit.tsx; clients.tsx; client-home.tsx; isolation.tsx
+- components/app/settings.tsx; settings-invites.tsx; agent-access.tsx; notifications.tsx; assistant.tsx
+- components/app/loading.tsx; work-order-form.tsx (unused import cleanup)
+- components/ui/states.tsx; dialog.tsx; assistant-markdown.tsx
+- PROGRESS.md
