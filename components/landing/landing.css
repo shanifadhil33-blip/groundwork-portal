@@ -81,9 +81,6 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-rise{min-height:90svh;display:flex;align-items:center}
 .lx-root .lx-rise p{font-size:clamp(25px,3vw,42px);color:#fff;letter-spacing:-.04em;line-height:1.3}
 .lx-root .lx-workflow{min-height:120svh;display:flex;flex-direction:column;justify-content:center;padding-block:100px;gap:40px}
-.lx-root .lx-eyebrow{display:block;font-size:13px;line-height:1.4;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#c69753}
-.lx-root .lx-workflow .lx-eyebrow{margin-bottom:-20px}
-.lx-root .lx-agent .lx-eyebrow{margin-bottom:18px}
 .lx-root .lx-legend{display:flex;gap:20px;align-self:flex-start;font-size:13px;color:#b5b5b5}
 .lx-root .lx-legend span{display:flex;gap:7px;align-items:center}
 .lx-root .lx-legend i{width:7px;height:7px;border-radius:1px;display:inline-block}
@@ -160,7 +157,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-agent h2{font-size:40px}
 .lx-root .lx-agent p{font-size:16px}
 .lx-root .lx-config code{font-size:12px;padding:14px}
-.lx-root .lx-workflow .lx-eyebrow{margin-bottom:-8px}
+
 .lx-root .lx-finale{min-height:0;padding-block:48px 64px}
 .lx-root .lx-finale h2{font-size:clamp(55px,11vw,84px)}
 .lx-root .lx-note{max-width:280px}
