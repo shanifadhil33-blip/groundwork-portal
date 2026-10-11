@@ -11,7 +11,7 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
 export function notificationMessage(r:Record<string,any>) {
  const title=r.work_order_title??r.current_title??'your work order',actor=r.actor_name??'Your team';
  if(r.kind==='status_changed')return r.from_status&&r.to_status?`${actor} moved ${title} from ${readableLabel(r.from_status)} to ${readableLabel(r.to_status)}.`:r.to_status?`${actor} moved ${title} to ${readableLabel(r.to_status)}.`:`${actor} updated the status of ${title}.`;
- if(r.kind==='comment_added')return `${actor} added a client-visible comment to ${title}.`;
+ if(r.kind==='comment_added')return `${actor} added a comment visible to the client to ${title}.`;
  if(r.kind==='request_created')return `${actor} created ${title}.`;
  return `${actor} updated ${title}.`;
 }

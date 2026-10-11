@@ -79,7 +79,7 @@ it('Priya MCP cannot see Northgate/Summit/internal comments or approval queue an
  expect((await tool(t.token,'list_sites')).structuredContent.result.every((s:any)=>s.client_id===ids.harbor)).toBe(true);
 });
 it.each(Object.entries(tools).filter(([,t])=>t.write).map(([name])=>name))('read token rejects %s before mutation',async name=>{
- const t=await mint(ids.sam,'read');const before=await count();const r=await tool(t.token,name,{});expect(r.isError).toBe(true);expect(r.content[0].text).toBe('This token is read-only.');expect(await count()).toBe(before);
+ const t=await mint(ids.sam,'read');const before=await count();const r=await tool(t.token,name,{});expect(r.isError).toBe(true);expect(r.content[0].text).toBe('This token allows viewing only.');expect(await count()).toBe(before);
 });
 it('staff write tools work, preserve optimistic concurrency, and expose agent audit id/name',async()=>{
  const t=await mint();const created=await tool(t.token,'create_request',{title:'MCP creation',site_id:siteId(1)});const o=created.structuredContent.result;expect(o.id).toBeTruthy();

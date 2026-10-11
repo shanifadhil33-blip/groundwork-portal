@@ -21,7 +21,7 @@ type Order = {id:string;order_number:number;title:string;status:string;priority:
 export function assistantTarget(order: Order) { return `WO-${order.order_number} ${plainAssistantReply(order.title)}`; }
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
   const name = order ? assistantTarget(order) : plainAssistantReply(target ?? 'the selected row');
-  if(tool==='add_comment')return `Add ${args.visibility==='internal'?'an internal note (team only)':'a client-visible comment'} to ${name}:\n\n${plainAssistantReply(args.body)}`;
+  if(tool==='add_comment')return `Add ${args.visibility==='internal'?'an internal note (team only)':'a comment visible to the client'} to ${name}:\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_status')return `Move ${name}: ${readableLabel(order!.status)} → ${readableLabel(args.status)}`;
   if(tool==='set_priority')return `Change priority for ${name}: ${readableLabel(order!.priority)} → ${readableLabel(args.priority)}`;
   if(tool==='update_work_order_dates')return `Change dates for ${name}:\n${['due_on','scheduled_for'].filter(key=>key in args).map(key=>`${key==='due_on'?'Due date':'Visit'}: ${order?.[key as 'due_on'|'scheduled_for']?formatDate(order[key as 'due_on'|'scheduled_for']!,order.timezone):'None'} → ${args[key]?formatDate(args[key],order?.timezone):'None'}`).join('\n')}`;
@@ -34,7 +34,7 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   const name=assistantTarget(order).replace(/[\[\]\r\n]/g,' '),link=`[${name}](/work-orders/${order.id})`;
   if(tool==='update_work_order_status')return `Moved ${link} to ${readableLabel(args.status)}.`;
   if(tool==='set_priority')return `Changed priority for ${link} to ${readableLabel(args.priority)}.`;
-  if(tool==='add_comment')return `Added ${args.visibility==='internal'?'an internal note':'a client-visible comment'} to ${link}.\n\n${plainAssistantReply(args.body)}`;
+  if(tool==='add_comment')return `Added ${args.visibility==='internal'?'an internal note':'a comment visible to the client'} to ${link}.\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_dates')return `Updated dates for ${link}.\n${actionSummary(tool,args,order).split('\n').slice(1).join('\n')}`;
   return `Created ${link}.`;
 }

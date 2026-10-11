@@ -29,7 +29,7 @@ describe('comment privacy',()=>{
  it('renders both badges and an internal composer, with assistant attribution on activity',()=>{
   mocks.resource.mockImplementation(url=>({loading:false,error:false,reload:vi.fn(),data:url?.includes('/work-orders/')?{id:'order',order_number:1,title:'Current title',status:'open',priority:'normal',description:'',client:{name:'Client'},site:{name:'Site',address:''},comments:[{id:'internal',body:'Private',visibility:'internal',author_id:'dana',created_at:'2026-10-11T10:00:00Z',work_order_title:'Original title',actor_kind:'assistant'},{id:'client',body:'Shared',visibility:'client',author_id:'dana',created_at:'2026-10-11T11:00:00Z',work_order_title:'Original title'}],timeline:[]}:url?.endsWith('/members')?[]:{data:[]}}));
   const html=renderToStaticMarkup(<WorkOrderDetail id="order"/>);
-  expect(html).toContain('Client-visible');expect(html).toContain('Internal note');expect(html).toContain('Add internal note');expect(html).toContain('via assistant');expect(html).toContain('to Original title');
+  expect(html).toContain('Visible to the client');expect(html).toContain('Internal note');expect(html).toContain('Add internal note');expect(html).toContain('via assistant');expect(html).toContain('to Original title');
  });
 });
 describe('history and local formatting',()=>{
@@ -41,7 +41,7 @@ describe('history and local formatting',()=>{
  });
  it('formats notification changes using captured context after a title rename',()=>{
   expect(notificationMessage({kind:'status_changed',actor_name:'Sam',work_order_title:'Original title',current_title:'Renamed',from_status:'scheduled',to_status:'in_progress'})).toBe('Sam moved Original title from Scheduled to In Progress.');
-  expect(notificationMessage({kind:'comment_added',actor_name:'Sam',work_order_title:'Repair tap'})).toBe('Sam added a client-visible comment to Repair tap.');
+  expect(notificationMessage({kind:'comment_added',actor_name:'Sam',work_order_title:'Repair tap'})).toBe('Sam added a comment visible to the client to Repair tap.');
  });
  it('drops visually unchanged fields and formats timestamps in the workspace timezone',()=>{
   expect(auditDiff({body:null},{body:''})).toEqual([]);

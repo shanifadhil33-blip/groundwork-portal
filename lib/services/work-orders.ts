@@ -94,7 +94,7 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   const order=await row(c,'work_orders',id,true);
   const parsed=patchSchema.parse(body);
   const version=ifMatch?.replace(/^"|"$/g,'')??parsed.updated_at;
-  if(!version)throw invalid('Provide If-Match or updated_at from the current work order.','updated_at');
+  if(!version)throw invalid('Refresh the work order before saving your changes.','updated_at');
   timestamp.parse(version);
   if(new Date(version).getTime()!==order.updated_at.getTime())throw new ApiError(409,'stale','This request changed since you opened it. Refresh it and try again.');
   const {updated_at:_,reopen,...data}=parsed;
@@ -114,7 +114,7 @@ export async function createComment(user:string,ws:string,id:string,body:unknown
  return inWorkspace(user,ws,async c=>{
   const order=await row(c,'work_orders',id);
   const data=z.object({body:z.string().trim().min(1).max(20000),visibility:z.enum(['client','internal']).default(c.role==='client'?'client':'internal')}).strict().parse(body);
-  if(c.role==='client' && data.visibility!=='client')throw invalid('Client comments must be client-visible.','visibility');
+  if(c.role==='client' && data.visibility!=='client')throw invalid('Client comments must be visible to the client.','visibility');
   return replay(c.db,user,ws+'/work-orders/'+id+'/comments',key,data,()=>insert(c,'comments',{...data,workspace_id:ws,client_id:order.client_id,work_order_id:id,author_id:user}));
  });
 }

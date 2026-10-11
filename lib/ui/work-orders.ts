@@ -27,7 +27,7 @@ export function scheduleValue(value: string, timezone = workspaceTimezone) { ret
 export type Draft = { title: string; description: string; client_id: string; site_id: string; priority: string; assignee_id: string; scheduled_for: string; due_on: string };
 export function draftErrors(draft: Draft) { const errors: Record<string, string> = {}; if (!draft.title.trim()) errors.title = 'Enter a title.'; else if (draft.title.trim().length > 200) errors.title = 'Use 200 characters or fewer.'; if (draft.description.length > 20000) errors.description = 'Use 20,000 characters or fewer.'; if (!draft.client_id) errors.client_id = 'Choose a client.'; if (!draft.site_id) errors.site_id = 'Choose a site.'; return errors; }
 
-export const clientStatusLabels:Record<string,string> = {open:'Request Received',scheduled:'Visit Scheduled',in_progress:'Work in Progress',waiting_on_parts:"Waiting on Parts — we've ordered what's needed",done:'Completed',cancelled:'Cancelled'};
+export const clientStatusLabels:Record<string,string> = {open:'Request Received',scheduled:'Visit Scheduled',in_progress:'Work in Progress',waiting_on_parts:"Waiting on parts. We've ordered what's needed.",done:'Completed',cancelled:'Cancelled'};
 export function visibleComments(comments:Comment[],client:boolean) { return client ? comments.filter(c=>c.visibility==='client') : comments; }
 export function clientEvent(event:Detail['timeline'][number],timezone=workspaceTimezone) {
  const details=event.details;
@@ -50,7 +50,7 @@ export function staffEvent(event:Detail['timeline'][number],timezone=workspaceTi
  return clientEvent(event,timezone).replace(/^./,s=>s.toLowerCase())+(title?` on ${title}`:'');
 }
 export function transitionOptions(current:string) {
- return Object.entries(statusLabels).map(([value,title])=>({value,label:value===current?`${title} — Current status`:statusTransitions[current]?.includes(value)?title:`${title} — ${current==='open'?'Move to Scheduled first':current==='scheduled'?'Move to In Progress first':'Unavailable from this status'}`,disabled:value===current||!statusTransitions[current]?.includes(value)}));
+ return Object.entries(statusLabels).map(([value,title])=>({value,label:value===current?`${title} (current status)`:statusTransitions[current]?.includes(value)?title:`${title}: ${current==='open'?'Move to Scheduled first':current==='scheduled'?'Move to In Progress first':'Unavailable from this status'}`,disabled:value===current||!statusTransitions[current]?.includes(value)}));
 }
 export function providerOnlyPath(path:string) { return /^\/(dashboard|imports?|queue|supplier|clients|audit)(\/|$)/.test(path)||/^\/work-orders\/[^/]+\/edit$/.test(path); }
 

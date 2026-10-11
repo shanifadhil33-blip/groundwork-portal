@@ -15,7 +15,7 @@ it('describes permissions and rate limits without technical codes',()=>{
 it('rejects empty uploads and header-only files with specific reasons',()=>{
  expect(()=>parseFile(Buffer.alloc(0),'empty.csv')).toThrow('empty');
  expect(()=>parseFile(Buffer.from('title,description\n'),'empty.csv')).toThrow('no data rows');
- expect(()=>parseFile(Buffer.from('title,title\na,b'),'bad.csv')).toThrow('headers');
+ expect(()=>parseFile(Buffer.from('title,title\na,b'),'bad.csv')).toThrow('give every column a unique header');
 });
 
 it('sends signed-out visitors to sign-in and genuine expiry to the session-ended page',()=>{

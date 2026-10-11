@@ -34,8 +34,8 @@ describe('workspace deadlines and visits',()=>{
  });
  it('explains unavailable transitions without offering an unconfirmed close',()=>{
   const options=transitionOptions('open');
-  expect(options.find(o=>o.value==='open')).toMatchObject({disabled:true,label:'Open — Current status'});
-  expect(options.find(o=>o.value==='done')).toMatchObject({disabled:true,label:'Done — Move to Scheduled first'});
+  expect(options.find(o=>o.value==='open')).toMatchObject({disabled:true,label:'Open (current status)'});
+  expect(options.find(o=>o.value==='done')).toMatchObject({disabled:true,label:'Done: Move to Scheduled first'});
   expect(options.find(o=>o.value==='scheduled')?.disabled).toBe(false);
  });
  it('names assignment, visit, due and status changes for staff and clients',()=>{

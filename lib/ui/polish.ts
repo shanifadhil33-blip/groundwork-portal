@@ -12,7 +12,7 @@ export function activitySentence(item:Activity, timezone='Asia/Dubai') {
  const subject=item.entity==='work_orders'?String(title??'a work order'):item.entity==='comments'?`a comment${title?` on ${title}`:''}`:(entityLabels[item.entity]??'Record').toLowerCase();
  if(item.entity==='members'){const name=item.member_name??after.name??before.name??'a team member',role=String(after.role??before.role??'member');return item.action==='insert'?`${actor} added ${name} as ${readableLabel(role)}`:item.action==='delete'?`${actor} removed ${name} from the team`:`${actor} changed ${name}’s role to ${readableLabel(role)}`;}
  if(item.entity==='api_tokens'||item.entity==='tokens')return `${actor} ${after.revoked_at&&!before.revoked_at?'revoked':after.last_used_at!==before.last_used_at&&after.last_used_at?'used':verb} agent key '${after.name??before.name??'Unnamed key'}'`;
- if(item.entity==='comments')return `${actor} ${verb} ${after.visibility==='internal'||before.visibility==='internal'?'an internal note':'a client-visible comment'}${title?` on ${title}`:''}`;
+ if(item.entity==='comments')return `${actor} ${verb} ${after.visibility==='internal'||before.visibility==='internal'?'an internal note':'a comment visible to the client'}${title?` on ${title}`:''}`;
  if(item.entity==='supplier_sync_runs')return `${actor} ${after.operation==='repair'?'repaired supplier updates':'checked for missed supplier updates'} (${after.trigger==='cron'?'automatic':'manual'}) · ${after.status==='error'?'Failed':`${plural(Number(after.mismatches_found??0),'mismatch','mismatches')}, ${Number(after.repaired_count??0)} repaired`}`;
  if(item.entity==='imports')return `${actor} ${verb} import '${after.filename??before.filename??'spreadsheet'}'${after.status&&after.status!==before.status?` · ${readableLabel(String(after.status))}`:''}`;
  if(item.entity==='import_rows')return `${actor} ${after.decision==='approved'?'approved':after.decision==='rejected'?'rejected':'reopened'} row ${after.row_number??before.row_number} of ${after.filename??before.filename??'the spreadsheet'}${after.work_order_number?` → WO-${after.work_order_number}`:''}`;
@@ -36,12 +36,12 @@ export function activitySentence(item:Activity, timezone='Asia/Dubai') {
 }
 const fieldLabels:Record<string,string>={created_at:'Created',occurred_at:'Occurred',started_at:'Started',finished_at:'Finished',revoked_at:'Revoked',rejected_at:'Rejected',title:'Title',description:'Description',status:'Status',priority:'Priority',due_on:'Due date',scheduled_for:'Scheduled date',name:'Name',body:'Comment',visibility:'Visibility',local_status:'Portal status',cobalt_ref:'Supplier reference',role:'Role',email:'Email',decision:'Decision',reason:'Reason',filename:'Filename',row_count:'Row count',scope:'Scope',expires_at:'Expiry',assignee_name:'Assignee',client:'Client',site:'Site',external_ref:'External reference',address:'Address',timezone:'Timezone',from_status:'Previous status',to_status:'New status'};
 function fieldValue(value:unknown,key:string,timezone='Asia/Dubai') {
- if(value===null||value===undefined||value==='')return '—';
+ if(value===null||value===undefined||value==='')return 'Not set';
  if(typeof value==='object')return 'Updated values';
- const text=String(value);if(key==='visibility')return text==='internal'?'Internal note':'Client-visible';if(key==='email')return demoEmail(text);if(key==='cobalt_ref')return supplierReference(text);if(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(text))return 'Linked record';
+ const text=String(value);if(key==='visibility')return text==='internal'?'Internal note':'Visible to the client';if(key==='email')return demoEmail(text);if(key==='cobalt_ref')return supplierReference(text);if(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(text))return 'Linked record';
 
  if(key==='due_on'||(/^\d{4}-\d{2}-\d{2}$/.test(text)&&key.endsWith('_for')))return formatDate(text,timezone);
- if(key.endsWith('_at')||key==='scheduled_for')return Number.isNaN(Date.parse(text))?'—':new Intl.DateTimeFormat('en',{timeZone:timezone,dateStyle:'medium',timeStyle:'short'}).format(new Date(text));
+ if(key.endsWith('_at')||key==='scheduled_for')return Number.isNaN(Date.parse(text))?'Not set':new Intl.DateTimeFormat('en',{timeZone:timezone,dateStyle:'medium',timeStyle:'short'}).format(new Date(text));
  return ['status','from_status','to_status','priority','visibility','local_status','role','decision','scope'].includes(key)?readableLabel(text):text;
 }
 export function auditDiff(beforeValue:unknown,afterValue:unknown,timezone='Asia/Dubai') {

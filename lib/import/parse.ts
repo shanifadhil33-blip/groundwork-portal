@@ -23,7 +23,7 @@ export function parseFile(content:Buffer,filename:string) {
   if(!sheet)throw new Error();
   const grid=XLSX.utils.sheet_to_json<unknown[]>(sheet,{header:1,defval:'',raw:false,blankrows:false});
   const headers=(grid.shift()??[]).map(v=>String(v).trim());
-  if(!headers.length||new Set(headers).size!==headers.length||headers.some(h=>!h))throw invalid(`${filename}: use unique, non-empty column headers.`,'file');
+  if(!headers.length||new Set(headers).size!==headers.length||headers.some(h=>!h))throw invalid(`${filename}: give every column a unique header.`,'file');
   if(!grid.length)throw invalid('This file has no data rows. Add rows beneath the column headings.','file');
   if(grid.length>500)throw invalid(`${filename}: the limit is 500 data rows.`,'file');
   const rows=grid.map(values=>Object.fromEntries(headers.map((h,i)=>[h,String(values[i]??'').trim()])));
