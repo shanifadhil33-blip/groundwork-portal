@@ -84,18 +84,39 @@ export function phoneAnchor(index: number) {
 export const BUILDING_CROP = { x: .056, y: .133, w: .898, h: .82 } as const;
 
 /**
- * Phone motion, from one scroll progress p (0..1): the building rises toward the top, shrinks and tilts a few
- * degrees. An exponential settle: it starts at the page's own speed (k = scroll range / rise distance), so it
- * leaves with the hero instead of sliding over it, then slows continuously. Strictly rising, no holds, g(1) = 1.
+ * Phone path: one curve for the building's top, in px, from scroll progress p = scrollY / range (p may pass 1).
+ * Its velocity (px per scrolled px) is -1 + HOLD * w(p): it starts moving exactly with the page, eases smoothly
+ * into an almost still drift near the top while the steps are read, then eases back to the page's own speed and
+ * scrolls away with the content. w is built from sin^2 ramps, so velocity and acceleration are continuous:
+ * no holds, no pushes, no jumps. The building dissolves (fade + a little scale) before it could reach the header.
  */
-export function phoneMotion(p: number, k = 3) {
-  const x = clamp(p), rate = Math.max(.5, k);
-  return (1 - Math.exp(-rate * x)) / (1 - Math.exp(-rate));
+export const PATH = { hold: .97, rampFrom: .08, fallFrom: .78, fallTo: 1.2, fadeFrom: .62, fadeTo: .95 } as const;
+const smooth = (x: number) => { const u = clamp(x); return u * u * (3 - 2 * u); };
+const sin2 = (x: number) => Math.sin(Math.PI / 2 * clamp(x)) ** 2;
+
+export function phonePath(range: number, travel: number) {
+  const { hold, rampFrom, fallFrom, fallTo } = PATH;
+  // Pick where the slowdown completes so the building settles exactly `travel` px above where it starts.
+  const rampTo = Math.min(.7, Math.max(rampFrom + .2, (travel / Math.max(1, range) - hold * rampFrom / 2) / (1 - hold / 2)));
+  const weight = (p: number) => sin2((p - rampFrom) / (rampTo - rampFrom)) * (1 - sin2((p - fallFrom) / (fallTo - fallFrom)));
+  const velocity = (p: number) => -1 + hold * weight(Math.max(0, p));
+  // Integrate once per layout; past fallTo the curve is the page's own motion.
+  const step = .0005, table: number[] = [0];
+  for (let i = 1; i * step <= fallTo + step; i++) table.push(table[i - 1] + (velocity((i - .5) * step) + velocity((i - 1.5) * step + step)) / 2 * step * range);
+  const end = table.length - 1;
+  const offset = (p: number) => {
+    const x = Math.max(0, p) / step;
+    if (x >= end) return table[end] - (x - end) * step * range;
+    const i = Math.floor(x), f = x - i;
+    return table[i] + (table[i + 1] - table[i]) * f;
+  };
+  return { rampTo, offset, velocity, // Scale and tilt finish easing in just after the dissolve begins, so size never holds still while visible.
+  settle: (p: number) => smooth(p / Math.max(rampTo, PATH.fadeFrom + .06)) };
 }
 
-/** Fade out over the last stretch of the story, after the last step has been read. */
+/** Dissolve while the last steps finish: 1 = fully visible, 0 = gone. */
 export function phoneFade(p: number) {
-  return 1 - clamp((p - .9) / .1);
+  return 1 - smooth((p - PATH.fadeFrom) / (PATH.fadeTo - PATH.fadeFrom));
 }
 
 /** Destination rectangle for drawing a frame into a box, as cover (anchored) or contain. */

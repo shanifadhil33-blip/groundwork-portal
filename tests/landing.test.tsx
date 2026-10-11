@@ -160,14 +160,25 @@ it('labels the key with the colours the 3D bands actually use', () => {
   expect(css).toMatch(/\.lx-open\{background:#292929/);
 });
 
-describe('phone motion', () => {
-  it('rises continuously from 0 to 1 at page speed first, with no flat stretch', async () => {
-    const { phoneMotion, phoneFade } = await import('../lib/landing/sequence');
-    const k = 3; let last = -1;
-    for (let i = 0; i <= 200; i++) { const g = phoneMotion(i / 200, k); expect(g).toBeGreaterThan(last); last = g; }
-    expect(phoneMotion(0, k)).toBeCloseTo(0, 9); expect(phoneMotion(1, k)).toBeCloseTo(1, 6);
-    // The slope never drops to zero before the end.
-    expect((phoneMotion(1, k) - phoneMotion(.99, k)) / .01).toBeGreaterThan(.1);
-    expect(phoneFade(.5)).toBe(1); expect(phoneFade(1)).toBeCloseTo(0, 9);
+describe('phone path', () => {
+  it('follows one curve: page speed at the start, a smooth near stop, page speed again, never a jump or push', async () => {
+    const { phonePath, phoneFade } = await import('../lib/landing/sequence');
+    for (const [range, travel] of [[1035, 335], [990, 300]]) {
+      const path = phonePath(range, travel);
+      expect(path.velocity(0)).toBeCloseTo(-1, 6);
+      expect(path.velocity(1.3)).toBeCloseTo(-1, 6);
+      let last = path.velocity(0), maxChange = 0, prevTop = path.offset(0);
+      for (let i = 1; i <= 1600; i++) {
+        const p = i / 1000, v = path.velocity(p), top = path.offset(p);
+        // Always moving up (never stops), never faster than the page, and velocity changes gradually.
+        expect(v).toBeLessThan(0); expect(v).toBeGreaterThanOrEqual(-1 - 1e-9);
+        expect(top).toBeLessThan(prevTop);
+        maxChange = Math.max(maxChange, Math.abs(v - last)); last = v; prevTop = top;
+      }
+      expect(maxChange).toBeLessThan(.01);
+      // Settles about `travel` px up once the slowdown is done.
+      expect(Math.abs(-path.offset(path.rampTo) - travel)).toBeLessThan(6);
+    }
+    expect(phoneFade(.5)).toBe(1); expect(phoneFade(.95)).toBeCloseTo(0, 9);
   });
 });

@@ -1,5 +1,5 @@
 import { clamp } from '../../lib/landing/hero';
-import { BUILDING_CROP, FRAME_COUNT, blendFrames, easeToward, fitFrame, frameFloat, frameSrc, type FrameFormat, loadOrder, phoneCurve, phoneFade, phoneMotion, SEQ_START } from '../../lib/landing/sequence';
+import { BUILDING_CROP, FRAME_COUNT, blendFrames, easeToward, fitFrame, frameFloat, frameSrc, type FrameFormat, loadOrder, phoneCurve, phoneFade, phonePath, SEQ_START } from '../../lib/landing/sequence';
 
 export type SequenceOptions = { reducedMotion: boolean; saveData: boolean; phone: () => boolean };
 const CONCURRENCY = 4;
@@ -38,7 +38,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
   let stopped = false, frame = 0, dirty = true, visible = true, active = 0, idle = 0, timer = 0;
   let progress = -1, drawnKey = '', geometryKey = '';
   // Layout values that only change on resize.
-  let heroBottom = 0, range = 1, headerBottom = 69;
+  let heroBottom = 0, range = 1, headerBottom = 69, path = phonePath(1, 1);
   const flow = [...root.querySelectorAll<HTMLElement>('.lx-rise p, .lx-legend, .lx-steps article > *, .lx-agent-copy > *')];
   let flowTops: number[] = [], flowKeys: string[] = [];
   const floating = () => options.phone() && !options.reducedMotion;
@@ -50,9 +50,11 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     range = Math.max(1, story!.offsetTop + story!.offsetHeight - innerHeight * .55);
     root.style.setProperty('--lx-hero-b', `${Math.round(heroBottom)}px`);
     flowTops = flow.map(documentTop); flowKeys = [];
+    path = phonePath(range, (heroBottom - 24) - (headerBottom + 10));
   }
   function target() {
-    if (options.phone()) return clamp(scrollY / range);
+    // Past 1 the path keeps scrolling with the page, so the target is not clamped at the end.
+    if (options.phone()) return Math.max(0, scrollY / range);
     return clamp(-main!.getBoundingClientRect().top / Math.max(1, main!.offsetHeight - innerHeight));
   }
   function resize() {
@@ -63,13 +65,9 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
   }
   function place(p: number) {
     if (!floating()) { if (geometryKey) { visual!.style.transform = visual!.style.opacity = visual!.style.visibility = ''; geometryKey = ''; clearText(); } return; }
-    const startTop = heroBottom - 24, endTop = headerBottom - 28;
-    const g = phoneMotion(p, range / Math.max(1, startTop - endTop)), fade = phoneFade(p);
-    const scale = 1 + (END_SCALE - 1) * g;
-    // At the end it keeps going, up and out under the header, so text below it is never left behind it.
-    const exit = clamp((p - .86) / .14), leave = exit * exit * (3 - 2 * exit);
-    const height = visual!.offsetHeight;
-    const top = startTop + (endTop - startTop) * g - leave * (endTop + height * scale + 40);
+    const g = path.settle(p), fade = phoneFade(p);
+    // One curve for position; scale and tilt ease in with the slowdown, and the dissolve adds a little shrink.
+    const top = heroBottom - 24 + path.offset(p), scale = (1 + (END_SCALE - 1) * g) * (1 - .08 * (1 - fade));
     const transform = `translate3d(0,${top.toFixed(2)}px,0) perspective(900px) rotateX(${(TILT * g).toFixed(2)}deg) rotateY(${(TURN * g).toFixed(2)}deg) scale(${scale.toFixed(4)})`;
     const key = `${transform}|${fade.toFixed(3)}`;
     if (key !== geometryKey) {
@@ -78,7 +76,8 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
       visual!.style.visibility = fade <= 0 ? 'hidden' : '';
       geometryKey = key;
     }
-    fadeText(fade <= 0 ? -Infinity : visual!.getBoundingClientRect().bottom);
+    // The edge keeps following the path after the building has dissolved, so text already gone never pops back.
+    fadeText(visual!.getBoundingClientRect().bottom);
   }
   /** Each text block dissolves (and sinks a few px) as its top nears the building's bottom edge, gone before it gets there. */
   function fadeText(edge: number) {
@@ -113,9 +112,9 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     const goal = still ? (options.phone() ? 0 : 1) : target();
     // One progress value, eased toward the scroll target each frame, drives everything below.
     progress = progress < 0 || still ? goal : easeToward(progress, goal, .15);
-    if (Math.abs(progress - goal) < .0005) progress = goal;
+    if (Math.abs(progress - goal) * range < .05) progress = goal;
     place(progress);
-    const sceneProgress = still ? 1 : options.phone() ? SEQ_START + (1 - SEQ_START) * phoneCurve(Math.min(1, progress / .96)) : progress;
+    const sceneProgress = still ? 1 : options.phone() ? SEQ_START + (1 - SEQ_START) * phoneCurve(Math.min(1, progress / .92)) : progress;
     const position = frameFloat(sceneProgress);
     const pick = visible ? blendFrames(position, loaded) : null;
     if (pick) {
