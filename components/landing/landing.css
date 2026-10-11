@@ -187,22 +187,25 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-actions{margin-top:24px}
 .lx-root .lx-scroll{margin-top:24px}
 .lx-root .lx-scroll>span{height:22px}
-.lx-root{--lx-header-h:69px;--lx-stage-h:clamp(300px,52svh,520px);--lx-release:calc(100svh - var(--lx-header-h) - var(--lx-stage-h))}
-/* The stage's bottom margin makes sticky release it early, so the last step is still readable
-   below it when it scrolls away; the rise section's negative margin cancels it in the flow. */
-.lx-root .lx-scene{order:1;position:sticky;inset:auto;top:var(--lx-header-h);z-index:3;flex-shrink:0;height:var(--lx-stage-h);background:#000;margin-bottom:var(--lx-release)}
-.lx-root .lx-scene::after{content:"";position:absolute;left:0;right:0;top:100%;height:28px;background:linear-gradient(#000,rgba(0,0,0,0));pointer-events:none}
-.lx-root .lx-seq-poster{object-fit:cover;object-position:50% 95%;top:24px;height:calc(100% - 24px)}
-/* Floors that drop in from above fade in under the clear band instead of cutting at a hard edge. */
-.lx-root .lx-scene-sticky::before{content:"";position:absolute;left:0;right:0;top:24px;height:36px;z-index:2;background:linear-gradient(#000,rgba(0,0,0,0));pointer-events:none}
-.lx-root .lx-scene-sticky{position:relative;top:auto;height:100%;overflow:hidden}
-.lx-root .lx-visual{inset:0;width:100%;height:100%;opacity:1}
-.lx-root .lx-rise{order:2;min-height:0;margin-top:calc(-1 * var(--lx-release));padding-block:56px 48px;align-items:flex-start}
+/* The building floats over the page: fixed, no box, feathered into the black by a radial mask, and moved
+   by the sequence runtime (rise, shrink, slight tilt). The stage is wider than the screen so the mask's
+   soft edge is never cut by the box; the viewport clips it, so no edge is ever visible. */
+.lx-root{--lx-hero-b:438px}
+.lx-root .lx-scene{position:fixed;inset:0;z-index:3;height:auto;background:none;margin:0;overflow:hidden;pointer-events:none}
+.lx-root .lx-scene-sticky{position:absolute;inset:0;height:auto;overflow:visible}
+.lx-root .lx-visual{left:-20vw;right:auto;width:140vw;top:0;height:calc(100svh - var(--lx-hero-b) + 24px);opacity:1;transform-origin:50% 0;
+  transform:translate3d(0,calc(var(--lx-hero-b) - 24px),0);will-change:transform,opacity;
+  -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 80%,rgba(0,0,0,.55) 90%,transparent 100%);
+  mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 80%,rgba(0,0,0,.55) 90%,transparent 100%)}
+/* Until the canvas draws, the poster sits where the runtime will draw frame 0 (building box at 62% height). */
+.lx-root .lx-seq-poster{inset:auto;left:50%;top:4.6%;width:auto;height:85.4%;transform:translateX(-50%);object-fit:contain}
+/* The text starts below the building and flows up beneath it. */
+.lx-root .lx-rise{order:2;min-height:0;margin-top:calc(100svh - var(--lx-hero-b));padding-block:32px;align-items:flex-start}
 .lx-root .lx-rise p{font-size:26px}
-.lx-root .lx-workflow{order:3;min-height:0;padding-block:0 40px;gap:32px}
+.lx-root .lx-workflow{order:3;min-height:0;padding-block:0 32px;gap:24px}
 .lx-root .lx-legend{order:0;gap:20px;font-size:12px}
-.lx-root .lx-steps{order:1;gap:72px;width:100%;min-width:0;max-width:600px}
-.lx-root .lx-steps article{scroll-margin-top:calc(var(--lx-header-h) + var(--lx-stage-h) + 24px);padding-left:0}
+.lx-root .lx-steps{order:1;gap:36px;width:100%;min-width:0;max-width:600px}
+.lx-root .lx-steps article{scroll-margin-top:45svh;padding-left:0}
 .lx-root .lx-steps h2{font-size:24px;line-height:1.2}
 .lx-root .lx-steps p{font-size:15px;margin-top:10px}
 .lx-root .lx-agent{min-height:0;padding-block:48px;align-items:flex-start}
@@ -214,6 +217,11 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-finale h2{font-size:clamp(55px,11vw,84px)}
 .lx-root .lx-note{max-width:280px}
 .lx-root .lx-footer{gap:12px 28px}
+}
+@media (prefers-reduced-motion:reduce) and (max-width:768px),(prefers-reduced-motion:reduce) and (pointer:coarse){
+.lx-root .lx-scene{position:relative;inset:auto;order:1;height:52svh;overflow:visible}
+.lx-root .lx-visual{left:-20vw;width:140vw;height:100%;transform:none}
+.lx-root .lx-rise{margin-top:0}
 }
 @media(prefers-reduced-motion:reduce){
 .lx-root .lx-media video{display:none}

@@ -80,6 +80,24 @@ export function phoneAnchor(index: number) {
   return .95 - .45 * clamp(index / 40);
 }
 
+/** Building bounding box inside every frame (fractions of the frame), so it can be fitted without cropping. */
+export const BUILDING_CROP = { x: .056, y: .133, w: .898, h: .82 } as const;
+
+/**
+ * Phone motion, from one scroll progress p (0..1): the building rises toward the top, shrinks and tilts a few
+ * degrees. An exponential settle: it starts at the page's own speed (k = scroll range / rise distance), so it
+ * leaves with the hero instead of sliding over it, then slows continuously. Strictly rising, no holds, g(1) = 1.
+ */
+export function phoneMotion(p: number, k = 3) {
+  const x = clamp(p), rate = Math.max(.5, k);
+  return (1 - Math.exp(-rate * x)) / (1 - Math.exp(-rate));
+}
+
+/** Fade out over the last stretch of the story, after the last step has been read. */
+export function phoneFade(p: number) {
+  return 1 - clamp((p - .9) / .1);
+}
+
 /** Destination rectangle for drawing a frame into a box, as cover (anchored) or contain. */
 export function fitFrame(boxWidth: number, boxHeight: number, mode: 'cover' | 'contain', anchorY = .5, insetTop = 0) {
   const area = Math.max(1, boxHeight - insetTop);

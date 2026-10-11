@@ -159,3 +159,15 @@ it('labels the key with the colours the 3D bands actually use', () => {
   expect(css).toMatch(/\.lx-scheduled\{background:#89a9b0\}/); expect(css).toMatch(/\.lx-done\{background:#c69753\}/);
   expect(css).toMatch(/\.lx-open\{background:#292929/);
 });
+
+describe('phone motion', () => {
+  it('rises continuously from 0 to 1 at page speed first, with no flat stretch', async () => {
+    const { phoneMotion, phoneFade } = await import('../lib/landing/sequence');
+    const k = 3; let last = -1;
+    for (let i = 0; i <= 200; i++) { const g = phoneMotion(i / 200, k); expect(g).toBeGreaterThan(last); last = g; }
+    expect(phoneMotion(0, k)).toBeCloseTo(0, 9); expect(phoneMotion(1, k)).toBeCloseTo(1, 6);
+    // The slope never drops to zero before the end.
+    expect((phoneMotion(1, k) - phoneMotion(.99, k)) / .01).toBeGreaterThan(.1);
+    expect(phoneFade(.5)).toBe(1); expect(phoneFade(1)).toBeCloseTo(0, 9);
+  });
+});
