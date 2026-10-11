@@ -12,7 +12,7 @@ it('renders accessible landing copy, hero and reveal actions, and legal footer o
   }
   const footer = html.split('<footer')[1];
   expect(footer).toContain('href="/privacy"'); expect(footer).toContain('href="/terms"');
-  expect(footer).toContain('Portfolio project with fictional data.');
+  expect(footer).not.toMatch(/portfolio|fictional/i);
   expect(html).toContain('lx-building'); expect(html).toContain('Skip to content');
   expect(html).not.toMatch(/Sparkles|✨|🚀/i);
 });
@@ -49,7 +49,7 @@ describe('static hero variants', () => {
     expect(html).toContain(`data-hero="${DEFAULT_HERO}"`);
     expect(html.match(/class="lx-building"/g)).toHaveLength(1);
     expect(html.match(/class="lx-floor"/g)).toHaveLength(9);
-    const copy = ['Run every work order', 'A request becomes a plan.', 'Requests come in', 'Your team schedules and works them', 'Clients see progress', 'Your AI agents can work here too.', 'Every job,', 'Portfolio project with fictional data.'];
+    const copy = ['Run every work order', 'A request becomes a plan.', 'Requests come in', 'Your team schedules and works them', 'Clients see progress', 'Your AI agents can work here too.', 'Every job,', 'Privacy'];
     const positions = copy.map(text => html.indexOf(text));
     expect(positions.every(index => index >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
@@ -92,4 +92,13 @@ describe('scroll and motion fallbacks', () => {
     expect(shouldLoadHeroVideo('media', false, true, true)).toBe(false);
     expect(shouldLoadHeroVideo('media', false, false, false)).toBe(false);
   });
+});
+
+it('positions the product as real: no portfolio or fictional wording on public pages and no scroll cue', async () => {
+  const { readFileSync } = await import('node:fs');
+  for (const f of ['app/page.tsx', 'app/(public)/privacy/page.tsx', 'app/(public)/terms/page.tsx', 'app/(public)/sign-in/page.tsx', 'components/public/chrome.tsx']) {
+    const src = readFileSync(f, 'utf8');
+    expect(src, f).not.toMatch(/portfolio|fictional/i);
+  }
+  expect(readFileSync('app/page.tsx', 'utf8')).not.toContain('lx-scroll');
 });
