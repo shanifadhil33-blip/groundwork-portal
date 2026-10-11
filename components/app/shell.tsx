@@ -11,6 +11,7 @@ import { request, post, RequestError } from '../../lib/ui/api';
 import { homeForPersona } from '../../lib/ui/helpers';
 import { Badge, BottomSheet, Button, ConfirmDialog, Dropdown, ErrorState, IconButton, PageSkeleton, useToast } from '../ui';
 import { useTheme } from '../ui/theme';
+import { rememberSession } from '../../lib/head-scripts';
 import { Brand, Mark } from '../public/chrome';
 import { personas } from '../public/demo-picker';
 import { AppContext, type Me, type Workspace } from './context';
@@ -29,6 +30,8 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   const [demoOptions, setDemoOptions] = useState(false);
   const [assistantLoaded,setAssistantLoaded]=useState(false);
   useEffect(()=>{if(assistant)setAssistantLoaded(true);},[assistant]);
+  // Signed in: public pages opened later show 'Go to dashboard' from their first frame.
+  useEffect(()=>{rememberSession('in');},[]);
   const [shortcut, setShortcut] = useState('Ctrl J');
   useEffect(() => {
     setShortcut(/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘J' : 'Ctrl J');
@@ -62,7 +65,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   function openConfirm(action: typeof confirm) { guardedAction(() => { if(action==='switch')setPersona(personas.find(p=>p.key!==me?.user.email.split('.')[0])?.key??'dana');setActionError(null); setConfirm(action); }); }
   async function execute() {
     if (busy) return; setBusy(true); setActionError(null);
-    try { if (confirm === 'signout') { await post('/api/auth/sign-out'); sessionStorage.clear(); window.location.replace('/'); } else if (confirm === 'reset') { await post('/api/demo/reset', { confirm: true });sessionStorage.setItem('groundwork-demo-restored','1'); window.location.replace(home); } else { await post('/api/demo/switch', { persona }); window.location.replace(homeForPersona(persona)); } }
+    try { if (confirm === 'signout') { await post('/api/auth/sign-out'); sessionStorage.clear(); rememberSession('out'); window.location.replace('/'); } else if (confirm === 'reset') { await post('/api/demo/reset', { confirm: true });sessionStorage.setItem('groundwork-demo-restored','1'); window.location.replace(home); } else { await post('/api/demo/switch', { persona }); window.location.replace(homeForPersona(persona)); } }
     catch { setActionError(confirm === 'signout' ? 'We couldn’t sign you out. Please try again.' : 'We couldn’t update your demo. Please try again.'); setBusy(false); }
   }
   if (error) return <div className="public-page"><Brand /><ErrorState message="We couldn’t open your workspace. Please try again." retry={load} /></div>;

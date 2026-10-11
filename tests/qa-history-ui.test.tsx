@@ -69,3 +69,16 @@ describe('static public header', () => {
     expect(html).toContain('Try the demo'); expect(html).toContain('Go to dashboard');
   });
 });
+
+describe('session hint before paint', () => {
+  it('shows signed out on a first visit and keeps a remembered signed in state', async () => {
+    const { sessionHintScript } = await import('../lib/head-scripts');
+    const run = (stored: string | null, throws = false) => {
+      const documentElement = { dataset: {} as Record<string, string> };
+      const localStorage = { getItem: () => { if (throws) throw new Error('blocked'); return stored; } };
+      new Function('document', 'localStorage', sessionHintScript)({ documentElement }, localStorage);
+      return documentElement.dataset.session;
+    };
+    expect(run(null)).toBe('out'); expect(run('in')).toBe('in'); expect(run('out')).toBe('out'); expect(run('junk')).toBe('out'); expect(run(null, true)).toBe('out');
+  });
+});
