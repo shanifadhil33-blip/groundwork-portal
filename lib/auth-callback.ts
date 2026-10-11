@@ -9,10 +9,14 @@ export function stripSessionCookie(cookie: string | null, name: string) {
   });
   return { cookie: cookie === null ? null : kept.join(';'), tokens };
 }
-export function withoutSessionCookie(request: Request, name: string) {
+export async function withoutSessionCookie(request: Request, name: string) {
   const stripped = stripSessionCookie(request.headers.get('cookie'), name);
   const headers = new Headers(request.headers);
   if (stripped.cookie?.trim()) headers.set('cookie', stripped.cookie);
   else headers.delete('cookie');
-  return { request: new Request(request.clone(), { headers }), tokens: stripped.tokens };
+  headers.delete('content-length');
+  const hasBody = request.method !== 'GET' && request.method !== 'HEAD';
+  const body = hasBody ? await request.text() : undefined;
+  // Build a fresh request from plain values; re-wrapping a NextRequest instance breaks undici's private state.
+  return { url: request.url, init: { method: request.method, headers, body }, tokens: stripped.tokens };
 }

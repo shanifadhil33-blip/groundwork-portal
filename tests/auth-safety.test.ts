@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { describe, expect, it, vi } from 'vitest';
 import type { Adapter, AdapterAccount } from 'next-auth/adapters';
 import { stripSessionCookie, withoutSessionCookie } from '../lib/auth-callback';
@@ -17,11 +18,18 @@ describe('OAuth session isolation', () => {
     expect(stripSessionCookie('a=1; b=2','session')).toEqual({cookie:'a=1; b=2',tokens:[]});
     expect(stripSessionCookie('session=demo','session')).toEqual({cookie:'',tokens:['demo']});
   });
-  it('clones POST without consuming its body or changing OAuth cookies', async () => {
-    const original=new Request('https://example.com/api/auth/callback/google',{method:'POST',body:'code=example',headers:{cookie:'session=demo; authjs.state=state','content-type':'application/x-www-form-urlencoded'}});
-    const clean=withoutSessionCookie(original,'session');
-    expect(clean.request.method).toBe('POST');expect(clean.request.headers.get('cookie')?.trim()).toBe('authjs.state=state');
-    expect(await clean.request.text()).toBe('code=example');expect(await original.text()).toBe('code=example');
+  it('rebuilds POST from plain values without changing OAuth cookies', async () => {
+    const original=new NextRequest('https://example.com/api/auth/callback/google',{method:'POST',body:'code=example',headers:{cookie:'session=demo; authjs.state=state','content-type':'application/x-www-form-urlencoded'}});
+    const clean=await withoutSessionCookie(original,'session');
+    const rebuilt=new NextRequest(clean.url,clean.init);
+    expect(rebuilt.method).toBe('POST');expect(rebuilt.headers.get('cookie')?.trim()).toBe('authjs.state=state');
+    expect(await rebuilt.text()).toBe('code=example');expect(clean.tokens).toEqual(['demo']);
+  });
+  it('rebuilds a GET NextRequest callback (the live 500 regression)', async () => {
+    const original=new NextRequest('https://example.com/api/auth/callback/google?code=x&state=y',{headers:{cookie:'session=demo; authjs.pkce=p'}});
+    const clean=await withoutSessionCookie(original,'session');
+    const rebuilt=new NextRequest(clean.url,clean.init);
+    expect(rebuilt.nextUrl.searchParams.get('code')).toBe('x');expect(rebuilt.cookies.get('authjs.pkce')?.value).toBe('p');expect(rebuilt.cookies.get('session')).toBeUndefined();
   });
 });
 describe('sign-in and linking guards', () => {
