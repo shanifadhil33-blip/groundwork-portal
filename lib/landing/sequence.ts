@@ -33,24 +33,42 @@ export function loadOrder(count = FRAME_COUNT) {
   return order;
 }
 
-/**
- * Phone pacing keyed to the copy, in desktop scene progress, reached as each text block arrives at the
- * reading line. The scene's bands go unlit (Open) -> blue (Scheduled, from .33) -> ochre (Done, from .49,
- * all floors by .65). So: building complete and unlit for "A request becomes a plan" and step 01,
- * fully blue for step 02, fully ochre for step 03, then it finishes its turn as the stage releases.
- */
-export const PHONE_KEYFRAMES = [.26, .32, .48, .68] as const;
+/** Unrounded frame position (0..FRAME_COUNT-1) for a desktop scene progress value. */
+export function frameFloat(progress: number, count = FRAME_COUNT) {
+  return clamp((progress - SEQ_START) / (1 - SEQ_START)) * (count - 1);
+}
 
-/** Piecewise linear map through (xs[i], ys[i]); xs are forced non decreasing. */
-export function piecewise(x: number, xs: readonly number[], ys: readonly number[]) {
-  let previous = -Infinity;
-  const points = xs.map((value, index) => { previous = Math.max(previous, value); return [previous, ys[index]] as const; });
-  if (x <= points[0][0]) return points[0][1];
-  for (let i = 1; i < points.length; i++) {
-    const [x0, y0] = points[i - 1], [x1, y1] = points[i];
-    if (x <= x1) return x1 === x0 ? y1 : y0 + (y1 - y0) * (x - x0) / (x1 - x0);
-  }
-  return points[points.length - 1][1];
+/**
+ * Phone timing: one continuous, strictly rising curve over the whole story scroll, with no holds.
+ * It starts calm (slope 0.25, so the building already moves while the hero scrolls) and gently speeds up,
+ * which lands the colours near the copy: just turning blue at step 01 (Scheduled starts), blue to ochre
+ * through step 02, all ochre by step 03.
+ */
+export function phoneCurve(t: number) {
+  const x = clamp(t);
+  return .25 * x + .75 * Math.pow(x, 2.2);
+}
+
+/** Scene progress for the phone story: scrolled fraction from the top of the page to where the stage releases. */
+export function phoneProgress(scrollY: number, release: number) {
+  return SEQ_START + (1 - SEQ_START) * phoneCurve(release > 0 ? scrollY / release : 1);
+}
+
+/** One smoothing step toward the scroll target (per animation frame). Snaps when close enough. */
+export function easeToward(current: number, target: number, rate = .15) {
+  const next = current + (target - current) * rate;
+  return Math.abs(target - next) < .02 ? target : next;
+}
+
+/**
+ * Frames to draw for a fractional position: the two neighbours and the crossfade amount when both are
+ * loaded; otherwise the nearest loaded frame on its own. Null when nothing is loaded yet.
+ */
+export function blendFrames(position: number, loaded: ArrayLike<boolean>) {
+  const low = Math.floor(position), high = Math.min(loaded.length - 1, low + 1), mix = position - low;
+  if (loaded[low] && loaded[high]) return { base: low, over: high, mix: high === low ? 0 : mix };
+  const nearest = nearestLoaded(Math.round(position), loaded);
+  return nearest < 0 ? null : { base: nearest, over: nearest, mix: 0 };
 }
 
 /**

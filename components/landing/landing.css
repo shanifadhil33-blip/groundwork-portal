@@ -197,11 +197,11 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-scene-sticky::before{content:"";position:absolute;left:0;right:0;top:24px;height:36px;z-index:2;background:linear-gradient(#000,rgba(0,0,0,0));pointer-events:none}
 .lx-root .lx-scene-sticky{position:relative;top:auto;height:100%;overflow:hidden}
 .lx-root .lx-visual{inset:0;width:100%;height:100%;opacity:1}
-.lx-root .lx-rise{order:2;min-height:0;margin-top:calc(-1 * var(--lx-release));padding-block:32px;align-items:flex-start}
+.lx-root .lx-rise{order:2;min-height:0;margin-top:calc(-1 * var(--lx-release));padding-block:56px 48px;align-items:flex-start}
 .lx-root .lx-rise p{font-size:26px}
-.lx-root .lx-workflow{order:3;min-height:0;padding-block:0 32px;gap:24px}
+.lx-root .lx-workflow{order:3;min-height:0;padding-block:0 40px;gap:32px}
 .lx-root .lx-legend{order:0;gap:20px;font-size:12px}
-.lx-root .lx-steps{order:1;gap:36px;width:100%;min-width:0;max-width:600px}
+.lx-root .lx-steps{order:1;gap:72px;width:100%;min-width:0;max-width:600px}
 .lx-root .lx-steps article{scroll-margin-top:calc(var(--lx-header-h) + var(--lx-stage-h) + 24px);padding-left:0}
 .lx-root .lx-steps h2{font-size:24px;line-height:1.2}
 .lx-root .lx-steps p{font-size:15px;margin-top:10px}

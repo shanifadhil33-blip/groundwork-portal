@@ -94,7 +94,7 @@ it('positions the product as real: no portfolio or fictional wording on public p
   expect(readFileSync('app/page.tsx', 'utf8')).not.toContain('lx-scroll');
 });
 
-import { FRAME_COUNT, SEQ_START, fitFrame, phoneAnchor, frameIndex, frameSrc, loadOrder, nearestLoaded, PHONE_KEYFRAMES, piecewise } from '../lib/landing/sequence';
+import { FRAME_COUNT, SEQ_START, fitFrame, phoneAnchor, frameIndex, frameSrc, loadOrder, nearestLoaded, phoneCurve, phoneProgress, easeToward, blendFrames, frameFloat } from '../lib/landing/sequence';
 describe('pre-rendered building sequence for phones', () => {
   it('server renders a dimensioned first-frame poster and the canvas', () => {
     const html = renderToStaticMarkup(<Landing />);
@@ -120,12 +120,26 @@ describe('pre-rendered building sequence for phones', () => {
     const order = loadOrder(); expect(order.slice(0, 3)).toEqual([0, 119, 8]);
     expect(new Set(order).size).toBe(120); expect(order).toHaveLength(120);
   });
-  it('paces the phone animation through the copy keyframes', () => {
-    const xs = [0, 200, 400, 600, 800, 1000], ys = [0, ...PHONE_KEYFRAMES, 1];
-    expect(piecewise(-50, xs, ys)).toBe(0); expect(piecewise(200, xs, ys)).toBe(PHONE_KEYFRAMES[0]); expect(piecewise(100, xs, ys)).toBeCloseTo(PHONE_KEYFRAMES[0] / 2);
-    expect(piecewise(5000, xs, ys)).toBe(1);
-    expect(piecewise(300, [0, 400, 300, 1000], [0, .5, .6, 1])).toBeCloseTo(.375);
-    expect([...PHONE_KEYFRAMES]).toEqual([...PHONE_KEYFRAMES].sort());
+  it('maps phone scroll through one continuous, strictly rising curve with no holds', () => {
+    expect(phoneCurve(0)).toBe(0); expect(phoneCurve(1)).toBe(1);
+    let previous = -1, minSlope = Infinity;
+    for (let i = 0; i <= 1000; i++) {
+      const value = phoneCurve(i / 1000);
+      expect(value).toBeGreaterThan(previous);
+      if (i) minSlope = Math.min(minSlope, (value - previous) * 1000);
+      previous = value;
+    }
+    expect(minSlope).toBeGreaterThanOrEqual(.25);
+    expect(phoneProgress(0, 1000)).toBeCloseTo(SEQ_START); expect(phoneProgress(1000, 1000)).toBe(1); expect(phoneProgress(5000, 1000)).toBe(1);
+    expect(frameFloat(phoneProgress(500, 1000))).toBeCloseTo(119 * (.125 + .75 * Math.pow(.5, 2.2)));
+  });
+  it('eases toward the target and crossfades neighbouring frames', () => {
+    expect(easeToward(0, 10, .15)).toBeCloseTo(1.5); expect(easeToward(9.99, 10)).toBe(10);
+    let p = 0; for (let i = 0; i < 60; i++) p = easeToward(p, 10); expect(p).toBe(10);
+    const loaded = new Array(120).fill(false); expect(blendFrames(10.4, loaded)).toBeNull();
+    loaded[10] = loaded[11] = true; expect(blendFrames(10.4, loaded)).toEqual({ base: 10, over: 11, mix: expect.closeTo(.4) });
+    loaded[11] = false; expect(blendFrames(10.6, loaded)).toEqual({ base: 10, over: 10, mix: 0 });
+    loaded[119] = true; expect(blendFrames(119, loaded)).toEqual({ base: 119, over: 119, mix: 0 });
   });
   it('tilts the phone framing from low to centred as the building rises', () => {
     expect(phoneAnchor(0)).toBe(.95); expect(phoneAnchor(40)).toBeCloseTo(.5); expect(phoneAnchor(119)).toBeCloseTo(.5);

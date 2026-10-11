@@ -1,5 +1,5 @@
 import { clamp } from '../../lib/landing/hero';
-import { FRAME_COUNT, PHONE_KEYFRAMES, SEQ_START, fitFrame, frameIndex, frameSrc, type FrameFormat, loadOrder, nearestLoaded, PHONE_INSET_TOP, phoneAnchor, piecewise } from '../../lib/landing/sequence';
+import { FRAME_COUNT, blendFrames, easeToward, fitFrame, frameFloat, frameSrc, type FrameFormat, loadOrder, PHONE_INSET_TOP, phoneAnchor, phoneProgress } from '../../lib/landing/sequence';
 
 export type SequenceOptions = { reducedMotion: boolean; saveData: boolean; phone: () => boolean };
 const CONCURRENCY = 4;
@@ -11,7 +11,6 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
   const main = root.querySelector<HTMLElement>('.lx-main');
   const story = root.querySelector<HTMLElement>('.lx-story');
   const scene = root.querySelector<HTMLElement>('.lx-scene');
-  const anchors = [root.querySelector<HTMLElement>('.lx-rise p'), ...root.querySelectorAll<HTMLElement>('.lx-steps article')].filter((el): el is HTMLElement => !!el);
   const context = canvas?.getContext('2d', { alpha: false });
   if (!visual || !canvas || !main || !story || !scene || !context) return () => {};
   const still = options.reducedMotion || options.saveData;
@@ -19,7 +18,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
   const loaded = new Array<boolean>(FRAME_COUNT).fill(false);
   const queue = still ? [FRAME_COUNT - 1] : loadOrder();
   let format: FrameFormat = 'webp';
-  let stopped = false, frame = 0, drawn = -1, dirty = true, visible = true, active = 0, idle = 0, timer = 0;
+  let stopped = false, frame = 0, dirty = true, position = -1, drawnKey = '', visible = true, active = 0, idle = 0, timer = 0;
   // Layout values that only change on resize; reading them on every scroll would force style work.
   let stickTop = 0, releaseGap = 0, storyPadding = 0;
 
@@ -34,10 +33,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     if (options.phone()) {
       const stageBottom = stickTop + scene!.offsetHeight;
       const release = scrollY + story!.getBoundingClientRect().bottom - storyPadding - (stageBottom + releaseGap);
-      // Each text block hits its keyframe when its top reaches a reading line in the free area under the stage.
-      const reading = stageBottom + (innerHeight - stageBottom) * .45;
-      const arrivals = anchors.slice(0, PHONE_KEYFRAMES.length).map(el => scrollY + el.getBoundingClientRect().top - reading);
-      return piecewise(scrollY, [0, ...arrivals, release], [SEQ_START, ...PHONE_KEYFRAMES.slice(0, arrivals.length), 1]);
+      return phoneProgress(scrollY, release);
     }
     return clamp(-main!.getBoundingClientRect().top / Math.max(1, main!.offsetHeight - innerHeight));
   }
@@ -47,23 +43,38 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     if (width && height && (canvas!.width !== width || canvas!.height !== height)) { canvas!.width = width; canvas!.height = height; }
     measure(); dirty = true; schedule();
   }
+  function paint(image: HTMLImageElement, alpha: number, index: number, phone: boolean, inset: number) {
+    const box = fitFrame(canvas!.width, canvas!.height, phone ? 'cover' : 'contain', phone ? phoneAnchor(index) : .5, inset);
+    context!.globalAlpha = alpha;
+    context!.drawImage(image, box.x, box.y, box.width, box.height);
+  }
   function draw() {
     frame = 0;
     if (stopped || !visible || document.hidden || !canvas!.width) return;
-    const index = nearestLoaded(frameIndex(progress()), loaded);
-    if (index < 0 || (index === drawn && !dirty)) return;
-    const phone = options.phone();
-    const inset = phone ? PHONE_INSET_TOP * canvas!.height / Math.max(1, canvas!.clientHeight) : 0;
-    const box = fitFrame(canvas!.width, canvas!.height, phone ? 'cover' : 'contain', phone ? phoneAnchor(index) : .5, inset);
-    context!.fillStyle = '#000';
-    context!.fillRect(0, 0, canvas!.width, canvas!.height);
-    context!.save();
-    // Nothing is drawn into the clear band; floors dropping in from above enter below it.
-    context!.beginPath(); context!.rect(0, inset, canvas!.width, canvas!.height - inset); context!.clip();
-    context!.drawImage(images[index], box.x, box.y, box.width, box.height);
-    context!.restore();
-    drawn = index; dirty = false;
-    visual!.classList.add('lx-seq-live');
+    const target = frameFloat(progress());
+    // Ease toward the scroll target instead of jumping, so motion stays continuous between scroll events.
+    position = position < 0 || still ? target : easeToward(position, target, .15);
+    const pick = blendFrames(position, loaded);
+    if (pick) {
+      const key = `${pick.base}:${pick.over}:${pick.mix.toFixed(3)}`;
+      if (key !== drawnKey || dirty) {
+        const phone = options.phone();
+        const inset = phone ? PHONE_INSET_TOP * canvas!.height / Math.max(1, canvas!.clientHeight) : 0;
+        context!.globalAlpha = 1; context!.fillStyle = '#000';
+        context!.fillRect(0, 0, canvas!.width, canvas!.height);
+        context!.save();
+        // Nothing is drawn into the clear band; floors dropping in from above enter below it.
+        context!.beginPath(); context!.rect(0, inset, canvas!.width, canvas!.height - inset); context!.clip();
+        // Crossfade the two neighbouring frames for sub-frame smoothness.
+        paint(images[pick.base], 1, position, phone, inset);
+        if (pick.mix > 0) paint(images[pick.over], pick.mix, position, phone, inset);
+        context!.restore(); context!.globalAlpha = 1;
+        drawnKey = key; dirty = false;
+        visual!.classList.add('lx-seq-live');
+      }
+    }
+    (canvas as HTMLCanvasElement & { lxFrame?: number }).lxFrame = position;
+    if (position !== target) schedule();
   }
   function schedule() { if (!frame && !stopped && visible && !document.hidden) frame = requestAnimationFrame(draw); }
   function pump() {
