@@ -29,6 +29,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     window.addEventListener('keydown', toggle);
     return () => window.removeEventListener('keydown', toggle);
   }, []);
+  useEffect(() => {
+    document.getElementById('app-content')?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.querySelector('.app-main')?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [path, loading]);
   const member = me?.memberships[0] ?? null;
   const home = member?.role === 'client' ? '/home' : '/dashboard';
   const load = useCallback(async () => { setLoading(true); setError(false); try { const result = await request<Me>('/api/me'); const membership = result.memberships[0]; const ws = membership ? await request<Workspace>(`/api/workspaces/${membership.workspace_id}`) : null; setMe(result); setWorkspace(ws); await sync(); } catch (e) { if (e instanceof RequestError && e.status === 401) { window.location.replace('/sign-in?callbackUrl=' + encodeURIComponent(window.location.pathname + window.location.search)); return; } setError(true); } finally { setLoading(false); } }, [sync]);

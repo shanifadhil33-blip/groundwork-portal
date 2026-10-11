@@ -16,3 +16,21 @@ describe('Batch 6 presentation',()=>{
 });
 
 it('names membership actions naturally',()=>{expect(activitySentence({actor_name:'Dana',member_name:'Sam',entity:'members',action:'insert',after:{role:'staff'}})).toBe('Dana added Sam as staff');});
+
+it('keeps dark primary states and accent text at WCAG AA contrast', async () => {
+ const { readFileSync } = await import('node:fs');
+ const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
+ const dark = css.match(/\[data-theme=dark\]\{([^}]+)\}/)![1];
+ const token = (name: string) => dark.match(new RegExp(`--${name}:(#[0-9a-f]{6})`))![1];
+ const luminance = (hex: string) => {
+  const channels = hex.slice(1).match(/../g)!.map(value => parseInt(value, 16) / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
+  return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
+ };
+ const contrast = (a: string, b: string) => (Math.max(luminance(a), luminance(b)) + .05) / (Math.min(luminance(a), luminance(b)) + .05);
+ const foreground = dark.match(/--primary-fg:([^;]+)/)![1] === '#fff' ? '#ffffff' : token('primary-fg');
+ const hover = css.match(/\[data-theme=dark\] \.primary:hover:not\(:disabled\)\{background:(#[0-9a-f]{6})/)![1];
+ const active = css.match(/\[data-theme=dark\] \.primary:active:not\(:disabled\)\{background:(#[0-9a-f]{6})/)![1];
+ for (const background of [token('primary'), hover, active]) expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
+ for (const background of ['bg', 'surface', 'surface-subtle', 'surface-raised']) expect(contrast(token('accent'), token(background))).toBeGreaterThanOrEqual(4.5);
+ expect(new Set([token('primary'), hover, active]).size).toBe(3);
+});
