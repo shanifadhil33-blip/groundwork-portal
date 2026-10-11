@@ -1,3 +1,4 @@
+import { explicitClientComment } from '../ui/comments';
 import { z } from 'zod';
 import { formatDate } from '../dates';
 import { statusLabels } from '../ui/work-orders';
@@ -21,8 +22,8 @@ export async function assistant(user:string,ws:string,body:unknown) {
   await x.db.query('UPDATE assistant_actions SET consumed_at=now() WHERE id=$1',[a.id]);
   return {available:true,reply:result.isError?result.content[0].text:'Action completed.',result};
  }));
- await inWorkspace(user,ws,async()=>{});
- const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema)}));
+ const role=await inWorkspace(user,ws,async c=>c.role);
+ const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
  const history:AssistantMessage[]=[...d.messages];
  if(!history.length)history.push({role:'user',content:'Help me with my workspace.'});
  for(let i=0;i<10;i++){
@@ -32,7 +33,8 @@ export async function assistant(user:string,ws:string,body:unknown) {
   for(const [index,call] of turn.calls.entries()){
    const t=Object.hasOwn(tools,call.name)?tools[call.name]:undefined;
    if(index>=8){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Tool limit reached for this turn.'}]},id:call.id});continue;}
-   const parsed=t?.schema.safeParse(call.args);
+   const candidate=call.name==='add_comment'&&role!=='client'&&!explicitClientComment(d.messages.filter(m=>m.role==='user').at(-1)?.content??'')?{...(call.args as Record<string,unknown>),visibility:'internal'}:call.args;
+   const parsed=t?.schema.safeParse(candidate);
    if(!t||!parsed?.success){
     history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:!t?'Unknown tool.':'Invalid tool arguments. Please check the tool schema.'}]},id:call.id});
     continue;

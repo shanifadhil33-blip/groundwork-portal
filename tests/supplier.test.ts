@@ -22,7 +22,7 @@ const priorWebhook=process.env.COBALT_WEBHOOK_SECRET,priorCron=process.env.CRON_
 beforeEach(async()=>{
  process.env.COBALT_WEBHOOK_SECRET='supplier-test-signing-key';process.env.CRON_SECRET='supplier-test-cron-key';
  user=ids.dana;setAuthResolverForTests(async()=>user);
- const db=await ownerPool.connect();try{await seed(db);}finally{db.release();}
+ const db=await ownerPool.connect();try{await seed(db,true);}finally{db.release();}
 });
 afterAll(async()=>{setAuthResolverForTests();if(priorWebhook===undefined)delete process.env.COBALT_WEBHOOK_SECRET;else process.env.COBALT_WEBHOOK_SECRET=priorWebhook;if(priorCron===undefined)delete process.env.CRON_SECRET;else process.env.CRON_SECRET=priorCron;await closePools();});
 type Handler=(req:Request,c?:RouteContext)=>Promise<Response>;
@@ -31,7 +31,7 @@ async function call(handler:Handler,method='GET',body?:unknown,workspace=ws,quer
 }
 function event(overrides:Record<string,unknown>={}){return {workspace_id:ws,cobalt_ref:'COBALT-DEMO-4',event_id:randomUUID(),sequence:7,status:'delivered',occurred_at:new Date().toISOString(),...overrides};}
 async function snapshot(){return withSystem(async db=>{
- const result:Record<string,unknown>={};for(const table of ['supplier_orders','supplier_events','work_orders','audit_log','work_order_events','notifications'])result[table]=(await db.query(`SELECT * FROM ${table} ORDER BY id`)).rows;
+ const result:Record<string,unknown>={};for(const table of ['supplier_orders','supplier_events','work_orders','audit_log','work_order_events','notifications'])result[table]=(await db.query(`SELECT * FROM ${table}${table==='audit_log'?" WHERE entity<>'supplier_sync_runs'":''} ORDER BY id`)).rows;
  return JSON.parse(JSON.stringify(result));
 });}
 async function dropped(){const ref='COBALT-DEMO-3';await supplier.advance(ids.dana,ws,{cobalt_ref:ref,status:'shipped'});const result=await supplier.advance(ids.dana,ws,{cobalt_ref:ref,status:'delivered',drop:true});return {ref,result};}
@@ -145,12 +145,18 @@ describe('supplier route roles, RLS and cron',()=>{
    const response=await handler(new Request('http://localhost',{headers:token?{Authorization:token}:{}}));expect(response.status).toBe(401);
   }
  });
- it('cron processes multiple workspaces, repairs once and returns no secrets',async()=>{
+ it('cron preserves demo scenarios and returns no secrets',async()=>{
   await supplier.placeOrder(ids.summitAdmin,ids.summit,{work_order_id:orderId(63)});
   for(const handler of [cron.GET,cron.POST]){
    const response=await handler(new Request('http://localhost',{headers:{Authorization:'Bearer '+process.env.CRON_SECRET}}));expect(response.status).toBe(200);
-   const body=await response.json();expect(body.workspaces).toBe(2);expect(body.checked).toBe(2);expect(body.errors).toBe(0);expect(JSON.stringify(body)).not.toContain(process.env.CRON_SECRET);expect(JSON.stringify(body)).not.toContain(process.env.COBALT_WEBHOOK_SECRET);
+   const body=await response.json();expect(body.workspaces).toBe(0);expect(body.checked).toBe(0);expect(body.errors).toBe(0);expect(JSON.stringify(body)).not.toContain(process.env.CRON_SECRET);expect(JSON.stringify(body)).not.toContain(process.env.COBALT_WEBHOOK_SECRET);
   }
-  expect((await supplier.syncRuns(ids.dana,ws)).every(r=>r.trigger==='cron')).toBe(true);
+  expect(await supplier.syncRuns(ids.dana,ws)).toEqual([]);
  });
+});
+
+it('audits each completed manual check/repair once, including no-op repairs and failures',async()=>{
+ await supplier.check(ids.dana,ws);await supplier.repair(ids.dana,ws,{});await supplier.repair(ids.dana,ws,{});await supplier.setOutage(ids.dana,ws,{outage:true});await expect(supplier.check(ids.dana,ws)).rejects.toMatchObject({status:503});
+ const entries=await withUser(ids.dana,async db=>(await db.query("SELECT * FROM audit_log WHERE entity='supplier_sync_runs' ORDER BY at")).rows);
+ expect(entries).toHaveLength(4);expect(entries.every(e=>e.actor_id===ids.dana&&e.action==='update')).toBe(true);expect(entries.at(-1).after.status).toBe('error');expect(entries[2].after.repaired_count).toBe(0);
 });

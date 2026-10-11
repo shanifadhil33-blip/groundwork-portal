@@ -100,7 +100,7 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
 export async function createComment(user:string,ws:string,id:string,body:unknown,key?:string) {
  return inWorkspace(user,ws,async c=>{
   const order=await row(c,'work_orders',id);
-  const data=z.object({body:z.string().trim().min(1).max(20000),visibility:z.enum(['client','internal'])}).strict().parse(body);
+  const data=z.object({body:z.string().trim().min(1).max(20000),visibility:z.enum(['client','internal']).default(c.role==='client'?'client':'internal')}).strict().parse(body);
   if(c.role==='client' && data.visibility!=='client')throw invalid('Client comments must be client-visible.','visibility');
   return replay(c.db,user,ws+'/work-orders/'+id+'/comments',key,data,()=>insert(c,'comments',{...data,workspace_id:ws,client_id:order.client_id,work_order_id:id,author_id:user}));
  });

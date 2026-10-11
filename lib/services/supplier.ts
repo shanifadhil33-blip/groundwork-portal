@@ -8,7 +8,7 @@ import { transitions } from './work-orders';
 import { appendEvent, cobaltStatus, eventSchema, sourceSnapshot, supplierLabel, type CobaltEvent } from '../cobalt/simulator';
 import { signedRequest, verifySignature } from '../cobalt/signature';
 function access<T>(user:string,ws:string,admin:boolean,fn:(c:Context)=>Promise<T>) {
- return inWorkspace(user,ws,c=>{if(c.role==='client')throw missing();if(admin&&c.role!=='admin')throw forbidden();return fn(c);});
+ return inWorkspace(user,ws,async c=>{if(c.role==='client')throw missing();if(admin&&c.role!=='admin')throw forbidden();const workspace=(await c.db.query('SELECT is_demo FROM workspaces WHERE id=$1',[ws])).rows[0];if(!workspace?.is_demo)throw new ApiError(409,'supplier_not_connected','No supplier is connected. The simulator is available in demo workspaces only.');return fn(c);});
 }
 // Authorized simulator/sync operations need source-of-truth and timeline writes.
 // Recheck membership inside the system transaction, retaining the real audit actor.
@@ -46,7 +46,7 @@ export async function ingestWebhook(req:Request) {
  const raw=await req.text();verifySignature(req.headers,raw);
  let payload:unknown;try{payload=JSON.parse(raw);}catch{throw new ApiError(400,'invalid_payload','Send a valid Cobalt event JSON body.');}
  const event=eventSchema.parse(payload);
- return withSystem(async db=>{await lock(db,event.workspace_id);return apply(db,event,'webhook');});
+ return withSystem(async db=>{if(!(await db.query('SELECT is_demo FROM workspaces WHERE id=$1',[event.workspace_id])).rows[0]?.is_demo)throw missing();await lock(db,event.workspace_id);return apply(db,event,'webhook');});
 }
 export function listOrders(user:string,ws:string){return access(user,ws,false,async c=>({supplier:supplierLabel,data:(await c.db.query('SELECT s.*,w.title AS work_order_title,c.status AS cobalt_status FROM supplier_orders s JOIN work_orders w ON w.workspace_id=s.workspace_id AND w.id=s.work_order_id LEFT JOIN cobalt_orders c ON c.workspace_id=s.workspace_id AND c.cobalt_ref=s.cobalt_ref WHERE s.workspace_id=$1 ORDER BY s.cobalt_ref',[ws])).rows}));}
 export async function placeOrder(user:string,ws:string,body:unknown) {
@@ -106,6 +106,7 @@ async function compare(db:PoolClient,ws:string) {
 export async function runSync(ws:string,operation:'check'|'repair',trigger:'manual'|'cron',ref?:string,user?:string) {
  uuid.parse(ws);
  if(trigger==='manual'){if(!user)throw forbidden();await access(user,ws,true,async()=>undefined);}
+ await withSystem(async db=>{if(!(await db.query('SELECT is_demo FROM workspaces WHERE id=$1',[ws])).rows[0]?.is_demo)throw new ApiError(409,'supplier_not_connected','No supplier is connected.');});
  const run=await withSystem(async db=>{
   if(user){await db.query("SELECT set_config('app.user_id',$1,true)",[user]);const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;if(!role||role==='client')throw missing();if(role!=='admin')throw forbidden();}
   return (await db.query('INSERT INTO supplier_sync_runs(workspace_id,trigger,operation) VALUES($1,$2,$3) RETURNING id',[ws,trigger,operation])).rows[0].id as string;
@@ -130,15 +131,14 @@ export async function runSync(ws:string,operation:'check'|'repair',trigger:'manu
   });
  }catch(error){
   const message=error instanceof ApiError?error.message:'Supplier sync failed. Try again.';
-  await withSystem(db=>db.query("UPDATE supplier_sync_runs SET finished_at=clock_timestamp(),status='error',error_message=$2 WHERE id=$1",[run,message]));
+  await withSystem(async db=>{if(user)await db.query("SELECT set_config('app.user_id',$1,true)",[user]);return db.query("UPDATE supplier_sync_runs SET finished_at=clock_timestamp(),status='error',error_message=$2 WHERE id=$1",[run,message]);});
   throw error instanceof ApiError?error:new ApiError(503,'sync_failed',message);
  }
 }
 export function check(user:string,ws:string){return runSync(ws,'check','manual',undefined,user);}
 export async function repair(user:string,ws:string,body:unknown){await access(user,ws,true,async()=>undefined);const {cobalt_ref}=z.object({cobalt_ref:z.string().min(1).max(200).optional()}).strict().parse(body);return runSync(ws,'repair','manual',cobalt_ref,user);}
 export async function cronSync(){
- const workspaces=await withSystem(async db=>(await db.query('SELECT DISTINCT s.workspace_id FROM supplier_orders s JOIN workspaces w ON w.id=s.workspace_id WHERE NOT w.is_demo ORDER BY s.workspace_id')).rows);
- let checked=0,repaired=0,errors=0;const results=[];
- for(const {workspace_id:ws} of workspaces){try{const result=await runSync(ws,'check','cron');checked++;const fixed=await runSync(ws,'repair','cron');repaired+=fixed.repaired;results.push({workspace_id:ws,mismatches:result.mismatches.length,repaired:fixed.repaired});}catch{errors++;results.push({workspace_id:ws,error:'Supplier sync failed. Try again.'});}}
- return {workspaces:workspaces.length,checked,repaired,errors,results};
+ // Cobalt is demo-only. Scheduled repairs must preserve demo scenarios; there
+ // are no live connectors to check yet.
+ return {workspaces:0,checked:0,repaired:0,errors:0,results:[]};
 }

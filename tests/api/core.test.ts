@@ -195,7 +195,7 @@ describe('work order consistency and listing',()=>{
   const detail=await call(orderRoute.GET,'GET',undefined,{id:order.id});
   expect(detail.body.timeline.filter((e:{kind:string})=>e.kind==='status_changed')).toHaveLength(1);
   const notifications=await withUser(ids.dana,async db=>(await db.query('SELECT kind FROM notifications WHERE entity_id=$1',[order.id])).rows);
-  expect(notifications).toEqual([{kind:'status_changed'}]);
+  expect(notifications).toEqual([]);
   const staffNotifications=await withUser(ids.sam,async db=>(await db.query('SELECT kind FROM notifications WHERE entity_id=$1',[order.id])).rows);
   expect(staffNotifications).toEqual([{kind:'status_changed'}]);
   expect((await call(orderRoute.PATCH,'PATCH',{status:'cancelled',updated_at:changed.body.updated_at},{id:order.id})).status).toBe(200);

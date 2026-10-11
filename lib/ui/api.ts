@@ -4,7 +4,7 @@ export class RequestError extends Error { constructor(public status: number, mes
 export function handleSessionFailure(status: number, code?: string) {
   if (status !== 401 || typeof window === 'undefined') return;
   const demo = code === 'demo_ended' || document.cookie.split(';').some(part => part.trim() === 'groundwork-demo=1');
-  window.location.replace(demo ? '/demo-ended' : '/session-ended?callbackUrl=' + encodeURIComponent(safeRedirect(window.location.pathname + window.location.search)));
+  window.location.replace(demo ? '/demo-ended' : (code==='session_expired'?'/session-ended':'/sign-in')+'?callbackUrl=' + encodeURIComponent(safeRedirect(window.location.pathname + window.location.search)));
 }
 export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   let response: Response;

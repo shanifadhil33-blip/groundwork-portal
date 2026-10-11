@@ -209,3 +209,7 @@ table{font-size:13px}th,td{height:42px;padding:10px 12px}th{font-size:12px;backg
 [data-theme=dark] .auth-page,[data-theme=dark] .error-page,[data-theme=dark] .error-state,[data-theme=dark] .not-found,[data-theme=dark] .request-recovery{background:#000000}
 .request-recovery{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 32px));padding:20px;z-index:var(--z-toast);box-shadow:var(--shadow)}
 .request-recovery .row{flex-wrap:wrap}
+
+/* QA: retain the read indicator space and align supplier result columns. */
+.notification-item{padding-left:14px}.notification-item.unread{padding-left:14px}.supplier-order-title{display:block;color:var(--text-muted);font-size:var(--text-sm);margin-top:4px}.batch-five td a:has(.supplier-order-title){flex-direction:column;align-items:flex-start;justify-content:center}.batch-five th.num{text-align:right}
+.notification-item,.notification-item.unread{font-weight:400}.notification-read-toggle{min-width:128px}

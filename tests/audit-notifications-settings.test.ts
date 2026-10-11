@@ -23,7 +23,7 @@ async function call(handler:any,method='GET',body?:unknown){return handler(new R
 it('audit admin sees all, staff only own, clients and other tenants get 404; RLS independently enforces it',async()=>{
  await orders.createComment(ids.sam,ws,orderId(1),{body:'Staff action',visibility:'internal'});
  const all=await audit.listAudit(ids.dana,ws,q('pageSize=100'));
- expect(all.total).toBe(await withSystem(async db=>(await db.query('SELECT count(*)::int AS n FROM audit_log WHERE workspace_id=$1 AND NOT (entity=\'notifications\' AND action=\'update\')',[ws])).rows[0].n));
+ expect(all.total).toBe(await withSystem(async db=>(await db.query(`SELECT count(*)::int AS n FROM audit_log a WHERE workspace_id=$1 AND ${audit.auditFeedWhere}`,[ws])).rows[0].n));
  const staff=await audit.listAudit(ids.sam,ws,q());expect(staff.data.length).toBeGreaterThan(0);expect(staff.data.every(r=>r.actor?.id===ids.sam)).toBe(true);
  expect(await withUser(ids.sam,async db=>(await db.query('SELECT * FROM audit_log WHERE actor_id IS DISTINCT FROM $1',[ids.sam])).rows)).toEqual([]);
  expect(await withUser(ids.summitAdmin,async db=>(await db.query('SELECT * FROM audit_log WHERE workspace_id=$1',[ws])).rows)).toEqual([]);
@@ -40,7 +40,7 @@ it('audit filters, newest/oldest, pages, scoped cursors and validation',async()=
 });
 it('audit redacts nested secrets from list and detail and summarizes status changes',async()=>{
  const id=randomUUID();await withSystem(db=>db.query('INSERT INTO audit_log(id,workspace_id,actor_id,action,entity,entity_id,"before","after") VALUES($1,$2,NULL,$3,$4,$5,$6,$7)',[id,ws,'update','work_orders',orderId(1),{status:'open',token_hash:'hidden'},{status:'scheduled',nested:{secret:'hidden',api_key:'hidden',safe:true}}]));
- const detail=await audit.getAudit(ids.dana,ws,id);expect(detail.actor).toBeNull();expect(detail.summary).toMatch(/^System changed .+ status to Scheduled$/);expect(JSON.stringify(detail)).not.toContain('hidden');expect(detail.after).toEqual({status:'scheduled',nested:{safe:true}});
+ const detail=await audit.getAudit(ids.dana,ws,id);expect(detail.actor).toBeNull();expect(detail.summary).toMatch(/^System moved .+ from Open to Scheduled$/);expect(JSON.stringify(detail)).not.toContain('hidden');expect(detail.after).toEqual({status:'scheduled',nested:{safe:true}});
  const list=await audit.listAudit(ids.dana,ws,q(`entity_id=${orderId(1)}`));expect(JSON.stringify(list)).not.toContain('hidden');
 });
 it('app role cannot INSERT, UPDATE or DELETE audit rows',async()=>{
@@ -63,7 +63,7 @@ it('every previous business write path creates an attributed audit row',async()=
  await check(()=>settings.patchSettings(ids.dana,ws,{timezone:'Europe/London'}),'workspaces','update');
  const imp=await imports.uploadImport(ids.dana,ws,new Request('http://localhost/api',{method:'POST',headers:{'Content-Type':'application/json'},body:'{"sample":true}'}));await imports.mapImport(ids.dana,ws,imp.id,{mapping:imp.mapping});await imports.queueImport(ids.dana,ws,imp.id);const rows=(await imports.importRows(ids.dana,ws,imp.id,q('status=valid'))).data;
  await check(()=>imports.approveRow(ids.dana,ws,rows[0].id,{}),'import_rows','update');await check(()=>imports.rejectRow(ids.dana,ws,rows[1].id,{reason:'Not needed'}),'import_rows','update');await check(()=>imports.undoRow(ids.dana,ws,rows[1].id),'import_rows','update');
- await check(()=>supplier.repair(ids.dana,ws,{}),'supplier_orders','update');
+ await expect(supplier.repair(ids.dana,ws,{})).rejects.toMatchObject({status:409,code:'supplier_not_connected'});
 });
 it('notifications list/count/read/unread/read-all are current-user only and idempotent',async()=>{
  const order=await orders.createWorkOrder(ids.dana,ws,{title:'Notify',site_id:siteId(1),assignee_id:ids.sam});await orders.patchWorkOrder(ids.dana,ws,order.id,{status:'scheduled',updated_at:order.updated_at.toISOString()});

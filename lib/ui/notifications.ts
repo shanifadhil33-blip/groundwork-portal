@@ -1,3 +1,4 @@
+import { readableLabel } from './polish';
 type WorkNotification = {id:string;read_at:string|null;link_target:{entity:string;id:string}|null};
 // Navigation waits for the read receipt so the bell stays in sync with the opened item.
 export async function openNotificationTarget(item:WorkNotification,markRead:(id:string)=>Promise<unknown>,navigate:(id:string)=>void) {
@@ -5,4 +6,12 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
  if(!item.read_at)await markRead(item.id);
  navigate(item.link_target.id);
  return true;
+}
+
+export function notificationMessage(r:Record<string,any>) {
+ const title=r.work_order_title??r.current_title??'your work order',actor=r.actor_name??'Your team';
+ if(r.kind==='status_changed')return r.from_status&&r.to_status?`${actor} moved ${title} from ${readableLabel(r.from_status)} to ${readableLabel(r.to_status)}.`:r.to_status?`${actor} moved ${title} to ${readableLabel(r.to_status)}.`:`${actor} updated the status of ${title}.`;
+ if(r.kind==='comment_added')return `${actor} added a client-visible comment to ${title}.`;
+ if(r.kind==='request_created')return `${actor} created ${title}.`;
+ return `${actor} updated ${title}.`;
 }

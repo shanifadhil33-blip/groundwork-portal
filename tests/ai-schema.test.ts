@@ -33,3 +33,8 @@ describe('Gemini assistant schemas',()=>{
   expect(body.toolConfig.functionCallingConfig.mode).toBe('AUTO');
  });
 });
+
+it('defaults MCP comments to internal, while retaining an explicit client-visible choice',()=>{
+ const args={work_order_id:'50000000-0000-4000-8000-000000000001',body:'Technician confirmed'};
+ expect(tools.add_comment.schema.parse(args).visibility).toBe('internal');expect(tools.add_comment.schema.parse({...args,visibility:'client'}).visibility).toBe('client');
+});

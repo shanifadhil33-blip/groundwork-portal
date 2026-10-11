@@ -144,7 +144,7 @@ it('number lookup leads directly to a pending comment without writing before con
  vi.stubGlobal('fetch',mock);
  const before=await withUser(ids.sam,async db=>(await db.query('SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1',[orderId(55)])).rows[0].n);
  const r=await route(assistantRoute.POST,{messages:[{role:'user',content:"add a comment 'Technician confirmed' to work order 55"}]});
- expect(r.body.pending_action.tool).toBe('add_comment');expect(mock).toHaveBeenCalledTimes(2);
+ expect(r.body.pending_action.tool).toBe('add_comment');expect(r.body.pending_action.args.visibility).toBe('internal');expect(r.body.pending_action.summary).toContain('internal');expect(mock).toHaveBeenCalledTimes(2);
  expect(await withUser(ids.sam,async db=>(await db.query('SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1',[orderId(55)])).rows[0].n)).toBe(before);
  expect((await confirm(r.body.pending_action.id)).status).toBe(200);
 });

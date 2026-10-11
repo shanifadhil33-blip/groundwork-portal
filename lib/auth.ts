@@ -37,7 +37,8 @@ export async function requireUser(req: Request): Promise<string> {
     const cookie=req.headers.get('cookie');
     const token=cookie?.split(';').map(part=>part.trim()).find(part=>part.startsWith(sessionCookie.name+'='))?.slice(sessionCookie.name.length+1);
     const demo=cookie?.split(';').some(part=>part.trim()==='groundwork-demo=1') || (token && Boolean((await ownerPool.query('SELECT u.is_demo FROM sessions s JOIN users u ON u.id=s."userId" WHERE s."sessionToken"=$1',[token])).rows[0]?.is_demo));
-    throw new ApiError(401, demo ? 'demo_ended' : 'unauthenticated', demo ? 'This demo has ended. Start a new demo to continue.' : 'Your session ended. Sign in again to continue.');
+    const expired=!!token||cookie?.split(';').some(part=>part.trim()==='groundwork-session=1');
+    throw new ApiError(401, demo ? 'demo_ended' : expired?'session_expired':'unauthenticated', demo ? 'This demo has ended. Start a new demo to continue.' : expired?'Your session ended. Sign in again to continue.':'Sign in to continue.');
   }
   return id;
 }

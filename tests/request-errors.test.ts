@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { request, RequestError } from '../lib/ui/api';
+import { request, RequestError, handleSessionFailure } from '../lib/ui/api';
 import { requestErrorCopy } from '../lib/ui/request-errors';
 import { parseFile } from '../lib/import/parse';
 afterEach(()=>vi.unstubAllGlobals());
@@ -16,4 +16,11 @@ it('rejects empty uploads and header-only files with specific reasons',()=>{
  expect(()=>parseFile(Buffer.alloc(0),'empty.csv')).toThrow('empty');
  expect(()=>parseFile(Buffer.from('title,description\n'),'empty.csv')).toThrow('no data rows');
  expect(()=>parseFile(Buffer.from('title,title\na,b'),'bad.csv')).toThrow('headers');
+});
+
+it('sends signed-out visitors to sign-in and genuine expiry to the session-ended page',()=>{
+ const replace=vi.fn();vi.stubGlobal('window',{location:{pathname:'/work-orders',search:'?status=scheduled',replace}});vi.stubGlobal('document',{cookie:''});
+ handleSessionFailure(401,'unauthenticated');expect(replace.mock.calls.at(-1)?.[0]).toBe('/sign-in?callbackUrl=%2Fwork-orders%3Fstatus%3Dscheduled');
+ handleSessionFailure(401,'session_expired');expect(replace.mock.calls.at(-1)?.[0]).toBe('/session-ended?callbackUrl=%2Fwork-orders%3Fstatus%3Dscheduled');
+ handleSessionFailure(401,'demo_ended');expect(replace.mock.calls.at(-1)?.[0]).toBe('/demo-ended');
 });

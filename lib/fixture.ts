@@ -29,13 +29,13 @@ export function fixtureDates(n:number,today:string,timezone:string) {
  return {created,due,visit,updated:new Date(created.getTime()+2*86400000+((n*23)%180)*60000)};
 }
 type FixtureIds=typeof ids;
-export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n:number)=>string,orderId:(n:number)=>string,demo=false) {
+export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n:number)=>string,orderId:(n:number)=>string,demo=false,supplierSandbox=false) {
  const prefix=demo?ids.ridgeline+':':''; // Supplier references and event IDs stay unique across sandboxes.
   for (const [id,name] of ([[ids.dana,'Dana'],[ids.sam,'Sam'],[ids.priya,'Priya'],[ids.omar,'Omar'],...(demo?[]:[[ids.summitAdmin,'Alex']])])) {
-   await client.query('INSERT INTO users(id,name,email,is_demo,demo_workspace_id,demo_persona) VALUES($1,$2,$3,$4,$5,$6)',[id,name,demo?`${name.toLowerCase()}.${ids.ridgeline}@demo.groundwork.invalid`:`${name.toLowerCase()}@${name==='Alex'?'summit':'ridgeline'}.demo`,demo,demo?ids.ridgeline:null,demo?name.toLowerCase():null]);
+   await client.query('INSERT INTO users(id,name,email,is_demo,demo_workspace_id,demo_persona) VALUES($1,$2,$3,$4,$5,$6)',[id,name,(demo||supplierSandbox)?`${name.toLowerCase()}.${ids.ridgeline}@demo.groundwork.invalid`:`${name.toLowerCase()}@${name==='Alex'?'summit':'ridgeline'}.demo`,(demo||supplierSandbox),(demo||supplierSandbox)?(name==='Alex'?ids.summit:ids.ridgeline):null,(demo||supplierSandbox)?(name==='Alex'?'dana':name.toLowerCase()):null]);
   }
   await client.query("SELECT set_config('app.user_id',$1,true)",[ids.dana]);
-  if(!demo) await client.query('INSERT INTO workspaces(id,name,is_demo) VALUES($1,$2,false),($3,$4,false)',[ids.ridgeline,'Ridgeline Facility Services',ids.summit,'Summit Property Care']);
+  if(!demo) await client.query("INSERT INTO workspaces(id,name,is_demo,demo_expires_at) VALUES($1,$2,$5,CASE WHEN $5 THEN now()+interval '24 hours' END),($3,$4,$5,CASE WHEN $5 THEN now()+interval '24 hours' END)",[ids.ridgeline,'Ridgeline Facility Services',ids.summit,'Summit Property Care',supplierSandbox]);
   for (const [id,ws,name] of [[ids.harbor,ids.ridgeline,'Harbor & Pine Coworking'],[ids.northgate,ids.ridgeline,'Northgate Self Storage'],[ids.larkspur,ids.ridgeline,'Larkspur Coworking Studio'],...(demo?[]:[[ids.summitClient,ids.summit,'Juniper Business Park']])]) await client.query('INSERT INTO clients(id,workspace_id,name) VALUES($1,$2,$3)',[id,ws,name]);
   for (const [ws,user,role,company] of [[ids.ridgeline,ids.dana,'admin',null],[ids.ridgeline,ids.sam,'staff',null],[ids.ridgeline,ids.priya,'client',ids.harbor],[ids.ridgeline,ids.omar,'client',ids.northgate],...(demo?[]:[[ids.summit,ids.summitAdmin,'admin',null]])]) await client.query('INSERT INTO members(workspace_id,user_id,role,client_id) VALUES($1,$2,$3,$4)',[ws,user,role,company]);
   const names=['Marina Exchange','Pine Terrace','Harbor Annex','Northgate East','Northgate West','Larkspur Loft','Juniper Court'];
@@ -59,6 +59,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    if(n<=18) for(const [index,visibility] of ['client','internal'].entries()) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,company,orderId(n),visibility==='client'?'We have received your request and confirmed access with the site manager.':'Check stock and technician availability before the next visit.',visibility,actor,new Date(dates.updated.getTime()-(2-index)*3600000)]);
    if(n<=4) await client.query('INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,$3)',[ws,orderId(n),`${prefix}COBALT-DEMO-${n}`]);
   }
+  await client.query("SELECT set_config('app.user_id',$1,true)",[ids.dana]);
   // Simulated supplier, part of this portfolio demo: four matching source orders, with
   // one delivered event deliberately absent from the portal receipt ledger.
   await client.query('INSERT INTO cobalt_state(workspace_id,sequence) VALUES($1,6)',[ids.ridgeline]);

@@ -47,3 +47,11 @@ export async function acceptInvite(user:string,body:unknown,key?:string) {
  if(result.error)throw new ApiError(409,result.error==='expired'?'invite_expired':result.error==='accepted'?'invite_used':'invite_unavailable',result.error==='expired'?'This invite has expired.':'This invite is no longer available.');
  return result;
 }
+
+export async function inspectInvite(user:string,token:unknown) {
+ const value=z.string().min(32).max(200).parse(token);
+ const result=await withUser(user,async db=>(await db.query('SELECT inspect_invite($1) AS result',[hash(value)])).rows[0].result);
+ if(result.error==='not_found')throw missing();
+ if(result.error)throw new ApiError(409,result.error==='expired'?'invite_expired':result.error==='accepted'?'invite_used':'invite_unavailable','This invite is no longer available. Ask your admin for a new invite.');
+ return result;
+}

@@ -7,9 +7,10 @@ export const label = (value: string) => statusLabels[value] ?? value.replaceAll(
 export type Client = { id: string; name: string };
 export type Site = { id: string; client_id: string; name: string; address: string };
 export type Member = { user_id: string; role: string; client_id: string | null; name: string | null; email: string | null };
-export type Comment = { id: string; body: string; visibility: 'client' | 'internal'; author_id: string; created_at: string };
+export type EventAttribution = { work_order_title?:string|null; actor_kind?:string; via_token_name?:string|null };
+export type Comment = EventAttribution & { id: string; body: string; visibility: 'client' | 'internal'; author_id: string; created_at: string };
 export type WorkOrder = { id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
-export type Detail = WorkOrder & { client: Client; site: Site; assignee: { id: string; name?: string } | null; comments: Comment[]; timeline: { id: string; kind: string; actor_id: string | null; body?: string; details?: {to_status?:string;from_status?:string;scheduled_for?:string|null;due_on?:string|null;assignee_name?:string|null;priority?:string|null;title_changed?:boolean;description_changed?:boolean}; from_status?: string; to_status?: string; created_at: string }[] };
+export type Detail = WorkOrder & { client: Client; site: Site; assignee: { id: string; name?: string } | null; comments: Comment[]; timeline: (EventAttribution & { id: string; kind: string; actor_id: string | null; body?: string; details?: {to_status?:string;from_status?:string;scheduled_for?:string|null;due_on?:string|null;assignee_name?:string|null;priority?:string|null;title_changed?:boolean;description_changed?:boolean}; from_status?: string; to_status?: string; created_at: string })[] };
 export type Page<T> = { data: T[]; total: number; page: number; pageSize: number };
 export function sortOrders(orders: WorkOrder[], sort: string, dir: string) {
   const sign = dir === 'asc' ? 1 : -1;
@@ -41,12 +42,12 @@ export function clientEvent(event:Detail['timeline'][number],timezone=workspaceT
  return 'Request updated';
 }
 export function staffEvent(event:Detail['timeline'][number],timezone=workspaceTimezone) {
- const status=event.details?.to_status??event.to_status;
- if(status)return `moved to ${statusLabels[status]??label(status)}`;
- if(event.kind==='created')return 'created the work order';
- if(event.kind==='schedule_changed')return event.details?.scheduled_for?`scheduled for ${formatDate(event.details.scheduled_for,timezone)}`:'cleared the visit schedule';
- if(event.kind==='assignment_changed')return event.details?.assignee_name?`assigned ${event.details.assignee_name}`:'cleared the assignment';
- return clientEvent(event,timezone).replace(/^./,s=>s.toLowerCase());
+ const title=event.work_order_title,status=event.details?.to_status??event.to_status;
+ if(status)return title?`moved ${title}${event.details?.from_status?` from ${statusLabels[event.details.from_status]??label(event.details.from_status)}`:''} to ${statusLabels[status]??label(status)}`:`moved to ${statusLabels[status]??label(status)}`;
+ if(event.kind==='created')return title?`created ${title}`:'created the work order';
+ if(event.kind==='schedule_changed')return (event.details?.scheduled_for?`scheduled${title?` ${title}`:''} for ${formatDate(event.details.scheduled_for,timezone)}`:`cleared the visit schedule${title?` on ${title}`:''}`);
+ if(event.kind==='assignment_changed')return (event.details?.assignee_name?`assigned ${event.details.assignee_name}${title?` to ${title}`:''}`:`cleared the assignment${title?` on ${title}`:''}`);
+ return clientEvent(event,timezone).replace(/^./,s=>s.toLowerCase())+(title?` on ${title}`:'');
 }
 export function transitionOptions(current:string) {
  return Object.entries(statusLabels).map(([value,title])=>({value,label:value===current?`${title} — Current status`:statusTransitions[current]?.includes(value)?title:`${title} — ${current==='open'?'Move to Scheduled first':current==='scheduled'?'Move to In Progress first':'Unavailable from this status'}`,disabled:value===current||!statusTransitions[current]?.includes(value)}));
