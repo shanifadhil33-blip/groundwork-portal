@@ -13,10 +13,58 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-header nav{display:flex;align-items:center;gap:24px}
 .lx-root .lx-header-link{display:flex;align-items:center;min-height:44px;padding:0 8px;font-size:14px}
 .lx-root .lx-button{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:50px;padding:14px 22px;font-size:14px;font-weight:600;border:1px solid transparent}
-.lx-root .lx-primary{background:#c69753;color:#000}
-.lx-root .lx-primary:hover{background:#d5ac71;color:#000}
-.lx-root .lx-primary:active{background:#b78746;color:#000}
-.lx-root .lx-secondary{background:transparent;border-color:#3a3a3a;color:#fff}
+/* Primary: a solid, rich ochre glass pill. Far more saturated than the .lx-highlight text glass so it reads
+   as the action; depth comes from a bright top edge, inner shading and a soft drop shadow. Darkest stop of the
+   body (#a8772f) still gives the near black label 5.3:1, the centre (#c08a3e) 6.9:1; pressed bottom (#a06f2e) 4.8:1. */
+.lx-root .lx-primary{
+  position:relative;
+  isolation:isolate;
+  color:#120d06;
+  border:0;
+  border-radius:999px;
+  background:
+    linear-gradient(to bottom,rgba(255,255,255,.3),rgba(255,255,255,.05) 46%,rgba(255,255,255,0) 52%),
+    linear-gradient(to top,rgba(255,236,200,.22),rgba(255,236,200,0) 32%),
+    linear-gradient(to bottom,#d8a24f,#c08a3e 55%,#a8772f);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.6),
+    inset 0 0 0 1px rgba(255,232,196,.2),
+    inset 0 -3px 6px rgba(92,58,16,.38),
+    0 1px 2px rgba(0,0,0,.5),
+    0 8px 22px rgba(0,0,0,.45),
+    0 2px 12px rgba(198,151,83,.22);
+  -webkit-backdrop-filter:blur(8px) saturate(150%);
+  backdrop-filter:blur(8px) saturate(150%);
+  text-shadow:0 1px 0 rgba(255,240,215,.35);
+  transition:background .18s,box-shadow .18s,transform .18s,filter .18s;
+}
+.lx-root .lx-primary:hover{
+  color:#120d06;
+  background:
+    linear-gradient(to bottom,rgba(255,255,255,.38),rgba(255,255,255,.07) 46%,rgba(255,255,255,0) 52%),
+    linear-gradient(to top,rgba(255,236,200,.26),rgba(255,236,200,0) 32%),
+    linear-gradient(to bottom,#e0ad5c,#c9944a 55%,#b2803a);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.7),
+    inset 0 0 0 1px rgba(255,232,196,.26),
+    inset 0 -3px 6px rgba(92,58,16,.34),
+    0 1px 2px rgba(0,0,0,.5),
+    0 12px 28px rgba(0,0,0,.5),
+    0 3px 16px rgba(198,151,83,.3);
+  transform:translateY(-1px);
+}
+.lx-root .lx-primary:active{
+  color:#120d06;
+  background:
+    linear-gradient(to bottom,rgba(255,255,255,.22),rgba(255,255,255,0) 45%),
+    linear-gradient(to bottom,#b4833c,#a06f2e);
+  box-shadow:
+    inset 0 2px 5px rgba(70,42,10,.55),
+    inset 0 0 0 1px rgba(255,232,196,.14),
+    0 1px 2px rgba(0,0,0,.5);
+  transform:translateY(1px);
+}
+.lx-root .lx-secondary{background:transparent;border-color:#3a3a3a;color:#fff;border-radius:999px}
 .lx-root .lx-secondary:hover{background:#1a1a1a;border-color:#737373;color:#fff}
 .lx-root .lx-secondary:active{background:#292929}
 .lx-root .lx-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
@@ -70,6 +118,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
   box-decoration-break:clone;
 }
 @media(prefers-reduced-transparency:reduce){
+  .lx-root .lx-primary{-webkit-backdrop-filter:none;backdrop-filter:none}
   .lx-root .lx-highlight::before{
     -webkit-backdrop-filter:none;
     backdrop-filter:none;
@@ -168,4 +217,5 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-observed{opacity:1;transform:none;transition:none}
 .lx-root a,.lx-root button{transition:none}
 .lx-root a:active,.lx-root button:active{transform:none}
+.lx-root .lx-primary,.lx-root .lx-primary:hover,.lx-root .lx-primary:active{transform:none;transition:none}
 }
