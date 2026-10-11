@@ -18,20 +18,19 @@ async function assignee(c:Parameters<typeof allow>[0],id:string|null|undefined) 
  const m=(await c.db.query("SELECT 1 FROM members WHERE workspace_id=$1 AND user_id=$2 AND role IN ('admin','staff')",[c.ws,id])).rowCount;
  if(!m)throw invalid('Choose a staff member or admin from this workspace.','assignee_id');
 }
-export async function listWorkOrders(user:string,ws:string,params:URLSearchParams) {
+export async function listWorkOrders(user:string,ws:string,params:URLSearchParams,all=false) {
  const query=parseListQuery(params);
  return inWorkspace(user,ws,async c=>{
   const timezone=(await row(c,'workspaces',ws)).timezone, now=Date.now();
   const values:unknown[]=[ws],clauses=['workspace_id=$1'];
   const add=(sql:string,value:unknown)=>{values.push(value);clauses.push(sql.replaceAll('?', '$'+values.length));};
   if(query.q)add("(title ILIKE ? OR description ILIKE ? OR ('WO-'||order_number::text) ILIKE ?)",'%'+query.q.replace(/[\\%_]/g,'\\$&')+'%');
-  if(query.status.length)add('status::text=ANY(?::text[])',query.status);
-  if(query.priority.length)add('priority::text=ANY(?::text[])',query.priority);
+  if(query.status.length)add('status=ANY(?::work_order_status[])',query.status);
+  if(query.priority.length)add('priority=ANY(?::work_order_priority[])',query.priority);
   if(query.client_id)add('client_id=?',query.client_id);
   if(query.assignee_id==='unassigned')clauses.push('assignee_id IS NULL');else if(query.assignee_id)add('assignee_id=?',query.assignee_id);
   if(query.overdue)clauses.push('('+overdueSql+')');
   const where=clauses.join(' AND ');
-  const total=(await c.db.query('SELECT count(*)::int AS n FROM work_orders WHERE '+where,values)).rows[0].n;
   const signature=hash(JSON.stringify({user,ws,...query,cursor:undefined,page:undefined}));
   let offset=(query.page-1)*query.pageSize;
   if(query.cursor) {
@@ -41,7 +40,16 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
     offset=cursor.offset;
    }catch{throw invalid('This cursor does not match the list filters.','cursor');}
   }
-  const data=(await c.db.query(`SELECT work_orders.*,(SELECT name FROM sites WHERE id=work_orders.site_id AND workspace_id=work_orders.workspace_id) AS site_name,(SELECT name FROM clients WHERE id=work_orders.client_id AND workspace_id=work_orders.workspace_id) AS client_name,(SELECT name FROM visible_assignee(work_orders.workspace_id,work_orders.id)) AS assignee_name FROM work_orders WHERE ${where} ORDER BY ${query.sort} ${query.dir} NULLS LAST,id ${query.dir} LIMIT $${values.length+1} OFFSET $${values.length+2}`,[...values,query.pageSize,offset])).rows;
+  const data=(await c.db.query(`SELECT w.*,s.name AS site_name,cl.name AS client_name,a.name AS assignee_name
+   FROM (SELECT work_orders.*,count(*) OVER()::int AS _total FROM work_orders WHERE ${where}
+    ORDER BY ${query.sort} ${query.dir} NULLS LAST,id ${query.dir} ${all?'':`LIMIT $${values.length+1} OFFSET $${values.length+2}`}) w
+   LEFT JOIN sites s ON s.id=w.site_id AND s.workspace_id=w.workspace_id
+   LEFT JOIN clients cl ON cl.id=w.client_id AND cl.workspace_id=w.workspace_id
+   LEFT JOIN LATERAL visible_assignee(w.workspace_id,w.id) a ON true
+   ORDER BY w.${query.sort} ${query.dir} NULLS LAST,w.id ${query.dir}`,all?values:[...values,query.pageSize,offset])).rows;
+  // Empty/out-of-range pages still return the full filtered count.
+  const total=data[0]?data[0]._total:(await c.db.query('SELECT count(*)::int AS n FROM work_orders WHERE '+where,values)).rows[0].n;
+  for(const order of data)delete order._total;
   const next_cursor=offset+data.length<total?Buffer.from(JSON.stringify({offset:offset+data.length,signature})).toString('base64url'):null;
   return {data:data.map(order=>({...order,overdue:isOverdue(order,now,timezone)})),timezone,today:localDate(now,timezone),total,page:Math.floor(offset/query.pageSize)+1,pageSize:query.pageSize,next_cursor};
  });
@@ -65,13 +73,18 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
 }
 export async function getWorkOrder(user:string,ws:string,id:string) {
  return inWorkspace(user,ws,async c=>{
-  const order=await row(c,'work_orders',id);
-  const site=await row(c,'sites',order.site_id),client=await row(c,'clients',order.client_id);
-  const assigneeInfo=order.assignee_id?(await c.db.query('SELECT * FROM visible_assignee($1,$2)',[ws,id])).rows[0]??{id:order.assignee_id}:null;
-  const comments=(await c.db.query('SELECT * FROM comments WHERE workspace_id=$1 AND work_order_id=$2 ORDER BY created_at,id',[ws,id])).rows;
-  const timeline=(await c.db.query("SELECT * FROM work_order_events WHERE workspace_id=$1 AND work_order_id=$2 ORDER BY created_at,CASE WHEN kind='created' THEN 0 ELSE 1 END,id",[ws,id])).rows;
-  const timezone=(await row(c,'workspaces',ws)).timezone;
-  return {...order,overdue:isOverdue(order,Date.now(),timezone),timezone,site,client,assignee:assigneeInfo,comments,timeline};
+  uuid.parse(id);
+  const order=(await c.db.query(`SELECT w.*,to_jsonb(s) AS site,to_jsonb(cl) AS client,ws.timezone,
+   CASE WHEN w.assignee_id IS NULL THEN NULL ELSE coalesce((SELECT to_jsonb(a) FROM visible_assignee(w.workspace_id,w.id) a),jsonb_build_object('id',w.assignee_id)) END AS assignee,
+   coalesce((SELECT jsonb_agg(cm ORDER BY cm.created_at,cm.id) FROM comments cm WHERE cm.workspace_id=w.workspace_id AND cm.work_order_id=w.id),'[]') AS comments,
+   coalesce((SELECT jsonb_agg(e ORDER BY e.created_at,CASE WHEN e.kind='created' THEN 0 ELSE 1 END,e.id) FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id),'[]') AS timeline
+   FROM work_orders w JOIN sites s ON s.workspace_id=w.workspace_id AND s.id=w.site_id
+   JOIN clients cl ON cl.workspace_id=w.workspace_id AND cl.id=w.client_id
+   JOIN workspaces ws ON ws.id=w.workspace_id WHERE w.workspace_id=$1 AND w.id=$2`,[ws,id])).rows[0];
+  if(!order)throw missing();
+  // Match node-postgres timestamp types and the API's existing ISO serialization.
+  for(const nested of [order.site,order.client,...order.comments,...order.timeline])for(const key of ['created_at','updated_at'])if(nested[key])nested[key]=new Date(nested[key]);
+  return {...order,overdue:isOverdue(order,Date.now(),order.timezone)};
  });
 }
 export async function patchWorkOrder(user:string,ws:string,id:string,body:unknown,ifMatch?:string) {

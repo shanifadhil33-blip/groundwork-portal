@@ -1,11 +1,11 @@
 import { formatDate, localDate } from '../dates';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { z } from 'zod';
 import { ApiError, invalid, missing, forbidden, readBody } from '../http';
 import { inWorkspace, type Context, uuid, insert } from './shared';
-import { fields, parseFile, type Mapping } from '../import/parse';
-import { validateRow, type RowData } from '../import/validate';
+import { fields, type Mapping } from '../import/fields';
+import { validateRow, validationLookup, addLookupOrder, type RowData } from '../import/validate';
 import { draftSummaries } from '../ai';
 function staff<T>(user:string,ws:string,fn:(c:Context)=>Promise<T>){return inWorkspace(user,ws,c=>{if(c.role==='client')throw missing();return fn(c);});}
 async function lock(c:Context){await c.db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['imports:'+c.ws]);}
@@ -15,8 +15,9 @@ async function rows(c:Context,id:string|undefined,params:URLSearchParams,queue=f
  const q=querySchema.parse(Object.fromEntries(params));
  const where=`workspace_id=$1 AND ($2::uuid IS NULL OR import_id=$2) AND ($3::text IS NULL OR status=$3) AND ($4::text IS NULL OR decision=$4)${queue?" AND queued":''}`;
  const values=[c.ws,id??null,q.status??null,q.decision??(queue?'pending':null)];
- const total=(await c.db.query(`SELECT count(*)::int AS n FROM import_rows WHERE ${where}`,values)).rows[0].n;
- const data=(await c.db.query(`SELECT *, true AS ai_is_suggestion FROM import_rows WHERE ${where} ORDER BY created_at,import_id,row_number LIMIT 50 OFFSET $5`,[...values,(q.page-1)*50])).rows;
+ const data=(await c.db.query(`SELECT *, count(*) OVER()::int AS _total, true AS ai_is_suggestion FROM import_rows WHERE ${where} ORDER BY created_at,import_id,row_number LIMIT 50 OFFSET $5`,[...values,(q.page-1)*50])).rows;
+ const total=data[0]?data[0]._total:(await c.db.query(`SELECT count(*)::int AS n FROM import_rows WHERE ${where}`,values)).rows[0].n;
+ for(const item of data)delete item._total;
  return {data,total,page:q.page,pageSize:50};
 }
 async function summary(c:Context,id:string){const imp=await get(c,'imports',id);const counts=(await c.db.query(`SELECT count(*) FILTER(WHERE status='valid')::int AS valid,count(*) FILTER(WHERE status='warning')::int AS warning,count(*) FILTER(WHERE status='error')::int AS error,count(*) FILTER(WHERE queued AND decision='pending')::int AS pending,count(*) FILTER(WHERE decision='approved')::int AS approved,count(*) FILTER(WHERE decision='rejected')::int AS rejected FROM import_rows WHERE workspace_id=$1 AND import_id=$2`,[c.ws,id])).rows[0];const {raw_rows:_,...publicImport}=imp;return {...publicImport,counts,result_summary:`${counts.approved} created, ${counts.rejected} rejected`};}
@@ -32,6 +33,7 @@ export async function uploadImport(user:string,ws:string,req:Request){return sta
   let form:FormData;try{form=await new Response(Buffer.concat(chunks),{headers:{'Content-Type':req.headers.get('content-type')!}}).formData();}catch{throw invalid('Send a multipart CSV or XLSX file.','file');}
   const file=form.get('file');if(!file||typeof file==='string')throw invalid('Choose a CSV or XLSX file.','file');filename=file.name;content=Buffer.from(await file.arrayBuffer());
  }else{z.object({sample:z.literal(true)}).strict().parse(await readBody(req));filename='sample-work-orders.csv';content=await readFile(new URL('../../data/sample-work-orders.csv',import.meta.url));}
+ const {parseFile}=await import('../import/parse');
  const parsed=parseFile(content,filename),hash=createHash('sha256').update(content).digest('hex');
  await lock(c);
  const existing=(await c.db.query('SELECT id,created_at FROM imports WHERE workspace_id=$1 AND content_hash=$2 ORDER BY created_at LIMIT 1',[ws,hash])).rows[0];
@@ -49,8 +51,11 @@ export function mapImport(user:string,ws:string,id:string,body:unknown){return s
  if(!mapping.title)throw invalid('Map a title column.','mapping.title');
  for(const header of Object.values(mapping))if(!imp.headers.includes(header))throw invalid('Choose a detected column header.','mapping');
  await c.db.query('DELETE FROM import_rows WHERE workspace_id=$1 AND import_id=$2',[ws,id]);
- const seen=new Map<string,number>();let n=0;
- for(const raw of imp.raw_rows){const input=Object.fromEntries(fields.map(f=>[f,mapping[f]?raw[mapping[f]!]:'' ]));const result=await validateRow(c,input,seen,++n);await c.db.query('INSERT INTO import_rows(workspace_id,import_id,row_number,data,errors,warnings,status) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,id,n,JSON.stringify(result.data),JSON.stringify(result.errors),JSON.stringify(result.warnings),result.status]);}
+ const inputs:Partial<RowData>[]=imp.raw_rows.map((raw:Record<string,string>)=>Object.fromEntries(fields.map(f=>[f,mapping[f]?raw[mapping[f]!]:'' ])));
+ const lookup=await validationLookup(c,inputs),seen=new Map<string,number>(),validated=[];
+ for(const [index,input] of inputs.entries())validated.push({row_number:index+1,...await validateRow(c,input,seen,index+1,lookup)});
+ await c.db.query(`INSERT INTO import_rows(workspace_id,import_id,row_number,data,errors,warnings,status)
+ SELECT $1,$2,r.row_number,r.data,r.errors,r.warnings,r.status FROM jsonb_to_recordset($3::jsonb) AS r(row_number int,data jsonb,errors jsonb,warnings jsonb,status text) ORDER BY r.row_number`,[ws,id,JSON.stringify(validated)]);
  await c.db.query("UPDATE imports SET status='mapped',mapping=$3 WHERE workspace_id=$1 AND id=$2",[ws,id,JSON.stringify(mapping)]);
  return {...await summary(c,id),rows:await rows(c,id,new URLSearchParams())};
 });}
@@ -75,7 +80,32 @@ async function approve(c:Context,id:string,edits?:Partial<RowData>){
 export function approveRow(user:string,ws:string,id:string,body:unknown){return staff(user,ws,async c=>{await lock(c);const parsed=z.object({edits:editsSchema.optional()}).strict().parse(body);return approve(c,id,parsed.edits);});}
 export function bulkApprove(user:string,ws:string,body:unknown){return staff(user,ws,async c=>{
  const {row_ids}=z.object({row_ids:z.array(uuid).min(1).max(500)}).strict().parse(body);if(c.role==='staff'&&row_ids.length>25)throw forbidden();await lock(c);
- const data=[];for(const id of [...new Set(row_ids)].sort())data.push(await approve(c,id));return {data,created:data.length};
+ const ids=[...new Set(row_ids)].sort();
+ const selected=(await c.db.query('SELECT * FROM import_rows WHERE workspace_id=$1 AND id=ANY($2::uuid[]) ORDER BY id FOR UPDATE',[ws,ids])).rows;
+ const byId=new Map(selected.map(r=>[r.id,r]));
+ const existing=(await c.db.query('SELECT * FROM work_orders WHERE workspace_id=$1 AND id=ANY($2::uuid[])',[ws,selected.filter(r=>r.decision==='approved').map(r=>r.work_order_id)])).rows;
+ const existingById=new Map(existing.map(r=>[r.id,r]));
+ const lookup=await validationLookup(c,selected.filter(r=>r.decision!=='approved').map(r=>r.data));
+ const prepared=[],preparedRows=new Map<string,string>();let failure:ApiError|undefined;
+ for(const id of ids) {
+  const r=byId.get(id.toLowerCase());
+  if(!r){failure=missing();break;}
+  if(r.decision==='approved'||preparedRows.has(r.id))continue;
+  if(!r.queued||r.decision!=='pending'){failure=new ApiError(409,'not_pending','This row is not awaiting approval.');break;}
+  const result=await validateRow(c,r.data,undefined,1,lookup);
+  if(result.errors.length){failure=new ApiError(422,'validation','Fix the row before approving it.',Object.fromEntries(result.errors.map(e=>[e.field,[e.message]])));break;}
+  const order_id=randomUUID();preparedRows.set(r.id,order_id);prepared.push({id:r.id,order_id,...result});
+  // Later rows see the orders created earlier in this same batch, as before.
+  addLookupOrder(lookup,{...result.data,site_id:result.data.site_id!,external_ref:result.data.external_ref||null,due_on:result.data.due_on||null,scheduled_for:result.data.scheduled_for||null,status:result.data.scheduled_for?'scheduled':'open',order_number:`@${order_id}@`});
+ }
+ const created=prepared.length?(await c.db.query('SELECT * FROM approve_import_batch($1,$2,$3::jsonb)',[ws,user,JSON.stringify(prepared)])).rows:[];
+ const createdById=new Map(created.map(r=>[r.id,r]));
+ if(failure) {
+  if(failure.fields)for(const messages of Object.values(failure.fields))for(let i=0;i<messages.length;i++)messages[i]=messages[i].replace(/@([0-9a-f-]+)@/g,(_,id)=>String(createdById.get(id)?.order_number));
+  throw failure; // The enclosing transaction rolls back the entire batch.
+ }
+ const data=ids.map(id=>{const r=byId.get(id.toLowerCase())!;return r.decision==='approved'?existingById.get(r.work_order_id):createdById.get(preparedRows.get(r.id));});
+ return {data,created:data.length};
 });}
 export function rejectRow(user:string,ws:string,id:string,body:unknown){return staff(user,ws,async c=>{await lock(c);const {reason}=z.object({reason:z.string().trim().min(1).max(2000)}).strict().parse(body);const r=await get(c,'import_rows',id);if(!r.queued||r.decision!=='pending')throw new ApiError(409,'not_pending','This row is not awaiting review.');const result=(await c.db.query("UPDATE import_rows SET decision='rejected',reason=$3,rejected_at=clock_timestamp() WHERE workspace_id=$1 AND id=$2 RETURNING *",[ws,id,reason])).rows[0];await complete(c,r.import_id);return {...result,undo_until:new Date(result.rejected_at.getTime()+600000).toISOString()};});}
 export function undoRow(user:string,ws:string,id:string){return staff(user,ws,async c=>{await lock(c);const r=await get(c,'import_rows',id);const result=(await c.db.query("UPDATE import_rows SET decision='pending',reason=NULL,rejected_at=NULL WHERE workspace_id=$1 AND id=$2 AND decision='rejected' AND rejected_at>clock_timestamp()-interval '10 minutes' RETURNING *",[ws,id])).rows[0];if(!result)throw new ApiError(409,'undo_expired','Undo is available for 10 minutes after rejecting a row.');await complete(c,r.import_id);return result;});}
@@ -89,5 +119,5 @@ export async function importDrafts(user:string,ws:string,id:string){
  const pending=await staff(user,ws,async c=>{await get(c,'imports',id);return (await c.db.query("SELECT id,data FROM import_rows WHERE workspace_id=$1 AND import_id=$2 AND queued AND decision='pending' AND ai_summary IS NULL ORDER BY row_number LIMIT 25",[ws,id])).rows;});
  if(!pending.length)return {available:true,stored:0,suggestion:true};
  const result=await draftSummaries(pending);if(!result.available)return result;
- return staff(user,ws,async c=>{await lock(c);await get(c,'imports',id);let stored=0;for(const item of result.items)stored+=(await c.db.query("UPDATE import_rows SET ai_summary=$4,ai_priority=$5 WHERE workspace_id=$1 AND import_id=$2 AND id=$3 AND queued AND decision='pending'",[ws,id,item.row_id,item.summary,item.priority])).rowCount??0;return {available:true,stored,suggestion:true};});
+ return staff(user,ws,async c=>{await lock(c);await get(c,'imports',id);const stored=(await c.db.query('SELECT store_import_drafts($1,$2,$3::jsonb) AS stored',[ws,id,JSON.stringify(result.items)])).rows[0].stored;return {available:true,stored,suggestion:true};});
 }

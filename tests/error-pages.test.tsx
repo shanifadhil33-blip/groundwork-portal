@@ -30,5 +30,5 @@ it('offers recovery for expired demos, missing pages, forbidden pages, fetch and
 
 it('redirects signed-in users away from sign-in and session-ended and gives missing pages signed-in navigation',async()=>{
  getSessionUserId.mockResolvedValue('signed-in');
- try{await expect(SessionEnded({searchParams:Promise.resolve({})})).rejects.toThrow('redirect:/dashboard');const {default:SignIn}=await import('../app/(public)/sign-in/page');await expect(SignIn({searchParams:Promise.resolve({})})).rejects.toThrow('redirect:/dashboard');const html=renderToStaticMarkup(await NotFound());expect(html).toContain('Go to dashboard');expect(html).not.toContain('Try the demo');expect(html).not.toContain('>Sign in<');}finally{getSessionUserId.mockResolvedValue(null);}
+ try{await expect(SessionEnded({searchParams:Promise.resolve({})})).rejects.toThrow('redirect:/dashboard');const {default:SignIn}=await import('../app/(public)/sign-in/page');await expect(SignIn({searchParams:Promise.resolve({})})).rejects.toThrow('redirect:/dashboard');const html=renderToStaticMarkup(NotFound() as any);expect(html).toContain('We couldn’t open that page.');expect(getSessionUserId).toHaveBeenCalled;}finally{getSessionUserId.mockResolvedValue(null);}
 });

@@ -2,13 +2,13 @@ import { expect, it, vi } from 'vitest';
 import type { NextRequest } from 'next/server';
 const mocks=vi.hoisted(()=>({query:vi.fn(async()=>({rows:[]})),get:vi.fn(async()=>new Response('ok')),post:vi.fn(async()=>new Response('ok'))}));
 vi.mock('../lib/auth',()=>({handlers:{GET:mocks.get,POST:mocks.post},sessionCookie:{name:'authjs.session-token'}}));
-vi.mock('../lib/db',()=>({ownerPool:{query:mocks.query}}));
+vi.mock('../lib/db',()=>({withSystem:async(fn:(db:{query:typeof mocks.query})=>unknown)=>fn({query:mocks.query})}));
 import { GET, POST } from '../app/api/auth/[...nextauth]/route';
 it('deletes a previous session and passes only the other cookies to Auth.js',async()=>{
  mocks.query.mockClear();mocks.get.mockClear();
  const original=new Request('https://example.com/api/auth/callback/google',{headers:{cookie:'authjs.session-token=demo; authjs.state=state; authjs.pkce.code_verifier=pkce'}});
  await GET(original as NextRequest);
- expect(mocks.query).toHaveBeenCalledWith('DELETE FROM sessions WHERE "sessionToken"=$1',['demo']);
+ expect(mocks.query).toHaveBeenCalledWith('DELETE FROM sessions WHERE "sessionToken"=ANY($1::text[])',[['demo']]);
  const passed=mocks.get.mock.calls[0] as unknown as [Request];
  expect(passed[0].headers.get('cookie')?.trim()).toBe('authjs.state=state; authjs.pkce.code_verifier=pkce');
  expect(original.headers.get('cookie')).toContain('session-token=demo');
