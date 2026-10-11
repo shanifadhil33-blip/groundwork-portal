@@ -15,11 +15,10 @@ function access<T>(user:string,ws:string,admin:boolean,fn:(c:Context)=>Promise<T
 async function systemAction<T>(user:string,ws:string,admin:boolean,fn:(db:PoolClient)=>Promise<T>) {
  await access(user,ws,admin,async()=>undefined);
  return withSystem(async db=>{
-  await db.query("SELECT set_config('app.user_id',$1,true)",[user]);
   const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;
   if(!role||role==='client')throw missing();if(admin&&role!=='admin')throw forbidden();
   return fn(db);
- });
+ },user);
 }
 async function lock(db:PoolClient,ws:string){await db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['supplier:'+ws]);}
 async function project(db:PoolClient,event:CobaltEvent) {
@@ -108,30 +107,25 @@ export async function runSync(ws:string,operation:'check'|'repair',trigger:'manu
  if(trigger==='manual'){if(!user)throw forbidden();await access(user,ws,true,async()=>undefined);}
  await withSystem(async db=>{if(!(await db.query('SELECT is_demo FROM workspaces WHERE id=$1',[ws])).rows[0]?.is_demo)throw new ApiError(409,'supplier_not_connected','No supplier is connected.');});
  const run=await withSystem(async db=>{
-  if(user){await db.query("SELECT set_config('app.user_id',$1,true)",[user]);const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;if(!role||role==='client')throw missing();if(role!=='admin')throw forbidden();}
+  if(user){const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;if(!role||role==='client')throw missing();if(role!=='admin')throw forbidden();}
   return (await db.query('INSERT INTO supplier_sync_runs(workspace_id,trigger,operation) VALUES($1,$2,$3) RETURNING id',[ws,trigger,operation])).rows[0].id as string;
- });
+ },user);
  try {
   return await withSystem(async db=>{
-   if(user){await db.query("SELECT set_config('app.user_id',$1,true)",[user]);const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;if(!role||role==='client')throw missing();if(role!=='admin')throw forbidden();}
+   if(user){const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;if(!role||role==='client')throw missing();if(role!=='admin')throw forbidden();}
    await lock(db,ws);const {source,mismatches}=await compare(db,ws);
    if(ref&&!source.orders.some(o=>o.cobalt_ref===ref))throw missing();
    const selected=mismatches.filter(m=>!ref||m.cobalt_ref===ref);let repaired=0;
-   if(operation==='repair')for(const item of selected){
-    if(item.local_status===null){await db.query('INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,$3)',[ws,item.work_order_id,item.cobalt_ref]);}
-    for(const event of source.events.filter(e=>e.cobalt_ref===item.cobalt_ref&&item.missing_event_ids.includes(e.event_id)))await apply(db,eventSchema.parse(event),'reconcile');
-    // Also heal a damaged projection when the receipt ledger is already complete.
-    await db.query('UPDATE supplier_orders SET local_status=$3,updated_at=clock_timestamp() WHERE workspace_id=$1 AND cobalt_ref=$2 AND local_status<>$3',[ws,item.cobalt_ref,item.cobalt_status]);
-    if(item.cobalt_status==='delivered')await db.query("UPDATE work_orders SET status='in_progress' WHERE workspace_id=$1 AND id=$2 AND status='waiting_on_parts'",[ws,item.work_order_id]);
-    await db.query("INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body) SELECT workspace_id,client_id,id,app_user_id(),'supplier_repaired','Repaired by sync' FROM work_orders WHERE workspace_id=$1 AND id=$2",[ws,item.work_order_id]);
-    repaired++;
+   if(operation==='repair'&&selected.length) {
+    const events=source.events.filter(e=>selected.some(item=>e.cobalt_ref===item.cobalt_ref&&item.missing_event_ids.includes(e.event_id))).map(e=>eventSchema.parse(e));
+    repaired=(await db.query('SELECT repair_supplier_batch($1,$2::jsonb,$3::jsonb) AS repaired',[ws,JSON.stringify(selected),JSON.stringify(events)])).rows[0].repaired;
    }
    await db.query("UPDATE supplier_sync_runs SET finished_at=clock_timestamp(),mismatches_found=$2,repaired_count=$3 WHERE id=$1",[run,selected.length,repaired]);
    return {supplier:supplierLabel,run_id:run,mismatches:selected,repaired};
-  });
+  },user);
  }catch(error){
   const message=error instanceof ApiError?error.message:'Supplier sync failed. Try again.';
-  await withSystem(async db=>{if(user)await db.query("SELECT set_config('app.user_id',$1,true)",[user]);return db.query("UPDATE supplier_sync_runs SET finished_at=clock_timestamp(),status='error',error_message=$2 WHERE id=$1",[run,message]);});
+  await withSystem(async db=>db.query("UPDATE supplier_sync_runs SET finished_at=clock_timestamp(),status='error',error_message=$2 WHERE id=$1",[run,message]),user);
   throw error instanceof ApiError?error:new ApiError(503,'sync_failed',message);
  }
 }

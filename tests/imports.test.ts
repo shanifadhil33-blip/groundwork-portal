@@ -98,3 +98,23 @@ it('multipart HTTP size limits name the file and error CSV downloads have correc
  const imp=await upload('Title,Site\nUnknown report,Unknown');await s.mapImport(ids.dana,ids.ridgeline,imp.id,{mapping:imp.mapping});const report=await reportRoute.GET(new Request('http://localhost/api'),{params:Promise.resolve({ws:ids.ridgeline,id:imp.id})});expect(report.status).toBe(200);expect(report.headers.get('Content-Type')).toContain('text/csv');expect(report.headers.get('Content-Disposition')).toContain('attachment');expect(await report.text()).toContain('Choose a known site');
 });
 it('mapping rejects nonexistent headers and imports cannot approve unqueued or error rows',async()=>{const {imp,rows}=await staged();await expect(s.mapImport(ids.dana,ids.ridgeline,imp.id,{mapping:{title:'Not present'}})).rejects.toMatchObject({status:422});await expect(s.approveRow(ids.dana,ids.ridgeline,rows[0].id,{})).rejects.toMatchObject({status:409});const bad=await upload('Title,Site\nBad queue,Unknown');const mapped=await s.mapImport(ids.dana,ids.ridgeline,bad.id,{mapping:bad.mapping});await s.queueImport(ids.dana,ids.ridgeline,bad.id);await expect(s.approveRow(ids.dana,ids.ridgeline,mapped.rows.data[0].id,{})).rejects.toMatchObject({status:409});});
+
+it('bulk approval keeps row idempotency for mixed-case UUIDs and per-row import audit writes',async()=>{
+ const {imp,rows}=await queued(2);
+ const before=(await withUser(ids.dana,db=>db.query("SELECT count(*)::int AS n FROM audit_log WHERE workspace_id=$1 AND entity='imports' AND entity_id=$2 AND action='update'",[ids.ridgeline,imp.id]))).rows[0].n;
+ const result=await s.bulkApprove(ids.dana,ids.ridgeline,{row_ids:[rows[0].id.toUpperCase(),rows[0].id,rows[1].id]});
+ expect(result.created).toBe(3);expect(new Set(result.data.map(o=>o.id)).size).toBe(2);
+ expect((await s.getImport(ids.dana,ids.ridgeline,imp.id)).counts.approved).toBe(2);
+ const after=(await withUser(ids.dana,db=>db.query("SELECT count(*)::int AS n FROM audit_log WHERE workspace_id=$1 AND entity='imports' AND entity_id=$2 AND action='update'",[ids.ridgeline,imp.id]))).rows[0].n;
+ expect(after-before).toBe(2);
+});
+it('bulk approval rechecks references created earlier in the batch and rolls back all rows',async()=>{
+ const reference=randomUUID(),title='Batch duplicate '+randomUUID();
+ const first=await upload(`Title,Site,External Ref\n${title} first,Marina Exchange,${reference}`);
+ const second=await upload(`Title,Site,External Ref\n${title} second,Marina Exchange,${reference}`);
+ for(const imp of [first,second]){await s.mapImport(ids.dana,ids.ridgeline,imp.id,{mapping:imp.mapping});await s.queueImport(ids.dana,ids.ridgeline,imp.id);}
+ const rows=(await Promise.all([first,second].map(imp=>s.importRows(ids.dana,ids.ridgeline,imp.id,new URLSearchParams())))).flatMap(page=>page.data);
+ await expect(s.bulkApprove(ids.dana,ids.ridgeline,{row_ids:rows.map(r=>r.id)})).rejects.toMatchObject({status:422,fields:{external_ref:[expect.stringMatching(/^External reference already used by WO-\d+\.$/)]}});
+ for(const imp of [first,second])expect((await s.getImport(ids.dana,ids.ridgeline,imp.id)).counts).toMatchObject({approved:0,pending:1});
+ expect((await withUser(ids.dana,db=>db.query('SELECT id FROM work_orders WHERE workspace_id=$1 AND external_ref=$2',[ids.ridgeline,reference]))).rows).toHaveLength(0);
+});

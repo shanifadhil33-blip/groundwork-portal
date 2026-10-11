@@ -13,7 +13,7 @@ async function cleanup(db:PoolClient,limit:number){
  const rows=(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at<=now() ORDER BY demo_expires_at LIMIT $1 FOR UPDATE',[limit])).rows;
  const ids=rows.map(r=>r.id);
  const sessions=(await db.query('SELECT count(*)::int AS n FROM sessions s JOIN users u ON u.id=s."userId" WHERE u.demo_workspace_id=ANY($1::uuid[])',[ids])).rows[0].n;
- let users=0;for(const {id} of rows)users+=(await db.query('SELECT delete_demo_workspace($1) AS n',[id])).rows[0].n;
+ const users=(await db.query('SELECT coalesce(sum(delete_demo_workspace(id)),0)::int AS n FROM unnest($1::uuid[]) AS expired(id)',[ids])).rows[0].n;
  await db.query("DELETE FROM demo_creation_attempts WHERE created_at<now()-interval '1 hour'");
  return {workspaces:rows.length,users,sessions};
 }

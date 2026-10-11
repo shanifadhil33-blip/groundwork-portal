@@ -6,8 +6,8 @@ import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BottomSheet } from './dialog';
 import { Button, IconButton } from './button';
 function dateKey(date: Date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
-export function DatePicker({ label, value, onChange, id, disabled = false }: { label: string; value?: string; onChange: (date: string | undefined) => void; id?: string; disabled?: boolean }) {
-  const [open, setOpen] = useState(false), [phone, setPhone] = useState(false), [month, setMonth] = useState(new Date(2000, 0, 1)), [position, setPosition] = useState({ left: 0, top: 0 });
+export function DatePicker({ label, value, onChange, id, disabled = false, initiallyOpen = false }: { label: string; value?: string; onChange: (date: string | undefined) => void; id?: string; disabled?: boolean; initiallyOpen?: boolean }) {
+  const [open, setOpen] = useState(initiallyOpen), [phone, setPhone] = useState(false), [month, setMonth] = useState(new Date(2000, 0, 1)), [position, setPosition] = useState({ left: 0, top: 0 });
   const trigger = useRef<HTMLButtonElement>(null), popover = useRef<HTMLDivElement>(null);
   useEffect(() => { setMonth(value ? new Date(`${value}T12:00:00`) : new Date()); const query = matchMedia('(max-width: 640px)'); const changed = () => setPhone(query.matches); changed(); query.addEventListener('change', changed); return () => query.removeEventListener('change', changed); }, [value]);
   const close = () => { setOpen(false); trigger.current?.focus({ preventScroll: true }); };

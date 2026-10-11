@@ -5,15 +5,16 @@ import { missing } from '../http';
 import { inWorkspace, uuid } from './shared';
 import { paging, parseQuery, feedOffset } from './feed';
 export async function unreadCount(user:string) {
- return withUser(user,async db=>{const workspaces=(await db.query('SELECT workspace_id,count(*)::int AS unread_count FROM notifications WHERE read_at IS NULL GROUP BY workspace_id ORDER BY workspace_id')).rows;return {unread_count:workspaces.reduce((n,r)=>n+r.unread_count,0),workspaces};});
+ return withUser(user,async db=>{const workspaces=(await db.query('SELECT workspace_id,count(*)::int AS unread_count FROM notifications WHERE user_id=$1 AND read_at IS NULL GROUP BY workspace_id ORDER BY workspace_id',[user])).rows;return {unread_count:workspaces.reduce((n,r)=>n+r.unread_count,0),workspaces};});
 }
 export async function listNotifications(user:string,ws:string,params:URLSearchParams) {
  return inWorkspace(user,ws,async c=>{
   const q=parseQuery(params,{...paging,unread:z.enum(['true','false']).optional()}),page=feedOffset(user,ws,q);
-  const where='n.workspace_id=$1'+(q.unread===undefined?'':q.unread==='true'?' AND n.read_at IS NULL':' AND n.read_at IS NOT NULL');
-  const total=(await c.db.query(`SELECT count(*)::int AS n FROM notifications n WHERE ${where}`,[ws])).rows[0].n;
-  const unread_count=(await c.db.query('SELECT count(*)::int AS n FROM notifications WHERE workspace_id=$1 AND read_at IS NULL',[ws])).rows[0].n;
-  const rows=(await c.db.query(`SELECT n.*,w.id AS visible_id,w.title AS current_title FROM notifications n LEFT JOIN work_orders w ON n.entity='work_orders' AND w.workspace_id=n.workspace_id AND w.id=n.entity_id WHERE ${where} ORDER BY n.created_at DESC,n.id DESC LIMIT $2 OFFSET $3`,[ws,q.pageSize,page.offset])).rows;
+  const readFilter=q.unread===undefined?'true':q.unread==='true'?'read_at IS NULL':'read_at IS NOT NULL';
+  const where='n.workspace_id=$1 AND n.user_id=$4 AND '+readFilter;
+  const counts=(await c.db.query(`SELECT count(*) FILTER (WHERE ${readFilter})::int AS total,count(*) FILTER (WHERE read_at IS NULL)::int AS unread_count FROM notifications WHERE workspace_id=$1 AND user_id=$2`,[ws,user])).rows[0];
+  const {total,unread_count}=counts;
+  const rows=(await c.db.query(`SELECT n.*,w.id AS visible_id,w.title AS current_title FROM notifications n LEFT JOIN work_orders w ON n.entity='work_orders' AND w.workspace_id=n.workspace_id AND w.id=n.entity_id WHERE ${where} ORDER BY n.created_at DESC,n.id DESC LIMIT $2 OFFSET $3`,[ws,q.pageSize,page.offset,user])).rows;
   return {data:rows.map(r=>({id:r.id,kind:r.kind,entity:r.entity,entity_id:r.entity_id,message:notificationMessage(r),created_at:r.created_at,read_at:r.read_at,link_target:r.visible_id?{entity:r.entity,id:r.visible_id}:null})),total,unread_count,page:Math.floor(page.offset/q.pageSize)+1,pageSize:q.pageSize,next_cursor:page.next(total)};
  });
 }

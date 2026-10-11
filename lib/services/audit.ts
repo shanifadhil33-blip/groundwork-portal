@@ -25,9 +25,10 @@ export async function listAudit(user:string,ws:string,params:URLSearchParams) {
   if(q.from&&q.to&&new Date(q.from)>new Date(q.to))throw invalid('From must be before to.','from');
   const values:unknown[]=[ws],where=['a.workspace_id=$1',auditFeedWhere];
   for(const [key,column,op] of [['actor','actor_id','='],['action','action','='],['entity','entity','='],['entity_id','entity_id','='],['from','at','>='],['to','at','<=']] as const)if(q[key]){values.push(q[key]);where.push(`a.${column}${op}$${values.length}`);}
-  const clause=where.join(' AND '),total=(await c.db.query(`SELECT count(*)::int AS n FROM audit_log a WHERE ${clause}`,values)).rows[0].n;
+  const clause=where.join(' AND ');
   const page=feedOffset(user,ws,q),dir=q.sort==='newest'?'DESC':'ASC';
-  const rows=(await c.db.query(`${select} WHERE ${clause} ORDER BY a.at ${dir},a.id ${dir} LIMIT $${values.length+1} OFFSET $${values.length+2}`,[...values,q.pageSize,page.offset])).rows;
+  const rows=(await c.db.query(`${select.replace('SELECT a.*', 'SELECT a.*,count(*) OVER()::int AS _total')} WHERE ${clause} ORDER BY a.at ${dir},a.id ${dir} LIMIT $${values.length+1} OFFSET $${values.length+2}`,[...values,q.pageSize,page.offset])).rows;
+  const total=rows[0]?rows[0]._total:(await c.db.query(`SELECT count(*)::int AS n FROM audit_log a WHERE ${clause}`,values)).rows[0].n;
   return {data:rows.map(item),total,page:Math.floor(page.offset/q.pageSize)+1,pageSize:q.pageSize,next_cursor:page.next(total)};
  });
 }

@@ -454,3 +454,43 @@ Refined the signed-in shell with a Groundwork wordmark, workspace/role pills, gr
 Scoped app styling uses pure white/black canvases, muted teal, hairline borders, 16px panels, 20px floating dialogs, 10px controls, 1120px content with 32px desktop/16px phone gutters, and calmer typography. Tables have subtle headers and 48px rows; stats retain their links and status dots without the multicolor bar. Stacked phone headers, table cards, touch targets, navigation labels and dialog behavior are preserved. `components/landing` and `app/page.tsx` are untouched.
 
 Validation: `pnpm typecheck` and CSS parsing pass; `git diff --check` is clean. The requested Vitest command was attempted but its global setup cannot connect to Postgres (`EPERM`). Running the same three suites plus the two existing layout regression suites with a temporary database-free Vitest config passes **34 tests in 5 files**. New primary/default, hover and pressed colors have white-text contrast of 5.83:1, 7.17:1 and 8.56:1. Browser layout remains unmeasured because Chrome exits on the sandbox's denied crashpad socket operation.
+
+## 2026-10-11 — Speed pass (QA 46)
+
+Audited all `lib/services/*.ts` and API route SQL. Added migration **0012_speed_indexes.sql** with 58 `CREATE INDEX IF NOT EXISTS` access paths: workspace work-order filters/sorts, assignees/clients, dates and priorities; `pg_trgm` GIN title/description/display-number search; case-insensitive import lookups; workspace/actor/entity/action audit feeds (`at` is this schema's creation timestamp); user/read-state notification feeds; import/status/decision/queue/draft feeds; client/site/member/invite/token/supplier/auth/demo cleanup lookups. Existing primary/unique indexes already cover identifiers, token hashes, idempotency keys and Cobalt workspace sequences. Enum filters now match the indexed enum columns directly. No existing migration or RLS policy was changed.
+
+Merged dashboard aggregates with `FILTER` and scalar subqueries; work-order detail uses permission-scoped joins and nested comment/timeline aggregates. Work-order, audit and import-row lists use window counts, retaining a count fallback for empty/out-of-range pages. Notifications combine their total/unread counts. Mapping reads one candidate validation snapshot and inserts rows in one statement. Bulk approval reuses that snapshot and accounts for earlier rows in the batch, including duplicate references, mixed-case UUIDs and atomic rollback. New **SECURITY INVOKER** batch functions preserve per-row approval/import audit and supplier event/projection/timeline ordering while avoiding per-row network trips. AI draft storage preserves ordered duplicate-row updates and its original stored count. Demo cleanup and auth callback session deletion are batched. Every service/API query still uses `withUser`/`withSystem`; app-role execution is explicitly granted only for the two invoker import helpers, and supplier repair execution remains owner-only. Dependent assistant tool calls and individual mutation validation/locking remain ordered.
+
+Both pg pools now use **max 4**, **10,000 ms idle timeout**, **5,000 ms connection timeout** and keepalive. Runtime still reads the existing `DATABASE_URL` (the deployment's Neon pooler URL); env files were not changed. Transaction user/actor/token settings use one `set_config` statement. Attributed system operations set their actor at transaction startup and never share an owner connection with nested tenant reads.
+
+The app server layout supplies user/workspace and initial counts. Dashboard, client home, work-order list and detail supply request-local initial resources, retaining retries, edits, filtering, client visibility and interactivity. React request memoization deduplicates layout/page reads without sharing private data between users. Dashboard stats, attention counts, recent activity and supplier summary are present in initial HTML, addressing the client-fetch content pop-in behind the reported CLS. The list's existing browser sort and pagination behavior is retained; large matching lists still carry all rows for that ordering, but initial loading uses one server query rather than paging through HTTP requests. Notifications retain the previous mount prefetch behavior. Assistant code loads on first open and stays mounted thereafter to retain its conversation; dialogs and the date picker load on open. SheetJS is used only by the server upload parser, which is dynamically imported when uploading; shared field/type exports are separated from the parser so importing them cannot pull `xlsx` into client code. No assistant/import/settings UI files were edited.
+
+Privacy, Terms and Demo enforce static rendering (`dynamic = 'error'`); their shared header resolves signed-in navigation on the client. Sign-in stays dynamic to preserve its session redirect and callback/error handling. Public image/font/video assets have a bounded one-day Cache-Control policy with seven-day stale-while-revalidate; Next retains its built-in immutable policy for hashed assets. Main nav links explicitly prefetch. `vercel.json` now has **regions: ["iad1"]**, retaining both crons. Root layout already uses `next/font` Geist with `display: 'swap'`; no raster `<img>` elements exist outside the excluded landing components. `components/landing` and `app/page.tsx` are untouched.
+
+Code-path round trips below exclude shared transaction/authorization queries; they are structural counts, not measured database latency:
+
+| Operation | Before | After |
+| --- | ---: | ---: |
+| Transaction context settings | 2 | 1 |
+| Dashboard business reads | 5 | 1 |
+| Work-order detail business reads | 6–7 | 1 |
+| Work-order list including timezone, populated page | 3 | 2 |
+| Audit page list/count, populated page | 2 | 1 |
+| Notification list + total + unread | 3 | 2 |
+| Import/queue page list/count, populated page | 2 | 1 |
+| Map 500 valid rows with external refs: validation + inserts | 2,500 | 2 |
+| Bulk approval row lookup/validation/write transport | Proportional to rows | 4 fixed calls |
+| Application pool max / owner pool max | 10 / 5 | 4 / 4 |
+
+Validation: `pnpm typecheck` passes. `pnpm exec vitest run --config vitest.frontend.config.ts` passes **123 tests in 19 files**. New tests demonstrate populated dashboard HTML before effects, request-local/error resource isolation, a single lookup query for 500-row validation, combined attribution settings, and separation of nested tenant reads from attributed owner connections. Added database regressions for mixed-case approval idempotency, per-row audit writes and duplicate-reference rollback; those require the live database run below. `git diff --check` passes.
+
+Both the before-change and after-change `pnpm build` attempts failed because the sandbox cannot fetch Geist from `fonts.googleapis.com`. Per the task's fallback instruction, `/workspace/qa/build-before.txt` and `/workspace/qa/build-after.txt` were skipped. **First Load JS per route: unavailable before and after**, since neither build reached its route report. Attempt logs are `/tmp/portal-f-build-before.txt` and `/tmp/portal-f-build-after.txt`. The database Vitest command covering core API, imports, supplier, demo, audit/notifications, work orders/history, RLS and agent behavior is blocked during global setup by **EPERM** connecting to `::1`/`127.0.0.1:5432`; no live SQL migration/RLS/EXPLAIN results are claimed. Apply the new migration and run those suites in the normal database environment, then repeat production Lighthouse and bundle measurement.
+
+User-supplied production baseline (no after measurement in this sandbox):
+
+| Lighthouse route | Mobile before | Desktop before | After |
+| --- | ---: | ---: | --- |
+| Landing | 97 | 100 | Unmeasured |
+| Sign-in | 98 | 100 | Unmeasured |
+| Dashboard | 92 (CLS 0.09) | 98 | Unmeasured |
+| Work orders | 94 | 98 | Unmeasured |

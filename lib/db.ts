@@ -4,9 +4,11 @@ import { requiredEnv } from './env';
 // Postgres date values are calendar dates, not midnight instants.
 types.setTypeParser(1082, value => value);
 const testing = process.env.NODE_ENV === 'test';
-export const appPool = new Pool({ connectionString: requiredEnv(testing ? 'TEST_DATABASE_URL' : 'DATABASE_URL'), max: 10 });
+const poolSettings = { max: 4, idleTimeoutMillis: 10_000, connectionTimeoutMillis: 5_000, keepAlive: true };
+// Runtime uses DATABASE_URL (Neon's pooled -pooler host); owner access stays separate.
+export const appPool = new Pool({ connectionString: requiredEnv(testing ? 'TEST_DATABASE_URL' : 'DATABASE_URL'), ...poolSettings });
 // Owner access is reserved for auth, migrations/seed, signed Cobalt ingest, authorized simulator/sync operations, and cron.
-export const ownerPool = new Pool({ connectionString: requiredEnv(testing ? 'TEST_DATABASE_URL_OWNER' : 'DATABASE_URL_OWNER'), max: 5 });
+export const ownerPool = new Pool({ connectionString: requiredEnv(testing ? 'TEST_DATABASE_URL_OWNER' : 'DATABASE_URL_OWNER'), ...poolSettings });
 type Attribution = {kind:'agent'|'assistant'; tokenId?:string};
 const attribution = new AsyncLocalStorage<Attribution>();
 const active = new AsyncLocalStorage<{user:string;db:PoolClient}>();
@@ -15,10 +17,9 @@ async function transaction<T>(pool: Pool, userId: string | null, fn: (client: Po
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query("SELECT set_config('app.user_id', $1, true)", [userId ?? '']);
     const actor=attribution.getStore();
-    await client.query("SELECT set_config('app.actor_kind',$1,true),set_config('app.via_token',$2,true)",[actor?.kind??'user',actor?.tokenId??'']);
-    const result = userId ? await active.run({user:userId,db:client},()=>fn(client)) : await fn(client);
+    await client.query("SELECT set_config('app.user_id',$1,true),set_config('app.actor_kind',$2,true),set_config('app.via_token',$3,true)",[userId??'',actor?.kind??'user',actor?.tokenId??'']);
+    const result = userId && pool===appPool ? await active.run({user:userId,db:client},()=>fn(client)) : await fn(client);
     await client.query('COMMIT');
     return result;
   } catch (error) {
@@ -32,5 +33,8 @@ export function withUser<T>(userId: string, fn: (client: PoolClient) => Promise<
   if(nested?.user===userId)return fn(nested.db);
   return transaction(appPool, userId, fn);
 }
-export function withSystem<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> { return transaction(ownerPool, null, fn); }
+export function withSystem<T>(fn: (client: PoolClient) => Promise<T>, actorId: string | null = null): Promise<T> {
+  // An attributed owner operation must never become a nested withUser context.
+  return transaction(ownerPool, actorId, fn);
+}
 export async function closePools() { await Promise.all([appPool.end(), ownerPool.end()]); }
