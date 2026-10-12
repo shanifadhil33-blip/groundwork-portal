@@ -9,6 +9,7 @@ import { clientShape,createClient,createSite,listClients,patchClient,patchSite,s
 import { teamToday } from '../services/team';
 import { myDay } from '../services/my-day';
 import { scheduleBoard } from '../services/schedule';
+import { pushStatus } from '../services/push';
 import { listPhotos } from '../services/photos';
 import { setWorkerSkills, suggestWorkers } from '../services/assign';
 import { TRADES } from '../trades';
@@ -45,6 +46,7 @@ export const tools:Record<string,Tool>={
  my_day:{description:'Team members (not clients): your own jobs for today in time order, your late jobs, the next few days and how many you finished today. Use it for "what do I have today". To start or finish a job use update_work_order_status (scheduled to in_progress is Start, in_progress to done is Done).',write:false,schema:z.object({}).strict(),run:c=>myDay(c.user,c.ws)},
  list_job_photos:{description:'List the before and after photos on one visible job (kind, size, when). Photos are added in the app with the camera; a technician needs at least one after photo before a job can be marked done.',write:false,schema:z.object({id:uuid}).strict(),run:(c,a)=>listPhotos(c.user,c.ws,a.id)},
  get_schedule:{description:'Admin or supervisor only: the schedule board from a start day (from, an ISO date) for up to 14 days: people, their jobs with day and hour, and active jobs with no visit yet. To move a job use update_work_order_dates (scheduled_for) and assign_work_order.',write:false,schema:z.object({from:z.iso.date(),days:z.number().int().min(1).max(14).optional()}).strict(),run:(c,a)=>scheduleBoard(c.user,c.ws,new URLSearchParams({from:a.from,...(a.days?{days:String(a.days)}:{})}))},
+ notification_status:{description:'How many of my phones or computers have notifications on (new job for you, job done, job late). Turning them on or off is done on the device itself: Settings, Notifications.',write:false,schema:z.object({}).strict(),run:c=>pushStatus(c.user)},
  whoami:{description:'Read current workspace membership and client scope, plus the workspace country, region and currency (they set the address, phone and money rules). Roles are checked live for every tool.',write:false,schema:z.object({}).strict(),run:c=>inWorkspace(c.user,c.ws,async x=>{const w=(await x.db.query('SELECT country,region,currency FROM workspaces WHERE id=$1',[x.ws])).rows[0];return {user_id:x.user,workspace_id:x.ws,role:x.role,client_id:x.client_id,scope:c.scope,workspace_country:w?.country,workspace_region:w?.region??null,currency:w?.currency};})},
 };
 export async function callTool(c:AgentContext,name:string,args:unknown) {

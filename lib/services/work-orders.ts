@@ -1,3 +1,4 @@
+import { pushJobChange } from './push';
 import { hasAfterPhoto } from './photos';
 import { TRADES } from '../trades';
 import { publicClient } from './clients';
@@ -60,7 +61,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
  });
 }
 export async function createWorkOrder(user:string,ws:string,body:unknown,key?:string) {
- return inWorkspace(user,ws,async c=>{
+ const made=await inWorkspace(user,ws,async c=>{
   if(c.role==='technician')throw new ApiError(403,'forbidden','Ask a supervisor to create the job.');
   const data=(c.role==='client'?clientSchema:createSchema).parse(body);
   if(c.role==='client' && data.client_id && data.client_id!==c.client_id)throw invalid('Choose one of your own sites.','client_id');
@@ -76,6 +77,8 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
    ...data,client_id,workspace_id:ws,created_by:user,source:c.role==='client'?'client':'manual',
   }));
  });
+ await pushJobChange(user,null,made as never);
+ return made;
 }
 const CLIENT_HIDDEN_SITE=['access_notes','contact_name','contact_phone'],CLIENT_HIDDEN_CLIENT=['notes','contact_name','phone','email','billing_building','billing_street','billing_area','billing_city','billing_region','country'];
 export async function getWorkOrder(user:string,ws:string,id:string) {
@@ -98,10 +101,11 @@ export async function getWorkOrder(user:string,ws:string,id:string) {
  });
 }
 export async function patchWorkOrder(user:string,ws:string,id:string,body:unknown,ifMatch?:string) {
- return inWorkspace(user,ws,async c=>{
+ let before:Record<string,unknown>|null=null;
+ const saved=await inWorkspace(user,ws,async c=>{
   // Check record visibility first, then role: own-client PATCH is 403; hidden records 404.
   await row(c,'work_orders',id);allow(c,['admin','staff','technician']);
-  const order=await row(c,'work_orders',id,true);
+  const order=await row(c,'work_orders',id,true);before=order;
   const parsed=patchSchema.parse(body);
   // Technicians see only their own jobs (RLS) and change only the status, never to cancelled.
   if(c.role==='technician'){const {updated_at:_u,reopen:_r,...changes}=parsed;if(Object.keys(changes).some(k=>k!=='status')||_r)throw new ApiError(403,'forbidden','You can update the status of your own jobs. Ask a supervisor for other changes.');if(changes.status==='cancelled')throw new ApiError(403,'forbidden','Ask a supervisor to cancel a job.');}
@@ -122,6 +126,8 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   await assignee(c,data.assignee_id);
   return update(c,'work_orders',id,data);
  });
+ await pushJobChange(user,before,saved as never);
+ return saved;
 }
 export async function createComment(user:string,ws:string,id:string,body:unknown,key?:string) {
  return inWorkspace(user,ws,async c=>{
