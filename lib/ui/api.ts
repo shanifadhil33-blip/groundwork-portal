@@ -8,8 +8,21 @@ export function handleSessionFailure(status: number, code?: string) {
 }
 export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   let response: Response;
-  try { response = await fetch(url, { ...init, headers: { ...(init?.body && !(init.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}), ...init?.headers }, cache: 'no-store' }); }
-  catch { reportRequestFailure(0); throw new RequestError(0, 'We couldn’t connect. Check your connection and try again.', undefined, 'network'); }
+  const run = () => fetch(url, { ...init, headers: { ...(init?.body && !(init.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}), ...init?.headers }, cache: 'no-store' });
+  try { response = await run(); }
+  catch (error) {
+    if (isAbort(error)) throw new RequestError(0, 'Stopped.', undefined, 'aborted');
+    const hidden = pageHidden();
+    // Phones freeze background tabs and drop their sockets; that is not being offline.
+    if (!init?.method || init.method === 'GET') {
+      if (hidden) await visible();
+      for (const wait of [600, 1500]) { await pause(wait); try { response = await run(); break; } catch (retryError) { if (isAbort(retryError)) throw new RequestError(0, 'Stopped.', undefined, 'aborted'); } }
+    }
+    if (!response!) {
+      if (!hidden && !pageHidden()) reportRequestFailure(0);
+      throw new RequestError(0, networkCopy(), undefined, 'network');
+    }
+  }
   const data = await response.json().catch(() => null);
   if (!response.ok) {
     handleSessionFailure(response.status, data?.error?.code);
@@ -20,3 +33,8 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 export const post = <T,>(url: string, body?: unknown) => request<T>(url, { method: 'POST', ...(body ? { body: JSON.stringify(body) } : {}) });
+const isAbort = (error: unknown) => error instanceof DOMException && error.name === 'AbortError';
+const pageHidden = () => typeof document !== 'undefined' && document.hidden;
+const pause = (ms: number) => new Promise(done => setTimeout(done, ms));
+const visible = () => new Promise<void>(done => { if (!pageHidden()) return done(); const on = () => { if (!pageHidden()) { document.removeEventListener('visibilitychange', on); done(); } }; document.addEventListener('visibilitychange', on); });
+const networkCopy = () => typeof navigator !== 'undefined' && navigator.onLine === false ? 'You are offline. We will try again when you are back online.' : 'We couldn’t reach Groundwork. Please try again.';

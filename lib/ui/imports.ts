@@ -11,21 +11,21 @@ export const mappingOptions = (headers: string[]) => [{ value: '', label: "Don't
 export const cleanMapping = (mapping: Mapping): Mapping => Object.fromEntries(importFields.filter(field => !!mapping[field]).map(field => [field, mapping[field]]));
 export const sendLabel = (counts: { valid: number; warning: number }) => `Send ${plural(counts.valid + counts.warning,'valid row')} to queue`;
 export const canUndo = (until: string, now = Date.now()) => Number.isFinite(Date.parse(until)) && Date.parse(until) > now;
-export const bulkLimitCopy = (role: string, count: number) => role === 'staff' && count > 25 ? 'Staff can approve up to 25 rows at a time. Select 25 or fewer rows.' : null;
+export const bulkLimitCopy = (role: string, count: number) => role === 'staff' && count > 25 ? 'You can add 25 at a time. Pick 25 or fewer.' : null;
 export function issueCopy(issue: Issue) {
-  const copy: Record<string, string> = { required: 'Enter a title of 1 to 200 characters.', length: 'Use 20,000 characters or fewer.', unknown_site: 'Choose a known site and its matching client.', unknown_priority: 'Priority was not recognised. Normal will be used.', bad_date: 'Enter a valid date, such as 2026-10-10.', duplicate_open: 'A matching work order is already open.', duplicate_ref:'This external reference is already used by a work order.', similar_title:'A work order has a similar title. Check the site, reference and dates.' };
+  const copy: Record<string, string> = { required: 'Enter a title of 1 to 200 characters.', length: 'Use 20,000 characters or fewer.', unknown_site: 'Choose a known site and its matching client.', unknown_priority: 'Priority was not recognised. Normal will be used.', bad_date: 'Enter a valid date, such as 2026-10-10.', duplicate_open: 'A matching job is already open.', duplicate_ref:'This external reference is already used by a job.', similar_title:'A job has a similar title. Check the site, reference and dates.' };
   if (issue.code === 'duplicate_file') { const row = issue.message.match(/^Duplicate of row (\d+)$/)?.[1]; return row ? `Duplicate of row ${row}.` : 'This row is repeated in the file.'; }
   return copy[issue.code] ?? 'Check this field before approving.';
 }
 export function validationCopy(fields?: Record<string, string[]>) {
   const result: Partial<Record<ImportField, string>> = {};
-  for (const field of importFields) if (fields?.[field] || fields?.[`edits.${field}`]) result[field] = field === 'title' ? (fields?.[field]?.some(message=>message.startsWith('Already open as work order'))?'A matching work order is already open.':'Enter a title of 1 to 200 characters.') : field === 'site' || field === 'client' ? 'Choose a known site and matching client.' : field === 'scheduled_for' || field === 'due_on' ? 'Enter a valid date or a timestamp with a timezone.' : field === 'description' ? 'Use 20,000 characters or fewer.' : field === 'external_ref' ? 'This external reference is already used. Choose a unique reference.' : 'Check this value and try again.';
+  for (const field of importFields) if (fields?.[field] || fields?.[`edits.${field}`]) result[field] = field === 'title' ? (fields?.[field]?.some(message=>message.startsWith('Already open as job'))?'A matching job is already open.':'Enter a title of 1 to 200 characters.') : field === 'site' || field === 'client' ? 'Choose a known site and matching client.' : field === 'scheduled_for' || field === 'due_on' ? 'Enter a valid date or a timestamp with a timezone.' : field === 'description' ? 'Use 20,000 characters or fewer.' : field === 'external_ref' ? 'This external reference is already used. Choose a unique reference.' : 'Check this value and try again.';
   return result;
 }
 export function importError(error: unknown, action: 'upload' | 'mapping' | 'queue' | 'approve' | 'reject' | 'bulk' | 'undo') {
   if (error instanceof RequestError) {
     if (action === 'undo' && error.status === 409) return 'Undo has expired';
-    if (action === 'bulk' && error.status === 403) return 'Staff can approve up to 25 rows at a time. Select 25 or fewer rows.';
+    if (action === 'bulk' && error.status === 403) return 'You can add 25 at a time. Pick 25 or fewer.';
     if (error.status === 422 && action === 'upload') {
       if (error.message.includes('empty')) return 'This file is empty. Choose a file with column headings and data rows.';
       if (error.message.includes('no data rows')) return 'This file has no data rows. Add rows beneath the column headings.';
@@ -33,7 +33,7 @@ export function importError(error: unknown, action: 'upload' | 'mapping' | 'queu
       if (error.message.includes('headers')) return 'Add a header row with a unique name for each column, with none left blank.';
       if (error.message.includes('2 MB')) return 'This file is too large or has the wrong file type. Choose a CSV or XLSX file up to 2 MB.';
     }
-    if (error.status === 422) return action === 'upload' ? 'Choose a CSV or XLSX file with unique column headings, no more than 2 MB and 500 rows.' : action === 'mapping' ? 'Choose a title column and check your mapping.' : action === 'reject' ? 'Enter a reason of 1 to 2,000 characters.' : 'Check the highlighted fields. Rows may also match an already open work order.';
+    if (error.status === 422) return action === 'upload' ? 'Choose a CSV or XLSX file with unique column headings, no more than 2 MB and 500 rows.' : action === 'mapping' ? 'Choose a title column and check your mapping.' : action === 'reject' ? 'Enter a reason of 1 to 2,000 characters.' : 'Check the highlighted fields. Rows may also match an already open job.';
     if (error.status === 409) return action === 'mapping' ? 'This import is already queued. Its mapping can no longer be changed.' : 'This row or import has changed. Refresh and try again.';
   }
   return 'We couldn’t complete that. Please try again.';

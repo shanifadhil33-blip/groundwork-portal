@@ -6,4 +6,3 @@ export * from './lazy-date-picker';
 export * from './tabs';
 export * from './time';
 export * from './toast';
-export { InlineHint } from './inline-hint';

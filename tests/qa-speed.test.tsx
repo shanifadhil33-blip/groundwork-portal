@@ -27,10 +27,10 @@ it('server-renders dashboard counts, attention, recent activity and supplier sum
  const member:Membership={workspace_id:'workspace',workspace_name:'Company',role:'admin',client_id:null,client_name:null};
  const html=renderToStaticMarkup(<AppContext.Provider value={{me:{user:{id:'user',name:'Admin',email:'admin@example.com',image:null},memberships:[member]},member,workspace:{id:'workspace',name:'Company',timezone:'Asia/Dubai',is_demo:true,country:'AE',region:null,currency:'AED'},reload:()=>{},updateName:()=>{}}}><InitialResourceProvider resources={{
   '/api/workspaces/workspace/dashboard':{data:{by_status:{open:12},overdue:7,waiting_on_parts:3,pending_queue_rows:2,last_supplier_sync_at:null}},
-  '/api/workspaces/workspace/audit?pageSize=6':{data:{data:[{id:'entry',at:'2026-10-11T10:00:00Z',actor:{name:'Admin'},summary:'Created repair request',entity:'work_orders',entity_id:'order'}]}},
+  '/api/workspaces/workspace/audit?pageSize=5':{data:{data:[{id:'entry',at:'2026-10-11T10:00:00Z',actor:{name:'Admin'},summary:'Created repair request',entity:'work_orders',entity_id:'order'}]}},
   '/api/workspaces/workspace/supplier/sync-runs':{data:[]},
  }}><Dashboard/></InitialResourceProvider></AppContext.Provider>);
- expect(html).toContain('12 work orders');expect(html).toContain('7 overdue');expect(html).toContain('Created repair request');expect(html).toContain('No sync runs yet');expect(html).not.toContain('skeleton');
+ expect(html).toContain('<strong>7</strong><span>Late</span>');expect(html).toContain('Created repair request');expect(html).not.toContain('sync');expect(html).not.toContain('skeleton');
 });
 it('validates 500 mapped rows from one lookup read and preserves duplicate/date rules',async()=>{
  const site={id:'site-a',client_id:'client-a',name:'Marina',address:'12 Road',client_name:'Harbor'};

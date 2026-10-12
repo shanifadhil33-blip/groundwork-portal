@@ -2,7 +2,6 @@ import { Dashboard } from '../../../components/app/dashboard';
 import { InitialResourceProvider } from '../../../components/app/initial-resources';
 import { getAppPageData, initialResources } from '../../../lib/server-page-data';
 import { listAudit } from '../../../lib/services/audit';
-import { syncRuns } from '../../../lib/services/supplier';
 import { cookies } from 'next/headers';
 import { firstUseCookie } from '../../../lib/ui/first-use';
 import { listClients } from '../../../lib/services/clients';
@@ -26,8 +25,7 @@ export default async function Page() {
       [`${base}/tokens${admin?'?all=true':''}`,()=>listTokens(app.user,ws,new URLSearchParams(admin?'all=true':''))] as const,
       ...(admin?[[`${base}/members`,()=>listMembers(app.user,ws)] as const,[`${base}/invites`,()=>listInvites(app.user,ws)] as const]:[]),
     ]:[]),
-    [`${base}/audit?pageSize=6`,()=>listAudit(app.user,member.workspace_id,new URLSearchParams('pageSize=6'))],
-    ...(app.workspace?.is_demo?[[`${base}/supplier/sync-runs`,()=>syncRuns(app.user,member.workspace_id)] as const]:[]),
+    [`${base}/audit?pageSize=5`,()=>listAudit(app.user,member.workspace_id,new URLSearchParams("pageSize=5"))],
   ]);
   return <InitialResourceProvider resources={resources}><Dashboard firstUse={firstUse}/></InitialResourceProvider>;
 }

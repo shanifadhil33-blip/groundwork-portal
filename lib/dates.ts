@@ -20,6 +20,8 @@ export function isOverdue(order: {due_on?: string | null; status:string}, now: n
 }
 // Shared SQL equivalent of isOverdue. The workspace is resolved under the caller's RLS.
 export const overdueSql = "due_on < (CURRENT_TIMESTAMP AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=work_orders.workspace_id))::date AND status NOT IN ('done','cancelled')";
+/** A visit today (workspace day) that isn't finished: the jobs to do today. */
+export const todaySql = "(scheduled_for AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=work_orders.workspace_id))::date = (CURRENT_TIMESTAMP AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=work_orders.workspace_id))::date AND status NOT IN ('done','cancelled')";
 export function scheduledInstant(day: string, timezone = workspaceTimezone, hour = 9): string | null {
  if (!day) return null;
  // Resolve a wall-clock visit time in the workspace, including seasonal offsets.

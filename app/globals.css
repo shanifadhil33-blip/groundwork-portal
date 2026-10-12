@@ -531,3 +531,16 @@ body:has(.public-header) .primary:active:not(:disabled){background:color-mix(in 
 .menu-clear{color:var(--text-muted);border-bottom:1px solid var(--border);border-radius:var(--r-sm) var(--r-sm) 0 0;margin-bottom:var(--s1)}
 @media (prefers-reduced-motion:reduce){.dropdown-menu,.dialog{animation:none}}
 .signed-out-note{color:var(--text);font-size:var(--text-sm);padding:var(--s3) var(--s4);border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface-raised)}
+/* Simple screens: one big main action, big tappable tiles with a plain label. */
+.big-action{width:100%;min-height:52px;font-size:var(--text-md,17px);gap:var(--s2);justify-content:center}
+@media(min-width:900px){.big-action{width:auto;align-self:flex-start;padding:0 var(--s6)}}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3)}
+@media(min-width:900px){.tiles{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.tile{display:flex;flex-direction:column;gap:var(--s1);min-height:96px;padding:var(--s4);border:1px solid var(--border);border-radius:var(--r-md,14px);background:var(--surface);color:var(--text);text-decoration:none;transition:background-color .12s,transform .12s}
+.tile:active{transform:scale(.98)}.tile:hover{background:var(--surface-subtle)}
+.tile strong{font-size:32px;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile span{font-size:16px;font-weight:600}
+.tile-late strong{color:var(--danger,#b42318)}.tile-today strong{color:var(--primary)}
+.more-panel{border-top:1px solid var(--border);padding-top:var(--s3)}
+.more-panel>summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center;list-style:none}
+.more-panel>summary::before{content:"+";margin-right:var(--s2)}.more-panel[open]>summary::before{content:"\2212"}

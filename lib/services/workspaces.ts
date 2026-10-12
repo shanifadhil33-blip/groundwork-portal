@@ -1,5 +1,5 @@
 import { assertRealUser } from './demo';
-import { localDate, overdueSql } from '../dates';
+import { localDate, overdueSql, todaySql } from '../dates';
 import { z } from 'zod';
 import { an, currencyFor, isCountry, isCurrency, normalizeRegion, regionField } from '../countries/rules';
 import { withUser } from '../db';
@@ -59,13 +59,14 @@ export async function dashboard(user:string,ws:string) {
   const statuses=['open','scheduled','in_progress','waiting_on_parts','done','cancelled'];
   const counts=(await c.db.query(`SELECT ${statuses.map(s=>`count(*) FILTER (WHERE status='${s}')::int AS ${s}`).join(',')},
    count(*) FILTER (WHERE ${overdueSql})::int AS overdue,
+   count(*) FILTER (WHERE ${todaySql})::int AS today_jobs,
    (SELECT count(*)::int FROM import_rows WHERE workspace_id=$1 AND queued AND decision='pending') AS pending_queue_rows,
    (SELECT max(finished_at) FROM supplier_sync_runs WHERE workspace_id=$1) AS last_supplier_sync_at,
    (SELECT timezone FROM workspaces WHERE id=$1) AS timezone
    FROM work_orders WHERE workspace_id=$1`,[ws])).rows[0];
   const by_status=Object.fromEntries(statuses.map(s=>[s,counts[s]]));
-  const {timezone,overdue,pending_queue_rows,last_supplier_sync_at}=counts;
-  return {timezone,today:localDate(Date.now(),timezone),by_status,overdue,waiting_on_parts:by_status.waiting_on_parts,pending_queue_rows,last_supplier_sync_at};
+  const {timezone,overdue,today_jobs,pending_queue_rows,last_supplier_sync_at}=counts;
+  return {timezone,today:localDate(Date.now(),timezone),by_status,overdue,today_jobs,waiting_on_parts:by_status.waiting_on_parts,pending_queue_rows,last_supplier_sync_at};
  });
 }
 

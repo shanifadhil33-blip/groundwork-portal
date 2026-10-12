@@ -15,12 +15,12 @@ const uuid = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/g
 export function plainAssistantReply(value: string, client=false) {
   const links: string[] = [];
   let text = value.replace(/\]\(\/work-orders\/[0-9a-f-]{36}\)/gi, link => { links.push(link);return `LINKPLACEHOLDER${links.length-1}END`; });
-  text = text.replace(/\b(?:site|client|workspace|user|work order|row)\s+ID\s*[:=]?\s*/gi, '')
+  text = text.replace(/\b(?:site|client|workspace|user|job|row)\s+ID\s*[:=]?\s*/gi, '')
     .replace(uuid, 'the linked record').replace(/\b[0-9a-f]{32,64}\b/gi,'the linked record').replace(/\b[0-9a-f]{8}(?:-[0-9a-f]{0,4})?(?:…|\.{3})/gi,'the linked record')
     .replace(/\b(in_progress|waiting_on_parts|client_visible|internal_note|pending_approval|read_only|cancelled|scheduled|open|done|urgent|normal|high|low|admin|staff|client)\b/gi, word => statusLabels[word.toLowerCase()] ?? readableLabel(word.toLowerCase()))
     .replace(/\b(?:[a-z]+_)+(?:id|at|for|on)\b/g, word => readableLabel(word))
     .replace(/\b(?:list|get|update|create|add|approve|reject|set)_(?:[a-z]+_)*[a-z]+\b/g,'the workspace action')
-    .replace(/there (?:is|are) no available tool[s]? to (?:modify|change) priority/gi,"I can’t change priority here. Open the work order and use Edit.")
+    .replace(/there (?:is|are) no available tool[s]? to (?:modify|change) priority/gi,"I can’t change priority here. Open the job and use Edit.")
     .replace(/\btool(?:s)?\b/gi,'workspace action')
     .replace(/\b[a-z]+(?:_[a-z]+)+\b/gi, word=>readableLabel(word.toLowerCase()))
     .replace(/\b[0-9a-f]{8}\b/gi,'the linked record')

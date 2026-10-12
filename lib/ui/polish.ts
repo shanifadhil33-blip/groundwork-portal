@@ -4,13 +4,13 @@ export const plural = (count:number, singular:string, multiple=`${singular}s`) =
 export const readableLabel = (value:string) => statusLabels[value] ?? value.replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 export function demoEmail(value:string|null|undefined) { return value?.replace(/^([a-z]+)\.[0-9a-f-]+@demo\.groundwork\.invalid$/i,'$1@ridgeline.demo')??''; }
 export const supplierReference = (value:string) => value.replace(/^[0-9a-f-]+:/i,'');
-export const entityLabels:Record<string,string>={work_orders:'Work order',work_order_events:'Work order activity',comments:'Comment',clients:'Client',sites:'Site',members:'Team member',imports:'Import',import_rows:'Import row',supplier_orders:'Supplier order',supplier_events:'Supplier delivery update',api_tokens:'Agent key',tokens:'Agent key',supplier_sync_runs:'Supplier update',invites:'Invite',workspaces:'Workspace',notifications:'Notification'};
+export const entityLabels:Record<string,string>={work_orders:'Job',work_order_events:'Job activity',comments:'Comment',clients:'Client',sites:'Site',members:'Team member',imports:'Import',import_rows:'Import row',supplier_orders:'Supplier order',supplier_events:'Supplier delivery update',api_tokens:'Agent key',tokens:'Agent key',supplier_sync_runs:'Supplier update',invites:'Invite',workspaces:'Workspace',notifications:'Notification'};
 type Activity={actor?:{name?:string|null}|null;actor_name?:string|null;entity:string;action:string;before?:unknown;after?:unknown;work_order_title?:string|null;member_name?:string|null};
 function record(value:unknown):Record<string,unknown> { return value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{}; }
 export function activitySentence(item:Activity, timezone='Asia/Dubai') {
  const before=record(item.before),after=record(item.after),actor=item.actor?.name??item.actor_name??'System',title=item.work_order_title??after.title??before.title;
  const verb=item.action==='insert'?'created':item.action==='delete'?'deleted':'updated';
- const subject=item.entity==='work_orders'?String(title??'a work order'):item.entity==='comments'?`a comment${title?` on ${title}`:''}`:(entityLabels[item.entity]??'Record').toLowerCase();
+ const subject=item.entity==='work_orders'?String(title??'a job'):item.entity==='comments'?`a comment${title?` on ${title}`:''}`:(entityLabels[item.entity]??'Record').toLowerCase();
  if(item.entity==='members'){const name=item.member_name??after.name??before.name??'a team member',role=String(after.role??before.role??'member');return item.action==='insert'?`${actor} added ${name} as ${readableLabel(role)}`:item.action==='delete'?`${actor} removed ${name} from the team`:`${actor} changed ${name}’s role to ${readableLabel(role)}`;}
  if(item.entity==='api_tokens'||item.entity==='tokens')return `${actor} ${after.revoked_at&&!before.revoked_at?'revoked':after.last_used_at!==before.last_used_at&&after.last_used_at?'used':verb} agent key '${after.name??before.name??'Unnamed key'}'`;
  if(item.entity==='comments')return `${actor} ${verb} ${after.visibility==='internal'||before.visibility==='internal'?'an internal note':'a comment visible to the client'}${title?` on ${title}`:''}`;
@@ -30,7 +30,7 @@ export function activitySentence(item:Activity, timezone='Asia/Dubai') {
  }
  if(item.entity==='work_order_events') {
   const details=record(after.details),status=details.to_status??after.to_status;
-  const change=status?`moved ${title??'a work order'} to ${readableLabel(String(status))}`:after.kind==='schedule_changed'?(details.scheduled_for?`scheduled ${title??'a work order'} for ${formatDate(String(details.scheduled_for),timezone)}`:'cleared the visit schedule'):after.kind==='assignment_changed'?(details.assignee_name?`assigned ${details.assignee_name} to ${title??'a work order'}`:'cleared the assignment'):after.kind==='due_changed'?(details.due_on?`set the due date to ${formatDate(String(details.due_on),timezone)}`:'cleared the due date'):after.kind==='created'?`created ${title??'a work order'}`:`updated request details for ${title??'a work order'}`;
+  const change=status?`moved ${title??'a job'} to ${readableLabel(String(status))}`:after.kind==='schedule_changed'?(details.scheduled_for?`scheduled ${title??'a job'} for ${formatDate(String(details.scheduled_for),timezone)}`:'cleared the visit schedule'):after.kind==='assignment_changed'?(details.assignee_name?`assigned ${details.assignee_name} to ${title??'a job'}`:'cleared the assignment'):after.kind==='due_changed'?(details.due_on?`set the due date to ${formatDate(String(details.due_on),timezone)}`:'cleared the due date'):after.kind==='created'?`created ${title??'a job'}`:`updated request details for ${title??'a job'}`;
   return `${actor} ${change}`;
  }
  return `${actor} ${item.action==='insert'?'created':item.action==='delete'?'deleted':'updated'} ${subject}`;

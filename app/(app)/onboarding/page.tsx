@@ -58,7 +58,7 @@ export default function Onboarding() {
       </>}
       {step === 2 && <>
         <PageHeader><h1>What’s your company called?</h1></PageHeader>
-        <p>This is your company’s space for work orders and client collaboration. It starts empty, with only the data you add.</p>
+        <p>This is your company’s space for jobs and client collaboration. It starts empty, with only the data you add.</p>
         <div className="form-field"><label htmlFor="workspace-name">Company name</label>
           <input id="workspace-name" value={name} onChange={e => { setName(e.target.value); setNameError(''); }} maxLength={200} required autoComplete="organization" placeholder="Your company name" aria-invalid={!!nameError} aria-describedby={nameError ? 'workspace-name-error' : error ? 'workspace-error' : undefined} />
           {nameError && <p id="workspace-name-error" className="inline-error" role="alert">{nameError}</p>}

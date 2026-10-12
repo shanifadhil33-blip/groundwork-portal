@@ -22,7 +22,7 @@ describe('spreadsheet review presentation', () => {
   });
   it('limits staff to 25 while allowing admins to approve the full page', () => {
     expect(bulkLimitCopy('staff', 25)).toBeNull();
-    expect(bulkLimitCopy('staff', 26)).toBe('Staff can approve up to 25 rows at a time. Select 25 or fewer rows.');
+    expect(bulkLimitCopy('staff', 26)).toBe('You can add 25 at a time. Pick 25 or fewer.');
     expect(bulkLimitCopy('admin', 50)).toBeNull();
     expect(importError(new RequestError(403, 'secret'), 'bulk')).toBe(bulkLimitCopy('staff', 26));
   });
@@ -32,7 +32,7 @@ describe('spreadsheet review presentation', () => {
     expect(importError(new Error('secret'), 'approve')).not.toContain('secret');
     expect(issueCopy({ field: 'site', code: 'unknown_site', message: 'secret' })).toBe('Choose a known site and its matching client.');
     expect(issueCopy({ field: 'title', code: 'duplicate_file', message: 'Duplicate of row 4' })).toBe('Duplicate of row 4.');
-    expect(issueCopy({ field: 'title', code: 'duplicate_open', message: 'server detail' })).toBe('A matching work order is already open.');
+    expect(issueCopy({ field: 'title', code: 'duplicate_open', message: 'server detail' })).toBe('A matching job is already open.');
     expect(issueCopy({ field: 'title', code: 'unexpected', message: 'secret' })).not.toContain('secret');
   });
   it('maps server validation keys to safe labeled field errors', () => {

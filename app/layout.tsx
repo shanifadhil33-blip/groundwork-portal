@@ -7,6 +7,6 @@ import { RequestRecovery } from '../components/ui/request-recovery';
 import { sessionHintScript, themeScript } from '../lib/head-scripts';
 import './globals.css';
 const geist = Geist({ subsets: ['latin'], variable: '--font-ui', display: 'swap' });
-export const metadata: Metadata = { title: { default: 'Groundwork: client portal and back office', template: '%s · Groundwork' }, description: 'A client portal and back office for service companies. Work orders, private client views, spreadsheet approval, supplier sync, and AI agent access through MCP.' };
+export const metadata: Metadata = { title: { default: 'Groundwork: client portal and back office', template: '%s · Groundwork' }, description: 'A client portal and back office for service companies. Jobs, private client views, spreadsheet approval, supplier sync, and AI agent access through MCP.' };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };
 export default function Layout({ children }: { children: ReactNode }) { return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript + ';' + sessionHintScript }} /></head><body className={geist.variable}><ThemeProvider><ToastProvider><RequestRecovery />{children}</ToastProvider></ThemeProvider></body></html>; }

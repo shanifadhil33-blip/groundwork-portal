@@ -22,7 +22,7 @@ it('groups recent update badges and time below the request title',()=>{
 });
 it('uses short linked attention stats at every viewport',()=>{
  const html=render(<Dashboard/>,'admin');
- expect(html).toContain('13 overdue</a>');expect(html).toContain('3 waiting on parts</a>');expect(html).toContain('2 awaiting approval</a>');expect(html).toContain('/work-orders?overdue=true');expect(html).not.toContain('across open statuses');
+ expect(html).toContain('<strong>13</strong><span>Late</span>');expect(html).toContain('<span>Jobs today</span>');expect(html).toContain('<strong>2</strong><span>New requests</span>');expect(html).toContain('/work-orders?overdue=true');expect(html).not.toContain('across open statuses');
 });
 it('defines pure canvases and prevents badge stretching in flex columns',()=>{
  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');

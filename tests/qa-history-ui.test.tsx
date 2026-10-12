@@ -54,7 +54,7 @@ describe('history and local formatting',()=>{
   const html=renderToStaticMarkup(<Audit/>);expect(html).toContain('No entries match these filters');expect(html).toContain('Oct 11, 2026');expect(html).toContain('Clear filters');expect(mocks.resource.mock.calls[0][0]).toContain('from=2026-10-10T20%3A00%3A00.000Z');
  });
  it('gives real accounts the supplier connection state and session-aware public navigation',()=>{
-  mocks.resource.mockReturnValue({loading:false,error:false,data:null});const html=renderToStaticMarkup(<Supplier/>);expect(html).toContain('Connect a supplier');expect(html).not.toContain('Cobalt');expect(html).not.toContain('Repair all');expect(mocks.resource.mock.calls.every(([url])=>url===null)).toBe(true);
+  mocks.resource.mockReturnValue({loading:false,error:false,data:null});const html=renderToStaticMarkup(<Supplier/>);expect(html).toContain('Connect your parts shop');expect(html).not.toContain('Cobalt');expect(html).not.toContain('Repair all');expect(mocks.resource.mock.calls.every(([url])=>url===null)).toBe(true);
   const header=renderToStaticMarkup(<PublicHeader signedIn/>);expect(header).toContain('Go to dashboard');expect(header).not.toContain('>Sign in<');expect(header).not.toContain('Try the demo');
  });
 });

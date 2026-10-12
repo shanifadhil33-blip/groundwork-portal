@@ -1,6 +1,6 @@
 import { publicClient } from './clients';
 import { z } from 'zod';
-import { overdueSql, isOverdue, localDate } from '../dates';
+import { overdueSql, todaySql, isOverdue, localDate } from '../dates';
 import { ApiError, invalid, missing } from '../http';
 import { parseListQuery } from '../pagination';
 import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, update, uuid } from './shared';
@@ -31,6 +31,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   if(query.client_id)add('client_id=?',query.client_id);
   if(query.assignee_id==='unassigned')clauses.push('assignee_id IS NULL');else if(query.assignee_id)add('assignee_id=?',query.assignee_id);
   if(query.overdue)clauses.push('('+overdueSql+')');
+  if(query.today)clauses.push('('+todaySql+')');
   const where=clauses.join(' AND ');
   const signature=hash(JSON.stringify({user,ws,...query,cursor:undefined,page:undefined}));
   let offset=(query.page-1)*query.pageSize;

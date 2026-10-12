@@ -24,7 +24,7 @@ async function propose(name:string,args:object,text='Change the work order'){sta
 it('removes complete/truncated IDs and raw words, while retaining safe work-order destinations',()=>{
  const result=plainAssistantReply(`site ID e4ca7ce3…: in_progress; waiting_on_parts; list_sites. [WO-58](/work-orders/${state.order.id}) ${state.order.id}`);
  expect(result).not.toMatch(/site ID|e4ca7ce3|in_progress|waiting_on_parts|list_sites/);expect(result).toContain('In Progress');expect(result).toContain('Waiting on Parts');expect(result).toContain(`](/work-orders/${state.order.id})`);expect(result.split(`](/work-orders/${state.order.id})`)[1]).not.toContain(state.order.id);
- expect(plainAssistantReply('there is no available tool to modify priority')).toContain('Open the work order and use Edit');
+ expect(plainAssistantReply('there is no available tool to modify priority')).toContain('Open the job and use Edit');
 });
 it('returns the complete internal comment confirmation and makes no write before the tap',async()=>{
  const body='Technician checked alignment.\nReplace the damaged reader bracket and test three badges.';

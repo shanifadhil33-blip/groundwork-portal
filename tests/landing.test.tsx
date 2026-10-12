@@ -50,7 +50,7 @@ describe('static hero variants', () => {
     expect(html.match(/class="lx-seq-poster"/g)).toHaveLength(1);
     expect(html.match(/class="lx-seq-canvas"/g)).toHaveLength(1);
     expect(html).not.toMatch(/lx-building|lx-floor|<svg[^>]*viewBox="90 70/);
-    const copy = ['Run every work order', 'A request becomes a plan.', 'Requests come in', 'Your team schedules and works them', 'Clients see progress', 'Your AI agents can work here too.', 'Every job,', 'Privacy'];
+    const copy = ['Run every job', 'A request becomes a plan.', 'Requests come in', 'Your team schedules and works them', 'Clients see progress', 'Your AI agents can work here too.', 'Every job,', 'Privacy'];
     const positions = copy.map(text => html.indexOf(text));
     expect(positions.every(index => index >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((a, b) => a - b));

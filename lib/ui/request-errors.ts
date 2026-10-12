@@ -1,5 +1,5 @@
 export function requestErrorCopy(status: number) {
-  if (status === 0) return 'We couldn’t connect. Check your connection and try again.';
+  if (status === 0) return typeof navigator !== 'undefined' && navigator.onLine === false ? 'You are offline. Please check your internet.' : 'We couldn’t reach Groundwork. Please try again.';
   if (status === 403) return 'You don’t have access to this action. Ask your workspace admin for help.';
   if (status === 429) return 'Please wait a little before trying again. You can also sign in to your workspace.';
   return 'We couldn’t complete that. Please try again.';

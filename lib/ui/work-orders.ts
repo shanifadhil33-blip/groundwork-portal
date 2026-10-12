@@ -46,7 +46,7 @@ export function clientEvent(event:Detail['timeline'][number],timezone=workspaceT
 export function staffEvent(event:Detail['timeline'][number],timezone=workspaceTimezone) {
  const title=event.work_order_title,status=event.details?.to_status??event.to_status;
  if(status)return title?`moved ${title}${event.details?.from_status?` from ${statusLabels[event.details.from_status]??label(event.details.from_status)}`:''} to ${statusLabels[status]??label(status)}`:`moved to ${statusLabels[status]??label(status)}`;
- if(event.kind==='created')return title?`created ${title}`:'created the work order';
+ if(event.kind==='created')return title?`created ${title}`:'created the job';
  if(event.kind==='schedule_changed')return (event.details?.scheduled_for?`scheduled${title?` ${title}`:''} for ${formatDate(event.details.scheduled_for,timezone)}`:`cleared the visit schedule${title?` on ${title}`:''}`);
  if(event.kind==='assignment_changed')return (event.details?.assignee_name?`assigned ${event.details.assignee_name}${title?` to ${title}`:''}`:`cleared the assignment${title?` on ${title}`:''}`);
  return clientEvent(event,timezone).replace(/^./,s=>s.toLowerCase())+(title?` on ${title}`:'');
