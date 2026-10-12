@@ -15,8 +15,8 @@ import { getWorkOrder } from '../lib/services/work-orders';
 import { orderId } from '../scripts/seed';
 import type { RouteContext } from '../lib/api';
 type Handler=(req:Request,ctx?:RouteContext)=>Promise<Response>;
-let user:string|null=ids.dana;
-beforeEach(()=>{user=ids.dana;setAuthResolverForTests(async()=>user);});
+let user:string|null=ids.imran;
+beforeEach(()=>{user=ids.imran;setAuthResolverForTests(async()=>user);});
 afterAll(async()=>{setAuthResolverForTests();await closePools();});
 async function call(handler:Handler,method='GET',body?:unknown,params:Record<string,string>={}) {
  const req=new Request('http://localhost/api',{method,headers:{'Content-Type':'application/json',...(method==='POST'?{'Idempotency-Key':crypto.randomUUID()}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});
@@ -67,11 +67,11 @@ describe('client records', () => {
  it('staff read client details but cannot change them; client users cannot list clients; other workspaces stay hidden', async () => {
   user=ids.sam;
   const list=await call(clientsRoute.GET);expect(list.status).toBe(200);
-  expect(list.body.find((c:any)=>c.id===ids.harbor)).toMatchObject({contact_name:'Priya Menon',phone:'+971505550142',billing_region:'Dubai'});
+  expect(list.body.find((c:any)=>c.id===ids.harbor)).toMatchObject({contact_name:'Pranav Menon',phone:'+971505550142',billing_region:'Dubai'});
   expect((await call(clientsRoute.POST,'POST',full)).status).toBe(403);
   expect((await call(clientRoute.PATCH,'PATCH',{phone:'+971505550000'},{id:ids.harbor})).status).toBe(403);
-  user=ids.priya;expect((await call(clientsRoute.GET)).status).toBe(403);
-  user=ids.dana;expect((await call(clientRoute.PATCH,'PATCH',{phone:'+971505550000'},{id:ids.summitClient})).status).toBe(404);
+  user=ids.pranav;expect((await call(clientsRoute.GET)).status).toBe(403);
+  user=ids.imran;expect((await call(clientRoute.PATCH,'PATCH',{phone:'+971505550000'},{id:ids.summitClient})).status).toBe(404);
  });
 });
 
@@ -85,16 +85,16 @@ describe('site records', () => {
   const bare=await call(sitesRoute.POST,'POST',{name:'Name only site'},{id:ids.harbor});expect(bare.status).toBe(201);expect(bare.body.address).toBe('');
   expect((await call(sitesRoute.POST,'POST',{address:'No name'},{id:ids.harbor})).status).toBe(422);
   await call(siteRoute.DELETE,'DELETE',undefined,{id:bare.body.id});
-  user=ids.priya;const visible=await call(requestSitesRoute.GET);expect(visible.status).toBe(200);
+  user=ids.pranav;const visible=await call(requestSitesRoute.GET);expect(visible.status).toBe(200);
   const seeded=visible.body.find((s:any)=>s.id===siteId(1));expect(seeded).toMatchObject({building:'Marina Exchange, Tower B',area:'Dubai Marina'});
   expect(seeded).not.toHaveProperty('access_notes');expect(seeded).not.toHaveProperty('contact_phone');
-  user=ids.dana;await call(siteRoute.DELETE,'DELETE',undefined,{id:created.body.id});
+  user=ids.imran;await call(siteRoute.DELETE,'DELETE',undefined,{id:created.body.id});
  });
 });
 
 describe('work order detail', () => {
  it('client users never get access notes, the site contact or internal client fields through a work order', async () => {
-  const own=await getWorkOrder(ids.priya,ids.ridgeline,orderId(1));
+  const own=await getWorkOrder(ids.pranav,ids.ridgeline,orderId(1));
   expect(own.site.name).toBeTruthy();expect(own.site).toHaveProperty('building');
   for (const key of ['access_notes','contact_name','contact_phone']) expect(own.site).not.toHaveProperty(key);
   for (const key of ['notes','tax_id','phone','billing_region','country','trn','billing_emirate']) expect(own.client).not.toHaveProperty(key);
@@ -105,14 +105,14 @@ describe('work order detail', () => {
 
 describe('agent and assistant tools', () => {
  it('admins create and update clients through MCP; staff are refused; client tokens list sites without access notes', async () => {
-  const admin=await createToken(ids.dana,ids.ridgeline,{name:'Records',scope:'write'});
+  const admin=await createToken(ids.imran,ids.ridgeline,{name:'Records',scope:'write'});
   const made=await tool(admin.token,'create_client',{name:'Tool made client',phone:'+971 50 555 0190',billing_region:'Ajman'});
   expect(made.isError).toBeUndefined();expect(made.structuredContent.result).toMatchObject({phone:'+971505550190',billing_region:'Ajman'});
   const updated=await tool(admin.token,'update_client',{id:made.structuredContent.result.id,notes:'Tool note'});
   expect(updated.structuredContent.result).toMatchObject({notes:'Tool note',phone:'+971505550190'});
   const staff=await createToken(ids.sam,ids.ridgeline,{name:'Records staff',scope:'write'});
   expect((await tool(staff.token,'create_client',{name:'Staff try'})).isError).toBe(true);
-  const client=await createToken(ids.priya,ids.ridgeline,{name:'Records client',scope:'read'});
+  const client=await createToken(ids.pranav,ids.ridgeline,{name:'Records client',scope:'read'});
   const sites=(await tool(client.token,'list_sites')).structuredContent.result;
   expect(sites.length).toBeGreaterThan(0);expect(sites[0]).not.toHaveProperty('access_notes');expect(sites[0]).toHaveProperty('building');
   await call(clientRoute.DELETE,'DELETE',undefined,{id:made.structuredContent.result.id});

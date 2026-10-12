@@ -40,7 +40,7 @@ describe('sign-in and linking guards', () => {
   });
   it('rejects demo flags and demo email identities', () => {
     expect(maySignIn({isDemo:true,email:'real@example.com',provider:'google',emailVerified:true})).toBe(false);
-    expect(maySignIn({email:'Dana@DEMO.GROUNDWORK.INVALID',provider:'google',emailVerified:true})).toBe(false);
+    expect(maySignIn({email:'Imran@DEMO.GROUNDWORK.INVALID',provider:'google',emailVerified:true})).toBe(false);
   });
   it('refuses demo account linking before calling the adapter', async () => {
     const linkAccount=vi.fn(async (account:AdapterAccount)=>account), getSessionAndUser=vi.fn();

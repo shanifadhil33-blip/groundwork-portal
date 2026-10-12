@@ -19,7 +19,7 @@ const state=vi.hoisted(()=>({resources:{} as Record<string,unknown>}));
 vi.mock('next/navigation',()=>({useRouter:()=>({push:()=>{},replace:()=>{}})}));
 vi.mock('../components/app/resource',()=>({useResource:(url:string|null)=>({data:url?state.resources[url]??null:null,loading:false,error:null,reload:()=>{},setData:()=>{}})}));
 const base='/api/workspaces/workspace',member:Membership={workspace_id:'workspace',workspace_name:'Ridgeline',role:'admin',client_id:null,client_name:null};
-function render(element:React.ReactNode,role:Membership['role']='admin') {return renderToStaticMarkup(<AppContext.Provider value={{member:{...member,role},workspace:{id:'workspace',name:'Ridgeline',is_demo:false,timezone:'Asia/Dubai',country:'AE',region:null,currency:'AED'},me:{user:{id:'user',name:'Dana',email:'dana@example.test',image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}>{element}</AppContext.Provider>);}
+function render(element:React.ReactNode,role:Membership['role']='admin') {return renderToStaticMarkup(<AppContext.Provider value={{member:{...member,role},workspace:{id:'workspace',name:'Ridgeline',is_demo:false,timezone:'Asia/Dubai',country:'AE',region:null,currency:'AED'},me:{user:{id:'user',name:'Imran',email:'imran@example.test',image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}>{element}</AppContext.Provider>);}
 it('offers searchable IANA options with workspace fallback only for personal preferences',()=>{
  const options=timezoneOptions('Asia/Dubai');expect(options.length).toBeGreaterThan(300);expect(options).toContainEqual({value:'Asia/Dubai',label:'Asia/Dubai'});expect(options).toContainEqual({value:'UTC',label:'UTC'});expect(timezoneOptions('',true)[0]).toEqual({value:'',label:'Use workspace timezone'});
  for(const {value} of options)expect(()=>new Intl.DateTimeFormat('en',{timeZone:value})).not.toThrow();
@@ -32,12 +32,12 @@ it('renders clients without team management and names each site edit button',()=
 it('renders one invite creation button, labeled role, title-case invite states and a focus action',()=>{
  state.resources={[base+'/invites']:[],[base+'/clients']:[]};
  const empty=render(<SettingsInvites base={base} demo={false}/>);expect(empty.match(/>Create invite</g)).toHaveLength(1);expect(empty).toContain('Enter an email');expect(empty).toContain('for="invite-role">Role');expect(empty).toContain('Staff');expect(empty).toContain('It expires in 7 days.');expect(empty).not.toContain('No email');
- state.resources[base+'/invites']=[{id:'invite',email:'priya@example.test',role:'client',status:'revoked',expires_at:'2026-10-15T00:00:00Z',client_id:'harbor'}];
+ state.resources[base+'/invites']=[{id:'invite',email:'pranav@example.test',role:'client',status:'revoked',expires_at:'2026-10-15T00:00:00Z',client_id:'harbor'}];
  const revoked=render(<SettingsInvites base={base} demo={false}/>);expect(revoked).toContain('Client');expect(revoked).toContain('Revoked');expect(revoked).not.toContain('>Revoke</');expect(revoked).not.toContain('Copy invite');
 });
 it('shows a disabled last-admin removal control with its reason and labeled role',()=>{
- state.resources={[base+'/members']:[{user_id:'dana',name:'Dana',role:'admin',email:'dana@example.test',client_id:null}],[base+'/clients']:[]};
- const html=render(<Team base={base}/>);expect(html).toContain('Keep at least one workspace admin.');expect(html).toMatch(/button[^>]*disabled=""[^>]*class="button secondary[^>]*>[\s\S]*?Remove member/);expect(html).toContain('for="member-role-dana"');expect(html).toContain('Admin');
+ state.resources={[base+'/members']:[{user_id:'imran',name:'Imran',role:'admin',email:'imran@example.test',client_id:null}],[base+'/clients']:[]};
+ const html=render(<Team base={base}/>);expect(html).toContain('Keep at least one workspace admin.');expect(html).toMatch(/button[^>]*disabled=""[^>]*class="button secondary[^>]*>[\s\S]*?Remove member/);expect(html).toContain('for="member-role-imran"');expect(html).toContain('Admin');
 });
 it('shows revocation date instead of key expiry',()=>{
  state.resources={[base+'/tokens?all=true']:[{id:'key',name:'Read key',scope:'read',created_at:'2026-10-01T00:00:00Z',last_used_at:null,expires_at:'2026-10-31T00:00:00Z',revoked_at:'2026-10-11T00:00:00Z'}]};

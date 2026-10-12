@@ -22,8 +22,8 @@ import * as commentsRoute from '../../app/api/workspaces/[ws]/work-orders/[id]/c
 import type { RouteContext } from '../../lib/api';
 import { hash } from '../../lib/services/shared';
 type Handler=(req:Request,ctx?:RouteContext)=>Promise<Response>;
-let user:string|null=ids.dana;
-beforeEach(()=>{user=ids.dana;setAuthResolverForTests(async()=>user);});
+let user:string|null=ids.imran;
+beforeEach(()=>{user=ids.imran;setAuthResolverForTests(async()=>user);});
 afterAll(async()=>{setAuthResolverForTests();await closePools();});
 async function call(handler:Handler,method='GET',body?:unknown,params:Record<string,string>={},query='',headers:Record<string,string>={}) {
  const req=new Request('http://localhost/api'+query,{method,headers:{'Content-Type':'application/json',...headers},...(body===undefined?{}:{body:JSON.stringify(body)})});
@@ -47,16 +47,16 @@ describe('core API tenancy and auth',()=>{
   const r=await call(meRoute.GET);expect(r.status).toBe(401);expect(r.body.error.code).toBe('unauthenticated');
  });
  it('me includes own membership, workspace and client names',async()=>{
-  user=ids.priya;const r=await call(meRoute.GET);
-  expect(r.status).toBe(200);expect(r.body.user.id).toBe(ids.priya);
+  user=ids.pranav;const r=await call(meRoute.GET);
+  expect(r.status).toBe(200);expect(r.body.user.id).toBe(ids.pranav);
   expect(r.body.memberships).toEqual([expect.objectContaining({role:'client',workspace_name:'Ridgeline Facility Services',client_name:'Harbor & Pine Coworking'})]);
  });
- it('Priya gets neutral 404 for a Northgate work order',async()=>{
-  user=ids.priya;const r=await call(orderRoute.GET,'GET',undefined,{id:orderId(4)});
+ it('Pranav gets neutral 404 for a Northgate work order',async()=>{
+  user=ids.pranav;const r=await call(orderRoute.GET,'GET',undefined,{id:orderId(4)});
   expect(r.status).toBe(404);expect(r.body.error.message).toBe("We couldn't find that, or you don't have access.");
  });
- it('Priya lists only Harbor & Pine and cannot see internal detail comments',async()=>{
-  user=ids.priya;
+ it('Pranav lists only Harbor & Pine and cannot see internal detail comments',async()=>{
+  user=ids.pranav;
   const list=await call(ordersRoute.GET,'GET',undefined,{},'?pageSize=100');
   expect(list.status).toBe(200);expect(list.body.total).toBe(36);
   expect(list.body.data.every((o:{client_id:string})=>o.client_id===ids.harbor)).toBe(true);
@@ -65,8 +65,8 @@ describe('core API tenancy and auth',()=>{
   expect(detail.body.comments.every((c:{visibility:string})=>c.visibility==='client')).toBe(true);
   expect(detail.body.site.name).toBe('Marina Exchange');expect(detail.body.timeline.length).toBeGreaterThan(0);
  });
- it('Priya gets 403 patching her own work order, 404 for hidden orders',async()=>{
-  user=ids.priya;
+ it('Pranav gets 403 patching his own work order, 404 for hidden orders',async()=>{
+  user=ids.pranav;
   expect((await call(orderRoute.PATCH,'PATCH',{status:'done'},{id:orderId(1)})).status).toBe(403);
   expect((await call(orderRoute.PATCH,'PATCH',{status:'done'},{id:orderId(4)})).status).toBe(404);
  });
@@ -76,7 +76,7 @@ describe('core API tenancy and auth',()=>{
   expect((await call(clientsRoute.GET)).status).toBe(200);
  });
  it('client creation forces own company and source and rejects controlled fields',async()=>{
-  user=ids.priya;
+  user=ids.pranav;
   const r=await call(ordersRoute.POST,'POST',{title:'Client request',site_id:siteId(1)});
   expect(r.status).toBe(201);expect(r.body).toMatchObject({client_id:ids.harbor,source:'client',status:'open',assignee_id:null,scheduled_for:null});
   for(const field of [{status:'done'},{assignee_id:ids.sam},{scheduled_for:new Date().toISOString()}])expect((await call(ordersRoute.POST,'POST',{title:'Denied',site_id:siteId(1),...field})).status).toBe(422);
@@ -84,23 +84,23 @@ describe('core API tenancy and auth',()=>{
   expect((await call(ordersRoute.POST,'POST',{title:'Other company',site_id:siteId(1),client_id:ids.northgate})).status).toBe(422);
  });
  it('clients can post only client-visible comments',async()=>{
-  user=ids.priya;
+  user=ids.pranav;
   expect((await call(commentsRoute.POST,'POST',{body:'New client comment',visibility:'client'},{id:orderId(1)})).status).toBe(201);
   expect((await call(commentsRoute.POST,'POST',{body:'Secret',visibility:'internal'},{id:orderId(1)})).status).toBe(422);
   expect((await call(commentsRoute.POST,'POST',{body:'Wrong client',visibility:'client'},{id:orderId(4)})).status).toBe(404);
  });
  it('dashboard aggregates only visible orders and hides internal queue/supplier data',async()=>{
-  user=ids.priya;
+  user=ids.pranav;
   const r=await call(dashboardRoute.GET);expect(r.status).toBe(200);
-  const own=await withUser(ids.priya,async db=>(await db.query('SELECT status,count(*)::int AS n FROM work_orders WHERE workspace_id=$1 GROUP BY status',[ids.ridgeline])).rows);
+  const own=await withUser(ids.pranav,async db=>(await db.query('SELECT status,count(*)::int AS n FROM work_orders WHERE workspace_id=$1 GROUP BY status',[ids.ridgeline])).rows);
   for(const group of own)expect(r.body.by_status[group.status]).toBe(group.n);
   expect(r.body.pending_queue_rows).toBe(0);expect(r.body.last_supplier_sync_at).toBeNull();
-  const overdue=await withUser(ids.priya,async db=>(await db.query("SELECT count(*)::int AS n FROM work_orders WHERE workspace_id=$1 AND due_on<(now() AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=work_orders.workspace_id))::date AND status NOT IN ('done','cancelled')",[ids.ridgeline])).rows[0].n);
+  const overdue=await withUser(ids.pranav,async db=>(await db.query("SELECT count(*)::int AS n FROM work_orders WHERE workspace_id=$1 AND due_on<(now() AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=work_orders.workspace_id))::date AND status NOT IN ('done','cancelled')",[ids.ridgeline])).rows[0].n);
   expect(r.body.overdue).toBe(overdue);
  });
 });
 describe('management API',()=>{
- it('Dana creates, reads, patches and deletes clients/sites',async()=>{
+ it('Imran creates, reads, patches and deletes clients/sites',async()=>{
   const created=await call(clientsRoute.POST,'POST',{name:'API CRUD company'});expect(created.status).toBe(201);
   const id=created.body.id;
   expect((await call(clientRoute.GET,'GET',undefined,{id})).body.name).toBe('API CRUD company');
@@ -128,8 +128,8 @@ describe('management API',()=>{
   expect((await call(workspaceRoute.DELETE,'DELETE',{confirm_name:'Ridgeline Facility Services'})).status).toBe(403);
  });
  it('protects last admin from deletion and demotion; staff can read members',async()=>{
-  expect((await call(memberRoute.DELETE,'DELETE',undefined,{userId:ids.dana})).status).toBe(409);
-  expect((await call(memberRoute.PATCH,'PATCH',{role:'staff',client_id:null},{userId:ids.dana})).status).toBe(409);
+  expect((await call(memberRoute.DELETE,'DELETE',undefined,{userId:ids.imran})).status).toBe(409);
+  expect((await call(memberRoute.PATCH,'PATCH',{role:'staff',client_id:null},{userId:ids.imran})).status).toBe(409);
   user=ids.sam;expect((await call(membersRoute.GET)).status).toBe(200);
   expect((await call(memberRoute.PATCH,'PATCH',{role:'admin'},{userId:ids.sam})).status).toBe(403);
  });
@@ -150,9 +150,9 @@ describe('invite capabilities',()=>{
   const created=await invite('invitee@example.test','invite-replay');
   const replayed=await invite('invitee@example.test','invite-replay');
   expect(replayed.token).toBe(created.token);expect(replayed.id).toBe(created.id);
-  const stored=await withUser(ids.dana,async db=>(await db.query('SELECT token_hash FROM invites WHERE id=$1',[created.id])).rows[0]);
+  const stored=await withUser(ids.imran,async db=>(await db.query('SELECT token_hash FROM invites WHERE id=$1',[created.id])).rows[0]);
   expect(stored.token_hash).toBe(hash(created.token));
-  const keys=await withUser(ids.dana,async db=>(await db.query('SELECT result::text FROM idempotency_keys WHERE key=$1',['invite-replay'])).rows);
+  const keys=await withUser(ids.imran,async db=>(await db.query('SELECT result::text FROM idempotency_keys WHERE key=$1',['invite-replay'])).rows);
   expect(keys[0].result).not.toContain(created.token);expect(created.token_hash).toBeUndefined();
   user=recipient;
   expect((await call(meRoute.GET)).body.memberships).toHaveLength(0);
@@ -160,7 +160,7 @@ describe('invite capabilities',()=>{
   expect(accepted.status).toBe(200);expect(accepted.body.status).toBe('accepted');
   expect((await call(acceptRoute.POST,'POST',{token:created.token})).body).toEqual(accepted.body);
   expect((await call(meRoute.GET)).body.memberships).toContainEqual(expect.objectContaining({role:'client',client_id:ids.harbor}));
-  user=ids.dana;
+  user=ids.imran;
   const listed=await call(invitesRoute.GET);expect(listed.body.find((i:{id:string})=>i.id===created.id).status).toBe('accepted');
   expect(JSON.stringify(listed.body)).not.toContain(created.token);
   expect((await call(revokeRoute.POST,'POST',undefined,{id:created.id})).status).toBe(409);
@@ -169,10 +169,10 @@ describe('invite capabilities',()=>{
   const recipient=await newUser('expired-recipient@example.test');
   const expired=await invite('expired-recipient@example.test');
   user=ids.sam;expect((await call(acceptRoute.POST,'POST',{token:expired.token})).status).toBe(404);
-  user=ids.dana;
-  await withUser(ids.dana,db=>db.query("UPDATE invites SET expires_at=now()-interval '1 second' WHERE id=$1",[expired.id]));
+  user=ids.imran;
+  await withUser(ids.imran,db=>db.query("UPDATE invites SET expires_at=now()-interval '1 second' WHERE id=$1",[expired.id]));
   user=recipient;expect((await call(acceptRoute.POST,'POST',{token:expired.token})).status).toBe(409);
-  user=ids.dana;
+  user=ids.imran;
   expect((await call(invitesRoute.GET)).body.find((i:{id:string})=>i.id===expired.id).status).toBe('expired');
   const revoked=await invite('expired-recipient@example.test');
   expect((await call(revokeRoute.POST,'POST',undefined,{id:revoked.id})).body.status).toBe('revoked');
@@ -194,7 +194,7 @@ describe('work order consistency and listing',()=>{
   expect((await call(orderRoute.PATCH,'PATCH',{title:'Stale',updated_at:order.updated_at},{id:order.id})).status).toBe(409);
   const detail=await call(orderRoute.GET,'GET',undefined,{id:order.id});
   expect(detail.body.timeline.filter((e:{kind:string})=>e.kind==='status_changed')).toHaveLength(1);
-  const notifications=await withUser(ids.dana,async db=>(await db.query('SELECT kind FROM notifications WHERE entity_id=$1',[order.id])).rows);
+  const notifications=await withUser(ids.imran,async db=>(await db.query('SELECT kind FROM notifications WHERE entity_id=$1',[order.id])).rows);
   expect(notifications).toEqual([]);
   const staffNotifications=await withUser(ids.sam,async db=>(await db.query('SELECT kind FROM notifications WHERE entity_id=$1',[order.id])).rows);
   expect(staffNotifications).toEqual([{kind:'status_changed'}]);
@@ -204,7 +204,7 @@ describe('work order consistency and listing',()=>{
   const order=await newOrder('Validation');
   const invalid=await call(orderRoute.PATCH,'PATCH',{status:'done',updated_at:order.updated_at},{id:order.id});
   expect(invalid.status).toBe(422);expect(invalid.body.error.fields.status).toBeDefined();
-  for(const assignee_id of [ids.priya,ids.summitAdmin])expect((await call(orderRoute.PATCH,'PATCH',{assignee_id,updated_at:order.updated_at},{id:order.id})).status).toBe(422);
+  for(const assignee_id of [ids.pranav,ids.summitAdmin])expect((await call(orderRoute.PATCH,'PATCH',{assignee_id,updated_at:order.updated_at},{id:order.id})).status).toBe(422);
   expect((await call(orderRoute.PATCH,'PATCH',{title:'No version'},{id:order.id})).status).toBe(422);
  });
  it('idempotency returns original create result and prevents body/key collisions',async()=>{
@@ -258,21 +258,21 @@ describe('work order consistency and listing',()=>{
 });
 describe('transaction and lifecycle edge cases',()=>{
  it('follows the full workflow, notifies the client requester, and keeps terminal states closed',async()=>{
-  user=ids.priya;
+  user=ids.pranav;
   const created=await call(ordersRoute.POST,'POST',{title:'Client lifecycle',site_id:siteId(2)});
   expect(created.status).toBe(201);
-  user=ids.dana;
+  user=ids.imran;
   let current=created.body;
   for(const status of ['scheduled','in_progress','waiting_on_parts','in_progress','done']) {
    const changed=await call(orderRoute.PATCH,'PATCH',{status,assignee_id:ids.sam,updated_at:current.updated_at},{id:current.id});
    expect(changed.status).toBe(200);expect(new Date(changed.body.updated_at).getTime()).toBeGreaterThan(new Date(current.updated_at).getTime());current=changed.body;
   }
   expect((await call(orderRoute.PATCH,'PATCH',{status:'open',updated_at:current.updated_at},{id:current.id})).status).toBe(422);
-  user=ids.priya;
+  user=ids.pranav;
   const detail=await call(orderRoute.GET,'GET',undefined,{id:current.id});
   expect(detail.body.assignee).toEqual({id:ids.sam,name:'Sam',image:null});
   expect(detail.body.timeline.filter((e:{kind:string})=>e.kind==='status_changed')).toHaveLength(5);
-  const notifications=await withUser(ids.priya,async db=>(await db.query('SELECT * FROM notifications WHERE entity_id=$1',[current.id])).rows);
+  const notifications=await withUser(ids.pranav,async db=>(await db.query('SELECT * FROM notifications WHERE entity_id=$1',[current.id])).rows);
   expect(notifications).toHaveLength(5);
  });
  it('deletes a populated workspace atomically and preserves audit history',async()=>{
@@ -285,21 +285,21 @@ describe('transaction and lifecycle edge cases',()=>{
   await withSystem(async db=>{
    await db.query("INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,'TEST-DELETE')",[ws,order.body.id]);
    await db.query("INSERT INTO supplier_events(workspace_id,cobalt_ref,event_id,status,received_via) VALUES($1,'TEST-DELETE','DELETE-EVENT','shipped','webhook')",[ws]);
-   const imp=(await db.query("INSERT INTO imports(workspace_id,filename,row_count,created_by) VALUES($1,'test.csv',1,$2) RETURNING id",[ws,ids.dana])).rows[0];
+   const imp=(await db.query("INSERT INTO imports(workspace_id,filename,row_count,created_by) VALUES($1,'test.csv',1,$2) RETURNING id",[ws,ids.imran])).rows[0];
    await db.query("INSERT INTO import_rows(workspace_id,import_id,row_number,data,work_order_id,queued) VALUES($1,$2,1,'{}',$3,true)",[ws,imp.id,order.body.id]);
   });
   const dashboard=await call(dashboardRoute.GET,'GET',undefined,{ws});
   expect(dashboard.body.pending_queue_rows).toBe(1);expect(dashboard.body.last_supplier_sync_at).toBeNull();
-  expect((await call(orderRoute.PATCH,'PATCH',{status:'scheduled',assignee_id:ids.dana,updated_at:order.body.updated_at},{ws,id:order.body.id})).status).toBe(200);
+  expect((await call(orderRoute.PATCH,'PATCH',{status:'scheduled',assignee_id:ids.imran,updated_at:order.body.updated_at},{ws,id:order.body.id})).status).toBe(200);
   expect((await call(workspaceRoute.DELETE,'DELETE',{confirm_name:workspace.name},{ws})).status).toBe(200);
   const audit=await withSystem(async db=>(await db.query("SELECT action FROM audit_log WHERE workspace_id=$1 AND entity='workspaces'",[ws])).rows);
   expect(audit).toContainEqual({action:'delete'});
   expect((await call(workspaceRoute.GET,'GET',undefined,{ws})).status).toBe(404);
  });
  it('idempotency RLS keeps another user’s results hidden',async()=>{
-  const keys=await withUser(ids.priya,async db=>(await db.query('SELECT user_id FROM idempotency_keys')).rows);
-  expect(keys.every((key:{user_id:string})=>key.user_id===ids.priya)).toBe(true);
-  expect(await withUser(ids.priya,async db=>(await db.query('SELECT user_id FROM idempotency_keys WHERE user_id=$1',[ids.dana])).rows)).toHaveLength(0);
+  const keys=await withUser(ids.pranav,async db=>(await db.query('SELECT user_id FROM idempotency_keys')).rows);
+  expect(keys.every((key:{user_id:string})=>key.user_id===ids.pranav)).toBe(true);
+  expect(await withUser(ids.pranav,async db=>(await db.query('SELECT user_id FROM idempotency_keys WHERE user_id=$1',[ids.imran])).rows)).toHaveLength(0);
  });
  it('returns neutral field validation for invalid JSON and plain conflicts for referenced deletes',async()=>{
   const malformed=await clientsRoute.POST(new Request('http://localhost/api',{method:'POST',body:'{'}),{params:Promise.resolve({ws:ids.ridgeline})});

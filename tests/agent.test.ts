@@ -37,13 +37,13 @@ it('token creation returns plaintext once, hash-only DB storage, and safe own/ad
  const r=await route(tokenRoute.POST,{name:'Once only',scope:'write'});expect(r.status).toBe(201);expect(r.body.token).toMatch(/^gw_[\w-]{43}$/);expect(r.body.token_hash).toBeUndefined();
  const stored=await withUser(user,async db=>(await db.query('SELECT * FROM api_tokens WHERE id=$1',[r.body.id])).rows[0]);expect(stored.token_hash).toBe(hash(r.body.token));expect(JSON.stringify(stored)).not.toContain(r.body.token);
  const own=await route(tokenRoute.GET,undefined,{},'GET');expect(JSON.stringify(own.body)).not.toMatch(/token_hash|gw_[\w-]{43}/);expect(own.body.every((t:any)=>t.user_id===user)).toBe(true);
- user=ids.priya;expect((await route(tokenRoute.GET,undefined,{},'GET','?all=true')).body.some((t:any)=>t.id===r.body.id)).toBe(false);
- user=ids.dana;expect((await route(tokenRoute.GET,undefined,{},'GET','?all=true')).body.some((t:any)=>t.id===r.body.id)).toBe(true);
+ user=ids.pranav;expect((await route(tokenRoute.GET,undefined,{},'GET','?all=true')).body.some((t:any)=>t.id===r.body.id)).toBe(false);
+ user=ids.imran;expect((await route(tokenRoute.GET,undefined,{},'GET','?all=true')).body.some((t:any)=>t.id===r.body.id)).toBe(true);
 });
 it('tokens cannot mint tokens without a session',async()=>{const t=await mint();setAuthResolverForTests();const r=await tokenRoute.POST(new Request('http://localhost',{method:'POST',headers:{Authorization:'Bearer '+t.token},body:JSON.stringify({name:'No',scope:'write'})}),{params:Promise.resolve({ws:ids.ridgeline})});expect(r.status).toBe(401);});
 it('revocation owner/admin only and idempotent; revoked MCP auth is plain 401',async()=>{
- const t=await mint();user=ids.priya;expect((await route(revokeRoute.POST,undefined,{id:t.id})).status).toBe(404);
- user=ids.dana;const a=await route(revokeRoute.POST,undefined,{id:t.id}),b=await route(revokeRoute.POST,undefined,{id:t.id});expect(a.status).toBe(200);expect(b.body.revoked_at).toBe(a.body.revoked_at);
+ const t=await mint();user=ids.pranav;expect((await route(revokeRoute.POST,undefined,{id:t.id})).status).toBe(404);
+ user=ids.imran;const a=await route(revokeRoute.POST,undefined,{id:t.id}),b=await route(revokeRoute.POST,undefined,{id:t.id});expect(a.status).toBe(200);expect(b.body.revoked_at).toBe(a.body.revoked_at);
  const r=await rpc(t.token,'tools/list');expect(r.status).toBe(401);expect(r.headers.get('www-authenticate')).toBe('Bearer');expect(r.body.error.message).toBe('Invalid or expired token.');
 });
 it.each(['missing','bad','expired','removed'])('MCP rejects %s tokens',async kind=>{
@@ -69,8 +69,8 @@ it('real HTTP MCP initialize and tool discovery use official stateless transport
  const list=await rpc(t.token,'tools/list');expect(list.body.result.tools.map((t:any)=>t.name).sort()).toEqual(Object.keys(tools).sort());
  expect((await rpc(t.token,'',{},'GET')).status).toBe(200);expect((await rpc(t.token,'',{},'DELETE')).status).toBe(200);
 });
-it('Priya MCP cannot see Northgate/Summit/internal comments or approval queue and cannot change status',async()=>{
- const t=await mint(ids.priya);const r=await tool(t.token,'list_work_orders',{pageSize:100});expect(r.structuredContent.result.data.every((o:any)=>o.client_id===ids.harbor)).toBe(true);
+it('Pranav MCP cannot see Northgate/Summit/internal comments or approval queue and cannot change status',async()=>{
+ const t=await mint(ids.pranav);const r=await tool(t.token,'list_work_orders',{pageSize:100});expect(r.structuredContent.result.data.every((o:any)=>o.client_id===ids.harbor)).toBe(true);
  const orders=r.structuredContent.result.data;const own=orders[0];const detail=await tool(t.token,'get_work_order',{id:own.id});expect(detail.structuredContent.result.comments.every((c:any)=>c.visibility==='client')).toBe(true);
  const hidden=await withUser(ids.sam,async db=>(await db.query('SELECT id FROM work_orders WHERE client_id=$1 LIMIT 1',[ids.northgate])).rows[0].id);
  for(const id of [hidden,orderId(61)])expect((await tool(t.token,'get_work_order',{id})).isError).toBe(true);
@@ -99,8 +99,8 @@ it('token follows a changed membership role and client immediately',async()=>{co
 it('assistant runs a read function then returns mocked Gemini reply',async()=>{const mock=vi.fn().mockImplementationOnce(async()=>gemini([{functionCall:{name:'get_dashboard',args:{}}}])).mockImplementationOnce(async()=>gemini([{text:'Your dashboard is ready.'}]));vi.stubGlobal('fetch',mock);const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Show my dashboard'}]});expect(r.body.reply).toBe('Your dashboard is ready.');expect(mock).toHaveBeenCalledTimes(2);expect(JSON.parse(mock.mock.calls[1][1].body).contents.some((c:any)=>JSON.stringify(c).includes('by_status'))).toBe(true);});
 it('assistant write proposal changes nothing; provider-free confirm writes once and audits assistant',async()=>{const before=await count(),p=await pending();expect(await count()).toBe(before);expect(p.tool).toBe('create_request');vi.stubEnv('GEMINI_API_KEY','');vi.stubEnv('GROQ_API_KEY','');const r=await confirm(p.id);expect(r.status).toBe(200);expect(await count()).toBe(before+1);const o=r.body.result.structuredContent.result;expect((await listAudit(ids.sam,ids.ridgeline,new URLSearchParams({entity_id:o.id}))).data[0].actor_kind).toBe('assistant');expect((await confirm(p.id)).status).toBe(409);expect(await count()).toBe(before+1);});
 it('concurrent assistant confirms execute exactly once',async()=>{const before=await count(),p=await pending('create_request',{title:'Concurrent assistant',site_id:siteId(1)});const results=await Promise.all([confirm(p.id),confirm(p.id)]);expect(results.map(r=>r.status).sort()).toEqual([200,409]);expect(await count()).toBe(before+1);});
-it('other-user, other-workspace, and expired pending actions fail plainly',async()=>{const p=await pending();user=ids.dana;expect((await confirm(p.id)).status).toBe(404);user=ids.sam;expect((await route(assistantRoute.POST,{messages:[],confirm_action_id:p.id},{ws:ids.summit})).status).toBe(404);await withSystem(db=>db.query("UPDATE assistant_actions SET expires_at=now()-interval '1 second' WHERE id=$1",[p.id]));expect((await confirm(p.id)).status).toBe(409);});
-it('client assistant staff-only status call is forbidden on confirm',async()=>{user=ids.priya;const o=await createWorkOrder(user,ids.ridgeline,{title:'Client assistant',site_id:siteId(1)});const p=await pending('update_work_order_status',{id:o.id,status:'scheduled',updated_at:o.updated_at.toISOString()});const r=await confirm(p.id);expect(r.body.result.isError).toBe(true);expect(r.body.reply).toBe("You don't have permission to make this change.");expect((await getWorkOrder(user,ids.ridgeline,o.id)).status).toBe('open');});
+it('other-user, other-workspace, and expired pending actions fail plainly',async()=>{const p=await pending();user=ids.imran;expect((await confirm(p.id)).status).toBe(404);user=ids.sam;expect((await route(assistantRoute.POST,{messages:[],confirm_action_id:p.id},{ws:ids.summit})).status).toBe(404);await withSystem(db=>db.query("UPDATE assistant_actions SET expires_at=now()-interval '1 second' WHERE id=$1",[p.id]));expect((await confirm(p.id)).status).toBe(409);});
+it('client assistant staff-only status call is forbidden on confirm',async()=>{user=ids.pranav;const o=await createWorkOrder(user,ids.ridgeline,{title:'Client assistant',site_id:siteId(1)});const p=await pending('update_work_order_status',{id:o.id,status:'scheduled',updated_at:o.updated_at.toISOString()});const r=await confirm(p.id);expect(r.body.result.isError).toBe(true);expect(r.body.reply).toBe("You don't have permission to make this change.");expect((await getWorkOrder(user,ids.ridgeline,o.id)).status).toBe('open');});
 it('Gemini failures fall through to Groq function calling',async()=>{const mock=vi.fn().mockImplementation(async(url:string)=>url.includes('googleapis')?new Response('PRIVATE',{status:429}):Response.json({choices:[{message:{tool_calls:[{id:'1',function:{name:'create_request',arguments:JSON.stringify({title:'Groq request',site_id:siteId(1)})}}]}}]}));vi.stubGlobal('fetch',mock);const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Create'}]});expect(r.body.pending_action.tool).toBe('create_request');expect(mock).toHaveBeenCalledTimes(4);});
 it.each(['no keys','all fail'])('assistant gracefully unavailable: %s',async mode=>{if(mode==='no keys'){vi.stubEnv('GEMINI_API_KEY','');vi.stubEnv('GROQ_API_KEY','');}vi.stubGlobal('fetch',vi.fn().mockImplementation(async()=>new Response('PRIVATE PROVIDER TEXT',{status:503})));const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Help'}]});expect(r.status).toBe(200);expect(r.body).toEqual(assistantUnavailable);});
 it('assistant bounds repeated read tool calls',async()=>{writeMock('whoami',{});const r=await route(assistantRoute.POST,{messages:[{role:'user',content:'Help'}]});expect(r.body.reply).toContain('limit for workspace actions');expect(fetch).toHaveBeenCalledTimes(10);});
@@ -119,21 +119,21 @@ it('token audit storage and output contain no plaintext or token hashes',async()
 });
 it('tool validation and unknown tool errors are plain API messages',async()=>{const t=await mint();const r=await tool(t.token,'create_request',{});expect(r.isError).toBe(true);expect(r.content[0].text).toBe('Check the highlighted fields and try again.');const unknown=await tool(t.token,'not_a_tool');expect(unknown.content[0].text).toBe('Unknown tool.');});
 it('client write token creates only own requests and client-visible comments',async()=>{
- const t=await mint(ids.priya);const r=await tool(t.token,'create_request',{title:'Priya agent request',site_id:siteId(1)});expect(r.structuredContent.result.client_id).toBe(ids.harbor);expect(r.structuredContent.result.source).toBe('client');
+ const t=await mint(ids.pranav);const r=await tool(t.token,'create_request',{title:'Pranav agent request',site_id:siteId(1)});expect(r.structuredContent.result.client_id).toBe(ids.harbor);expect(r.structuredContent.result.source).toBe('client');
  const id=r.structuredContent.result.id;expect((await tool(t.token,'add_comment',{work_order_id:id,body:'Client agent comment',visibility:'client'})).isError).toBeUndefined();expect((await tool(t.token,'add_comment',{work_order_id:id,body:'Hidden',visibility:'internal'})).isError).toBe(true);
  const site=await withUser(ids.sam,async db=>(await db.query('SELECT id FROM sites WHERE client_id=$1 LIMIT 1',[ids.northgate])).rows[0].id);expect((await tool(t.token,'create_request',{title:'No access',site_id:site})).isError).toBe(true);
 });
 it('pending action RLS hides other owners and cross-workspace actions',async()=>{
- const p=await pending();expect(await withUser(ids.priya,async db=>(await db.query('SELECT id FROM assistant_actions WHERE id=$1',[p.id])).rows)).toHaveLength(0);
+ const p=await pending();expect(await withUser(ids.pranav,async db=>(await db.query('SELECT id FROM assistant_actions WHERE id=$1',[p.id])).rows)).toHaveLength(0);
  expect(await withUser(ids.summitAdmin,async db=>(await db.query('SELECT id FROM assistant_actions WHERE id=$1',[p.id])).rows)).toHaveLength(0);
 });
 it('token expiry/name/scope validation returns 422 without issuing capabilities',async()=>{
  for(const body of [{name:'',scope:'read'},{name:'x'.repeat(81),scope:'write'},{name:'Bad',scope:'admin'},{name:'Bad',scope:'write',expires_in_days:0}])expect((await route(tokenRoute.POST,body)).status).toBe(422);
 });
 it('authentication bookkeeping carries token attribution and restores caller transaction context',async()=>{
- const t=await mint();await withUser(ids.dana,async db=>{
+ const t=await mint();await withUser(ids.imran,async db=>{
   await db.query('SELECT * FROM verify_api_token($1)',[hash(t.token)]);
-  const setting=(await db.query("SELECT app_user_id() AS user_id,current_setting('app.actor_kind',true) AS kind,current_setting('app.via_token',true) AS token")).rows[0];expect(setting).toEqual({user_id:ids.dana,kind:'user',token:''});
+  const setting=(await db.query("SELECT app_user_id() AS user_id,current_setting('app.actor_kind',true) AS kind,current_setting('app.via_token',true) AS token")).rows[0];expect(setting).toEqual({user_id:ids.imran,kind:'user',token:''});
  });
  const audit=await listAudit(ids.sam,ids.ridgeline,new URLSearchParams({entity_id:t.id}));expect(audit.data.some(a=>a.action==='update'&&a.actor_kind==='agent'&&a.actor?.id===ids.sam&&a.via_token_id===t.id)).toBe(true);
  const before=audit.total;await rpc(t.token,'tools/list');expect((await listAudit(ids.sam,ids.ridgeline,new URLSearchParams({entity_id:t.id}))).total).toBe(before);
@@ -149,23 +149,23 @@ it('number lookup leads directly to a pending comment without writing before con
  expect((await confirm(r.body.pending_action.id)).status).toBe(200);
 });
 it('number lookup respects client and workspace isolation',async()=>{
- const token=await mint(ids.priya);
+ const token=await mint(ids.pranav);
  expect((await tool(token.token,'get_work_order_by_number',{number:1})).structuredContent.result.id).toBe(orderId(1));
  expect((await tool(token.token,'get_work_order_by_number',{number:1})).structuredContent.result.id).not.toBe(orderId(61));
  for(const number of [4,88888,99999])expect((await tool(token.token,'get_work_order_by_number',{number})).isError).toBe(true);
 });
 it('staff client-visible replies notify the client requester once on replay, internal notes do not',async()=>{
- const order=await createWorkOrder(ids.priya,ids.ridgeline,{title:'Requester notification',site_id:siteId(1)});
+ const order=await createWorkOrder(ids.pranav,ids.ridgeline,{title:'Requester notification',site_id:siteId(1)});
  await createComment(ids.sam,ids.ridgeline,order.id,{body:'Internal',visibility:'internal'});
  const body={body:'Technician confirmed',visibility:'client'};
  await createComment(ids.sam,ids.ridgeline,order.id,body,'comment-replay');
  await createComment(ids.sam,ids.ridgeline,order.id,body,'comment-replay');
- const rows=await withUser(ids.priya,async db=>(await db.query("SELECT kind FROM notifications WHERE entity_id=$1 AND kind='comment_added'",[order.id])).rows);
+ const rows=await withUser(ids.pranav,async db=>(await db.query("SELECT kind FROM notifications WHERE entity_id=$1 AND kind='comment_added'",[order.id])).rows);
  expect(rows).toEqual([{kind:'comment_added'}]);
 });
 it('priority changes respect staff permissions, client restrictions and stale versions',async()=>{
  const t=await mint(ids.sam,'write'),order=await getWorkOrder(ids.sam,ids.ridgeline,orderId(58));
  const changed=await tool(t.token,'set_priority',{id:order.id,priority:'urgent',updated_at:order.updated_at.toISOString()});expect(changed.isError).toBeUndefined();expect(changed.structuredContent.result.priority).toBe('urgent');
  expect((await tool(t.token,'set_priority',{id:order.id,priority:'low',updated_at:order.updated_at.toISOString()})).isError).toBe(true);
- const client=await mint(ids.priya,'write'),own=await getWorkOrder(ids.priya,ids.ridgeline,orderId(1));expect((await tool(client.token,'set_priority',{id:own.id,priority:'urgent',updated_at:own.updated_at.toISOString()})).isError).toBe(true);
+ const client=await mint(ids.pranav,'write'),own=await getWorkOrder(ids.pranav,ids.ridgeline,orderId(1));expect((await tool(client.token,'set_priority',{id:own.id,priority:'urgent',updated_at:own.updated_at.toISOString()})).isError).toBe(true);
 });

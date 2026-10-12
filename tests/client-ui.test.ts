@@ -17,10 +17,10 @@ describe('client presentation and lookups',()=>{
   for(const path of ['/home','/work-orders','/work-orders/new','/work-orders/123','/isolation','/settings'])expect(providerOnlyPath(path)).toBe(false);
  });
  it('loads only the current client’s sites and rejects provider and other-workspace access',async()=>{
-  const priya=await requestSites(ids.priya,ids.ridgeline),omar=await requestSites(ids.omar,ids.ridgeline);
-  expect(priya.length).toBe(3);expect(priya.every(s=>s.client_id===ids.harbor)).toBe(true);
+  const pranav=await requestSites(ids.pranav,ids.ridgeline),omar=await requestSites(ids.omar,ids.ridgeline);
+  expect(pranav.length).toBe(3);expect(pranav.every(s=>s.client_id===ids.harbor)).toBe(true);
   expect(omar.length).toBe(2);expect(omar.every(s=>s.client_id===ids.northgate)).toBe(true);
-  await expect(requestSites(ids.priya,ids.summit)).rejects.toMatchObject({status:404});
-  await expect(requestSites(ids.dana,ids.ridgeline)).rejects.toMatchObject({status:403});
+  await expect(requestSites(ids.pranav,ids.summit)).rejects.toMatchObject({status:404});
+  await expect(requestSites(ids.imran,ids.ridgeline)).rejects.toMatchObject({status:403});
  });
 });

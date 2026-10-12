@@ -122,7 +122,7 @@ describe('signup in Saudi Arabia and Oman', () => {
   user=ids.sam;expect((await call(settingsRoute.PATCH,'PATCH',{country:'OM'},{ws:ids.ridgeline})).status).toBe(403);
  });
  it('the demo workspace stays in the UAE', async () => {
-  user=ids.dana;const s=await call(settingsRoute.GET,'GET',undefined,{ws:ids.ridgeline});
+  user=ids.imran;const s=await call(settingsRoute.GET,'GET',undefined,{ws:ids.ridgeline});
   expect(s.body).toMatchObject({country:'AE',region:'Dubai',currency:'AED'});
  });
 });

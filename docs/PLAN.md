@@ -33,7 +33,7 @@ The server and Postgres enforce every row. Hiding a button is never the control.
 ## 4. Screens (key states)
 Public
 1. **Landing:** pitch, "Try the demo", one filled "Sign in". The page still loads if the DB is down (static).
-2. **Demo picker:** choose who to be (Dana, admin; Sam, staff; Priya at Harbor & Pine; Omar at Northgate). States: creating your sandbox, then ready, or an error with Retry.
+2. **Demo picker:** choose who to be (Imran, admin; Sam, staff; Pranav at Harbor & Pine; Omar at Northgate). States: creating your sandbox, then ready, or an error with Retry.
 3. **Sign in:** Google only, and keeps the busy state until the next screen shows.
 4. **404 / no access:** neutral wording that never reveals that a record exists, with a way home.
 
@@ -55,13 +55,13 @@ Client side
 17. **Client request detail:** status, schedule, client-visible comments only.
 
 Demo only
-18. **Isolation check:** as Priya, try to open a Northgate work order. The DB returns 0 rows, and the screen shows the query, the role and the empty result.
+18. **Isolation check:** as Pranav, try to open a Northgate work order. The DB returns 0 rows, and the screen shows the query, the role and the empty result.
 
 ## 5. Main flows
 **Onboarding (real user):** Sign in with Google. If this is your first sign-in, name your workspace. You land on an empty dashboard with a 3-step checklist: add a client, add a site, import or create the first work order. Invite a client user by copying an invite link (no email is sent, and the screen says so). When the invitee signs in with Google using the invited email, they're linked to that client company and land on Client home.
 **Core workflow:** A client or staff member creates a request, staff triage it (priority, assignee, schedule), and status moves Open, Scheduled, In progress, Waiting on parts, Done. Each step writes to the timeline and the audit log, notifies the right people, and is visible to the client in client wording.
 **Import to approval:** Pick a CSV/XLSX file (max 2 MB, 500 rows) or the sample. Map columns (auto-guessed). The validation preview flags unknown sites, bad dates and duplicates of open orders. "Send 37 valid rows to queue" (rows with errors are excluded and listed). Optional "Draft summaries" runs AI in batches of 25 rows per call. A reviewer approves, edits or rejects each row, or bulk-approves with a count. Approved rows become work orders. The result reads "35 created, 2 rejected (View)".
-**Client view:** Priya signs in. She sees Harbor & Pine only, can raise a request for her sites only, and gets status changes and comments. A Northgate URL shows the neutral no-access page.
+**Client view:** Pranav signs in. He sees Harbor & Pine only, can raise a request for his sites only, and gets status changes and comments. A Northgate URL shows the neutral no-access page.
 **Repair:** Ridgeline orders a part, and Cobalt (a small simulated supplier service inside this repo, labeled as such) sends signed webhooks. The demo can drop one delivery ("Simulate a missed webhook"). The reconciler reads Cobalt's events API, the same source the webhook comes from, and compares it with local state. It flags "Cobalt says delivered, we still show waiting on parts". Repair updates the order, logs "repaired by sync", and is idempotent. It runs on "Check now" and on a daily Vercel cron (the Hobby limit).
 
 ## 6. Data model (Postgres; every table has RLS, forced, and the app connects as a non-owner role)

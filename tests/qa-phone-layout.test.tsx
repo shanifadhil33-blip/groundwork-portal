@@ -11,7 +11,7 @@ it('uses one shared header with separate number, title, status and actions',()=>
  expect(html).toContain('<header class="heading-row page-header">');expect(html).toContain('WO-60</span>');expect(html).toContain('<h1>Service rooftop ventilation</h1>');expect(html).toContain('This work order is cancelled.');
 });
 it('retains table semantics and labels every cell in mapped rows, including Actions',()=>{
- const html=renderToStaticMarkup(<ResponsiveTable><table><thead><tr><th>Member</th><th><span>Role</span></th><th/></tr></thead><tbody>{['Dana','Sam'].map((name,i)=><tr key={name}><td>{name}</td><td>{i?'Staff':'Admin'}</td><td><button>Remove member</button></td></tr>)}</tbody></table></ResponsiveTable>);
+ const html=renderToStaticMarkup(<ResponsiveTable><table><thead><tr><th>Member</th><th><span>Role</span></th><th/></tr></thead><tbody>{['Imran','Sam'].map((name,i)=><tr key={name}><td>{name}</td><td>{i?'Staff':'Admin'}</td><td><button>Remove member</button></td></tr>)}</tbody></table></ResponsiveTable>);
  expect(html).toContain('role="table"');expect(html).toContain('role="rowgroup"');
  expect(html.match(/data-label="Member"/g)).toHaveLength(2);expect(html.match(/data-label="Role"/g)).toHaveLength(2);expect(html.match(/data-label="Actions"/g)).toHaveLength(2);expect(html).toContain('Admin');expect(html).toContain('Staff');
 });

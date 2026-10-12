@@ -56,7 +56,7 @@ describe('workspace deadlines and visits',()=>{
 
 it('formats import preview and review, places reference errors under reference, and formats picker labels',()=>{
  const row={id:'row',row_number:1,status:'error',data:{title:'Repair tap',client:'Harbor & Pine',site:'Marina',description:'',priority:'normal',due_on:'2026-11-20',scheduled_for:'2026-11-19T20:00:00Z',external_ref:'QA-1001'},errors:[{field:'external_ref',code:'duplicate_ref',message:'raw internal message'}],warnings:[]} as unknown as ImportRow;
- const wrap=(node:React.ReactNode)=>renderToStaticMarkup(<AppContext.Provider value={{workspace:{id:'workspace',name:'Groundwork',is_demo:true,timezone:'Asia/Dubai',country:'AE',region:null,currency:'AED'},member:null,me:{user:{id:'user',name:'Dana',email:'',image:null},memberships:[]},reload:()=>{},updateName:()=>{}}}>{node}</AppContext.Provider>);
+ const wrap=(node:React.ReactNode)=>renderToStaticMarkup(<AppContext.Provider value={{workspace:{id:'workspace',name:'Groundwork',is_demo:true,timezone:'Asia/Dubai',country:'AE',region:null,currency:'AED'},member:null,me:{user:{id:'user',name:'Imran',email:'',image:null},memberships:[]},reload:()=>{},updateName:()=>{}}}>{node}</AppContext.Provider>);
  for(const html of [wrap(<RowData row={row}/>),wrap(<ValidationTable rows={[row]}/>)] ) {
   expect(html).toContain('Nov 20, 2026');expect(html).toContain('Normal');expect(html).not.toContain('T20:00');expect(html).not.toContain('raw internal message');
  }

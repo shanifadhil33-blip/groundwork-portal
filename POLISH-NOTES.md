@@ -7,7 +7,7 @@
 
 # Live QA tap-through findings (Oct 10, 9:57 PM), screenshots in /workspace/portal-shots/qa/
 1. The assistant never answers live: always "The assistant is resting right now". Debug with `vercel logs` (tool calling with gemini-3.5-flash-lite? timeout? request format?) and fix so it works live. Reword the unavailable message seriously: "The assistant is unavailable right now. Everything else works as normal." Keep the chat on sheet reopen within a session.
-2. No raw DB names/IDs in the UI: activity/audit entries become human sentences ("Dana changed WO-1042 status to In progress"); the audit drawer shows a readable field diff (field label: old → new), not JSON or UUIDs; supplier order names without UUID prefixes (COBALT-DEMO-1); demo emails shown as e.g. dana@ridgeline.demo (display-level mask, or seed shorter emails).
+2. No raw DB names/IDs in the UI: activity/audit entries become human sentences ("Imran changed WO-1042 status to In progress"); the audit drawer shows a readable field diff (field label: old → new), not JSON or UUIDs; supplier order names without UUID prefixes (COBALT-DEMO-1); demo emails shown as e.g. imran@ridgeline.demo (display-level mask, or seed shorter emails).
 3. Import/Queue: format dates in local time, title-case priorities and status badges.
 4. Pluralization everywhere ("1 row", "1 mismatch", "0 warnings"); hide or relabel "Approve 0 rows" when nothing is selected.
 5. Supplier mismatch message must match the actual states; replace "part of this repo" with "part of this portfolio demo".
@@ -18,7 +18,7 @@
 
 # Final re-check leftovers (Oct 10, 10:57 PM)
 - Assistant: the first write request sometimes hits "I reached the tool limit" (raise the round limit sensibly / make the model look up by number directly, e.g. a get_work_order_by_number tool or search by number); render the assistant reply markdown (bold, lists) safely instead of showing asterisks.
-- Audit wording: "Dana created team member" / "Sam updated notification" become natural sentences (e.g. "Dana added Sam as staff", hide or rephrase notification-read events).
+- Audit wording: "Imran created team member" / "Sam updated notification" become natural sentences (e.g. "Imran added Sam as staff", hide or rephrase notification-read events).
 - Role badge title case ("Admin", "Staff", "Client").
 - Work order scheduled time vs the "new dates set for 9:00 AM local" note: make the seed and the note consistent.
 - Mobile: hide the visible horizontal scrollbar on the settings tab row; the "Open assistant" tooltip must not stick after the sheet closes (no tooltips on touch).

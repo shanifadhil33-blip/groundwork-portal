@@ -88,7 +88,7 @@ Uniform JSON: `{error:{code,message,fields?}}`. No raw database/provider message
 | 422 | Zod/body/query validation or invalid transition | Plain message plus field errors |
 | 500 | Unexpected failure | Something went wrong on our side. Your changes weren't saved. Try again. |
 
-Priya PATCH on her own work order returns **403**. PATCH on a Northgate order returns **404**, as do all cross-workspace record requests.
+Pranav PATCH on his own work order returns **403**. PATCH on a Northgate order returns **404**, as do all cross-workspace record requests.
 
 ## Spreadsheet imports and approval queue
 
@@ -186,18 +186,18 @@ All demo names/data are fictional. Demo entry is public and requires no Google s
 
 | Method | Path | Allowed roles | Body / query | Successful response |
 |---|---|---|---|---|
-| POST | /demo/start | Public | `{persona:"dana"|"sam"|"priya"|"omar"}` | 201 `{workspace_id,persona,expires_at}` plus session cookie |
+| POST | /demo/start | Public | `{persona:"imran"|"sam"|"pranav"|"omar"}` | 201 `{workspace_id,persona,expires_at}` plus session cookie |
 | POST | /demo/switch | Current live demo session | Same persona body | 200 same sandbox id and deadline, chosen persona, replacement session cookie |
 | POST | /demo/reset | Current live demo session | `{confirm:true}` | 200 replacement sandbox id, preserved persona, new 24-hour deadline and session cookie |
 | GET | /demo/isolation-check | Current live demo session | — | 200 `{database_role,role,client,query,params,row_count,cross_workspace,explanation?}` |
 | GET, POST | /cron/demo-cleanup | Bearer CRON_SECRET | — | 200 `{workspaces,users,sessions}` deleted counts |
 | GET | /workspaces | Signed in | — | 200 accessible workspace array, ordered by name; real accounts never list demo sandboxes |
 
-Dana is admin, Sam staff, Priya a Harbor & Pine client, Omar a Northgate client. Sandbox data comes from the shared development fixture builder: three clients (including empty Larkspur Coworking Studio), six sites, 60 orders across six statuses/four priorities with dates relative to creation time, both comment visibilities, four supplier orders/source orders, one dropped delivery to repair, one pending import queue row, and three event notifications. Supplier references/event ids are namespaced by sandbox so visitors cannot collide.
+Imran is admin, Sam staff, Pranav a Harbor & Pine client, Omar a Northgate client. Sandbox data comes from the shared development fixture builder: three clients (including empty Larkspur Coworking Studio), six sites, 60 orders across six statuses/four priorities with dates relative to creation time, both comment visibilities, four supplier orders/source orders, one dropped delivery to repair, one pending import queue row, and three event notifications. Supplier references/event ids are namespaced by sandbox so visitors cannot collide.
 
 Switch deletes all sessions for identities in that sandbox before creating the selected identity's session. Reset requires literal `confirm:true` (missing/false → 422); it atomically deletes the old sandbox and all its demo users/sessions, then creates a replacement with a **new workspace id**. Existing record URLs become unavailable. The persona is preserved; client/site/order ids change. Failures roll back the replacement operation. Real sessions receive neutral 404 from demo-only operations; missing/expired sessions receive 401.
 
-Isolation evidence runs parameterized work-order SQL inside `withUser` on the non-owner app connection. Priya gets zero Northgate rows; Omar can see Northgate because it is his company. Staff/admin responses explain workspace-wide client access and show the Northgate rows they are allowed to see. Every persona also receives a cross-workspace query with zero rows, targeting an existing other workspace if available. Params contain UUIDs only; no cookie/token/email appears. Owner metadata lookup chooses ids, but never supplies the work-order query/result evidence.
+Isolation evidence runs parameterized work-order SQL inside `withUser` on the non-owner app connection. Pranav gets zero Northgate rows; Omar can see Northgate because it is his company. Staff/admin responses explain workspace-wide client access and show the Northgate rows they are allowed to see. Every persona also receives a cross-workspace query with zero rows, targeting an existing other workspace if available. Params contain UUIDs only; no cookie/token/email appears. Owner metadata lookup chooses ids, but never supplies the work-order query/result evidence.
 
 Start serializes live-cap/rate checks and creation in one transaction. `DEMO_MAX_SANDBOXES` defaults to 200; positive integer configuration overrides it. Each IP hash may create five sandboxes per rolling hour; only an HMAC-SHA256 hash using AUTH_SECRET is stored, never a raw IP. On Vercel the trusted `x-vercel-forwarded-for` first address supplies the IP; local/non-Vercel execution shares a `local` bucket because a Web Request has no socket peer address. Untrusted forwarded headers are ignored. Other hosts need a trusted peer-address integration before exposing public entry. Limits return 429 `demo_limit` with “The demo is busy. Please try again later.” Unexpected creation failure returns 503 `demo_retry` with a plain retry message and no partial data/session/rate charge.
 

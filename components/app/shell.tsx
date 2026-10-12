@@ -25,7 +25,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   const path = usePathname(), router = useRouter(), { sync } = useTheme(),toast=useToast();
   const [me, setMe] = useState<Me | null>(initial?.me??null), [workspace, setWorkspace] = useState<Workspace | null>(initial?.workspace??null), [error, setError] = useState(false), [loading, setLoading] = useState(!initial);
   const [collapsed, setCollapsed] = useState(false), [drawer, setDrawer] = useState(false), [assistant, setAssistant] = useState(false), [notifications, setNotifications] = useState(false), [unread, setUnread] = useState<number | null>(()=>{const r=initial?.resources['/api/notifications/unread-count'];return r&&'data' in r?(r.data as {unread_count:number}).unread_count:null;}), [countError, setCountError] = useState(false), [pending, setPending] = useState<number | null>(()=>{const r=initial?.resources[`/api/workspaces/${initial.me.memberships[0]?.workspace_id}/dashboard`];return r&&'data' in r?(r.data as {pending_queue_rows:number}).pending_queue_rows:null;});
-  const [confirm, setConfirm] = useState<'signout' | 'reset' | 'switch' | null>(null), [busy, setBusy] = useState(false), [actionError, setActionError] = useState<string | null>(null), [persona, setPersona] = useState('dana');
+  const [confirm, setConfirm] = useState<'signout' | 'reset' | 'switch' | null>(null), [busy, setBusy] = useState(false), [actionError, setActionError] = useState<string | null>(null), [persona, setPersona] = useState('imran');
   const pendingStarted=useRef(false);
   const [demoOptions, setDemoOptions] = useState(false);
   const [assistantLoaded,setAssistantLoaded]=useState(false);
@@ -62,7 +62,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
     window.addEventListener('groundwork-queue-changed', refresh); window.addEventListener('focus', refresh);
     return () => { active = false; window.removeEventListener('groundwork-queue-changed', refresh); window.removeEventListener('focus', refresh); };
   }, [member, path]);
-  function openConfirm(action: typeof confirm) { guardedAction(() => { if(action==='switch')setPersona(personas.find(p=>p.key!==me?.user.email.split('.')[0])?.key??'dana');setActionError(null); setConfirm(action); }); }
+  function openConfirm(action: typeof confirm) { guardedAction(() => { if(action==='switch')setPersona(personas.find(p=>p.key!==me?.user.email.split('.')[0])?.key??'imran');setActionError(null); setConfirm(action); }); }
   async function execute() {
     if (busy) return; setBusy(true); setActionError(null);
     try { if (confirm === 'signout') { await post('/api/auth/sign-out'); sessionStorage.clear(); rememberSession('out'); window.location.replace('/sign-in?signed_out=1'); } else if (confirm === 'reset') { await post('/api/demo/reset', { confirm: true });sessionStorage.setItem('groundwork-demo-restored','1'); window.location.replace(home); } else { await post('/api/demo/switch', { persona }); window.location.replace(homeForPersona(persona)); } }
