@@ -30,3 +30,13 @@ describe('Team section', () => {
     expect(tools.add_worker.schema.safeParse({ name: 'Faisal', role: 'admin' }).success).toBe(false);
   });
 });
+import * as listRoute from '../app/api/workspaces/[ws]/work-orders/route';
+describe('Team numbers open the same jobs', () => {
+  it('Open on a card equals the active jobs list for that person', async () => {
+    const team = (await get()).body as { user_id: string; open: number }[];
+    for (const p of team) {
+      const r = await listRoute.GET(new Request(`http://localhost/api?assignee_id=${p.user_id}&active=true&pageSize=100`), { params: Promise.resolve({ ws: ids.ridgeline }) });
+      const body = await r.json(); expect(body.total ?? body.data.length).toBe(p.open);
+    }
+  });
+});

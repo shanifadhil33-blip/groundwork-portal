@@ -32,6 +32,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   if(query.assignee_id==='unassigned')clauses.push('assignee_id IS NULL');else if(query.assignee_id)add('assignee_id=?',query.assignee_id);
   if(query.overdue)clauses.push('('+overdueSql+')');
   if(query.today)clauses.push('('+todaySql+')');
+  if(query.active)clauses.push("status NOT IN ('done','cancelled')");
   const where=clauses.join(' AND ');
   const signature=hash(JSON.stringify({user,ws,...query,cursor:undefined,page:undefined}));
   let offset=(query.page-1)*query.pageSize;

@@ -17,7 +17,7 @@ function PersonCard({ p, base, canLink }: { p: TeamPerson; base: string; canLink
   const nums = [
     { label: 'Today', value: p.today, icon: CalendarCheck, href: jobs('&today=true') },
     { label: 'Late', value: p.late, icon: AlarmClock, href: jobs('&overdue=true'), tone: p.late ? 'danger' : '' },
-    { label: 'Open', value: p.open, icon: ClipboardList, href: jobs('') },
+    { label: 'Open', value: p.open, icon: ClipboardList, href: jobs('&active=true') },
   ];
   return <li className="person-card">
     <div className="heading-row"><div><strong>{p.name ?? 'Team member'}</strong><p className="small muted">{roleLabels[p.role] ?? p.role}</p></div>
