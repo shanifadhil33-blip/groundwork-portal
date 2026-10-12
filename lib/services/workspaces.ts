@@ -6,7 +6,7 @@ import { withUser } from '../db';
 import { invalid } from '../http';
 import { allow, inWorkspace, name, replay, row, update } from './shared';
 export const timezone = z.string().refine(value => { try { new Intl.DateTimeFormat('en',{timeZone:value}); return true; } catch { return false; } },'Choose a valid IANA timezone.');
-// Where the company works: its country (and that country's region level) sets the address, phone, tax ID and
+// Where the company works: its country (and that country's region level) sets the address, phone and
 // currency rules everywhere in the app. Region is optional; currency defaults to the country's own.
 const country=z.string().trim().toUpperCase().refine(isCountry,'Choose a country from the list.');
 const currency=z.string().trim().toUpperCase().refine(isCurrency,'Choose a currency from the list.');

@@ -1,7 +1,6 @@
 // Country data only. To support a new country, add an entry here; lib/countries/rules.ts reads it.
 // phone.national: regex for the national number (after the country code, without the trunk 0).
 // phone.groups: digit groups for display, by national number length.
-// tax.pattern: regex for the stored value (spaces and dashes removed, upper case).
 export type CountryData = {
   name: string;
   dial?: string;
@@ -9,7 +8,6 @@ export type CountryData = {
   aliases?: string[];
   region?: { label: string; options?: readonly string[] };
   phone?: { national: string; trunk?: string; example: string; groups?: Record<number, number[]> };
-  tax?: { label: string; pattern: string; hint: string; example: string; groups?: number[] };
 };
 
 /** Shown first in country menus, in this order. */
@@ -20,19 +18,16 @@ export const COUNTRIES: Record<string, CountryData> = {
     name: 'United Arab Emirates', dial: '971', currency: 'AED', aliases: ['UAE', 'Emirates', 'Dubai', 'Abu Dhabi'],
     region: { label: 'Emirate', options: ['Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Umm Al Quwain', 'Ras Al Khaimah', 'Fujairah'] },
     phone: { national: '5[024568]\\d{7}|[234679]\\d{7}|800\\d{2,7}|600\\d{6}', trunk: '0', example: '+971 50 123 4567', groups: { 9: [2, 3, 4], 8: [1, 3, 4] } },
-    tax: { label: 'TRN', pattern: '100\\d{12}', hint: 'Tax Registration Number, 15 digits starting with 100.', example: '100 1234 5678 9003', groups: [3, 4, 4, 4] },
   },
   SA: {
     name: 'Saudi Arabia', dial: '966', currency: 'SAR', aliases: ['KSA', 'Saudi', 'Riyadh', 'Jeddah'],
     region: { label: 'Region', options: ['Riyadh', 'Makkah', 'Madinah', 'Eastern Province', 'Asir', 'Tabuk', 'Qassim', 'Hail', 'Northern Borders', 'Jazan', 'Najran', 'Al Bahah', 'Al Jawf'] },
     phone: { national: '5\\d{8}|1[1-7]\\d{7}|800\\d{7}|92\\d{7}', trunk: '0', example: '+966 50 123 4567', groups: { 9: [2, 3, 4], 10: [3, 3, 4] } },
-    tax: { label: 'VAT number', pattern: '3\\d{13}3', hint: '15 digits, starting and ending with 3.', example: '300 1234 5678 0003', groups: [3, 4, 4, 4] },
   },
   OM: {
     name: 'Oman', dial: '968', currency: 'OMR', aliases: ['Muscat'],
     region: { label: 'Governorate', options: ['Muscat', 'Dhofar', 'Musandam', 'Al Buraimi', 'Ad Dakhiliyah', 'North Al Batinah', 'South Al Batinah', 'North Ash Sharqiyah', 'South Ash Sharqiyah', 'Ad Dhahirah', 'Al Wusta'] },
     phone: { national: '[279]\\d{7}|800\\d{5}', example: '+968 9123 4567', groups: { 8: [4, 4] } },
-    tax: { label: 'VATIN', pattern: 'OM\\d{10}', hint: 'OM followed by 10 digits.', example: 'OM1100012345' },
   },
   QA: {
     name: 'Qatar', dial: '974', currency: 'QAR', aliases: ['Doha'],
@@ -43,7 +38,6 @@ export const COUNTRIES: Record<string, CountryData> = {
     name: 'Bahrain', dial: '973', currency: 'BHD', aliases: ['Manama'],
     region: { label: 'Governorate', options: ['Capital', 'Muharraq', 'Northern', 'Southern'] },
     phone: { national: '[136]\\d{7}|80\\d{6}', example: '+973 3600 1234', groups: { 8: [4, 4] } },
-    tax: { label: 'VAT account number', pattern: '\\d{15}', hint: '15 digits.', example: '200 0123 4567 8901', groups: [3, 4, 4, 4] },
   },
   KW: {
     name: 'Kuwait', dial: '965', currency: 'KWD', aliases: ['Kuwait City'],
@@ -54,13 +48,11 @@ export const COUNTRIES: Record<string, CountryData> = {
     name: 'India', dial: '91', currency: 'INR', aliases: ['Bharat'],
     region: { label: 'State', options: ['Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'] },
     phone: { national: '[6-9]\\d{9}|[1-5]\\d{9}', trunk: '0', example: '+91 98765 43210', groups: { 10: [5, 5] } },
-    tax: { label: 'GSTIN', pattern: '\\d{2}[A-Z]{5}\\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]', hint: '15 characters, like 27AAPFU0939F1ZV.', example: '27AAPFU0939F1ZV' },
   },
   GB: {
     name: 'United Kingdom', dial: '44', currency: 'GBP', aliases: ['UK', 'Britain', 'England', 'Scotland', 'Wales'],
     region: { label: 'County' },
     phone: { national: '[1-9]\\d{8,9}', trunk: '0', example: '+44 20 7946 0000' },
-    tax: { label: 'VAT number', pattern: '(GB)?\\d{9}(\\d{3})?', hint: '9 digits, optionally starting with GB.', example: 'GB123456789' },
   },
   US: {
     name: 'United States', dial: '1', currency: 'USD', aliases: ['USA', 'America'],

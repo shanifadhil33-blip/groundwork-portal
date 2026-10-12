@@ -6,13 +6,13 @@ import { useState } from 'react';
 import { request, RequestError } from '../../../lib/ui/api';
 import { BackLink } from '../../../components/public/chrome';
 import { Button, Dropdown } from '../../../components/ui';
-import { an, countryName, countryOptions, currencyFor, guessCountry, phoneHint, regionField, taxField } from '../../../lib/countries/rules';
+import { an, countryName, countryOptions, currencyFor, guessCountry, phoneHint, regionField } from '../../../lib/countries/rules';
 
 const STEPS = ['Country', 'Region', 'Organization'] as const;
 
 /**
  * First run for a new company: where it works (country, then that country's own region level), then its name.
- * The country sets the address, phone, tax ID and currency rules across the whole app; all of it can be changed
+ * The country sets the address, phone and currency rules across the whole app; all of it can be changed
  * later in Settings. Back keeps every value.
  */
 export default function Onboarding() {
@@ -21,7 +21,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(0), [country, setCountry] = useState(() => guessCountry(zone)), [region, setRegion] = useState('');
   const [name, setName] = useState(() => workspaceName(me.user.name)), [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null), [nameError, setNameError] = useState('');
   const [key] = useState(() => typeof crypto !== 'undefined' ? crypto.randomUUID() : '');
-  const level = regionField(country), tax = taxField(country);
+  const level = regionField(country);
   const regionLabel = level.label.toLowerCase();
   function pickCountry(next: string) { if (next !== country) setRegion(''); setCountry(next); }
   async function create() {
@@ -45,7 +45,7 @@ export default function Onboarding() {
     <form className="stack" noValidate onSubmit={event => { event.preventDefault(); if (step < STEPS.length - 1) next(); else void create(); }}>
       {step === 0 && <>
         <PageHeader><h1>Where does your company work?</h1></PageHeader>
-        <p>Your country sets the address fields, phone format, tax number and currency across Groundwork. You can change it later in Settings.</p>
+        <p>Your country sets the address fields, phone format and currency across Groundwork. You can change it later in Settings.</p>
         <div className="form-field"><label htmlFor="workspace-country">Country</label>
           <Dropdown id="workspace-country" label="Country" width={340} value={country} options={countryOptions()} onChange={pickCountry} />
         </div>
@@ -70,7 +70,6 @@ export default function Onboarding() {
           <dt>Country</dt><dd>{countryName(country)}</dd>
           <dt>{level.label}</dt><dd>{region || 'Not set'}</dd>
           <dt>Phone format</dt><dd>{phoneHint(country)}</dd>
-          <dt>Tax number</dt><dd>{tax.label}</dd>
           <dt>Currency</dt><dd>{currencyFor(country)}</dd>
         </dl>
       </>}

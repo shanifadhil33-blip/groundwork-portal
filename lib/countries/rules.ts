@@ -1,4 +1,4 @@
-// Rules that read the country data: names, menus, region fields, phone and tax ID checks, currency.
+// Rules that read the country data: names, menus, region fields, phone checks, currency.
 // Shared by the API validation, the forms and the assistant so all three agree exactly.
 import { ALL_COUNTRY_CODES, COUNTRIES, type CountryData, GCC_FIRST } from './data';
 
@@ -86,20 +86,6 @@ export function formatPhone(value?: string | null) {
   const dial = COUNTRIES[owner].dial!, national = value.slice(1 + dial.length);
   return `+${dial} ${group(national, COUNTRIES[owner].phone?.groups?.[national.length])}`;
 }
-
-/** The tax ID a country uses on invoices, with its label and format. Other countries get an optional Tax number. */
-export function taxField(code?: string | null) {
-  const t = country(code).tax;
-  return t ? { label: t.label, hint: t.hint, example: t.example, known: true } : { label: 'Tax number', hint: 'Optional. Letters and digits.', example: '', known: false };
-}
-export function normalizeTaxId(input: string, code?: string | null): string | null {
-  const value = input.replace(/[\s.-]/g, '').toUpperCase();
-  if (!value) return null;
-  const t = country(code).tax;
-  if (t) return new RegExp(`^(?:${t.pattern})$`).test(value) ? value : null;
-  return /^[A-Z0-9/]{3,40}$/.test(value) ? value : null;
-}
-export function formatTaxId(value?: string | null, code?: string | null) { return value ? group(value, country(code).tax?.groups) : ''; }
 
 export function currencyFor(code?: string | null) { return country(code).currency ?? 'USD'; }
 /** Every currency the runtime knows, for the Settings menu. */

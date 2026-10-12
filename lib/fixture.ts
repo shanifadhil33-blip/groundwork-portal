@@ -36,15 +36,15 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   }
   await client.query("SELECT set_config('app.user_id',$1,true)",[ids.dana]);
   if(!demo) await client.query("INSERT INTO workspaces(id,name,is_demo,demo_expires_at,country,region,currency) VALUES($1,$2,$5,CASE WHEN $5 THEN now()+interval '24 hours' END,'AE','Dubai','AED'),($3,$4,$5,CASE WHEN $5 THEN now()+interval '24 hours' END,'AE','Abu Dhabi','AED')",[ids.ridgeline,'Ridgeline Facility Services',ids.summit,'Summit Property Care',supplierSandbox]);
-  // Fictional UAE client records (the demo workspace is in the UAE): 555 numbers, .example mail domains, made up TRNs.
-  const clientRecords:[string,string,string,string,string,string,string,string,string,string,string|null,string|null][]=[
-   [ids.harbor,ids.ridgeline,'Harbor & Pine Coworking','Priya Menon','+971505550142','accounts@harborpine.example','Pine House, Office 1204','Al Marsa Street','Dubai Marina','Dubai','100384920175003','Monthly maintenance retainer. Put the PO number on every invoice.'],
-   [ids.northgate,ids.ridgeline,'Northgate Self Storage','Omar Al Mansoori','+97145550198','facilities@northgate.example','Northgate Logistics Centre, Unit 7','Street 21','Al Quoz Industrial Area 3','Dubai','100519273640003','Warehouse work only between 7 am and 3 pm.'],
-   [ids.larkspur,ids.ridgeline,'Larkspur Coworking Studio','Layla Haddad','+97165550172','hello@larkspur.example','Larkspur Studio, Floor 3','Al Khan Street','Al Majaz 3','Sharjah',null,null],
-   ...(demo?[]:[[ids.summitClient,ids.summit,'Juniper Business Park','Rashid Al Nuaimi','+97125550145','estates@juniper.example','Juniper Tower, Floor 18','Hamdan Bin Mohammed Street','Al Danah','Abu Dhabi','100672018345003',null] as [string,string,string,string,string,string,string,string,string,string,string|null,string|null]])];
-  for (const [id,ws,name,contact,phone,email,building,street,area,city,taxId,notes] of clientRecords) await client.query('INSERT INTO clients(id,workspace_id,name,contact_name,phone,email,billing_building,billing_street,billing_area,billing_city,billing_region,tax_id,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)',[id,ws,name,contact,phone,email,building,street,area,city,city,taxId,notes]);
+  // Fictional UAE client records (the demo workspace is in the UAE): 555 numbers, .example mail domains.
+  const clientRecords:[string,string,string,string,string,string,string,string,string,string,string|null][]=[
+   [ids.harbor,ids.ridgeline,'Harbor & Pine Coworking','Priya Menon','+971505550142','accounts@harborpine.example','Pine House, Office 1204','Al Marsa Street','Dubai Marina','Dubai','Monthly maintenance retainer. Put the PO number on every invoice.'],
+   [ids.northgate,ids.ridgeline,'Northgate Self Storage','Omar Al Mansoori','+97145550198','facilities@northgate.example','Northgate Logistics Centre, Unit 7','Street 21','Al Quoz Industrial Area 3','Dubai','Warehouse work only between 7 am and 3 pm.'],
+   [ids.larkspur,ids.ridgeline,'Larkspur Coworking Studio','Layla Haddad','+97165550172','hello@larkspur.example','Larkspur Studio, Floor 3','Al Khan Street','Al Majaz 3','Sharjah',null],
+   ...(demo?[]:[[ids.summitClient,ids.summit,'Juniper Business Park','Rashid Al Nuaimi','+97125550145','estates@juniper.example','Juniper Tower, Floor 18','Hamdan Bin Mohammed Street','Al Danah','Abu Dhabi',null] as [string,string,string,string,string,string,string,string,string,string,string|null]])];
+  for (const [id,ws,name,contact,phone,email,building,street,area,city,notes] of clientRecords) await client.query('INSERT INTO clients(id,workspace_id,name,contact_name,phone,email,billing_building,billing_street,billing_area,billing_city,billing_region,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',[id,ws,name,contact,phone,email,building,street,area,city,city,notes]);
   for (const [ws,user,role,company] of [[ids.ridgeline,ids.dana,'admin',null],[ids.ridgeline,ids.sam,'staff',null],[ids.ridgeline,ids.priya,'client',ids.harbor],[ids.ridgeline,ids.omar,'client',ids.northgate],...(demo?[]:[[ids.summit,ids.summitAdmin,'admin',null]])]) await client.query('INSERT INTO members(workspace_id,user_id,role,client_id) VALUES($1,$2,$3,$4)',[ws,user,role,company]);
-  // The demo company is based in Dubai: UAE emirates, +971 numbers, TRNs and AED.
+  // The demo company is based in Dubai: UAE emirates, +971 numbers and AED.
   if(demo) await client.query("UPDATE workspaces SET country='AE',region='Dubai',currency='AED' WHERE id=$1",[ids.ridgeline]);
   const names=['Marina Exchange','Pine Terrace','Harbor Annex','Northgate East','Northgate West','Larkspur Loft','Juniper Court'];
   const siteRecords=[

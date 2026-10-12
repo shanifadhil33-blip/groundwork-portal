@@ -1,7 +1,7 @@
 import { formatDate } from '../dates';
 import { readableLabel } from './polish';
 import { clientStatusLabels, statusLabels } from './work-orders';
-import { countryName, formatPhone, formatTaxId, regionField, taxField } from '../countries/rules';
+import { countryName, formatPhone, regionField } from '../countries/rules';
 
 export function audienceStatusReply(value:string, client=false) {
  const labels=client?clientStatusLabels:statusLabels;
@@ -30,11 +30,10 @@ export function plainAssistantReply(value: string, client=false) {
 export const recordTools = ['create_client','update_client','create_site','update_site'];
 const recordLabels: Record<string,string> = { name:'Name', contact_name:'Main contact', phone:'Phone', email:'Email', billing_building:'Building', billing_street:'Street', billing_area:'Area', billing_city:'City', notes:'Notes', address:'Address', building:'Building name or number', area:'Area', access_notes:'Access notes', contact_phone:'Site contact phone' };
 type RecordTarget = { label: string; record?: Record<string,any> | null; country?: string };
-/** Labels that depend on the record's country: its region level and its tax ID name. */
+/** Labels that depend on the record's country: its region level. */
 function recordLabel(tool: string, key: string, country?: string) {
   if (tool.endsWith('site') && key === 'contact_name') return 'Site contact';
   if (key === 'billing_region' || key === 'region') return regionField(country).label;
-  if (key === 'tax_id') return taxField(country).label;
   if (key === 'country') return 'Country';
   return recordLabels[key] ?? readableLabel(key);
 }
@@ -42,7 +41,6 @@ function recordValue(key: string, value: unknown, country?: string) {
   if (key === 'country') return value ? countryName(String(value)) : 'Same as workspace';
   if (value === null || value === undefined || value === '') return 'None';
   if (key === 'phone' || key === 'contact_phone') return formatPhone(String(value));
-  if (key === 'tax_id') return formatTaxId(String(value), country);
   return plainAssistantReply(String(value));
 }
 function recordLines(tool: string, args: Record<string,any>, previous?: Record<string,any> | null, country?: string) {

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { invalid } from '../http';
 import { allow, inWorkspace, insert, name, replay, row, update, type Context } from './shared';
-import { EMAIL_PATTERN, normalizePhone, normalizeRegion, normalizeTaxId, phoneHint, regionField, taxField } from '../records';
+import { EMAIL_PATTERN, normalizePhone, normalizeRegion, phoneHint, regionField } from '../records';
 import { an, isCountry } from '../countries/rules';
 
 // Optional text: trimmed, empty becomes null (clears the field), length capped.
@@ -11,24 +11,24 @@ const email=optional(320,v=>EMAIL_PATTERN.test(v)?v.toLowerCase():null,'Enter a 
 const countryCode=z.string().trim().toUpperCase().refine(isCountry,'Choose a country from the list.');
 /** A country override: a country code, or null (or empty) to follow the workspace. */
 const countryOverride=z.union([countryCode,z.literal('').transform(()=>null),z.null()]).optional();
-// Country rules: the phone plan, region list and tax ID of the country the record follows.
+// Country rules: the phone plan and region list of the country the record follows.
 const phone=(cc:string)=>optional(40,v=>normalizePhone(v,cc),`Enter a number like ${phoneHint(cc)}, or a number from another country with its + code.`);
 const region=(cc:string)=>{const r=regionField(cc);return optional(120,v=>normalizeRegion(v,cc),r.options?`Choose ${an(r.label)} ${r.label.toLowerCase()} from the list.`:`Keep the ${r.label.toLowerCase()} under 120 characters.`);};
-const taxId=(cc:string)=>{const t=taxField(cc);return optional(40,v=>normalizeTaxId(v,cc),t.known?`Enter a valid ${t.label}. ${t.hint}`:'Use letters and digits only, 3 to 40 characters.');};
 
-const clientSchema=(cc:string)=>z.object({name,country:countryOverride,contact_name:text(200),phone:phone(cc),email,billing_building:text(200),billing_street:text(200),billing_area:text(120),billing_city:text(120),billing_region:region(cc),tax_id:taxId(cc),notes:text(2000)}).strict();
-const siteSchema=(cc:string)=>z.object({name,address:z.string().trim().min(1).max(2000),building:text(200),area:text(120),region:region(cc),access_notes:text(2000),contact_name:text(200),contact_phone:phone(cc)}).strict();
+const clientSchema=(cc:string)=>z.object({name,country:countryOverride,contact_name:text(200),phone:phone(cc),email,billing_building:text(200),billing_street:text(200),billing_area:text(120),billing_city:text(120),billing_region:region(cc),notes:text(2000)}).strict();
+const siteSchema=(cc:string)=>z.object({name,address:z.string().trim().max(2000).optional(),building:text(200),area:text(120),region:region(cc),access_notes:text(2000),contact_name:text(200),contact_phone:phone(cc)}).strict();
 
 /** Field shapes for agent tools (the service applies the country rules). */
 const s=(max:number,description:string)=>z.string().max(max).nullable().optional().describe(description);
-export const clientShape={country:s(2,'ISO country code of the billing address, like AE or SA. Omit or null to follow the workspace country.'),contact_name:s(200,'Main contact name'),phone:s(40,'Phone. Local numbers are read in the client country; other countries need their + code.'),email:s(320,'Email'),billing_building:s(200,'Building name or number'),billing_street:s(200,'Street'),billing_area:s(120,'Area or district'),billing_city:s(120,'City'),billing_region:s(120,'Region of the client country (UAE emirate, Saudi region, Oman governorate...). Must match the country list when it has one.'),tax_id:s(40,'Tax ID in the client country format (UAE TRN, Saudi VAT number, Oman VATIN...).'),notes:s(2000,'Notes')};
+export const clientShape={country:s(2,'ISO country code of the billing address, like AE or SA. Omit or null to follow the workspace country.'),contact_name:s(200,'Main contact name'),phone:s(40,'Phone. Local numbers are read in the client country; other countries need their + code.'),email:s(320,'Email'),billing_building:s(200,'Building name or number'),billing_street:s(200,'Street'),billing_area:s(120,'Area or district'),billing_city:s(120,'City'),billing_region:s(120,'Region of the client country (UAE emirate, Saudi region, Oman governorate...). Must match the country list when it has one.'),notes:s(2000,'Notes')};
 export const siteShape={building:s(200,'Building name or number'),area:s(120,'Area or district'),region:s(120,'Region of the client country, from its list when it has one'),access_notes:s(2000,'Access notes'),contact_name:s(200,'Site contact name'),contact_phone:s(40,'Site contact phone')};
 
 // Leave out keys the caller did not send, so a partial update never clears other fields.
 const defined=<T extends Record<string,unknown>>(data:T)=>Object.fromEntries(Object.entries(data).filter(([,v])=>v!==undefined)) as Partial<T>;
-// The emirate and TRN columns from before country support are kept in the table for rollback only.
+// Columns kept in the table but no longer used (emirate and TRN from before country support, and the removed tax
+// number): never returned, so nothing can show or change them.
 type Row=Record<string,unknown>;
-export function publicClient<T extends Row|null|undefined>(client:T):T{if(!client)return client;const {billing_emirate:_e,trn:_t,...rest}=client;return rest as T;}
+export function publicClient<T extends Row|null|undefined>(client:T):T{if(!client)return client;const {billing_emirate:_e,trn:_t,tax_id:_x,...rest}=client;return rest as T;}
 async function workspaceCountry(c:Context){return (await c.db.query('SELECT country FROM workspaces WHERE id=$1',[c.ws])).rows[0]?.country as string;}
 /** The country a request body is checked against: its own valid override, else the current one, else the workspace's. */
 function bodyCountry(body:unknown,current:string|null|undefined,fallback:string){
@@ -58,7 +58,7 @@ export async function listSites(user:string,ws:string,client:string) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin','staff']);await row(c,'clients',client);return (await c.db.query('SELECT * FROM sites WHERE workspace_id=$1 AND client_id=$2 ORDER BY name,id',[ws,client])).rows;});
 }
 export async function createSite(user:string,ws:string,client:string,body:unknown,key?:string) {
- return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'clients',client);const data=defined(siteSchema(await siteCountry(c,client)).parse(body));return replay(c.db,user,ws+'/clients/'+client+'/sites',key,data,()=>insert(c,'sites',{workspace_id:ws,client_id:client,...data}));});
+ return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'clients',client);const data=defined(siteSchema(await siteCountry(c,client)).parse(body));if(data.address===undefined)data.address='';return replay(c.db,user,ws+'/clients/'+client+'/sites',key,data,()=>insert(c,'sites',{workspace_id:ws,client_id:client,...data}));});
 }
 export async function patchSite(user:string,ws:string,id:string,body:unknown) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin']);const site=await row(c,'sites',id);const data=defined(siteSchema(await siteCountry(c,site.client_id)).partial().parse(body));if(!Object.keys(data).length)throw invalid('Provide at least one change.');return update(c,'sites',id,data);});

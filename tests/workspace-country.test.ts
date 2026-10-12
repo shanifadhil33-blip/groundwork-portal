@@ -10,7 +10,7 @@ import * as clientRoute from '../app/api/workspaces/[ws]/clients/[id]/route';
 import * as sitesRoute from '../app/api/workspaces/[ws]/clients/[id]/sites/route';
 import * as mcp from '../app/api/mcp/route';
 import { createToken } from '../lib/services/tokens';
-import { countryOptions, currencyFor, formatMoney, formatPhone, formatTaxId, guessCountry, normalizePhone, normalizeRegion, normalizeTaxId, phoneHint, regionField, taxField } from '../lib/countries/rules';
+import { countryOptions, currencyFor, formatMoney, formatPhone, guessCountry, normalizePhone, normalizeRegion, phoneHint, regionField } from '../lib/countries/rules';
 import { COUNTRIES, GCC_FIRST } from '../lib/countries/data';
 import { recordSummary } from '../lib/ui/assistant-replies';
 import type { RouteContext } from '../lib/api';
@@ -49,15 +49,6 @@ describe('country rules (data driven)', () => {
   expect(formatPhone('+966501234567')).toBe('+966 50 123 4567');expect(formatPhone('+96891234567')).toBe('+968 9123 4567');
   expect(phoneHint('SA')).toBe('+966 50 123 4567');expect(phoneHint('OM')).toBe('+968 9123 4567');
  });
- it('checks each country’s tax ID, and falls back to an optional Tax number elsewhere', () => {
-  expect(taxField('AE').label).toBe('TRN');expect(taxField('SA').label).toBe('VAT number');expect(taxField('OM').label).toBe('VATIN');expect(taxField('BH').label).toBe('VAT account number');
-  expect(taxField('QA')).toMatchObject({label:'Tax number',known:false});expect(taxField('KW').label).toBe('Tax number');
-  expect(normalizeTaxId('300 1234 5678 0003','SA')).toBe('300123456780003');expect(normalizeTaxId('300123456780004','SA')).toBeNull();expect(normalizeTaxId('100123456780003','SA')).toBeNull();
-  expect(normalizeTaxId('om1100012345','OM')).toBe('OM1100012345');expect(normalizeTaxId('1100012345','OM')).toBeNull();
-  expect(normalizeTaxId('200012345678901','BH')).toBe('200012345678901');expect(normalizeTaxId('20001234567890','BH')).toBeNull();
-  expect(normalizeTaxId('100-2345-6789-0003','AE')).toBe('100234567890003');expect(normalizeTaxId('Q12345','QA')).toBe('Q12345');
-  expect(formatTaxId('300123456780003','SA')).toBe('300 1234 5678 0003');
- });
  it('has a currency for every GCC country and formats money in it', () => {
   expect(GCC_FIRST.map(c=>currencyFor(c))).toEqual(['AED','SAR','OMR','QAR','BHD','KWD']);
   expect(formatMoney(1250.5,'SAR','en')).toContain('SAR');expect(formatMoney(12.5,'OMR','en')).toMatch(/12\.500/);
@@ -86,14 +77,14 @@ describe('signup in Saudi Arabia and Oman', () => {
   expect(sa.status).toBe(201);made.push(sa.body.id);
   expect(sa.body).toMatchObject({name:'Riyadh Facility Partners',country:'SA',region:'Riyadh',currency:'SAR'});
   const ws=sa.body.id;
-  // Clients default to the workspace country: Saudi numbers, regions and VAT numbers.
-  const client=await call(clientsRoute.POST,'POST',{name:'Olaya Towers Management',phone:'050 123 4567',billing_city:'Riyadh',billing_region:'Riyadh',tax_id:'300 1234 5678 0003'},{ws});
-  expect(client.status).toBe(201);expect(client.body).toMatchObject({phone:'+966501234567',billing_region:'Riyadh',tax_id:'300123456780003',country:null});
-  const bad=await call(clientsRoute.POST,'POST',{name:'Wrong country terms',billing_region:'Dubai',tax_id:'100234567890003',phone:'050 12'},{ws});
+  // Clients default to the workspace country: Saudi numbers and regions.
+  const client=await call(clientsRoute.POST,'POST',{name:'Olaya Towers Management',phone:'050 123 4567',billing_city:'Riyadh',billing_region:'Riyadh'},{ws});
+  expect(client.status).toBe(201);expect(client.body).toMatchObject({phone:'+966501234567',billing_region:'Riyadh',country:null});
+  const bad=await call(clientsRoute.POST,'POST',{name:'Wrong country terms',billing_region:'Dubai',phone:'050 12'},{ws});
   expect(bad.status).toBe(422);expect(bad.body.error.fields.billing_region[0]).toBe('Choose a region from the list.');
-  expect(bad.body.error.fields.tax_id[0]).toContain('VAT number');expect(bad.body.error.fields.phone[0]).toContain('+966 50 123 4567');
+  expect(bad.body.error.fields.phone[0]).toContain('+966 50 123 4567');
   // A client billed in another country: its own country's rules.
-  const uae=await call(clientsRoute.POST,'POST',{name:'Dubai branch office',country:'AE',phone:'04 555 0198',billing_region:'Dubai',tax_id:'100234567890003'},{ws});
+  const uae=await call(clientsRoute.POST,'POST',{name:'Dubai branch office',country:'AE',phone:'04 555 0198',billing_region:'Dubai'},{ws});
   expect(uae.status).toBe(201);expect(uae.body).toMatchObject({country:'AE',phone:'+97145550198',billing_region:'Dubai'});
   // Back to the workspace country: an emirate is no longer a valid region.
   expect((await call(clientRoute.PATCH,'PATCH',{country:null,billing_region:'Dubai'},{ws,id:uae.body.id})).status).toBe(422);
@@ -106,12 +97,12 @@ describe('signup in Saudi Arabia and Oman', () => {
   const r=await mcp.POST(new Request('http://localhost/api/mcp',{method:'POST',headers:{Accept:'application/json, text/event-stream','Content-Type':'application/json',Authorization:'Bearer '+token.token},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'whoami',arguments:{}}})}));
   expect(JSON.parse(await r.text()).result.structuredContent.result).toMatchObject({workspace_country:'SA',workspace_region:'Riyadh',currency:'SAR'});
  });
- it('an Oman workspace uses governorates, +968 numbers and the VATIN; Settings can change it later', async () => {
+ it('an Oman workspace uses governorates and +968 numbers; Settings can change it later', async () => {
   const om=await call(wsRoute.POST,'POST',{name:'Muscat Building Care',timezone:'Asia/Muscat',country:'OM'});
   expect(om.status).toBe(201);made.push(om.body.id);expect(om.body).toMatchObject({country:'OM',region:null,currency:'OMR'});
   const ws=om.body.id;
-  const client=await call(clientsRoute.POST,'POST',{name:'Qurum Heights',phone:'9123 4567',billing_region:'Muscat',tax_id:'OM1100012345'},{ws});
-  expect(client.status).toBe(201);expect(client.body).toMatchObject({phone:'+96891234567',billing_region:'Muscat',tax_id:'OM1100012345'});
+  const client=await call(clientsRoute.POST,'POST',{name:'Qurum Heights',phone:'9123 4567',billing_region:'Muscat'},{ws});
+  expect(client.status).toBe(201);expect(client.body).toMatchObject({phone:'+96891234567',billing_region:'Muscat'});
   expect((await call(settingsRoute.PATCH,'PATCH',{region:'Dhofar'},{ws})).status).toBe(200);
   // A new country drops the old region and, when not picked by hand, takes that country's currency in the UI.
   const moved=await call(settingsRoute.PATCH,'PATCH',{country:'QA',currency:'QAR'},{ws});
@@ -136,10 +127,18 @@ describe('signup in Saudi Arabia and Oman', () => {
  });
 });
 
+describe('signup asks only country, region and organization name', () => {
+ it('the onboarding page has three steps and no tax field', async () => {
+  const src=(await import('node:fs')).readFileSync('app/(app)/onboarding/page.tsx','utf8');
+  expect(src).toContain("const STEPS = ['Country', 'Region', 'Organization'] as const;");
+  expect(src.toLowerCase()).not.toMatch(/tax|trn|vat/);
+ });
+});
+
 describe('assistant confirmation cards use the record’s country terms', () => {
- it('labels the region and tax ID for Saudi and Oman records', () => {
-  expect(recordSummary('create_client',{name:'Olaya Towers',billing_region:'Riyadh',tax_id:'300123456780003',country:null},{label:'Olaya Towers',country:'SA'}))
-   .toBe('Add client “Olaya Towers”\nRegion: Riyadh\nVAT number: 300 1234 5678 0003');
+ it('labels the region for Saudi and Oman records', () => {
+  expect(recordSummary('create_client',{name:'Olaya Towers',billing_region:'Riyadh',country:null},{label:'Olaya Towers',country:'SA'}))
+   .toBe('Add client “Olaya Towers”\nRegion: Riyadh');
   expect(recordSummary('update_client',{id:'x',billing_region:'Dhofar'},{label:'Qurum Heights',record:{billing_region:'Muscat'},country:'OM'})).toBe('Update client Qurum Heights:\nGovernorate: Muscat → Dhofar');
   expect(recordSummary('update_client',{id:'x',country:'AE'},{label:'Branch',record:{country:null},country:'AE'})).toBe('Update client Branch:\nCountry: Same as workspace → United Arab Emirates');
  });

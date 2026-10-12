@@ -1,13 +1,13 @@
-// Client and site record types and address lines. Field rules (phone, tax ID, region) live in lib/countries.
+// Client and site record types and address lines. Field rules (phone, region) live in lib/countries.
 import { country } from './countries/rules';
-export { formatPhone, formatTaxId, normalizePhone, normalizeTaxId, normalizeRegion, phoneHint, regionField, taxField } from './countries/rules';
+export { formatPhone, normalizePhone, normalizeRegion, phoneHint, regionField } from './countries/rules';
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export type ClientRecord = {
   id: string; name: string; country?: string | null; contact_name?: string | null; phone?: string | null; email?: string | null;
   billing_building?: string | null; billing_street?: string | null; billing_area?: string | null; billing_city?: string | null; billing_region?: string | null;
-  tax_id?: string | null; notes?: string | null;
+  notes?: string | null;
 };
 export type SiteRecord = {
   id: string; client_id: string; name: string; address: string; building?: string | null; area?: string | null; region?: string | null;

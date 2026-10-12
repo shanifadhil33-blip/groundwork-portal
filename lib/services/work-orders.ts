@@ -72,7 +72,7 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
   }));
  });
 }
-const CLIENT_HIDDEN_SITE=['access_notes','contact_name','contact_phone'],CLIENT_HIDDEN_CLIENT=['notes','tax_id','contact_name','phone','email','billing_building','billing_street','billing_area','billing_city','billing_region','country'];
+const CLIENT_HIDDEN_SITE=['access_notes','contact_name','contact_phone'],CLIENT_HIDDEN_CLIENT=['notes','contact_name','phone','email','billing_building','billing_street','billing_area','billing_city','billing_region','country'];
 export async function getWorkOrder(user:string,ws:string,id:string) {
  return inWorkspace(user,ws,async c=>{
   uuid.parse(id);
