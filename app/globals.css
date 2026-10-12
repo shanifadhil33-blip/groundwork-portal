@@ -280,8 +280,8 @@ body:has(.app-shell){
  --border:rgba(0,0,0,.08);
  --primary:#416c6f;
  --accent:#416c6f;
- --success:#627c5f;
- --warning:#946c27;
+ --success:#4e6a4b;
+ --warning:#7f5c1e;
  --danger:#a65d48;
  --info:#58758c;
  --hover:#f3f5f4;
@@ -585,7 +585,7 @@ button.chip{cursor:pointer;min-height:44px}
 .photo-full{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;border-radius:var(--r-sm,10px)}
 .sched-nav{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}.sched-nav strong{flex:1;text-align:center;min-width:140px}
 .sched-job{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;min-height:48px;padding:var(--s2) var(--s3);border:1px solid var(--border);border-left:4px solid var(--accent,#2f6b62);border-radius:var(--r-sm,10px);background:var(--surface);color:var(--text);text-align:left;cursor:pointer;font:inherit}
-.sched-job:active{background:var(--surface-subtle)}.sched-job strong{font-size:14px;line-height:1.25}.sched-done{opacity:.6;border-left-color:var(--border)}
+.sched-job:active{background:var(--surface-subtle)}.sched-job strong{font-size:14px;line-height:1.25}.sched-done{border-left-color:var(--border);background:var(--surface-subtle)}.sched-done strong{color:var(--text-muted);font-weight:500}
 .sched-time{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
 .sched-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .sched-day{display:flex;flex-direction:column;align-items:center;gap:0;min-height:56px;padding:4px 0;border:1px solid var(--border);border-radius:var(--r-sm,10px);background:var(--surface);color:var(--text);font:inherit;cursor:pointer}
