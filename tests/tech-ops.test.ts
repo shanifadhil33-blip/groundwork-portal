@@ -48,6 +48,8 @@ describe('days off and leave', () => {
     await expect(addTimeOff(ids.pranav, ws, { user_id: ids.ravi, kind: 'off', starts_on: dubaiDay(1) })).rejects.toBeTruthy();
     const a = await addTimeOff(ids.imran, ws, { user_id: ids.sam, kind: 'sick', starts_on: dubaiDay(1) }) as { id: string };
     await addTimeOff(ids.imran, ws, { user_id: ids.ravi, kind: 'leave', starts_on: dubaiDay(1), ends_on: dubaiDay(2) });
+    const office = await listTimeOff(ids.sam, ws);
+    expect(office.time_off.map((t: { name: string | null }) => t.name)).toEqual(expect.arrayContaining(['Sam', 'Ravi']));
     const mine = await listTimeOff(ids.ravi, ws);
     expect(mine.time_off.every((t: { user_id: string }) => t.user_id === ids.ravi)).toBe(true);
     expect(Object.keys(mine.off_days)).toEqual([ids.ravi]);

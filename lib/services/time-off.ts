@@ -15,7 +15,7 @@ export async function offReason(db: PoolClient, ws: string, user: string, date: 
   const r = (await db.query(
     `SELECT (SELECT EXTRACT(DOW FROM $3::date)::smallint = ANY(m.off_days) FROM members m WHERE m.workspace_id=$1 AND m.user_id=$2) AS weekly,
       (SELECT kind FROM time_off t WHERE t.workspace_id=$1 AND t.user_id=$2 AND $3::date BETWEEN t.starts_on AND t.ends_on ORDER BY created_at DESC LIMIT 1) AS kind,
-      (SELECT name FROM users WHERE id=$2) AS name`, [ws, user, date])).rows[0];
+      (SELECT name FROM visible_user($2)) AS name`, [ws, user, date])).rows[0];
   if (!r) return null;
   const who = r.name ?? 'This person';
   if (r.kind === 'leave') return `${who} is on leave that day.`;
@@ -45,7 +45,7 @@ export async function listTimeOff(user: string, ws: string) {
   return inWorkspace(user, ws, async c => {
     allow(c, ['admin', 'staff', 'technician']);
     const rows = (await c.db.query(
-      `SELECT t.id, t.user_id, u.name, t.kind, t.starts_on::text, t.ends_on::text, t.note FROM time_off t LEFT JOIN users u ON u.id=t.user_id
+      `SELECT t.id, t.user_id, u.name, t.kind, t.starts_on::text, t.ends_on::text, t.note FROM time_off t LEFT JOIN LATERAL visible_user(t.user_id) u ON true
        WHERE t.workspace_id=$1 AND t.ends_on >= (now() AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=$1))::date ORDER BY t.starts_on, u.name`, [ws])).rows;
     const off = (await withSystem(db => db.query("SELECT user_id, off_days FROM members WHERE workspace_id=$1 AND role<>'client'" + (c.role === 'technician' ? ' AND user_id=$2' : ''), c.role === 'technician' ? [ws, user] : [ws]), user)).rows;
     return { time_off: rows, off_days: Object.fromEntries(off.map(r => [r.user_id, r.off_days])) };
