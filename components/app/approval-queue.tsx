@@ -12,6 +12,7 @@ import type { Client, Site, Page } from '../../lib/ui/work-orders';
 import { useApp } from './context';
 import { useResource } from './resource';
 import { ImportPagination, ImportSkeleton, RowData } from './import-shared';
+import { isOffice } from '../../lib/roles';
 function DraftButton({ base, item, onDone }: { base: string; item: ImportRecord; onDone: () => void }) {
   const [busy, setBusy] = useState(false), [notice, setNotice] = useState<string | null>(null), [error, setError] = useState(false);
   async function draft() { setBusy(true); setNotice(null); setError(false); try { const result = await post<{ available: boolean; stored?: number }>(`${base}/imports/${item.id}/draft-summaries`); setNotice(result.available ? `${plural(result.stored ?? 0,'suggestion')} ready. Check them before you add them.` : 'AI summaries are unavailable right now. You can still review and approve rows.'); if (result.available) onDone(); } catch { setError(true); } finally { setBusy(false); } }
@@ -22,8 +23,8 @@ export function ApprovalQueue() {
   const [filter, setFilter] = useState('all'), [page, setPage] = useState(1), [selected, setSelected] = useState<ImportRow | null>(null), [checked, setChecked] = useState<string[]>([]), [editing, setEditing] = useState(false), [edits, setEdits] = useState<Mapping>({}), [fields, setFields] = useState<Partial<Record<ImportField, string>>>({}), [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null), [reject, setReject] = useState(false), [reason, setReason] = useState(''), [reasonError, setReasonError] = useState<string | null>(null), [bulk, setBulk] = useState(false), [phone, setPhone] = useState(false), [undos, setUndos] = useState<{ row: ImportRow; until: string }[]>([]), [now, setNow] = useState(0),[busyAction,setBusyAction]=useState('');
   const advance=useRef(false);
   const operation = useRef(false),[discardAction,setDiscardAction]=useState<(()=>void)|null>(null);
-  const queue = useResource<Page<ImportRow>>(member && member.role !== 'client' ? `${base}/queue?page=${page}${filter==='rejected'?'&decision=rejected':filter !== 'all' ? `&status=${filter}` : ''}` : null), imports = useResource<ImportRecord[]>(member && member.role !== 'client' ? `${base}/imports` : null);
-  const clients=useResource<Client[]>(member&&member.role!=='client'?`${base}/clients`:null),chosenClient=clients.data?.find(c=>c.name===(editing?edits.client:selected?.data.client));
+  const queue = useResource<Page<ImportRow>>(member && isOffice(member?.role) ? `${base}/queue?page=${page}${filter==='rejected'?'&decision=rejected':filter !== 'all' ? `&status=${filter}` : ''}` : null), imports = useResource<ImportRecord[]>(member && isOffice(member?.role) ? `${base}/imports` : null);
+  const clients=useResource<Client[]>(member&&isOffice(member?.role)?`${base}/clients`:null),chosenClient=clients.data?.find(c=>c.name===(editing?edits.client:selected?.data.client));
   const sites=useResource<Site[]>(chosenClient?`${base}/clients/${chosenClient.id}/sites`:null);
   const editsDirty=editing&&!!selected&&importFields.some(field=>(edits[field]??'')!==(['due_on','scheduled_for'].includes(field)?dateInput(selected.data[field],workspace?.timezone):selected.data[field]??''));
   useEffect(() => { const media = matchMedia('(max-width: 640px)'), update = () => setPhone(media.matches); update(); media.addEventListener('change', update); return () => media.removeEventListener('change', update); }, []);

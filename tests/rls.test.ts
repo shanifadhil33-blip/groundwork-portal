@@ -75,6 +75,6 @@ describe('Postgres tenant isolation',()=>{
  });
  it('auth tables are owner-only',async()=>{
   await expect(appPool.query('SELECT * FROM accounts')).rejects.toMatchObject({code:'42501'});
-  expect((await ownerPool.query('SELECT id FROM users')).rowCount).toBe(5);
+  expect((await ownerPool.query('SELECT id FROM users')).rowCount).toBe(6);
  });
 });

@@ -40,7 +40,8 @@ describe('signed Cobalt webhook ingest',()=>{
   const response=await webhook.POST(signedRequest(event()));expect(response.status).toBe(200);expect(await response.json()).toEqual({duplicate:false});
   const state=await withUser(ids.imran,async db=>({work:(await db.query('SELECT status FROM work_orders WHERE id=$1',[orderId(4)])).rows[0],events:(await db.query('SELECT kind FROM work_order_events WHERE work_order_id=$1',[orderId(4)])).rows,audit:(await db.query("SELECT * FROM audit_log WHERE entity_id=$1 AND action='update'",[orderId(4)])).rows}));
   expect(state.work.status).toBe('in_progress');expect(state.events).toContainEqual({kind:'status_changed'});expect(state.audit.length).toBeGreaterThan(0);
-  expect(await withUser(ids.sam,async db=>(await db.query('SELECT kind FROM notifications WHERE entity_id=$1',[orderId(4)])).rows)).toContainEqual({kind:'status_changed'});
+  // Order 4 is assigned to Ravi (technician): the assignee is told about the status change.
+  expect(await withUser(ids.ravi,async db=>(await db.query('SELECT kind FROM notifications WHERE entity_id=$1',[orderId(4)])).rows)).toContainEqual({kind:'status_changed'});
  });
  it.each(['bad','missing','stale','future'])('rejects %s signature without writing',async kind=>{
   const before=await snapshot(),body=JSON.stringify(event());

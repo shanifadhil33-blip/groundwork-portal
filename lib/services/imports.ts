@@ -7,7 +7,8 @@ import { inWorkspace, type Context, uuid, insert } from './shared';
 import { fields, type Mapping } from '../import/fields';
 import { validateRow, validationLookup, addLookupOrder, type RowData } from '../import/validate';
 import { draftSummaries } from '../ai';
-function staff<T>(user:string,ws:string,fn:(c:Context)=>Promise<T>){return inWorkspace(user,ws,c=>{if(c.role==='client')throw missing();return fn(c);});}
+import { isOffice } from '../roles';
+function staff<T>(user:string,ws:string,fn:(c:Context)=>Promise<T>){return inWorkspace(user,ws,c=>{if(!isOffice(c.role))throw missing();return fn(c);});}
 async function lock(c:Context){await c.db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['imports:'+c.ws]);}
 async function get(c:Context,table:'imports'|'import_rows',id:string){uuid.parse(id);const r=(await c.db.query(`SELECT * FROM ${table} WHERE workspace_id=$1 AND id=$2 FOR UPDATE`,[c.ws,id])).rows[0];if(!r)throw missing();return r;}
 const querySchema=z.object({status:z.enum(['valid','warning','error']).optional(),decision:z.enum(['pending','approved','rejected']).optional(),page:z.coerce.number().int().min(1).default(1)}).strict();

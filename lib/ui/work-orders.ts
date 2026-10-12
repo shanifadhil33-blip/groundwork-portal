@@ -55,6 +55,8 @@ export function transitionOptions(current:string) {
  return Object.entries(statusLabels).map(([value,title])=>({value,label:value===current?`${title} (current status)`:statusTransitions[current]?.includes(value)?title:`${title}: ${current==='open'?'Move to Scheduled first':current==='scheduled'?'Move to In Progress first':'Unavailable from this status'}`,disabled:value===current||!statusTransitions[current]?.includes(value)}));
 }
 export function providerOnlyPath(path:string) { return /^\/(dashboard|imports?|queue|supplier|clients|audit)(\/|$)/.test(path)||/^\/work-orders\/[^/]+\/edit$/.test(path); }
+/** Technicians use only their jobs and Settings: every office page, plus creating work orders, is closed to them. */
+export function officeOnlyPath(path:string) { return providerOnlyPath(path)||path==='/work-orders/new'||/^\/(isolation)(\/|$)/.test(path); }
 
 // Older demo titles repeated the site and sequence after an em dash.
 // Only remove that exact metadata suffix; preserve user-entered titles.

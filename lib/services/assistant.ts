@@ -60,6 +60,8 @@ export async function assistant(user:string,ws:string,body:unknown) {
      if(['approve_queue_row','reject_queue_row'].includes(call.name)){const row=(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,(args as any).row_id])).rows[0];if(!row)throw missing();return {label:`row ${row.row_number}: ${row.data.title}`,timezone:undefined};}
      return undefined;
     });
+    // Technicians change only the status of their own jobs and add notes; refuse anything else before a confirmation.
+    if(role==='technician'&&!['update_work_order_status','add_comment'].includes(call.name)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.'}]},id:call.id});continue;}
     // Record writes are admin only; a role that cannot make them gets the refusal now, not after a confirmation.
     if(recordTools.includes(call.name)&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only workspace admins can add or change clients and sites.'}]},id:call.id});continue;}
     const record=recordTools.includes(call.name)?await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args)):null;

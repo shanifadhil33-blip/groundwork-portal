@@ -32,7 +32,7 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON workspaces,members,clients,sites,work_orders,comments,invites,imports,import_rows,supplier_orders,supplier_events TO ${role}`);
     await client.query(`GRANT SELECT ON cobalt_state,cobalt_orders,cobalt_events,supplier_sync_runs,audit_log,work_order_events,notifications TO ${role}`);
     await client.query(`GRANT UPDATE(read_at) ON notifications TO ${role}`);
-    await client.query(`GRANT EXECUTE ON FUNCTION app_user_id(),my_role(uuid),my_client(uuid),is_member(uuid),is_staff(uuid) TO ${role}`);
+    await client.query(`GRANT EXECUTE ON FUNCTION app_user_id(),my_role(uuid),my_client(uuid),is_member(uuid),is_staff(uuid),my_job(uuid,uuid),my_job_client(uuid,uuid),my_job_site(uuid,uuid) TO ${role}`);
     await client.query(`GRANT SELECT,INSERT ON idempotency_keys TO ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION remove_member(uuid,uuid),visible_assignee(uuid,uuid),visible_user(uuid),create_workspace(text,text),accept_invite(text),inspect_invite(text),delete_workspace(uuid) TO ${role}`);
     await client.query(`REVOKE ALL ON FUNCTION delete_workspace_data(uuid),delete_demo_workspace(uuid),remove_member_real(uuid,uuid),create_workspace_real(text,text),accept_invite_real(text) FROM ${role}`);

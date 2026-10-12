@@ -31,7 +31,7 @@ it('start creates the shared fixture in one sandbox and an Auth.js database cook
  const r=await sandbox('pranav'),ws=r.body.workspace_id,user=await identity(r.cookie);
  expect(r.cookie).toContain(sessionCookie.name+'=');expect(r.cookie).toContain('HttpOnly');expect(r.cookie).toContain('SameSite=Lax');expect(r.cookie).toContain('Path=/');
  const token=r.cookie.split(';')[0].split('=')[1];const lookup=await authAdapter.getSessionAndUser!(token);expect(lookup?.user.name).toBe('Pranav');expect(lookup?.user.id).toBe(user);expect(new Date(lookup!.session.expires).getTime()).toBeLessThanOrEqual(new Date(r.body.expires_at).getTime());
- for(const [table,n] of [['clients',3],['sites',6],['work_orders',60],['comments',36],['members',4],['supplier_orders',4],['cobalt_orders',4],['import_rows',1],['notifications',3]] as const)expect(await count(table,ws)).toBe(n);
+ for(const [table,n] of [['clients',3],['sites',6],['work_orders',60],['comments',36],['members',5],['supplier_orders',4],['cobalt_orders',4],['import_rows',1],['notifications',3]] as const)expect(await count(table,ws)).toBe(n);
  expect(await withSystem(async db=>(await db.query('SELECT count(*)::int AS n FROM accounts a JOIN users u ON u.id=a."userId" WHERE u.demo_workspace_id=$1',[ws])).rows[0].n)).toBe(0);
  expect((await call(workspaces.GET,undefined,r.cookie)).body).toHaveLength(1);
  expect(await withUser(user,async db=>(await db.query("SELECT id FROM comments WHERE visibility='internal'")).rows)).toEqual([]);
@@ -67,7 +67,7 @@ it('demo fixture dropped supplier delivery can be detected and repaired idempote
 it('cleanup removes expired sandboxes and all demo users/sessions only, and is idempotent',async()=>{
  const a=await sandbox(),b=await sandbox();await withSystem(db=>db.query("UPDATE workspaces SET demo_expires_at=now()-interval '1 second' WHERE id=$1",[a.body.workspace_id]));
  expect(await getSessionUserId(new Request('http://localhost',{headers:{cookie:a.cookie}}))).toBeNull();
- expect(await cleanupDemo()).toMatchObject({workspaces:1,users:4,sessions:1});expect(await cleanupDemo()).toMatchObject({workspaces:0,users:0,sessions:0});expect(await count('work_orders',b.body.workspace_id)).toBe(60);expect(await count('work_orders',ids.ridgeline)).toBe(60);
+ expect(await cleanupDemo()).toMatchObject({workspaces:1,users:5,sessions:1});expect(await cleanupDemo()).toMatchObject({workspaces:0,users:0,sessions:0});expect(await count('work_orders',b.body.workspace_id)).toBe(60);expect(await count('work_orders',ids.ridgeline)).toBe(60);
  expect(await withSystem(async db=>(await db.query('SELECT id FROM users WHERE demo_workspace_id=$1',[a.body.workspace_id])).rows)).toEqual([]);expect(await count('audit_log',a.body.workspace_id)).toBe(0);
 });
 it('demo users cannot accept real invites, create/delete workspaces or manage members; database rejects mixed memberships and Google accounts',async()=>{

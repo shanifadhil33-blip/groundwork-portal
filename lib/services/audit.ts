@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { missing, invalid } from '../http';
 import { inWorkspace, uuid } from './shared';
 import { paging, parseQuery, feedOffset } from './feed';
+import { isOffice } from '../roles';
 export function redact(value:unknown):unknown {
  if(Array.isArray(value))return value.map(redact);
  if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).filter(([key])=>!/(token|secret|password|credential|authorization|api[_-]?key|private[_-]?key)/i.test(key)).map(([key,v])=>[key,redact(v)]));return value;
@@ -20,7 +21,7 @@ export const auditFeedWhere = `a.entity IN ('workspaces','members','clients','si
  AND (a.entity<>'imports' OR a.action<>'update' OR a.before->>'status' IS DISTINCT FROM a.after->>'status')`;
 export async function listAudit(user:string,ws:string,params:URLSearchParams) {
  return inWorkspace(user,ws,async c=>{
-  if(c.role==='client')throw missing();
+  if(!isOffice(c.role))throw missing();
   const q=parseQuery(params,{...paging,actor:uuid.optional(),action:z.string().min(1).max(100).optional(),entity:z.string().min(1).max(100).optional(),entity_id:uuid.optional(),from:z.iso.datetime({offset:true}).optional(),to:z.iso.datetime({offset:true}).optional(),sort:z.enum(['newest','oldest']).default('newest')});
   if(q.from&&q.to&&new Date(q.from)>new Date(q.to))throw invalid('From must be before to.','from');
   const values:unknown[]=[ws],where=['a.workspace_id=$1',auditFeedWhere];
@@ -33,5 +34,5 @@ export async function listAudit(user:string,ws:string,params:URLSearchParams) {
  });
 }
 export async function getAudit(user:string,ws:string,id:string) {
- return inWorkspace(user,ws,async c=>{if(c.role==='client')throw missing();uuid.parse(id);const r=(await c.db.query(`${select} WHERE a.workspace_id=$1 AND a.id=$2`,[ws,id])).rows[0];if(!r)throw missing();return item(r);});
+ return inWorkspace(user,ws,async c=>{if(!isOffice(c.role))throw missing();uuid.parse(id);const r=(await c.db.query(`${select} WHERE a.workspace_id=$1 AND a.id=$2`,[ws,id])).rows[0];if(!r)throw missing();return item(r);});
 }

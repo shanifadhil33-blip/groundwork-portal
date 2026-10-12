@@ -11,8 +11,9 @@ import { duplicateImport, importError, type ImportRecord } from '../../lib/ui/im
 import { useApp } from './context';
 import { useResource } from './resource';
 import { ImportSkeleton } from './import-shared';
+import { isOffice } from '../../lib/roles';
 export function ImportUpload() {
-  const { member } = useApp(), router = useRouter(), base = `/api/workspaces/${member?.workspace_id}/imports`, recent = useResource<ImportRecord[]>(member && member.role !== 'client' ? base : null);
+  const { member } = useApp(), router = useRouter(), base = `/api/workspaces/${member?.workspace_id}/imports`, recent = useResource<ImportRecord[]>(member && isOffice(member?.role) ? base : null);
   const input = useRef<HTMLInputElement>(null), [source, setSource] = useState<File | 'sample' | null>(null), [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null), [duplicate, setDuplicate] = useState<ReturnType<typeof duplicateImport>>(null), [drag, setDrag] = useState(false);
   async function upload(value: File | 'sample', force = false) {
     if (busy) return; setSource(value); setError(null); setDuplicate(null);

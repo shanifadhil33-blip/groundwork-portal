@@ -7,8 +7,9 @@ import { inWorkspace, type Context, uuid } from './shared';
 import { transitions } from './work-orders';
 import { appendEvent, cobaltStatus, eventSchema, sourceSnapshot, supplierLabel, type CobaltEvent } from '../cobalt/simulator';
 import { signedRequest, verifySignature } from '../cobalt/signature';
+import { isOffice } from '../roles';
 function access<T>(user:string,ws:string,admin:boolean,fn:(c:Context)=>Promise<T>) {
- return inWorkspace(user,ws,async c=>{if(c.role==='client')throw missing();if(admin&&c.role!=='admin')throw forbidden();const workspace=(await c.db.query('SELECT is_demo FROM workspaces WHERE id=$1',[ws])).rows[0];if(!workspace?.is_demo)throw new ApiError(409,'supplier_not_connected','No supplier is connected. The simulator is available in demo workspaces only.');return fn(c);});
+ return inWorkspace(user,ws,async c=>{if(!isOffice(c.role))throw missing();if(admin&&c.role!=='admin')throw forbidden();const workspace=(await c.db.query('SELECT is_demo FROM workspaces WHERE id=$1',[ws])).rows[0];if(!workspace?.is_demo)throw new ApiError(409,'supplier_not_connected','No supplier is connected. The simulator is available in demo workspaces only.');return fn(c);});
 }
 // Authorized simulator/sync operations need source-of-truth and timeline writes.
 // Recheck membership inside the system transaction, retaining the real audit actor.
@@ -16,7 +17,7 @@ async function systemAction<T>(user:string,ws:string,admin:boolean,fn:(db:PoolCl
  await access(user,ws,admin,async()=>undefined);
  return withSystem(async db=>{
   const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;
-  if(!role||role==='client')throw missing();if(admin&&role!=='admin')throw forbidden();
+  if(!isOffice(role))throw missing();if(admin&&role!=='admin')throw forbidden();
   return fn(db);
  },user);
 }
@@ -107,12 +108,12 @@ export async function runSync(ws:string,operation:'check'|'repair',trigger:'manu
  if(trigger==='manual'){if(!user)throw forbidden();await access(user,ws,true,async()=>undefined);}
  await withSystem(async db=>{if(!(await db.query('SELECT is_demo FROM workspaces WHERE id=$1',[ws])).rows[0]?.is_demo)throw new ApiError(409,'supplier_not_connected','No supplier is connected.');});
  const run=await withSystem(async db=>{
-  if(user){const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;if(!role||role==='client')throw missing();if(role!=='admin')throw forbidden();}
+  if(user){const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;if(!isOffice(role))throw missing();if(role!=='admin')throw forbidden();}
   return (await db.query('INSERT INTO supplier_sync_runs(workspace_id,trigger,operation) VALUES($1,$2,$3) RETURNING id',[ws,trigger,operation])).rows[0].id as string;
  },user);
  try {
   return await withSystem(async db=>{
-   if(user){const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;if(!role||role==='client')throw missing();if(role!=='admin')throw forbidden();}
+   if(user){const role=(await db.query('SELECT my_role($1) AS role',[ws])).rows[0].role;if(!isOffice(role))throw missing();if(role!=='admin')throw forbidden();}
    await lock(db,ws);const {source,mismatches}=await compare(db,ws);
    if(ref&&!source.orders.some(o=>o.cobalt_ref===ref))throw missing();
    const selected=mismatches.filter(m=>!ref||m.cobalt_ref===ref);let repaired=0;

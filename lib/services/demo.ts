@@ -6,7 +6,7 @@ import { ApiError, missing } from '../http';
 import { requiredEnv } from '../env';
 import { populateFixture,ids as fixtureIds } from '../fixture';
 import { sessionCookie } from '../auth';
-export const personaSchema=z.object({persona:z.enum(['imran','sam','pranav','omar'])}).strict();
+export const personaSchema=z.object({persona:z.enum(['imran','sam','ravi','pranav','omar'])}).strict();
 type Persona=z.infer<typeof personaSchema>['persona'];
 const lock=async(db:PoolClient)=>{await db.query('SELECT pg_advisory_xact_lock(78201350)');};
 async function cleanup(db:PoolClient,limit:number){
@@ -74,6 +74,6 @@ export async function isolationCheck(user:string){
  const other=await withSystem(async owner=>(await owner.query('SELECT id FROM workspaces WHERE id<>$1 ORDER BY id LIMIT 1',[m.workspace_id])).rows[0]?.id??randomUUID());
  const crossQuery='SELECT id FROM work_orders WHERE workspace_id=$1';
  const database_role=(await db.query('SELECT current_user AS name')).rows[0].name;
- return {database_role,role:m.role,client,query,params,row_count,...(m.role==='client'?{}:{explanation:'Staff and admins can see all clients in their sandbox.'}),cross_workspace:{query:crossQuery,params:[other],row_count:(await db.query(crossQuery,[other])).rowCount??0}};
+ return {database_role,role:m.role,client,query,params,row_count,...(m.role==='client'?{}:{explanation:m.role==='technician'?'Technicians see only the clients and sites of jobs assigned to them.':'Supervisors and admins can see all clients in their sandbox.'}),cross_workspace:{query:crossQuery,params:[other],row_count:(await db.query(crossQuery,[other])).rowCount??0}};
  });
 }

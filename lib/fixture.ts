@@ -3,7 +3,7 @@ import type { PoolClient } from 'pg';
 export const ids = {
   imran: '10000000-0000-4000-8000-000000000001', sam: '10000000-0000-4000-8000-000000000002',
   pranav: '10000000-0000-4000-8000-000000000003', omar: '10000000-0000-4000-8000-000000000004',
-  summitAdmin: '10000000-0000-4000-8000-000000000005',
+  summitAdmin: '10000000-0000-4000-8000-000000000005', ravi: '10000000-0000-4000-8000-000000000006',
   ridgeline: '20000000-0000-4000-8000-000000000001', summit: '20000000-0000-4000-8000-000000000002',
   harbor: '30000000-0000-4000-8000-000000000001', northgate: '30000000-0000-4000-8000-000000000002',
   larkspur: '30000000-0000-4000-8000-000000000003', summitClient: '30000000-0000-4000-8000-000000000004',
@@ -31,7 +31,7 @@ export function fixtureDates(n:number,today:string,timezone:string) {
 type FixtureIds=typeof ids;
 export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n:number)=>string,orderId:(n:number)=>string,demo=false,supplierSandbox=false) {
  const prefix=demo?ids.ridgeline+':':''; // Supplier references and event IDs stay unique across sandboxes.
-  for (const [id,name] of ([[ids.imran,'Imran'],[ids.sam,'Sam'],[ids.pranav,'Pranav'],[ids.omar,'Omar'],...(demo?[]:[[ids.summitAdmin,'Alex']])])) {
+  for (const [id,name] of ([[ids.imran,'Imran'],[ids.sam,'Sam'],[ids.pranav,'Pranav'],[ids.omar,'Omar'],[ids.ravi,'Ravi'],...(demo?[]:[[ids.summitAdmin,'Alex']])])) {
    await client.query('INSERT INTO users(id,name,email,is_demo,demo_workspace_id,demo_persona) VALUES($1,$2,$3,$4,$5,$6)',[id,name,(demo||supplierSandbox)?`${name.toLowerCase()}.${ids.ridgeline}@demo.groundwork.invalid`:`${name.toLowerCase()}@${name==='Alex'?'summit':'ridgeline'}.demo`,(demo||supplierSandbox),(demo||supplierSandbox)?(name==='Alex'?ids.summit:ids.ridgeline):null,(demo||supplierSandbox)?(name==='Alex'?'imran':name.toLowerCase()):null]);
   }
   await client.query("SELECT set_config('app.user_id',$1,true)",[ids.imran]);
@@ -43,7 +43,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    [ids.larkspur,ids.ridgeline,'Larkspur Coworking Studio','Laith Haddad','+97165550172','hello@larkspur.example','Larkspur Studio, Floor 3','Al Khan Street','Al Majaz 3','Sharjah',null],
    ...(demo?[]:[[ids.summitClient,ids.summit,'Juniper Business Park','Rashid Al Nuaimi','+97125550145','estates@juniper.example','Juniper Tower, Floor 18','Hamdan Bin Mohammed Street','Al Danah','Abu Dhabi',null] as [string,string,string,string,string,string,string,string,string,string,string|null]])];
   for (const [id,ws,name,contact,phone,email,building,street,area,city,notes] of clientRecords) await client.query('INSERT INTO clients(id,workspace_id,name,contact_name,phone,email,billing_building,billing_street,billing_area,billing_city,billing_region,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',[id,ws,name,contact,phone,email,building,street,area,city,city,notes]);
-  for (const [ws,user,role,company] of [[ids.ridgeline,ids.imran,'admin',null],[ids.ridgeline,ids.sam,'staff',null],[ids.ridgeline,ids.pranav,'client',ids.harbor],[ids.ridgeline,ids.omar,'client',ids.northgate],...(demo?[]:[[ids.summit,ids.summitAdmin,'admin',null]])]) await client.query('INSERT INTO members(workspace_id,user_id,role,client_id) VALUES($1,$2,$3,$4)',[ws,user,role,company]);
+  for (const [ws,user,role,company] of [[ids.ridgeline,ids.imran,'admin',null],[ids.ridgeline,ids.sam,'staff',null],[ids.ridgeline,ids.ravi,'technician',null],[ids.ridgeline,ids.pranav,'client',ids.harbor],[ids.ridgeline,ids.omar,'client',ids.northgate],...(demo?[]:[[ids.summit,ids.summitAdmin,'admin',null]])]) await client.query('INSERT INTO members(workspace_id,user_id,role,client_id) VALUES($1,$2,$3,$4)',[ws,user,role,company]);
   // The demo company is based in Dubai: UAE emirates, +971 numbers and AED.
   if(demo) await client.query("UPDATE workspaces SET country='AE',region='Dubai',currency='AED' WHERE id=$1",[ids.ridgeline]);
   const names=['Marina Exchange','Pine Terrace','Harbor Annex','Northgate East','Northgate West','Larkspur Loft','Juniper Court'];
@@ -65,7 +65,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    const summit=n>60; const site=summit?7:((n-1)%5)+1;
    const ws=summit?ids.summit:ids.ridgeline; const company=summit?ids.summitClient:site<=3?ids.harbor:ids.northgate; const actor=summit?ids.summitAdmin:n%3===0?ids.sam:ids.imran;
    await client.query("SELECT set_config('app.user_id',$1,true)",[actor]);
-   const dates=fixtureDates(n,today,timezone), assigned=summit?ids.summitAdmin:[ids.sam,ids.imran,null,ids.sam,ids.sam,ids.imran,null][(n-1)%7];
+   const dates=fixtureDates(n,today,timezone), assigned=summit?ids.summitAdmin:[ids.sam,ids.imran,null,ids.ravi,ids.sam,ids.ravi,null][(n-1)%7];
    const title=tasks[(n-1)%tasks.length];
    await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)',[orderId(n),ws,company,siteId(site),title,`Routine facilities request ${n}; coordinate access with the site manager.`,fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated]);
    const history: {kind:string;body:string;details:Record<string,unknown>}[]=[];

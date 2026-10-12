@@ -4,6 +4,7 @@ import { getAppPageData, initialResources } from '../../../lib/server-page-data'
 import { listWorkOrders } from '../../../lib/services/work-orders';
 import { listClients } from '../../../lib/services/clients';
 import { listMembers } from '../../../lib/services/members';
+import { isOffice } from '../../../lib/roles';
 export default async function Page({searchParams}:{searchParams:Promise<Record<string,string|string[]|undefined>>}) {
   const app=await getAppPageData(),member=app?.me.memberships[0];
   if(!app||!member)return <WorkOrderList/>;
@@ -13,7 +14,7 @@ export default async function Page({searchParams}:{searchParams:Promise<Record<s
   api.delete('page');api.delete('cursor');api.set('pageSize','100');
   const resources=await initialResources(app.user,[
     [`${base}/work-orders?${api}`,()=>listWorkOrders(app.user,member.workspace_id,api,true)],
-    ...(member.role!=='client'?[[`${base}/clients`,()=>listClients(app.user,member.workspace_id)] as const,[`${base}/members`,()=>listMembers(app.user,member.workspace_id)] as const]:[]),
+    ...(isOffice(member?.role)?[[`${base}/clients`,()=>listClients(app.user,member.workspace_id)] as const,[`${base}/members`,()=>listMembers(app.user,member.workspace_id)] as const]:[]),
   ]);
   return <InitialResourceProvider resources={resources}><WorkOrderList/></InitialResourceProvider>;
 }

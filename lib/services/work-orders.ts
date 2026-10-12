@@ -16,8 +16,8 @@ export const transitions:Record<string,string[]>={
 };
 async function assignee(c:Parameters<typeof allow>[0],id:string|null|undefined) {
  if(!id)return;
- const m=(await c.db.query("SELECT 1 FROM members WHERE workspace_id=$1 AND user_id=$2 AND role IN ('admin','staff')",[c.ws,id])).rowCount;
- if(!m)throw invalid('Choose a staff member or admin from this workspace.','assignee_id');
+ const m=(await c.db.query("SELECT 1 FROM members WHERE workspace_id=$1 AND user_id=$2 AND role IN ('admin','staff','technician')",[c.ws,id])).rowCount;
+ if(!m)throw invalid('Choose someone from your team in this workspace.','assignee_id');
 }
 export async function listWorkOrders(user:string,ws:string,params:URLSearchParams,all=false) {
  const query=parseListQuery(params);
@@ -58,6 +58,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
 }
 export async function createWorkOrder(user:string,ws:string,body:unknown,key?:string) {
  return inWorkspace(user,ws,async c=>{
+  if(c.role==='technician')throw new ApiError(403,'forbidden','Ask a supervisor to create the job.');
   const data=(c.role==='client'?clientSchema:createSchema).parse(body);
   if(c.role==='client' && data.client_id && data.client_id!==c.client_id)throw invalid('Choose one of your own sites.','client_id');
   const site=await row(c,'sites',data.site_id);
@@ -96,9 +97,11 @@ export async function getWorkOrder(user:string,ws:string,id:string) {
 export async function patchWorkOrder(user:string,ws:string,id:string,body:unknown,ifMatch?:string) {
  return inWorkspace(user,ws,async c=>{
   // Check record visibility first, then role: own-client PATCH is 403; hidden records 404.
-  await row(c,'work_orders',id);allow(c,['admin','staff']);
+  await row(c,'work_orders',id);allow(c,['admin','staff','technician']);
   const order=await row(c,'work_orders',id,true);
   const parsed=patchSchema.parse(body);
+  // Technicians see only their own jobs (RLS) and change only the status, never to cancelled.
+  if(c.role==='technician'){const {updated_at:_u,reopen:_r,...changes}=parsed;if(Object.keys(changes).some(k=>k!=='status')||_r)throw new ApiError(403,'forbidden','You can update the status of your own jobs. Ask a supervisor for other changes.');if(changes.status==='cancelled')throw new ApiError(403,'forbidden','Ask a supervisor to cancel a job.');}
   const version=ifMatch?.replace(/^"|"$/g,'')??parsed.updated_at;
   if(!version)throw invalid('Refresh the work order before saving your changes.','updated_at');
   timestamp.parse(version);

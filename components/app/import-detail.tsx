@@ -10,8 +10,9 @@ import type { Page } from '../../lib/ui/work-orders';
 import { useApp } from './context';
 import { useResource } from './resource';
 import { ImportPagination, ImportSkeleton, ValidationTable, RowIssues } from './import-shared';
+import { isOffice } from '../../lib/roles';
 export function ImportDetail({ id }: { id: string }) {
-  const { member, me } = useApp(), base = `/api/workspaces/${member?.workspace_id}/imports/${id}`, metadata = useResource<ImportRecord>(member && member.role !== 'client' ? base : null);
+  const { member, me } = useApp(), base = `/api/workspaces/${member?.workspace_id}/imports/${id}`, metadata = useResource<ImportRecord>(member && isOffice(member?.role) ? base : null);
   const [mapping, setMapping] = useState<Mapping>({}), [remap, setRemap] = useState(false), [filter, setFilter] = useState('all'), [page, setPage] = useState(1), [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null);
   const item = metadata.data, queued = item?.status === 'queued' || item?.status === 'completed', mappingStep = item?.status === 'uploaded' || remap;
   const rows = useResource<Page<ImportRow>>(item && !mappingStep && !queued ? `${base}/rows?page=${page}${filter !== 'all' ? `&status=${filter}` : ''}` : null);
