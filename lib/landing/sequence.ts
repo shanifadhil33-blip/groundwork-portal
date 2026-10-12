@@ -26,10 +26,15 @@ export function nearestLoaded(target: number, loaded: ArrayLike<boolean>) {
 }
 
 /** Coarse to fine, so the whole timeline is roughly covered early: ends, every 8th, 4th, 2nd, then the rest. */
+/** Frames the first screen of scrolling reaches on a phone: the floors, the roof cap and the first lights. */
+const ASSEMBLY_FRAMES = 41;
 export function loadOrder(count = FRAME_COUNT) {
   const order: number[] = [0, count - 1];
   const seen = new Set(order);
-  for (const step of [8, 4, 2, 1]) for (let i = 0; i < count; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); }
+  const add = (from: number, to: number, steps: number[]) => { for (const step of steps) for (let i = from; i < to; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); } };
+  // The assembly (and the first lights) is what the first scroll shows, so it fills in before the rest of the sequence.
+  add(0, Math.min(count, ASSEMBLY_FRAMES), [4, 2, 1]);
+  add(0, count, [8, 4, 2, 1]);
   return order;
 }
 
@@ -38,15 +43,28 @@ export function frameFloat(progress: number, count = FRAME_COUNT) {
   return clamp((progress - SEQ_START) / (1 - SEQ_START)) * (count - 1);
 }
 
+/** The v8 phone curve. Its lighting part (from scene progress .33, where the first band lights) is kept exactly. */
+const litCurve = (x: number) => .25 * x + .75 * Math.pow(x, 2.2);
+const litSlope = (x: number) => .25 + .75 * 2.2 * Math.pow(x, 1.2);
+/** Curve value where the first band lights: scene progress .33 (components/landing/scene.ts). */
+const LIGHT_AT = (.33 - SEQ_START) / (1 - SEQ_START);
+const T_LIGHT = (() => { let lo = 0, hi = 1; for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (litCurve(mid) < LIGHT_AT) lo = mid; else hi = mid; } return (lo + hi) / 2; })();
+/** Assembly: an even pace from the first pixel, then a short smooth ramp (last quarter, the roof cap) into the lighting. */
+const RAMP_FROM = .75 * T_LIGHT, LIGHT_SLOPE = litSlope(T_LIGHT);
+const EVEN_SLOPE = (LIGHT_AT - LIGHT_SLOPE * (T_LIGHT - RAMP_FROM) / 2) / ((T_LIGHT + RAMP_FROM) / 2);
+
 /**
  * Phone timing: one continuous, strictly rising curve over the whole story scroll, with no holds.
- * It starts calm (slope 0.25, so the building already moves while the hero scrolls) and gently speeds up,
- * which lands the colours near the copy: just turning blue at step 01 (Scheduled starts), blue to ochre
- * through step 02, all ochre by step 03.
+ * Assembly (floors stacking, roof cap) starts on the first scroll and runs at an even pace; a smoothstep in
+ * velocity hands over to the v8 lighting curve at the same value and slope, so the lighting lands on the copy
+ * exactly as before: just turning blue at step 01, blue to ochre through step 02, all ochre by step 03.
  */
 export function phoneCurve(t: number) {
   const x = clamp(t);
-  return .25 * x + .75 * Math.pow(x, 2.2);
+  if (x >= T_LIGHT) return litCurve(x);
+  if (x <= RAMP_FROM) return EVEN_SLOPE * x;
+  const width = T_LIGHT - RAMP_FROM, s = (x - RAMP_FROM) / width;
+  return EVEN_SLOPE * RAMP_FROM + width * (EVEN_SLOPE * s + (LIGHT_SLOPE - EVEN_SLOPE) * (s ** 3 - s ** 4 / 2));
 }
 
 

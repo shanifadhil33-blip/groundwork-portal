@@ -115,6 +115,27 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
   -webkit-box-decoration-break:clone;
   box-decoration-break:clone;
 }
+/* A text line right above: fade the glass top, so the black gap above it reads like every other line gap.
+   Only the body and inset shine are masked; the drop shadow moves to ::after so the bottom and sides stay as they are. */
+.lx-root .lx-highlight--after-line::before{
+  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 38%);
+  mask-image:linear-gradient(to bottom,transparent,#000 38%);
+  box-shadow:
+    inset .025em 0 .1em rgba(255,255,255,.06),
+    inset 0 -.055em .12em rgba(255,255,255,.08),
+    inset 0 -.12em .2em rgba(0,0,0,.18);
+}
+.lx-root .lx-highlight--after-line::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:.12em 0 -.04em;
+  pointer-events:none;
+  border-radius:inherit;
+  box-shadow:0 .06em .18em rgba(0,0,0,.2);
+  -webkit-box-decoration-break:clone;
+  box-decoration-break:clone;
+}
 .lx-root .lx-hero p{max-width:375px;margin-top:28px}
 .lx-root .lx-scroll{display:flex;align-items:center;gap:12px;color:#a1a1a1;font-size:12px;margin-top:72px}
 .lx-root .lx-scroll>span{height:34px;width:1px;background:#737373}

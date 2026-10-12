@@ -25,7 +25,7 @@ export default function Landing() {
       </div></section>
       </div>
       <section className="lx-agent"><div className="lx-agent-copy lx-reveal-text"><h2>Your AI agents can work here too.</h2><p>Outside agents connect over MCP with scoped keys and the same permissions as your team.</p><CopyConfig /></div></section>
-      <section className="lx-finale" aria-label="Try Groundwork"><div className="lx-reveal-text"><h2>Every job,<br />every building,<br /><span className="lx-highlight">one place.</span></h2><Actions /><p className="lx-note">No sign up needed. Each visitor gets a private sandbox.</p></div></section>
+      <section className="lx-finale" aria-label="Try Groundwork"><div className="lx-reveal-text"><h2>Every job,<br />every building,<br /><span className="lx-highlight lx-highlight--after-line">one place.</span></h2><Actions /><p className="lx-note">No sign up needed. Each visitor gets a private sandbox.</p></div></section>
     </main>
     <footer className="lx-footer"><span className="lx-footer-brand">Groundwork</span><nav aria-label="Legal"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></nav></footer>
   </div>;

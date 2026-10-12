@@ -117,7 +117,9 @@ describe('pre-rendered building sequence for phones', () => {
     loaded[44] = true; expect(nearestLoaded(50, loaded)).toBe(44);
   });
   it('loads coarse to fine and covers every frame once', () => {
-    const order = loadOrder(); expect(order.slice(0, 3)).toEqual([0, 119, 8]);
+    const order = loadOrder(); expect(order.slice(0, 4)).toEqual([0, 119, 4, 8]);
+    // The assembly frames (what the first scroll reaches) all load before any later frame except the last.
+    expect(order.slice(2, 41).every(i => i <= 40)).toBe(true);
     expect(new Set(order).size).toBe(120); expect(order).toHaveLength(120);
   });
   it('maps phone scroll through one continuous, strictly rising curve with no holds', () => {
@@ -130,6 +132,16 @@ describe('pre-rendered building sequence for phones', () => {
       previous = value;
     }
     expect(minSlope).toBeGreaterThanOrEqual(.25);
+  });
+  it('starts the assembly on the first scroll at an even pace and keeps the lighting timing exactly', () => {
+    const lit = (x: number) => .25 * x + .75 * Math.pow(x, 2.2), light = (.33 - SEQ_START) / (1 - SEQ_START);
+    const slope = (t: number) => (phoneCurve(t + 1e-4) - phoneCurve(t)) / 1e-4;
+    // Twice the v8 start speed from the first pixel, and the same speed all through the floors.
+    expect(slope(0)).toBeGreaterThan(.5); expect(Math.abs(slope(.05) - slope(.3))).toBeLessThan(1e-6);
+    // Lighting: identical to v8 from the moment the first band lights.
+    for (let t = .49; t <= 1; t += .01) if (lit(t) >= light) expect(phoneCurve(t)).toBe(lit(t));
+    // The hand over is smooth: no jump in value or speed anywhere.
+    for (let i = 1; i < 1000; i++) expect(Math.abs(slope(i / 1000) - slope((i - 1) / 1000))).toBeLessThan(.02);
   });
   it('crossfades neighbouring frames', () => {
     const loaded = new Array(120).fill(false); expect(blendFrames(10.4, loaded)).toBeNull();
