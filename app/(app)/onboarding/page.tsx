@@ -49,8 +49,8 @@ export default function Onboarding() {
       </>}
       {step === 1 && <>
         <PageHeader><h1>Which {regionLabel}?</h1></PageHeader>
-        <p>Where your company is based in {countryName(country)}. Optional: clients and sites each get their own {regionLabel}.</p>
-        <div className="form-field"><label htmlFor="workspace-region">{level.label}<span className="optional"> (optional)</span></label>
+        <p>Where your company is based in {countryName(country)}. You can leave it empty. Clients and sites each get their own {regionLabel}.</p>
+        <div className="form-field"><label htmlFor="workspace-region">{level.label}</label>
           {level.options
             ? <Dropdown id="workspace-region" label={level.label} width={340} value={region} placeholder={`Choose ${an(regionLabel)} ${regionLabel}`} clearable options={level.options.map(o => ({ value: o, label: o }))} onChange={setRegion} />
             : <input id="workspace-region" value={region} maxLength={120} autoComplete="address-level1" onChange={e => setRegion(e.target.value)} />}

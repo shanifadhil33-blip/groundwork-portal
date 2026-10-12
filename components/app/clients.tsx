@@ -59,7 +59,7 @@ function RecordEditor({ editor, close }: { editor:Editor|null;close:()=>void }) 
     const blur=()=>{if(values[f.key]!==start[f.key])setTouched(t=>({...t,[f.key]:true}));if(f.type==='tel'){const n=normalizePhone(values[f.key]??'',cc);if(n)change(f.key,formatPhone(n));}};
     const pick=(v:string)=>{change(f.key,v);setTouched(t=>({...t,[f.key]:true}));};
     const options=f.type==='region'?regionField(cc).options:undefined;
-    return <div className="form-field" key={f.key}><label htmlFor={id}>{label}{!f.required&&f.type!=='country'&&<span className="optional"> (optional)</span>}</label>
+    return <div className="form-field" key={f.key}><label htmlFor={id}>{label}</label>
       {f.type==='country'?<Dropdown id={id} label={label} width={300} value={values[f.key]??''} disabled={busy} describedBy={describedBy} options={[{value:'',label:`Same as workspace (${countryName(editor.country)})`},...countryOptions().map(o=>({...o,divider:o.divider}))]} onChange={v=>changeCountry(f.key,v)}/>
       :options?<Dropdown id={id} label={label} width={300} value={values[f.key]??''} disabled={busy} invalid={invalid} describedBy={describedBy} placeholder={`Choose ${an(label)} ${label.toLowerCase()}`} clearable options={options.map(o=>({value:o,label:o}))} onChange={pick}/>
       :f.type==='textarea'?<textarea id={id} rows={3} disabled={busy} value={values[f.key]??''} maxLength={f.limit??2000} aria-invalid={invalid} aria-describedby={describedBy} onBlur={blur} onChange={e=>change(f.key,e.target.value)}/>
