@@ -16,7 +16,7 @@ export default async function Page() {
   // here too, so it renders complete in the first paint instead of filling in.
   const counts=(app.resources[`${base}/dashboard`] as {data?:{by_status:Record<string,number>}}|undefined)?.data;
   const total=counts?Object.values(counts.by_status).reduce((a,b)=>a+b,0):0,state=(await cookies()).get(firstUseCookie(ws))?.value;
-  const firstUse=!app.workspace?.is_demo&&state!=='dismissed'&&(state==='started'||(!!counts&&total===0));
+  const firstUse=state!=='dismissed'&&(state==='started'||!!app.workspace?.is_demo||(!!counts&&total===0));
   const resources=await initialResources(app.user,[
     ...(firstUse?[
       [`${base}/clients`,()=>listClients(app.user,ws)] as const,

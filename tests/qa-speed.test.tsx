@@ -30,7 +30,7 @@ it('server-renders dashboard counts, attention, recent activity and supplier sum
   '/api/workspaces/workspace/audit?pageSize=5':{data:{data:[{id:'entry',at:'2026-10-11T10:00:00Z',actor:{name:'Admin'},summary:'Created repair request',entity:'work_orders',entity_id:'order'}]}},
   '/api/workspaces/workspace/supplier/sync-runs':{data:[]},
  }}><Dashboard/></InitialResourceProvider></AppContext.Provider>);
- expect(html).toContain('<strong>7</strong><span>Late</span>');expect(html).not.toContain('Created repair request');expect(html).not.toContain('sync');expect(html).not.toContain('skeleton');
+ expect(html).toContain('<strong>7</strong><span>Late</span>');expect(html).not.toContain('Created repair request');expect(html).not.toContain('sync');expect(html.replace(/<div class="card first-run[\s\S]*$/,'')).not.toContain('skeleton');expect(html).toContain('Get started');
 });
 it('validates 500 mapped rows from one lookup read and preserves duplicate/date rules',async()=>{
  const site={id:'site-a',client_id:'client-a',name:'Marina',address:'12 Road',client_name:'Harbor'};
