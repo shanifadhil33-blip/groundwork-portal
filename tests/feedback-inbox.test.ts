@@ -1,35 +1,22 @@
-import { createHmac } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { inboxPass, isInboxOwner, senderHash, INBOX_ORIGIN } from '../lib/inbox';
+import { feedbackSecret, senderHash, INBOX_ORIGIN } from '../lib/inbox';
 import { deviceSummary } from '../lib/ui/device';
 
-const SECRET = 'x'.repeat(40);
-beforeEach(() => { process.env.INBOX_PASS_SECRET = SECRET; process.env.FEEDBACK_SECRET = 'y'.repeat(40); });
-afterEach(() => { delete process.env.INBOX_PASS_SECRET; delete process.env.FEEDBACK_SECRET; });
+beforeEach(() => { process.env.FEEDBACK_SECRET = 'y'.repeat(40); });
+afterEach(() => { delete process.env.FEEDBACK_SECRET; });
 
-describe('portfolio inbox pass', () => {
-  it('only lets Adhil’s two real Google accounts in, never a demo account', () => {
-    expect(isInboxOwner('shanifadhil33@gmail.com', false)).toBe(true);
-    expect(isInboxOwner('ShanifAdhil022@gmail.com', false)).toBe(false); expect(isInboxOwner('ShanifAdhil33@gmail.com', false)).toBe(true);
-    expect(isInboxOwner('shanifadhil33@gmail.com', true)).toBe(false);
-    expect(isInboxOwner('someone@gmail.com', false)).toBe(false);
-    expect(isInboxOwner(null, false)).toBe(false);
+describe('Groundwork plays no part in signing in to the portfolio inbox', () => {
+  it('has no inbox pass, pass route or inbox sign in cookie anywhere', () => {
+    expect(existsSync(new URL('../app/api/inbox-pass', import.meta.url))).toBe(false);
+    const files = execSync("git ls-files app lib components", { encoding: 'utf8' }).split('\n').filter(f => /\.(ts|tsx)$/.test(f));
+    const hits = files.filter(f => /inbox-pass|inboxPass|INBOX_PASS|inbox-flow|isInboxOwner/.test(readFileSync(f, 'utf8')));
+    expect(hits).toEqual([]);
   });
-  it('signs a short pass the portfolio can check, and it expires in 2 minutes', () => {
-    const [body, sig] = inboxPass('shanifadhil33@gmail.com').split('.');
-    expect(sig).toBe(createHmac('sha256', SECRET).update(body).digest('base64url'));
-    const data = JSON.parse(Buffer.from(body, 'base64url').toString());
-    expect(data).toMatchObject({ email: 'shanifadhil33@gmail.com', purpose: 'pass' });
-    expect(data.exp - Date.now() / 1000).toBeLessThanOrEqual(120);
-  });
-  it('sends people back to one fixed address only', () => {
+  it('still posts feedback to the inbox on its one fixed address, with the shared secret', () => {
     expect(INBOX_ORIGIN).toBe('https://adhilshanif.vercel.app');
-    const route = readFileSync(new URL('../app/api/inbox-pass/route.ts', import.meta.url), 'utf8');
-    // Only two on or off flags are read from the URL, and no query value ever reaches a redirect.
-    expect([...route.matchAll(/searchParams\.get\('(\w+)'\)/g)].map(m => m[1])).toEqual(['back']);
-    expect(route).not.toMatch(/(Location|redirect)[^\n]*searchParams/i);
-    expect(route).toMatch(/prompt: 'select_account'/);
+    expect(feedbackSecret()).toBe('y'.repeat(40));
   });
 });
 describe('help and feedback', () => {
