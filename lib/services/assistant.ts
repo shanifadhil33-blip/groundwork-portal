@@ -7,9 +7,8 @@ import { ApiError,missing } from '../http';
 import { inWorkspace,uuid } from './shared';
 import { getWorkOrder } from './work-orders';
 import { tools,callTool,type AgentContext } from '../agent/tools';
-import { jobSnapshot } from './agent-log';
+import { jobSnapshot,recordSnapshot,whyNote } from './agent-log';
 import { contractNote,contractUse } from './payments';
-import { stripThinking } from '../ai-text';
 /** The client or site a record write touches: its name for the card, and the current values to show what changes. */
 /** The record a client or site tool acts on, with the country its labels and formats follow. */
 const teamTools=['assign_work_order','set_job_trade','set_worker_skills','add_worker'];
@@ -48,8 +47,8 @@ export async function assistant(user:string,ws:string,body:unknown) {
   const created=a.tool==='create_request'&&!result.isError?{id:value?.result?.id}:null;
   await x.db.query('UPDATE assistant_actions SET consumed_at=now(), outcome=$2, before=coalesce($3::jsonb,before) WHERE id=$1',[a.id,result.isError?'failed':'done',created?JSON.stringify(created):null]);
   const first=String((await x.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0];
-  const done=(t:string)=>result.isError?t:`Done${first?`, ${first}`:''}. ${t}`;
-  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?done(recordResult(a.tool,a.args,record)):done(audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client')),result};
+  const done=(t:string)=>result.isError?t:`Done${first?`, ${first}`:''}. ${t.replace(/^Done[.,!]?\s*/i,'')}`;
+  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?done(recordResult(a.tool,a.args,record)):done(audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client')),result,logged:!result.isError};
  }));
  const {role,first}=await inWorkspace(user,ws,async c=>({role:c.role,first:String((await c.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0]}));
  const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
@@ -96,9 +95,12 @@ export async function assistant(user:string,ws:string,body:unknown) {
     if(call.name==='add_comment'&&(args as any).visibility==='internal'&&['admin','staff','technician'].includes(role)){
      if(saved){history.push({role:'result',name:call.name,result:{content:[{type:'text',text:'The note is already saved. Tell the person it is done.'}]},id:call.id});continue;}
      const result=await callTool(c,call.name,args);
-     await inWorkspace(user,ws,x=>x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,consumed_at,outcome) VALUES($1,$2,$3,$4,$5,$6,now(),$7)',[ws,user,call.name,JSON.stringify(args),summary.slice(0,600),`You asked me to save this note.`,result.isError?'failed':'done']));
-     if(!result.isError)saved=true;
-     history.push({role:'result',name:call.name,result,id:call.id});continue;
+     const note=(result.structuredContent as any)?.result;
+     const ask=d.messages.filter(m=>m.role==='user').at(-1)?.content??'';
+     await inWorkspace(user,ws,x=>x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,before,consumed_at,outcome) VALUES($1,$2,$3,$4,$5,$6,$7,now(),$8)',[ws,user,call.name,JSON.stringify(args),summary.slice(0,600),whyNote(ask,['The note is saved on the job for the team only.']),JSON.stringify({id:(args as any).work_order_id,comment_id:note?.id??null}),result.isError?'failed':'done']));
+     if(result.isError){history.push({role:'result',name:call.name,result,id:call.id});continue;}
+     // The done reply is a server template with the person's name, never model text.
+     return {available:true,reply:`Done${first?`, ${first}`:''}. ${audienceStatusReply(actionResult(call.name,args,order),false)}`,logged:true};
     }
     // Contract facts go on the card so the admin decides; the agent never decides an over limit or ended contract.
     const contract=call.name==='set_job_payment'&&(args as any).payment_status==='contract'&&order?await inWorkspace(user,ws,async x=>contractNote(await contractUse(x,(order as any).client_id))):'';
@@ -106,9 +108,12 @@ export async function assistant(user:string,ws:string,body:unknown) {
     const knock=call.name==='set_job_payment'?(pay==='contract'?['It leaves the to bill list, so no invoice is made.','It shows as Covered by contract in the history.',contract].filter(Boolean):pay==='paid'?['It leaves the to bill list.','It shows as Paid in the history.']:['It goes back on the to bill list.']).map(l=>`• ${l}`).join('\n'):'';
     const card=knock?`${summary}\n${knock}`:summary;
     const lastAsk=d.messages.filter(m=>m.role==='user').at(-1)?.content??'';
-    const why=plainAssistantReply(stripThinking(turn.text??'').split('\n').map(l=>l.trim()).filter(Boolean)[0]??'',false).slice(0,300)||`You asked: ${lastAsk.slice(0,200)}`;
-    const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,before) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id',[ws,user,call.name,JSON.stringify(args),card.slice(0,600),why,JSON.stringify(jobSnapshot(order as any))])).rows[0].id);
-    return {available:true,reply:'Please confirm this action before I make the change.',pending_action:{id,tool:call.name,args,summary:card,why}};
+    // Why: the person's own request plus what the change does, built here so it is always meaningful.
+    const effects=[card.split('\n')[0],...card.split('\n').slice(1).map(l=>l.replace(/^•\s*/,'').trim()).filter(Boolean)];
+    const why=whyNote(lastAsk,effects);
+    const before=record?recordSnapshot(call.name,args as Record<string,any>,record.record):jobSnapshot(order as any);
+    const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,before) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id',[ws,user,call.name,JSON.stringify(args),card.slice(0,600),why,JSON.stringify(before)])).rows[0].id);
+    return {available:true,pending_action:{id,tool:call.name,args,summary:card,why}};
    }
    const result=await callTool(c,call.name,call.args);
    history.push({role:'result',name:call.name,result,id:call.id});

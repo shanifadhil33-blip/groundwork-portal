@@ -145,7 +145,7 @@ it('number lookup leads directly to a saved team note, logged in the decision lo
  vi.stubGlobal('fetch',mock);
  const before=await withUser(ids.sam,async db=>(await db.query("SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1 AND visibility='internal'",[orderId(55)])).rows[0].n);
  const r=await route(assistantRoute.POST,{messages:[{role:'user',content:"add a comment 'Technician confirmed' to work order 55"}]});
- expect(r.body.pending_action).toBeUndefined();expect(r.body.reply).toContain('Done, Sam');expect(mock).toHaveBeenCalledTimes(3);
+ expect(r.body.pending_action).toBeUndefined();expect(r.body.reply).toMatch(/^Done, Sam\. /);expect(r.body.logged).toBe(true);expect(mock).toHaveBeenCalledTimes(2);
  expect(await withUser(ids.sam,async db=>(await db.query("SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1 AND visibility='internal'",[orderId(55)])).rows[0].n)).toBe(before+1);
  expect(await withSystem(async db=>(await db.query("SELECT count(*)::int AS n FROM assistant_actions WHERE tool='add_comment' AND outcome='done' AND args->>'work_order_id'=$1",[orderId(55)])).rows[0].n)).toBeGreaterThan(0);
 });
