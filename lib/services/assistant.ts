@@ -109,7 +109,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
     const card=knock?`${summary}\n${knock}`:summary;
     const lastAsk=d.messages.filter(m=>m.role==='user').at(-1)?.content??'';
     // Why: the person's own request plus what the change does, built here so it is always meaningful.
-    const effects=[card.split('\n')[0],...card.split('\n').slice(1).map(l=>l.replace(/^•\s*/,'').trim()).filter(Boolean)];
+    const rest=card.split('\n').slice(1).map(l=>l.replace(/^•\s*/,'').trim()).filter(Boolean),effects=rest.length?rest:[card.split('\n')[0]];
     const why=whyNote(lastAsk,effects);
     const before=record?recordSnapshot(call.name,args as Record<string,any>,record.record):jobSnapshot(order as any);
     const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,before) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id',[ws,user,call.name,JSON.stringify(args),card.slice(0,600),why,JSON.stringify(before)])).rows[0].id);
