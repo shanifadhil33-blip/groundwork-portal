@@ -64,3 +64,6 @@ export function workOrderTitle(order: Pick<WorkOrder,'title'|'site_name'|'order_
  const suffix = order.site_name ? ` — ${order.site_name} / ${order.order_number}` : '';
  return suffix && order.title.endsWith(suffix) ? order.title.slice(0,-suffix.length) : order.title;
 }
+
+/** Technicians open on the jobs they still have to do; done and cancelled stay one filter away. */
+export function activeByDefault(api: URLSearchParams, role: string | null | undefined) { if (role === 'technician' && !api.has('status') && !api.has('overdue') && !api.has('today')) for (const st of ['open', 'scheduled', 'in_progress', 'waiting_on_parts']) api.append('status', st); return api; }

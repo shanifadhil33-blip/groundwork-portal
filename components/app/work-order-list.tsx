@@ -12,14 +12,14 @@ import { useApp } from './context';
 import { useInitialResource } from './initial-resources';
 import { useResource } from './resource';
 import { request } from '../../lib/ui/api';
-import { workOrderTitle, clientStatusLabels, isOverdue, label, priorities, sortOrders, statusLabels, type Client, type Member, type Page, type WorkOrder } from '../../lib/ui/work-orders';
+import { activeByDefault, workOrderTitle, clientStatusLabels, isOverdue, label, priorities, sortOrders, statusLabels, type Client, type Member, type Page, type WorkOrder } from '../../lib/ui/work-orders';
 import { Badge, BottomSheet, Button, Dropdown, EmptyState, ErrorState, LocalTime, StatusBadge, Skeleton } from '../ui';
 const listCache = new Map<string, WorkOrder[]>();
 export function WorkOrderList() {
   const { member, me, workspace } = useApp(), router = useRouter(), params = useSearchParams(), query = params.toString(), ws = member?.workspace_id, base = ws ? `/api/workspaces/${ws}` : null;
   const client = member?.role === 'client', tech = member?.role === 'technician', wording = client ? clientStatusLabels : statusLabels;
   const clients = useResource<Client[]>(base && isOffice(member?.role) ? `${base}/clients` : null), members = useResource<Member[]>(base && isOffice(member?.role) ? `${base}/members` : null);
-  const initialQuery=new URLSearchParams(query);initialQuery.delete('page');initialQuery.delete('cursor');initialQuery.set('pageSize','100');
+  const initialQuery=new URLSearchParams(query);initialQuery.delete('page');initialQuery.delete('cursor');initialQuery.set('pageSize','100');activeByDefault(initialQuery,member?.role);
   const initial=useInitialResource(base?`${base}/work-orders?${initialQuery}`:null);
   const seededOrders=initial&&'data' in initial?(initial.data as Page<WorkOrder>).data:null;
   const cacheKey = `${me.user.id}:${member?.role}:${base}:${query}`;
@@ -31,7 +31,7 @@ export function WorkOrderList() {
   function change(key: string, value: string) { const next = new URLSearchParams(latest.current); next.delete('page'); if (value) next.set(key,value); else next.delete(key); router.push(`/work-orders?${next}`, { scroll: false }); }
   useEffect(() => setSearch(params.get('q') ?? ''), [query, params]);
   useEffect(() => { if (search === (new URLSearchParams(latest.current).get('q') ?? '')) return; const timer = setTimeout(() => change('q',search),350); return () => clearTimeout(timer); }, [search]); // URL is read at execution so filters are preserved.
-  useEffect(() => { if (!base) return; if(initial&&attempt===0){previousScope.current=scope;setOrders(seededOrders);setError('error' in initial);return;} let active = true; const sameScope=previousScope.current===scope;previousScope.current=scope;setOrders(previous=>listCache.get(cacheKey) ?? (sameScope?previous:null)); setError(false); const api = new URLSearchParams(query); api.delete('page'); api.delete('cursor'); api.set('pageSize','100'); async function load() { try { const first = await request<Page<WorkOrder>>(`${base}/work-orders?${api}`); const all = [...first.data]; for (let page=2; all.length < first.total; page++) { api.set('page',String(page)); const next = await request<Page<WorkOrder>>(`${base}/work-orders?${api}`); if (!next.data.length) break; all.push(...next.data); } if (active) { listCache.set(cacheKey,all); setOrders(all); } } catch { if (active) setError(true); } } void load(); return () => { active=false; }; }, [base, query, attempt, cacheKey, initial]);
+  useEffect(() => { if (!base) return; if(initial&&attempt===0){previousScope.current=scope;setOrders(seededOrders);setError('error' in initial);return;} let active = true; const sameScope=previousScope.current===scope;previousScope.current=scope;setOrders(previous=>listCache.get(cacheKey) ?? (sameScope?previous:null)); setError(false); const api = new URLSearchParams(query); api.delete('page'); activeByDefault(api,member?.role); api.delete('cursor'); api.set('pageSize','100'); async function load() { try { const first = await request<Page<WorkOrder>>(`${base}/work-orders?${api}`); const all = [...first.data]; for (let page=2; all.length < first.total; page++) { api.set('page',String(page)); const next = await request<Page<WorkOrder>>(`${base}/work-orders?${api}`); if (!next.data.length) break; all.push(...next.data); } if (active) { listCache.set(cacheKey,all); setOrders(all); } } catch { if (active) setError(true); } } void load(); return () => { active=false; }; }, [base, query, attempt, cacheKey, initial]);
   const sort = params.get('sort') ?? 'updated_at', dir = params.get('dir') ?? 'desc', page = Math.max(1, Number(params.get('page') ?? 1) || 1), size=25;
   const filtered = orders ? sortOrders(params.get('overdue') === 'true' ? orders.filter(o=>isOverdue(o,Date.now(),workspace?.timezone)) : orders, sort, dir) : [], total=filtered.length, maxPage=Math.max(1,Math.ceil(total/size)), visible=filtered.slice((page-1)*size,page*size);
   useEffect(() => { if (orders && page>maxPage) change('page',String(maxPage)); }, [orders, page, maxPage]);

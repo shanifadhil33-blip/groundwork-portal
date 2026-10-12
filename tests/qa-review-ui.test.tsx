@@ -49,7 +49,7 @@ it('shows a single empty queue state and no bulk hint or one-page pager',()=>{
  expect(renderToStaticMarkup(<ImportPagination page={1} total={1} pageSize={50} onChange={()=>{}}/>)).toBe('');expect(renderToStaticMarkup(<ImportPagination page={1} total={51} pageSize={50} onChange={()=>{}}/>)).toContain('Next');
 });
 it('gives clients exactly two aligned recovery actions with their home destination',()=>{
- const html=render(<NoAccess/>,'client');expect(html).toContain('This page is for your maintenance team.');expect(html).toContain('row error-actions');expect(html).toContain('Go back');expect(html).toContain('href="/home"');expect(html).toContain('Go to home');expect(html).not.toContain('/dashboard');expect(html).not.toContain('Back to home');
+ const html=render(<NoAccess/>,'client');expect(html).toContain('It is for your maintenance team.');expect(html).toContain('row error-actions');expect(html).toContain('Go back');expect(html).toContain('href="/home"');expect(html).toContain('Go home');expect(html).not.toContain('/dashboard');expect(html).not.toContain('Back to home');
 });
 it('advances by queue order and keeps the suggestion separate until applied',()=>{
  const row=(id:string,n:number):ImportRow=>({id,import_id:'import',row_number:n,data:{title:'Repair entry sensor',description:'Reader rejects cards',priority:'normal',client:'Harbor',site:'Marina',scheduled_for:'2026-11-12T20:00:00Z',due_on:'2026-11-15',external_ref:''},decision:'pending',status:'valid',warnings:[],errors:[],ai_summary:'Inspect reader alignment and wiring after intermittent access failures.',ai_priority:'high',ai_is_suggestion:true,work_order_id:null});

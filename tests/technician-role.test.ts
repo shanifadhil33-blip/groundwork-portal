@@ -79,3 +79,12 @@ describe('a technician sees only their own jobs', () => {
   expect((await call(orderRoute.PATCH,'PATCH',{assignee_id:ids.ravi,priority:'high',updated_at:o.updated_at},{id:mine.id})).status).toBe(200);
  });
 });
+
+import { activeByDefault } from '../lib/ui/work-orders';
+describe('technician job list', () => {
+  it('opens on jobs still to do, but keeps any filter he picks', () => {
+    expect(activeByDefault(new URLSearchParams(), 'technician').getAll('status')).toEqual(['open','scheduled','in_progress','waiting_on_parts']);
+    expect(activeByDefault(new URLSearchParams('status=done'), 'technician').getAll('status')).toEqual(['done']);
+    expect(activeByDefault(new URLSearchParams(), 'staff').getAll('status')).toEqual([]);
+  });
+});
