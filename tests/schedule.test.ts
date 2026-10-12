@@ -2,7 +2,7 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { closePools, withSystem } from '../lib/db';
 import { ids } from '../scripts/seed';
 import { scheduleBoard } from '../lib/services/schedule';
-import { addDays, weekStart } from '../components/app/schedule';
+import { addDays, part, weekStart } from '../components/app/schedule';
 import { officeOnlyPath, providerOnlyPath } from '../lib/ui/work-orders';
 import { getWorkOrder, patchWorkOrder } from '../lib/services/work-orders';
 import { scheduledInstant } from '../lib/dates';
@@ -13,6 +13,7 @@ describe('schedule board', () => {
   it('weeks start on Monday and days add across months', () => {
     expect(weekStart('2026-10-12')).toBe('2026-10-12'); expect(weekStart('2026-10-18')).toBe('2026-10-12'); expect(weekStart('2026-11-01')).toBe('2026-10-26');
     expect(addDays('2026-10-30', 3)).toBe('2026-11-02');
+    expect(part('2026-10-12', { weekday: 'short' })).toBe('Mon'); expect(part('2026-10-12', { day: 'numeric' })).toBe('12');
   });
   it('shows the office every scheduled job in the range, in workspace days, and the unscheduled active ones', async () => {
     const from = '2026-09-28', b = await scheduleBoard(ids.imran, ids.ridgeline, P(from, 14));

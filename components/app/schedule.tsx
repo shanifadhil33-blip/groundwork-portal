@@ -19,12 +19,13 @@ type Board = { timezone: string; from: string; days: number; people: Person[]; j
 export function weekStart(day: string) { const d = new Date(day + 'T12:00:00Z'); const back = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - back); return d.toISOString().slice(0, 10); }
 export function addDays(day: string, n: number) { const d = new Date(day + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 const dayName = (day: string, long = false) => new Intl.DateTimeFormat('en', { weekday: long ? 'long' : 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(day + 'T12:00:00Z'));
+export const part = (day: string, o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('en', { ...o, timeZone: 'UTC' }).format(new Date(day + 'T12:00:00Z'));
 const hourLabel = (h: number) => new Intl.DateTimeFormat('en', { hour: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(2026, 0, 1, h)));
 const HOURS = Array.from({ length: 15 }, (_, i) => i + 6);
 
 function Chip({ j, onOpen }: { j: Job; onOpen: (j: Job) => void }) {
   return <button type="button" className={`sched-job ${j.status === 'done' ? 'sched-done' : ''}`} onClick={() => onOpen(j)} aria-label={`Move ${j.title}`}>
-    <span className="sched-time">{j.hour !== undefined ? hourLabel(j.hour) : 'No time'}</span><strong>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}</span>
+    {j.hour != null && <span className="sched-time">{hourLabel(j.hour)}</span>}<strong>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}</span>
     {j.status === 'done' && <Badge>Done</Badge>}{j.priority === 'urgent' && <Badge tone="danger">Urgent</Badge>}</button>;
 }
 
@@ -64,7 +65,7 @@ export function Schedule() {
     {board.loading ? <Skeleton className="skeleton-card" /> : board.error || !b ? <ErrorState retry={board.reload} /> : <>
       {/* Phone: one day, grouped by person */}
       <div className="sched-phone stack compact">
-        <div className="sched-days" role="tablist" aria-label="Day">{days.map(d => { const n = (b.jobs).filter(j => j.day === d).length; return <button key={d} role="tab" aria-selected={d === day} className={`sched-day ${d === day ? 'on' : ''} ${d === today ? 'today' : ''}`} onClick={() => pick(d)}><span>{dayName(d).split(' ')[0]}</span><strong>{dayName(d).split(' ')[1]}</strong><small>{n || ''}</small></button>; })}</div>
+        <div className="sched-days" role="tablist" aria-label="Day">{days.map(d => { const n = (b.jobs).filter(j => j.day === d).length; return <button key={d} role="tab" aria-selected={d === day} className={`sched-day ${d === day ? 'on' : ''} ${d === today ? 'today' : ''}`} onClick={() => pick(d)}><span>{part(d, { weekday: 'short' })}</span><strong>{part(d, { day: 'numeric' })}</strong><small>{n || ''}</small></button>; })}</div>
         {(b.jobs).some(j => j.day === day) ? rows.map(p => { const list = cell(p?.user_id ?? null, day); return list.length > 0 && <section key={p?.user_id ?? 'none'} className="stack compact"><h2 className="sched-person">{name(p)}</h2>{list.map(j => <Chip key={j.id} j={j} onOpen={setOpen} />)}</section>; })
           : <EmptyState title="Nothing on this day">{b.unscheduled.length ? 'Pick a job below to give it a day.' : 'Jobs with a visit day show here.'}</EmptyState>}
       </div>
