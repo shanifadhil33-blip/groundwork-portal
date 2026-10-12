@@ -31,3 +31,16 @@ describe('My jobs today', () => {
     expect(tools.my_day.write).toBe(false);
   });
 });
+import { patchWorkOrder, getWorkOrder } from '../lib/services/work-orders';
+describe('Done today', () => {
+  it('counts only jobs moved to Done today, not jobs just edited today', async () => {
+    const before = (await myDay(ids.ravi, ids.ridgeline)).done;
+    await withSystem(db => db.query("UPDATE work_orders SET updated_at=now() WHERE workspace_id=$1 AND assignee_id=$2 AND status='done'", [ids.ridgeline, ids.ravi]));
+    expect((await myDay(ids.ravi, ids.ridgeline)).done).toBe(before);
+    const j = (await withSystem(db => db.query("SELECT id FROM work_orders WHERE workspace_id=$1 AND assignee_id=$2 AND status='in_progress' LIMIT 1", [ids.ridgeline, ids.ravi]))).rows[0];
+    if (!j) return;
+    const o = await getWorkOrder(ids.ravi, ids.ridgeline, j.id);
+    await patchWorkOrder(ids.ravi, ids.ridgeline, j.id, { status: 'done', updated_at: new Date(o.updated_at).toISOString() });
+    expect((await myDay(ids.ravi, ids.ridgeline)).done).toBe(before + 1);
+  });
+});
