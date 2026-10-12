@@ -1,4 +1,6 @@
 import { pushLateJobs } from '../../../../lib/services/push';
+import { pushExpiringDocuments } from '../../../../lib/services/documents';
 import { constantEqual } from '../../../../lib/cobalt/signature';
 import { ApiError,errorResponse,json } from '../../../../lib/http';
-export async function GET(req:Request){try{const secret=process.env.CRON_SECRET;if(!secret||!constantEqual(req.headers.get('authorization')??'','Bearer '+secret))throw new ApiError(401,'unauthorized','A valid cron bearer token is required.');return json(await pushLateJobs());}catch(error){return errorResponse(error);}}
+/** Daily: late jobs and expiring documents (one cron, to stay inside the free plan). */
+export async function GET(req:Request){try{const secret=process.env.CRON_SECRET;if(!secret||!constantEqual(req.headers.get('authorization')??'','Bearer '+secret))throw new ApiError(401,'unauthorized','A valid cron bearer token is required.');return json({jobs:await pushLateJobs(),documents:await pushExpiringDocuments()});}catch(error){return errorResponse(error);}}
