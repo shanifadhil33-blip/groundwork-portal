@@ -127,10 +127,21 @@ describe('signup in Saudi Arabia and Oman', () => {
  });
 });
 
-describe('signup asks only country, region and organization name', () => {
+describe('a real new signup starts empty', () => {
+ it('creates the workspace and its founder only, never demo or seeded records', async () => {
+  const fresh=await call(wsRoute.POST,'POST',{name:'Brand New Facilities',timezone:'Asia/Dubai',country:'AE'});
+  expect(fresh.status).toBe(201);made.push(fresh.body.id);expect(fresh.body.is_demo).toBe(false);
+  const counts=await withSystem(async c=>Object.fromEntries(await Promise.all(['work_orders','clients','sites','imports','notifications','invites','api_tokens','supplier_orders','comments','work_order_events'].map(async t=>[t,Number((await c.query(`SELECT count(*) FROM ${t} WHERE workspace_id=$1`,[fresh.body.id])).rows[0].count)]))));
+  expect(counts).toEqual({work_orders:0,clients:0,sites:0,imports:0,notifications:0,invites:0,api_tokens:0,supplier_orders:0,comments:0,work_order_events:0});
+  const members=await withSystem(async c=>(await c.query('SELECT user_id,role FROM members WHERE workspace_id=$1',[fresh.body.id])).rows);
+  expect(members).toEqual([{user_id:founder,role:'admin'}]);
+ });
+});
+
+describe('signup asks only country, region and company name', () => {
  it('the onboarding page has three steps and no tax field', async () => {
   const src=(await import('node:fs')).readFileSync('app/(app)/onboarding/page.tsx','utf8');
-  expect(src).toContain("const STEPS = ['Country', 'Region', 'Organization'] as const;");
+  expect(src).toContain("const STEPS = ['Country', 'Region', 'Company'] as const;");
   expect(src.toLowerCase()).not.toMatch(/tax|trn|vat/);
  });
 });

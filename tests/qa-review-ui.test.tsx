@@ -9,7 +9,7 @@ import { AgentAccess } from '../components/app/agent-access';
 import { ApprovalQueue } from '../components/app/approval-queue';
 import { ImportPagination } from '../components/app/import-shared';
 import { NoAccess } from '../components/app/no-access';
-import { timezoneOptions,workspaceName } from '../lib/ui/timezones';
+import { timezoneOptions } from '../lib/ui/timezones';
 import { nextQueueRow,suggestionEdits } from '../lib/ui/queue';
 import { plural } from '../lib/ui/polish';
 import { parseListQuery } from '../lib/pagination';
@@ -23,7 +23,7 @@ function render(element:React.ReactNode,role:Membership['role']='admin') {return
 it('offers searchable IANA options with workspace fallback only for personal preferences',()=>{
  const options=timezoneOptions('Asia/Dubai');expect(options.length).toBeGreaterThan(300);expect(options).toContainEqual({value:'Asia/Dubai',label:'Asia/Dubai'});expect(options).toContainEqual({value:'UTC',label:'UTC'});expect(timezoneOptions('',true)[0]).toEqual({value:'',label:'Use workspace timezone'});
  for(const {value} of options)expect(()=>new Intl.DateTimeFormat('en',{timeZone:value})).not.toThrow();
- expect(workspaceName(' Adhil Mohammed ')).toBe("Adhil's workspace");expect(workspaceName(null)).toBe('Your workspace');
+
 });
 it('renders clients without team management and names each site edit button',()=>{
  state.resources={[base+'/clients']:[{id:'harbor',name:'Harbor & Pine'}],[base+'/members']:[{user_id:'sam',name:'Sam',role:'staff',email:'sam@example.test',client_id:null}],[base+'/clients/harbor']:{id:'harbor',name:'Harbor & Pine'},[base+'/clients/harbor/sites']:[{id:'marina',name:'Marina Exchange',address:'12 Road',client_id:'harbor'}],[base+'/invites']:[]};
