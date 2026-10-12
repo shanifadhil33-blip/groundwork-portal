@@ -49,5 +49,5 @@ it('starts the company name empty and calls the settings tab Company', () => {
 it('renders the getting started checklist complete in the first paint', () => {
   const member:Membership={workspace_id:'ws',workspace_name:'Acme',role:'admin'} as Membership;
   const html = renderToStaticMarkup(<AppContext.Provider value={{member,workspace:{id:'ws',name:'Acme',timezone:'Asia/Muscat',is_demo:false,country:'OM',region:null,currency:'OMR'},me:{user:{id:'u',name:'A',email:'a@x.test'},memberships:[member]},refresh:async()=>{},setWorkspace:()=>{}} as never}><Dashboard firstUse /></AppContext.Provider>);
-  expect(html).toContain('Dismiss checklist'); expect(html).toContain('Set your country and region');
+  expect(html).toContain('Hide checklist'); expect(html).toContain('Set your country and region'); expect(html).toContain('Get started'); expect(html).toContain('Add your company documents'); expect(html).not.toMatch(/API key/);
 });
