@@ -1,7 +1,7 @@
-import { resetDemo } from '../../../../lib/services/demo';
+import { resetDemo, sandboxCookie } from '../../../../lib/services/demo';
 import { requireUser } from '../../../../lib/auth';
 import { ApiError,errorResponse,json,readBody } from '../../../../lib/http';
 export async function POST(req:Request){try{
  const result=await resetDemo(await requireUser(req),await readBody(req));
- const response=json(result.body,200,{'Set-Cookie':result.cookie}); response.headers.append('Set-Cookie','groundwork-demo=1; Path=/; SameSite=Lax; Max-Age=2592000'); return response;
+ const response=json(result.body,200,{'Set-Cookie':result.cookie}); response.headers.append('Set-Cookie','groundwork-demo=1; Path=/; SameSite=Lax; Max-Age=2592000'); response.headers.append('Set-Cookie',sandboxCookie(result.body.workspace_id)); return response;
 }catch(error){return errorResponse(error);}}

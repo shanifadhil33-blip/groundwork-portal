@@ -31,15 +31,32 @@ async function create(db:PoolClient,persona:Persona){
  await populateFixture(db,ids,n=>sites[n-1],n=>orders[n-1],true);
  return {body:{workspace_id:ids.ridgeline,persona,expires_at:expires},cookie:await session(db,ids[persona],expires)};
 }
-export async function startDemo(body:unknown,ip:string){
+/** Signed pointer to the visitor's own sandbox, so signing in again (any person, many times) reuses it instead of building a new one. */
+const sandboxSig=(ws:string)=>createHmac('sha256',requiredEnv('AUTH_SECRET')).update('sandbox:'+ws).digest('base64url');
+export const sandboxToken=(ws:string)=>`${ws}.${sandboxSig(ws)}`;
+export const sandboxCookie=(ws:string)=>'groundwork-sandbox='+sandboxToken(ws)+'; Path=/api/demo; HttpOnly; SameSite=Lax; Max-Age=86400'+(process.env.VERCEL?'; Secure':'');
+function sandboxFromToken(token?:string|null){
+ if(!token)return null;const [ws,sig]=token.split('.');
+ return ws&&sig&&/^[0-9a-f-]{36}$/.test(ws)&&sig===sandboxSig(ws)?ws:null;
+}
+// Generous: judges sign in and out many times. Only abusive volumes of NEW sandboxes are refused.
+export const DEMO_NEW_PER_IP_HOUR=40;
+export async function startDemo(body:unknown,ip:string,sandbox?:string|null){
  const {persona}=personaSchema.parse(body);
  const ipHash=createHmac('sha256',requiredEnv('AUTH_SECRET')).update('demo-ip:'+ip).digest('hex');
+ const reuse=sandboxFromToken(sandbox);
  return withSystem(async db=>{
   await lock(db);await cleanup(db,10);
+  if(reuse){
+   const live=(await db.query('SELECT w.demo_expires_at,u.id FROM workspaces w JOIN users u ON u.demo_workspace_id=w.id AND u.is_demo AND u.demo_persona=$2 WHERE w.id=$1 AND w.is_demo AND w.demo_expires_at>now()',[reuse,persona])).rows[0];
+   if(live)return {body:{workspace_id:reuse,persona,expires_at:live.demo_expires_at},cookie:await session(db,live.id,live.demo_expires_at)};
+  }
   const count=(await db.query("SELECT count(*)::int AS n FROM demo_creation_attempts WHERE ip_hash=$1 AND created_at>now()-interval '1 hour'",[ipHash])).rows[0].n;
-  const live=(await db.query('SELECT count(*)::int AS n FROM workspaces WHERE is_demo AND demo_expires_at>now()')).rows[0].n;
+  if(count>=DEMO_NEW_PER_IP_HOUR)throw new ApiError(429,'demo_limit','The demo is busy. Please try again later.');
   const configured=Number(process.env.DEMO_MAX_SANDBOXES??200);const cap=Number.isSafeInteger(configured)&&configured>0?configured:200;
-  if(count>=5||live>=cap)throw new ApiError(429,'demo_limit','The demo is busy. Please try again later.');
+  // At the cap, recycle the oldest sandboxes instead of turning anyone away.
+  const over=(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at>now() ORDER BY demo_expires_at OFFSET $1',[cap-1])).rows;
+  if(over.length)await db.query('SELECT delete_demo_workspace(id) FROM workspaces WHERE id=ANY($1::uuid[])',[over.map(r=>r.id)]);
   await db.query('INSERT INTO demo_creation_attempts(ip_hash) VALUES($1)',[ipHash]);
   return create(db,persona);
  });

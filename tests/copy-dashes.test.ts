@@ -54,6 +54,7 @@ function allowedData(text: string) {
     /^(?:groundwork-|lx-|demo-ip:|first-use:|work-order-draft:|comment-visibility:)[\w:=-]*$/.test(text) ||
     /^(?:COBALT-DEMO-\d*|demo-(?:ordered|shipped|delivered)-\d*)$/.test(text) ||
     /^groundwork-(?:demo|session)=.*; Path=\/; SameSite=Lax; Max-Age=\d+$/.test(text) ||
+    /^; Path=\/api\/demo; HttpOnly; SameSite=Lax; Max-Age=\d+$/.test(text) ||
     /^=?;?\s*Path=\/; SameSite=/.test(text) ||
     /^attachment; filename="import-errors\.csv"$/.test(text) ||
     /^try\{var t=localStorage\.getItem\('groundwork-theme'\)/.test(text);

@@ -2,7 +2,7 @@ import { afterAll,beforeEach,expect,it } from 'vitest';
 import { closePools,ownerPool,withSystem,withUser } from '../lib/db';
 import { getSessionUserId,setAuthResolverForTests,sessionCookie,authAdapter } from '../lib/auth';
 import { seed,ids } from '../scripts/seed';
-import { cleanupDemo } from '../lib/services/demo';
+import { cleanupDemo, DEMO_NEW_PER_IP_HOUR } from '../lib/services/demo';
 import { createInvite } from '../lib/services/invites';
 import { repair } from '../lib/services/supplier';
 import * as start from '../app/api/demo/start/route';
@@ -84,9 +84,14 @@ it('demo users cannot accept real invites, create/delete workspaces or manage me
  await expect(withUser(user,db=>db.query("SELECT create_workspace('Escape','Asia/Dubai')"))).rejects.toMatchObject({code:'P0403'});
  await expect(withUser(user,db=>db.query('SELECT accept_invite($1)',[invite.token]))).rejects.toMatchObject({code:'P0403'});
 });
-it('creation rate limit and global cap return plain 429 responses',async()=>{
- for(let n=0;n<5;n++)await sandbox();const rate=await call(start.POST,{persona:'imran'});expect(rate.status).toBe(429);expect(rate.body.error.message).toContain('try again');
- await withSystem(db=>db.query('TRUNCATE demo_creation_attempts'));process.env.DEMO_MAX_SANDBOXES='5';expect((await call(start.POST,{persona:'imran'})).status).toBe(429);
+it('only abusive volumes of new sandboxes get a plain 429; at the global cap the oldest sandbox is recycled instead',async()=>{
+ await withSystem(db=>db.query("INSERT INTO demo_creation_attempts(ip_hash) SELECT 'x' FROM generate_series(1,1)"));
+ const ipHash=await withSystem(async db=>{const r=await sandbox();return (await db.query('SELECT ip_hash FROM demo_creation_attempts ORDER BY created_at DESC LIMIT 1')).rows[0].ip_hash;});
+ await withSystem(db=>db.query('INSERT INTO demo_creation_attempts(ip_hash) SELECT $1 FROM generate_series(1,$2::int)',[ipHash,DEMO_NEW_PER_IP_HOUR]));
+ const rate=await call(start.POST,{persona:'imran'});expect(rate.status).toBe(429);expect(rate.body.error.message).toContain('try again');
+ await withSystem(db=>db.query('TRUNCATE demo_creation_attempts'));process.env.DEMO_MAX_SANDBOXES='2';
+ expect((await call(start.POST,{persona:'imran'})).status).toBe(201);expect((await call(start.POST,{persona:'sam'})).status).toBe(201);
+ expect(await withSystem(async db=>(await db.query('SELECT count(*)::int n FROM workspaces WHERE is_demo AND demo_expires_at>now()')).rows[0].n)).toBeLessThanOrEqual(2);
 });
 it('cron GET/POST require constant-time bearer authentication; validation and creation failures stay plain',async()=>{
  expect((await call(cron.GET)).status).toBe(401);expect((await call(cron.POST,{},undefined,{}, {authorization:'Bearer wrong'})).status).toBe(401);expect((await call(cron.GET,undefined,undefined,{}, {authorization:'Bearer demo-test-cron'})).status).toBe(200);
@@ -102,8 +107,8 @@ it('a failed fixture creation rolls back workspace, identities, session and rate
  await sandbox();
 });
 it('concurrent creation respects the global cap and demo identities cannot join another sandbox',async()=>{
- process.env.DEMO_MAX_SANDBOXES='1';const results=await Promise.all([call(start.POST,{persona:'imran'}),call(start.POST,{persona:'sam'})]);expect(results.map(r=>r.status).sort()).toEqual([201,429]);
- process.env.DEMO_MAX_SANDBOXES='2';const other=await sandbox();const user=await identity(results.find(r=>r.status===201)!.cookie);
+ process.env.DEMO_MAX_SANDBOXES='1';const results=await Promise.all([call(start.POST,{persona:'imran'}),call(start.POST,{persona:'sam'})]);expect(results.map(r=>r.status).sort()).toEqual([201,201]);expect(await withSystem(async db=>(await db.query('SELECT count(*)::int n FROM workspaces WHERE is_demo AND demo_expires_at>now()')).rows[0].n)).toBe(1);
+ process.env.DEMO_MAX_SANDBOXES='2';const other=await sandbox();const liveWs=await withSystem(async db=>(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at>now() AND id<>$1',[other.body.workspace_id])).rows[0].id);const user=await identity(results.find(r=>r.body.workspace_id===liveWs)!.cookie);
  await expect(withSystem(db=>db.query("INSERT INTO members(workspace_id,user_id,role) VALUES($1,$2,'staff')",[other.body.workspace_id,user]))).rejects.toMatchObject({code:'P0404'});
  await expect(withUser(user,db=>db.query('SELECT delete_demo_workspace($1)',[other.body.workspace_id]))).rejects.toMatchObject({code:'42501'});
  await expect(withUser(user,db=>db.query('SELECT delete_workspace_data($1)',[other.body.workspace_id]))).rejects.toMatchObject({code:'42501'});
