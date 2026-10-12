@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ApiError } from '../http';
+import { withSystem } from '../db';
 import { allow, inWorkspace, row, uuid, type Context } from './shared';
 
 export const PAYMENT_LABELS: Record<string, string> = { to_bill: 'To bill', contract: 'Covered by contract', paid: 'Paid' };
@@ -33,12 +34,17 @@ export function contractNote(use: Awaited<ReturnType<typeof contractUse>>, addin
 export async function setJobPayment(user: string, ws: string, id: string, body: unknown) {
   return inWorkspace(user, ws, async c => {
     uuid.parse(id);
-    await row(c, 'work_orders', id);
+    const seen = await row(c, 'work_orders', id);
     if (c.role !== 'admin') throw new ApiError(403, 'forbidden', 'Only an admin can change how a job is paid. Ask your admin.');
     const { payment_status } = schema.parse(body);
-    const order = await row(c, 'work_orders', id, true);
+    // No row lock for a finished job: the owner connection below must be able to write it.
+    const order = seen.status === 'done' ? seen : await row(c, 'work_orders', id, true);
     if (order.status === 'cancelled') throw new ApiError(422, 'invalid', 'This job was cancelled, so there is nothing to pay.');
-    const saved = (await c.db.query('UPDATE work_orders SET payment_status=$3 WHERE workspace_id=$1 AND id=$2 RETURNING id, order_number, title, client_id, status, payment_status', [ws, id, payment_status])).rows[0];
+    // Finished jobs are locked for everyone, but payment is settled after the work. The admin check above is the gate;
+    // the owner connection changes only this one column, with the admin recorded as the actor.
+    const saved = order.status === 'done'
+      ? await withSystem(async db => (await db.query('UPDATE work_orders SET payment_status=$3 WHERE workspace_id=$1 AND id=$2 RETURNING id, order_number, title, client_id, status, payment_status', [ws, id, payment_status])).rows[0], user)
+      : (await c.db.query('UPDATE work_orders SET payment_status=$3 WHERE workspace_id=$1 AND id=$2 RETURNING id, order_number, title, client_id, status, payment_status', [ws, id, payment_status])).rows[0];
     return { ...saved, payment_label: PAYMENT_LABELS[payment_status], contract: await contractUse(c, saved.client_id) };
   });
 }

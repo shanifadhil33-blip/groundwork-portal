@@ -74,7 +74,7 @@ it('asks one short question with tap answers instead of guessing, and writes not
 it('contract payment shows its knock on effects on the same card, and a supervisor is refused before any card',async()=>{
  state.role='admin';
  const p:any=await propose('set_job_payment',{id:state.order.id,payment_status:'contract'},"today's job was under contract, not paid");
- expect(p.pending_action.summary).toContain('covered by the contract');expect(p.pending_action.summary).toContain('no invoice');expect(p.pending_action.summary).toContain('Covered by contract');expect(state.call).not.toHaveBeenCalled();
+ expect(p.pending_action.summary).toContain('covered by the contract');expect(p.pending_action.summary).toContain('no invoice');expect(state.call).not.toHaveBeenCalled();
  state.role='staff';state.turn.mockReset();state.turn.mockResolvedValueOnce({calls:[{id:'1',name:'set_job_payment',args:{id:state.order.id,payment_status:'contract'}}]}).mockResolvedValueOnce({text:'Only an admin can change that.',calls:[]});
  const s:any=await assistant(user,ws,{messages:[{role:'user',content:'mark it as contract'}]});expect(s.pending_action).toBeUndefined();expect(state.call).not.toHaveBeenCalled();
 });

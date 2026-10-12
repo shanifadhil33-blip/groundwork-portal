@@ -73,13 +73,17 @@ export async function assistant(user:string,ws:string,body:unknown) {
    if(call.name==='ask_choice'&&t){const q=parsed.data as {question:string;options:string[]};return {available:true,reply:plainAssistantReply(q.question,role==='client'),choices:q.options.map(o=>plainAssistantReply(o,role==='client'))};}
    if(t.write){
     const args=parsed.data;
-    const order=['update_work_order_status','update_work_order_dates','set_priority','assign_work_order','set_job_trade','set_job_payment'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
-    const target=await inWorkspace(user,ws,async x=>{
+    // A job or site the model named that does not exist (or this person can not see) goes back to the model, never a 404 page.
+    let order:any=null;
+    try{order=['update_work_order_status','update_work_order_dates','set_priority','assign_work_order','set_job_trade','set_job_payment'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;}
+    catch(e){if(e instanceof ApiError&&[403,404,422].includes(e.status)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'That job was not found. Look it up first, or ask the person which job they mean with ask_choice.'}]},id:call.id});continue;}throw e;}
+    let target:{label?:string;timezone?:string}|undefined;
+    try{target=await inWorkspace(user,ws,async x=>{
      if(call.name==='create_request'){const site=(await x.db.query('SELECT s.name,c.name AS client,w.timezone FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id JOIN workspaces w ON w.id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,(args as any).site_id])).rows[0];if(!site)throw missing();return {label:`${site.client} · ${site.name}`,timezone:site.timezone};}
      if(['approve_queue_row','reject_queue_row'].includes(call.name)){const row=(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,(args as any).row_id])).rows[0];if(!row)throw missing();return {label:`row ${row.row_number}: ${row.data.title}`,timezone:undefined};}
      if(teamTools.includes(call.name))return {label:await personLabel(x,ws,call.name,args),timezone:undefined};
      return undefined;
-    });
+    });}catch(e){if(e instanceof ApiError&&[403,404,422].includes(e.status)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'That was not found. Look it up first, or ask the person which one they mean with ask_choice.'}]},id:call.id});continue;}throw e;}
     // Technicians change only the status of their own jobs and add notes; refuse anything else before a confirmation.
     if(role==='technician'&&!['update_work_order_status','add_comment'].includes(call.name)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.'}]},id:call.id});continue;}
     if(teamTools.includes(call.name)&&!['admin','staff'].includes(role)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only admins and supervisors can assign jobs or change the team.'}]},id:call.id});continue;}
@@ -99,7 +103,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
     // Contract facts go on the card so the admin decides; the agent never decides an over limit or ended contract.
     const contract=call.name==='set_job_payment'&&(args as any).payment_status==='contract'&&order?await inWorkspace(user,ws,async x=>contractNote(await contractUse(x,(order as any).client_id))):'';
     const pay=(args as any).payment_status;
-    const knock=call.name==='set_job_payment'?(pay==='contract'?['It leaves the to bill list, so no invoice is made.','The client history shows Covered by contract.',contract].filter(Boolean):pay==='paid'?['It leaves the to bill list.','The client history shows Paid.']:['It goes back on the to bill list.']).map(l=>`• ${l}`).join('\n'):'';
+    const knock=call.name==='set_job_payment'?(pay==='contract'?['It leaves the to bill list, so no invoice is made.','It shows as Covered by contract in the history.',contract].filter(Boolean):pay==='paid'?['It leaves the to bill list.','It shows as Paid in the history.']:['It goes back on the to bill list.']).map(l=>`• ${l}`).join('\n'):'';
     const card=knock?`${summary}\n${knock}`:summary;
     const lastAsk=d.messages.filter(m=>m.role==='user').at(-1)?.content??'';
     const why=plainAssistantReply(stripThinking(turn.text??'').split('\n').map(l=>l.trim()).filter(Boolean)[0]??'',false).slice(0,300)||`You asked: ${lastAsk.slice(0,200)}`;
