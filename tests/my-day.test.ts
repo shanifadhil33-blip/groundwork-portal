@@ -32,6 +32,7 @@ describe('My jobs today', () => {
   });
 });
 import { patchWorkOrder, getWorkOrder } from '../lib/services/work-orders';
+import { addPhoto } from '../lib/services/photos';
 describe('Done today', () => {
   it('counts only jobs moved to Done today, not jobs just edited today', async () => {
     const before = (await myDay(ids.ravi, ids.ridgeline)).done;
@@ -39,6 +40,7 @@ describe('Done today', () => {
     expect((await myDay(ids.ravi, ids.ridgeline)).done).toBe(before);
     const j = (await withSystem(db => db.query("SELECT id FROM work_orders WHERE workspace_id=$1 AND assignee_id=$2 AND status='in_progress' LIMIT 1", [ids.ridgeline, ids.ravi]))).rows[0];
     if (!j) return;
+    await addPhoto(ids.ravi, ids.ridgeline, j.id, { kind: 'after', mime: 'image/jpeg', data: Buffer.concat([Buffer.from([0xff, 0xd8, 0xff]), Buffer.alloc(300, 1)]).toString('base64'), width: 1, height: 1 });
     const o = await getWorkOrder(ids.ravi, ids.ridgeline, j.id);
     await patchWorkOrder(ids.ravi, ids.ridgeline, j.id, { status: 'done', updated_at: new Date(o.updated_at).toISOString() });
     expect((await myDay(ids.ravi, ids.ridgeline)).done).toBe(before + 1);

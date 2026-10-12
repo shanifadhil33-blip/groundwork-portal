@@ -1,3 +1,4 @@
+import { hasAfterPhoto } from './photos';
 import { TRADES } from '../trades';
 import { publicClient } from './clients';
 import { z } from 'zod';
@@ -104,6 +105,7 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   const parsed=patchSchema.parse(body);
   // Technicians see only their own jobs (RLS) and change only the status, never to cancelled.
   if(c.role==='technician'){const {updated_at:_u,reopen:_r,...changes}=parsed;if(Object.keys(changes).some(k=>k!=='status')||_r)throw new ApiError(403,'forbidden','You can update the status of your own jobs. Ask a supervisor for other changes.');if(changes.status==='cancelled')throw new ApiError(403,'forbidden','Ask a supervisor to cancel a job.');}
+  if(c.role==='technician'&&parsed.status==='done'&&!(await hasAfterPhoto(c.db,ws,id)))throw new ApiError(422,'need_photo','Add an after photo first. It shows the work is done.');
   const version=ifMatch?.replace(/^"|"$/g,'')??parsed.updated_at;
   if(!version)throw invalid('Refresh the work order before saving your changes.','updated_at');
   timestamp.parse(version);

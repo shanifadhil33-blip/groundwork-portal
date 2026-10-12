@@ -3,13 +3,14 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { AlarmClock, CalendarCheck, CheckCircle2, MapPin, Phone, Play } from 'lucide-react';
 import { PageHeader } from '../ui/layout';
-import { Badge, Button, ConfirmDialog, EmptyState, ErrorState, Skeleton, useToast } from '../ui';
+import { Badge, Button, Dialog, EmptyState, ErrorState, Skeleton, useToast } from '../ui';
 import { request, RequestError } from '../../lib/ui/api';
 import { statusLabels } from '../../lib/ui/work-orders';
 import { tradeLabels, type Trade } from '../../lib/trades';
 import { useApp } from './context';
 import { useResource } from './resource';
 import { NoAccess } from './no-access';
+import { AddPhoto, type Photo } from './job-photos';
 
 type Job = { id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; address: string | null; building: string | null; area: string | null; access_notes: string | null; contact_name: string | null; contact_phone: string | null };
 type Day = { timezone: string; today: Job[]; late: Job[]; next: Job[]; done: number };
@@ -23,6 +24,16 @@ export function nextStep(status: string): { to: string; label: string } | null {
 const time = (v: string | null, tz: string) => v ? new Intl.DateTimeFormat('en', { hour: 'numeric', minute: '2-digit', timeZone: tz }).format(new Date(v)) : '';
 const day = (v: string | null, tz: string) => v ? new Intl.DateTimeFormat('en', { weekday: 'short', day: 'numeric', month: 'short', timeZone: tz }).format(new Date(v)) : '';
 const mapUrl = (j: Job) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([j.building, j.address, j.area].filter(Boolean).join(', ') || j.site_name)}`;
+
+/** Done asks for proof first: at least one after photo, taken right here. */
+function DoneDialog({ j, base, busy, onClose, onConfirm }: { j: Job; base: string; busy: boolean; onClose: () => void; onConfirm: () => void }) {
+  const { member } = useApp(), needs = member?.role === 'technician', photos = useResource<Photo[]>(`${base}/work-orders/${j.id}/photos`), after = (Array.isArray(photos.data) ? photos.data : []).filter(p => p.kind === 'after').length;
+  return <Dialog open onClose={onClose} busy={busy} title="Job done?" footer={<><Button variant="secondary" disabled={busy} onClick={onClose}>Cancel</Button><Button busy={busy} disabled={needs && (photos.loading || after === 0)} onClick={onConfirm}>Yes, done</Button></>}>
+    <div className="stack compact"><strong>{j.title}</strong>
+      {after ? <p className="small">After photos: {after}</p> : <p className="small">{needs ? 'Add an after photo first. It shows the work is done.' : 'Add an after photo to show the work is done.'}</p>}
+      <div><AddPhoto base={base} id={j.id} kind="after" primary={after === 0} onAdded={() => void photos.reload()} /></div></div>
+  </Dialog>;
+}
 
 function JobCard({ j, tz, base, onDone, when }: { j: Job; tz: string; base: string; onDone: () => void; when: string }) {
   const step = nextStep(j.status), [busy, setBusy] = useState(false), [confirm, setConfirm] = useState(false), toast = useToast();
@@ -41,7 +52,7 @@ function JobCard({ j, tz, base, onDone, when }: { j: Job; tz: string; base: stri
       <a className="button secondary" href={mapUrl(j)} target="_blank" rel="noreferrer"><MapPin size={18} aria-hidden="true" />Map</a>
       {j.contact_phone && <a className="button secondary" href={`tel:${j.contact_phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${j.contact_name ?? 'the site'}`}><Phone size={18} aria-hidden="true" />Call</a>}
     </div>
-    <ConfirmDialog open={confirm} onClose={() => setConfirm(false)} title="Job done?" confirmLabel="Yes, done" busy={busy} onConfirm={() => void go()}>{j.title}</ConfirmDialog>
+    {confirm && <DoneDialog j={j} base={base} busy={busy} onClose={() => setConfirm(false)} onConfirm={() => void go()} />}
   </li>;
 }
 

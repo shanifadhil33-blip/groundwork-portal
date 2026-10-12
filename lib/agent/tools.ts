@@ -8,6 +8,7 @@ import { dashboard } from '../services/workspaces';
 import { clientShape,createClient,createSite,listClients,patchClient,patchSite,siteShape } from '../services/clients';
 import { teamToday } from '../services/team';
 import { myDay } from '../services/my-day';
+import { listPhotos } from '../services/photos';
 import { setWorkerSkills, suggestWorkers } from '../services/assign';
 import { TRADES } from '../trades';
 import { addFieldWorker } from '../services/field-signin';
@@ -41,6 +42,7 @@ export const tools:Record<string,Tool>={
  set_job_trade:{description:'Admin/supervisor only: set the trade a job needs (electrical, plumbing, ac, carpentry, painting, cleaning, general) or null for any. Use updated_at from get_work_order. The portal shows a confirmation card first.',write:true,schema:z.object({id:uuid,trade:z.enum(TRADES).nullable(),updated_at:z.iso.datetime({offset:true})}).strict(),run:(c,a)=>patchWorkOrder(c.user,c.ws,a.id,{trade:a.trade,updated_at:a.updated_at})},
  set_worker_skills:{description:'Admin/supervisor only (supervisors: technicians only): replace the trades and areas a worker covers. areas are site area names from list_sites. The portal shows a confirmation card first.',write:true,schema:z.object({user_id:uuid,trades:z.array(z.enum(TRADES)).max(7),areas:z.array(z.string().trim().min(1).max(120)).max(30)}).strict(),run:(c,a)=>setWorkerSkills(c.user,c.ws,a.user_id,{trades:a.trades,areas:a.areas})},
  my_day:{description:'Team members (not clients): your own jobs for today in time order, your late jobs, the next few days and how many you finished today. Use it for "what do I have today". To start or finish a job use update_work_order_status (scheduled to in_progress is Start, in_progress to done is Done).',write:false,schema:z.object({}).strict(),run:c=>myDay(c.user,c.ws)},
+ list_job_photos:{description:'List the before and after photos on one visible job (kind, size, when). Photos are added in the app with the camera; a technician needs at least one after photo before a job can be marked done.',write:false,schema:z.object({id:uuid}).strict(),run:(c,a)=>listPhotos(c.user,c.ws,a.id)},
  whoami:{description:'Read current workspace membership and client scope, plus the workspace country, region and currency (they set the address, phone and money rules). Roles are checked live for every tool.',write:false,schema:z.object({}).strict(),run:c=>inWorkspace(c.user,c.ws,async x=>{const w=(await x.db.query('SELECT country,region,currency FROM workspaces WHERE id=$1',[x.ws])).rows[0];return {user_id:x.user,workspace_id:x.ws,role:x.role,client_id:x.client_id,scope:c.scope,workspace_country:w?.country,workspace_region:w?.region??null,currency:w?.currency};})},
 };
 export async function callTool(c:AgentContext,name:string,args:unknown) {
