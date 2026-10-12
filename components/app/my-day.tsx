@@ -25,12 +25,12 @@ const time = (v: string | null, tz: string) => v ? new Intl.DateTimeFormat('en',
 const day = (v: string | null, tz: string) => v ? new Intl.DateTimeFormat('en', { weekday: 'short', day: 'numeric', month: 'short', timeZone: tz }).format(new Date(v)) : '';
 const mapUrl = (j: Job) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([j.building, j.address, j.area].filter(Boolean).join(', ') || j.site_name)}`;
 
-/** Done asks for proof first: at least one after photo, taken right here. */
+/** Done offers an after photo right here, but never blocks finishing the job without one. */
 function DoneDialog({ j, base, busy, onClose, onConfirm }: { j: Job; base: string; busy: boolean; onClose: () => void; onConfirm: () => void }) {
-  const { member } = useApp(), needs = member?.role === 'technician', photos = useResource<Photo[]>(`${base}/work-orders/${j.id}/photos`), after = (Array.isArray(photos.data) ? photos.data : []).filter(p => p.kind === 'after').length;
-  return <Dialog open onClose={onClose} busy={busy} title="Job done?" footer={<><Button variant="secondary" disabled={busy} onClick={onClose}>Cancel</Button><Button busy={busy} disabled={needs && (photos.loading || after === 0)} onClick={onConfirm}>Yes, done</Button></>}>
+  const photos = useResource<Photo[]>(`${base}/work-orders/${j.id}/photos`), after = (Array.isArray(photos.data) ? photos.data : []).filter(p => p.kind === 'after').length;
+  return <Dialog open onClose={onClose} busy={busy} title="Job done?" footer={<><Button variant="secondary" disabled={busy} onClick={onClose}>Cancel</Button><Button busy={busy} onClick={onConfirm}>Yes, done</Button></>}>
     <div className="stack compact"><strong>{j.title}</strong>
-      {after ? <p className="small">After photos: {after}</p> : <p className="small">{needs ? 'Add an after photo first. It shows the work is done.' : 'Add an after photo to show the work is done.'}</p>}
+      {after ? <p className="small">After photos: {after}</p> : <p className="small">An after photo shows the client the work is done.</p>}
       <div><AddPhoto base={base} id={j.id} kind="after" primary={after === 0} onAdded={() => void photos.reload()} /></div></div>
   </Dialog>;
 }
