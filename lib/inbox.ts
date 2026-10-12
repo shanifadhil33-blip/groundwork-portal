@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto';
 /** Central feedback inbox on the portfolio site (adhilshanif.vercel.app). No email is ever sent. */
 export const INBOX_ORIGIN = 'https://adhilshanif.vercel.app';
-const INBOX_OWNERS = ['shanifadhil33@gmail.com', 'shanifadhil022@gmail.com'];
+const INBOX_OWNERS = ['shanifadhil33@gmail.com'];
 function secret(name: 'INBOX_PASS_SECRET' | 'FEEDBACK_SECRET') { const v = process.env[name]; if (!v || v.length < 32) throw new Error(name + ' is not set'); return v; }
 /** A 2 minute signed pass for the portfolio inbox; same format the portfolio verifies. */
 export function inboxPass(email: string) {

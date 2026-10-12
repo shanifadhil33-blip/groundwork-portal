@@ -120,3 +120,6 @@ it('keeps the sample CSV copy free of dashes while retaining ISO dates and sampl
     .replace(/\bSAMPLE-\d+\b/g, '');
   expect(sample).not.toMatch(/[—–]|\p{L}-\p{L}/u);
 });
+import { execSync } from 'node:child_process';
+import { describe as d2, it as i2, expect as e2 } from 'vitest';
+d2('words', () => { i2('never says boss; the role is admin', () => { e2(execSync("grep -rli 'boss' app components lib || true").toString().trim()).toBe(''); }); });

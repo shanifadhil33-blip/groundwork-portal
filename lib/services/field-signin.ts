@@ -8,7 +8,7 @@ import { requiredEnv } from '../env';
 import { assertRealUser } from './demo';
 import { allow, hash, inWorkspace, uuid } from './shared';
 
-/** Field staff sign in with a link or a 6 digit code. Nothing is emailed or texted: the boss shares it (WhatsApp, in person). $0. */
+/** Field staff sign in with a link or a 6 digit code. Nothing is emailed or texted: the admin shares it (WhatsApp, in person). $0. */
 const LINK_DAYS = 7, SESSION_DAYS = 90;
 const codeHash = (code: string) => createHmac('sha256', requiredEnv('AUTH_SECRET')).update('fieldcode:' + code).digest('hex');
 const ipHash = (ip: string) => createHmac('sha256', requiredEnv('AUTH_SECRET')).update('fieldip:' + ip).digest('hex');
@@ -65,7 +65,7 @@ export async function redeemFieldLink(body: unknown, ip: string) {
   return withSystem(async db => {
     const link = (await db.query(`SELECT l.id,l.user_id,m.role FROM login_links l JOIN members m ON m.user_id=l.user_id AND m.workspace_id=l.workspace_id
       WHERE ${'token' in data ? 'l.token_hash=$1' : 'l.code_hash=$1'} AND l.used_at IS NULL AND l.expires_at>now() FOR UPDATE OF l`, ['token' in data ? hash(data.token) : codeHash(data.code)])).rows[0];
-    if (!link) throw new ApiError(400, 'bad_code', 'That did not work. Ask your boss for a new code.');
+    if (!link) throw new ApiError(400, 'bad_code', 'That did not work. Ask your admin for a new code.');
     await db.query('UPDATE login_links SET used_at=now() WHERE id=$1', [link.id]);
     const token = randomBytes(32).toString('base64url'), expires = new Date(Date.now() + SESSION_DAYS * 864e5);
     await db.query('INSERT INTO sessions("userId","sessionToken",expires) VALUES($1,$2,$3)', [link.user_id, token, expires]);

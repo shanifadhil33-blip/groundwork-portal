@@ -11,7 +11,7 @@ afterEach(() => { delete process.env.INBOX_PASS_SECRET; delete process.env.FEEDB
 describe('portfolio inbox pass', () => {
   it('only lets Adhil’s two real Google accounts in, never a demo account', () => {
     expect(isInboxOwner('shanifadhil33@gmail.com', false)).toBe(true);
-    expect(isInboxOwner('ShanifAdhil022@gmail.com', false)).toBe(true);
+    expect(isInboxOwner('ShanifAdhil022@gmail.com', false)).toBe(false); expect(isInboxOwner('ShanifAdhil33@gmail.com', false)).toBe(true);
     expect(isInboxOwner('shanifadhil33@gmail.com', true)).toBe(false);
     expect(isInboxOwner('someone@gmail.com', false)).toBe(false);
     expect(isInboxOwner(null, false)).toBe(false);
