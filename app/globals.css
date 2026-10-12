@@ -595,6 +595,6 @@ button.chip{cursor:pointer;min-height:44px}
 .sched-tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--s2)}
 .sched-week{display:none}
 @media(min-width:900px){.sched-phone{display:none}.sched-week{display:block;overflow-x:auto;border:1px solid var(--border);border-radius:var(--r-md,14px)}
-.sched-row{display:grid;grid-template-columns:140px repeat(7,minmax(130px,1fr));border-top:1px solid var(--border)}.sched-row:first-child{border-top:0}
+.sched-row{display:grid;grid-template-columns:112px repeat(7,minmax(108px,1fr));border-top:1px solid var(--border)}.sched-row:first-child{border-top:0}
 .sched-row>div{padding:var(--s2);border-left:1px solid var(--border);min-height:64px}.sched-row>div:first-child{border-left:0}
 .sched-head>div{min-height:0;font-size:13px;font-weight:600}.sched-cell{display:flex;flex-direction:column;gap:4px}.sched-cell.today,.sched-head .today{background:var(--surface-subtle)}}
