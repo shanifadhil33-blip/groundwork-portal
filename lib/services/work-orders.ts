@@ -1,3 +1,4 @@
+import { TRADES } from '../trades';
 import { publicClient } from './clients';
 import { z } from 'zod';
 import { overdueSql, todaySql, isOverdue, localDate } from '../dates';
@@ -5,7 +6,7 @@ import { ApiError, invalid, missing } from '../http';
 import { parseListQuery } from '../pagination';
 import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, update, uuid } from './shared';
 const timestamp=z.iso.datetime({offset:true});
-const mutable=z.object({title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable()});
+const mutable=z.object({trade:z.enum(TRADES).nullable(),title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable()});
 const createSchema=mutable.partial().extend({title:name,client_id:uuid.optional(),site_id:uuid}).strict();
 const patchSchema=mutable.partial().extend({updated_at:timestamp.optional(),reopen:z.literal(true).optional()}).strict();
 const clientSchema=z.object({title:name,description:z.string().max(20000).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();

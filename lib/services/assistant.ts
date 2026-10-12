@@ -9,6 +9,14 @@ import { getWorkOrder } from './work-orders';
 import { tools,callTool,type AgentContext } from '../agent/tools';
 /** The client or site a record write touches: its name for the card, and the current values to show what changes. */
 /** The record a client or site tool acts on, with the country its labels and formats follow. */
+const teamTools=['assign_work_order','set_job_trade','set_worker_skills','add_worker'];
+/** The person a team action is about, by name, for the confirmation card. */
+async function personLabel(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:any[]}>}},ws:string,tool:string,args:any):Promise<string|undefined>{
+ if(tool==='add_worker')return String(args.name??'');
+ const id=tool==='assign_work_order'?args.assignee_id:tool==='set_worker_skills'?args.user_id:null;
+ if(!id)return tool==='assign_work_order'?'nobody':undefined;
+ return (await x.db.query('SELECT u.name FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true WHERE m.workspace_id=$1 AND m.user_id=$2',[ws,id])).rows[0]?.name??'Team member';
+}
 async function recordTarget(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:any[]}>}},ws:string,tool:string,args:any){
  const home=(await x.db.query('SELECT country FROM workspaces WHERE id=$1',[ws])).rows[0]?.country as string;
  if(tool==='create_client')return {label:args.name as string,record:null,country:(args.country as string)||home};
@@ -26,14 +34,15 @@ export async function assistant(user:string,ws:string,body:unknown) {
   if(a.consumed_at)throw new ApiError(409,'consumed','This action has already been confirmed.');
   if(new Date(a.expires_at)<=new Date())throw new ApiError(409,'expired','This action has expired. Ask the assistant again.');
   // Shared services reuse this same app-role transaction: write and consume commit together.
-  const previous=['update_work_order_status','update_work_order_dates','set_priority','add_comment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
+  const previous=['update_work_order_status','update_work_order_dates','set_priority','add_comment','assign_work_order','set_job_trade'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
   const queueTarget=['approve_queue_row','reject_queue_row'].includes(a.tool)?(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,a.args.row_id])).rows[0]:null;
   const record=recordTools.includes(a.tool)?await recordTarget(x,ws,a.tool,a.args):null;
+  const person=teamTools.includes(a.tool)?await personLabel(x,ws,a.tool,a.args):undefined;
   const result=await callTool(c,a.tool,a.args);
   const value=result.structuredContent as {result?:any};
   const order=result.isError?null:previous??(['create_request','approve_queue_row'].includes(a.tool)?value.result:null);
   await x.db.query('UPDATE assistant_actions SET consumed_at=now() WHERE id=$1',[a.id]);
-  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?recordResult(a.tool,a.args,record):audienceStatusReply(actionResult(a.tool,a.args,order,queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined),x.role==='client'),result};
+  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?recordResult(a.tool,a.args,record):audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client'),result};
  }));
  const role=await inWorkspace(user,ws,async c=>c.role);
  const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
@@ -54,14 +63,16 @@ export async function assistant(user:string,ws:string,body:unknown) {
    }
    if(t.write){
     const args=parsed.data;
-    const order=['update_work_order_status','update_work_order_dates','set_priority'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
+    const order=['update_work_order_status','update_work_order_dates','set_priority','assign_work_order','set_job_trade'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
     const target=await inWorkspace(user,ws,async x=>{
      if(call.name==='create_request'){const site=(await x.db.query('SELECT s.name,c.name AS client,w.timezone FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id JOIN workspaces w ON w.id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,(args as any).site_id])).rows[0];if(!site)throw missing();return {label:`${site.client} · ${site.name}`,timezone:site.timezone};}
      if(['approve_queue_row','reject_queue_row'].includes(call.name)){const row=(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,(args as any).row_id])).rows[0];if(!row)throw missing();return {label:`row ${row.row_number}: ${row.data.title}`,timezone:undefined};}
+     if(teamTools.includes(call.name))return {label:await personLabel(x,ws,call.name,args),timezone:undefined};
      return undefined;
     });
     // Technicians change only the status of their own jobs and add notes; refuse anything else before a confirmation.
     if(role==='technician'&&!['update_work_order_status','add_comment'].includes(call.name)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.'}]},id:call.id});continue;}
+    if(teamTools.includes(call.name)&&!['admin','staff'].includes(role)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only admins and supervisors can assign jobs or change the team.'}]},id:call.id});continue;}
     // Record writes are admin only; a role that cannot make them gets the refusal now, not after a confirmation.
     if(recordTools.includes(call.name)&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only workspace admins can add or change clients and sites.'}]},id:call.id});continue;}
     const record=recordTools.includes(call.name)?await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args)):null;

@@ -10,7 +10,7 @@ export type Site = SiteRecord;
 export type Member = { user_id: string; role: string; client_id: string | null; name: string | null; email: string | null };
 type EventAttribution = { work_order_title?:string|null; actor_kind?:string; via_token_name?:string|null };
 export type Comment = EventAttribution & { id: string; body: string; visibility: 'client' | 'internal'; author_id: string; created_at: string };
-export type WorkOrder = { site_name?: string; client_name?: string; assignee_name?: string | null; id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
+export type WorkOrder = { trade?: string | null; site_name?: string; client_name?: string; assignee_name?: string | null; id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
 export type Detail = WorkOrder & { client: Client; site: Site; assignee: { id: string; name?: string } | null; comments: Comment[]; timeline: (EventAttribution & { id: string; kind: string; actor_id: string | null; body?: string; details?: {to_status?:string;from_status?:string;scheduled_for?:string|null;due_on?:string|null;assignee_name?:string|null;priority?:string|null;title_changed?:boolean;description_changed?:boolean}; from_status?: string; to_status?: string; created_at: string })[] };
 export type Page<T> = { data: T[]; total: number; page: number; pageSize: number };
 export function sortOrders(orders: WorkOrder[], sort: string, dir: string) {
@@ -25,7 +25,7 @@ export function sortOrders(orders: WorkOrder[], sort: string, dir: string) {
 }
 export function dateInput(value: string | null, timezone = workspaceTimezone) { return value ? localDate(value, timezone) : ''; }
 export function scheduleValue(value: string, timezone = workspaceTimezone) { return scheduledInstant(value, timezone); }
-export type Draft = { title: string; description: string; client_id: string; site_id: string; priority: string; assignee_id: string; scheduled_for: string; due_on: string };
+export type Draft = { trade?: string; title: string; description: string; client_id: string; site_id: string; priority: string; assignee_id: string; scheduled_for: string; due_on: string };
 export function draftErrors(draft: Draft) { const errors: Record<string, string> = {}; if (!draft.title.trim()) errors.title = 'Enter a title.'; else if (draft.title.trim().length > 200) errors.title = 'Use 200 characters or fewer.'; if (draft.description.length > 20000) errors.description = 'Use 20,000 characters or fewer.'; if (!draft.client_id) errors.client_id = 'Choose a client.'; if (!draft.site_id) errors.site_id = 'Choose a site.'; return errors; }
 
 export const clientStatusHints:Record<string,string> = {waiting_on_parts:"We've ordered what's needed."};

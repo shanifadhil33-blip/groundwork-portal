@@ -563,3 +563,10 @@ body:has(.public-header) .primary:active:not(:disabled){background:color-mix(in 
 .person-num{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:72px;padding:var(--s3);border:1px solid var(--border);border-radius:var(--r-sm,10px);color:var(--text);text-decoration:none}
 .person-num strong{font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
 .person-num:hover{background:var(--surface-subtle)}
+.best-match{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;padding:var(--s3);border:1px solid var(--border);border-radius:var(--r-sm,10px);background:var(--surface-subtle)}
+.best-match>div{flex:1;min-width:160px}
+.skill-chips{display:flex;flex-wrap:wrap;gap:var(--s1)}
+.chip{display:inline-flex;align-items:center;min-height:32px;padding:0 var(--s3);border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);font-size:14px}
+button.chip{cursor:pointer;min-height:44px}
+.chip-on{background:var(--text);color:var(--surface);border-color:var(--text)}
+.chip-area{background:var(--surface-subtle)}
