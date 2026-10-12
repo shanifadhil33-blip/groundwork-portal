@@ -140,14 +140,14 @@ it('authentication bookkeeping carries token attribution and restores caller tra
  const before=audit.total;await rpc(t.token,'tools/list');expect((await listAudit(ids.sam,ids.ridgeline,new URLSearchParams({entity_id:t.id}))).total).toBe(before);
 });
 
-it('number lookup leads directly to a pending comment without writing before confirmation',async()=>{
- const mock=vi.fn().mockImplementationOnce(async()=>gemini([{functionCall:{name:'get_work_order_by_number',args:{number:55}}}])).mockImplementationOnce(async()=>gemini([{functionCall:{name:'add_comment',args:{work_order_id:orderId(55),body:'Technician confirmed',visibility:'client'}}}]));
+it('number lookup leads directly to a saved team note, logged in the decision log, with no card',async()=>{
+ const mock=vi.fn().mockImplementationOnce(async()=>gemini([{functionCall:{name:'get_work_order_by_number',args:{number:55}}}])).mockImplementationOnce(async()=>gemini([{functionCall:{name:'add_comment',args:{work_order_id:orderId(55),body:'Technician confirmed',visibility:'client'}}}])).mockImplementationOnce(async()=>gemini([{text:'Done, Sam. I saved the note on WO-55.'}]));
  vi.stubGlobal('fetch',mock);
- const before=await withUser(ids.sam,async db=>(await db.query('SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1',[orderId(55)])).rows[0].n);
+ const before=await withUser(ids.sam,async db=>(await db.query("SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1 AND visibility='internal'",[orderId(55)])).rows[0].n);
  const r=await route(assistantRoute.POST,{messages:[{role:'user',content:"add a comment 'Technician confirmed' to work order 55"}]});
- expect(r.body.pending_action.tool).toBe('add_comment');expect(r.body.pending_action.args.visibility).toBe('internal');expect(r.body.pending_action.summary).toContain('internal');expect(mock).toHaveBeenCalledTimes(2);
- expect(await withUser(ids.sam,async db=>(await db.query('SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1',[orderId(55)])).rows[0].n)).toBe(before);
- expect((await confirm(r.body.pending_action.id)).status).toBe(200);
+ expect(r.body.pending_action).toBeUndefined();expect(r.body.reply).toContain('Done, Sam');expect(mock).toHaveBeenCalledTimes(3);
+ expect(await withUser(ids.sam,async db=>(await db.query("SELECT count(*)::int AS n FROM comments WHERE work_order_id=$1 AND visibility='internal'",[orderId(55)])).rows[0].n)).toBe(before+1);
+ expect(await withSystem(async db=>(await db.query("SELECT count(*)::int AS n FROM assistant_actions WHERE tool='add_comment' AND outcome='done' AND args->>'work_order_id'=$1",[orderId(55)])).rows[0].n)).toBeGreaterThan(0);
 });
 it('number lookup respects client and workspace isolation',async()=>{
  const token=await mint(ids.pranav);

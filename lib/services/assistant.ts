@@ -7,6 +7,9 @@ import { ApiError,missing } from '../http';
 import { inWorkspace,uuid } from './shared';
 import { getWorkOrder } from './work-orders';
 import { tools,callTool,type AgentContext } from '../agent/tools';
+import { jobSnapshot } from './agent-log';
+import { contractNote,contractUse } from './payments';
+import { stripThinking } from '../ai-text';
 /** The client or site a record write touches: its name for the card, and the current values to show what changes. */
 /** The record a client or site tool acts on, with the country its labels and formats follow. */
 const teamTools=['assign_work_order','set_job_trade','set_worker_skills','add_worker'];
@@ -34,23 +37,28 @@ export async function assistant(user:string,ws:string,body:unknown) {
   if(a.consumed_at)throw new ApiError(409,'consumed','This action has already been confirmed.');
   if(new Date(a.expires_at)<=new Date())throw new ApiError(409,'expired','This action has expired. Ask the assistant again.');
   // Shared services reuse this same app-role transaction: write and consume commit together.
-  const previous=['update_work_order_status','update_work_order_dates','set_priority','add_comment','assign_work_order','set_job_trade'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
+  const previous=['update_work_order_status','update_work_order_dates','set_priority','add_comment','assign_work_order','set_job_trade','set_job_payment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
   const queueTarget=['approve_queue_row','reject_queue_row'].includes(a.tool)?(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,a.args.row_id])).rows[0]:null;
   const record=recordTools.includes(a.tool)?await recordTarget(x,ws,a.tool,a.args):null;
   const person=teamTools.includes(a.tool)?await personLabel(x,ws,a.tool,a.args):undefined;
   const result=await callTool(c,a.tool,a.args);
   const value=result.structuredContent as {result?:any};
   const order=result.isError?null:previous??(['create_request','approve_queue_row'].includes(a.tool)?value.result:null);
-  await x.db.query('UPDATE assistant_actions SET consumed_at=now() WHERE id=$1',[a.id]);
-  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?recordResult(a.tool,a.args,record):audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client'),result};
+  // Decision log: outcome, and for a new job its id so Undo can cancel it.
+  const created=a.tool==='create_request'&&!result.isError?{id:value?.result?.id}:null;
+  await x.db.query('UPDATE assistant_actions SET consumed_at=now(), outcome=$2, before=coalesce($3::jsonb,before) WHERE id=$1',[a.id,result.isError?'failed':'done',created?JSON.stringify(created):null]);
+  const first=String((await x.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0];
+  const done=(t:string)=>result.isError?t:`Done${first?`, ${first}`:''}. ${t}`;
+  return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?done(recordResult(a.tool,a.args,record)):done(audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client')),result};
  }));
- const role=await inWorkspace(user,ws,async c=>c.role);
+ const {role,first}=await inWorkspace(user,ws,async c=>({role:c.role,first:String((await c.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0]}));
  const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
  const history:AssistantMessage[]=[...d.messages];
  if(!history.length)history.push({role:'user',content:'Help me with my workspace.'});
+ let saved=false;
  for(let i=0;i<10;i++){
-  const turn=await assistantTurn(history,declarations);if(!turn)return assistantUnavailable;
-  if(!turn.calls.length){const text=plainAssistantReply(turn.text??'How can I help?',role==='client');return {available:true,reply:/please confirm|confirm this (?:action|change)|action completed|(?:I(?:’|')ve|I have|successfully) (?:changed|moved|updated|added|created|approved|rejected)/i.test(text)?'No changes have been made. Ask me to make the change so you can review and confirm it.':text};}
+  const turn=await assistantTurn(history,declarations,`The person you are helping is ${first||'a team member'} (${role==='staff'?'supervisor':role}). Use the first name in a greeting now and then, not in every reply.`);if(!turn)return assistantUnavailable;
+  if(!turn.calls.length){const text=plainAssistantReply(turn.text??'How can I help?',role==='client');return {available:true,reply:!saved&&/please confirm|confirm this (?:action|change)|action completed|(?:I(?:’|')ve|I have|successfully) (?:changed|moved|updated|added|created|approved|rejected)/i.test(text)?'No changes have been made. Ask me to make the change so you can review and confirm it.':text};}
   history.push(...turn.calls.map(call=>({role:'call' as const,...call,raw:turn.raw})));
   for(const [index,call] of turn.calls.entries()){
    const t=Object.hasOwn(tools,call.name)?tools[call.name]:undefined;
@@ -61,9 +69,11 @@ export async function assistant(user:string,ws:string,body:unknown) {
     history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:!t?'Unknown tool.':'Invalid tool arguments. Please check the tool schema.'}]},id:call.id});
     continue;
    }
+   // A short question with tap answers, instead of guessing. The answer comes back as the next message.
+   if(call.name==='ask_choice'&&t){const q=parsed.data as {question:string;options:string[]};return {available:true,reply:plainAssistantReply(q.question,role==='client'),choices:q.options.map(o=>plainAssistantReply(o,role==='client'))};}
    if(t.write){
     const args=parsed.data;
-    const order=['update_work_order_status','update_work_order_dates','set_priority','assign_work_order','set_job_trade'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
+    const order=['update_work_order_status','update_work_order_dates','set_priority','assign_work_order','set_job_trade','set_job_payment'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;
     const target=await inWorkspace(user,ws,async x=>{
      if(call.name==='create_request'){const site=(await x.db.query('SELECT s.name,c.name AS client,w.timezone FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id JOIN workspaces w ON w.id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,(args as any).site_id])).rows[0];if(!site)throw missing();return {label:`${site.client} · ${site.name}`,timezone:site.timezone};}
      if(['approve_queue_row','reject_queue_row'].includes(call.name)){const row=(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,(args as any).row_id])).rows[0];if(!row)throw missing();return {label:`row ${row.row_number}: ${row.data.title}`,timezone:undefined};}
@@ -74,11 +84,27 @@ export async function assistant(user:string,ws:string,body:unknown) {
     if(role==='technician'&&!['update_work_order_status','add_comment'].includes(call.name)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.'}]},id:call.id});continue;}
     if(teamTools.includes(call.name)&&!['admin','staff'].includes(role)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only admins and supervisors can assign jobs or change the team.'}]},id:call.id});continue;}
     // Record writes are admin only; a role that cannot make them gets the refusal now, not after a confirmation.
+    if(call.name==='set_job_payment'&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only an admin can change how a job is paid. Tell the person to ask the admin, and add a note on the job if they want.'}]},id:call.id});continue;}
     if(recordTools.includes(call.name)&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only workspace admins can add or change clients and sites.'}]},id:call.id});continue;}
     const record=recordTools.includes(call.name)?await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args)):null;
     const summary=record?recordSummary(call.name,args as Record<string,any>,record):audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');
-    const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args) VALUES($1,$2,$3,$4) RETURNING id',[ws,user,call.name,JSON.stringify(args)])).rows[0].id);
-    return {available:true,reply:'Please confirm this action before I make the change.',pending_action:{id,tool:call.name,args,summary}};
+    // Logging a team note is not consequential: do it straight away (still logged), no confirmation card.
+    if(call.name==='add_comment'&&(args as any).visibility==='internal'&&['admin','staff','technician'].includes(role)){
+     if(saved){history.push({role:'result',name:call.name,result:{content:[{type:'text',text:'The note is already saved. Tell the person it is done.'}]},id:call.id});continue;}
+     const result=await callTool(c,call.name,args);
+     await inWorkspace(user,ws,x=>x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,consumed_at,outcome) VALUES($1,$2,$3,$4,$5,$6,now(),$7)',[ws,user,call.name,JSON.stringify(args),summary.slice(0,600),`You asked me to save this note.`,result.isError?'failed':'done']));
+     if(!result.isError)saved=true;
+     history.push({role:'result',name:call.name,result,id:call.id});continue;
+    }
+    // Contract facts go on the card so the admin decides; the agent never decides an over limit or ended contract.
+    const contract=call.name==='set_job_payment'&&(args as any).payment_status==='contract'&&order?await inWorkspace(user,ws,async x=>contractNote(await contractUse(x,(order as any).client_id))):'';
+    const pay=(args as any).payment_status;
+    const knock=call.name==='set_job_payment'?(pay==='contract'?['It leaves the to bill list, so no invoice is made.','The client history shows Covered by contract.',contract].filter(Boolean):pay==='paid'?['It leaves the to bill list.','The client history shows Paid.']:['It goes back on the to bill list.']).map(l=>`• ${l}`).join('\n'):'';
+    const card=knock?`${summary}\n${knock}`:summary;
+    const lastAsk=d.messages.filter(m=>m.role==='user').at(-1)?.content??'';
+    const why=plainAssistantReply(stripThinking(turn.text??'').split('\n').map(l=>l.trim()).filter(Boolean)[0]??'',false).slice(0,300)||`You asked: ${lastAsk.slice(0,200)}`;
+    const id=await inWorkspace(user,ws,async x=>(await x.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,before) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id',[ws,user,call.name,JSON.stringify(args),card.slice(0,600),why,JSON.stringify(jobSnapshot(order as any))])).rows[0].id);
+    return {available:true,reply:'Please confirm this action before I make the change.',pending_action:{id,tool:call.name,args,summary:card,why}};
    }
    const result=await callTool(c,call.name,call.args);
    history.push({role:'result',name:call.name,result,id:call.id});

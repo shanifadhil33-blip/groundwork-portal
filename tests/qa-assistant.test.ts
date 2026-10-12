@@ -15,6 +15,8 @@ vi.mock('../lib/agent/tools',async()=>{const {z}=await import('zod');return {cal
  update_work_order_status:{write:true,description:'Status',schema:z.object({id:z.uuid(),status:z.string(),updated_at:z.string()})},
  set_priority:{write:true,description:'Priority',schema:z.object({id:z.uuid(),priority:z.string(),updated_at:z.string()})},
  add_comment:{write:true,description:'Comment',schema:z.object({work_order_id:z.uuid(),body:z.string(),visibility:z.enum(['internal','client']).default('internal')})},
+ ask_choice:{write:false,description:'Ask',schema:z.object({question:z.string(),options:z.array(z.string())})},
+ set_job_payment:{write:true,description:'Pay',schema:z.object({id:z.uuid(),payment_status:z.string()})},
  create_request:{write:true,description:'Request',schema:z.object({site_id:z.uuid(),title:z.string(),description:z.string().optional()})},
  }}});
 import { assistant } from '../lib/services/assistant';
@@ -26,19 +28,19 @@ it('removes complete/truncated IDs and raw words, while retaining safe work-orde
  expect(result).not.toMatch(/site ID|e4ca7ce3|in_progress|waiting_on_parts|list_sites/);expect(result).toContain('In Progress');expect(result).toContain('Waiting on Parts');expect(result).toContain(`](/work-orders/${state.order.id})`);expect(result.split(`](/work-orders/${state.order.id})`)[1]).not.toContain(state.order.id);
  expect(plainAssistantReply('there is no available tool to modify priority')).toContain('Open the job and use Edit');
 });
-it('returns the complete internal comment confirmation and makes no write before the tap',async()=>{
+it('saves a team note straight away, with no confirmation card, and logs it',async()=>{
  const body='Technician checked alignment.\nReplace the damaged reader bracket and test three badges.';
  const result=await propose('add_comment',{work_order_id:state.order.id,body,visibility:'client'},'Add an internal note to WO-58');
- const pending='pending_action' in result?result.pending_action:null;expect(pending?.summary).toContain(body);expect(pending?.summary).toContain('internal note (team only)');expect(pending?.summary).toContain('WO-58 Test access control reader');expect(pending?.summary).not.toContain(state.order.id);expect(state.call).not.toHaveBeenCalled();
+ expect('pending_action' in result&&result.pending_action).toBeFalsy();expect(state.call).toHaveBeenCalledTimes(1);expect(state.call.mock.calls[0][2]).toMatchObject({visibility:'internal',body});
 });
 it('confirms priority with old/new values, then returns a concrete linked result exactly once',async()=>{
  const proposal=await propose('set_priority',{id:state.order.id,priority:'high',updated_at:'2026-10-11T00:00:00Z'});const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('Normal → High');expect(state.call).not.toHaveBeenCalled();
- const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Changed priority for [WO-58 Test access control reader](/work-orders/${state.order.id}) to High.`);expect(state.call).toHaveBeenCalledTimes(1);expect(state.turn).toHaveBeenCalledTimes(1);
+ const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Done. Changed priority for [WO-58 Test access control reader](/work-orders/${state.order.id}) to High.`);expect(state.call).toHaveBeenCalledTimes(1);expect(state.turn).toHaveBeenCalledTimes(1);
  await expect(assistant(user,ws,{messages:[],confirm_action_id:pending!.id})).rejects.toMatchObject({status:409});expect(state.call).toHaveBeenCalledTimes(1);
 });
 it('shows status from/to before the write and names the confirmed change afterward',async()=>{
  const proposal=await propose('update_work_order_status',{id:state.order.id,status:'in_progress',updated_at:'2026-10-11T00:00:00Z'});const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('Scheduled → In Progress');expect(('reply' in proposal?proposal.reply:'')).not.toContain('Action completed');expect(state.call).not.toHaveBeenCalled();
- const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Moved [WO-58 Test access control reader](/work-orders/${state.order.id}) to In Progress.`);
+ const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Done. Moved [WO-58 Test access control reader](/work-orders/${state.order.id}) to In Progress.`);
 });
 it('keeps explicitly client-visible text in both proposal and result',async()=>{
  const proposal=await propose('add_comment',{work_order_id:state.order.id,body:'Please keep the entrance clear.',visibility:'client'},'Add a client-visible comment to WO-58');const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('visible to the client');
@@ -62,4 +64,17 @@ it('formats client model replies and staff replies using their audience labels',
  expect(await assistant(user,ws,{messages:[{role:'user',content:'What is the status?'}]})).toMatchObject({reply:'Status: Work in Progress. Next: Visit Scheduled.'});
  state.role='staff';
  expect(await assistant(user,ws,{messages:[{role:'user',content:'What is the status?'}]})).toMatchObject({reply:'Status: In Progress. Next: Scheduled.'});
+});
+
+it('asks one short question with tap answers instead of guessing, and writes nothing',async()=>{
+ state.turn.mockResolvedValue({calls:[{id:'1',name:'ask_choice',args:{question:'Save this as the job report for Villa 12?',options:['Yes','Change']}}]});
+ const r:any=await assistant(user,ws,{messages:[{role:'user',content:'save this'}]});
+ expect(r.reply).toBe('Save this as the job report for Villa 12?');expect(r.choices).toEqual(['Yes','Change']);expect(r.pending_action).toBeUndefined();expect(state.call).not.toHaveBeenCalled();
+});
+it('contract payment shows its knock on effects on the same card, and a supervisor is refused before any card',async()=>{
+ state.role='admin';
+ const p:any=await propose('set_job_payment',{id:state.order.id,payment_status:'contract'},"today's job was under contract, not paid");
+ expect(p.pending_action.summary).toContain('covered by the contract');expect(p.pending_action.summary).toContain('no invoice');expect(p.pending_action.summary).toContain('Covered by contract');expect(state.call).not.toHaveBeenCalled();
+ state.role='staff';state.turn.mockReset();state.turn.mockResolvedValueOnce({calls:[{id:'1',name:'set_job_payment',args:{id:state.order.id,payment_status:'contract'}}]}).mockResolvedValueOnce({text:'Only an admin can change that.',calls:[]});
+ const s:any=await assistant(user,ws,{messages:[{role:'user',content:'mark it as contract'}]});expect(s.pending_action).toBeUndefined();expect(state.call).not.toHaveBeenCalled();
 });

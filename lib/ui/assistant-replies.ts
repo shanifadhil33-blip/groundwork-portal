@@ -69,6 +69,7 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='add_comment')return `Add ${args.visibility==='internal'?'an internal note (team only)':'a comment visible to the client'} to ${name}:\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_status')return `Move ${name}: ${statusLabels[order!.status] ?? readableLabel(order!.status)} → ${statusLabels[args.status] ?? readableLabel(args.status)}`;
   if(tool==='assign_work_order')return `Assign ${name} to ${plainAssistantReply(target??'nobody')}`;
+  if(tool==='set_job_payment')return `Mark ${name} as ${({to_bill:'to bill',contract:'covered by the contract',paid:'paid'} as Record<string,string>)[args.payment_status]}${target?`\n${plainAssistantReply(target)}`:''}`;
   if(tool==='set_job_trade')return `Set the trade for ${name}: ${args.trade?tradeLabels[args.trade as Trade]:'Any'}`;
   if(tool==='set_worker_skills')return `Set what ${plainAssistantReply(target??'this person')} does:\nTrade: ${(args.trades??[]).map((t:Trade)=>tradeLabels[t]).join(', ')||'None'}\nArea: ${(args.areas??[]).map((a:string)=>plainAssistantReply(a)).join(', ')||'None'}`;
   if(tool==='add_worker')return `Add ${plainAssistantReply(args.name)} to the team as ${args.role==='staff'?'a supervisor':'a technician'}${args.phone?`\nPhone: ${plainAssistantReply(args.phone)}`:''}`;
@@ -85,6 +86,7 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   const name=assistantTarget(order).replace(/[\[\]\r\n]/g,' '),link=`[${name}](/work-orders/${order.id})`;
   if(tool==='update_work_order_status')return `Moved ${link} to ${statusLabels[args.status] ?? readableLabel(args.status)}.`;
   if(tool==='assign_work_order')return `Assigned ${link} to ${plainAssistantReply(target??'nobody')}.`;
+  if(tool==='set_job_payment')return `Marked ${link} as ${({to_bill:'to bill',contract:'covered by the contract',paid:'paid'} as Record<string,string>)[args.payment_status]}.`;
   if(tool==='set_job_trade')return `Set the trade for ${link} to ${args.trade?tradeLabels[args.trade as Trade]:'Any'}.`;
   if(tool==='set_priority')return `Changed priority for ${link} to ${readableLabel(args.priority)}.`;
   if(tool==='add_comment')return `Added ${args.visibility==='internal'?'an internal note':'a comment visible to the client'} to ${link}.\n\n${plainAssistantReply(args.body)}`;
