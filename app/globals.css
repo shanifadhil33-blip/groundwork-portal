@@ -544,3 +544,10 @@ body:has(.public-header) .primary:active:not(:disabled){background:color-mix(in 
 .more-panel{border-top:1px solid var(--border);padding-top:var(--s3)}
 .more-panel>summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center;list-style:none}
 .more-panel>summary::before{content:"+";margin-right:var(--s2)}.more-panel[open]>summary::before{content:"\2212"}
+/* One glance home: icon, big number, one word. */
+.tiles-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tile{align-items:flex-start;min-height:120px}
+.tile svg{color:var(--text-muted)}.tile-late svg{color:var(--danger,#b42318)}.tile-today svg{color:var(--primary)}
+.tile strong{font-size:40px}
+.tile span{font-size:17px}
+@media(max-width:380px){.tiles-3 .tile{padding:var(--s3)}.tiles-3 .tile strong{font-size:34px}}

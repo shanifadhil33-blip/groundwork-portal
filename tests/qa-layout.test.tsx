@@ -18,11 +18,11 @@ it('groups recent update badges and time below the request title',()=>{
  const html=render(<ClientHome/>);
  expect(html).toContain('page stack client-home');
  expect(html).toMatch(/request-update-meta"><span class="badge[^>]*>Request Received<\/span><span class="small muted">Updated /);
- expect(html).toContain('My open requests');expect(html).toContain('Repair entry door');
+ expect(html).toContain('<h2>Open</h2>');expect(html).toContain('Repair entry door');
 });
 it('uses short linked attention stats at every viewport',()=>{
  const html=render(<Dashboard/>,'admin');
- expect(html).toContain('<strong>13</strong><span>Late</span>');expect(html).toContain('<span>Jobs today</span>');expect(html).toContain('<strong>2</strong><span>New requests</span>');expect(html).toContain('/work-orders?overdue=true');expect(html).not.toContain('across open statuses');
+ expect(html).toContain('<strong>13</strong><span>Late</span>');expect(html).toContain('<strong>0</strong><span>Today</span>');expect(html).toContain('<strong>2</strong><span>New</span>');expect(html).toContain('/work-orders?overdue=true');expect(html).not.toContain('across open statuses');
 });
 it('defines pure canvases and prevents badge stretching in flex columns',()=>{
  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
