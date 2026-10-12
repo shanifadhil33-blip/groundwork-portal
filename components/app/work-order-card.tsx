@@ -7,7 +7,7 @@ export function WorkOrderCard({order:o, client, timezone, clientName, assigneeNa
     <span className="order-number">WO-{o.order_number}</span><strong>{workOrderTitle(o)}</strong>
     <div className="work-meta work-status-priority"><StatusBadge status={o.status}>{(client?clientStatusLabels:statusLabels)[o.status]}</StatusBadge><span className={`priority-text priority-${o.priority}`}><i/>{label(o.priority)}</span></div>
     <p className="small muted">{clientName} · {o.site_name??'Site unavailable'}</p>
-    <div className="work-meta"><span className={`date-cell ${overdue?'overdue':''}`}>{o.due_on?<>Due · <LocalTime short dateOnly value={o.due_on}/></>:'No due date'}</span>{overdue&&<Badge tone="danger">Overdue</Badge>}</div>
+    <div className="work-meta"><span className={`date-cell ${overdue?'overdue':''}`}>{o.due_on?<>Due · <LocalTime short dateOnly value={o.due_on}/></>:'No due date'}</span>{overdue&&<Badge tone="danger">Late</Badge>}</div>
     <p className="assignee-cell">Assigned to · {assigneeName}</p>
   </Link>;
 }
