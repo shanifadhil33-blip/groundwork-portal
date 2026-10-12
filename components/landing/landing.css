@@ -246,3 +246,38 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root a:active,.lx-root button:active{transform:none}
 .lx-root .lx-primary,.lx-root .lx-primary:hover,.lx-root .lx-primary:active{transform:none;transition:none}
 }
+
+/* ===== Light theme (the default). Dark keeps the original night look above. ===== */
+html:not([data-theme=dark]) body:has(.lx-root),html:not([data-theme=dark]):has(.lx-root){background:#fff}
+html:not([data-theme=dark]) .lx-root{color-scheme:light;background:#fff;color:#111418;--primary-fg:#1a1206}
+html:not([data-theme=dark]) .lx-root p{color:#4b5563}
+html:not([data-theme=dark]) .lx-root a:hover{color:#8a5d1f}
+html:not([data-theme=dark]) .lx-root :focus-visible{outline-color:#1f5f5b}
+html:not([data-theme=dark]) .lx-root .lx-header{background:rgba(255,255,255,.92);border-bottom-color:#e6e8eb;backdrop-filter:saturate(1.2) blur(8px)}
+html:not([data-theme=dark]) .lx-root .lx-brand svg{color:#a8732a}
+html:not([data-theme=dark]) .lx-root .lx-header-link:active,html:not([data-theme=dark]) .lx-root .lx-config button:active{background:#eef0f2}
+html:not([data-theme=dark]) .lx-root .lx-secondary{border-color:#d4d8dd;color:#111418;background:#fff}
+html:not([data-theme=dark]) .lx-root .lx-secondary:hover{background:#f5f6f7;border-color:#9aa3ad;color:#111418}
+html:not([data-theme=dark]) .lx-root .lx-secondary:active{background:#eceef0}
+/* The headline pill: soft warm glass on white instead of dark glass. */
+html:not([data-theme=dark]) .lx-root .lx-highlight{color:#111418}
+html:not([data-theme=dark]) .lx-root .lx-highlight::before{background:linear-gradient(to bottom,rgba(255,255,255,.9),rgba(255,255,255,0) 45%),rgba(198,151,83,.16);box-shadow:inset 0 0 0 1px rgba(168,115,42,.22),0 .05em .14em rgba(17,20,24,.08)}
+html:not([data-theme=dark]) .lx-root .lx-highlight--after-line::before{box-shadow:inset 0 0 0 1px rgba(168,115,42,.22)}
+html:not([data-theme=dark]) .lx-root .lx-highlight--after-line::after{box-shadow:0 .05em .14em rgba(17,20,24,.08)}
+html:not([data-theme=dark]) .lx-root .lx-scroll{color:#6b7280}
+html:not([data-theme=dark]) .lx-root .lx-scroll>span{background:#9aa3ad}
+html:not([data-theme=dark]) .lx-root .lx-rise p{color:#111418}
+html:not([data-theme=dark]) .lx-root .lx-legend{color:#4b5563}
+html:not([data-theme=dark]) .lx-root .lx-open{background:#eef0f2;box-shadow:inset 0 0 0 1px #9aa3ad}
+html:not([data-theme=dark]) .lx-root .lx-config{border-color:#e2e5e9;background:#f8f9fa}
+html:not([data-theme=dark]) .lx-root .lx-config-head{border-bottom-color:#e6e8eb;color:#4b5563}
+html:not([data-theme=dark]) .lx-root .lx-config code{color:#1f2937}
+html:not([data-theme=dark]) .lx-root .lx-config button{color:#1f2937}
+html:not([data-theme=dark]) .lx-root .lx-config button:hover{background:#eef0f2;color:#111418}
+html:not([data-theme=dark]) .lx-root .lx-footer{border-top-color:#e6e8eb;background:#fff}
+/* Gold buttons on white: same gold, a soft shadow instead of the heavy night shadow. */
+html:not([data-theme=dark]) .lx-root .lx-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 1px 2px rgba(17,20,24,.12),0 6px 16px rgba(168,115,42,.18)}
+html:not([data-theme=dark]) .lx-root .lx-primary:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(17,20,24,.14),0 8px 20px rgba(168,115,42,.24)}
+/* Phones and fallbacks show pre rendered night frames. On white, flip them to a light look: invert turns black to white and
+   dark slabs to pale; the hue turn brings the gold and blue grey glow back. Tradeoff: light and shadow are mirrored. */
+html:not([data-theme=dark]) .lx-root .lx-seq-poster,html:not([data-theme=dark]) .lx-root .lx-seq-canvas,html:not([data-theme=dark]) .lx-root .lx-media img,html:not([data-theme=dark]) .lx-root .lx-media video{filter:invert(1) hue-rotate(180deg)}
