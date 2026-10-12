@@ -3,7 +3,7 @@ import { TRADES } from '../trades';
 import { withSystem } from '../db';
 import { ApiError } from '../http';
 import { allow, inWorkspace, row } from './shared';
-import { assertRealUser } from './demo';
+import { offReason } from './time-off';
 
 const skillsSchema = z.object({
   trades: z.array(z.enum(TRADES)).max(7),
@@ -12,7 +12,6 @@ const skillsSchema = z.object({
 
 /** Admin or supervisor sets what a worker does and where. Supervisors may set technicians only. */
 export async function setWorkerSkills(user: string, ws: string, workerId: string, body: unknown) {
-  await assertRealUser(user);
   const data = skillsSchema.parse(body);
   const trades = [...new Set(data.trades)], areas = [...new Set(data.areas)];
   await inWorkspace(user, ws, async c => {
@@ -43,7 +42,11 @@ export async function suggestWorkers(user: string, ws: string, workOrderId: stri
         (SELECT count(*)::int FROM work_orders w WHERE w.workspace_id=m.workspace_id AND w.assignee_id=m.user_id AND w.status NOT IN ('done','cancelled') AND (w.scheduled_for AT TIME ZONE $4)::date=(now() AT TIME ZONE $4)::date) AS today
        FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true
        WHERE m.workspace_id=$1 AND m.role IN ('technician','staff')`, [ws, job.trade ?? null, site.area ?? null, tz])).rows;
-    rows.sort((a, b) => Number(b.trade_match) - Number(a.trade_match) || Number(b.area_match) - Number(a.area_match) || (a.role === 'technician' ? 0 : 1) - (b.role === 'technician' ? 0 : 1) || a.today - b.today || String(a.name).localeCompare(String(b.name)));
+    // Nobody who is off on the job's day (or today, for an unscheduled job) is ever suggested first.
+    const day = (await c.db.query('SELECT (coalesce($1::timestamptz, now()) AT TIME ZONE $2)::date::text AS d', [job.scheduled_for ?? null, tz])).rows[0].d;
+    const reasons = await withSystem(async db => Promise.all(rows.map(r => offReason(db, ws, r.user_id, day))), user);
+    rows.forEach((r, i) => { r.off = reasons[i]; });
+    rows.sort((a, b) => Number(!!a.off) - Number(!!b.off) || Number(b.trade_match) - Number(a.trade_match) || Number(b.area_match) - Number(a.area_match) || (a.role === 'technician' ? 0 : 1) - (b.role === 'technician' ? 0 : 1) || a.today - b.today || String(a.name).localeCompare(String(b.name)));
     return { trade: job.trade ?? null, area: site.area ?? null, workers: rows };
   });
 }

@@ -1,3 +1,4 @@
+import { assertWorking } from './time-off';
 import { pushJobChange } from './push';
 import { TRADES } from '../trades';
 import { publicClient } from './clients';
@@ -72,6 +73,7 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
   if('scheduled_for' in data && typeof data.scheduled_for==='string' && data.scheduled_for.length===10) {
    data.scheduled_for=(await c.db.query("SELECT ($1::date + time '09:00') AT TIME ZONE timezone AS value FROM workspaces WHERE id=$2",[data.scheduled_for,ws])).rows[0].value.toISOString();
   }
+  if(c.role!=='client')await assertWorking(c,(data as {assignee_id?:string|null}).assignee_id,(data as {scheduled_for?:string|null}).scheduled_for);
   return replay(c.db,user,ws+'/work-orders',key,data,()=>insert(c,'work_orders',{
    ...data,client_id,workspace_id:ws,created_by:user,source:c.role==='client'?'client':'manual',
   }));
@@ -122,6 +124,7 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   if(order.status!=='done' && data.status && data.status!==order.status && !transitions[order.status].includes(data.status))throw invalid('This status change is not allowed.','status');
   if(typeof data.scheduled_for==='string' && data.scheduled_for.length===10)data.scheduled_for=(await c.db.query("SELECT ($1::date + time '09:00') AT TIME ZONE timezone AS value FROM workspaces WHERE id=$2",[data.scheduled_for,ws])).rows[0].value.toISOString();
   await assignee(c,data.assignee_id);
+  if('assignee_id' in data||'scheduled_for' in data)await assertWorking(c,'assignee_id' in data?data.assignee_id:order.assignee_id,'scheduled_for' in data?data.scheduled_for:order.scheduled_for);
   return update(c,'work_orders',id,data);
  });
  await pushJobChange(user,before,saved as never);

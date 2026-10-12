@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { Button, Dialog } from '../ui';
 import { request } from '../../lib/ui/api';
 import { TRADES, tradeLabels, type Trade } from '../../lib/trades';
+import { DAYS, LeaveCalendar, OffDaysButton } from './time-off';
 
 /** Pick what a worker does and where. Tap to turn each one on or off. */
 function SkillsButton({ p, base, areas, onDone }: { p: TeamPerson; base: string; areas: string[]; onDone: () => void }) {
@@ -26,10 +27,10 @@ function SkillsButton({ p, base, areas, onDone }: { p: TeamPerson; base: string;
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
 }
 
-type TeamPerson = { trades: string[]; areas: string[]; user_id: string; role: Role; name: string | null; email: string | null; phone: string | null; open: number; today: number; late: number; signs_in_with: 'google' | 'code' };
+type TeamPerson = { trades: string[]; areas: string[]; user_id: string; role: Role; name: string | null; email: string | null; phone: string | null; open: number; today: number; late: number; done_month: number; done_total: number; off_days: number[]; signs_in_with: 'google' | 'code' };
 
 /** One person: name, role, and three big numbers that open their jobs. */
-function PersonCard({ p, base, canLink, areas, onDone }: { p: TeamPerson; base: string; canLink: boolean; areas: string[]; onDone: () => void }) {
+function PersonCard({ p, base, canLink, canEdit, areas, onDone }: { p: TeamPerson; base: string; canLink: boolean; canEdit: boolean; areas: string[]; onDone: () => void }) {
   const jobs = (q: string) => `/work-orders?assignee_id=${p.user_id}${q}`;
   const nums = [
     { label: 'Today', value: p.today, icon: CalendarCheck, href: jobs('&today=true') },
@@ -41,7 +42,8 @@ function PersonCard({ p, base, canLink, areas, onDone }: { p: TeamPerson; base: 
       {p.phone && <a className="button secondary" href={`tel:${p.phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${p.name ?? 'them'}`}><Phone size={16} aria-hidden="true" />Call</a>}</div>
     <div className="person-nums">{nums.map(n => <Link key={n.label} href={n.href} className={`person-num ${n.tone ? `tile-${n.tone}` : ''}`} aria-label={`${n.value} ${n.label} for ${p.name ?? 'them'}`}><n.icon size={18} aria-hidden="true" /><strong>{n.value}</strong><span>{n.label}</span></Link>)}</div>
     {(p.trades.length > 0 || p.areas.length > 0) && <div className="skill-chips">{p.trades.map(t => <span key={t} className="chip">{tradeLabels[t as Trade] ?? t}</span>)}{p.areas.map(a => <span key={a} className="chip chip-area">{a}</span>)}</div>}
-    {canLink && <div className="row">{p.role !== 'admin' && <SkillsButton p={p} base={base} areas={areas} onDone={onDone} />}{p.signs_in_with === 'code' && <NewLinkButton base={base} userId={p.user_id} name={p.name ?? 'them'} phone={p.phone} />}</div>}
+    {p.role !== 'admin' && <p className="small muted person-record">Jobs done: {p.done_month} this month, {p.done_total} in total{p.off_days?.length ? ` · Off every ${p.off_days.map(d => DAYS[d]).join(', ')}` : ''}</p>}
+    {(canEdit || canLink) && <div className="row">{canEdit && p.role !== 'admin' && <><SkillsButton p={p} base={base} areas={areas} onDone={onDone} /><OffDaysButton p={p} base={base} onDone={onDone} /></>}{canLink && p.signs_in_with === 'code' && <NewLinkButton base={base} userId={p.user_id} name={p.name ?? 'them'} phone={p.phone} />}</div>}
   </li>;
 }
 
@@ -53,10 +55,11 @@ export function Team() {
   return <div className="page stack team-page">
     <PageHeader><div><h1>Team</h1><p>Who works today, and what each person has to do.</p></div>
       {!demo && <AddFieldWorker base={base} admin={member?.role === 'admin'} demo={demo} onDone={() => void team.reload()} />}</PageHeader>
-    {demo && <p className="small muted">The demo team is view only.</p>}
+    {demo && <p className="small muted">In the demo you cannot add new people. Everything else works.</p>}
     {team.loading ? <Skeleton className="skeleton-card" /> : team.error ? <ErrorState retry={team.reload} /> :
-      others.length ? <ul className="person-list">{(team.data ?? []).map(p => <PersonCard key={p.user_id} p={p} base={base} canLink={!demo} areas={areas.data ?? []} onDone={() => void team.reload()} />)}</ul> :
+      others.length ? <ul className="person-list">{(team.data ?? []).map(p => <PersonCard key={p.user_id} p={p} base={base} canLink={!demo} canEdit={office} areas={areas.data ?? []} onDone={() => void team.reload()} />)}</ul> :
       <EmptyState title="Add your first worker">Add a name and phone. We give you a code to send on WhatsApp. They sign in with it. No email needed.</EmptyState>}
+    {office && others.length > 0 && <LeaveCalendar base={base} people={team.data ?? []} />}
     {member?.role === 'admin' && !demo && <p className="small"><Link href="/settings?tab=members">Change roles or invite by email</Link></p>}
   </div>;
 }

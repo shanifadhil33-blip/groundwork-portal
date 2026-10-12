@@ -10,11 +10,13 @@ export async function teamToday(user: string, ws: string) {
       `SELECT m.user_id, m.role, u.name, u.email, m.trades, m.areas,
         count(w.id) FILTER (WHERE w.status NOT IN ('done','cancelled'))::int AS open,
         count(w.id) FILTER (WHERE w.status NOT IN ('done','cancelled') AND (w.scheduled_for AT TIME ZONE $2)::date = (now() AT TIME ZONE $2)::date)::int AS today,
-        count(w.id) FILTER (WHERE w.status NOT IN ('done','cancelled') AND w.due_on < (now() AT TIME ZONE $2)::date)::int AS late
+        count(w.id) FILTER (WHERE w.status NOT IN ('done','cancelled') AND w.due_on < (now() AT TIME ZONE $2)::date)::int AS late,
+        count(w.id) FILTER (WHERE w.status='done' AND date_trunc('month', coalesce(w.report_at, w.updated_at) AT TIME ZONE $2) = date_trunc('month', now() AT TIME ZONE $2))::int AS done_month,
+        count(w.id) FILTER (WHERE w.status='done')::int AS done_total, m.off_days
        FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true
        LEFT JOIN work_orders w ON w.workspace_id = m.workspace_id AND w.assignee_id = m.user_id
        WHERE m.workspace_id = $1 AND m.role <> 'client'
-       GROUP BY m.user_id, m.role, u.name, u.email, m.trades, m.areas
+       GROUP BY m.user_id, m.role, u.name, u.email, m.trades, m.areas, m.off_days
        ORDER BY CASE m.role WHEN 'technician' THEN 0 WHEN 'staff' THEN 1 ELSE 2 END, u.name`, [ws, tz])).rows;
     return rows;
   }).then(async rows => {
