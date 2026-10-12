@@ -1,6 +1,6 @@
 import { afterAll,afterEach,beforeEach,expect,it,vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
-import { draftSummaries,aiHealth,unavailable } from '../lib/ai';
+import { draftSummaries,aiHealth,unavailable,resetCooldowns } from '../lib/ai';
 import { closePools,withUser } from '../lib/db';
 import { ids } from '../scripts/seed';
 import * as imports from '../lib/services/imports';
@@ -10,14 +10,16 @@ const row={id:randomUUID(),data:{title:'Repair light'}};
 const good=JSON.stringify([{row_id:row.id,summary:'Repair the lobby light.',priority:'high'}]);
 const gemini=(text:string)=>Response.json({candidates:[{content:{parts:[{text}]}}]});
 const groq=(text:string)=>Response.json({choices:[{message:{content:text}}]});
-beforeEach(()=>{vi.stubEnv('GEMINI_API_KEY','fictional-gemini-key');vi.stubEnv('GROQ_API_KEY','fictional-groq-key');});
+beforeEach(()=>{vi.stubEnv('AI_GEMINI_MODELS','gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-2.5-flash-lite');vi.stubEnv('AI_GROQ_MODELS','openai/gpt-oss-120b');resetCooldowns();vi.stubEnv('GEMINI_API_KEY','fictional-gemini-key');vi.stubEnv('GROQ_API_KEY','fictional-groq-key');});
 afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs();setAuthResolverForTests();});
 afterAll(closePools);
 it('falls back from Gemini 429 to Groq success',async()=>{
  const fetch=vi.fn().mockImplementation(async(url:string)=>url.includes('googleapis')?new Response('raw quota provider secret',{status:429}):groq(good));vi.stubGlobal('fetch',fetch);
  const result=await draftSummaries([row]);expect(result).toEqual({available:true,items:[{row_id:row.id,summary:'Repair the lobby light.',priority:'high'}]});expect(fetch).toHaveBeenCalledTimes(4);expect(JSON.stringify(result)).not.toContain('secret');
 });
-it('tries Gemini model chain for 403, 404 and 5xx',async()=>{const fetch=vi.fn().mockResolvedValueOnce(new Response('forbidden',{status:403})).mockResolvedValueOnce(new Response('missing',{status:404})).mockResolvedValueOnce(new Response('down',{status:503})).mockResolvedValueOnce(groq(good));vi.stubGlobal('fetch',fetch);expect((await draftSummaries([row])).available).toBe(true);expect(fetch).toHaveBeenCalledTimes(4);});
+it('tries the model chain for 403 and 404, retries a 5xx once, then fails over to the next provider',async()=>{const fetch=vi.fn().mockResolvedValueOnce(new Response('forbidden',{status:403})).mockResolvedValueOnce(new Response('missing',{status:404})).mockResolvedValueOnce(new Response('down',{status:503})).mockResolvedValueOnce(new Response('down',{status:503})).mockResolvedValueOnce(groq(good));vi.stubGlobal('fetch',fetch);expect((await draftSummaries([row])).available).toBe(true);expect(fetch).toHaveBeenCalledTimes(5);});
+it('a model that hit its limit is skipped on the next request (cooldown)',async()=>{const fetch=vi.fn().mockImplementation(async(url:string)=>url.includes('googleapis')?new Response('quota',{status:429}):groq(good));vi.stubGlobal('fetch',fetch);await draftSummaries([row]);const first=fetch.mock.calls.length;await draftSummaries([row]);expect(fetch.mock.calls.length-first).toBe(1);});
+it('a timeout fails over and the user gets a plain answer, never an error',async()=>{const fetch=vi.fn().mockImplementation(async(url:string)=>{if(url.includes('googleapis'))throw new DOMException('timeout','TimeoutError');return groq(good);});vi.stubGlobal('fetch',fetch);expect((await draftSummaries([row])).available).toBe(true);});
 it('skips providers without keys and returns plain unavailable response',async()=>{vi.stubEnv('GEMINI_API_KEY','');vi.stubEnv('GROQ_API_KEY','');const fetch=vi.fn();vi.stubGlobal('fetch',fetch);expect(await draftSummaries([row])).toEqual(unavailable);expect(await aiHealth()).toEqual({providers:[]});expect(fetch).not.toHaveBeenCalled();});
 it('all providers down returns available false without raw provider text or keys',async()=>{vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response('RAW PROVIDER SECRET',{status:500})));const result=await draftSummaries([row]);expect(result).toEqual(unavailable);expect(JSON.stringify(result)).not.toMatch(/RAW|SECRET|fictional/);});
 it('network errors and malformed JSON never leak',async()=>{const fetch=vi.fn().mockRejectedValueOnce(new Error('PRIVATE exception')).mockResolvedValue(gemini('not JSON PRIVATE'));vi.stubGlobal('fetch',fetch);expect(await draftSummaries([row])).toEqual(unavailable);});

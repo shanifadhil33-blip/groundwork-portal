@@ -10,13 +10,14 @@ import { startDemo,cleanupDemo } from '../lib/services/demo';
 import { getWorkOrder,createWorkOrder,createComment } from '../lib/services/work-orders';
 import { tools } from '../lib/agent/tools';
 import { assistantUnavailable } from '../lib/services/assistant';
+import { resetCooldowns } from '../lib/ai';
 import { listAudit,getAudit } from '../lib/services/audit';
 import * as tokenRoute from '../app/api/workspaces/[ws]/tokens/route';
 import * as revokeRoute from '../app/api/workspaces/[ws]/tokens/[id]/revoke/route';
 import * as mcp from '../app/api/mcp/route';
 import * as assistantRoute from '../app/api/workspaces/[ws]/assistant/route';
 let user:string=ids.sam;
-beforeEach(()=>{user=ids.sam;setAuthResolverForTests(async()=>user);vi.stubEnv('GEMINI_API_KEY','fictional-key');vi.stubEnv('GROQ_API_KEY','fictional-backup');});
+beforeEach(()=>{user=ids.sam;setAuthResolverForTests(async()=>user);vi.stubEnv('GEMINI_API_KEY','fictional-key');vi.stubEnv('GROQ_API_KEY','fictional-backup');vi.stubEnv('AI_GEMINI_MODELS','gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-2.5-flash-lite');vi.stubEnv('AI_GROQ_MODELS','openai/gpt-oss-120b');resetCooldowns();});
 afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs();setAuthResolverForTests();});
 afterAll(closePools);
 async function route(handler:any,body?:unknown,params:Record<string,string>={},method='POST',suffix=''){

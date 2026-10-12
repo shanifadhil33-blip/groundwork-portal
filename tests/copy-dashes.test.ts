@@ -15,7 +15,7 @@ const technicalAttributes = new Set([
   'key', 'name', 'value', 'dateTime', 'form', 'persistenceKey', 'describedBy', 'autoComplete',
   'aria-describedby', 'aria-labelledby', 'aria-controls', 'aria-activedescendant',
 ]);
-const technicalValues = new Set([
+const technicalValues = new Set(['mistral-medium-latest', 'mistral-small-latest', 
   'Idempotency-Key', 'Set-Cookie', 'WWW-Authenticate', 'Content-Type', 'content-type',
   'Content-Disposition', 'If-Match', 'no-store', 'multipart/form-data',
   'sample-work-orders.csv', 'agent-access', 'data-label', 'aria-hidden',
@@ -54,6 +54,8 @@ function allowedData(text: string) {
     /^(?:groundwork-|lx-|demo-ip:|first-use:|work-order-draft:|comment-visibility:)[\w:=-]*$/.test(text) ||
     /^(?:COBALT-DEMO-\d*|demo-(?:ordered|shipped|delivered)-\d*)$/.test(text) ||
     /^groundwork-(?:demo|session)=.*; Path=\/; SameSite=Lax; Max-Age=\d+$/.test(text) ||
+    // AI model identifiers (provider/model-version, optional :free).
+    /^(?=[^ ]*\d)(?:[a-z0-9]+\/)?[a-z0-9.]+(?:-[a-z0-9.]+)+(?::free)?$/.test(text) ||
     /^; Path=\/api\/demo; HttpOnly; SameSite=Lax; Max-Age=\d+$/.test(text) ||
     /^=?;?\s*Path=\/; SameSite=/.test(text) ||
     /^attachment; filename="import-errors\.csv"$/.test(text) ||
