@@ -551,3 +551,5 @@ body:has(.public-header) .primary:active:not(:disabled){background:color-mix(in 
 .tile strong{font-size:40px}
 .tile span{font-size:17px}
 @media(max-width:380px){.tiles-3 .tile{padding:var(--s3)}.tiles-3 .tile strong{font-size:34px}}
+.help-feedback{max-width:560px}.help-feedback textarea{width:100%;font-size:16px}
+.feedback-shot{display:flex;align-items:flex-start;gap:var(--s2)}.feedback-shot img{max-width:180px;max-height:180px;border-radius:8px;border:1px solid var(--border)}

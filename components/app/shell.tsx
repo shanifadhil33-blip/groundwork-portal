@@ -1,6 +1,7 @@
 'use client';
 import { demoEmail } from '../../lib/ui/polish';
 import { isOffice, roleLabels } from '../../lib/roles';
+import { LAST_PAGE_KEY } from '../../lib/ui/device';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import type { AppPageData } from '../../lib/server-page-data';
@@ -69,6 +70,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
     try { if (confirm === 'signout') { await post('/api/auth/sign-out'); sessionStorage.clear(); rememberSession('out'); window.location.replace('/sign-in?signed_out=1'); } else if (confirm === 'reset') { await post('/api/demo/reset', { confirm: true });sessionStorage.setItem('groundwork-demo-restored','1'); window.location.replace(home); } else { await post('/api/demo/switch', { persona }); window.location.replace(homeForPersona(persona)); } }
     catch { setActionError(confirm === 'signout' ? 'We couldn’t sign you out. Please try again.' : 'We couldn’t update your demo. Please try again.'); setBusy(false); }
   }
+  useEffect(() => { if (!path.startsWith('/settings')) sessionStorage.setItem(LAST_PAGE_KEY, path); }, [path]);
   if (error) return <div className="public-page"><Brand /><ErrorState message="We couldn’t open your workspace. Please try again." retry={load} /></div>;
   if (loading || !me || (member && (!workspace || path === '/onboarding')) || (!member && path !== '/onboarding' && path !== '/invites/accept') || (member?.role === 'client' && path === '/dashboard') || (member?.role === 'technician' && path === '/dashboard') || (member && member.role !== 'client' && path === '/home')) return <><div className="public-header"><Brand /></div><PageSkeleton /></>;
   const nav = member?.role === 'technician' ? [{ href: '/work-orders', label: 'My jobs', icon: ClipboardList }, { href: '/settings', label: 'Settings', icon: Settings }] : [{ href: home, label: 'Home', icon: member?.role === 'client' ? House : LayoutDashboard }, ...(member && office ? [{ href: '/work-orders', label: 'Jobs', icon: ClipboardList }, { href: '/queue', label: 'New requests', icon: ListChecks }, { href: '/clients', label: 'Clients', icon: Building2 }, { href: '/import', label: 'Add from Excel', icon: Upload }, { href: '/supplier', label: 'Parts', icon: Truck }] : member ? [{href:'/work-orders',label:'Requests',icon:ClipboardList}] : []), { href: '/settings', label: 'Settings', icon: Settings }];
