@@ -70,6 +70,6 @@ export async function redeemFieldLink(body: unknown, ip: string) {
     const token = randomBytes(32).toString('base64url'), expires = new Date(Date.now() + SESSION_DAYS * 864e5);
     await db.query('INSERT INTO sessions("userId","sessionToken",expires) VALUES($1,$2,$3)', [link.user_id, token, expires]);
     const cookie = `${sessionCookie.name}=${token}; Path=/; HttpOnly; SameSite=Lax; Expires=${expires.toUTCString()}${sessionCookie.options.secure ? '; Secure' : ''}`;
-    return { cookie, home: link.role === 'technician' ? '/work-orders' : '/dashboard' };
+    return { cookie, home: link.role === 'technician' ? '/today' : '/dashboard' };
   });
 }

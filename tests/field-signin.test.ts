@@ -28,7 +28,7 @@ describe('field staff sign in by link or code', () => {
  it('the code signs him in once, then it is used up', async () => {
   await clearTries();const r=await add({name:'Nabil'});
   const ok=await call(redeemRoute.POST,{code:r.body.code.slice(0,3)+' '+r.body.code.slice(3)});
-  expect(ok.status).toBe(200);expect(ok.body.home).toBe('/work-orders');expect(ok.cookie).toMatch(/authjs\.session-token=/);
+  expect(ok.status).toBe(200);expect(ok.body.home).toBe('/today');expect(ok.cookie).toMatch(/authjs\.session-token=/);
   expect((await call(redeemRoute.POST,{code:r.body.code})).status).toBe(400);
  });
  it('the link signs him in, and a new link stops the old one', async () => {
