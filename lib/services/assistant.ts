@@ -8,11 +8,13 @@ import { inWorkspace,uuid } from './shared';
 import { getWorkOrder } from './work-orders';
 import { tools,callTool,type AgentContext } from '../agent/tools';
 /** The client or site a record write touches: its name for the card, and the current values to show what changes. */
+/** The record a client or site tool acts on, with the country its labels and formats follow. */
 async function recordTarget(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:any[]}>}},ws:string,tool:string,args:any){
- if(tool==='create_client')return {label:args.name as string,record:null};
- if(tool==='update_client'){const r=(await x.db.query('SELECT * FROM clients WHERE workspace_id=$1 AND id=$2',[ws,args.id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:r};}
- if(tool==='create_site'){const r=(await x.db.query('SELECT name FROM clients WHERE workspace_id=$1 AND id=$2',[ws,args.client_id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:null};}
- const r=(await x.db.query('SELECT s.*,c.name AS client_name FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,args.id])).rows[0];if(!r)throw missing();return {label:`${r.name} (${r.client_name})`,record:r};
+ const home=(await x.db.query('SELECT country FROM workspaces WHERE id=$1',[ws])).rows[0]?.country as string;
+ if(tool==='create_client')return {label:args.name as string,record:null,country:(args.country as string)||home};
+ if(tool==='update_client'){const r=(await x.db.query('SELECT * FROM clients WHERE workspace_id=$1 AND id=$2',[ws,args.id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:r,country:(args.country===undefined?r.country:args.country)||home};}
+ if(tool==='create_site'){const r=(await x.db.query('SELECT name,country FROM clients WHERE workspace_id=$1 AND id=$2',[ws,args.client_id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:null,country:r.country||home};}
+ const r=(await x.db.query('SELECT s.*,c.name AS client_name,c.country AS client_country FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,args.id])).rows[0];if(!r)throw missing();return {label:`${r.name} (${r.client_name})`,record:r,country:r.client_country||home};
 }
 export const assistantUnavailable={available:false,message:'The assistant is unavailable right now. Everything else works as normal.'};
 const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant']),content:z.string().min(1).max(20000)}).strict()).max(30),confirm_action_id:uuid.optional()}).strict();

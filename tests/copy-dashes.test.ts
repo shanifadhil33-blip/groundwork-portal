@@ -12,7 +12,7 @@ type Node = { type: string; value?: any; name?: any; loc?: { start: { line: numb
 // These attributes carry identifiers, CSS or navigation data, rather than copy.
 const technicalAttributes = new Set([
   'className', 'style', 'href', 'src', 'srcSet', 'sizes', 'media', 'id', 'htmlFor',
-  'key', 'name', 'value', 'dateTime', 'form', 'persistenceKey', 'describedBy',
+  'key', 'name', 'value', 'dateTime', 'form', 'persistenceKey', 'describedBy', 'autoComplete',
   'aria-describedby', 'aria-labelledby', 'aria-controls', 'aria-activedescendant',
 ]);
 const technicalValues = new Set([

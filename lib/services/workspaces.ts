@@ -1,11 +1,23 @@
 import { assertRealUser } from './demo';
 import { localDate, overdueSql } from '../dates';
 import { z } from 'zod';
+import { an, currencyFor, isCountry, isCurrency, normalizeRegion, regionField } from '../countries/rules';
 import { withUser } from '../db';
 import { invalid } from '../http';
 import { allow, inWorkspace, name, replay, row, update } from './shared';
 export const timezone = z.string().refine(value => { try { new Intl.DateTimeFormat('en',{timeZone:value}); return true; } catch { return false; } },'Choose a valid IANA timezone.');
-const schema=z.object({name,timezone:timezone.default('Asia/Dubai')}).strict();
+// Where the company works: its country (and that country's region level) sets the address, phone, tax ID and
+// currency rules everywhere in the app. Region is optional; currency defaults to the country's own.
+const country=z.string().trim().toUpperCase().refine(isCountry,'Choose a country from the list.');
+const currency=z.string().trim().toUpperCase().refine(isCurrency,'Choose a currency from the list.');
+const placeFields={country,region:z.string().trim().max(120).nullable().optional(),currency:currency.optional()};
+/** The workspace region checked against its country's list (or free text), and the currency defaulted. */
+function place<T extends {country?:string;region?:string|null;currency?:string}>(data:T,ctx:z.RefinementCtx){
+ if(data.region){const r=normalizeRegion(data.region,data.country);if(!r){const label=regionField(data.country).label.toLowerCase();ctx.addIssue({code:'custom',path:['region'],message:`Choose ${an(label)} ${label} from the list.`});return z.NEVER;}data.region=r;}
+ else if(data.region==='')data.region=null;
+ return data;
+}
+const schema=z.object({name,timezone:timezone.default('Asia/Dubai'),...placeFields,country:country.default('AE')}).strict().transform((d,ctx)=>{const v=place(d,ctx);return {...v,currency:v.currency??currencyFor(v.country)};});
 export async function me(user: string) {
  return withUser(user,async db=>({
   user:(await db.query('SELECT * FROM visible_user($1)',[user])).rows[0],
@@ -15,11 +27,23 @@ export async function me(user: string) {
 export async function createWorkspace(user:string,body:unknown,key?:string) {
  await assertRealUser(user);
  const data=schema.parse(body);
- return withUser(user,db=>replay(db,user,'workspaces',key,data,async()=>(await db.query('SELECT * FROM create_workspace($1,$2)',[data.name,data.timezone])).rows[0]));
+ // create_workspace makes the workspace and its first admin; the caller is then that admin, so RLS allows setting
+ // the country fields in the same transaction.
+ return withUser(user,db=>replay(db,user,'workspaces',key,data,async()=>{
+  const w=(await db.query('SELECT * FROM create_workspace($1,$2)',[data.name,data.timezone])).rows[0];
+  return (await db.query('UPDATE workspaces SET country=$2,region=$3,currency=$4 WHERE id=$1 RETURNING *',[w.id,data.country,data.region??null,data.currency])).rows[0];
+ }));
 }
 export async function getWorkspace(user:string,ws:string) { return inWorkspace(user,ws,c=>row(c,'workspaces',ws)); }
 export async function patchWorkspace(user:string,ws:string,body:unknown) {
- return inWorkspace(user,ws,async c=>{allow(c,['admin']);const data=z.object({name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional()}).strict().parse(body);if(!Object.keys(data).length)throw invalid('Provide at least one change.');return update(c,'workspaces',ws,data);});
+ return inWorkspace(user,ws,async c=>{allow(c,['admin']);const current=await row(c,'workspaces',ws);
+  const data=z.object({name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional(),country:country.optional(),region:placeFields.region,currency:placeFields.currency}).strict()
+   .transform((d,ctx)=>{
+    // A new country without a region clears the old one (it belonged to the old country's list).
+    if(d.country&&d.country!==current.country&&d.region===undefined)d.region=null;
+    return place({...d,country:d.country??current.country},ctx);
+   }).parse(body);
+  if(data.country===current.country&&!('country' in (body as object)))delete (data as {country?:string}).country;if(!Object.keys(data).length)throw invalid('Provide at least one change.');return update(c,'workspaces',ws,data);});
 }
 export async function deleteWorkspace(user:string,ws:string,body:unknown) {
  await assertRealUser(user);

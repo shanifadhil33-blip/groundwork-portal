@@ -1,7 +1,7 @@
 import { formatDate } from '../dates';
 import { readableLabel } from './polish';
 import { clientStatusLabels, statusLabels } from './work-orders';
-import { formatPhone, formatTrn } from '../records';
+import { countryName, formatPhone, formatTaxId, regionField, taxField } from '../countries/rules';
 
 export function audienceStatusReply(value:string, client=false) {
  const labels=client?clientStatusLabels:statusLabels;
@@ -28,20 +28,30 @@ export function plainAssistantReply(value: string, client=false) {
   return audienceStatusReply(text,client);
 }
 export const recordTools = ['create_client','update_client','create_site','update_site'];
-const recordLabels: Record<string,string> = { name:'Name', contact_name:'Main contact', phone:'Phone', email:'Email', billing_building:'Building', billing_street:'Street', billing_area:'Area', billing_city:'City', billing_emirate:'Emirate', trn:'TRN', notes:'Notes', address:'Address', building:'Building name or number', area:'Area', access_notes:'Access notes', contact_phone:'Site contact phone' };
-function recordValue(key: string, value: unknown) {
+const recordLabels: Record<string,string> = { name:'Name', contact_name:'Main contact', phone:'Phone', email:'Email', billing_building:'Building', billing_street:'Street', billing_area:'Area', billing_city:'City', notes:'Notes', address:'Address', building:'Building name or number', area:'Area', access_notes:'Access notes', contact_phone:'Site contact phone' };
+type RecordTarget = { label: string; record?: Record<string,any> | null; country?: string };
+/** Labels that depend on the record's country: its region level and its tax ID name. */
+function recordLabel(tool: string, key: string, country?: string) {
+  if (tool.endsWith('site') && key === 'contact_name') return 'Site contact';
+  if (key === 'billing_region' || key === 'region') return regionField(country).label;
+  if (key === 'tax_id') return taxField(country).label;
+  if (key === 'country') return 'Country';
+  return recordLabels[key] ?? readableLabel(key);
+}
+function recordValue(key: string, value: unknown, country?: string) {
+  if (key === 'country') return value ? countryName(String(value)) : 'Same as workspace';
   if (value === null || value === undefined || value === '') return 'None';
   if (key === 'phone' || key === 'contact_phone') return formatPhone(String(value));
-  if (key === 'trn') return formatTrn(String(value));
+  if (key === 'tax_id') return formatTaxId(String(value), country);
   return plainAssistantReply(String(value));
 }
-function recordLines(tool: string, args: Record<string,any>, previous?: Record<string,any> | null) {
+function recordLines(tool: string, args: Record<string,any>, previous?: Record<string,any> | null, country?: string) {
   return Object.entries(args).filter(([key, value]) => !['id','client_id'].includes(key) && value !== undefined && !(tool.startsWith('create') && (key === 'name' || value === null)))
-    .map(([key, value]) => `${tool.endsWith('site') && key === 'contact_name' ? 'Site contact' : recordLabels[key] ?? readableLabel(key)}: ${previous ? `${recordValue(key, previous[key])} → ` : ''}${recordValue(key, value)}`).join('\n');
+    .map(([key, value]) => `${recordLabel(tool, key, country)}: ${previous ? `${recordValue(key, previous[key], country)} → ` : ''}${recordValue(key, value, country)}`).join('\n');
 }
 /** Confirmation card text for client and site writes. target is the record (update) or the client name (create site). */
-export function recordSummary(tool: string, args: Record<string,any>, target?: { label: string; record?: Record<string,any> | null }) {
-  const lines = recordLines(tool, args, tool.startsWith('update') ? target?.record : null);
+export function recordSummary(tool: string, args: Record<string,any>, target?: RecordTarget) {
+  const lines = recordLines(tool, args, tool.startsWith('update') ? target?.record : null, target?.country);
   const name = plainAssistantReply(target?.label ?? 'the selected record');
   if (tool === 'create_client') return `Add client “${plainAssistantReply(args.name)}”${lines ? `\n${lines}` : ''}`;
   if (tool === 'create_site') return `Add site “${plainAssistantReply(args.name)}” for ${name}${lines ? `\n${lines}` : ''}`;

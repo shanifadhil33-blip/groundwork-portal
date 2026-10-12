@@ -518,3 +518,5 @@ body:has(.public-header) .primary:active:not(:disabled){background:color-mix(in 
 .record-notes{white-space:pre-line}
 .record-contact{display:flex;flex-direction:column;gap:2px;min-width:0}.record-contact a{width:fit-content}
 @media(max-width:640px){.record-details{grid-template-columns:1fr}}
+.menu-divider{height:1px;background:var(--border);margin:var(--s2) var(--s1)}
+.onboarding-steps{display:flex;gap:var(--s2);list-style:none;padding:0;margin:0}.onboarding-steps li{flex:1;height:4px;border-radius:2px;background:var(--border)}.onboarding-steps li.done{background:var(--accent)}.onboarding-actions{display:flex;justify-content:space-between;gap:var(--s3);flex-wrap:wrap}.onboarding-review{display:grid;grid-template-columns:max-content 1fr;gap:var(--s2) var(--s4);margin:0;font-size:var(--text-sm)}.onboarding-review dt{color:var(--text-muted)}.onboarding-review dd{margin:0}@media (max-width:640px){.onboarding-actions{flex-direction:column-reverse}.onboarding-actions .button{width:100%}}

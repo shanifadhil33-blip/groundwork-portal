@@ -20,7 +20,7 @@ export const getAppPageData=cache(async ():Promise<AppPageData|null>=>{
         ['/api/notifications/unread-count',()=>unreadCount(user)],
         ...(member?[[`/api/workspaces/${member.workspace_id}/dashboard`,()=>dashboard(user,member.workspace_id)] as const]:[]),
       ]);
-      return {user,me:identity as Me,workspace:workspace?{id:workspace.id,name:workspace.name,is_demo:workspace.is_demo,timezone:workspace.timezone}:null,resources};
+      return {user,me:identity as Me,workspace:workspace?{id:workspace.id,name:workspace.name,is_demo:workspace.is_demo,timezone:workspace.timezone,country:workspace.country,region:workspace.region,currency:workspace.currency}:null,resources};
     });
   } catch {
     // Keep the existing client recovery/sign-in flow when session or DB reads fail.
