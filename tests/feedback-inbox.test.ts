@@ -31,7 +31,7 @@ describe('help and feedback', () => {
   });
   it('is in Settings for every role and never sends email', () => {
     const settings = readFileSync(new URL('../components/app/settings.tsx', import.meta.url), 'utf8');
-    expect(settings).toContain("{value:'help',label:'Help',content:<HelpFeedback/>}");
+    expect(settings).toContain("{value:'help',label:'Ideas and help',content:<HelpFeedback/>}");
     const route = readFileSync(new URL('../app/api/feedback/route.ts', import.meta.url), 'utf8');
     expect(route).not.toMatch(/resend|nodemailer|sendMail/i);
     expect(route).toContain("requireUser(req)");

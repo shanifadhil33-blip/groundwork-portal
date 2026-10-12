@@ -30,10 +30,11 @@ export function HelpFeedback() {
   }
   if (sent) return <section className="stack help-feedback"><h2>Thank you</h2><p>We got your message.</p><Button variant="secondary" onClick={() => setSent(false)}>Send another</Button></section>;
   return <section className="stack help-feedback">
-    <h2>Help and feedback</h2>
-    <p className="small muted">Tell us what is wrong or what you need.</p>
+    <h2>Help us make Groundwork better</h2>
+    <p>Anyone can write to us. Tell us an idea, a new feature you want, something to change or make better, or anything you think should be different. You can also tell us when something does not work.</p>
+    <p className="small muted">We read every message.</p>
     <label className="sr-only" htmlFor="feedback-message">Your message</label>
-    <textarea id="feedback-message" rows={5} maxLength={4000} value={message} onChange={e => setMessage(e.target.value)} placeholder="Type here" aria-invalid={!!error && message.trim().length < 3} />
+    <textarea id="feedback-message" rows={5} maxLength={4000} value={message} onChange={e => setMessage(e.target.value)} placeholder="Write your idea or problem here" aria-invalid={!!error && message.trim().length < 3} />
     <input ref={trap} name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="sr-only" />
     <input ref={file} type="file" accept="image/*" className="sr-only" onChange={e => { void pick(e.target.files?.[0]); e.target.value = ''; }} />
     {shot ? <div className="feedback-shot">{/* eslint-disable-next-line @next/next/no-img-element -- local preview */}<img src={shot.preview} alt="Your picture" /><Button variant="ghost" size="sm" onClick={() => setShot(null)} aria-label="Remove picture"><X size={16} />Remove</Button></div>
