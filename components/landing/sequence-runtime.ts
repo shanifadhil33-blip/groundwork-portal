@@ -24,7 +24,9 @@ function documentTop(element: HTMLElement) {
 export function startSequence(root: HTMLElement, options: SequenceOptions): () => void {
   const visual = root.querySelector<HTMLElement>('.lx-visual');
   const canvas = visual?.querySelector<HTMLCanvasElement>('.lx-seq-canvas');
-  const poster = visual?.querySelector<HTMLImageElement>('.lx-seq-poster');
+  // Light is the default theme; dark devices get the original night frames.
+  const tone = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+  const poster = visual?.querySelector<HTMLImageElement>(`.lx-seq-poster[data-tone="${tone}"]`);
   const main = root.querySelector<HTMLElement>('.lx-main');
   const story = root.querySelector<HTMLElement>('.lx-story');
   const hero = root.querySelector<HTMLElement>('.lx-hero');
@@ -120,8 +122,8 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
       const key = `${pick.base}:${pick.over}:${pick.mix.toFixed(3)}`;
       if (key !== drawnKey || dirty) {
         context!.globalAlpha = 1;
-        // Solid black under the frames; on phones the radial mask feathers it into the page.
-        context!.fillStyle = '#000'; context!.fillRect(0, 0, canvas!.width, canvas!.height);
+        // Solid page colour under the frames (white on light, black on dark); on phones the radial mask feathers it into the page.
+        context!.fillStyle = tone === 'light' ? '#fff' : '#000'; context!.fillRect(0, 0, canvas!.width, canvas!.height);
         paint(images[pick.base], 1);
         if (pick.mix > 0) paint(images[pick.over], pick.mix);
         context!.globalAlpha = 1;
@@ -137,7 +139,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
     const image = new Image();
     image.decoding = 'async';
     images[index] = image; active++;
-    image.src = frameSrc(index, format);
+    image.src = frameSrc(index, format, tone);
     image.decode().then(() => {
       if (stopped) return;
       loaded[index] = true;

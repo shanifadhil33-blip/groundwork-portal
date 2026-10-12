@@ -280,4 +280,7 @@ html:not([data-theme=dark]) .lx-root .lx-primary{box-shadow:inset 0 1px 0 rgba(2
 html:not([data-theme=dark]) .lx-root .lx-primary:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(17,20,24,.14),0 8px 20px rgba(168,115,42,.24)}
 /* Phones and fallbacks show pre rendered night frames. On white, flip them to a light look: invert turns black to white and
    dark slabs to pale; the hue turn brings the gold and blue grey glow back. Tradeoff: light and shadow are mirrored. */
-html:not([data-theme=dark]) .lx-root .lx-seq-poster,html:not([data-theme=dark]) .lx-root .lx-seq-canvas,html:not([data-theme=dark]) .lx-root .lx-media img,html:not([data-theme=dark]) .lx-root .lx-media video{filter:invert(1) hue-rotate(180deg)}
+html:not([data-theme=dark]) .lx-root .lx-media img,html:not([data-theme=dark]) .lx-root .lx-media video{filter:invert(1) hue-rotate(180deg)}
+/* Phone frames: proper light frames are rendered from the light scene (public/landing/seq-light), so no filter. Show the poster for the active theme only. */
+.lx-root .lx-seq-pic{display:contents}
+html[data-theme=dark] .lx-root .lx-seq-pic[data-tone=light],html:not([data-theme=dark]) .lx-root .lx-seq-pic[data-tone=dark]{display:none}

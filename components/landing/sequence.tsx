@@ -2,10 +2,15 @@ import { FRAME_HEIGHT, FRAME_WIDTH, frameSrc } from '../../lib/landing/sequence'
 /** Server markup for the image-sequence building: a tiny first-frame poster and the canvas the runtime draws into. */
 export function SequenceFrames() {
   return <>
-    <picture>
-      <source type="image/avif" srcSet={frameSrc(0, 'avif')} />
+    <picture className="lx-seq-pic" data-tone="light">
+      <source type="image/avif" srcSet={frameSrc(0, 'avif', 'light')} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="lx-seq-poster" src={frameSrc(0, 'webp')} width={FRAME_WIDTH} height={FRAME_HEIGHT} alt="" aria-hidden="true" decoding="async" fetchPriority="high" />
+      <img className="lx-seq-poster" data-tone="light" src={frameSrc(0, 'webp', 'light')} width={FRAME_WIDTH} height={FRAME_HEIGHT} alt="" aria-hidden="true" decoding="async" fetchPriority="high" />
+    </picture>
+    <picture className="lx-seq-pic" data-tone="dark">
+      <source type="image/avif" srcSet={frameSrc(0, 'avif', 'dark')} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="lx-seq-poster" data-tone="dark" src={frameSrc(0, 'webp', 'dark')} width={FRAME_WIDTH} height={FRAME_HEIGHT} alt="" aria-hidden="true" decoding="async" fetchPriority="high" />
     </picture>
     <canvas className="lx-seq-canvas" aria-hidden="true" />
   </>;

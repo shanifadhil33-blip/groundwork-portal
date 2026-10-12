@@ -9,7 +9,9 @@ export const FRAME_WIDTH = 900;
 export const FRAME_HEIGHT = 1250;
 export const SEQ_START = .07;
 export type FrameFormat = 'avif' | 'webp';
-export const frameSrc = (index: number, format: FrameFormat = 'avif') => `/landing/seq/f${String(index).padStart(3, '0')}.${format}`;
+export type FrameTone = 'light' | 'dark';
+/** Light frames (white background, pale floors) live in seq-light; the original night frames in seq. */
+export const frameSrc = (index: number, format: FrameFormat = 'avif', tone: FrameTone = 'dark') => `/landing/${tone === 'light' ? 'seq-light' : 'seq'}/f${String(index).padStart(3, '0')}.${format}`;
 
 /** Frame for a desktop scene progress value (0..1); anything before SEQ_START shows the first frame. */
 export function frameIndex(progress: number, count = FRAME_COUNT) {

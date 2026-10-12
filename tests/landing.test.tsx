@@ -47,7 +47,7 @@ describe('static hero variants', () => {
   it('keeps the route server rendered with one illustration and all sections in order', () => {
     const html = renderToStaticMarkup(<Landing />);
     expect(html).toContain(`data-hero="${DEFAULT_HERO}"`);
-    expect(html.match(/class="lx-seq-poster"/g)).toHaveLength(1);
+    expect(html.match(/class="lx-seq-poster" data-tone="light"/g)).toHaveLength(1); expect(html.match(/class="lx-seq-poster" data-tone="dark"/g)).toHaveLength(1);
     expect(html.match(/class="lx-seq-canvas"/g)).toHaveLength(1);
     expect(html).not.toMatch(/lx-building|lx-floor|<svg[^>]*viewBox="90 70/);
     const copy = ['Run every job', 'A request becomes a plan.', 'Requests come in', 'Your team schedules and works them', 'Clients see progress', 'Your AI agents can work here too.', 'Every job,', 'Privacy'];
@@ -99,13 +99,15 @@ import { FRAME_COUNT, SEQ_START, fitFrame, frameIndex, frameSrc, loadOrder, near
 describe('pre-rendered building sequence for phones', () => {
   it('server renders a dimensioned first-frame poster and the canvas', () => {
     const html = renderToStaticMarkup(<Landing />);
-    expect(html).toMatch(/<picture><source type="image\/avif" srcSet="\/landing\/seq\/f000\.avif"\/><img class="lx-seq-poster" src="\/landing\/seq\/f000\.webp" width="900" height="1250" alt=""/);
+    expect(html).toMatch(/<picture class="lx-seq-pic" data-tone="light"><source type="image\/avif" srcSet="\/landing\/seq-light\/f000\.avif"\/><img class="lx-seq-poster" data-tone="light" src="\/landing\/seq-light\/f000\.webp" width="900" height="1250" alt=""/);
+    expect(html).toMatch(/<picture class="lx-seq-pic" data-tone="dark"><source type="image\/avif" srcSet="\/landing\/seq\/f000\.avif"\/><img class="lx-seq-poster" data-tone="dark" src="\/landing\/seq\/f000\.webp" width="900" height="1250" alt=""/);
   });
   it('ships every frame within the byte budget', () => {
-    for (const [format, each, budget] of [['avif', 25_000, 1_500_000], ['webp', 30_000, 2_000_000]] as const) {
+    // Each device loads only one tone, so the budget holds per tone.
+    for (const tone of ['light', 'dark'] as const) for (const [format, each, budget] of [['avif', 25_000, 1_500_000], ['webp', 30_000, 2_000_000]] as const) {
       let total = 0;
       for (let i = 0; i < FRAME_COUNT; i++) {
-        const size = statSync(new URL(`../public${frameSrc(i, format)}`, import.meta.url)).size;
+        const size = statSync(new URL(`../public${frameSrc(i, format, tone)}`, import.meta.url)).size;
         expect(size).toBeLessThanOrEqual(each); total += size;
       }
       expect(total).toBeLessThanOrEqual(budget);
