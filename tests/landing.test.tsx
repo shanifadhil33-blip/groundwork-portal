@@ -85,9 +85,10 @@ describe('scroll and motion fallbacks', () => {
   });
 });
 
-it('positions the product as real: no portfolio or fictional wording on public pages and no scroll cue', async () => {
+it('positions the product as real: no portfolio or fictional wording on the landing, sign in and footer, and no scroll cue', async () => {
   const { readFileSync } = await import('node:fs');
-  for (const f of ['app/page.tsx', 'app/(public)/privacy/page.tsx', 'app/(public)/terms/page.tsx', 'app/(public)/sign-in/page.tsx', 'components/public/chrome.tsx']) {
+  // Privacy and Terms say plainly that it is a portfolio project (Adhil, 2026-10-12, needed for honest Google review), so they are not in this list.
+  for (const f of ['app/page.tsx', 'app/(public)/sign-in/page.tsx', 'components/public/chrome.tsx']) {
     const src = readFileSync(f, 'utf8');
     expect(src, f).not.toMatch(/portfolio|fictional/i);
   }
