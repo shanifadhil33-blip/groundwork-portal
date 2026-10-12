@@ -26,7 +26,10 @@ describe('portfolio inbox pass', () => {
   it('sends people back to one fixed address only', () => {
     expect(INBOX_ORIGIN).toBe('https://adhilshanif.vercel.app');
     const route = readFileSync(new URL('../app/api/inbox-pass/route.ts', import.meta.url), 'utf8');
-    expect(route).not.toMatch(/searchParams/);
+    // Only two on or off flags are read from the URL, and no query value ever reaches a redirect.
+    expect([...route.matchAll(/q\.get\('(\w+)'\)/g)].map(m => m[1]).sort()).toEqual(['back', 'switch']);
+    expect(route).not.toMatch(/(Location|redirect)[^\n]*\bq\./i);
+    expect(route).toMatch(/prompt: 'select_account'/);
   });
 });
 describe('help and feedback', () => {
