@@ -59,3 +59,10 @@ describe('field staff sign in by link or code', () => {
   expect(shareText({name:'Karim',token:'abc',code:'123456'},'https://x.app')).toBe('Hi Karim, this is your Groundwork sign in.\nTap: https://x.app/join/abc\nOr open https://x.app/join and type 123 456\nIt works once and ends in 7 days.');
  });
 });
+import { readFileSync } from 'node:fs';
+describe('people without an email (field workers)', () => {
+ it('the app shell never assumes an email', () => {
+  for (const f of ['components/app/shell.tsx','components/app/isolation.tsx']) expect(readFileSync(new URL('../'+f, import.meta.url),'utf8')).not.toMatch(/user\.email\.(split|startsWith)/);
+  expect(readFileSync(new URL('../components/app/context.tsx', import.meta.url),'utf8')).toContain('email: string | null;');
+ });
+});
