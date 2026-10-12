@@ -22,11 +22,7 @@ describe('spreadsheet review presentation', () => {
   });
   it('limits staff to 25 while allowing admins to approve the full page', () => {
     expect(bulkLimitCopy('staff', 25)).toBeNull();
-<<<<<<< HEAD
     expect(bulkLimitCopy('staff', 26)).toBe('You can add 25 at a time. Pick 25 or fewer.');
-=======
-    expect(bulkLimitCopy('staff', 26)).toBe('Supervisors can approve up to 25 rows at a time. Select 25 or fewer rows.');
->>>>>>> 1bd7441 (WIP item 1: Supervisor and Technician roles (not deployed))
     expect(bulkLimitCopy('admin', 50)).toBeNull();
     expect(importError(new RequestError(403, 'secret'), 'bulk')).toBe(bulkLimitCopy('staff', 26));
   });

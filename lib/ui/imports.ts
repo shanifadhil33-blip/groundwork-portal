@@ -11,11 +11,7 @@ export const mappingOptions = (headers: string[]) => [{ value: '', label: "Don't
 export const cleanMapping = (mapping: Mapping): Mapping => Object.fromEntries(importFields.filter(field => !!mapping[field]).map(field => [field, mapping[field]]));
 export const sendLabel = (counts: { valid: number; warning: number }) => `Send ${plural(counts.valid + counts.warning,'valid row')} to queue`;
 export const canUndo = (until: string, now = Date.now()) => Number.isFinite(Date.parse(until)) && Date.parse(until) > now;
-<<<<<<< HEAD
 export const bulkLimitCopy = (role: string, count: number) => role === 'staff' && count > 25 ? 'You can add 25 at a time. Pick 25 or fewer.' : null;
-=======
-export const bulkLimitCopy = (role: string, count: number) => role === 'staff' && count > 25 ? 'Supervisors can approve up to 25 rows at a time. Select 25 or fewer rows.' : null;
->>>>>>> 1bd7441 (WIP item 1: Supervisor and Technician roles (not deployed))
 export function issueCopy(issue: Issue) {
   const copy: Record<string, string> = { required: 'Enter a title of 1 to 200 characters.', length: 'Use 20,000 characters or fewer.', unknown_site: 'Choose a known site and its matching client.', unknown_priority: 'Priority was not recognised. Normal will be used.', bad_date: 'Enter a valid date, such as 2026-10-10.', duplicate_open: 'A matching job is already open.', duplicate_ref:'This external reference is already used by a job.', similar_title:'A job has a similar title. Check the site, reference and dates.' };
   if (issue.code === 'duplicate_file') { const row = issue.message.match(/^Duplicate of row (\d+)$/)?.[1]; return row ? `Duplicate of row ${row}.` : 'This row is repeated in the file.'; }
@@ -29,11 +25,7 @@ export function validationCopy(fields?: Record<string, string[]>) {
 export function importError(error: unknown, action: 'upload' | 'mapping' | 'queue' | 'approve' | 'reject' | 'bulk' | 'undo') {
   if (error instanceof RequestError) {
     if (action === 'undo' && error.status === 409) return 'Undo has expired';
-<<<<<<< HEAD
     if (action === 'bulk' && error.status === 403) return 'You can add 25 at a time. Pick 25 or fewer.';
-=======
-    if (action === 'bulk' && error.status === 403) return 'Supervisors can approve up to 25 rows at a time. Select 25 or fewer rows.';
->>>>>>> 1bd7441 (WIP item 1: Supervisor and Technician roles (not deployed))
     if (error.status === 422 && action === 'upload') {
       if (error.message.includes('empty')) return 'This file is empty. Choose a file with column headings and data rows.';
       if (error.message.includes('no data rows')) return 'This file has no data rows. Add rows beneath the column headings.';
