@@ -62,7 +62,7 @@ export function recordResult(tool: string, args: Record<string,any>, target?: { 
   return `Updated ${tool === 'update_site' ? 'site' : 'client'} ${name}.`;
 }
 type Order = {id:string;order_number:number;title:string;status:string;priority:string;timezone?:string;due_on?:string|null;scheduled_for?:string|null};
-export function assistantTarget(order: Order) { return `WO-${order.order_number} ${plainAssistantReply(order.title)}`; }
+function assistantTarget(order: Order) { return `WO-${order.order_number} ${plainAssistantReply(order.title)}`; }
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
   const name = order ? assistantTarget(order) : plainAssistantReply(target ?? 'the selected row');
   if(tool==='add_comment')return `Add ${args.visibility==='internal'?'an internal note (team only)':'a comment visible to the client'} to ${name}:\n\n${plainAssistantReply(args.body)}`;

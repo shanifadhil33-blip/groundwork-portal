@@ -4,7 +4,7 @@ import { missing, invalid } from '../http';
 import { inWorkspace, uuid } from './shared';
 import { paging, parseQuery, feedOffset } from './feed';
 import { isOffice } from '../roles';
-export function redact(value:unknown):unknown {
+function redact(value:unknown):unknown {
  if(Array.isArray(value))return value.map(redact);
  if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).filter(([key])=>!/(token|secret|password|credential|authorization|api[_-]?key|private[_-]?key)/i.test(key)).map(([key,v])=>[key,redact(v)]));return value;
 }

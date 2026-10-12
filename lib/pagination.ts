@@ -23,4 +23,4 @@ export function parseListQuery(params: URLSearchParams) {
  if(query.cursor && params.has('page'))throw invalid('Use a cursor or page, not both.','cursor');
  return query;
 }
-export type ListQuery=ReturnType<typeof parseListQuery>;
+type ListQuery=ReturnType<typeof parseListQuery>;

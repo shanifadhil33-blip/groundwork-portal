@@ -103,7 +103,7 @@ async function compare(db:PoolClient,ws:string) {
 }
 // Cron has no user. Manual operations recheck their admin role in this same
 // transaction; all system writes are scoped to the authorized workspace.
-export async function runSync(ws:string,operation:'check'|'repair',trigger:'manual'|'cron',ref?:string,user?:string) {
+async function runSync(ws:string,operation:'check'|'repair',trigger:'manual'|'cron',ref?:string,user?:string) {
  uuid.parse(ws);
  if(trigger==='manual'){if(!user)throw forbidden();await access(user,ws,true,async()=>undefined);}
  await withSystem(async db=>{if(!(await db.query('SELECT is_demo FROM workspaces WHERE id=$1',[ws])).rows[0]?.is_demo)throw new ApiError(409,'supplier_not_connected','No supplier is connected.');});

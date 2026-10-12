@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-export type InitialResource = { data: unknown } | { error: { status: number; message: string; code?: string; fields?: Record<string,string[]> } };
+type InitialResource = { data: unknown } | { error: { status: number; message: string; code?: string; fields?: Record<string,string[]> } };
 export type InitialResources = Record<string,InitialResource>;
 const Resources = createContext<InitialResources>({});
 export function resourceKey(url: string) {

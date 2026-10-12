@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { localDate } from '../dates';
 import type { Context } from '../services/shared';
-export type Issue={field:string;code:string;message:string};
-export const normalTitle=(s:string)=>s.trim().toLowerCase().replace(/\s+/g,' ');
+type Issue={field:string;code:string;message:string};
+const normalTitle=(s:string)=>s.trim().toLowerCase().replace(/\s+/g,' ');
 export type RowData={title:string;description:string;client:string;site:string;priority:string;scheduled_for:string;due_on:string;external_ref:string;site_id?:string;client_id?:string};
 type SiteLookup={id:string;client_id:string;name:string;address:string;client_name:string};
 type OrderLookup={order_number:number|string;title:string;status:string;site_id:string;external_ref:string|null;due_on:string|null;scheduled_for:string|Date|null};

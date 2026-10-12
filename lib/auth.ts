@@ -7,7 +7,7 @@ import { guardDemoAccountLinking, maySignIn } from './auth-guards';
 
 export const sessionCookie = {name:process.env.NODE_ENV==='production'?'__Secure-authjs.session-token':'authjs.session-token',options:{httpOnly:true,sameSite:'lax' as const,path:'/',secure:process.env.NODE_ENV==='production'}};
 export const authAdapter=guardDemoAccountLinking(PostgresAdapter(ownerPool), async id => Boolean((await ownerPool.query('SELECT is_demo FROM users WHERE id=$1',[id])).rows[0]?.is_demo));
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: authAdapter,
   cookies: { sessionToken: sessionCookie },
   providers: [Google({ allowDangerousEmailAccountLinking: true })],
@@ -42,3 +42,4 @@ export async function requireUser(req: Request): Promise<string> {
   }
   return id;
 }
+export { handlers, signIn, signOut };

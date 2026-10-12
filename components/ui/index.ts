@@ -6,3 +6,4 @@ export * from './lazy-date-picker';
 export * from './tabs';
 export * from './time';
 export * from './toast';
+export { Dropdown as Select } from './dropdown';

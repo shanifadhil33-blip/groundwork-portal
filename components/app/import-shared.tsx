@@ -7,7 +7,7 @@ import { Badge, Button, LocalTime, Skeleton } from '../ui';
 import { fieldLabels, importFields, issueCopy, type ImportRow, type Issue } from '../../lib/ui/imports';
 export function ImportSkeleton() { return <div className="stack" role="status" aria-label="Loading imports">{[1,2,3].map(n => <Skeleton className="skeleton-row" key={n} />)}</div>; }
 export function RowIssues({ issues }: { issues: Issue[] }) { return issues.length ? <ul className="row-issues">{issues.map((issue, i) => <li key={i}>{fieldLabels[issue.field as keyof typeof fieldLabels] ?? 'Row'}: {issueCopy(issue)}</li>)}</ul> : null; }
-export function ImportValue({field,value}:{field:string;value:string}) {
+function ImportValue({field,value}:{field:string;value:string}) {
  const {workspace}=useApp();
  return <>{value?['due_on','scheduled_for'].includes(field)&&localDate(value,workspace?.timezone)?formatDate(value,workspace?.timezone):field==='priority'?readableLabel(value):value:'Not set'}</>;
 }

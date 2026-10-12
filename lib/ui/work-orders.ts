@@ -8,7 +8,7 @@ import type { ClientRecord, SiteRecord } from '../records';
 export type Client = ClientRecord;
 export type Site = SiteRecord;
 export type Member = { user_id: string; role: string; client_id: string | null; name: string | null; email: string | null };
-export type EventAttribution = { work_order_title?:string|null; actor_kind?:string; via_token_name?:string|null };
+type EventAttribution = { work_order_title?:string|null; actor_kind?:string; via_token_name?:string|null };
 export type Comment = EventAttribution & { id: string; body: string; visibility: 'client' | 'internal'; author_id: string; created_at: string };
 export type WorkOrder = { site_name?: string; client_name?: string; assignee_name?: string | null; id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
 export type Detail = WorkOrder & { client: Client; site: Site; assignee: { id: string; name?: string } | null; comments: Comment[]; timeline: (EventAttribution & { id: string; kind: string; actor_id: string | null; body?: string; details?: {to_status?:string;from_status?:string;scheduled_for?:string|null;due_on?:string|null;assignee_name?:string|null;priority?:string|null;title_changed?:boolean;description_changed?:boolean}; from_status?: string; to_status?: string; created_at: string })[] };

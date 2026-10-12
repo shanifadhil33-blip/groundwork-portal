@@ -6,7 +6,7 @@ import { ApiError, missing } from '../http';
 import { requiredEnv } from '../env';
 import { populateFixture,ids as fixtureIds } from '../fixture';
 import { sessionCookie } from '../auth';
-export const personaSchema=z.object({persona:z.enum(['imran','sam','ravi','pranav','omar'])}).strict();
+const personaSchema=z.object({persona:z.enum(['imran','sam','ravi','pranav','omar'])}).strict();
 type Persona=z.infer<typeof personaSchema>['persona'];
 const lock=async(db:PoolClient)=>{await db.query('SELECT pg_advisory_xact_lock(78201350)');};
 async function cleanup(db:PoolClient,limit:number){

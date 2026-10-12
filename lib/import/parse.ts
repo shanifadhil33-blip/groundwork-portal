@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import { invalid } from '../http';
 import { fields, type Field, type Mapping } from './fields';
-export { fields, type Field, type Mapping } from './fields';
+export { type Mapping } from './fields';
 const aliases:Record<Field,string[]>={title:['title','task','work order','job','request','issue'],description:['description','details','notes'],client:['client','customer','company'],site:['site','location','address','building'],priority:['priority','urgency'],due_on:['due date','due','deadline','date'],scheduled_for:['scheduled for','scheduled date','visit date'],external_ref:['external ref','reference','ref','external id']};
 const normal=(s:string)=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
 export function guessMapping(headers:string[]):Mapping {
