@@ -573,3 +573,7 @@ Typecheck and Agent reply, copy and connection notification unit tests passed. T
 ## Part E3
 Added 9 connection tests that act as sender and receiver across suggestions, household status and preferred time, leave, quotes, assignment, client status, visible and internal comments, closed outcomes and counts, cancel and restore, archives, roles, WhatsApp and a mocked feedback inbox.
 Typecheck passed. All 9 tests passed against temporary Postgres through the serial adapter. Feedback was captured by a test receiver and no external request was sent. Leave decision notices now share their transaction and leave reads use caller policies. Missing external checks are provider WhatsApp wiring and delivery on a real device. The shared report folder remains read only here; the complete report is in docs.
+
+## Part F1
+Added migration 0037 and rollback for private direct threads, messages and personal thread read receipts. Job threads reuse comments with photo, voice text and original language fields. Current membership and job assignments govern contact reachability and thread reads. Payloads expose names and ids, never phones.
+Typecheck and the direct thread RLS tests passed using temporary Postgres.
