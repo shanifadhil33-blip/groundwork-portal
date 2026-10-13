@@ -19,6 +19,8 @@ export async function scheduleBoard(user: string, ws: string, params: URLSearchP
       ORDER BY w.scheduled_for, w.order_number`, [ws, from, end, tz])).rows;
     const unscheduled = (await c.db.query(`SELECT ${cols} FROM work_orders w JOIN sites s ON s.workspace_id=w.workspace_id AND s.id=w.site_id
       WHERE w.workspace_id=$1 AND w.scheduled_for IS NULL AND w.status NOT IN ('done','cancelled') ORDER BY w.due_on NULLS LAST, w.order_number LIMIT 50`, [ws])).rows;
-    return { timezone: tz, from, days, people, jobs, unscheduled };
+    // Approved time off and weekly off days show on the board so nobody books a person who is away.
+    const away = (await c.db.query(`SELECT user_id, kind, starts_on::text, ends_on::text FROM time_off WHERE workspace_id=$1 AND status='approved' AND starts_on<=$3::date AND ends_on>=$2::date`, [ws, from, end])).rows;
+    return { timezone: tz, from, days, people, jobs, unscheduled, away };
   });
 }

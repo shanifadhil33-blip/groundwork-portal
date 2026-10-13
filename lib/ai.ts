@@ -14,7 +14,7 @@ const CHAIN:{id:string;kind:Kind;key:string;url:(model:string)=>string;models:st
  {id:'gemini',kind:'gemini',key:'GEMINI_API_KEY',url:m=>`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,models:['gemini-3.8-flash','gemini-3.6-flash','gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-2.5-flash-lite']},
  {id:'groq',kind:'openai',key:'GROQ_API_KEY',url:()=>'https://api.groq.com/openai/v1/chat/completions',models:['openai/gpt-oss-120b','qwen/qwen3.8-27b','llama-3.3-70b-versatile']},
  {id:'cerebras',kind:'openai',key:'CEREBRAS_API_KEY',url:()=>'https://api.cerebras.ai/v1/chat/completions',models:['gpt-oss-120b','qwen-3.8-27b']},
- {id:'openrouter',kind:'openai',key:'OPENROUTER_API_KEY',url:()=>'https://openrouter.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','qwen/qwen3.8-27b:free','google/gemma-4-31b-it:free'],extra:{'HTTP-Referer':'https://groundwork-portal.vercel.app','X-Title':'Groundwork'}},
+ {id:'openrouter',kind:'openai',key:'OPENROUTER_API_KEY',url:()=>'https://openrouter.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','google/gemma-4-31b-it:free','nvidia/nemotron-3-ultra-550b-a55b:free','google/gemma-4-26b-a4b-it:free'],extra:{'HTTP-Referer':'https://groundwork-portal.vercel.app','X-Title':'Groundwork'}},
  {id:'mistral',kind:'openai',key:'MISTRAL_API_KEY',url:()=>'https://api.mistral.ai/v1/chat/completions',models:['mistral-medium-latest','mistral-small-latest']},
  {id:'github',kind:'openai',key:'GITHUB_MODELS_TOKEN',url:()=>'https://models.github.ai/inference/chat/completions',models:['openai/gpt-4.1-mini']},
 ];

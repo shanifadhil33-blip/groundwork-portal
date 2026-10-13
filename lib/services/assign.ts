@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { TRADES } from '../trades';
 import { withSystem } from '../db';
 import { ApiError } from '../http';
-import { allow, inWorkspace, row } from './shared';
+import { allow, inWorkspace, row , allowTeam } from './shared';
 import { offReason } from './time-off';
 
 const skillsSchema = z.object({
@@ -15,7 +15,7 @@ export async function setWorkerSkills(user: string, ws: string, workerId: string
   const data = skillsSchema.parse(body);
   const trades = [...new Set(data.trades)], areas = [...new Set(data.areas)];
   await inWorkspace(user, ws, async c => {
-    allow(c, ['admin', 'staff']);
+    allowTeam(c);
     const m = (await c.db.query('SELECT role FROM members WHERE workspace_id=$1 AND user_id=$2', [ws, workerId])).rows[0];
     if (!m || m.role === 'client') throw new ApiError(404, 'not_found', 'This person is not on your team.');
     if (c.role === 'staff' && m.role !== 'technician') throw new ApiError(403, 'forbidden', 'Ask an admin to change this person.');

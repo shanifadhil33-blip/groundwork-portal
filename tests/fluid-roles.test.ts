@@ -10,7 +10,7 @@ const ws = ids.ridgeline;
 afterEach(async () => { await withSystem(db => db.query("UPDATE members SET role='admin', extra_roles='{}' WHERE workspace_id=$1 AND user_id=$2", [ws, ids.imran])); await withSystem(db => db.query("UPDATE members SET role='staff', extra_roles='{}' WHERE workspace_id=$1 AND user_id=$2", [ws, ids.sam])); });
 afterAll(closePools);
 it('splits roles into the highest main role plus extras, and labels them plainly', () => {
-  expect(splitRoles(['technician', 'admin'])).toEqual({ role: 'admin', extra_roles: ['technician'] });
+  expect(splitRoles(['technician', 'admin'])).toEqual({ role: 'admin', extra_roles: ['technician'], staff_kind: null });
   expect(rolesLabel({ role: 'admin', extra_roles: ['staff', 'technician'] })).toBe('Admin, Supervisor and Technician');
   expect(doesJobs({ role: 'admin', extra_roles: ['technician'] })).toBe(true); expect(allRoles({ role: 'staff' })).toEqual(['staff']);
 });

@@ -13,7 +13,7 @@ import { NoAccess } from './no-access';
 
 type Job = { id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; assignee_id: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; area: string | null; day?: string; hour?: number };
 type Person = { user_id: string; role: string; name: string | null };
-type Board = { timezone: string; from: string; days: number; people: Person[]; jobs: Job[]; unscheduled: Job[] };
+type Board = { timezone: string; from: string; days: number; people: Person[]; jobs: Job[]; unscheduled: Job[]; away?: { user_id: string; kind: string; starts_on: string; ends_on: string }[] };
 
 /** Monday of the week that holds this day (YYYY-MM-DD, no time zone games). */
 export function weekStart(day: string) { const d = new Date(day + 'T12:00:00Z'); const back = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - back); return d.toISOString().slice(0, 10); }
@@ -54,6 +54,8 @@ export function Schedule() {
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(from, i)), [from]);
   if (member && !office) return <NoAccess />;
   const b = board.data, rows: (Person | null)[] = [...(b?.people ?? []), null];
+  const awayOn = (pid: string | null, d: string) => pid ? (b?.away ?? []).find(a => a.user_id === pid && a.starts_on <= d && a.ends_on >= d) : undefined;
+  const awayLabel = (k: string) => k === 'sick' ? 'Sick' : k === 'leave' ? 'On leave' : 'Day off';
   const cell = (pid: string | null, d: string) => (b?.jobs ?? []).filter(j => (j.assignee_id ?? null) === pid && j.day === d);
   const shift = (n: number) => { const f = addDays(from, n * 7); setFrom(f); setDay(f); };
   const pick = (d: string) => { setDay(d); if (d < from || d > addDays(from, 6)) setFrom(weekStart(d)); };
@@ -66,13 +68,14 @@ export function Schedule() {
       {/* Phone: one day, grouped by person */}
       <div className="sched-phone stack compact">
         <div className="sched-days" role="tablist" aria-label="Day">{days.map(d => { const n = (b.jobs).filter(j => j.day === d).length; return <button key={d} role="tab" aria-selected={d === day} className={`sched-day ${d === day ? 'on' : ''} ${d === today ? 'today' : ''}`} onClick={() => pick(d)}><span>{part(d, { weekday: 'short' })}</span><strong>{part(d, { day: 'numeric' })}</strong><small>{n || ''}</small></button>; })}</div>
+        {(b.people).some(p => awayOn(p.user_id, day)) && <p className="small away-line">Away: {b.people.filter(p => awayOn(p.user_id, day)).map(p => `${p.name ?? 'Team member'} (${awayLabel(awayOn(p.user_id, day)!.kind)})`).join(', ')}</p>}
         {(b.jobs).some(j => j.day === day) ? rows.map(p => { const list = cell(p?.user_id ?? null, day); return list.length > 0 && <section key={p?.user_id ?? 'none'} className="stack compact"><h2 className="sched-person">{name(p)}</h2>{list.map(j => <Chip key={j.id} j={j} onOpen={setOpen} />)}</section>; })
           : <EmptyState title="Nothing on this day">{b.unscheduled.length ? 'Pick a job below to give it a day.' : 'Jobs with a visit day show here.'}</EmptyState>}
       </div>
       {/* Desktop: the week, people down the side */}
       <div className="sched-week" role="table" aria-label="Week schedule">
         <div className="sched-row sched-head" role="row"><div role="columnheader" /> {days.map(d => <div key={d} role="columnheader" className={d === today ? 'today' : ''}>{dayName(d)}</div>)}</div>
-        {rows.map(p => <div key={p?.user_id ?? 'none'} className="sched-row" role="row"><div role="rowheader" className="sched-person">{name(p)}</div>{days.map(d => <div key={d} role="cell" className={`sched-cell ${d === today ? 'today' : ''}`}>{cell(p?.user_id ?? null, d).map(j => <Chip key={j.id} j={j} onOpen={setOpen} />)}</div>)}</div>)}
+        {rows.map(p => <div key={p?.user_id ?? 'none'} className="sched-row" role="row"><div role="rowheader" className="sched-person">{name(p)}</div>{days.map(d => <div key={d} role="cell" className={`sched-cell ${d === today ? 'today' : ''} ${awayOn(p?.user_id ?? null, d) ? 'away' : ''}`}>{awayOn(p?.user_id ?? null, d) && <span className="away-pill">{awayLabel(awayOn(p?.user_id ?? null, d)!.kind)}</span>}{cell(p?.user_id ?? null, d).map(j => <Chip key={j.id} j={j} onOpen={setOpen} />)}</div>)}</div>)}
       </div>
       <section className="stack compact"><h2><CalendarClock size={18} aria-hidden="true" /> Not scheduled ({b.unscheduled.length})</h2>
         {b.unscheduled.length ? <div className="sched-tray">{b.unscheduled.map(j => <Chip key={j.id} j={j} onOpen={x => setOpen({ ...x, day })} />)}</div> : <p className="small muted">Every open job has a day.</p>}</section>

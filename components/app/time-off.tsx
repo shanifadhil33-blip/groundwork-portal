@@ -49,3 +49,39 @@ export function LeaveCalendar({ base, people }: { base: string; people: Person[]
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog>
   </section>;
 }
+
+type Ask = { id: string; user_id: string; name: string | null; kind: string; status: string; starts_on: string; ends_on: string; note: string | null };
+const span = (e: { starts_on: string; ends_on: string }) => e.starts_on === e.ends_on ? nice(e.starts_on) : `${nice(e.starts_on)} to ${nice(e.ends_on)}`;
+const statusWord: Record<string, string> = { pending: 'Waiting', approved: 'Approved', declined: 'Declined' };
+
+/** TEAM06: the Request time off button. The same thing the agent does when he says "I'm off Thursday". */
+export function RequestTimeOff({ base, onDone }: { base: string; onDone?: () => void }) {
+  const toast = useToast(), [open, setOpen] = useState(false), [kind, setKind] = useState('off'), [from, setFrom] = useState(today()), [to, setTo] = useState(today()), [busy, setBusy] = useState(false), [error, setError] = useState('');
+  async function send() {
+    setBusy(true); setError('');
+    try { await request(`${base}/time-off/request`, { method: 'POST', body: JSON.stringify({ kind, starts_on: from, ends_on: to < from ? from : to }) }); setOpen(false); toast('Sent. Your supervisor will reply.'); onDone?.(); }
+    catch (e) { setError(e instanceof RequestError ? e.message : 'We could not send. Try again.'); } finally { setBusy(false); }
+  }
+  return <><Button variant="secondary" onClick={() => { setFrom(today()); setTo(today()); setKind('off'); setError(''); setOpen(true); }}>Request time off</Button>
+    <Dialog open={open} onClose={() => setOpen(false)} busy={busy} title="Request time off" footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} onClick={send}>Send</Button></>}>
+      <div className="stack compact"><p className="small">Your supervisor says yes or no. You get a message.</p>
+        <label className="field"><span>Why</span><select value={kind} onChange={e => setKind(e.target.value)}>{KINDS.map(k => <option key={k.v} value={k.v}>{k.label}</option>)}</select></label>
+        <div className="row"><label className="field"><span>From</span><input type="date" value={from} min={today()} onChange={e => setFrom(e.target.value)} /></label><label className="field"><span>To</span><input type="date" value={to} min={from} onChange={e => setTo(e.target.value)} /></label></div>
+        {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
+}
+
+/** Home: requests waiting for a decision (admin and supervisor), or your own requests and their answer. */
+export function LeaveRequests({ base, self }: { base: string; self: string }) {
+  const list = useResource<{ can_decide: boolean; requests: Ask[] }>(`${base}/time-off/request`), toast = useToast(), [busy, setBusy] = useState('');
+  async function decide(id: string, decision: 'approved' | 'declined') {
+    setBusy(id); try { await request(`${base}/time-off/${id}/decision`, { method: 'PUT', body: JSON.stringify({ decision }) }); toast(decision === 'approved' ? 'Approved. It shows on the schedule.' : 'Declined.'); void list.reload(); }
+    catch (e) { toast(e instanceof RequestError ? e.message : 'That did not save. Try again.'); } finally { setBusy(''); }
+  }
+  const rows = list.data?.requests ?? [], canDecide = !!list.data?.can_decide;
+  const waiting = rows.filter(r => r.status === 'pending' && r.user_id !== self), mine = rows.filter(r => r.user_id === self);
+  if (!waiting.length && !mine.length) return null;
+  return <section className="card stack compact leave-requests">
+    {canDecide && waiting.length > 0 && <><h2>Time off requests</h2><ul>{waiting.map(r => <li key={r.id}><span><strong>{r.name ?? 'Team member'}</strong> · {kindLabel(r.kind)} · {span(r)}</span><div className="row"><Button size="sm" busy={busy === r.id} onClick={() => void decide(r.id, 'approved')}>Approve</Button><Button size="sm" variant="secondary" disabled={busy === r.id} onClick={() => void decide(r.id, 'declined')}>Decline</Button></div></li>)}</ul></>}
+    {mine.length > 0 && <><h2>My time off</h2><ul>{mine.map(r => <li key={r.id}><span>{kindLabel(r.kind)} · {span(r)}</span><strong className="small">{statusWord[r.status] ?? r.status}</strong></li>)}</ul></>}
+  </section>;
+}

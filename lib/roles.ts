@@ -16,6 +16,6 @@ export const isOffice = (role: string | null | undefined) => role === 'admin' ||
 export const allRoles = (m: { role?: string | null; extra_roles?: string[] | null } | null | undefined) => m?.role ? [m.role, ...(m.extra_roles ?? [])] : [];
 export const doesJobs = (m: { role?: string | null; extra_roles?: string[] | null } | null | undefined) => allRoles(m).includes('technician');
 /** Plain words for a person's roles, like "Admin, Supervisor and Technician". */
-export function rolesLabel(m: { role?: string | null; extra_roles?: string[] | null }, labels: Record<Role, string> = roleLabels) { const l = allRoles(m).map(r => labels[r as Role] ?? r); return l.length > 1 ? `${l.slice(0, -1).join(', ')} and ${l.at(-1)}` : l[0] ?? ''; }
+export function rolesLabel(m: { role?: string | null; extra_roles?: string[] | null; staff_kind?: string | null }, labels: Record<Role, string> = roleLabels) { const l = allRoles(m).map(r => r === 'staff' && m.staff_kind === 'office' ? 'Office staff' : labels[r as Role] ?? r); return l.length > 1 ? `${l.slice(0, -1).join(', ')} and ${l.at(-1)}` : l[0] ?? ''; }
 /** Role names in the company's own words (Settings or the agent), falling back to the standard names. */
 export function labelsFor(names?: Record<string, string> | null): Record<Role, string> { const out = { ...roleLabels }; for (const r of ROLES) if (names?.[r]?.trim()) out[r] = names[r].trim(); return out; }

@@ -6,7 +6,7 @@ import { ApiError, forbidden } from '../http';
 import { sessionCookie } from '../auth';
 import { requiredEnv } from '../env';
 import { assertRealUser } from './demo';
-import { allow, hash, inWorkspace, uuid } from './shared';
+import { allow, hash, inWorkspace, uuid , allowTeam } from './shared';
 
 /** Field staff sign in with a link or a 6 digit code. Nothing is emailed or texted: the admin shares it (WhatsApp, in person). $0. */
 const LINK_DAYS = 7, SESSION_DAYS = 90;
@@ -33,7 +33,7 @@ function mayLink(asker: string, target: string) { return target === 'technician'
 export async function addFieldWorker(user: string, ws: string, body: unknown) {
   await assertRealUser(user);
   const data = addWorkerSchema.parse(body);
-  await inWorkspace(user, ws, async c => { allow(c, ['admin', 'staff']); if (!mayLink(c.role, data.role)) throw forbidden(); });
+  await inWorkspace(user, ws, async c => { allowTeam(c); if (!mayLink(c.role, data.role)) throw forbidden(); });
   return withSystem(async db => {
     const userId = (await db.query('INSERT INTO users(name,phone) VALUES($1,$2) RETURNING id', [data.name, data.phone || null])).rows[0].id as string;
     await db.query('INSERT INTO members(workspace_id,user_id,role) VALUES($1,$2,$3)', [ws, userId, data.role]);
@@ -42,7 +42,7 @@ export async function addFieldWorker(user: string, ws: string, body: unknown) {
 }
 export async function newFieldLink(user: string, ws: string, target: string) {
   await assertRealUser(user); uuid.parse(target);
-  const asker = await inWorkspace(user, ws, async c => { allow(c, ['admin', 'staff']); return c.role; });
+  const asker = await inWorkspace(user, ws, async c => { allowTeam(c); return c.role; });
   return withSystem(async db => {
     const m = (await db.query('SELECT m.role, u.name, EXISTS(SELECT 1 FROM accounts a WHERE a."userId"=u.id) AS google FROM members m JOIN users u ON u.id=m.user_id WHERE m.workspace_id=$1 AND m.user_id=$2 AND m.archived_at IS NULL', [ws, target])).rows[0];
     if (!m) throw new ApiError(404, 'not_found', 'We couldn’t find that person.');

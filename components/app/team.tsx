@@ -29,18 +29,20 @@ function SkillsButton({ p, base, areas, onDone }: { p: TeamPerson; base: string;
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
 }
 
-type TeamPerson = { extra_roles?: string[]; trades: string[]; areas: string[]; user_id: string; role: Role; name: string | null; email: string | null; phone: string | null; open: number; today: number; late: number; done_month: number; done_total: number; off_days: number[]; signs_in_with: 'google' | 'code' };
+type TeamPerson = { extra_roles?: string[]; staff_kind?: string | null; trades: string[]; areas: string[]; user_id: string; role: Role; name: string | null; email: string | null; phone: string | null; open: number; today: number; late: number; done_month: number; done_total: number; off_days: number[]; signs_in_with: 'google' | 'code' };
 
 /** Turn each role on or off. A person can hold several; they can do everything any of them allows. */
 function RolesButton({ p, base, onDone }: { p: TeamPerson; base: string; onDone: () => void }) {
   const roleLabels = labelsFor(useApp().workspace?.role_names);
-  const now = [p.role, ...(p.extra_roles ?? [])], [open, setOpen] = useState(false), [on, setOn] = useState<string[]>(now), [busy, setBusy] = useState(false), [error, setError] = useState('');
+  const now = p.staff_kind === 'office' ? ['office', ...(p.extra_roles ?? [])] : [p.role, ...(p.extra_roles ?? [])], [open, setOpen] = useState(false), [on, setOn] = useState<string[]>(now), [busy, setBusy] = useState(false), [error, setError] = useState('');
   async function save() { setBusy(true); setError(''); try { await request(`${base}/members/${p.user_id}/roles`, { method: 'PUT', body: JSON.stringify({ roles: on }) }); setOpen(false); onDone(); } catch (e) { setError(e instanceof RequestError ? e.message : 'We could not save. Try again.'); } finally { setBusy(false); } }
-  const roles = ['admin', 'staff', 'technician'] as const;
+  const roles = ['admin', 'staff', 'office', 'technician'] as const;
+  const label = (r: string) => r === 'office' ? 'Office staff' : roleLabels[r as 'admin'];
+  const hint = (r: string) => r === 'office' ? 'Takes calls, makes and follows jobs, clients and sites. Does not run the team.' : roleHints[r as 'admin'];
   return <><Button variant="secondary" onClick={() => { setOn(now); setError(''); setOpen(true); }}>Roles</Button>
     <Dialog open={open} onClose={() => setOpen(false)} busy={busy} title={`What ${p.name ?? 'they'} does`} footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} disabled={!on.length} onClick={save}>Save</Button></>}>
       <div className="stack"><p className="small">Turn on everything this person does. In a small company one person can do it all.</p>
-        <div className="role-toggles">{roles.map(r => <button key={r} type="button" className={`role-toggle ${on.includes(r) ? 'on' : ''}`} aria-pressed={on.includes(r)} disabled={busy} onClick={() => setOn(on.includes(r) ? on.filter(x => x !== r) : [...on, r])}><strong>{roleLabels[r]}</strong><span className="small">{roleHints[r]}</span></button>)}</div>
+        <div className="role-toggles">{roles.map(r => <button key={r} type="button" className={`role-toggle ${on.includes(r) ? 'on' : ''}`} aria-pressed={on.includes(r)} disabled={busy} onClick={() => setOn(on.includes(r) ? on.filter(x => x !== r) : [...on, r])}><strong>{label(r)}</strong><span className="small">{hint(r)}</span></button>)}</div>
         {!on.length && <p className="small inline-error">Keep at least one.</p>}
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
 }

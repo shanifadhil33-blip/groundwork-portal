@@ -66,8 +66,13 @@ export function recordResult(tool: string, args: Record<string,any>, target?: { 
 }
 type Order = {id:string;order_number:number;title:string;status:string;priority:string;timezone?:string;due_on?:string|null;scheduled_for?:string|null};
 function assistantTarget(order: Order) { return `WO-${order.order_number} ${plainAssistantReply(order.title)}`; }
+const niceDay=(d:string)=>new Intl.DateTimeFormat('en',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(`${d}T00:00:00Z`));
+/** Plain words for time off, like "Day off, Thursday 15 October". */
+export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',leave:'On leave',sick:'Sick'} as Record<string,string>)[kind]??'Time off'}, ${!to||to===from?niceDay(from):`${niceDay(from)} to ${niceDay(to)}`}`;
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
   const name = order ? assistantTarget(order) : plainAssistantReply(target ?? 'the selected row');
+  if(tool==='request_time_off')return `Ask your supervisor for time off\n${offSpan(args.kind??'off',args.starts_on,args.ends_on)}\nIt waits until he says yes.`;
+  if(tool==='decide_time_off')return `${args.decision==='approved'?'Approve':'Decline'} time off for ${plainAssistantReply(target??'this person')}`;
   if(tool==='save_job_report')return `Save the job report for ${name}\nHow it ended: ${OUTCOME_LABELS[args.outcome as keyof typeof OUTCOME_LABELS]}${args.problem?`\nProblem: ${plainAssistantReply(args.problem)}`:''}${args.work?`\nWhat you did: ${plainAssistantReply(args.work)}`:''}${args.outcome==='needs_part'?'\nThe job waits for the part.':args.outcome==='cant_fix'?'\nThe job stays open for your supervisor.':'\nThe job is marked done.'}`;
   if(tool==='add_comment')return `Add ${args.visibility==='internal'?'an internal note (team only)':'a comment visible to the client'} to ${name}:\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_status')return `Move ${name}: ${statusLabels[order!.status] ?? readableLabel(order!.status)} → ${statusLabels[args.status] ?? readableLabel(args.status)}`;
@@ -91,6 +96,8 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='set_member_roles')return plainAssistantReply(`Saved the roles of ${target??'this person'}.`);
   if(tool==='rename_role')return args.name?plainAssistantReply(`The ${({admin:'Admin',staff:'Supervisor',technician:'Technician',client:'Client'} as Record<string,string>)[args.role]} role is now called ${args.name}.`):`The ${({admin:'Admin',staff:'Supervisor',technician:'Technician',client:'Client'} as Record<string,string>)[args.role]} role has its standard name again.`;
   if(tool==='add_worker')return plainAssistantReply(`Added ${args.name}. Open Team and tap New sign in to make a code.`);
+  if(tool==='request_time_off')return `Sent your time off request: ${offSpan(args.kind??'off',args.starts_on,args.ends_on)}. I will tell you when your supervisor answers.`;
+  if(tool==='decide_time_off')return args.decision==='approved'?'Approved. It shows on the schedule now.':'Declined. He gets a message.';
   if(!order)return plainAssistantReply(tool==='reject_queue_row'?`Rejected ${target??'the selected row'}: ${args.reason}`:`Updated ${target??'the selected row'}.`);
   const name=assistantTarget(order).replace(/[\[\]\r\n]/g,' '),link=`[${name}](/work-orders/${order.id})`;
   if(tool==='update_work_order_status')return `Moved ${link} to ${statusLabels[args.status] ?? readableLabel(args.status)}.`;

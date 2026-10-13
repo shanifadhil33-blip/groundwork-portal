@@ -36,8 +36,9 @@ export async function changeMember(user:string,ws:string,id:string,body?:unknown
 
 /** Roles a team member can hold together. The main role is the highest; the rest are kept as extra roles. */
 const TEAM_ORDER=['admin','staff','technician'] as const;
-const rolesSchema=z.object({roles:z.array(z.enum(TEAM_ORDER)).min(1,'Keep at least one role.').max(3)}).strict();
-export function splitRoles(roles:string[]){const sorted=TEAM_ORDER.filter(r=>roles.includes(r));return {role:sorted[0],extra_roles:sorted.slice(1)};}
+const rolesSchema=z.object({roles:z.array(z.enum([...TEAM_ORDER,'office'])).min(1,'Keep at least one role.').max(4)}).strict();
+/** Office staff (ROLE11) is stored as staff with staff_kind office. Supervisor or Admin covers it, so it only counts on its own. */
+export function splitRoles(roles:string[]){const office=roles.includes('office')&&!roles.includes('admin')&&!roles.includes('staff');const sorted=TEAM_ORDER.filter(r=>roles.includes(r)||(office&&r==='staff'));return {role:sorted[0],extra_roles:sorted.slice(1),staff_kind:office?'office':null};}
 /**
  * The owner or an admin turns a person's roles on and off (works in the demo sandbox too). Clients are a separate kind of member
  * and are changed in Settings. The last admin can not drop Admin.
@@ -56,7 +57,7 @@ export async function setMemberRoles(user:string,ws:string,id:string,body:unknow
   await db.query('SELECT id FROM workspaces WHERE id=$1 FOR UPDATE',[ws]);
   const cur=(await db.query('SELECT role FROM members WHERE workspace_id=$1 AND user_id=$2 FOR UPDATE',[ws,id])).rows[0];
   if(cur.role==='admin'&&next.role!=='admin'){const n=(await db.query("SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND role='admin' AND archived_at IS NULL",[ws])).rows[0].n;if(n<=1)throw new ApiError(409,'last_admin','Keep at least one admin.');}
-  return (await db.query('UPDATE members SET role=$3, extra_roles=$4 WHERE workspace_id=$1 AND user_id=$2 RETURNING user_id, role, extra_roles',[ws,id,next.role,next.extra_roles])).rows[0];
+  return (await db.query('UPDATE members SET role=$3, extra_roles=$4, staff_kind=$5 WHERE workspace_id=$1 AND user_id=$2 RETURNING user_id, role, extra_roles, staff_kind',[ws,id,next.role,next.extra_roles,next.staff_kind])).rows[0];
  },user);
 }
 

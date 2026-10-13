@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { overdueSql, todaySql, isOverdue, localDate } from '../dates';
 import { ApiError, invalid, missing } from '../http';
 import { parseListQuery } from '../pagination';
-import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, update, uuid } from './shared';
+import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, update, uuid ,isOfficeStaff} from './shared';
 const timestamp=z.iso.datetime({offset:true});
 const mutable=z.object({trade:z.enum(TRADES).nullable(),title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable()});
 const createSchema=mutable.partial().extend({title:name,client_id:uuid.optional(),site_id:uuid}).strict();
@@ -18,6 +18,7 @@ export const transitions:Record<string,string[]>={
  done:[],cancelled:[],
 };
 async function assignee(c:Parameters<typeof allow>[0],id:string|null|undefined) {
+ if(id&&isOfficeStaff(c))throw new ApiError(403,'forbidden','Only an admin or supervisor can give jobs to people.');
  if(!id)return;
  const m=(await c.db.query("SELECT 1 FROM members WHERE workspace_id=$1 AND user_id=$2 AND archived_at IS NULL AND role IN ('admin','staff','technician')",[c.ws,id])).rowCount;
  if(!m)throw invalid('Choose someone from your team in this workspace.','assignee_id');
