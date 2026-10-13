@@ -545,3 +545,7 @@ Typecheck and suggestion unit and copy tests passed. Added service tests; Postgr
 ## Part D3
 Technicians can suggest work from Today, More and a job. Job links prefill the client, site and original job. Draft photos reuse phone resizing and validation, then copy onto the approved job. The Agent voice composer fills the problem and requires a deliberate send.
 Typecheck, suggestion unit tests, voice composer tests and copy checks passed. Added technician service coverage; database tests remain blocked.
+
+## Part D4
+WhatsApp intake parses a message through suggestion creation and matches a unique known phone contact. Ambiguous matches stay unlinked for review. Demo simulation uses the same intake. The webhook stub checks a shared secret and returns not connected without writes.
+Typecheck and WhatsApp and suggestion unit tests passed. Real WhatsApp wiring remains out of scope.
