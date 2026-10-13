@@ -27,6 +27,8 @@ const uuid = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/g
 export function plainAssistantReply(value: string, client=false) {
   const links: string[] = [];
   let text = value.replace(/\]\(\/work-orders\/[0-9a-f-]{36}\)/gi, link => { links.push(link);return `LINKPLACEHOLDER${links.length-1}END`; });
+  // No dashes in user facing copy: spaced en, em or plain dashes become commas.
+  text = text.replace(/[ \t]+[\u2013\u2014][ \t]+/g, ', ').replace(/(?<=\S)[ \t]+-[ \t]+(?=\S)/g, ', ').replace(/(?<=\w)[\u2013\u2014](?=\w)/g, ' to ');
   // Role words mid sentence stay lower case (office staff, admin), never Office Staff or Admin.
   text = text.replace(/(?<=[a-z,] )(Admin|Supervisor|Technician|Staff|Client)\b/g, w => w.toLowerCase());
   text = text.replace(/\b(?:site|client|workspace|user|job|row)\s+ID\s*[:=]?\s*/gi, '')
