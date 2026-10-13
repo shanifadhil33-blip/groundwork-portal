@@ -1,4 +1,5 @@
-import { OUTCOME_LABELS } from '../services/job-report';
+/** Same words as the Job report screen. Kept here so client code never imports server code. */
+const OUTCOME_LABELS={fixed:'Fixed',temporary:'Temporary fix',needs_part:'Needs a part',cant_fix:"Can't be fixed"} as const;
 import { tradeLabels, type Trade } from '../trades';
 import { formatDate } from '../dates';
 import { readableLabel } from './polish';
