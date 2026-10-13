@@ -133,7 +133,7 @@ test.describe('Team space', () => {
   test('technician posts, admin and office staff read it, clients can not', async () => {
     const body = `${stamp()} team hello`;
     await d.as('ravi'); expect([200, 201]).toContain((await d.post('/team-space', { body })).status);
-    for (const p of ['imran', 'nabil', 'sam'] as const) { await d.as(p); expect(JSON.stringify((await d.get('/team-space')).body)).toContain(body); }
+    for (const p of ['imran', 'nabil', 'sam'] as const) { await d.as(p); const space = (await d.get('/team-space')).body; expect(JSON.stringify((await d.get(`/messages?conversation_id=${space.id}`)).body)).toContain(body); }
     for (const p of ['pranav', 'faisal'] as const) { await d.as(p); expect((await d.get('/team-space')).status).toBeGreaterThanOrEqual(400); }
   });
 });
