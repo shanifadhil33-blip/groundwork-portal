@@ -9,17 +9,19 @@ export const name = z.string().trim().min(1).max(200);
 export const role = z.enum(ROLES);
 export const status = z.enum(['open','scheduled','in_progress','waiting_on_parts','done','cancelled']);
 export const priority = z.enum(['low','normal','high','urgent']);
-export type Context = { db: PoolClient; user: string; ws: string; role: string; client_id: string | null; staff_kind?: string | null };
+export type Context = { db: PoolClient; user: string; ws: string; role: string; client_id: string | null; staff_kind?: string | null; client_kind?: string | null };
 export const hash = (value: string) => createHash('sha256').update(value).digest('hex');
 export async function inWorkspace<T>(user: string, ws: string, fn: (ctx: Context) => Promise<T>) {
   uuid.parse(ws);
   return withUser(user, async db => {
-    const m = (await db.query('SELECT my_role($1) AS role,my_client($1) AS client_id,my_staff_kind($1) AS staff_kind',[ws])).rows[0];
+    const m = (await db.query('SELECT my_role($1) AS role,my_client($1) AS client_id,my_staff_kind($1) AS staff_kind,my_client_kind($1) AS client_kind',[ws])).rows[0];
     if (!m.role) throw missing();
     return fn({db,user,ws,...m});
   });
 }
 /** Office staff (ROLE08) run jobs, not the team: only admins and supervisors assign, change the team or decide leave. */
+/** ROLE09: only the client facility manager approves prices and confirms visits. Client office staff and households raise and follow requests. */
+export function allowClientManager(ctx: Context) { if (ctx.role !== 'client' || (ctx.client_kind ?? 'manager') !== 'manager') throw new ApiError(403, 'forbidden', 'Your facility manager answers prices and visit times. You can add a message on the request.'); }
 export const isOfficeStaff = (ctx: Context) => ctx.role === 'staff' && ctx.staff_kind === 'office';
 export function allowTeam(ctx: Context) { if (!['admin', 'staff'].includes(ctx.role) || isOfficeStaff(ctx)) throw new ApiError(403, 'forbidden', 'Only an admin or supervisor can change the team, give jobs to people or decide leave.'); }
 export function allow(ctx: Context, roles: string[]) { if (!roles.includes(ctx.role)) throw forbidden(); }

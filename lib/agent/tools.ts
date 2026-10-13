@@ -7,6 +7,7 @@ import { inWorkspace,priority,status,uuid } from '../services/shared';
 import { createWorkOrder,createComment,getWorkOrder,getWorkOrderByNumber,listWorkOrders,patchWorkOrder } from '../services/work-orders';
 import { approveRow,rejectRow,listQueue } from '../services/imports';
 import { dashboard } from '../services/workspaces';
+import { fixHistory } from '../services/fix-history';
 import { setJobPayment } from '../services/payments';
 import { patchWorkspace, renameRole } from '../services/workspaces';
 import { setMemberRoles } from '../services/members';
@@ -62,6 +63,7 @@ export const tools:Record<string,Tool>={
  list_leave_requests:{description:'Time off requests: admins and supervisors see requests waiting for a decision; everyone sees their own requests and the answer.',write:false,schema:z.object({}).strict(),run:c=>leaveRequests(c.user,c.ws)},
  decide_time_off:{description:'Admin or supervisor only: approve or decline a waiting time off request (id from list_leave_requests). Approved time off shows on the schedule. The portal shows a confirmation card first.',write:true,schema:z.object({id:uuid,decision:z.enum(['approved','declined'])}).strict(),run:(c,a)=>decideTimeOff(c.user,c.ws,a.id,{decision:a.decision})},
  send_quote:{description:'Admins, supervisors and office staff: send a price for one job to the client, who approves or declines it. amount comes only from the person, in the workspace currency; never invent or estimate a price. The portal shows a confirmation card first.',write:true,schema:z.object({id:uuid,amount:z.number().min(0).max(10000000),note:z.string().trim().max(1000).optional()}).strict(),run:(c,a)=>sendQuote(c.user,c.ws,a.id,{amount:a.amount,note:a.note})},
+ fix_history:{write:false,description:'Client facility manager only: the finished jobs for your company, newest first, each with the problem, what was fixed, the technician, when, and the cost (price, paid or covered by contract). Optional site_id to narrow to one site.',schema:z.object({site_id:uuid.optional(),limit:z.number().int().min(1).max(50).optional()}).strict(),run:(c,a)=>fixHistory(c.user,c.ws,a)},
  answer_quote:{description:'Clients only: approve or decline the price the service company sent for one of your jobs (get_work_order shows quote_amount and quote_status pending). Only when the person clearly says yes or no to the price; otherwise ask with ask_choice. The portal shows a confirmation card first.',write:true,schema:z.object({id:uuid,decision:z.enum(['approved','declined'])}).strict(),run:(c,a)=>decideQuote(c.user,c.ws,a.id,{decision:a.decision})},
  confirm_visit:{description:'Clients only: confirm the visit time the service company booked for one of your jobs (scheduled_for). To ask for a different time, add a message on the job instead. The portal shows a confirmation card first.',write:true,schema:z.object({id:uuid}).strict(),run:(c,a)=>confirmVisit(c.user,c.ws,a.id)},
  my_day:{description:'Team members (not clients): your own jobs for today in time order, your late jobs, the next few days and how many you finished today. Use it for "what do I have today". To start or finish a job use update_work_order_status (scheduled to in_progress is Start, in_progress to done is Done).',write:false,schema:z.object({}).strict(),run:c=>myDay(c.user,c.ws)},
@@ -80,8 +82,8 @@ export const tools:Record<string,Tool>={
 export async function callTool(c:AgentContext,name:string,args:unknown) {
  try {
   const t=tools[name];if(!t)throw new ApiError(404,'not_found','Unknown tool.');
-  const role=await inWorkspace(c.user,c.ws,async x=>x.role==='staff'&&x.staff_kind==='office'?'office':x.role);
-  if(!allowedTool(role,name))throw new ApiError(403,'forbidden',role==='client'?'You can raise and follow your own requests here. Ask your service company for anything else.':role==='office'?'Office staff can not change the team, give jobs to people, decide leave or change payments. Ask an admin or supervisor.':'You can update your own jobs and add notes. Ask a supervisor for other changes.');
+  const role=await inWorkspace(c.user,c.ws,async x=>x.role==='staff'&&x.staff_kind==='office'?'office':x.role==='client'?`client:${x.client_kind??'manager'}`:x.role);
+  if(!allowedTool(role,name))throw new ApiError(403,'forbidden',role.startsWith('client')?'You can raise and follow your own requests here. Ask your service company for anything else.':role==='office'?'Office staff can not change the team, give jobs to people, decide leave or change payments. Ask an admin or supervisor.':'You can update your own jobs and add notes. Ask a supervisor for other changes.');
   if(t.write&&c.scope==='read')throw new ApiError(403,'read_only','This token allows viewing only.');
   const a=t.schema.parse(args);
   // Approval mode covers Connect AI keys too: in Ask before every action, a key write waits for an admin.
