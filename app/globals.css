@@ -630,3 +630,14 @@ button.chip{cursor:pointer;min-height:44px}
 .agent-log{border-top:1px solid var(--border);padding-top:var(--s3)}.agent-log h3{font-size:var(--text-sm)}.agent-log ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}.agent-log li{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s3);padding:var(--s2) 0;border-bottom:1px solid var(--border)}.agent-log li:last-child{border-bottom:0}.agent-log li>div{min-width:0;overflow-wrap:anywhere}.agent-log strong{font-size:var(--text-sm);font-weight:550}.agent-why{color:var(--text)}
 .dropdown-trigger.icon-menu{width:44px;min-width:44px;height:44px;padding:0;justify-content:center;border-color:transparent;background:transparent}.dropdown-trigger.icon-menu:hover,.dropdown-trigger.icon-menu[aria-expanded="true"]{background:var(--surface-2,color-mix(in srgb,var(--text) 6%,transparent))}.menu-option.danger{color:var(--danger)}.record-actions{display:flex;align-items:center;gap:var(--s2);flex-shrink:0}
 .row-actions{width:52px;text-align:right}.archived-sites summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:550}
+.dropdown-trigger.icon-menu:active{background:color-mix(in srgb,var(--text) 14%,transparent);transform:scale(.96)}
+.dropdown-trigger.icon-menu:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:720px){
+ .responsive-table tbody tr:has(.row-actions){position:relative;padding-right:56px}
+ .responsive-table td.row-actions{position:absolute;top:6px;right:6px;width:44px!important;padding:0!important}
+ .responsive-table td.row-actions:before{display:none}
+ .responsive-table td .dropdown-trigger.icon-menu,.page-header .dropdown-trigger.icon-menu{width:44px!important;min-width:44px;max-width:44px;height:44px;min-height:44px}
+ .site-row:has(.record-actions){display:flex;flex-direction:row;align-items:flex-start;justify-content:space-between;gap:8px}
+ .site-row:has(.record-actions)>div{flex:1;min-width:0}
+ .page-header .row:has(.icon-menu){flex-wrap:nowrap;align-items:center}
+}
