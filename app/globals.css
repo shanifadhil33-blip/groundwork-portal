@@ -985,3 +985,10 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 .agent-settings { font-size:16px; }
 .agent-settings input, .agent-settings button { min-height:44px; }
 .settings-agent-row, .assistant-panel-header h2 a, .presentation-assistant h2 a { display:inline-flex; align-items:center; min-height:44px; }
+.voice-recording { display:flex; align-items:center; gap:12px; font-size:16px; }
+.voice-recording .button, .assistant-control { min-height:44px; min-width:44px; }
+.recording-dot { width:10px; height:10px; border-radius:50%; background:#c62828; animation:recording-pulse 1s ease-in-out infinite; }
+@keyframes recording-pulse { 50% { opacity:.4; } }
+@media(prefers-reduced-motion:reduce) { .recording-dot { animation:none; } }
+.agent-settings .choice-row { min-height:44px; }
+.agent-settings input[role=switch] { width:24px; min-height:24px; height:24px; }

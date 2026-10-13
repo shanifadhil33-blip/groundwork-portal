@@ -16,7 +16,7 @@ const technicalAttributes = new Set([
   'aria-describedby', 'aria-labelledby', 'aria-controls', 'aria-activedescendant',
 ]);
 const technicalValues = new Set(['mistral-medium-latest', 'mistral-small-latest', 
-  'Idempotency-Key', 'Set-Cookie', 'WWW-Authenticate', 'Content-Type', 'content-type',
+  'content-length', 'not-allowed', 'service-not-allowed', 'Idempotency-Key', 'Set-Cookie', 'WWW-Authenticate', 'Content-Type', 'content-type',
   'Content-Disposition', 'If-Match', 'no-store', 'multipart/form-data',
   'sample-work-orders.csv', 'agent-access', 'data-label', 'aria-hidden',
   'x-vercel-forwarded-for', 'device-width', 'date-time', 'openai/gpt-oss-120b',
@@ -48,6 +48,7 @@ function technical(node: Node, ancestors: Node[]) {
 }
 
 function allowedData(text: string) {
+  if (/^[a-z]{2,3}-[A-Z]{2}$/.test(text)) return true;
   // Preserve routes/URLs, cookie syntax, CSS values and identifier namespaces.
   return technicalValues.has(text) || /^(?:\.?\.?\/|https?:\/\/|\]\(\/)/.test(text) ||
     /^(?:var\(--|--[a-z]|\([a-z-]+:)/.test(text) ||

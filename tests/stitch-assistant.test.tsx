@@ -6,13 +6,13 @@ import { Assistant } from '../components/app/assistant';
 import { AppContext, type Membership } from '../components/app/context';
 import { designCopyFallbacks } from '../lib/ui/design-copy';
 import { LANGUAGES } from '../lib/languages';
-const api=vi.hoisted(()=>({post:vi.fn()}));
+const api=vi.hoisted(()=>({post:vi.fn(),preferences:{agent_name:null as string|null,voice_enabled:true,language:'en-IN'}}));
 vi.mock('../lib/ui/api',async original=>({...await original<typeof import('../lib/ui/api')>(),post:api.post}));
-vi.mock('../components/app/resource',()=>({useResource:()=>({data:{agent_name:null,voice_enabled:true,language:'en-IN'}})}));
-vi.mock('../components/ui',async original=>({...await original<typeof import('../components/ui')>(),BottomSheet:({open,children,footer,title}:any)=>open?<section role="dialog" aria-label={title}>{children}{footer}</section>:null}));
+vi.mock('../components/app/resource',()=>({useResource:()=>({data:api.preferences})}));
+vi.mock('../components/ui',async original=>({...await original<typeof import('../components/ui')>(),BottomSheet:({open,children,footer,title}:any)=>open?<section role="dialog"><h2>{title}</h2>{children}{footer}</section>:null}));
 let host:HTMLDivElement,root:Root;
 beforeEach(()=>{
- sessionStorage.clear();api.post.mockReset();host=document.createElement('div');document.body.append(host);root=createRoot(host);
+ sessionStorage.clear();api.post.mockReset();api.preferences.agent_name=null;api.preferences.voice_enabled=true;host=document.createElement('div');document.body.append(host);root=createRoot(host);
  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true);vi.stubGlobal('matchMedia',()=>({matches:false}));
  Element.prototype.scrollIntoView=vi.fn();
 });
@@ -54,4 +54,10 @@ it('dictation fills a draft without submitting and stops when chat closes',async
  expect(host.querySelector('textarea')?.value).toBe('I fixed the pump');expect(api.post).not.toHaveBeenCalled();
  await act(async()=>root.unmount());expect(speech.abort).toHaveBeenCalled();root=createRoot(host);
  }finally{Reflect.deleteProperty(window,'SpeechRecognition');}
+});
+
+it('links the custom name from both chat headers and respects voice off',async()=>{
+ api.preferences.agent_name='Omar';api.preferences.voice_enabled=false;await mount('admin');
+ expect(host.querySelector('.assistant-panel-header a')?.textContent).toBe('Omar');expect(host.querySelector('.assistant-panel-header a')?.getAttribute('href')).toBe('/settings/agent');expect(host.querySelector('[aria-label="Use microphone"]')).toBeNull();
+ await mount('admin',false);expect(host.querySelector('[role="dialog"] h2 a')?.textContent).toBe('Omar');expect(host.querySelector('[role="dialog"] h2 a')?.getAttribute('href')).toBe('/settings/agent');
 });

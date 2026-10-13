@@ -6,3 +6,6 @@ coverage/
 *.log
 *.tsbuildinfo
 .vercel
+
+# Local commit storage when the shared worktree metadata is read only.
+.git-local/

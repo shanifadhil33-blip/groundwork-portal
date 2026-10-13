@@ -3,6 +3,7 @@ import { plainAssistantReply } from '../../lib/ui/assistant-replies';
 import { useApp } from './context';
 import Link from 'next/link';
 import { useResource } from './resource';
+import { speechLanguage, MICROPHONE_BLOCKED, VOICE_UNSUPPORTED } from '../../lib/ui/voice';
 import { DEFAULT_LANGUAGE } from '../../lib/languages';
 import { ArrowUp, Mic, Square, LoaderCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -40,28 +41,65 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
   requestAnimationFrame(()=>inputRef.current?.focus());
  }
  const rolePrompts=member?.role==='client'?['How are my requests going?','Report a problem','When is the technician coming?']:member?.role==='technician'?['What is my next job?','Job done, fixed it','I need a part']:member?.staff_kind==='office'?['Which jobs are late?','Create a new job','Add a note to a job']:['Which jobs are late?','Who is free tomorrow?','Create a new job'];
- const composer=<AssistantComposer input={input} setInput={setInput} inputRef={inputRef} busy={busy} blocked={!!pending||!!failed} active={open||docked} submit={submit}/>;
+ const composer=<AssistantComposer ws={ws} language={preferences.data?.language??DEFAULT_LANGUAGE} voiceEnabled={!!preferences.data&&preferences.data.voice_enabled!==false} input={input} setInput={setInput} inputRef={inputRef} busy={busy} blocked={!!pending||!!failed} active={open||docked} submit={submit}/>;
  const chat=<div className="stack assistant-chat" aria-live="polite" aria-busy={busy}>{!messages.length&&<div className="assistant-suggestions"><p>Ask about your workspace. You confirm changes before they happen.</p>{[...rolePrompts,"Show jobs waiting on parts"].map(prompt=><Button variant="secondary" key={prompt} disabled={busy||!!pending||!!failed} onClick={()=>submit(prompt)}>{prompt}</Button>)}</div>}{messages.map((m,i)=><article data-no-translate={m.role==='user'?true:undefined} className={`assistant-message ${m.role}`} key={i}>{m.role==='assistant'?<AssistantMarkdown text={plainAssistantReply(m.content,member?.role==='client')}/>:<p className="preserve">{m.content}</p>}{i===messages.length-1&&m.role==='assistant'&&choices.length>0&&!pending&&!busy&&<div className="agent-chips" role="group" aria-label="Quick answers">{choices.map(c=><Button key={c} variant="secondary" size="sm" disabled={!!failed} onClick={()=>submit(c)}>{c}</Button>)}</div>}</article>)}{pending&&<article className="assistant-message assistant pending-reply"><h3>Confirm this change</h3><p className="preserve">{plainAssistantReply(pending.summary,member?.role==='client')}</p>{pending.why&&<p className="small agent-why"><strong>Why: </strong>{plainAssistantReply(pending.why,member?.role==='client')}</p>}<div className="row"><Button variant="secondary" busy={busy} disabled={!!failed} onClick={()=>void send({messages:[],confirm_action_id:pending.id})}>Yes</Button><Button variant="secondary" disabled={busy} onClick={change}>Change</Button></div></article>}{resting&&<ErrorState message="The agent is unavailable right now. Everything else works as usual." retry={()=>{if(failed)void send(failed);}}/>}{error&&<ErrorState message={error} retry={()=>{if(failed)void send(failed);else setError('');}}/>}{busy&&<p className="small" role="status">{pending?'Applying your confirmed change…':'Thinking…'}</p>}<div ref={newest}/></div>;
  if(docked)return <aside className="dashboard-assistant" aria-label={agentName}><header className="assistant-panel-header"><h2>{heading}</h2></header><div className="assistant-panel-body">{chat}</div><div className="assistant-panel-footer">{composer}</div></aside>;
  return <BottomSheet open={open} onClose={onClose} title={heading} presentation="assistant" busy={busy} footer={composer}>{chat}</BottomSheet>;
 }
 
-type Recognition={lang:string;interimResults:boolean;onresult:((event:{results:ArrayLike<ArrayLike<{transcript:string}>>})=>void)|null;onerror:(()=>void)|null;onend:(()=>void)|null;start:()=>void;stop:()=>void;abort:()=>void};
+type Recognition={lang:string;continuous:boolean;interimResults:boolean;onresult:((event:{resultIndex?:number;results:ArrayLike<ArrayLike<{transcript:string}>&{isFinal?:boolean}>})=>void)|null;onerror:((event:{error:string})=>void)|null;onend:(()=>void)|null;start:()=>void;stop:()=>void;abort:()=>void};
 type SpeechWindow=Window & {SpeechRecognition?:new()=>Recognition;webkitSpeechRecognition?:new()=>Recognition};
-/** Voice only fills the draft. The same Send and confirmation flow handles it. */
-function AssistantComposer({input,setInput,inputRef,busy,blocked,active,submit}:{input:string;setInput:(value:string)=>void;inputRef:React.RefObject<HTMLTextAreaElement|null>;busy:boolean;blocked:boolean;active:boolean;submit:()=>void}){
- const recognition=useRef<Recognition|null>(null),[listening,setListening]=useState(false),[voiceError,setVoiceError]=useState('');
- useEffect(()=>{if(!active||busy||blocked){recognition.current?.abort();setListening(false);}},[active,busy,blocked]);
- useEffect(()=>()=>{if(recognition.current){recognition.current.onresult=null;recognition.current.onerror=null;recognition.current.onend=null;recognition.current.abort();}},[]);
- function dictate(){
-  if(listening){recognition.current?.stop();return;}
-  setVoiceError('');const Speech=(window as SpeechWindow).SpeechRecognition??(window as SpeechWindow).webkitSpeechRecognition;
-  if(!Speech){setVoiceError('Voice input is unavailable in this browser. You can type your message.');inputRef.current?.focus();return;}
-  const speech=new Speech();recognition.current=speech;speech.lang=document.documentElement.lang||DEFAULT_LANGUAGE;speech.interimResults=false;
-  speech.onresult=event=>{const words=Array.from(event.results).map(r=>r[0].transcript).join(' ');setInput([input.trim(),words].filter(Boolean).join(' ').slice(0,20000));inputRef.current?.focus();};
-  speech.onerror=()=>{setListening(false);setVoiceError('We couldn’t hear you. Check microphone access and try again.');};
-  speech.onend=()=>setListening(false);
-  try{speech.start();setListening(true);}catch{setVoiceError('We couldn’t start the microphone. Please try again.');setListening(false);}
+/** Voice fills a draft. Only a deliberate Send submits it. */
+export function AssistantComposer({input,setInput,inputRef,busy,blocked,active,submit,ws,language,voiceEnabled=true}:{input:string;setInput:React.Dispatch<React.SetStateAction<string>>;inputRef:React.RefObject<HTMLTextAreaElement|null>;busy:boolean;blocked:boolean;active:boolean;submit:()=>void;ws:string;language:string;voiceEnabled?:boolean}){
+ const recognition=useRef<Recognition|null>(null),recorder=useRef<MediaRecorder|null>(null),stream=useRef<MediaStream|null>(null),upload=useRef<AbortController|null>(null);
+ const [listening,setListening]=useState(false),[converting,setConverting]=useState(false),[elapsed,setElapsed]=useState(0),[voiceError,setVoiceError]=useState('');
+ const live=useRef(false),generation=useRef(0),started=useRef(0),stopTimer=useRef<ReturnType<typeof setTimeout>|null>(null),interval=useRef<ReturnType<typeof setInterval>|null>(null),released=useRef(false);
+ function clearClock(){if(stopTimer.current)clearTimeout(stopTimer.current);if(interval.current)clearInterval(interval.current);stopTimer.current=null;interval.current=null;}
+ function releaseStream(){stream.current?.getTracks().forEach(track=>track.stop());stream.current=null;}
+ function cancel(){generation.current++;live.current=false;clearClock();if(recognition.current){recognition.current.onresult=null;recognition.current.onend=null;recognition.current.onerror=null;recognition.current.abort();recognition.current=null;}if(recorder.current){recorder.current.onstop=null;recorder.current.ondataavailable=null;recorder.current.onerror=null;if(recorder.current.state!=='inactive')recorder.current.stop();recorder.current=null;}releaseStream();upload.current?.abort();upload.current=null;}
+ useEffect(()=>{if(!active||busy||blocked||!voiceEnabled){cancel();setListening(false);setConverting(false);}},[active,busy,blocked,voiceEnabled]);
+ useEffect(()=>()=>cancel(),[]);
+ function append(words:string){if(!words.trim())return;setInput(current=>[current.trimEnd(),words.trim()].filter(Boolean).join(' ').slice(0,20000));inputRef.current?.focus();}
+ function stop(){released.current=true;if(!live.current)return;live.current=false;clearClock();recognition.current?.stop();if(recorder.current?.state==='recording')recorder.current.stop();releaseStream();setListening(false);}
+ function clock(){started.current=Date.now();setElapsed(0);setListening(true);interval.current=setInterval(()=>setElapsed(Math.floor((Date.now()-started.current)/1000)),250);stopTimer.current=setTimeout(stop,119_000);}
+ async function dictate(){
+  if(live.current){stop();return;}if(converting||busy||blocked||!voiceEnabled)return;
+  released.current=false;live.current=true;const run=++generation.current;setVoiceError('');
+  const Speech=(window as SpeechWindow).SpeechRecognition??(window as SpeechWindow).webkitSpeechRecognition;
+  if(Speech){
+   const speech=new Speech();recognition.current=speech;speech.lang=speechLanguage(language);speech.interimResults=false;speech.continuous=true;
+   speech.onresult=event=>{if(run!==generation.current)return;const words=Array.from(event.results).slice(event.resultIndex??0).filter(r=>r.isFinal!==false).map(r=>r[0].transcript).join(' ');append(words);};
+   speech.onerror=event=>{if(run!==generation.current)return;live.current=false;clearClock();setListening(false);setVoiceError(['not-allowed','service-not-allowed'].includes(event.error)?MICROPHONE_BLOCKED:'We could not hear you. Please try again or type your message.');};
+   speech.onend=()=>{if(run!==generation.current)return;live.current=false;clearClock();setListening(false);};
+   try{speech.start();clock();}catch{live.current=false;setVoiceError('We could not start the microphone. Please try again.');}
+   return;
+  }
+  if(!navigator.mediaDevices?.getUserMedia||typeof MediaRecorder==='undefined'){live.current=false;setVoiceError(VOICE_UNSUPPORTED);inputRef.current?.focus();return;}
+  try{
+   const media=await navigator.mediaDevices.getUserMedia({audio:true});
+   if(run!==generation.current||released.current){media.getTracks().forEach(track=>track.stop());live.current=false;return;}
+   stream.current=media;
+   const mime=['audio/webm;codecs=opus','audio/ogg;codecs=opus','audio/mp4'].find(type=>MediaRecorder.isTypeSupported(type));
+   const recording=new MediaRecorder(media,mime?{mimeType:mime}:undefined);recorder.current=recording;
+   const chunks:Blob[]=[];let size=0;
+   recording.ondataavailable=event=>{if(run!==generation.current)return;size+=event.data.size;if(size>25*1024*1024){cancel();setListening(false);setVoiceError('This recording is too large. Please record a shorter message.');return;}if(event.data.size)chunks.push(event.data);};
+   recording.onerror=()=>{cancel();setListening(false);setVoiceError('We could not record your message. Please try again.');};
+   recording.onstop=async()=>{
+    releaseStream();clearClock();live.current=false;setListening(false);if(run!==generation.current)return;
+    const duration=Math.min(120,(Date.now()-started.current)/1000),audio=new Blob(chunks,{type:recording.mimeType||mime||'audio/webm'});recorder.current=null;
+    if(!audio.size)return;
+    setConverting(true);const controller=new AbortController();upload.current=controller;
+    try{const form=new FormData();form.append('audio',audio,'recording');form.append('duration',String(duration));
+     const r=await fetch(`/api/workspaces/${ws}/assistant/transcribe`,{method:'POST',body:form,signal:controller.signal});
+     if(run!==generation.current)return;const result=await r.json();if(!r.ok)throw Error();if(typeof result.transcript==='string')append(result.transcript);else throw Error();
+    }catch{if(run===generation.current)setVoiceError('We could not hear your message. Please try again or type it.');}finally{if(run===generation.current){upload.current=null;setConverting(false);}}
+   };
+   recording.start(1000);clock();
+  }catch(e){releaseStream();live.current=false;if(run!==generation.current)return;setListening(false);setVoiceError((e as {name?:string}).name==='NotAllowedError'?MICROPHONE_BLOCKED:'We could not start the microphone. Please try again.');}
  }
- return <form className="assistant-composer" onSubmit={e=>{e.preventDefault();submit();}}><div className="assistant-input-row"><IconButton variant="secondary" className="assistant-control" label={listening?'Stop recording':'Use microphone'} aria-pressed={listening} disabled={busy||blocked} onClick={dictate}>{listening?<Square size={18}/>:<Mic size={18}/>}</IconButton><label htmlFor="assistant-input" className="sr-only">Ask Agent</label><textarea ref={inputRef} id="assistant-input" value={input} maxLength={20000} rows={1} placeholder="Ask Agent or speak" disabled={busy||blocked} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();if(!listening)submit();}}}/><IconButton variant="secondary" type="submit" className="assistant-control assistant-send" label="Send" aria-busy={busy} disabled={busy||!input.trim()||blocked||listening}>{busy?<LoaderCircle className="spinner" size={18}/>:<ArrowUp size={18}/>}</IconButton></div><span className="composer-hint">{listening?'Listening…':'Enter to send · Shift+Enter for new line'}</span>{voiceError&&<p className="small" role="status">{voiceError}</p>}</form>;
+ return <form className="assistant-composer" onSubmit={e=>{e.preventDefault();if(!listening&&!converting)submit();}}>
+ {listening&&<div className="voice-recording" role="status"><span className="recording-dot" aria-hidden="true"/><span>Listening</span><span>{Math.floor(elapsed/60)}:{String(elapsed%60).padStart(2,'0')}</span><Button type="button" variant="secondary" onClick={stop}>Stop</Button></div>}
+ <div className="assistant-input-row">{voiceEnabled&&<IconButton variant="secondary" className="assistant-control" label={listening?'Stop recording':'Use microphone'} aria-pressed={listening} disabled={busy||blocked||converting} onPointerDown={e=>{if(e.button!==0)return;e.currentTarget.setPointerCapture(e.pointerId);void dictate();}} onPointerUp={stop} onPointerCancel={stop} onClick={e=>{if(e.detail===0)void dictate();}}>{listening?<Square size={18}/>:<Mic size={18}/>}</IconButton>}
+ <label htmlFor="assistant-input" className="sr-only">Ask Agent</label><textarea ref={inputRef} id="assistant-input" value={input} maxLength={20000} rows={1} placeholder="Ask Agent or speak" disabled={busy||blocked} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();if(!listening&&!converting)submit();}}}/><IconButton variant="secondary" type="submit" className="assistant-control assistant-send" label="Send" aria-busy={busy} disabled={busy||!input.trim()||blocked||listening||converting}>{busy?<LoaderCircle className="spinner" size={18}/>:<ArrowUp size={18}/>}</IconButton></div>
+ <span className="composer-hint">{converting?'Writing your words…':'Enter to send · Shift+Enter for new line'}</span>{voiceError&&<p role="status">{voiceError}</p>}</form>;
 }
