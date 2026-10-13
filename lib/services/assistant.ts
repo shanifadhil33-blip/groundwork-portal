@@ -28,7 +28,7 @@ async function recordTarget(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:a
  if(tool==='create_site'){const r=(await x.db.query('SELECT name,country FROM clients WHERE workspace_id=$1 AND id=$2',[ws,args.client_id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:null,country:r.country||home};}
  const r=(await x.db.query('SELECT s.*,c.name AS client_name,c.country AS client_country FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,args.id])).rows[0];if(!r)throw missing();return {label:`${r.name} (${r.client_name})`,record:r,country:r.client_country||home};
 }
-export const assistantUnavailable={available:false,message:'I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as normal.'};
+export const assistantUnavailable={available:false,message:'I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.'};
 const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant']),content:z.string().min(1).max(20000)}).strict()).max(30),confirm_action_id:uuid.optional()}).strict();
 export async function assistant(user:string,ws:string,body:unknown) {
  const d=schema.parse(body),c:AgentContext={user,ws,scope:'write',kind:'assistant'};
