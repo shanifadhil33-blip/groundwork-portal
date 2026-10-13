@@ -44,7 +44,7 @@ export async function newFieldLink(user: string, ws: string, target: string) {
   await assertRealUser(user); uuid.parse(target);
   const asker = await inWorkspace(user, ws, async c => { allow(c, ['admin', 'staff']); return c.role; });
   return withSystem(async db => {
-    const m = (await db.query('SELECT m.role, u.name, EXISTS(SELECT 1 FROM accounts a WHERE a."userId"=u.id) AS google FROM members m JOIN users u ON u.id=m.user_id WHERE m.workspace_id=$1 AND m.user_id=$2', [ws, target])).rows[0];
+    const m = (await db.query('SELECT m.role, u.name, EXISTS(SELECT 1 FROM accounts a WHERE a."userId"=u.id) AS google FROM members m JOIN users u ON u.id=m.user_id WHERE m.workspace_id=$1 AND m.user_id=$2 AND m.archived_at IS NULL', [ws, target])).rows[0];
     if (!m) throw new ApiError(404, 'not_found', 'We couldn’t find that person.');
     if (!mayLink(asker, m.role)) throw forbidden();
     if (m.google) throw new ApiError(409, 'uses_google', 'This person signs in with Google.');
@@ -63,7 +63,7 @@ export async function redeemFieldLink(body: unknown, ip: string) {
   });
   if (tries >= 10) throw new ApiError(429, 'too_many', 'Too many tries. Please wait 15 minutes.');
   return withSystem(async db => {
-    const link = (await db.query(`SELECT l.id,l.user_id,m.role FROM login_links l JOIN members m ON m.user_id=l.user_id AND m.workspace_id=l.workspace_id
+    const link = (await db.query(`SELECT l.id,l.user_id,m.role FROM login_links l JOIN members m ON m.user_id=l.user_id AND m.workspace_id=l.workspace_id AND m.archived_at IS NULL
       WHERE ${'token' in data ? 'l.token_hash=$1' : 'l.code_hash=$1'} AND l.used_at IS NULL AND l.expires_at>now() FOR UPDATE OF l`, ['token' in data ? hash(data.token) : codeHash(data.code)])).rows[0];
     if (!link) throw new ApiError(400, 'bad_code', 'That did not work. Ask your admin for a new code.');
     await db.query('UPDATE login_links SET used_at=now() WHERE id=$1', [link.id]);

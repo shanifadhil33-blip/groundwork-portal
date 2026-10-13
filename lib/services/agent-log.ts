@@ -1,3 +1,4 @@
+import { restoreJob } from './job-records';
 import { withSystem } from '../db';
 import { ApiError, missing } from '../http';
 import { allow, inWorkspace, uuid } from './shared';
@@ -72,7 +73,9 @@ export async function undoDecision(user: string, ws: string, id: string) {
       if (a.tool === 'set_priority') fields.priority = b.priority;
       if (a.tool === 'update_work_order_dates') { fields.scheduled_for = b.scheduled_for; fields.due_on = b.due_on; }
       if (a.tool === 'update_work_order_status') fields.status = b.status;
-      await patchWorkOrder(user, ws, b.id, { ...fields, updated_at: version });
+      // A cancel is undone by Restore, since cancelled is final for a normal status change.
+      if (a.tool === 'update_work_order_status' && now.status === 'cancelled') await restoreJob(user, ws, b.id, { status: b.status });
+      else await patchWorkOrder(user, ws, b.id, { ...fields, updated_at: version });
     }
   } catch (e) {
     if (e instanceof ApiError && e.status === 403) throw e;

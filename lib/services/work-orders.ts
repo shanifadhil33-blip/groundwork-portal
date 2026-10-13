@@ -19,7 +19,7 @@ export const transitions:Record<string,string[]>={
 };
 async function assignee(c:Parameters<typeof allow>[0],id:string|null|undefined) {
  if(!id)return;
- const m=(await c.db.query("SELECT 1 FROM members WHERE workspace_id=$1 AND user_id=$2 AND role IN ('admin','staff','technician')",[c.ws,id])).rowCount;
+ const m=(await c.db.query("SELECT 1 FROM members WHERE workspace_id=$1 AND user_id=$2 AND archived_at IS NULL AND role IN ('admin','staff','technician')",[c.ws,id])).rowCount;
  if(!m)throw invalid('Choose someone from your team in this workspace.','assignee_id');
 }
 export async function listWorkOrders(user:string,ws:string,params:URLSearchParams,all=false) {

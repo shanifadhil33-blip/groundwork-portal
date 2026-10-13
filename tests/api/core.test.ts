@@ -21,6 +21,7 @@ import * as orderRoute from '../../app/api/workspaces/[ws]/work-orders/[id]/rout
 import * as commentsRoute from '../../app/api/workspaces/[ws]/work-orders/[id]/comments/route';
 import type { RouteContext } from '../../lib/api';
 import { hash } from '../../lib/services/shared';
+import { archiveMember } from '../../lib/services/members';
 type Handler=(req:Request,ctx?:RouteContext)=>Promise<Response>;
 let user:string|null=ids.imran;
 beforeEach(()=>{user=ids.imran;setAuthResolverForTests(async()=>user);});
@@ -308,7 +309,7 @@ describe('transaction and lifecycle edge cases',()=>{
   expect(result.status).toBe(409);expect(result.body.error.message).not.toMatch(/foreign key|constraint|postgres/i);
  });
 });
-it('member removal clears assignments and notifications without deleting work history',async()=>{
+it('a member with job history is archived instead of deleted, and open jobs are unassigned without losing history',async()=>{
  const ws=(await call(wsRoute.POST,'POST',{name:'Remove assigned member'})).body.id;
  const joined=await newUser('remove-assignee@example.test');
  await withSystem(db=>db.query("INSERT INTO members(workspace_id,user_id,role) VALUES($1,$2,'staff')",[ws,joined]));
@@ -316,7 +317,9 @@ it('member removal clears assignments and notifications without deleting work hi
  const site=(await call(sitesRoute.POST,'POST',{name:'Site',address:'Road'},{ws,id:client.id})).body;
  const order=(await call(ordersRoute.POST,'POST',{title:'Preserve history',site_id:site.id,assignee_id:joined},{ws})).body;
  expect((await call(orderRoute.PATCH,'PATCH',{status:'scheduled',updated_at:order.updated_at},{ws,id:order.id})).status).toBe(200);
- expect((await call(memberRoute.DELETE,'DELETE',undefined,{ws,userId:joined})).status).toBe(200);
+ // Rule 17: someone with job history is archived, not deleted.
+ expect((await call(memberRoute.DELETE,'DELETE',undefined,{ws,userId:joined})).status).toBe(409);
+ await archiveMember(user!,ws,joined);
  const detail=await call(orderRoute.GET,'GET',undefined,{ws,id:order.id});
  expect(detail.status).toBe(200);expect(detail.body.assignee_id).toBeNull();expect(detail.body.timeline).toHaveLength(4);
  expect((await call(workspaceRoute.DELETE,'DELETE',{confirm_name:'Remove assigned member'},{ws})).status).toBe(200);

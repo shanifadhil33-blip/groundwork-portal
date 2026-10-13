@@ -41,7 +41,7 @@ export async function suggestWorkers(user: string, ws: string, workOrderId: stri
         ($3::text IS NOT NULL AND $3 = ANY(m.areas)) AS area_match,
         (SELECT count(*)::int FROM work_orders w WHERE w.workspace_id=m.workspace_id AND w.assignee_id=m.user_id AND w.status NOT IN ('done','cancelled') AND (w.scheduled_for AT TIME ZONE $4)::date=(now() AT TIME ZONE $4)::date) AS today
        FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true
-       WHERE m.workspace_id=$1 AND (m.role IN ('technician','staff') OR 'technician'=ANY(m.extra_roles))`, [ws, job.trade ?? null, site.area ?? null, tz])).rows;
+       WHERE m.workspace_id=$1 AND m.archived_at IS NULL AND (m.role IN ('technician','staff') OR 'technician'=ANY(m.extra_roles))`, [ws, job.trade ?? null, site.area ?? null, tz])).rows;
     // Nobody who is off on the job's day (or today, for an unscheduled job) is ever suggested first.
     const day = (await c.db.query('SELECT (coalesce($1::timestamptz, now()) AT TIME ZONE $2)::date::text AS d', [job.scheduled_for ?? null, tz])).rows[0].d;
     const reasons = await withSystem(async db => Promise.all(rows.map(r => offReason(db, ws, r.user_id, day))), user);

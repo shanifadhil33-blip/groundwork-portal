@@ -15,7 +15,7 @@ export async function teamToday(user: string, ws: string) {
         count(w.id) FILTER (WHERE w.status='done')::int AS done_total, m.off_days
        FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true
        LEFT JOIN work_orders w ON w.workspace_id = m.workspace_id AND w.assignee_id = m.user_id
-       WHERE m.workspace_id = $1 AND m.role <> 'client'
+       WHERE m.workspace_id = $1 AND m.role <> 'client' AND m.archived_at IS NULL
        GROUP BY m.user_id, m.role, m.extra_roles, u.name, u.email, m.trades, m.areas, m.off_days
        ORDER BY CASE m.role WHEN 'technician' THEN 0 WHEN 'staff' THEN 1 ELSE 2 END, u.name`, [ws, tz])).rows;
     return rows;

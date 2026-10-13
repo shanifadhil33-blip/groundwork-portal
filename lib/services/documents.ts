@@ -97,7 +97,7 @@ export async function pushExpiringDocuments() {
     WHERE w.demo_expires_at IS NULL AND d.expires_on - (CURRENT_TIMESTAMP AT TIME ZONE w.timezone)::date IN (30, 7, 0)`))).rows;
   let sent = 0;
   for (const d of due) {
-    const office = (await withSystem(db => db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND role IN ('admin','staff')", [d.workspace_id]))).rows.map(r => r.user_id as string);
+    const office = (await withSystem(db => db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND archived_at IS NULL AND role IN ('admin','staff')", [d.workspace_id]))).rows.map(r => r.user_id as string);
     const when = d.left === 0 ? 'expires today' : `expires in ${d.left} days`;
     sent += await sendPush([d.responsible_id, ...office], { title: 'Document expiring', body: `${d.title} ${when}.`, url: '/documents', tag: `doc-${d.id}-${d.left}` });
   }

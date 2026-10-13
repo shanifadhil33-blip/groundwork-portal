@@ -656,3 +656,13 @@ fieldset legend{font-weight:600;margin-bottom:.4rem;padding:0}
 .key-ask>div:first-child{min-width:0}
 .key-ask-actions{display:flex;gap:.5rem;flex:none}
 @media (max-width:600px){.key-ask{flex-direction:column;align-items:stretch}.key-ask-actions>*{flex:1}}
+.work-card-wrap{position:relative}
+.work-card-wrap>.work-list-item{padding-right:56px}
+.work-card-wrap>.record-actions{position:absolute;top:6px;right:6px}
+.work-card-wrap>.record-actions .icon-button,.work-card-wrap>.record-actions button{min-width:44px;min-height:44px}
+th.row-menu,td.row-menu{width:56px;text-align:right}
+.person-head-actions{display:flex;align-items:center;gap:.5rem;flex:none}
+.person-card .heading-row{align-items:flex-start}
+.archived-list{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
+.archived-list li{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.4rem 0;border-top:1px solid var(--border)}
+.archived-list li:first-child{border-top:0}
