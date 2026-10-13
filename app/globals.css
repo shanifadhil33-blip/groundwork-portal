@@ -1015,3 +1015,18 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
  .work-card-wrap { position:relative; }
  .work-card-wrap>.selection-mark { position:absolute; inset-inline-end:48px; top:0; z-index:1; }
 }
+
+/* Selection tick: hidden until selection starts, then a left column so it never covers the status badge. */
+@media (pointer:coarse) {
+ .work-card-wrap>.selection-mark { inset-inline-end:auto; inset-inline-start:4px; top:50%; transform:translateY(-50%); }
+ .compact-work-list:not(:has([data-selected])) .work-card-wrap>.selection-mark { display:none; }
+ .compact-work-list:has([data-selected]) .work-card-wrap>.work-list-item { padding-inline-start:56px; }
+}
+/* Outbox: a calm bar under the header, not a block above the page. */
+.outbox-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin:0; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:12px; font-size:16px; }
+.outbox-bar .outbox-title { font-weight:600; }
+.outbox-bar ul { list-style:none; margin:0; padding:0; width:100%; display:grid; gap:8px; }
+.outbox-bar li { display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
+.outbox-bar .outbox-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.outbox-bar .outbox-state { color:var(--text-muted); font-size:14px; white-space:nowrap; }
+.outbox-slot{padding:8px 16px 0}.outbox-slot:empty{display:none}

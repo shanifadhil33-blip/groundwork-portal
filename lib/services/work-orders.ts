@@ -44,6 +44,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   if(query.overdue)clauses.push('('+overdueSql+')');
   if(query.today)clauses.push('('+todaySql+')');
   if(query.active)clauses.push("status NOT IN ('done','cancelled')");
+  clauses.push(query.archived==='true'?'archived_at IS NOT NULL':'archived_at IS NULL');
   const where=clauses.join(' AND ');
   const signature=hash(JSON.stringify({user,ws,...query,cursor:undefined,page:undefined}));
   let offset=(query.page-1)*query.pageSize;
@@ -164,5 +165,17 @@ export async function getWorkOrderByNumber(user:string,ws:string,number:number) 
   const order=(await c.db.query('SELECT id FROM work_orders WHERE workspace_id=$1 AND order_number=$2',[ws,number])).rows[0];
   if(!order)throw missing();
   return getWorkOrder(user,ws,order.id);
+ });
+}
+
+/** Archive or bring back finished and cancelled jobs (universal rule 17): history stays, the daily list gets lighter. */
+export async function archiveWorkOrders(user:string,ws:string,body:unknown){
+ const data=z.object({ids:z.array(uuid).min(1).max(100),archived:z.boolean()}).strict().parse(body);
+ return inWorkspace(user,ws,async c=>{
+  if(!['admin','staff'].includes(c.role)||isOfficeStaff(c))throw new ApiError(403,'forbidden','Only an admin or supervisor can archive jobs.');
+  const open=(await c.db.query("SELECT order_number FROM work_orders WHERE workspace_id=$1 AND id=ANY($2::uuid[]) AND status NOT IN ('done','cancelled')",[ws,data.ids])).rows;
+  if(open.length)throw invalid(`Only finished or cancelled jobs can be archived. WO ${open[0].order_number} is still open.`,'ids');
+  const r=await c.db.query(`UPDATE work_orders SET archived_at=${data.archived?'clock_timestamp()':'NULL'} WHERE workspace_id=$1 AND id=ANY($2::uuid[]) RETURNING id`,[ws,data.ids]);
+  return {updated:r.rowCount??0,archived:data.archived};
  });
 }
