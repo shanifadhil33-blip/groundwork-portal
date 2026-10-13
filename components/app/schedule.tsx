@@ -1,4 +1,5 @@
 'use client';
+import { ContactName } from './contact-name';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, CalendarClock } from 'lucide-react';
@@ -70,13 +71,13 @@ export function Schedule() {
       <div className="sched-phone stack compact">
         <div className="sched-days" role="tablist" aria-label="Day">{days.map(d => { const n = (b.jobs).filter(j => j.day === d).length; return <button key={d} role="tab" aria-selected={d === day} className={`sched-day ${d === day ? 'on' : ''} ${d === today ? 'today' : ''}`} onClick={() => pick(d)}><span>{part(d, { weekday: 'short' })}</span><strong>{part(d, { day: 'numeric' })}</strong><small>{n || ''}</small></button>; })}</div>
         {(b.people).some(p => awayOn(p.user_id, day)) && <p className="small away-line">Away: {b.people.filter(p => awayOn(p.user_id, day)).map(p => `${p.name ?? 'Team member'} (${awayLabel(awayOn(p.user_id, day)!.kind)})`).join(', ')}</p>}
-        {(b.jobs).some(j => j.day === day) ? rows.map(p => { const list = cell(p?.user_id ?? null, day); return list.length > 0 && <section key={p?.user_id ?? 'none'} className="stack compact"><h2 className="sched-person">{name(p)}</h2>{list.map(j => <Chip key={j.id} j={j} onOpen={setOpen} />)}</section>; })
+        {(b.jobs).some(j => j.day === day) ? rows.map(p => { const list = cell(p?.user_id ?? null, day); return list.length > 0 && <section key={p?.user_id ?? 'none'} className="stack compact"><h2 className="sched-person"><ContactName name={name(p)} userId={p?.user_id}/></h2>{list.map(j => <Chip key={j.id} j={j} onOpen={setOpen} />)}</section>; })
           : <EmptyState title="Nothing on this day">{b.unscheduled.length ? 'Pick a job below to give it a day.' : 'Jobs with a visit day show here.'}</EmptyState>}
       </div>
       {/* Desktop: the week, people down the side */}
       <div className="sched-week" role="table" aria-label="Week schedule">
         <div className="sched-row sched-head" role="row"><div role="columnheader" /> {days.map(d => <div key={d} role="columnheader" className={d === today ? 'today' : ''}>{dayName(d)}</div>)}</div>
-        {rows.map(p => <div key={p?.user_id ?? 'none'} className="sched-row" role="row"><div role="rowheader" className="sched-person">{name(p)}</div>{days.map(d => <div key={d} role="cell" className={`sched-cell ${d === today ? 'today' : ''} ${awayOn(p?.user_id ?? null, d) ? 'away' : ''}`}>{awayOn(p?.user_id ?? null, d) && <span className="away-pill">{awayLabel(awayOn(p?.user_id ?? null, d)!.kind)}</span>}{cell(p?.user_id ?? null, d).map(j => <Chip key={j.id} j={j} onOpen={setOpen} />)}</div>)}</div>)}
+        {rows.map(p => <div key={p?.user_id ?? 'none'} className="sched-row" role="row"><div role="rowheader" className="sched-person"><ContactName name={name(p)} userId={p?.user_id}/></div>{days.map(d => <div key={d} role="cell" className={`sched-cell ${d === today ? 'today' : ''} ${awayOn(p?.user_id ?? null, d) ? 'away' : ''}`}>{awayOn(p?.user_id ?? null, d) && <span className="away-pill">{awayLabel(awayOn(p?.user_id ?? null, d)!.kind)}</span>}{cell(p?.user_id ?? null, d).map(j => <Chip key={j.id} j={j} onOpen={setOpen} />)}</div>)}</div>)}
       </div>
       <section className="stack compact"><h2><CalendarClock size={18} aria-hidden="true" /> Not scheduled ({b.unscheduled.length})</h2>
         {b.unscheduled.length ? <div className="sched-tray">{b.unscheduled.map(j => <Chip key={j.id} j={j} onOpen={x => setOpen({ ...x, day })} />)}</div> : <p className="small muted">Every open job has a day.</p>}</section>

@@ -1,3 +1,4 @@
+import { sizeRoles } from '../company';
 import { assertRealUser } from './demo';
 import { z } from 'zod';
 import { ApiError, invalid } from '../http';
@@ -17,6 +18,7 @@ export async function changeMember(user:string,ws:string,id:string,body?:unknown
   await row(c,'workspaces',ws,true);
   const member=await row(c,'members',id,true);
   const data=body===undefined?undefined:membershipSchema.parse(body);
+  if(member.is_owner&&data?.role!=='admin'){const n=(await c.db.query('SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND is_owner AND archived_at IS NULL',[ws])).rows[0].n;if(n<=1)throw new ApiError(409,'last_owner','Keep at least one owner.');}
   if(member.role==='admin' && data?.role!=='admin') {
    const count=(await c.db.query("SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND role='admin' AND archived_at IS NULL",[ws])).rows[0].n;
    if(count<=1)throw new ApiError(409,'last_admin','Keep at least one workspace admin.');
@@ -26,7 +28,7 @@ export async function changeMember(user:string,ws:string,id:string,body?:unknown
    if(member.client_id!==data.client_id && (await c.db.query('SELECT 1 FROM work_orders WHERE workspace_id=$1 AND assignee_id=$2 LIMIT 1',[ws,id])).rowCount && data.role==='client')throw invalid('Unassign this member before changing them to a client.','role');
    // Extra roles must stay below the main role; a client has none.
    const below=data.role==='admin'?['staff','technician']:data.role==='staff'?['technician']:[];
-   return update(c,'members',id,{role:data.role,client_id:data.client_id??null,extra_roles:(member.extra_roles??[]).filter((r:string)=>below.includes(r))});
+   return update(c,'members',id,{is_owner:member.is_owner&&data.role==='admin',is_manager:member.is_manager&&['admin','staff'].includes(data.role),role:data.role,client_id:data.client_id??null,extra_roles:(member.extra_roles??[]).filter((r:string)=>below.includes(r))});
   }
   // Delete is only for someone added by mistake. Anyone with jobs, notes or changes is archived instead, so history stays.
   if(member.role!=='client'){const used=(await c.db.query('SELECT EXISTS(SELECT 1 FROM work_orders WHERE workspace_id=$1 AND assignee_id=$2) OR EXISTS(SELECT 1 FROM comments WHERE workspace_id=$1 AND author_id=$2) OR EXISTS(SELECT 1 FROM work_order_events WHERE workspace_id=$1 AND actor_id=$2) AS used',[ws,id])).rows[0].used;if(used)throw new ApiError(409,'has_history','This person has job history. Archive them instead, so their jobs and notes keep their name.');}
@@ -36,7 +38,7 @@ export async function changeMember(user:string,ws:string,id:string,body?:unknown
 
 /** Roles a team member can hold together. The main role is the highest; the rest are kept as extra roles. */
 const TEAM_ORDER=['admin','staff','technician'] as const;
-const rolesSchema=z.object({roles:z.array(z.enum([...TEAM_ORDER,'office'])).min(1,'Keep at least one role.').max(4)}).strict();
+const rolesSchema=z.object({roles:z.array(z.enum([...TEAM_ORDER,'office','owner','manager'])).min(1,'Keep at least one role.').max(6)}).strict();
 /** Office staff (ROLE11) is stored as staff with staff_kind office. Supervisor or Admin covers it, so it only counts on its own. */
 export function splitRoles(roles:string[]){const office=roles.includes('office')&&!roles.includes('admin')&&!roles.includes('staff');const sorted=TEAM_ORDER.filter(r=>roles.includes(r)||(office&&r==='staff'));return {role:sorted[0],extra_roles:sorted.slice(1),staff_kind:office?'office':null};}
 /**
@@ -44,7 +46,7 @@ export function splitRoles(roles:string[]){const office=roles.includes('office')
  * and are changed in Settings. The last admin can not drop Admin.
  */
 export async function setMemberRoles(user:string,ws:string,id:string,body:unknown){
- uuid.parse(id);const next=splitRoles(rolesSchema.parse(body).roles);
+ uuid.parse(id);const selected=rolesSchema.parse(body).roles;const next=splitRoles(selected.map(r=>r==='owner'?'admin':r==='manager'?'staff':r));const is_owner=selected.includes('owner'),is_manager=selected.includes('manager');
  await inWorkspace(user,ws,async c=>{
   allow(c,['admin']);
   const member=(await c.db.query('SELECT role FROM members WHERE workspace_id=$1 AND user_id=$2',[ws,id])).rows[0];
@@ -55,9 +57,11 @@ export async function setMemberRoles(user:string,ws:string,id:string,body:unknow
  // The workspace lock serializes changes so the last admin can never be removed by two admins at once.
  return withSystem(async db=>{
   await db.query('SELECT id FROM workspaces WHERE id=$1 FOR UPDATE',[ws]);
-  const cur=(await db.query('SELECT role FROM members WHERE workspace_id=$1 AND user_id=$2 FOR UPDATE',[ws,id])).rows[0];
+  const cur=(await db.query('SELECT role,is_owner FROM members WHERE workspace_id=$1 AND user_id=$2 FOR UPDATE',[ws,id])).rows[0];
+  if(cur.is_owner&&!is_owner&&Number((await db.query('SELECT count(*) n FROM members WHERE workspace_id=$1 AND is_owner AND archived_at IS NULL',[ws])).rows[0].n)<=1)throw new ApiError(409,'last_owner','Keep at least one owner.');
   if(cur.role==='admin'&&next.role!=='admin'){const n=(await db.query("SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND role='admin' AND archived_at IS NULL",[ws])).rows[0].n;if(n<=1)throw new ApiError(409,'last_admin','Keep at least one admin.');}
-  return (await db.query('UPDATE members SET role=$3, extra_roles=$4, staff_kind=$5 WHERE workspace_id=$1 AND user_id=$2 RETURNING user_id, role, extra_roles, staff_kind',[ws,id,next.role,next.extra_roles,next.staff_kind])).rows[0];
+  let automatic:string[]=[];if(is_owner){const w=(await db.query('SELECT company_size FROM workspaces WHERE id=$1',[ws])).rows[0];if(w.company_size==='small'){const combined=sizeRoles(next.extra_roles,[],'small');next.extra_roles=combined.extra_roles as typeof next.extra_roles;automatic=combined.size_added_roles;}}
+  return (await db.query('UPDATE members SET role=$3, extra_roles=$4, staff_kind=$5,is_owner=$6,is_manager=$7,size_added_roles=$8 WHERE workspace_id=$1 AND user_id=$2 RETURNING user_id, role, extra_roles, staff_kind,is_owner,is_manager',[ws,id,next.role,next.extra_roles,next.staff_kind,is_owner,is_manager,automatic])).rows[0];
  },user);
 }
 
@@ -85,8 +89,9 @@ export async function archiveMember(user:string,ws:string,id:string){
  await inWorkspace(user,ws,async c=>allow(c,['admin']));
  return withSystem(async db=>{
   await db.query('SELECT id FROM workspaces WHERE id=$1 FOR UPDATE',[ws]);
-  const m=(await db.query('SELECT role,archived_at FROM members WHERE workspace_id=$1 AND user_id=$2 FOR UPDATE',[ws,id])).rows[0];
+  const m=(await db.query('SELECT role,is_owner,archived_at FROM members WHERE workspace_id=$1 AND user_id=$2 FOR UPDATE',[ws,id])).rows[0];
   if(!m)throw new ApiError(404,'not_found','This person is not on your team.');
+  if(m.is_owner&&Number((await db.query('SELECT count(*) n FROM members WHERE workspace_id=$1 AND is_owner AND archived_at IS NULL',[ws])).rows[0].n)<=1)throw new ApiError(409,'last_owner','Keep at least one owner.');
   if(m.archived_at)throw new ApiError(409,'archived','This person is already archived.');
   if(m.role==='admin'&&Number((await db.query("SELECT count(*) n FROM members WHERE workspace_id=$1 AND role='admin' AND archived_at IS NULL",[ws])).rows[0].n)<=1)throw new ApiError(409,'last_admin','Keep at least one admin.');
   const jobs=(await db.query("UPDATE work_orders SET assignee_id=NULL WHERE workspace_id=$1 AND assignee_id=$2 AND status NOT IN ('done','cancelled') RETURNING id",[ws,id])).rows.map(r=>r.id);
@@ -108,7 +113,7 @@ export async function unarchiveMember(user:string,ws:string,id:string){
  },user);
 }
 
-/** Client side role (ROLE09): facility manager (default), client office staff or household (sees only his own requests). Admin only; works in the demo. */
+/** Client side role (ROLE09): facility manager (default), facility staff or household (sees only his own requests). Admin only; works in the demo. */
 export const CLIENT_KINDS=['manager','office','household'] as const;
 export async function setClientKind(user:string,ws:string,id:string,body:unknown){
  uuid.parse(id);const {kind}=z.object({kind:z.enum(CLIENT_KINDS)}).strict().parse(body);

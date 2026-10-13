@@ -25,7 +25,7 @@ it('staff API comments default internal and client users cannot create internal 
 it('status notifications exclude the actor, describe from/to, and retain the event title after a rename',async()=>{
  let order=await orders.createWorkOrder(ids.imran,ws,{title:'Original title',site_id:siteId(1),assignee_id:ids.sam});
  order=await orders.patchWorkOrder(ids.imran,ws,order.id,{status:'scheduled',updated_at:order.updated_at.toISOString()});
- const sams=(await notifications.listNotifications(ids.sam,ws,q('pageSize=100'))).data.filter(n=>n.entity_id===order.id);expect(sams).toHaveLength(1);expect(sams[0].message).toBe('Imran moved Original title from Open to Scheduled.');
+ const sams=(await notifications.listNotifications(ids.sam,ws,q('pageSize=100'))).data.filter(n=>n.entity_id===order.id&&n.kind==='status_changed');expect(sams).toHaveLength(1);expect(sams[0].message).toBe('Imran moved Original title from Open to Scheduled.');
  expect((await notifications.listNotifications(ids.imran,ws,q('pageSize=100'))).data.filter(n=>n.entity_id===order.id)).toEqual([]);
  order=await orders.patchWorkOrder(ids.sam,ws,order.id,{status:'in_progress',updated_at:order.updated_at.toISOString()});
  const danaBefore=await notifications.unreadCount(ids.imran);order=await orders.patchWorkOrder(ids.imran,ws,order.id,{title:'Renamed title',updated_at:order.updated_at.toISOString()});

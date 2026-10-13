@@ -12,3 +12,7 @@ it('user facing copy has no jargon like Dispatch', () => {
   }
   expect(hits).toEqual([]);
 });
+
+it('customer contacts never reuse the maintenance office role label',()=>{
+ const hits=[...files('components'),...files('lib')].filter(f=>/client|demo-picker|assistant|design-copy|role-tools/.test(f)).filter(f=>/client office staff/i.test(readFileSync(f,'utf8')));expect(hits).toEqual([]);
+});

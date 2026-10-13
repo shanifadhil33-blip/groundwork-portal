@@ -21,7 +21,7 @@ it('renders complete client phone cards with clean titles, parts status, priorit
  vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-11T10:00:00Z'));
  try {
  const html=renderToStaticMarkup(<WorkOrderCard order={order} client timezone="Asia/Dubai" clientName="Northgate" assigneeName="Sam" onOpen={()=>{}}/>);
- expect(html).toContain('WO 54');expect(html).toContain('<strong data-no-translate="true">Replace washroom tap</strong>');expect(html).not.toContain('Northgate East / 54');expect(html).toContain('Waiting on Parts');expect(html).toContain('High');expect(html).toContain('Northgate · Northgate East');expect(html).toContain('Due ·');expect(html).toContain('Late');expect(html).toContain('<span class="assignee-cell" data-no-translate="true">Sam</span>');expect(html).toContain('work-row-head');
+ expect(html).toContain('WO 54');expect(html).toContain('<strong data-no-translate="true">Replace washroom tap</strong>');expect(html).not.toContain('Northgate East / 54');expect(html).toContain('Waiting on Parts');expect(html).toContain('High');expect(html).toContain('Northgate · Northgate East');expect(html).toContain('Due ·');expect(html).toContain('Late');expect(html).toContain('<span class="assignee-cell" data-no-translate="true"><span data-no-translate="true">Sam</span></span>');expect(html).toContain('work-row-head');
  const closed=renderToStaticMarkup(<WorkOrderCard order={{...order,status:'done',assignee_id:null,due_on:null}} client={false} clientName="Northgate" assigneeName="Unassigned" onOpen={()=>{}}/>);expect(closed).not.toContain('Late');expect(closed).toContain('No due date');expect(closed).toContain('Unassigned');
  } finally {vi.useRealTimers();}
 });

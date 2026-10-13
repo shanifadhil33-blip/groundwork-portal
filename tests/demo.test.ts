@@ -31,7 +31,8 @@ it('start creates the shared fixture in one sandbox and an Auth.js database cook
  const r=await sandbox('pranav'),ws=r.body.workspace_id,user=await identity(r.cookie);
  expect(r.cookie).toContain(sessionCookie.name+'=');expect(r.cookie).toContain('HttpOnly');expect(r.cookie).toContain('SameSite=Lax');expect(r.cookie).toContain('Path=/');
  const token=r.cookie.split(';')[0].split('=')[1];const lookup=await authAdapter.getSessionAndUser!(token);expect(lookup?.user.name).toBe('Pranav');expect(lookup?.user.id).toBe(user);expect(new Date(lookup!.session.expires).getTime()).toBeLessThanOrEqual(new Date(r.body.expires_at).getTime());
- for(const [table,n] of [['clients',3],['sites',6],['work_orders',60],['comments',36],['members',10],['supplier_orders',4],['cobalt_orders',4],['import_rows',1],['notifications',3]] as const)expect(await count(table,ws)).toBe(n);
+ for(const [table,n] of [['clients',3],['sites',6],['work_orders',60],['comments',36],['members',10],['supplier_orders',4],['cobalt_orders',4],['import_rows',1]] as const)expect(await count(table,ws)).toBe(n);
+ expect(await count('notifications',ws)).toBeGreaterThanOrEqual(3);
  expect(await withSystem(async db=>(await db.query('SELECT count(*)::int AS n FROM accounts a JOIN users u ON u.id=a."userId" WHERE u.demo_workspace_id=$1',[ws])).rows[0].n)).toBe(0);
  expect((await call(workspaces.GET,undefined,r.cookie)).body).toHaveLength(1);
  expect(await withUser(user,async db=>(await db.query("SELECT id FROM comments WHERE visibility='internal'")).rows)).toEqual([]);

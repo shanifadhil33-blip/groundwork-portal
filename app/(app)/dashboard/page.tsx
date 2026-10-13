@@ -1,3 +1,4 @@
+import { OwnerOverview } from '../../../components/app/owner-overview';
 import { listWorkOrders } from '../../../lib/services/work-orders';
 import { Dashboard } from '../../../components/app/dashboard';
 import { InitialResourceProvider } from '../../../components/app/initial-resources';
@@ -11,6 +12,7 @@ import { listInvites } from '../../../lib/services/invites';
 import { listTokens } from '../../../lib/services/tokens';
 export default async function Page() {
   const app=await getAppPageData(),member=app?.me.memberships[0];
+  if(member?.is_owner&&app?.workspace?.company_size==='big'&&app.workspace.enabled_dashboards?.includes('overview'))return <OwnerOverview/>;
   if(!app||!member||member.role==='client')return <Dashboard/>;
   const base=`/api/workspaces/${member.workspace_id}`,ws=member.workspace_id,admin=member.role==='admin';
   // Getting started checklist: shown for a new workspace until it's done or dismissed. When it shows, its data loads

@@ -1,10 +1,12 @@
 import { beforeEach,expect,it,vi } from 'vitest';
 import { actionSummary,plainAssistantReply } from '../lib/ui/assistant-replies';
 const state=vi.hoisted(()=>({turn:vi.fn(),call:vi.fn(),actions:new Map<string,any>(),order:{id:'50000000-0000-4000-8000-000000000058',order_number:58,title:'Test access control reader',status:'scheduled',priority:'normal',timezone:'Asia/Dubai',due_on:'2026-11-10',scheduled_for:'2026-11-08T05:00:00Z'},role:'staff',kind:'manager'}));
-vi.mock('../lib/db',()=>({asAgent:(_actor:unknown,callback:()=>unknown)=>callback()}));
+vi.mock('../lib/db',()=>({ownerPool:{query:async()=>({rows:[]})},appPool:{query:async()=>({rows:[]})},withUser:async(_u:unknown,cb:(db:unknown)=>unknown)=>cb({query:async()=>({rows:[]})}),asAgent:(_actor:unknown,callback:()=>unknown)=>callback()}));
 vi.mock('../lib/ai',()=>({assistantTurn:state.turn}));
+vi.mock('../lib/services/settings',()=>({getPreferences:async()=>({agent_name:null,approval_mode:'ask'})}));
+vi.mock('../lib/services/agent-learning',()=>({listAgentLearning:async()=>({data:[]})}));
 vi.mock('../lib/services/work-orders',()=>({getWorkOrder:async()=>state.order}));
-vi.mock('../lib/services/shared',async()=>{const {z}=await import('zod');return {uuid:z.uuid(),inWorkspace:async(user:string,ws:string,callback:(c:unknown)=>unknown)=>callback({role:state.role,db:{query:async(sql:string,args:any[])=>{
+vi.mock('../lib/services/shared',async(orig)=>{const {z}=await import('zod');return {...(await orig<any>()),uuid:z.uuid(),inWorkspace:async(user:string,ws:string,callback:(c:unknown)=>unknown)=>callback({role:state.role,db:{query:async(sql:string,args:any[])=>{
  if(sql.startsWith('INSERT INTO assistant_actions')){const id='60000000-0000-4000-8000-000000000001';state.actions.set(id,{id,user_id:args[1],workspace_id:args[0],tool:args[2],args:JSON.parse(args[3]),expires_at:new Date(Date.now()+600000)});return {rows:[{id}]};}
  if(sql.startsWith('SELECT * FROM assistant_actions')){const row=state.actions.get(args[2]);return {rows:row&&row.user_id===user&&row.workspace_id===ws?[row]:[]};}
  if(sql.startsWith('UPDATE assistant_actions')){state.actions.get(args[0]).consumed_at=new Date();return {rows:[]};}

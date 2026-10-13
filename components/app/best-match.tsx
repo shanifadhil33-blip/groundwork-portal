@@ -1,4 +1,5 @@
 'use client';
+import { ContactName } from './contact-name';
 import { Button } from '../ui';
 import { tradeLabels, type Trade } from '../../lib/trades';
 import { useResource } from './resource';
@@ -16,6 +17,6 @@ export function BestMatch({ base, id, version, current, busy, onAssign }: { base
   if (!best.trade_match && !best.area_match) return <p className="small muted">Nobody on the team has this trade or area yet. Set them on the Team page.</p>;
   const why = [best.trade_match && data.trade ? tradeLabels[data.trade] : null, best.area_match ? data.area : null, `${best.today} today`].filter(Boolean).join(' · ');
   const name = best.name ?? 'Team member';
-  return <div className="best-match"><div><strong>Best for this job: {name}</strong><p className="small">{why}</p></div>
+  return <div className="best-match"><div><strong>Best for this job: <ContactName name={name} userId={best.user_id}/></strong><p className="small">{why}</p></div>
     {best.user_id === current ? <span className="small">Assigned</span> : <Button variant="secondary" busy={busy} onClick={() => onAssign(best.user_id)}>Assign {name}</Button>}</div>;
 }

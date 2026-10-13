@@ -997,3 +997,5 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 .message-list > li { padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
 .message-thread { max-width: 760px; width: 100%; }
 .unread-message-dot { color: var(--accent); font-size: 14px; }
+/* Company setup uses readable type and large choices on every screen. */
+.guided-onboarding{font-size:16px;max-width:640px}.guided-onboarding .button{min-height:52px;font-size:16px;white-space:normal}.guided-onboarding input,.guided-onboarding select,.guided-onboarding textarea,.overview-grid{font-size:16px}.guided-onboarding .onboarding-steps{flex-wrap:wrap}.contact-name{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}.contact-name:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}.overview-grid dt{font-size:16px}.overview-grid dd{margin:12px 0 0;font-size:24px;font-weight:600}.workspace-context>.button,.workspace-context>a{font-size:14px}

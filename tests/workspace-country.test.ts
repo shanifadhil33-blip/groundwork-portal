@@ -138,10 +138,10 @@ describe('a real new signup starts empty', () => {
  });
 });
 
-describe('signup asks only country, region and company name', () => {
- it('the onboarding page has three steps and no tax field', async () => {
-  const src=(await import('node:fs')).readFileSync('app/(app)/onboarding/page.tsx','utf8');
-  expect(src).toContain("const STEPS = ['Country', 'Region', 'Company'] as const;");
+describe('guided setup asks country and region without tax fields', () => {
+ it('guided onboarding has country, region and currency questions and no tax field', async () => {
+  const src=(await import('node:fs')).readFileSync('components/app/guided-onboarding.tsx','utf8');
+  expect(src).toContain("step==='country'");expect(src).toContain("step==='region'");expect(src).toContain("step==='currency'");
   expect(src.toLowerCase()).not.toMatch(/tax|trn|vat/);
  });
 });

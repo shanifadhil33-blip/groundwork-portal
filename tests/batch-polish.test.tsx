@@ -39,9 +39,9 @@ it('lands on sign in with a note after signing out, with the form in the first p
 });
 
 it('starts the company name empty and calls the settings tab Company', () => {
-  const onboarding = read('app/(app)/onboarding/page.tsx');
-  expect(onboarding).toContain("useState('')"); expect(onboarding).toContain('placeholder="Your company name"');
-  expect(onboarding).not.toContain("workspace'");
+  const onboarding = read('components/app/guided-onboarding.tsx');
+  expect(onboarding).toContain("a.company_name??''"); expect(onboarding).toContain('Company name');
+  expect(onboarding).not.toMatch(/>[^<{]*\bworkspace\b/i);
   const settings = read('components/app/settings.tsx');
   expect(settings).toContain("{value:'company',label:'Company'"); expect(settings).toContain("requested==='workspace'?'company'");
 });

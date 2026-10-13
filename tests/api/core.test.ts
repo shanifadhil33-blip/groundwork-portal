@@ -200,7 +200,7 @@ describe('work order consistency and listing',()=>{
   const notifications=await withUser(ids.imran,async db=>(await db.query('SELECT kind FROM notifications WHERE entity_id=$1',[order.id])).rows);
   expect(notifications).toEqual([]);
   const staffNotifications=await withUser(ids.sam,async db=>(await db.query('SELECT kind FROM notifications WHERE entity_id=$1',[order.id])).rows);
-  expect(staffNotifications).toEqual([{kind:'status_changed'}]);
+  expect(staffNotifications.filter((n:{kind:string})=>n.kind!=='job_assigned')).toEqual([{kind:'status_changed'}]);
   expect((await call(orderRoute.PATCH,'PATCH',{status:'cancelled',updated_at:changed.body.updated_at},{id:order.id})).status).toBe(200);
  });
  it('invalid transitions are 422 and assignee must be staff/admin of same workspace',async()=>{
@@ -274,7 +274,7 @@ describe('transaction and lifecycle edge cases',()=>{
   expect((await call(orderRoute.PATCH,'PATCH',{status:'open',updated_at:current.updated_at},{id:current.id})).status).toBe(422);
   user=ids.pranav;
   const detail=await call(orderRoute.GET,'GET',undefined,{id:current.id});
-  expect(detail.body.assignee).toEqual({id:ids.sam,name:'Sam',image:null});
+  expect(detail.body.assignee).toEqual({id:ids.sam,name:'Sam',real_name:'Sam',image:null});
   expect(detail.body.timeline.filter((e:{kind:string})=>e.kind==='status_changed')).toHaveLength(5);
   const notifications=await withUser(ids.pranav,async db=>(await db.query('SELECT * FROM notifications WHERE entity_id=$1',[current.id])).rows);
   expect(notifications.filter(n=>n.kind==='status_changed')).toHaveLength(5);

@@ -7,7 +7,7 @@ export async function teamToday(user: string, ws: string) {
     allow(c, ['admin', 'staff']);
     const tz = (await c.db.query('SELECT timezone FROM workspaces WHERE id=$1', [ws])).rows[0]?.timezone ?? 'Asia/Dubai';
     const rows = (await c.db.query(
-      `SELECT m.user_id, m.role, m.extra_roles, m.staff_kind, u.name, u.email, m.trades, m.areas,
+      `SELECT m.user_id, m.role, m.extra_roles, m.is_owner,m.is_manager,m.staff_kind, u.name, u.email, m.trades, m.areas,
         count(w.id) FILTER (WHERE w.status NOT IN ('done','cancelled'))::int AS open,
         count(w.id) FILTER (WHERE w.status NOT IN ('done','cancelled') AND (w.scheduled_for AT TIME ZONE $2)::date = (now() AT TIME ZONE $2)::date)::int AS today,
         count(w.id) FILTER (WHERE w.status NOT IN ('done','cancelled') AND w.due_on < (now() AT TIME ZONE $2)::date)::int AS late,
@@ -16,7 +16,7 @@ export async function teamToday(user: string, ws: string) {
        FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true
        LEFT JOIN work_orders w ON w.workspace_id = m.workspace_id AND w.assignee_id = m.user_id
        WHERE m.workspace_id = $1 AND m.role <> 'client' AND m.archived_at IS NULL
-       GROUP BY m.user_id, m.role, m.extra_roles, m.staff_kind, u.name, u.email, m.trades, m.areas, m.off_days
+       GROUP BY m.user_id, m.role, m.extra_roles, m.is_owner,m.is_manager,m.staff_kind, u.name, u.email, m.trades, m.areas, m.off_days
        ORDER BY CASE m.role WHEN 'technician' THEN 0 WHEN 'staff' THEN 1 ELSE 2 END, u.name`, [ws, tz])).rows;
     return rows;
   }).then(async rows => {

@@ -1,0 +1,8 @@
+'use client';
+import { useState } from 'react';
+import { Button } from '../ui';
+import { post,RequestError } from '../../lib/ui/api';
+export function OnboardingHelper(){const [open,setOpen]=useState(false),[message,setMessage]=useState(''),[reply,setReply]=useState(''),[pending,setPending]=useState<{id:string;summary:string}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ async function send(confirm=false){setBusy(true);setError('');try{const result=await post<{reply:string;pending_action?:{id:string;summary:string}}>('/api/onboarding/assistant',confirm?{confirm_action_id:pending?.id}:{message});setReply(result.reply);setPending(result.pending_action??null);if(confirm)window.dispatchEvent(new Event('groundwork-onboarding'));}catch(e){setError(e instanceof RequestError?e.message:'We could not reach Agent. Try again.');}finally{setBusy(false);}}
+ return <section className="stack"><Button variant="ghost" onClick={()=>setOpen(v=>!v)}>Ask Agent for help</Button>{open&&<><label className="form-field">Tell me your answers<textarea maxLength={4000} value={message} onChange={e=>setMessage(e.target.value)}/></label>{reply&&<p>{reply}</p>}{pending?<div className="stack"><p className="preserve">{pending.summary}</p><div className="row"><Button busy={busy} onClick={()=>void send(true)}>Yes</Button><Button variant="secondary" disabled={busy} onClick={()=>{setPending(null);setReply('Change your answers, then send them again.');}}>Change</Button></div></div>:<Button disabled={!message.trim()} busy={busy} onClick={()=>void send()}>Send</Button>}{error&&<p role="alert">{error}</p>}</>}</section>;
+}

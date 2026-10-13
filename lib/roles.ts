@@ -1,7 +1,7 @@
 /** Workspace roles. 'staff' is stored for supervisors (kept for existing data); technicians see only their own jobs. */
 export const ROLES = ['admin', 'staff', 'technician', 'client'] as const;
 export type Role = typeof ROLES[number];
-export const roleLabels: Record<Role, string> = { admin: 'Admin', staff: 'Supervisor', technician: 'Technician', client: 'Client' };
+export const roleLabels: Record<Role, string> = { admin: 'Admin', staff: 'Supervisor', technician: 'Technician', client: 'Facility manager' };
 export const roleHints: Record<Role, string> = {
   admin: 'Everything, including settings and the team.',
   staff: 'Sees and assigns every job.',
@@ -16,6 +16,8 @@ export const isOffice = (role: string | null | undefined) => role === 'admin' ||
 export const allRoles = (m: { role?: string | null; extra_roles?: string[] | null } | null | undefined) => m?.role ? [m.role, ...(m.extra_roles ?? [])] : [];
 export const doesJobs = (m: { role?: string | null; extra_roles?: string[] | null } | null | undefined) => allRoles(m).includes('technician');
 /** Plain words for a person's roles, like "Admin, Supervisor and Technician". */
-export function rolesLabel(m: { role?: string | null; extra_roles?: string[] | null; staff_kind?: string | null }, labels: Record<Role, string> = roleLabels) { const l = allRoles(m).map(r => r === 'staff' && m.staff_kind === 'office' ? 'Office staff' : labels[r as Role] ?? r); return l.length > 1 ? `${l.slice(0, -1).join(', ')} and ${l.at(-1)}` : l[0] ?? ''; }
+export function rolesLabel(m: { role?: string | null; extra_roles?: string[] | null; staff_kind?: string | null; client_kind?: string | null; is_owner?:boolean; is_manager?:boolean }, labels: Record<Role, string> = roleLabels) { const l = allRoles(m).map(r => r === 'admin' && m.is_owner ? 'Owner' : r === 'staff' && m.is_manager ? 'Manager' : r === 'client' ? customerRoleLabel(m.client_kind) : r === 'staff' && m.staff_kind === 'office' ? 'Office staff' : labels[r as Role] ?? r); return l.length > 1 ? `${l.slice(0, -1).join(', ')} and ${l.at(-1)}` : l[0] ?? ''; }
 /** Role names in the company's own words (Settings or the agent), falling back to the standard names. */
-export function labelsFor(names?: Record<string, string> | null): Record<Role, string> { const out = { ...roleLabels }; for (const r of ROLES) if (names?.[r]?.trim()) out[r] = names[r].trim(); return out; }
+export function labelsFor(names?: Record<string, string> | null): Record<Role, string> { const out = { ...roleLabels }; for (const r of ROLES) if (r!=='client' && names?.[r]?.trim()) out[r] = names[r].trim(); return out; }
+
+export function customerRoleLabel(kind?: string | null) { return kind === 'household' ? 'Household' : kind === 'office' ? 'Facility staff' : 'Facility manager'; }

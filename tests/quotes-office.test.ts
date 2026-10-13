@@ -44,7 +44,7 @@ it('office staff book only the Best match person', async () => {
   if (other) await expect(patchWorkOrder(ids.nabil, ws, id, { assignee_id: other.user_id, updated_at: new Date(o.updated_at).toISOString() })).rejects.toMatchObject({ status: 403 });
   if (best) { o = await patchWorkOrder(ids.nabil, ws, id, { assignee_id: best.user_id, updated_at: new Date(o.updated_at).toISOString() }); expect(o.assignee_id).toBe(best.user_id); }
 });
-it('the facility manager sees the fix history; client office staff and households do not', async () => {
+it('the facility manager sees the fix history; facility staff and households do not', async () => {
   const r: any = await callTool({ user: ids.pranav, ws, scope: 'read', kind: 'assistant' }, 'fix_history', {});
   expect(r.isError).toBeUndefined();
   const list = JSON.parse(r.content[0].text);

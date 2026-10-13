@@ -33,7 +33,7 @@ it('renders one invite creation button, labeled role, title-case invite states a
  state.resources={[base+'/invites']:[],[base+'/clients']:[]};
  const empty=render(<SettingsInvites base={base} demo={false}/>);expect(empty.match(/>Create invite</g)).toHaveLength(1);expect(empty).toContain('Enter an email');expect(empty).toContain('for="invite-role">Role');expect(empty).toContain('Supervisor');expect(empty).toContain('It expires in 7 days.');expect(empty).not.toContain('No email');
  state.resources[base+'/invites']=[{id:'invite',email:'pranav@example.test',role:'client',status:'revoked',expires_at:'2026-10-15T00:00:00Z',client_id:'harbor'}];
- const revoked=render(<SettingsInvites base={base} demo={false}/>);expect(revoked).toContain('Client');expect(revoked).toContain('Revoked');expect(revoked).not.toContain('>Revoke</');expect(revoked).not.toContain('Copy invite');
+ const revoked=render(<SettingsInvites base={base} demo={false}/>);expect(revoked).toContain('Facility manager');expect(revoked).toContain('Revoked');expect(revoked).not.toContain('>Revoke</');expect(revoked).not.toContain('Copy invite');
 });
 it('shows a disabled last-admin removal control with its reason and labeled role',()=>{
  state.resources={[base+'/members']:[{user_id:'imran',name:'Imran',role:'admin',email:'imran@example.test',client_id:null}],[base+'/clients']:[]};

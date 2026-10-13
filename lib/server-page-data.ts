@@ -14,13 +14,13 @@ export const getAppPageData=cache(async ():Promise<AppPageData|null>=>{
   try {
     const user=await requireUser(new Request('http://portal.internal',{headers:await headers()}));
     return await withUser(user,async()=>{
-      const identity=await me(user),member=identity.memberships[0];
+      const identity=await me(user);const selected=(await headers()).get('cookie')?.split(';').map(v=>v.trim()).find(v=>v.startsWith('groundwork-workspace='))?.slice(21);identity.memberships.sort((a,b)=>Number(b.workspace_id===selected)-Number(a.workspace_id===selected));const member=identity.memberships[0];
       const workspace=member?await getWorkspace(user,member.workspace_id):null;
       const resources=await initialResources(user,[
         ['/api/notifications/unread-count',()=>unreadCount(user)],
         ...(member?[[`/api/workspaces/${member.workspace_id}/dashboard`,()=>dashboard(user,member.workspace_id)] as const]:[]),
       ]);
-      return {user,me:identity as Me,workspace:workspace?{id:workspace.id,name:workspace.name,is_demo:workspace.is_demo,timezone:workspace.timezone,country:workspace.country,region:workspace.region,currency:workspace.currency,approval_mode:workspace.approval_mode,role_names:workspace.role_names??{}}:null,resources};
+      return {user,me:identity as Me,workspace:workspace?{id:workspace.id,name:workspace.name,is_demo:workspace.is_demo,timezone:workspace.timezone,country:workspace.country,region:workspace.region,currency:workspace.currency,approval_mode:workspace.approval_mode,role_names:workspace.role_names??{},company_size:workspace.company_size,enabled_roles:workspace.enabled_roles,enabled_dashboards:workspace.enabled_dashboards}:null,resources};
     });
   } catch {
     // Keep the existing client recovery/sign-in flow when session or DB reads fail.

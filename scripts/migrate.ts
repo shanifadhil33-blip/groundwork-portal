@@ -43,7 +43,7 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON push_subscriptions TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON company_documents TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON time_off TO ${role}`);
-    await client.query(`GRANT SELECT(id,name,email,image),UPDATE(name) ON users TO ${role}`);
+    await client.query(`GRANT SELECT(id,name,email,image,is_demo),UPDATE(name,phone) ON users TO ${role}`);
     await client.query(`GRANT SELECT,INSERT ON api_tokens TO ${role}`);
     await client.query(`GRANT UPDATE(revoked_at) ON api_tokens TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE ON assistant_actions TO ${role}`);
@@ -56,6 +56,12 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT UPDATE(pinned_at,removed_at,removed_by,body,photo_ids,voice_note_text) ON messages TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON personal_agent_learning,company_rules TO ${role}`);
     await client.query(`GRANT SELECT(id,workspace_id,requested_by,tool,summary,token_id,created_at,expires_at,consumed_at,declined_at,decided_by,outcome) ON company_action_approvals TO ${role}`);
+    await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON contact_nicknames TO ${role}`);
+    await client.query(`GRANT EXECUTE ON FUNCTION contact_people(uuid) TO ${role}`);
+    await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON workspace_money TO ${role}`);
+    await client.query(`GRANT EXECUTE ON FUNCTION company_name_exists(text) TO ${role}`);
+    await client.query(`GRANT SELECT,INSERT,UPDATE ON onboarding_progress,onboarding_actions TO ${role}`);
+    await client.query(`GRANT EXECUTE ON FUNCTION onboarding_invite_info(text),onboarding_accept_invite(text,boolean),onboarding_find_company(text) TO ${role}`);
     await client.query('COMMIT');
   } catch(error) { await client.query('ROLLBACK'); throw error; }
 }

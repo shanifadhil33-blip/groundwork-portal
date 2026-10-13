@@ -22,5 +22,5 @@ export async function patchProfile(user:string,body:unknown) {
  const data=z.object({name:z.string().trim().min(1).max(80)}).strict().parse(body);
  return withUser(user,async db=>{const result=(await db.query('UPDATE users SET name=$2 WHERE id=$1 RETURNING id,name,email,image',[user,data.name])).rows[0];if(!result)throw missing();return result;});
 }
-export async function getSettings(user:string,ws:string) {const w=await getWorkspace(user,ws);return {id:w.id,name:w.name,timezone:w.timezone,country:w.country,region:w.region,currency:w.currency,approval_mode:w.approval_mode??'important',role_names:w.role_names??{}};}
+export async function getSettings(user:string,ws:string) {const w=await getWorkspace(user,ws);return {id:w.id,name:w.name,timezone:w.timezone,country:w.country,region:w.region,currency:w.currency,approval_mode:w.approval_mode??'important',role_names:w.role_names??{},company_size:w.company_size,enabled_roles:w.enabled_roles,enabled_dashboards:w.enabled_dashboards};}
 export const patchSettings=patchWorkspace;

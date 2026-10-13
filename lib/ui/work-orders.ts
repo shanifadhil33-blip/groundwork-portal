@@ -54,7 +54,7 @@ export function staffEvent(event:Detail['timeline'][number],timezone=workspaceTi
 export function transitionOptions(current:string) {
  return Object.entries(statusLabels).map(([value,title])=>({value,label:value===current?`${title} (current status)`:statusTransitions[current]?.includes(value)?title:`${title}: ${current==='open'?'Move to Scheduled first':current==='scheduled'?'Move to In Progress first':'Unavailable from this status'}`,disabled:value===current||!statusTransitions[current]?.includes(value)}));
 }
-export function providerOnlyPath(path:string) { return /^\/(dashboard|imports?|queue|supplier|clients|audit|team|today|schedule|documents)(\/|$)/.test(path)||/^\/work-orders\/[^/]+\/edit$/.test(path); }
+export function providerOnlyPath(path:string) { return /^\/(overview|dashboard|imports?|queue|supplier|clients|audit|team|today|schedule|documents)(\/|$)/.test(path)||/^\/work-orders\/[^/]+\/edit$/.test(path); }
 /** Technicians use only their jobs and Settings: every office page, plus creating work orders, is closed to them. */
 export function officeOnlyPath(path:string) { return (providerOnlyPath(path)&&!/^\/today(\/|$)/.test(path))||path==='/work-orders/new'||/^\/(isolation)(\/|$)/.test(path); }
 
