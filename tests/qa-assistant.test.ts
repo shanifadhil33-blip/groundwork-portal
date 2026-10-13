@@ -1,6 +1,6 @@
 import { beforeEach,expect,it,vi } from 'vitest';
 import { actionSummary,plainAssistantReply } from '../lib/ui/assistant-replies';
-const state=vi.hoisted(()=>({turn:vi.fn(),call:vi.fn(),actions:new Map<string,any>(),order:{id:'50000000-0000-4000-8000-000000000058',order_number:58,title:'Test access control reader',status:'scheduled',priority:'normal',timezone:'Asia/Dubai',due_on:'2026-11-10',scheduled_for:'2026-11-08T05:00:00Z'},role:'staff'}));
+const state=vi.hoisted(()=>({turn:vi.fn(),call:vi.fn(),actions:new Map<string,any>(),order:{id:'50000000-0000-4000-8000-000000000058',order_number:58,title:'Test access control reader',status:'scheduled',priority:'normal',timezone:'Asia/Dubai',due_on:'2026-11-10',scheduled_for:'2026-11-08T05:00:00Z'},role:'staff',kind:'manager'}));
 vi.mock('../lib/db',()=>({asAgent:(_actor:unknown,callback:()=>unknown)=>callback()}));
 vi.mock('../lib/ai',()=>({assistantTurn:state.turn}));
 vi.mock('../lib/services/work-orders',()=>({getWorkOrder:async()=>state.order}));
@@ -9,6 +9,7 @@ vi.mock('../lib/services/shared',async()=>{const {z}=await import('zod');return 
  if(sql.startsWith('SELECT * FROM assistant_actions')){const row=state.actions.get(args[2]);return {rows:row&&row.user_id===user&&row.workspace_id===ws?[row]:[]};}
  if(sql.startsWith('UPDATE assistant_actions')){state.actions.get(args[0]).consumed_at=new Date();return {rows:[]};}
  if(sql.includes('FROM sites'))return {rows:[{name:'Marina Exchange',client:'Harbor & Pine'}]};
+ if(sql.includes('my_client_kind'))return {rows:[{k:state.kind}]};
  return {rows:[]};
  }}})}});
 vi.mock('../lib/agent/tools',async()=>{const {z}=await import('zod');return {callTool:state.call,tools:{
@@ -17,11 +18,11 @@ vi.mock('../lib/agent/tools',async()=>{const {z}=await import('zod');return {cal
  add_comment:{write:true,description:'Comment',schema:z.object({work_order_id:z.uuid(),body:z.string(),visibility:z.enum(['internal','client']).default('internal')})},
  ask_choice:{write:false,description:'Ask',schema:z.object({question:z.string(),options:z.array(z.string())})},
  set_job_payment:{write:true,description:'Pay',schema:z.object({id:z.uuid(),payment_status:z.string()})},
- create_request:{write:true,description:'Request',schema:z.object({site_id:z.uuid(),title:z.string(),description:z.string().optional()})},
+ create_request:{write:true,description:'Request',schema:z.object({site_id:z.uuid(),title:z.string(),description:z.string().optional(),preferred_window:z.string().optional()})},
  }}});
 import { assistant } from '../lib/services/assistant';
 const user='10000000-0000-4000-8000-000000000002',ws='20000000-0000-4000-8000-000000000001';
-beforeEach(()=>{state.turn.mockReset();state.call.mockReset();state.actions.clear();state.role='staff';state.call.mockResolvedValue({content:[{type:'text',text:'{}'}],structuredContent:{result:{...state.order}}});});
+beforeEach(()=>{state.turn.mockReset();state.call.mockReset();state.actions.clear();state.role='staff';state.kind='manager';state.call.mockResolvedValue({content:[{type:'text',text:'{}'}],structuredContent:{result:{...state.order}}});});
 async function propose(name:string,args:object,text='Change the work order'){state.turn.mockResolvedValue({calls:[{id:'1',name,args}],text:'Action completed.'});return assistant(user,ws,{messages:[{role:'user',content:text}]});}
 it('removes complete/truncated IDs and raw words, while retaining safe work-order destinations',()=>{
  const result=plainAssistantReply(`site ID e4ca7ce3…: in_progress; waiting_on_parts; list_sites. [WO-58](/work-orders/${state.order.id}) ${state.order.id}`);
@@ -58,8 +59,18 @@ it('names the site and full request contents in a creation proposal and dates in
  expect(actionSummary('update_work_order_dates',{due_on:'2026-11-15'},state.order)).toContain('Due date: Nov 10, 2026 → Nov 15, 2026');
 });
 
+it('shows a household client the chosen visit window before confirming a request',async()=>{
+ state.role='client';state.kind='household';
+ const proposal=await propose('create_request',{site_id:'40000000-0000-4000-8000-000000000001',title:'Repair cooling',preferred_window:'Saturday after 4 PM'});
+ const pending='pending_action' in proposal?proposal.pending_action:null;
+ expect(pending).toBeTruthy();
+ expect(plainAssistantReply(pending!.summary,true)).toContain('\nBest time for the visit: Saturday after 4 PM');
+ expect(state.actions.get(pending!.id).args.preferred_window).toBe('Saturday after 4 PM');
+ expect(state.call).not.toHaveBeenCalled();
+});
+
 it('formats client model replies and staff replies using their audience labels',async()=>{
- state.turn.mockResolvedValue({calls:[],text:'Status: in_progress. Next: scheduled.'});
+ state.turn.mockResolvedValue({calls:[],text:'Status: in_progress. Next: Scheduled.'});
  state.role='client';
  expect(await assistant(user,ws,{messages:[{role:'user',content:'What is the status?'}]})).toMatchObject({reply:'Status: Work in Progress. Next: Visit Scheduled.'});
  state.role='staff';

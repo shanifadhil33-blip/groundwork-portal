@@ -13,7 +13,13 @@ export function audienceStatusReply(value:string, client=false) {
  const pattern=new RegExp(`\\b(?:${names.map(({name})=>escape(name)).join('|')})(?=$|\\W)`,'gi');
  // The friendly "Done, Kevin." opener is a word, not a job status: never turn it into Completed.
  const opener=/^Done(?=[,.!])/.test(value);
- const out=(opener?value.slice(4):value).replace(pattern,name=>labels[names.find(entry=>entry.name.toLowerCase()===name.toLowerCase())!.status]);
+ const out=(opener?value.slice(4):value).replace(pattern,(name:string,offset:number,text:string)=>{
+  const entry=names.find(entry=>entry.name.toLowerCase()===name.toLowerCase())!;
+  const machineStatus=name===entry.status&&name.includes('_');
+  const exactLabel=name===statusLabels[entry.status]||name===clientStatusLabels[entry.status];
+  const statusContext=/\bstatus\s*(?::|is\b)\s*$/i.test(text.slice(0,offset));
+  return machineStatus||exactLabel||statusContext?labels[entry.status]:name;
+ });
  return opener?'Done'+out:out;
 }
 const uuid = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
@@ -25,7 +31,7 @@ export function plainAssistantReply(value: string, client=false) {
   text = text.replace(/(?<=[a-z,] )(Admin|Supervisor|Technician|Staff|Client)\b/g, w => w.toLowerCase());
   text = text.replace(/\b(?:site|client|workspace|user|job|row)\s+ID\s*[:=]?\s*/gi, '')
     .replace(uuid, 'the linked record').replace(/\b[0-9a-f]{32,64}\b/gi,'the linked record').replace(/\b[0-9a-f]{8}(?:-[0-9a-f]{0,4})?(?:…|\.{3})/gi,'the linked record')
-    .replace(/\b(in_progress|waiting_on_parts|client_visible|internal_note|pending_approval|read_only|cancelled|scheduled|open|done|urgent|normal|high|low)\b/gi, word => statusLabels[word.toLowerCase()] ?? readableLabel(word.toLowerCase()))
+    .replace(/\b(in_progress|waiting_on_parts|client_visible|internal_note|pending_approval|read_only)\b/g, word => statusLabels[word] ?? readableLabel(word))
     .replace(/\b(?:[a-z]+_)+(?:id|at|for|on)\b/g, word => readableLabel(word))
     .replace(/\b(?:list|get|update|create|add|approve|reject|set)_(?:[a-z]+_)*[a-z]+\b/g,'the workspace action')
     .replace(/there (?:is|are) no available tool[s]? to (?:modify|change) priority/gi,"I can’t change priority here. Open the job and use Edit.")
@@ -94,7 +100,7 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='add_worker')return `Add ${plainAssistantReply(args.name)} to the team as ${args.role==='staff'?'a supervisor':'a technician'}${args.phone?`\nPhone: ${plainAssistantReply(args.phone)}`:''}`;
   if(tool==='set_priority')return `Change priority for ${name}: ${readableLabel(order!.priority)} → ${readableLabel(args.priority)}`;
   if(tool==='update_work_order_dates')return `Change dates for ${name}:\n${['due_on','scheduled_for'].filter(key=>key in args).map(key=>`${key==='due_on'?'Due date':'Visit'}: ${order?.[key as 'due_on'|'scheduled_for']?formatDate(order[key as 'due_on'|'scheduled_for']!,order.timezone):'None'} → ${args[key]?formatDate(args[key],order?.timezone):'None'}`).join('\n')}`;
-  if(tool==='create_request')return `Create request “${plainAssistantReply(args.title)}” at ${plainAssistantReply(target??'the selected site')}\nPriority: ${readableLabel(args.priority??'normal')}${args.description?`\n\n${plainAssistantReply(args.description)}`:''}${args.due_on?`\nDue: ${formatDate(args.due_on,timezone)}`:''}${args.scheduled_for?`\nVisit: ${formatDate(args.scheduled_for,timezone)}`:''}`;
+  if(tool==='create_request')return `Create request “${plainAssistantReply(args.title)}” at ${plainAssistantReply(target??'the selected site')}\nPriority: ${readableLabel(args.priority??'normal')}${args.preferred_window?`\nBest time for the visit: ${plainAssistantReply(args.preferred_window)}`:''}${args.description?`\n\n${plainAssistantReply(args.description)}`:''}${args.due_on?`\nDue: ${formatDate(args.due_on,timezone)}`:''}${args.scheduled_for?`\nVisit: ${formatDate(args.scheduled_for,timezone)}`:''}`;
   if(tool==='approve_queue_row')return `Approve ${name}${args.edits?` with these corrections:\n${Object.entries(args.edits).map(([k,v])=>`${readableLabel(k)}: ${plainAssistantReply(String(v))}`).join('\n')}` : ''}`;
   return `Reject ${name}:\n\n${plainAssistantReply(args.reason??'')}`;
 }
