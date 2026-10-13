@@ -11,6 +11,8 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
 export function notificationMessage(r:Record<string,any>, client=false) {
  const labels=client?clientStatusLabels:statusLabels, status=(value:string)=>labels[value]??label(value);
  const title=r.work_order_title??r.current_title??'your job',actor=r.actor_name??'Your team';
+ if(r.kind==='suggestion_received')return `${actor} suggested ${title}. Review it on Suggested.`;
+ if(r.kind==='suggestion_decided')return `Your request ${title} was ${r.to_status==='approved'?'accepted':'not accepted'}. Open your requests for details.`;
  if(r.kind==='status_changed')return r.from_status&&r.to_status?`${actor} moved ${title} from ${status(r.from_status)} to ${status(r.to_status)}.`:r.to_status?`${actor} moved ${title} to ${status(r.to_status)}.`:`${actor} updated the status of ${title}.`;
  if(r.kind==='quote_sent')return `${actor} sent a price for ${title}. Approve or decline it on the job.`;
  if(r.kind==='quote_decided')return `${actor} ${r.to_status==='approved'?'approved':'declined'} the price for ${title}.`;

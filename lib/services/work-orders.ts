@@ -1,3 +1,4 @@
+import { createSuggestion } from './suggestions';
 import { assertWorking } from './time-off';
 import { pushJobChange } from './push';
 import { TRADES } from '../trades';
@@ -73,6 +74,7 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
   // A client's agent may guess a trade; the office sets the trade, so drop it rather than fail the request.
   if(c.role==='client'&&body&&typeof body==='object'&&'trade' in body){const {trade:_t,...rest}=body as Record<string,unknown>;body=rest;}
   const data=(c.role==='client'?clientSchema:createSchema).parse(body);
+  if(c.role==='client'){const {description,...fields}=data as z.infer<typeof clientSchema>;return createSuggestion(user,ws,{...fields,problem:description??''},undefined,key);}
   if(c.role==='client' && data.client_id && data.client_id!==c.client_id)throw invalid('Choose one of your own sites.','client_id');
   const site=await row(c,'sites',data.site_id);
   const client_id=c.role==='client'?c.client_id:(data.client_id??site.client_id);
@@ -88,7 +90,7 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
    ...data,client_id,workspace_id:ws,created_by:user,source:c.role==='client'?'client':'manual',
   }));
  });
- await pushJobChange(user,null,made as never);
+ if(!('problem' in made))await pushJobChange(user,null,made as never);
  return made;
 }
 const CLIENT_HIDDEN_SITE=['access_notes','contact_name','contact_phone'],CLIENT_HIDDEN_CLIENT=['notes','contact_name','phone','email','billing_building','billing_street','billing_area','billing_city','billing_region','country'];

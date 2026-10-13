@@ -537,3 +537,7 @@ User-supplied production baseline (no after measurement in this sandbox):
 ## Part D1, local work, October 13 2026
 Added suggestion storage, rollback, workspace and sender policies, and app grants.
 Typecheck passed. Postgres tests were attempted but blocked by the sandbox denying both TCP and Unix sockets. No real database was used. Database tests remain unverified until sockets are available.
+
+## Part D2
+Client and household requests now wait as suggestions. Decisions preserve preferred times, require a decline reason, create one job under a row lock, and notify the sender. Pending and declined requests show in client lists.
+Typecheck and suggestion unit and copy tests passed. Added service tests; Postgres execution remains blocked by sandbox socket restrictions.

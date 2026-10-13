@@ -1,3 +1,3 @@
 import { defineConfig } from 'vitest/config';
-// Pure unit checks never connect to, reset, seed or migrate a database.
-export default defineConfig({test:{environment:'node',include:['tests/i18n*.test.ts','tests/languages.test.ts','tests/agent-preferences.test.ts','tests/no-ai-look.test.ts','tests/copy-dashes.test.ts','tests/stitch-assistant.test.tsx','tests/assistant-no-dash.test.ts','tests/agent-voice*.test.ts*'],pool:'forks',maxWorkers:1,fileParallelism:false,testTimeout:10000}});
+// Pure and mocked tests only. Database suites use vitest.config.ts and its isolated fixture reset.
+export default defineConfig({test:{environment:'node',pool:'forks',maxWorkers:1,fileParallelism:false,include:['tests/suggestions-unit.test.ts','tests/whatsapp-unit.test.ts','tests/messaging-unit.test.ts','tests/team-space-unit.test.ts','tests/personal-agent-unit.test.ts','tests/agent-voice-composer.test.tsx','tests/assistant-replies.test.ts','tests/copy-dashes.test.ts','tests/no-ai-look.test.ts']}});

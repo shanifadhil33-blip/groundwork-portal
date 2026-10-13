@@ -17,7 +17,7 @@ CREATE TABLE job_suggestions (
  FOREIGN KEY(workspace_id,from_work_order_id) REFERENCES work_orders(workspace_id,id) ON DELETE SET NULL (from_work_order_id),
  FOREIGN KEY(workspace_id,work_order_id) REFERENCES work_orders(workspace_id,id) ON DELETE SET NULL (work_order_id),
  CHECK(site_id IS NULL OR client_id IS NOT NULL),
- CHECK(status<>'declined' OR length(trim(decline_reason))>0),
+ CHECK(status<>'declined' OR (decline_reason IS NOT NULL AND length(trim(decline_reason))>0)),
  CHECK(status='pending' OR (decided_by IS NOT NULL AND decided_at IS NOT NULL))
 );
 CREATE INDEX job_suggestions_pending ON job_suggestions(workspace_id,status,created_at DESC);
@@ -33,3 +33,20 @@ CREATE POLICY suggestions_insert ON job_suggestions FOR INSERT WITH CHECK(
 );
 CREATE POLICY suggestions_update ON job_suggestions FOR UPDATE USING(is_staff(workspace_id) AND my_staff_kind(workspace_id) IS DISTINCT FROM 'office') WITH CHECK(is_staff(workspace_id) AND my_staff_kind(workspace_id) IS DISTINCT FROM 'office');
 REVOKE ALL ON job_suggestions FROM PUBLIC;
+-- Clients and technicians submit suggestions, never jobs directly.
+ALTER POLICY work_orders_insert ON work_orders WITH CHECK(is_staff(workspace_id) AND (created_by=app_user_id() OR EXISTS(SELECT 1 FROM job_suggestions s WHERE s.workspace_id=work_orders.workspace_id AND s.sender_user_id=work_orders.created_by AND s.client_id=work_orders.client_id AND s.site_id=work_orders.site_id AND s.status='pending')));
+CREATE FUNCTION notify_suggestion() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $$
+BEGIN
+ IF TG_OP='INSERT' THEN
+  INSERT INTO public.notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title)
+  SELECT user_id,NEW.workspace_id,'suggestion_received','job_suggestions',NEW.id,NEW.sender_user_id,NEW.sender_name,NEW.title
+  FROM public.members WHERE workspace_id=NEW.workspace_id AND archived_at IS NULL AND (role='admin' OR (role='staff' AND staff_kind IS DISTINCT FROM 'office')) AND user_id IS DISTINCT FROM public.app_user_id();
+ ELSIF NEW.status IS DISTINCT FROM OLD.status AND NEW.sender_user_id IS NOT NULL THEN
+  INSERT INTO public.notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title,to_status)
+  SELECT NEW.sender_user_id,NEW.workspace_id,'suggestion_decided',CASE WHEN NEW.status='approved' THEN 'work_orders' ELSE 'job_suggestions' END,coalesce(NEW.work_order_id,NEW.id),public.app_user_id(),coalesce(u.name,'Your team'),NEW.title,NEW.status
+  FROM public.users u JOIN public.members m ON m.user_id=NEW.sender_user_id AND m.workspace_id=NEW.workspace_id AND m.archived_at IS NULL WHERE u.id=public.app_user_id();
+ END IF;
+ RETURN NULL;
+END $$;
+CREATE TRIGGER suggestion_notification AFTER INSERT OR UPDATE ON job_suggestions FOR EACH ROW EXECUTE FUNCTION notify_suggestion();
+REVOKE ALL ON FUNCTION notify_suggestion() FROM PUBLIC;

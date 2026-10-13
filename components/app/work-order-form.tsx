@@ -42,7 +42,7 @@ export function WorkOrderForm({ id }: { id?: string }) {
       body.client_id=clientId;body.site_id=siteId;}
     const serialized=JSON.stringify(body);if(submission.current.body!==serialized)submission.current={body:serialized,key:crypto.randomUUID()};
     const result=await request<WorkOrder>(`${base}/work-orders${id?`/${id}`:''}`,{method:id?'PATCH':'POST',headers:id?undefined:{'Idempotency-Key':submission.current.key},body:serialized});
-    sessionStorage.removeItem(draftKey);setSaved(true);setOriginal(draft);toast(client?`Request ${orderNumber(result)} submitted.`:result.status==='scheduled'&&(!id||order.data?.status==='open')?'Job scheduled.':id?'Job saved.':'Job created.');router.replace(`/work-orders/${result.id}`);
+    sessionStorage.removeItem(draftKey);setSaved(true);setOriginal(draft);toast(client?'Request Received':result.status==='scheduled'&&(!id||order.data?.status==='open')?'Job scheduled.':id?'Job saved.':'Job created.');router.replace(client?'/work-orders':`/work-orders/${result.id}`);
   }catch(e){if(e instanceof RequestError&&e.status===409&&e.code==='stale')setConflict(true);else if(e instanceof RequestError&&e.fields){setServerErrors(Object.fromEntries(Object.entries(e.fields).map(([key,value])=>[key,value[0]])));setError('Check the highlighted fields and try again.');}else setError(client?'Your request wasn’t submitted. Try again.':'Your job wasn’t saved. Try again.');setBusy(false);}}
   if(!member||clients.loading||(id&&order.loading))return <WorkflowLoading form/>;
   if(!allowed||(order.error instanceof RequestError&&[403,404].includes(order.error.status)))return <div className="page stack"><WorkOrderBack/><EmptyState title="This page is unavailable">We couldn’t find that, or you don’t have access.</EmptyState></div>;
