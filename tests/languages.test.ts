@@ -9,3 +9,4 @@ it('has the full language list, English by default, right to left for Arabic, Ur
   expect(searchLanguages('বাংলা')[0].name).toBe('Bangla (Bengali)');
   expect(new Set(LANGUAGES.map(l => l.code)).size).toBe(LANGUAGES.length);
 });
+it('starts with English and is long enough to get the search box', () => { expect(LANGUAGES.length).toBeGreaterThan(15); expect(LANGUAGES.map(l=>l.code)).toEqual(expect.arrayContaining(['ne','bn','ps','fa-AF','fa-IR','hi','ur','zh-CN','ar-AE'])); });

@@ -11,7 +11,10 @@ export function audienceStatusReply(value:string, client=false) {
  const names=Object.keys(statusLabels).flatMap(status=>[status,statusLabels[status],clientStatusLabels[status]].map(name=>({name,status}))).sort((a,b)=>b.name.length-a.name.length);
  const escape=(name:string)=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
  const pattern=new RegExp(`\\b(?:${names.map(({name})=>escape(name)).join('|')})(?=$|\\W)`,'gi');
- return value.replace(pattern,name=>labels[names.find(entry=>entry.name.toLowerCase()===name.toLowerCase())!.status]);
+ // The friendly "Done, Kevin." opener is a word, not a job status: never turn it into Completed.
+ const opener=/^Done(?=[,.!])/.test(value);
+ const out=(opener?value.slice(4):value).replace(pattern,name=>labels[names.find(entry=>entry.name.toLowerCase()===name.toLowerCase())!.status]);
+ return opener?'Done'+out:out;
 }
 const uuid = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
 /** Remove storage identifiers and translate machine words at the final reply boundary. */
