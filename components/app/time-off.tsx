@@ -81,7 +81,7 @@ export function LeaveRequests({ base, self }: { base: string; self: string }) {
   const waiting = rows.filter(r => r.status === 'pending' && r.user_id !== self), mine = rows.filter(r => r.user_id === self);
   if (!waiting.length && !mine.length) return null;
   return <section className="card stack compact leave-requests">
-    {canDecide && waiting.length > 0 && <><h2>Time off requests</h2><ul>{waiting.map(r => <li key={r.id}><span><strong>{r.name ?? 'Team member'}</strong> · {kindLabel(r.kind)} · {span(r)}</span><div className="row"><Button size="sm" busy={busy === r.id} onClick={() => void decide(r.id, 'approved')}>Approve</Button><Button size="sm" variant="secondary" disabled={busy === r.id} onClick={() => void decide(r.id, 'declined')}>Decline</Button></div></li>)}</ul></>}
+    {canDecide && waiting.length > 0 && <><h2>Time off requests</h2><ul>{waiting.map(r => <li key={r.id}><span><strong>{r.name ?? 'Team member'}</strong> · {kindLabel(r.kind)} · {span(r)}</span><div className="row"><Button variant="secondary" size="sm" busy={busy === r.id} onClick={() => void decide(r.id, 'approved')}>Approve</Button><Button size="sm" variant="secondary" disabled={busy === r.id} onClick={() => void decide(r.id, 'declined')}>Decline</Button></div></li>)}</ul></>}
     {mine.length > 0 && <><h2>My time off</h2><ul>{mine.map(r => <li key={r.id}><span>{kindLabel(r.kind)} · {span(r)}</span><strong className="small">{statusWord[r.status] ?? r.status}</strong></li>)}</ul></>}
   </section>;
 }

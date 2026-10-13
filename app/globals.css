@@ -861,3 +861,45 @@ body:has(.app-shell) :is(.work-list-item strong,.setup-list strong,.activity-lis
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 
 body:has(.app-shell) .overdue{color:var(--late)}
+
+/* One real assistant, docked on desktop and full screen below 1024px. */
+.dashboard-assistant{position:fixed;inset-block:0;inset-inline-end:0;width:380px;z-index:var(--z-header);display:flex;flex-direction:column;background:var(--surface);border-inline-start:1px solid var(--border)}
+.assistant-panel-header{display:flex;align-items:center;min-height:56px;padding:var(--s4);border-bottom:1px solid var(--border)}
+.assistant-panel-header h2{font-size:18px;line-height:24px}
+.assistant-panel-body{flex:1;min-height:0;overflow:auto;padding:var(--s4)}
+.assistant-panel-footer{padding:var(--s4);border-top:1px solid var(--border)}
+body:has(.app-shell) .assistant-chat{display:flex;flex-direction:column;gap:var(--s4);font-size:16px;line-height:24px}
+body:has(.app-shell) .assistant-message{padding:var(--s4);border:1px solid var(--border);border-radius:var(--radius-container);font-size:16px;overflow-wrap:anywhere}
+body:has(.app-shell) .assistant-message.user{background:var(--surface-subtle);margin-inline-start:var(--s8)}
+.assistant-message .row,.assistant-message .agent-chips{margin-top:var(--s4);gap:var(--s2)}
+body:has(.app-shell) .assistant-composer{display:flex;flex-direction:column;position:static;width:100%;gap:var(--s2);padding:0;border:0;background:transparent}
+.assistant-input-row{display:flex;align-items:flex-end;gap:var(--s2);width:100%;min-width:0}
+body:has(.app-shell) .assistant-composer textarea{position:static;flex:1;width:0;min-width:0;min-height:44px;max-height:156px;padding:var(--s2);font-size:16px;resize:none}
+body:has(.app-shell) .assistant-control{position:static;inset:auto;transform:none;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+body:has(.app-shell) .assistant-control:hover:not(:disabled){background:var(--hover)}
+body:has(.app-shell) .assistant-control:active:not(:disabled){background:var(--pressed);transform:translateY(1px)}
+body:has(.app-shell) .assistant-control[aria-pressed=true]{border-color:var(--accent);background:var(--surface-subtle)}
+.assistant-composer .tooltip-wrap{flex:none}.assistant-composer .composer-hint{position:static;display:block;font-size:14px;color:var(--text-muted)}
+.presentation-assistant{justify-content:flex-end;padding:var(--s4)}
+.presentation-assistant .dialog{height:calc(100dvh - 32px);width:380px;max-width:100%;display:flex;flex-direction:column;max-height:none}
+.presentation-assistant .dialog-body{flex:1;min-height:0;overflow:auto}
+.presentation-assistant .dialog-footer{display:block}
+@media(min-width:1024px){.with-dashboard-assistant .app-main{margin-inline-end:380px}.with-dashboard-assistant .assistant-launcher,.phone-assistant{display:none}}
+@media(max-width:1023px){
+ .dashboard-assistant{display:none}.phone-assistant{display:inline-flex}.assistant-launcher{display:none}
+ .presentation-assistant{inset:0;padding:0;background:var(--surface)}
+ body:has(.app-shell) .presentation-assistant .dialog{width:100%;height:100dvh;max-height:100dvh;max-width:none;border:0;border-radius:0;margin:0;transform:none;animation:none}
+ .presentation-assistant .dialog-header{padding:calc(var(--s4) + env(safe-area-inset-top)) var(--s4) var(--s4);touch-action:auto}
+ .presentation-assistant .grab-handle{display:none}
+ .presentation-assistant .dialog-body{padding:var(--s4)}
+ .presentation-assistant .dialog-footer{padding:var(--s4) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom));border-top:1px solid var(--border)}
+ .presentation-assistant.closing .dialog{animation:none}
+}
+@media(min-width:721px) and (max-width:1279px){.app-shell,.app-shell.collapsed{--sidebar-width:72px}.sidebar .nav-label,.sidebar .workspace-context,.sidebar .brand-label,.sidebar .account-copy{display:none}.sidebar .nav-link{justify-content:center;padding:var(--s2)}.sidebar-brand .icon-button{display:none}.sidebar .dropdown-trigger{width:44px!important;min-width:44px!important;padding:0}.app-header{padding-inline:var(--s4)}.app-main .page{padding:var(--s4)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+body:has(.app-shell) .assistant-message.assistant{align-self:stretch;max-width:none;width:100%;background:var(--surface)}
+body:has(.app-shell) .assistant-control.assistant-send{background:var(--primary);color:var(--primary-fg);border-color:var(--primary)}
+body:has(.app-shell) .assistant-control.assistant-send:hover:not(:disabled){background:color-mix(in srgb,var(--primary) 88%,black)}
+body:has(.app-shell) .assistant-control.assistant-send:active:not(:disabled){background:color-mix(in srgb,var(--primary) 80%,black)}
+@media(min-width:1024px){body:has(.app-shell.with-dashboard-assistant) .app-main .primary{background:var(--surface);color:var(--text);border:1px solid var(--border)}body:has(.app-shell.with-dashboard-assistant) .app-main .primary:hover:not(:disabled){background:var(--hover)}}

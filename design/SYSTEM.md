@@ -23,3 +23,5 @@
 
 ## Approved Stitch corrections
 No metric tiles or dashboard count strips. Main navigation has at most five items including More; all routes remain in the overflow. Hover feedback takes 140ms, focus uses an outline, pressed controls move 1px, and reduced motion disables transitions. Red is reserved for Late.
+
+Dashboard assistant: one 380px panel fixed to the logical end at 1024px and above. Below 1024px Assistant opens the existing modal with focus containment, full viewport height, and a close control. The shared composer uses 44px microphone and send controls. Send is the filled action in the desktop split view and chat; the dashboard action is filled on phone when chat is closed. Confirmation replies contain Yes and Change.

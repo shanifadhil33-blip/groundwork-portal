@@ -59,7 +59,7 @@ function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string; onClo
   </Dialog>;
 }
 
-function JobCard({ j, tz, base, onDone, onFinished, when }: { j: Job; tz: string; base: string; onDone: () => void; onFinished: (o: Outcome, r: JobRecord) => void; when: string }) {
+function JobCard({ j, tz, base, onDone, onFinished, when, primary=false }: { primary?: boolean; j: Job; tz: string; base: string; onDone: () => void; onFinished: (o: Outcome, r: JobRecord) => void; when: string }) {
   const step = nextStep(j.status), [busy, setBusy] = useState(false), [confirm, setConfirm] = useState(false), toast = useToast();
   async function go() {
     if (!step) return; setBusy(true);
@@ -72,7 +72,7 @@ function JobCard({ j, tz, base, onDone, onFinished, when }: { j: Job; tz: string
     <Link href={`/work-orders/${j.id}`} className="day-title"><strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}{j.trade ? ` · ${tradeLabels[j.trade as Trade] ?? j.trade}` : ''}</span></Link>
     {j.access_notes && <p className="small day-note">{j.access_notes}</p>}
     <div className="day-actions">
-      {step ? <Button busy={busy} onClick={() => step.to === 'done' ? setConfirm(true) : void go()}>{step.to === 'done' ? <CheckCircle2 size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}{step.label}</Button> : <span className="small muted">Waiting for a time</span>}
+      {step ? <Button variant={primary?'primary':'secondary'} busy={busy} onClick={() => step.to === 'done' ? setConfirm(true) : void go()}>{step.to === 'done' ? <CheckCircle2 size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}{step.label}</Button> : <span className="small muted">Waiting for a time</span>}
       <a className="button secondary" href={mapUrl(j)} target="_blank" rel="noreferrer"><MapPin size={18} aria-hidden="true" />Map</a>
       {j.contact_phone && <a className="button secondary" href={`tel:${j.contact_phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${j.contact_name ?? 'the site'}`}><Phone size={18} aria-hidden="true" />Call</a>}
     </div>
@@ -96,16 +96,17 @@ export function MyDay() {
   const [done, setDone] = useState<{ outcome: Outcome; record: JobRecord } | null>(null);
   if (member?.role === 'client') return <NoAccess />;
   const data = d.data, tz = data?.timezone ?? 'Asia/Dubai', reload = () => { void d.reload(); void rec.reload(); };
+  const primaryJob = [...(data?.today??[]),...(data?.late??[])].find(j=>j.status==='in_progress')??[...(data?.today??[]),...(data?.late??[])].find(j=>nextStep(j.status));
   const finished = (outcome: Outcome, record: JobRecord) => setDone({ outcome, record });
   return <div className="page stack my-day">
-    <PageHeader><div><h1>Today</h1><p>{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }).format(new Date())}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div></PageHeader>
+    <PageHeader><div><h1>Today</h1><p>{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }).format(new Date())}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div>{data&&!primaryJob&&<Link className="button primary" href="/work-orders">View jobs</Link>}</PageHeader>
     {member?.role === 'technician' && <AgentCard />}
     {member && <div className="row"><RequestTimeOff base={`/api/workspaces/${member.workspace_id}`} /></div>}
     {member && <LeaveRequests base={`/api/workspaces/${member.workspace_id}`} self={me.user.id} />}
     {done && <DoneMoment outcome={done.outcome} record={done.record} onClose={() => setDone(null)} />}
     {d.loading ? <Skeleton className="skeleton-card" /> : d.error || !data ? <ErrorState retry={d.reload} /> : <>
-      {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} j={j} tz={tz} base={base} onDone={reload} onFinished={finished} when={`Due ${day(j.due_on, tz)}`} />)}</ul></section>}
-      <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} j={j} tz={tz} base={base} onDone={reload} onFinished={finished} when={time(j.scheduled_for, tz)} />)}</ul>
+      {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={`Due ${day(j.due_on, tz)}`} />)}</ul></section>}
+      <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={time(j.scheduled_for, tz)} />)}</ul>
         : <EmptyState title={data.done ? 'All done for today' : 'No jobs today'}>{data.next[0] ? `Next: ${data.next[0].title}, ${day(data.next[0].scheduled_for, tz)}.` : 'When the office gives you a job, it shows here.'}</EmptyState>}</section>
       {data.next.length > 0 && <section className="stack compact"><h2>Next days</h2><ul className="day-list">{data.next.map(j => <li key={j.id} className="day-next"><Link href={`/work-orders/${j.id}`}><strong>{day(j.scheduled_for, tz)}</strong> {time(j.scheduled_for, tz)} · {j.title}</Link></li>)}</ul></section>}
       <p className="small"><Link href="/work-orders">All my jobs</Link></p>
