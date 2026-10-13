@@ -1,0 +1,10 @@
+import { beforeEach, expect, it, vi } from 'vitest';
+const db=vi.hoisted(()=>({query:vi.fn(),user:vi.fn()}));
+vi.mock('../lib/db',()=>({withUser:db.user}));
+vi.mock('../lib/services/workspaces',async()=>{const {z}=await import('zod');return {timezone:z.string(),getWorkspace:vi.fn(),patchWorkspace:vi.fn()};});
+import { getPreferences, patchPreferences } from '../lib/services/settings';
+beforeEach(()=>{db.query.mockReset();db.user.mockImplementation(async(user,fn)=>fn(db));db.query.mockResolvedValue({rows:[{agent_name:null,voice_enabled:true}]});});
+it('reads the default personal agent choices for the signed in user',async()=>{expect(await getPreferences('Imran')).toEqual({agent_name:null,voice_enabled:true});expect(db.user).toHaveBeenCalledWith('Imran',expect.any(Function));expect(db.query).toHaveBeenLastCalledWith('SELECT * FROM user_preferences WHERE user_id=$1',['Imran']);});
+it('trims a personal name and accepts forty letters',async()=>{await patchPreferences('Imran',{agent_name:'  Omar  ',voice_enabled:false});expect(db.query.mock.calls.at(-1)?.[1]).toEqual(['Imran','Omar',false]);await patchPreferences('Imran',{agent_name:'x'.repeat(40)});});
+it('stores empty or null names as the default',async()=>{for(const agent_name of ['  ','',null]){await patchPreferences('Imran',{agent_name});expect(db.query.mock.calls.at(-1)?.[1]).toEqual(['Imran',null]);}});
+it('rejects long names and another user id before touching storage',async()=>{for(const body of [{agent_name:'x'.repeat(41)},{agent_name:'Omar',user_id:'Ahmed'},{voice_enabled:'false'}])await expect(patchPreferences('Imran',body)).rejects.toThrow();expect(db.query).not.toHaveBeenCalled();});

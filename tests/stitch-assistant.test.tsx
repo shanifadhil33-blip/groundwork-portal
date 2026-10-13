@@ -8,6 +8,7 @@ import { designCopyFallbacks } from '../lib/ui/design-copy';
 import { LANGUAGES } from '../lib/languages';
 const api=vi.hoisted(()=>({post:vi.fn()}));
 vi.mock('../lib/ui/api',async original=>({...await original<typeof import('../lib/ui/api')>(),post:api.post}));
+vi.mock('../components/app/resource',()=>({useResource:()=>({data:{agent_name:null,voice_enabled:true,language:'en-IN'}})}));
 vi.mock('../components/ui',async original=>({...await original<typeof import('../components/ui')>(),BottomSheet:({open,children,footer,title}:any)=>open?<section role="dialog" aria-label={title}>{children}{footer}</section>:null}));
 let host:HTMLDivElement,root:Root;
 beforeEach(()=>{
@@ -35,7 +36,7 @@ it('Change restores the request for editing without applying the pending action'
  await mount('client',false);await click('Show jobs waiting on parts');await click('Change');
  expect(api.post).toHaveBeenCalledTimes(1);expect(host.querySelector('textarea')?.value).toBe('Show jobs waiting on parts');expect(host.querySelector('.pending-reply')).toBeNull();expect(host.textContent).toContain('No change was made.');
 });
-it('keeps server choice answers inside the assistant reply',async()=>{
+it('keeps server choice answers inside the agent reply',async()=>{
  api.post.mockResolvedValue({available:true,reply:'Save this report?',choices:['Yes','Change']});await mount('technician');await click('Show jobs waiting on parts');
  expect(host.querySelector('article.assistant')?.textContent).toContain('Save this report?YesChange');await click('Change');expect(api.post.mock.calls[1][1].messages.at(-1)).toEqual({role:'user',content:'Change'});
 });
@@ -43,7 +44,7 @@ it('handles an unavailable microphone without sending or losing the draft',async
  await mount('admin');await click('Use microphone');expect(host.textContent).toContain('Voice input is unavailable in this browser.');expect(api.post).not.toHaveBeenCalled();
 });
 it('registers all new assistant source keys in every supported locale',()=>{
- for(const locale of LANGUAGES)for(const key of ['Assistant','Yes','Change','Use microphone','Stop recording','Ask Assistant or speak…'])expect(designCopyFallbacks[locale.code][key]).toBeTruthy();
+ for(const locale of LANGUAGES)for(const key of ['Agent','Yes','Change','Use microphone','Stop recording','Ask Agent or speak'])expect(designCopyFallbacks[locale.code][key]).toBeTruthy();
 });
 it('dictation fills a draft without submitting and stops when chat closes',async()=>{
  const speech={lang:'',interimResults:false,onresult:null as null|((event:any)=>void),onerror:null,onend:null as null|(()=>void),start:vi.fn(),stop:vi.fn(),abort:vi.fn()};

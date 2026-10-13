@@ -107,3 +107,5 @@ it('forbids shadows in shared CSS, landing CSS and inline styles', () => {
  }
  expect(violations('app/globals.css', '.dialog { box-shadow:none; }')).toEqual([]);
 });
+
+it('allows the plain Agent label',()=>{expect(violations('components/app/assistant.tsx','<h2>Agent</h2>')).toEqual([]);});

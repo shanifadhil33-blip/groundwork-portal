@@ -3,7 +3,7 @@ import { withUser } from '../db';
 import { invalid, missing } from '../http';
 import { LANGUAGES } from '../languages';
 import { getWorkspace, patchWorkspace, timezone } from './workspaces';
-const preferences=z.object({theme:z.enum(['light','dark','system']).optional(),email_notifications:z.boolean().optional(),timezone:timezone.nullable().optional(),language:z.enum(LANGUAGES.map(l=>l.code) as [string,...string[]]).nullable().optional()}).strict();
+const preferences=z.object({theme:z.enum(['light','dark','system']).optional(),email_notifications:z.boolean().optional(),timezone:timezone.nullable().optional(),agent_name:z.string().trim().max(40).nullable().transform(v=>v||null).optional(),voice_enabled:z.boolean().optional(),language:z.enum(LANGUAGES.map(l=>l.code) as [string,...string[]]).nullable().optional()}).strict();
 export async function getPreferences(user:string) {
  return withUser(user,async db=>{
   await db.query('INSERT INTO user_preferences(user_id) VALUES($1) ON CONFLICT DO NOTHING',[user]);

@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 import { Button, IconButton } from './button';
 import { shouldDismissSheet } from '../../lib/ui/helpers';
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),textarea:not(:disabled),[tabindex="0"]';
-export function Dialog({ open, onClose, title, children, busy = false, sheet = false, presentation, footer, headerActions, dirty = false }: { open: boolean; onClose: () => void; title: string; children: ReactNode; busy?: boolean; sheet?: boolean; presentation?: 'drawer' | 'popover' | 'assistant'; footer?: ReactNode; headerActions?: ReactNode; dirty?: boolean }) {
+export function Dialog({ open, onClose, title, children, busy = false, sheet = false, presentation, footer, headerActions, dirty = false }: { open: boolean; onClose: () => void; title: ReactNode; children: ReactNode; busy?: boolean; sheet?: boolean; presentation?: 'drawer' | 'popover' | 'assistant'; footer?: ReactNode; headerActions?: ReactNode; dirty?: boolean }) {
   const [mounted, setMounted] = useState(false), [offset, setOffset] = useState(0), [dragging, setDragging] = useState(false), [closing, setClosing] = useState(false), [discard, setDiscard] = useState(false);
   const panel = useRef<HTMLDivElement>(null), drag = useRef({ start: 0, time: 0 }), closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const titleId = useId(), closeRef = useRef(onClose), busyRef = useRef(busy), dirtyRef=useRef(dirty);dirtyRef.current=dirty; closeRef.current = onClose; busyRef.current = busy;
