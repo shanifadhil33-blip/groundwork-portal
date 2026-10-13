@@ -20,7 +20,7 @@ Status describes the code connection. Tests are listed in the local progress log
 
 | Who does it | Who it reaches | Where it shows | What happens next | Status |
 | --- | --- | --- | --- | --- |
-| Household | Supervisor | Suggested review, job detail, schedule and assignment form, Agent get_work_order | Assign a visit that suits the household | missing |
+| Household | Supervisor | Suggested review, job detail, schedule and assignment form, Agent get_work_order | Assign a visit that suits the household | fixed now |
 
 ## Leave request and decision
 
@@ -86,25 +86,25 @@ Status describes the code connection. Tests are listed in the local progress log
 
 | Who does it | Who it reaches | Where it shows | What happens next | Status |
 | --- | --- | --- | --- | --- |
-| Admin or supervisor | Assigned technician | Today, My jobs, schedule, push, bell, Agent | Technician starts work or asks the office for help | missing |
+| Admin or supervisor | Assigned technician | Today, My jobs, schedule, push, bell, Agent | Technician starts work or asks the office for help | fixed now |
 
 ## Job status changes
 
 | Who does it | Who it reaches | Where it shows | What happens next | Status |
 | --- | --- | --- | --- | --- |
-| Technician or office | Client manager, office staff and owning household | Request list, client Home, job detail, bell, Agent | Client follows the booked visit and final result | missing |
+| Technician or office | Client manager, office staff and owning household | Request list, client Home, job detail, bell, Agent | Client follows the booked visit and final result | fixed now |
 
 ## Comment visible to client
 
 | Who does it | Who it reaches | Where it shows | What happens next | Status |
 | --- | --- | --- | --- | --- |
-| Office or technician | Client readers of this job | Job comments, Messages tab, bell, Agent | Client replies on the same job | missing |
+| Office or technician | Client readers of this job | Job comments, Messages tab, bell, Agent | Client replies on the same job | fixed now |
 
 ## Client comment
 
 | Who does it | Who it reaches | Where it shows | What happens next | Status |
 | --- | --- | --- | --- | --- |
-| Client or household | Office and assigned technician | Job comments, Messages tab, bell, Agent | Team answers the request | missing |
+| Client or household | Office and assigned technician | Job comments, Messages tab, bell, Agent | Team answers the request | fixed now |
 
 ## Import review
 

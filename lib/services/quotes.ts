@@ -23,7 +23,7 @@ export async function sendQuote(user: string, ws: string, id: string, body: unkn
     const r = (await db.query("UPDATE work_orders SET quote_amount=$3, quote_note=$4, quote_status='pending', quote_decided_by=NULL, quote_decided_at=NULL WHERE workspace_id=$1 AND id=$2 RETURNING id, quote_amount, quote_note, quote_status", [ws, id, data.amount, data.note || null])).rows[0];
     // Every client person who can see this job hears about it; a household only for his own request.
     await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title)
-      SELECT m.user_id,$1,'quote_sent','work_orders',$2,$3,$4,$5 FROM members m WHERE m.workspace_id=$1 AND m.role='client' AND m.client_id=$6 AND m.archived_at IS NULL AND (coalesce(m.client_kind,'manager')<>'household' OR m.user_id=$7)`,
+      SELECT m.user_id,$1,'quote_sent','work_orders',$2,$3,$4,$5 FROM members m WHERE m.workspace_id=$1 AND m.role='client' AND m.client_id=$6 AND m.archived_at IS NULL AND coalesce(m.client_kind,'manager')='manager' AND $7::uuid IS NOT NULL`,
       [ws, id, user, name, o.title, o.client_id, o.created_by]);
     return r;
   }, user);

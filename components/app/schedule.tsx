@@ -11,7 +11,7 @@ import { useApp } from './context';
 import { useResource } from './resource';
 import { NoAccess } from './no-access';
 
-type Job = { id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; assignee_id: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; area: string | null; day?: string; hour?: number };
+type Job = { preferred_window?:string|null; id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; assignee_id: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; area: string | null; day?: string; hour?: number };
 type Person = { user_id: string; role: string; name: string | null };
 type Board = { timezone: string; from: string; days: number; people: Person[]; jobs: Job[]; unscheduled: Job[]; away?: { user_id: string; kind: string; starts_on: string; ends_on: string }[] };
 
@@ -42,7 +42,7 @@ function MoveSheet({ j, base, tz, people, onClose, onSaved }: { j: Job; base: st
   }
   return <Dialog open onClose={onClose} busy={busy} title={done ? 'Done job' : 'Move job'} footer={done ? <Link className="button secondary" href={`/work-orders/${j.id}`}>Open job</Link> : <><Link className="button secondary" href={`/work-orders/${j.id}`}>Open job</Link><Button busy={busy} onClick={() => void save()}>Save</Button></>}>
     <div className="stack"><strong data-no-translate>{j.title}</strong><span className="small muted">{j.site_name}</span>
-      {!done && <><div className="form-field"><span className="field-label">Day</span><DatePicker label="Day" value={day} onChange={v => v && setDay(v)} disabled={busy} /></div>
+      {j.preferred_window&&<p>Best time for the visit: <span data-no-translate>{j.preferred_window}</span></p>}{!done && <><div className="form-field"><span className="field-label">Day</span><DatePicker label="Day" value={day} onChange={v => v && setDay(v)} disabled={busy} /></div>
         <div className="form-field"><span className="field-label">Time</span><Dropdown label="Time" value={hour} disabled={busy} options={HOURS.map(h => ({ value: String(h), label: hourLabel(h) }))} onChange={setHour} /></div>
         {!officeStaff && <div className="form-field"><span className="field-label">Person</span><Dropdown label="Person" value={who} disabled={busy} options={[{ value: '', label: 'Nobody yet' }, ...people.map(p => ({ value: p.user_id, label: p.name ?? 'Team member' }))]} onChange={setWho} /></div>}</>}
       {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog>;

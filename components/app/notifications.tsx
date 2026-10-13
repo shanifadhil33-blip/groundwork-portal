@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useApp } from './context';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { openNotificationTarget } from '../../lib/ui/notifications';
@@ -7,6 +8,7 @@ import { request, post } from '../../lib/ui/api';
 import { Button, BottomSheet, EmptyState, ErrorState, RelativeTime, Skeleton, useToast } from '../ui';
 type Notification = { id: string; message: string; created_at: string; read_at: string | null; link_target: {entity:string;id:string}|null };
 export function Notifications({ open, onClose, ws, onChange }: { open: boolean; onClose: () => void; ws: string; onChange: (delta?:number) => void }) {
+  const {member}=useApp();
   const [data, setData] = useState<Notification[] | null>(null), [error, setError] = useState(false), [busy, setBusy] = useState<string | null>(null), [actionError, setActionError] = useState<string | null>(null), [total, setTotal] = useState(0), [page, setPage] = useState(1), [unreadCount,setUnreadCount]=useState(0);
   const router=useRouter(), toast = useToast(), lock=useRef(false), generation=useRef(0), lastLoaded=useRef(0), pending=useRef(false),itemsRef=useRef<Notification[]|null>(null);itemsRef.current=data;
   const load = useCallback(async () => { const run=++generation.current; pending.current=true; setError(false); try { const result = await request<{ data: Notification[]; total: number; unread_count:number }>(`/api/workspaces/${ws}/notifications?page=${page}`); if(run===generation.current){itemsRef.current=result.data;setData(result.data); setTotal(result.total); setUnreadCount(result.unread_count);lastLoaded.current=Date.now();} } catch { if(run===generation.current)setError(true); } finally {if(run===generation.current)pending.current=false;} }, [ws, page]);
@@ -20,7 +22,7 @@ export function Notifications({ open, onClose, ws, onChange }: { open: boolean; 
   async function openNotification(item:Notification) {
    if(lock.current||!item.link_target)return;
    lock.current=true;setBusy(item.id);setActionError(null);
-   try {await openNotificationTarget(item,notificationId=>post(`/api/workspaces/${ws}/notifications/${notificationId}/read`),orderId=>{if(!item.read_at)applyRead(item.id,true);else onChange();onClose();router.push(`/work-orders/${orderId}`);});}
+   try {await openNotificationTarget(item,notificationId=>post(`/api/workspaces/${ws}/notifications/${notificationId}/read`),orderId=>{if(!item.read_at)applyRead(item.id,true);else onChange();onClose();router.push(item.link_target?.entity==='job_suggestions'?(member?.role==='client'?'/work-orders':'/suggestions'):item.link_target?.entity==='time_off'?(member?.role==='technician'?'/today':'/dashboard'):item.link_target?.entity==='members'?'/settings':`/work-orders/${orderId}`);});}
    catch {setActionError('We couldn’t open this notification. Try again.');}
    finally {lock.current=false;setBusy(null);}
   }

@@ -18,3 +18,8 @@ it('Agent suggestion writes have clear confirmation and result text',async()=>{
  expect(actionResult('suggest_job',{})).toContain('for review');
  expect(allowedTool('technician','suggest_job')).toBe(true);expect(allowedTool('technician','approve_suggestion')).toBe(false);expect(allowedTool('office','decline_suggestion')).toBe(false);
 });
+it('connection notifications explain the receiving action',()=>{
+ expect(notificationMessage({kind:'job_assigned',actor_name:'Sam',work_order_title:'Valve'})).toBe('Sam assigned Valve to you.');
+ expect(notificationMessage({kind:'comment_added',to_status:'internal',actor_name:'Sam',work_order_title:'Valve'})).toContain('internal note');
+ expect(notificationMessage({kind:'roles_changed'})).toContain('changed your roles');
+});

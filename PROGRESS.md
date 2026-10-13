@@ -565,3 +565,7 @@ The sandbox denies all sockets, so tests now also have a serial adapter using re
 ## Part E1
 Read the master feature ledger and traced existing actions through services, lists, dashboards, notifications and Agent tools. The connection table is in docs/groundwork-connections.md. The requested shared folder is outside the sandbox writable roots, so this reviewable repository copy is used here.
 Typecheck passed and the connection document was checked for the required actions. The socket enabled test runner remains unavailable; serial Postgres checks passed for suggestions.
+
+## Part E2
+Fixed missing assignment bells, client status delivery to permitted readers, comments reaching the team, and preferred visit windows in the schedule and assignment form. Role changes notify the member and job reports notify supervisors. Notification links open the relevant screen. Agent attention includes pending prices and leave requests. Prices go to client managers.
+Typecheck and Agent reply, copy and connection notification unit tests passed. The connection report now marks these links fixed now. External provider and real device checks remain outside local verification.
