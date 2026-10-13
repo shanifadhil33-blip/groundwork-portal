@@ -641,3 +641,8 @@ button.chip{cursor:pointer;min-height:44px}
  .site-row:has(.record-actions)>div{flex:1;min-width:0}
  .page-header .row:has(.icon-menu){flex-wrap:nowrap;align-items:center}
 }
+@media(max-width:720px){
+ .page-header:has(.record-actions){position:relative}
+ .page-header:has(.record-actions)>h1{padding-right:52px}
+ .page-header .record-actions{position:absolute;top:-6px;right:0}
+}
