@@ -63,7 +63,7 @@ export function Schedule() {
   const reload = () => { setOpen(null); void board.reload(); };
   const name = (p: Person | null) => p ? p.name ?? 'Team member' : 'Nobody yet';
   return <div className="page stack schedule-page">
-    <PageHeader><div><h1>Schedule</h1><p>Who does what, and when. Tap a job to move it.</p></div></PageHeader>
+    <PageHeader><div><h1>Schedule</h1></div></PageHeader>
     <div className="sched-nav"><Button variant="secondary" aria-label="Last week" onClick={() => shift(-1)}><ChevronLeft className="directional-icon" size={18} aria-hidden="true" /></Button><strong>{dayName(days[0])} to {dayName(days[6])}</strong><Button variant="secondary" aria-label="Next week" onClick={() => shift(1)}><ChevronRight className="directional-icon" size={18} aria-hidden="true" /></Button>{from !== weekStart(today) && <Button variant="secondary" onClick={() => { setFrom(weekStart(today)); setDay(today); }}>Today</Button>}</div>
     {board.loading ? <Skeleton className="skeleton-card" /> : board.error || !b ? <ErrorState retry={board.reload} /> : <>
       {/* Phone: one day, grouped by person */}

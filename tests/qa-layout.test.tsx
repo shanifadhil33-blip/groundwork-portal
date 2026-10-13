@@ -32,7 +32,7 @@ it('defines pure canvases and prevents badge stretching in flex columns',()=>{
  expect(css).toContain('.client-home .update-list{gap:0}');
  expect(css).toContain('padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))');
  expect(css).toMatch(/\.assistant-send:disabled\{opacity:1;background:var\(--surface-subtle\);color:var\(--text-muted\);border:1px/);
- const touch=css.slice(css.lastIndexOf('@media(pointer:coarse)'));
+ const touch=css; // Later coarse pointer rules may supplement these shared touch targets.
  expect(touch).toMatch(/\.inline-hint \.button[^}]*min-height:44px;min-width:44px/);
  expect(touch).toMatch(/\.public-footer a[^}]*min-width:44px;min-height:44px/);
  expect(touch).toMatch(/\.settings-page form>\.queue-check[^}]*min-width:44px;min-height:44px;padding:14px/);

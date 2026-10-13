@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
 import { readFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { expect, it, vi } from 'vitest';
+import { expect, it } from 'vitest';
 import { PageHeader, ResponsiveTable } from '../components/ui/layout';
 import { WorkOrderCard } from '../components/app/work-order-card';
 import { workOrderTitle, type WorkOrder } from '../lib/ui/work-orders';

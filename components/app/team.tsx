@@ -74,7 +74,7 @@ export function Team() {
   if (member && !office) return <NoAccess />;
   const others = (team.data ?? []).filter(p => p.user_id !== me.user.id), demo = !!workspace?.is_demo;
   return <div className="page stack team-page">
-    <PageHeader><div><h1>Team</h1><p>Who works today, and what each person has to do.</p></div>
+    <PageHeader><div><h1>Team</h1></div>
       {!demo && <AddFieldWorker base={base} admin={member?.role === 'admin'} demo={demo} onDone={() => void team.reload()} />}</PageHeader>
     {demo && <p className="small muted">In the demo you cannot add new people. Everything else works.</p>}
     {team.loading ? <Skeleton className="skeleton-card" /> : team.error ? <ErrorState retry={team.reload} /> :

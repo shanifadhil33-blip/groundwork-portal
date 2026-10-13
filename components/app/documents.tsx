@@ -67,7 +67,7 @@ export function Documents() {
   if (!office) return <div className="page"><EmptyState title="Only admins and supervisors see documents" /></div>;
   async function doRemove() { if (!remove) return; setBusy(true); try { await request(`${base}/documents/${remove.id}`, { method: 'DELETE' }); toast('Document removed.'); setRemove(null); void r.reload(); } catch (e) { toast(e instanceof RequestError ? e.message : 'That did not work. Try again.'); } finally { setBusy(false); } }
   return <div className="page stack documents-page">
-    <div className="heading-row"><div><h1>Documents</h1><p>Licences, insurance and permits, with reminders before they expire.</p></div>{list.length > 0 && <Button variant="primary" onClick={() => setEdit('new')}><Plus size={18} aria-hidden="true" />Add document</Button>}</div>
+    <div className="heading-row"><div><h1>Documents</h1></div>{list.length > 0 && <Button variant="primary" onClick={() => setEdit('new')}><Plus size={18} aria-hidden="true" />Add document</Button>}</div>
     {r.loading ? <Skeleton className="skeleton-card" /> : r.error ? <ErrorState message="We couldn’t load your documents." retry={r.reload} /> : !list.length ?
       <Card><EmptyState title="Keep your company papers in one place" action={<Button variant="primary" onClick={() => setEdit('new')}><Plus size={18} aria-hidden="true" />Add your first document</Button>}>Add your trade licence, insurance and permits. Set the expiry date and Groundwork reminds you 30 days before.</EmptyState></Card> :
       <ul className="doc-list">{list.map(d => <li key={d.id} className="doc-item card">

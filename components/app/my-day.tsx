@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { AlarmClock, CalendarCheck, CheckCircle2, MapPin, PartyPopper, Phone, Play } from 'lucide-react';
+import { CheckCircle2, MapPin, Phone, Play } from 'lucide-react';
 import { PageHeader } from '../ui/layout';
 import { Badge, Button, Dialog, EmptyState, ErrorState, Skeleton, useToast } from '../ui';
 import { request, RequestError } from '../../lib/ui/api';
@@ -84,7 +84,7 @@ const moment: Record<Outcome, string> = { fixed: 'Job done. Great work!', tempor
 
 /** The "job done" moment: a short thank you and this month's count. */
 function DoneMoment({ outcome, record, onClose }: { outcome: Outcome; record: JobRecord; onClose: () => void }) {
-  return <div className="done-moment" role="status"><PartyPopper size={28} aria-hidden="true" />
+  return <div className="done-moment" role="status">
     <div><strong>{moment[outcome]}</strong><p className="small">You finished {record.month} {record.month === 1 ? 'job' : 'jobs'} this month and {record.total} in total.</p></div>
     <Button variant="secondary" onClick={onClose}>Close</Button></div>;
 }
@@ -105,9 +105,9 @@ export function MyDay() {
     {done && <DoneMoment outcome={done.outcome} record={done.record} onClose={() => setDone(null)} />}
     {d.loading ? <Skeleton className="skeleton-card" /> : d.error || !data ? <ErrorState retry={d.reload} /> : <>
       <div className="tiles tiles-3">
-        <a href="#today" className="tile"><CalendarCheck size={22} aria-hidden="true" /><strong>{data.today.length}</strong><span>Today</span></a>
-        <a href="#late" className={`tile ${data.late.length ? 'tile-danger' : ''}`}><AlarmClock size={22} aria-hidden="true" /><strong>{data.late.length}</strong><span>Late</span></a>
-        <div className="tile"><CheckCircle2 size={22} aria-hidden="true" /><strong>{data.done}</strong><span>Done</span></div>
+        <a href="#today" className="tile"><strong>{data.today.length}</strong><span>Today</span></a>
+        <a href="#late" className={`tile ${data.late.length ? 'tile-danger' : ''}`}><strong>{data.late.length}</strong><span>Late</span></a>
+        <div className="tile"><strong>{data.done}</strong><span>Done</span></div>
       </div>
       {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} j={j} tz={tz} base={base} onDone={reload} onFinished={finished} when={`Due ${day(j.due_on, tz)}`} />)}</ul></section>}
       <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} j={j} tz={tz} base={base} onDone={reload} onFinished={finished} when={time(j.scheduled_for, tz)} />)}</ul>
