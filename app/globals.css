@@ -968,3 +968,15 @@ html:is(:lang(ar),:lang(ur),:lang(ps),:lang(fa),:lang(ne),:lang(hi),:lang(bn)) b
 .app-main .work-list-page .order-meta-line{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}.app-main .work-list-page .order-meta-line .order-priority{margin:0}
 
 @media(hover:hover) and (pointer:fine){.app-main .action-list li:hover,.app-main .day-list li:hover,.app-main .person-card:hover{background:var(--hover)}}
+
+/* Bell count sits on the corner so the bell stays visible */
+body:has(.app-shell) .notification-trigger .count-dot{top:0;inset-inline-end:0;transform:translate(35%,-25%);min-width:20px;height:20px;line-height:20px;padding:0 4px;font-size:14px;background:var(--text);color:var(--surface);border-radius:10px}
+[dir=rtl] body:has(.app-shell) .notification-trigger .count-dot,html[dir=rtl] .notification-trigger .count-dot{transform:translate(-35%,-25%)}
+
+/* Hover and feel: 140ms, pointer, pressed, focus rings, reduced motion */
+.app-main a,.app-main button,.app-shell nav a,.app-shell nav button,.clickable-row,.app-main tr,.app-main li,.menu-option,.button,.link-button{transition:background-color .14s ease-out,color .14s ease-out,border-color .14s ease-out}
+.clickable-row,[role=button],[role=menuitem],[role=option],label[for],summary{cursor:pointer}
+@media(hover:hover) and (pointer:fine){.app-shell nav a:hover,.app-shell nav button:hover,.clickable-row:hover,.app-main tbody tr:hover,.menu-option:hover,.secondary:hover:not(:disabled),.ghost:hover:not(:disabled),.icon-button:hover:not(:disabled){background-color:var(--hover)}.primary:hover:not(:disabled){background-color:color-mix(in srgb,var(--primary) 88%,var(--text))}.app-main p a:hover,.app-main td a:hover{text-decoration:underline;text-underline-offset:3px}}
+.button:active:not(:disabled),.link-button:active,.clickable-row:active,.menu-option:active,.app-shell nav a:active{background-color:var(--pressed)}.primary:active:not(:disabled){background-color:color-mix(in srgb,var(--primary) 78%,var(--text))}
+a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible,.clickable-row:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.app-main a,.app-main button,.app-shell nav a,.app-shell nav button,.clickable-row,.menu-option,.button,.link-button{transition:none}}
