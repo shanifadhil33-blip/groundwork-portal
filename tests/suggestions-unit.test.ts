@@ -10,3 +10,11 @@ it('bell explains the suggestion and decision',()=>{
  expect(notificationMessage({kind:'suggestion_received',actor_name:'Ravi',work_order_title:'Tap'})).toContain('Ravi suggested Tap');
  expect(notificationMessage({kind:'suggestion_decided',to_status:'declined'})).toContain('not accepted');
 });
+it('Agent suggestion writes have clear confirmation and result text',async()=>{
+ const {actionSummary,actionResult}=await import('../lib/ui/assistant-replies');
+ const {allowedTool}=await import('../lib/agent/role-tools');
+ expect(actionSummary('approve_suggestion',{id:'x'},null,'Tap')).toContain('Approve Tap and create a job');
+ expect(actionSummary('decline_suggestion',{reason:'Wrong site'},null,'Tap')).toContain('Reason: Wrong site');
+ expect(actionResult('suggest_job',{})).toContain('for review');
+ expect(allowedTool('technician','suggest_job')).toBe(true);expect(allowedTool('technician','approve_suggestion')).toBe(false);expect(allowedTool('office','decline_suggestion')).toBe(false);
+});

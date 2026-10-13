@@ -85,6 +85,9 @@ const niceDay=(d:string)=>new Intl.DateTimeFormat('en',{weekday:'long',day:'nume
 /** Plain words for time off, like "Day off, Thursday 15 October". */
 export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',leave:'On leave',sick:'Sick'} as Record<string,string>)[kind]??'Time off'}, ${!to||to===from?niceDay(from):`${niceDay(from)} to ${niceDay(to)}`}`;
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
+  if(tool==='suggest_job')return `Suggest ${plainAssistantReply(args.title)} for supervisor review.\n${plainAssistantReply(args.problem??'')}`;
+  if(tool==='approve_suggestion')return `Approve ${plainAssistantReply(target??'this suggestion')} and create a job.${args.overrides?'\n'+Object.entries(args.overrides).map(([k,v])=>`${readableLabel(k)}: ${plainAssistantReply(String(v))}`).join('\n'):''}`;
+  if(tool==='decline_suggestion')return `Decline ${plainAssistantReply(target??'this suggestion')}.\nReason: ${plainAssistantReply(args.reason)}`;
   const name = order ? assistantTarget(order) : plainAssistantReply(target ?? 'the selected row');
   if(tool==='send_quote')return `Send a price of ${Number(args.amount).toLocaleString('en')} to the client for ${name}${args.note?`\n${plainAssistantReply(args.note)}`:''}\nThe client approves or declines it.`;
   if(tool==='answer_quote')return `${args.decision==='approved'?'Approve':'Decline'} the price for ${name}${order&&(order as any).quote_amount!=null?`: ${Number((order as any).quote_amount).toLocaleString('en')}`:''}`;
@@ -109,6 +112,10 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   return `Reject ${name}:\n\n${plainAssistantReply(args.reason??'')}`;
 }
 export function actionResult(tool: string, args: Record<string,any>, order?: Order | null, target?: string) {
+  if(tool==='suggest_job')return 'Sent your suggested job for review.';
+  if(tool==='approve_suggestion')return 'Accepted the suggestion and created its job. The sender gets a message.';
+  if(tool==='decline_suggestion')return `The request was not accepted. The sender gets this reason: ${plainAssistantReply(args.reason)}`;
+  if(tool==='create_request'&&order&&!(order as any).order_number)return 'Request Received. Your service company will review it.';
   if(tool==='set_worker_skills')return plainAssistantReply(`Saved what ${target??'this person'} does.`);
   if(tool==='set_approval_mode')return args.approval_mode==='every'?'I will ask before every change from now on.':'I will ask before important changes and save simple notes straight away.';
   if(tool==='set_member_roles')return plainAssistantReply(`Saved the roles of ${target??'this person'}.`);

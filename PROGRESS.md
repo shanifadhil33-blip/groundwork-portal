@@ -553,3 +553,7 @@ Typecheck and WhatsApp and suggestion unit tests passed. Real WhatsApp wiring re
 ## Part D5
 Suggested now has review actions, a prefilled edit form, required decline reasons and a demo WhatsApp button. Dashboards show Suggested jobs and navigation shows the pending count. Office staff can view without decision buttons.
 Typecheck, suggestion unit tests and copy and visual rule checks passed. Database notification tests remain blocked.
+
+## Part D6
+Agent tools list, approve and decline suggestions, and let technicians suggest jobs. Writes use the existing Yes and Change card. Attention reads actual pending counts and bell items. Client request confirmation now reports Request Received rather than a created job.
+Typecheck and Agent reply, suggestion unit and copy tests passed.
