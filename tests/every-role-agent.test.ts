@@ -35,3 +35,16 @@ it('a household sees only the requests he raised; only an admin sets the client 
     expect((await listWorkOrders(ids.imran, ws, new URLSearchParams('pageSize=100&active=false'))).total).toBeGreaterThan(1);
   } finally { await setClientKind(ids.imran, ws, ids.omar, { kind: 'manager' }); }
 });
+it('a technician saves the job report through the agent only on his own job', async () => {
+  expect(toolsFor('technician')).toContain('save_job_report');
+  const mine = await withSystem(async db => (await db.query("SELECT id FROM work_orders WHERE workspace_id=$1 AND assignee_id=$2 AND status NOT IN ('done','cancelled') LIMIT 1", [ws, ids.ravi])).rows[0]);
+  const other = await withSystem(async db => (await db.query("SELECT id FROM work_orders WHERE workspace_id=$1 AND assignee_id IS DISTINCT FROM $2 AND status NOT IN ('done','cancelled') LIMIT 1", [ws, ids.ravi])).rows[0]);
+  if (other) { const r: any = await callTool({ user: ids.ravi, ws, scope: 'write', kind: 'assistant' }, 'save_job_report', { id: other.id, outcome: 'fixed' }); expect(r.isError).toBe(true); }
+  const bad: any = await callTool({ user: ids.ravi, ws, scope: 'write', kind: 'assistant' }, 'save_job_report', { id: mine.id, outcome: 'fixed', amount: 50 });
+  expect(bad.isError).toBe(true);
+  const ok: any = await callTool({ user: ids.ravi, ws, scope: 'write', kind: 'assistant' }, 'save_job_report', { id: mine.id, outcome: 'needs_part', work: 'Checked the pump' });
+  expect(ok.isError).toBeUndefined();
+  expect((await getWorkOrder(ids.ravi, ws, mine.id) as any).status).toBe('waiting_on_parts');
+  const off: any = await callTool({ user: ids.ravi, ws, scope: 'write', kind: 'assistant' }, 'set_priority', { id: mine.id, priority: 'urgent' });
+  expect(off.isError).toBe(true);
+});

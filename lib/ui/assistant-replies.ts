@@ -1,3 +1,4 @@
+import { OUTCOME_LABELS } from '../services/job-report';
 import { tradeLabels, type Trade } from '../trades';
 import { formatDate } from '../dates';
 import { readableLabel } from './polish';
@@ -66,6 +67,7 @@ type Order = {id:string;order_number:number;title:string;status:string;priority:
 function assistantTarget(order: Order) { return `WO-${order.order_number} ${plainAssistantReply(order.title)}`; }
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
   const name = order ? assistantTarget(order) : plainAssistantReply(target ?? 'the selected row');
+  if(tool==='save_job_report')return `Save the job report for ${name}\nHow it ended: ${OUTCOME_LABELS[args.outcome as keyof typeof OUTCOME_LABELS]}${args.problem?`\nProblem: ${plainAssistantReply(args.problem)}`:''}${args.work?`\nWork done: ${plainAssistantReply(args.work)}`:''}${args.outcome==='needs_part'?'\nThe job waits for the part.':args.outcome==='cant_fix'?'\nThe job stays open for your supervisor.':'\nThe job is marked done.'}`;
   if(tool==='add_comment')return `Add ${args.visibility==='internal'?'an internal note (team only)':'a comment visible to the client'} to ${name}:\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_status')return `Move ${name}: ${statusLabels[order!.status] ?? readableLabel(order!.status)} → ${statusLabels[args.status] ?? readableLabel(args.status)}`;
   if(tool==='assign_work_order')return `Assign ${name} to ${plainAssistantReply(target??'nobody')}`;
@@ -95,6 +97,7 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='set_job_payment')return `Marked ${link} as ${({to_bill:'to bill',contract:'covered by the contract',paid:'paid'} as Record<string,string>)[args.payment_status]}.`;
   if(tool==='set_job_trade')return `Set the trade for ${link} to ${args.trade?tradeLabels[args.trade as Trade]:'Any'}.`;
   if(tool==='set_priority')return `Changed priority for ${link} to ${readableLabel(args.priority)}.`;
+  if(tool==='save_job_report')return args.outcome==='needs_part'?`Saved the report on ${link}. It now waits for the part.`:args.outcome==='cant_fix'?`Saved the report on ${link}. Your supervisor will see it.`:`Saved the report on ${link}. Job done, well done.`;
   if(tool==='add_comment')return `Added ${args.visibility==='internal'?'an internal note':'a comment visible to the client'} to ${link}.\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_dates')return `Updated dates for ${link}.\n${actionSummary(tool,args,order).split('\n').slice(1).join('\n')}`;
   return `Created ${link}.`;

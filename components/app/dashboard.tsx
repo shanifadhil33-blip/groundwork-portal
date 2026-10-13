@@ -23,7 +23,7 @@ if(!show||done===steps.length)return null;return <Card className="first-run stac
 /** One agent on every dashboard, worded for each role. What it may do is decided on the server, per role. */
 const AGENT_COPY:Record<string,{hint:string;example:string;chips:string[]}>={
  office:{hint:'Ask about a job, log work or give a job to a technician. I check with you before any big change.',example:'For example: Which jobs are late today?',chips:['Which jobs are late?','Who is free tomorrow?','Create a new job']},
- technician:{hint:'Ask about your jobs, mark one started or done, or add a note. I check with you before changing a job.',example:'For example: What is my next job?',chips:['What is my next job?','Which of my jobs are late?','Add a note to my current job']},
+ technician:{hint:'Tell me about your job in your own words. I save it in the right place. I ask you first.',example:'For example: Job done, fixed the leak',chips:['What is my next job?','Job done, fixed it','I need a part']},
  client:{hint:'Report a problem, or ask how your requests are going. I check with you before sending anything.',example:'For example: The AC in the meeting room is not cooling',chips:['How are my requests going?','Report a problem','When is the technician coming?']},
 };
 export function AgentCard(){const {me,member,askAssistant}=useApp(),[text,setText]=useState(''),first=(me.user.name??'').trim().split(/\s+/)[0],office=member?.role==='admin'||member?.role==='staff',copy=AGENT_COPY[office?'office':member?.role==='technician'?'technician':'client'];
