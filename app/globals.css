@@ -784,3 +784,14 @@ body:has(.app-shell) .role-toggle{min-height:44px;padding:8px 12px;gap:4px}
 body:has(.app-shell) .choice-row,body:has(.app-shell) .key-ask{padding:8px 12px;gap:12px}
 body:has(.app-shell) .queue-detail{padding-inline-start:16px}
 @media(max-width:640px){body:has(.app-shell) .queue-detail{padding-inline-start:0}}
+/* Client home: tight lists with dividers (universal/19). */
+body:has(.app-shell) .client-home .compact-work-list,body:has(.app-shell) .client-home .update-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:8px;background:var(--surface);overflow:hidden}
+body:has(.app-shell) .client-home .compact-work-list>.work-list-item{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:8px 12px;margin:0;border:0;border-radius:0;border-bottom:1px solid var(--border);background:transparent;min-height:44px}
+body:has(.app-shell) .client-home .compact-work-list>.work-list-item:last-child,body:has(.app-shell) .client-home .update-list>li:last-child{border-bottom:0}
+body:has(.app-shell) .client-home .compact-work-list>.work-list-item>strong{flex:1 1 220px;display:flex;align-items:baseline;gap:8px;font-size:13px;font-weight:500;min-width:0}
+body:has(.app-shell) .client-home .compact-work-list .order-number{display:inline;flex:0 0 auto}
+body:has(.app-shell) .client-home .compact-work-list>.work-list-item:hover{background:var(--hover)}
+body:has(.app-shell) .client-home .update-list>li{padding:8px 12px;gap:4px;border-bottom:1px solid var(--border)}
+body:has(.app-shell) .client-home .update-list>li>.back-link{font-size:13px;min-height:0}
+body:has(.app-shell) .client-home section.stack{gap:8px}
+@media(max-width:640px),(pointer:coarse){body:has(.app-shell) .client-home .update-list>li>.back-link{min-height:44px}}
