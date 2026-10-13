@@ -15,3 +15,8 @@ it('client cannot spoof a sender or company',async()=>{
  await expect(make(ids.omar)).rejects.toMatchObject({code:'42501'});
  await expect(withUser(ids.pranav,db=>db.query("INSERT INTO job_suggestions(workspace_id,source,sender_user_id,sender_name,client_id,site_id,title) VALUES($1,'client',$2,'Omar',$3,$4,'Wrong sender')",[ids.ridgeline,ids.omar,ids.harbor,siteId(1)]))).rejects.toMatchObject({code:'42501'});
 });
+it('office staff can view but cannot decide even with direct SQL',async()=>{
+ const id=await make(ids.pranav);
+ expect((await withUser(ids.nabil,db=>db.query('SELECT id FROM job_suggestions WHERE id=$1',[id]))).rowCount).toBe(1);
+ expect((await withUser(ids.nabil,db=>db.query("UPDATE job_suggestions SET status='declined',decline_reason='Wrong site',decided_by=$2,decided_at=now() WHERE id=$1 RETURNING id",[id,ids.nabil]))).rowCount).toBe(0);
+});
