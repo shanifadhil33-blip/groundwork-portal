@@ -17,5 +17,5 @@ export function BestMatch({ base, id, version, current, busy, onAssign }: { base
   const why = [best.trade_match && data.trade ? tradeLabels[data.trade] : null, best.area_match ? data.area : null, `${best.today} today`].filter(Boolean).join(' · ');
   const name = best.name ?? 'Team member';
   return <div className="best-match"><div><strong>Best for this job: {name}</strong><p className="small">{why}</p></div>
-    {best.user_id === current ? <span className="small">Assigned</span> : <Button busy={busy} onClick={() => onAssign(best.user_id)}>Assign {name}</Button>}</div>;
+    {best.user_id === current ? <span className="small">Assigned</span> : <Button variant="secondary" busy={busy} onClick={() => onAssign(best.user_id)}>Assign {name}</Button>}</div>;
 }

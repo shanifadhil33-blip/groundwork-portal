@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import { Camera, Trash2 } from 'lucide-react';
-import { Button, Dialog, useToast } from '../ui';
+import { Button, Dialog, ErrorState, Skeleton, useToast } from '../ui';
 import { request, RequestError } from '../../lib/ui/api';
 import { useResource } from './resource';
 
@@ -46,7 +46,8 @@ export function JobPhotos({ base, id, role, status }: { base: string; id: string
   const photos = useResource<Photo[]>(`${base}/work-orders/${id}/photos`), list = Array.isArray(photos.data) ? photos.data : [];
   const office = role === 'admin' || role === 'staff', canAdd = role !== 'client' && status !== 'cancelled' && (office || status !== 'done');
   const canRemove = (p: Photo) => office || (role === 'technician' && p.mine && status !== 'done');
-  if (photos.loading || photos.error) return null;
+  if (photos.loading) return <section className="stack compact job-photos"><h2>Photos</h2><Skeleton className="skeleton-detail"/></section>;
+  if (photos.error) return <section className="stack compact job-photos"><h2>Photos</h2><ErrorState message="We couldn’t load job photos." retry={photos.reload}/></section>;
   if (role === 'client' && !list.length) return null;
   const before = list.filter(p => p.kind === 'before'), after = list.filter(p => p.kind === 'after'), reload = () => void photos.reload();
   return <section className="stack compact job-photos"><h2>Photos</h2>

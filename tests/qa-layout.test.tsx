@@ -6,7 +6,7 @@ import { AppContext, type Membership } from '../components/app/context';
 import { NoAccess } from '../components/app/no-access';
 import { ClientHome } from '../components/app/client-home';
 import { Dashboard } from '../components/app/dashboard';
-vi.mock('../components/app/resource',()=>({useResource:(url:string|null)=>({loading:false,error:null,reload:()=>{},data:url?.includes('/work-orders')?{total:1,data:[{id:'order',order_number:1,title:'Repair entry door',status:'open',updated_at:'2026-10-10T12:00:00Z',due_on:null}]}:url?.includes('/dashboard')?{by_status:{open:1},overdue:13,waiting_on_parts:3,pending_queue_rows:2}:url?.includes('/supplier/sync-runs')?[]: {data:[]}})}));
+vi.mock('../components/app/resource',()=>({useResource:(url:string|null)=>({loading:false,error:null,reload:()=>{},data:url?.includes('/work-orders')?{total:1,data:[{id:'order',order_number:1,title:'Repair entry door',status:url.includes('status=done')?'done':'open',updated_at:'2026-10-10T12:00:00Z',due_on:null}]}:url?.includes('/dashboard')?{by_status:{open:1},overdue:13,waiting_on_parts:3,pending_queue_rows:2}:url?.includes('/supplier/sync-runs')?[]: {data:[]}})}));
 const member:Membership={workspace_id:'workspace',workspace_name:'Ridgeline',role:'client',client_id:'client',client_name:'Harbor & Pine'};
 function render(element:React.ReactNode,role:Membership['role']='client') {return renderToStaticMarkup(<AppContext.Provider value={{member:{...member,role},workspace:{id:'workspace',name:'Ridgeline',timezone:'Asia/Dubai',is_demo:true,country:'AE',region:null,currency:'AED'},me:{user:{id:'user',name:'Pranav',email:'pranav@example.com',image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}>{element}</AppContext.Provider>);}
 it('offers sign in without a dashboard loop when signed out',()=>{
@@ -18,7 +18,7 @@ it('groups recent update badges and time below the request title',()=>{
  const html=render(<ClientHome/>);
  expect(html).toContain('page stack client-home');
  expect(html).toMatch(/request-update-meta"><span class="badge[^>]*>Request Received<\/span><span class="small muted">Updated /);
- expect(html).toContain('<h2>Open requests</h2>');expect(html).toContain('<h2>Needs action</h2>');expect(html).toContain('action-list client-requests');expect(html).toContain('Repair entry door');
+ expect(html).toContain('<h2>Open requests</h2>');expect(html).toContain('<h2>Needs action</h2>');expect(html).toContain('action-list client-requests');expect(html).toContain('Repair entry door');expect(html).toContain('Recent completed jobs');expect(html).toContain('href="/work-orders?status=done"');expect(html).toContain('<summary>Recent updates</summary>');
 });
 it('shows actionable records instead of dashboard count tiles',()=>{
  const html=render(<Dashboard/>,'admin');

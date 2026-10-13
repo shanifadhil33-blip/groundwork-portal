@@ -903,3 +903,68 @@ body:has(.app-shell) .assistant-control.assistant-send{background:var(--primary)
 body:has(.app-shell) .assistant-control.assistant-send:hover:not(:disabled){background:color-mix(in srgb,var(--primary) 88%,black)}
 body:has(.app-shell) .assistant-control.assistant-send:active:not(:disabled){background:color-mix(in srgb,var(--primary) 80%,black)}
 @media(min-width:1024px){body:has(.app-shell.with-dashboard-assistant) .app-main .primary{background:var(--surface);color:var(--text);border:1px solid var(--border)}body:has(.app-shell.with-dashboard-assistant) .app-main .primary:hover:not(:disabled){background:var(--hover)}}
+
+/* Simplified operational records. All existing controls remain available. */
+.app-main .work-list-page .list-toolbar{padding:var(--s4);border:1px solid var(--border);border-radius:var(--radius-container);background:var(--surface)}
+.app-main .work-list-page .search-control{max-width:560px;flex-grow:1}
+.app-main .work-list-page .toolbar-controls{justify-content:space-between}
+.app-main .work-list-page .order-priority{display:block;margin-top:var(--s2)}
+.app-main .work-list-page .table-wrap td{vertical-align:middle}
+.app-main .work-list-page .work-status{gap:var(--s2);flex-wrap:wrap}
+.work-row-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+.app-main .page.work-detail-page{max-width:880px}
+.app-main .work-detail-page .page-header{padding:var(--s6);border:1px solid var(--border);border-radius:var(--radius-container);background:var(--surface);flex-wrap:wrap}
+.app-main .work-detail-page .detail-title{align-items:flex-start}
+.app-main .work-detail-page .detail-title h1{flex-basis:100%;order:-1}
+.app-main .work-detail-page .detail-actions{width:100%;justify-content:flex-start;gap:var(--s2)}
+.app-main .work-detail-page .status-control{flex:1;min-width:0}
+.app-main .work-detail-page .status-control .dropdown-trigger{max-width:100%}
+body:has(.app-shell) .app-main .work-detail-columns{border:0;background:transparent;overflow:visible;gap:var(--s6)}
+body:has(.app-shell) .app-main .work-detail-columns .card{border:1px solid var(--border);border-radius:var(--radius-container);padding:var(--s6)}
+.app-main .work-detail-page .card>h2{padding-bottom:var(--s4);border-bottom:1px solid var(--border)}
+.app-main .work-detail-page .properties-panel .metadata{grid-template-columns:144px minmax(0,1fr);gap:0 var(--s4)}
+.app-main .work-detail-page .job-report-view .metadata{display:grid;grid-template-columns:144px minmax(0,1fr)}
+.app-main .work-detail-page .description-panel{order:0}.app-main .work-detail-page .job-report-view{order:1}.app-main .work-detail-page .notes-panel{order:2}.app-main .work-detail-page .photos-panel{order:3}.app-main .work-detail-page .visits-panel{order:4}.app-main .work-detail-page .costs-panel{order:5}.app-main .work-detail-page .assignment-panel{order:6}
+.job-footer-actions{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);border-top:1px solid var(--border);padding-top:var(--s6)}
+.app-main .client-home .client-requests{border-radius:var(--radius-container);overflow:hidden}
+.app-main .client-home .client-requests .action-copy>a{font-size:16px;font-weight:500;line-height:24px;min-height:24px}
+.app-main .client-home .client-requests li>.row{flex-wrap:wrap;justify-content:flex-end}
+.request-updates{border-top:1px solid var(--border);padding-top:var(--s4)}
+.request-updates summary{min-height:44px;font-size:18px;font-weight:600}
+.request-updates[open]>section{margin-top:var(--s4)}
+.person-job-links{display:flex;align-items:center;gap:var(--s6);flex-wrap:wrap;font-size:16px}
+.person-job-links a{min-height:44px;display:inline-flex;align-items:center;color:var(--accent)}
+body:has(.app-shell) .person-list{display:block;border:1px solid var(--border);border-radius:var(--radius-container);overflow:hidden;background:var(--surface)}
+body:has(.app-shell) .person-card{border:0;border-radius:0;border-bottom:1px solid var(--border);padding:var(--s4)}
+.person-card:last-child{border-bottom:0}
+@media(max-width:720px){
+ .app-main .work-list-page .page-header>.button{width:100%}
+ .app-main .work-list-page .list-toolbar{padding:var(--s4);border:0;background:transparent}
+ .app-main .work-list-page .toolbar-controls{flex-wrap:nowrap}.app-main .work-list-page .search-control{flex:1;min-width:0}
+ .app-main .work-list-page .work-meta{flex-wrap:wrap;gap:var(--s2)}
+ .app-main .work-list-page .work-row-head .order-number{font-size:14px}
+ .app-main .work-list-page .work-card-wrap .work-list-item{padding-inline-end:var(--s12)}
+ .app-main .work-list-page .work-card-wrap>.dropdown{top:var(--s12)}
+ .app-main .work-list-page .date-cell{font-size:14px}
+ .app-main .work-detail-page .page-header,body:has(.app-shell) .app-main .work-detail-columns .card{padding:var(--s4)}
+ .app-main .work-detail-page .detail-actions{flex-wrap:wrap}
+ .app-main .work-detail-page .status-control{flex-basis:100%;order:1}
+ .app-main .work-detail-page .properties-panel .metadata,.app-main .work-detail-page .job-report-view .metadata{grid-template-columns:1fr;gap:0}
+ .app-main .work-detail-page .properties-panel dt,.app-main .work-detail-page .job-report-view dt{padding:var(--s4) 0 0;border:0;font-size:14px;color:var(--text-muted)}
+ .app-main .work-detail-page .properties-panel dd,.app-main .work-detail-page .job-report-view dd{padding:var(--s2) 0 var(--s4);margin:0;font-size:16px}
+ .app-main .client-home .page-header>.button{width:100%}
+ .app-main .client-home .client-requests li{flex-direction:column;align-items:stretch}.app-main .client-home .client-requests li>.row{justify-content:space-between}
+}
+@media print{
+ .sidebar,.app-header,.demo-banner,.bottom-tabs,.dashboard-assistant,.job-footer-actions,.work-detail-page .detail-actions,.work-detail-page .composer,.work-detail-page button,.skip-link{display:none!important}
+ .app-shell,.app-shell.collapsed{display:block}.app-main{overflow:visible;margin:0}.app-main .page.work-detail-page{max-width:none;padding:0}.work-detail-page .card{break-inside:avoid}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+body:has(.app-shell) .sidebar .nav-link,body:has(.app-shell) .account-copy strong,.app-main .table-wrap .assignee-cell{font-size:16px}
+.app-main .photos-panel:empty{display:none}
+html:is(:lang(ar),:lang(ur),:lang(ps),:lang(fa),:lang(ne),:lang(hi),:lang(bn)) body:has(.app-shell){--line-body:26px;--line-body-phone:26px;--line-secondary:24px}
+
+.app-main .work-list-page .order-meta-line{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}.app-main .work-list-page .order-meta-line .order-priority{margin:0}
+
+@media(hover:hover) and (pointer:fine){.app-main .action-list li:hover,.app-main .day-list li:hover,.app-main .person-card:hover{background:var(--hover)}}

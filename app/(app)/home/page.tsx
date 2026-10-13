@@ -6,7 +6,7 @@ export default async function Page() {
   const app=await getAppPageData(),member=app?.me.memberships[0];
   if(!app||!member||member.role!=='client')return <ClientHome/>;
   const base=`/api/workspaces/${member.workspace_id}/work-orders`;
-  const queries=['status=open&status=scheduled&status=in_progress&status=waiting_on_parts&sort=updated_at&dir=desc&pageSize=6','sort=updated_at&dir=desc&pageSize=5','active=true&sort=updated_at&dir=asc&pageSize=100'];
+  const queries=['status=open&status=scheduled&status=in_progress&status=waiting_on_parts&sort=updated_at&dir=desc&pageSize=6','sort=updated_at&dir=desc&pageSize=5','active=true&sort=updated_at&dir=asc&pageSize=100','status=done&sort=updated_at&dir=desc&pageSize=5'];
   const resources=await initialResources(app.user,queries.map(query=>[`${base}?${query}`,()=>listWorkOrders(app.user,member.workspace_id,new URLSearchParams(query))] as const));
   return <InitialResourceProvider resources={resources}><ClientHome/></InitialResourceProvider>;
 }
