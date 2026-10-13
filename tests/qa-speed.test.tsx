@@ -23,9 +23,11 @@ it('keeps hidden-record errors and nested resource seeds scoped to the current p
  const html=renderToStaticMarkup(<InitialResourceProvider resources={{'/api/order':{data:{value:'parent'}}}}><InitialResourceProvider resources={{'/api/order':{error:{status:404,code:'not_found',message:'Unavailable'}}}}><Resource url="/api/order"/></InitialResourceProvider></InitialResourceProvider>);
  expect(html).toContain('404:not_found');expect(html).not.toContain('parent');
 });
-it('server-renders dashboard counts, attention, recent activity and supplier summary together',()=>{
+it('server renders action records and the compact counts strip before effects',()=>{
  const member:Membership={workspace_id:'workspace',workspace_name:'Company',role:'admin',client_id:null,client_name:null};
  const html=renderToStaticMarkup(<AppContext.Provider value={{me:{user:{id:'user',name:'Admin',email:'admin@example.com',image:null},memberships:[member]},member,workspace:{id:'workspace',name:'Company',timezone:'Asia/Dubai',is_demo:true,country:'AE',region:null,currency:'AED'},reload:()=>{},updateName:()=>{}}}><InitialResourceProvider resources={{
+  '/api/workspaces/workspace/work-orders?overdue=true&sort=due_on&dir=asc&pageSize=5':{data:{data:[]}},
+  '/api/workspaces/workspace/work-orders?status=open&status=waiting_on_parts&sort=updated_at&dir=asc&pageSize=100':{data:{data:[]}},
   '/api/workspaces/workspace/dashboard':{data:{by_status:{open:12},overdue:7,waiting_on_parts:3,pending_queue_rows:2,last_supplier_sync_at:null}},
   '/api/workspaces/workspace/audit?pageSize=5':{data:{data:[{id:'entry',at:'2026-10-11T10:00:00Z',actor:{name:'Admin'},summary:'Created repair request',entity:'work_orders',entity_id:'order'}]}},
   '/api/workspaces/workspace/supplier/sync-runs':{data:[]},

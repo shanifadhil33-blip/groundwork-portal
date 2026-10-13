@@ -137,12 +137,12 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
   box-decoration-break:clone;
 }
 .lx-root .lx-hero p{max-width:375px;margin-top:28px}
-.lx-root .lx-scroll{display:flex;align-items:center;gap:12px;color:#a1a1a1;font-size:12px;margin-top:72px}
+.lx-root .lx-scroll{display:flex;align-items:center;gap:12px;color:#a1a1a1;font-size:14px;margin-top:72px}
 .lx-root .lx-scroll>span{height:34px;width:1px;background:#737373}
 .lx-root .lx-rise{min-height:90svh;display:flex;align-items:center}
 .lx-root .lx-rise p{font-size:clamp(25px,3vw,42px);color:#fff;letter-spacing:-.04em;line-height:1.3}
 .lx-root .lx-workflow{min-height:120svh;display:flex;flex-direction:column;justify-content:center;padding-block:100px;gap:40px}
-.lx-root .lx-legend{display:flex;gap:20px;align-self:flex-start;font-size:13px;color:#b5b5b5}
+.lx-root .lx-legend{display:flex;gap:20px;align-self:flex-start;font-size:14px;color:#b5b5b5}
 .lx-root .lx-legend span{display:flex;gap:7px;align-items:center}
 .lx-root .lx-legend i{width:7px;height:7px;border-radius:1px;display:inline-block}
 /* The key mirrors the 3D bands exactly: unlit (Open) -> blue (Scheduled) -> ochre (Done). */
@@ -160,18 +160,18 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-agent p{margin-top:24px;max-width:450px}
 /* A code card: a hairline frame and a header row, so the snippet reads as a tool, not a stray grey bar. */
 .lx-root .lx-config{margin-top:32px;max-width:460px;border:1px solid #262626;border-radius:12px;background:#0a0a0a;overflow:hidden}
-.lx-root .lx-config-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 6px 4px 16px;border-bottom:1px solid #1c1c1c;font-size:12px;color:#8a8a8a}
-.lx-root .lx-config code{display:block;padding:16px;font-size:13px;overflow-wrap:anywhere;line-height:1.7;user-select:all;color:#d6d6d6;font-family:var(--font-mono,ui-monospace),ui-monospace,SFMono-Regular,Menlo,monospace}
-.lx-root .lx-config button{color:#d6d6d6;background:transparent;min-height:44px;padding:8px 12px;border:0;border-radius:8px;white-space:nowrap;font-size:12px;font-weight:500}
+.lx-root .lx-config-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 6px 4px 16px;border-bottom:1px solid #1c1c1c;font-size:14px;color:#8a8a8a}
+.lx-root .lx-config code{display:block;padding:16px;font-size:14px;overflow-wrap:anywhere;line-height:1.7;user-select:all;color:#d6d6d6;font-family:var(--font-mono,ui-monospace),ui-monospace,SFMono-Regular,Menlo,monospace}
+.lx-root .lx-config button{color:#d6d6d6;background:transparent;min-height:44px;padding:8px 12px;border:0;border-radius:8px;white-space:nowrap;font-size:14px;font-weight:500}
 .lx-root .lx-config button:hover{background:#1c1c1c;color:#fff}
 .lx-root .lx-config button:active{background:#262626}
 .lx-root .lx-finale{min-height:110svh;display:flex;align-items:center;padding-block:100px}
 .lx-root .lx-finale h2{font-size:clamp(60px,8.8vw,134px);font-weight:500;letter-spacing:-.07em;line-height:1.03}
-.lx-root .lx-note{margin-top:22px;font-size:13px}
+.lx-root .lx-note{margin-top:22px;font-size:14px}
 .lx-root .lx-footer{position:relative;z-index:2;border-top:1px solid #262626;margin:0 clamp(24px,7vw,112px);padding:32px 0 40px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;background:#000}
 .lx-root .lx-footer-brand{font-size:18px;font-weight:600}
 .lx-root .lx-footer nav{display:flex;gap:24px;margin-left:auto}
-.lx-root .lx-footer a{display:inline-flex;align-items:center;min-height:44px;font-size:13px}
+.lx-root .lx-footer a{display:inline-flex;align-items:center;min-height:44px;font-size:14px}
 .lx-root .lx-observed{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
 .lx-root .lx-visible{opacity:1;transform:none}
 
@@ -189,8 +189,8 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-brand{font-size:17px;gap:7px}
 .lx-root .lx-brand svg{width:24px;height:24px}
 .lx-root .lx-header nav{gap:8px}
-.lx-root .lx-header .lx-button{font-size:12px;padding:10px 12px;min-height:44px}
-.lx-root .lx-header-link{font-size:12px;padding:0 4px}
+.lx-root .lx-header .lx-button{font-size:14px;padding:10px 12px;min-height:44px}
+.lx-root .lx-header-link{font-size:14px;padding:0 4px}
 .lx-root .lx-story{display:flex;flex-direction:column;position:relative}
 .lx-root .lx-hero{order:0;min-height:0;padding-top:112px;padding-bottom:36px;align-items:flex-start}
 .lx-root .lx-hero-copy{width:100%;max-width:640px}
@@ -219,7 +219,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-rise{order:2;min-height:0;margin-top:calc(100svh - var(--lx-hero-b));padding-block:32px;align-items:flex-start}
 .lx-root .lx-rise p{font-size:26px}
 .lx-root .lx-workflow{order:3;min-height:0;padding-block:0 32px;gap:24px}
-.lx-root .lx-legend{order:0;gap:20px;font-size:12px}
+.lx-root .lx-legend{order:0;gap:20px;font-size:14px}
 .lx-root .lx-steps{order:1;gap:36px;width:100%;min-width:0;max-width:600px}
 .lx-root .lx-steps article{scroll-margin-top:45svh;padding-left:0}
 .lx-root .lx-steps h2{font-size:24px;line-height:1.2}
@@ -227,7 +227,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-agent{min-height:0;padding-block:48px;align-items:flex-start}
 .lx-root .lx-agent h2{font-size:40px}
 .lx-root .lx-agent p{font-size:16px}
-.lx-root .lx-config code{font-size:12px;padding:14px}
+.lx-root .lx-config code{font-size:14px;padding:14px}
 
 .lx-root .lx-finale{min-height:0;padding-block:48px 64px}
 .lx-root .lx-finale h2{font-size:clamp(55px,11vw,84px)}

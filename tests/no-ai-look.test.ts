@@ -26,6 +26,31 @@ function violations(file: string, source: string): string[] {
     ];
     for (const [pattern, reason] of patterns) for (const match of source.matchAll(pattern)) report(match.index!, reason);
   }
+  if (file.endsWith('.css') && !file.startsWith('components/landing/')) {
+    // Inspect shared rules too: their declarations can cascade into signed in pages.
+    // Global tokens and public rules in globals.css must meet the same minimum.
+    const css = source.replace(/\/\*[\s\S]*?\*\//g, comment => comment.replace(/[^\n]/g, ' '));
+    for (const rule of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const selector = rule[1].trim();
+      if (file !== 'app/globals.css' && (selector === ':root' || selector === '[data-theme=dark]' || selector.split(',').every(part => /\.(?:landing|hero|public-|preview-|editorial-|persona-|auth-|product-preview)/.test(part)))) continue;
+      const declarations = rule[2];
+      for (const weight of declarations.matchAll(/font-weight\s*:\s*([^;}]+)/g)) {
+        if (!/^(?:400|500|600)(?:\s*!important)?\s*$/.test(weight[1])) report(rule.index! + rule[0].indexOf(declarations) + weight.index!, 'Use only font weights 400, 500 and 600');
+      }
+      for (const shorthand of declarations.matchAll(/font\s*:\s*([^;}]+)/g)) {
+        const weight = /(?:^|\s)([1-9]\d{2}|bold|bolder|lighter)(?=\s)/.exec(shorthand[1]);
+        if (weight && !['400','500','600'].includes(weight[1])) report(rule.index! + rule[0].indexOf(declarations) + shorthand.index!, 'Use only font weights 400, 500 and 600');
+      }
+      for (const declaration of declarations.matchAll(/(?:font-size|font|--(?:text|type)-[\w-]+)\s*:\s*([^;}]+)/g)) {
+        for (const size of declaration[1].matchAll(/(?<![\w.-])(\d*\.?\d+)(px|rem|em|pt)\b/g)) {
+          const pixels = Number(size[1]) * (size[2] === 'px' ? 1 : size[2] === 'pt' ? 4 / 3 : 16);
+          if (pixels < 14) report(rule.index! + rule[0].indexOf(declarations) + declaration.index!, 'Signed in text must be at least 14px');
+          // Font shorthand can include a smaller line height after the size.
+          if (declaration[0].startsWith('font:')) break;
+        }
+      }
+    }
+  }
   return hits;
 }
 function files(directory: string): string[] {
@@ -51,4 +76,26 @@ it('reports multiline icon imports, glow styles and eyebrow labels with file and
   expect(violations('components/landing/example.css', 'background: linear-gradient(red, blue)')).toEqual([]);
   expect(violations('components/landing/example.tsx', `import { Wand2 } from 'lucide-react'`)).toHaveLength(1);
   expect(violations('app/example.css', 'backdrop-filter: blur(8px)')).toEqual([]);
+});
+
+it('rejects small signed in CSS text, including shared rules and type tokens', () => {
+  for (const source of [
+    '.app-main p { font-size: 13px; }',
+    '@media(max-width:640px) { .nav-link { font-size: 12px; } }',
+    'body:has(.app-shell) { --text-xs: 11px; }',
+    '.comment { font-size: .8rem; }',
+    '.comment { font: 500 13px/20px sans-serif; }',
+  ]) expect(violations('app/globals.css', source)).toEqual(expect.arrayContaining([expect.stringContaining('Signed in text must be at least 14px')]));
+  expect(violations('app/globals.css', '.app-main { font-size: 14px; }')).toEqual([]);
+  expect(violations('app/globals.css', '.landing p { font-size: 12px; }')).toHaveLength(1);
+  expect(violations('components/landing/example.css', 'p { font-size: 12px; }')).toEqual([]);
+});
+
+it('rejects small root tokens and unsupported font weights throughout globals.css', () => {
+  expect(violations('app/globals.css', ':root { --text-xs: 13px; }')).toHaveLength(1);
+  for (const weight of ['300', '550', '650', '700', 'bold']) {
+    expect(violations('app/globals.css', `.badge { font-weight: ${weight}; }`)).toEqual(expect.arrayContaining([expect.stringContaining('Use only font weights 400, 500 and 600')]));
+  }
+  expect(violations('app/globals.css', '.badge { font: 700 14px sans-serif; }')).toHaveLength(1);
+  for (const weight of [400, 500, 600]) expect(violations('app/globals.css', `.badge { font-weight: ${weight}; font-size: 14px; }`)).toEqual([]);
 });

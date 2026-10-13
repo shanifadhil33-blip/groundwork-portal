@@ -18,22 +18,22 @@ it('groups recent update badges and time below the request title',()=>{
  const html=render(<ClientHome/>);
  expect(html).toContain('page stack client-home');
  expect(html).toMatch(/request-update-meta"><span class="badge[^>]*>Request Received<\/span><span class="small muted">Updated /);
- expect(html).toContain('<h2>Open</h2>');expect(html).toContain('Repair entry door');
+ expect(html).toContain('<h2>Open requests</h2>');expect(html).toContain('<h2>Needs action</h2>');expect(html).toContain('action-list client-requests');expect(html).toContain('Repair entry door');
 });
 it('uses short linked attention stats at every viewport',()=>{
  const html=render(<Dashboard/>,'admin');
  expect(html).toContain('<strong>13</strong><span>Late</span>');expect(html).toContain('<strong>0</strong><span>Today</span>');expect(html).toContain('<strong>2</strong><span>New</span>');expect(html).toContain('/work-orders?overdue=true');expect(html).not.toContain('across open statuses');
 });
-it('defines pure canvases and prevents badge stretching in flex columns',()=>{
+it('defines neutral canvases and prevents badge stretching in flex columns',()=>{
  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
- expect(css).toMatch(/:root\{[^}]*--bg:#FFFFFF;--surface:#ffffff/);
+ expect(css).toMatch(/:root\{[^}]*--bg:#f7f8f7;--surface:#ffffff/);
  expect(css).toMatch(/\[data-theme=dark\]\{[^}]*--bg:#000000;--surface:#000000/);
  expect(css).toMatch(/\.badge\{[^}]*width:max-content;[^}]*align-self:flex-start/);
  expect(css).toContain('.client-home .update-list{gap:0}');
- expect(css).toContain('padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))');
+ expect(css).toContain('padding-bottom:calc(var(--s4) + env(safe-area-inset-bottom,0))');
  expect(css).toMatch(/\.assistant-send:disabled\{opacity:1;background:var\(--surface-subtle\);color:var\(--text-muted\);border:1px/);
  const touch=css; // Later coarse pointer rules may supplement these shared touch targets.
  expect(touch).toMatch(/\.inline-hint \.button[^}]*min-height:44px;min-width:44px/);
  expect(touch).toMatch(/\.public-footer a[^}]*min-width:44px;min-height:44px/);
- expect(touch).toMatch(/\.settings-page form>\.queue-check[^}]*min-width:44px;min-height:44px;padding:14px/);
+ expect(touch).toMatch(/\.settings-page form>\.queue-check[^}]*min-width:44px;min-height:44px;padding:var\(--s3\)/);
 });

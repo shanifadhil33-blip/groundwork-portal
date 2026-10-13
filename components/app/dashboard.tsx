@@ -1,21 +1,21 @@
 'use client';
-import { PageHeader } from '../ui/layout';
+import { PageHeader, ResponsiveTable } from '../ui/layout';
 import { LeaveRequests } from './time-off';
 import { countryName, regionField } from '../../lib/countries/rules';
 import { rememberFirstUse } from '../../lib/ui/first-use';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ArrowUp, Plus, Check, CalendarCheck, AlertTriangle, Inbox, type LucideIcon } from 'lucide-react';
-import { type Client, type Member } from '../../lib/ui/work-orders';
+import { isOverdue, workOrderTitle, type Page, type WorkOrder, type Client, type Member } from '../../lib/ui/work-orders';
 import { useApp } from './context';
 import { useResource } from './resource';
-import { Button, Card, ConfirmDialog, ErrorState, Skeleton } from '../ui';
+import { Button, Card, ConfirmDialog, EmptyState, ErrorState, LocalTime, StatusBadge, Skeleton, Badge } from '../ui';
 import { post, RequestError } from '../../lib/ui/api';
 import { ExpiringDocuments } from './documents';
 type Data={by_status:Record<string,number>;overdue:number;today_jobs:number;waiting_on_parts:number;pending_queue_rows:number;last_supplier_sync_at:string|null};
 export function Initials({name}:{name:string}) { return <span className="initials" aria-hidden="true">{name.split(/\s+/).slice(0,2).map(n=>n[0]).join('').toUpperCase()}</span>; }
 type Tile={label:string;value:number;href:string;icon:LucideIcon;tone?:'late'|'today'};
-/** Big tappable tiles: an icon, a big number and one word. */
+/** Linked totals share one surface, separate from job records. */
 export function Tiles({items}:{items:Tile[]}) { return <div className={`tiles tiles-${items.length}`}>{items.map(t=><Link key={t.label} href={t.href} className={`tile ${t.tone?`tile-${t.tone}`:''}`} aria-label={`${t.value} ${t.label}`}><strong>{t.value.toLocaleString()}</strong><span>{t.label}</span></Link>)}</div>; }
 function FirstUse({base,total,initial}:{base:string;total:number;initial:boolean}) {const {member,workspace}=useApp(),admin=member?.role==='admin',clients=useResource<Client[]>(`${base}/clients`),imports=useResource<unknown[]>(`${base}/imports`),members=useResource<Member[]>(admin?`${base}/members`:null),invites=useResource<unknown[]>(admin?`${base}/invites`:null),tokens=useResource<unknown[]>(`${base}/tokens${admin?'?all=true':''}`),office=admin||member?.role==='staff',docs=useResource<unknown[]>(office?`${base}/documents`:null),[show,setShow]=useState(initial);
 useEffect(()=>{if(!workspace)return;try{const key=`first-use:${workspace.id}`;let state=localStorage.getItem(key);if((total===0||workspace.is_demo)&&!state)state='started';if(state==='started'||state==='dismissed')rememberFirstUse(workspace.id,state);setShow(state==='started');}catch{setShow(total===0);}},[workspace,total]);
@@ -49,6 +49,24 @@ function AgentLog({base}:{base:string}){const log=useResource<Decision[]>(`${bas
  async function run(){if(!undo)return;setBusy(true);setError('');try{await post(`${base}/assistant/log/${undo.id}/undo`,{});setUndo(null);void log.reload();}catch(e){setError(e instanceof RequestError?e.message:'We could not undo that. Try again.');}finally{setBusy(false);}}
  return <section className="agent-log stack compact" aria-label="What Groundwork did"><h3>What I did</h3><ul>{items.map(d=><li key={d.id}><div><strong>{(d.summary??'').split('\n')[0]}</strong>{d.why&&<p className="small">Why: {d.why}</p>}{(d.tool==='create_client'||d.tool==='create_site')&&<p className="small muted">Adding a {d.tool==='create_client'?'client':'site'} can not be undone here. To remove it, use Delete in its menu on Clients.</p>}<p className="small muted">{d.by_name??'Someone'} asked · {new Date(d.consumed_at).toLocaleString('en',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}{d.undone_at?` · Undone${d.undone_by_name?` by ${d.undone_by_name}`:''}`:''}</p></div>{d.can_undo&&<Button variant="secondary" size="sm" onClick={()=>{setError('');setUndo(d);}}>Undo</Button>}</li>)}</ul>
  <ConfirmDialog open={!!undo} onClose={()=>setUndo(null)} title="Undo this?" confirmLabel="Undo" busyLabel="Undoing…" busy={busy} error={error} onConfirm={()=>void run()}>{(undo?.summary??'').split('\n')[0]}. {undo?.tool==='add_comment'?'The note is removed from the job.':undo?.tool==='update_client'?'The client goes back to how it was before.':undo?.tool==='update_site'?'The site goes back to how it was before.':'The job goes back to how it was before.'}</ConfirmDialog></section>;}
+function DashboardJobs({base,count}:{base:string;count:number}) {
+ const jobs=useResource<Page<WorkOrder>>(count>0?`${base}/work-orders?today=true&sort=scheduled_for&dir=asc&pageSize=10`:null);
+ return <section className="stack dashboard-jobs"><div className="heading-row"><h2>Today</h2><Link className="text-link" href="/work-orders?today=true">See all</Link></div>{count>0&&jobs.loading?<Skeleton className="skeleton-detail"/>:jobs.error?<ErrorState message="We couldn’t load today’s jobs." retry={jobs.reload}/>:jobs.data?.data?.length?<ResponsiveTable><table><thead><tr><th>Job</th><th>Client</th><th>Visit</th><th>Status</th></tr></thead><tbody>{jobs.data.data.map(o=><tr key={o.id}><td><span className="order-number">WO {o.order_number}</span><Link href={`/work-orders/${o.id}`} onClick={()=>sessionStorage.setItem('work-orders-return','/dashboard')} data-no-translate>{workOrderTitle(o)}</Link></td><td data-no-translate>{o.client_name??'Client'}</td><td>{o.scheduled_for?<LocalTime value={o.scheduled_for}/>: 'Unscheduled'}</td><td><StatusBadge status={o.status}/></td></tr>)}</tbody></table></ResponsiveTable>:<EmptyState title="No jobs scheduled today" action={<Link className="button secondary" href="/work-orders">View jobs</Link>}/>}</section>;
+}
+/** Records needing a decision precede summaries and the assistant. */
+export function NeedsAction({base,client=false}:{base:string;client?:boolean}) {
+ const {workspace,member}=useApp();
+ type ActionOrder=WorkOrder & {quote_status?:string|null;visit_confirmed_for?:string|null};
+ const late=useResource<Page<ActionOrder>>(!client?`${base}/work-orders?overdue=true&sort=due_on&dir=asc&pageSize=5`:null);
+ const pending=useResource<Page<ActionOrder>>(`${base}/work-orders?${client?'active=true':'status=open&status=waiting_on_parts'}&sort=updated_at&dir=asc&pageSize=100`);
+ const clientManager=((member as {client_kind?:string}|null)?.client_kind??'manager')==='manager';
+ const items=client?(pending.data?.data??[]).filter(o=>clientManager&&(o.quote_status==='pending'||(o.scheduled_for&&(!o.visit_confirmed_for||new Date(o.visit_confirmed_for).getTime()!==new Date(o.scheduled_for).getTime())))):[...new Map([...(late.data?.data??[]),...(pending.data?.data??[]).filter(o=>o.status==='waiting_on_parts'||!o.assignee_id)].map(o=>[o.id,o])).values()];
+ const loading=pending.loading||(!client&&late.loading),error=pending.error||(!client&&late.error);
+ return <section className="stack needs-action"><h2>Needs action</h2>{loading?<Skeleton className="skeleton-detail"/>:error?<ErrorState message="We couldn’t load items that need action." retry={()=>{void pending.reload();if(!client)void late.reload();}}/>:items.length?<ul className="action-list">{items.map(o=>{
+ const overdue=isOverdue(o,Date.now(),workspace?.timezone),action=client?(o.quote_status==='pending'?'Review price':'Confirm this time'):overdue?'Review job':o.status==='waiting_on_parts'?'Review parts':'Assign job';
+ return <li key={o.id}><div className="action-copy"><strong data-no-translate>{workOrderTitle(o)}</strong><div className="row"><StatusBadge status={o.status}/>{overdue&&<Badge tone="danger">Late</Badge>}{client&&o.quote_status==='pending'&&<Badge tone="warning">Needs your answer</Badge>}</div></div><Link className="button secondary" href={`/work-orders/${o.id}`} onClick={()=>sessionStorage.setItem('work-orders-return',client?'/home':'/dashboard')}>{action}</Link></li>;
+ })}</ul>:<EmptyState title="Nothing needs action now" action={<Link className="button secondary" href="/work-orders">{client?'View requests':'View jobs'}</Link>}/>}</section>;
+}
 export function Dashboard({firstUse=false}:{firstUse?:boolean}) {const {member,workspace,me}=useApp(),base=member?`/api/workspaces/${member.workspace_id}`:null,r=useResource<Data>(base?`${base}/dashboard`:null),total=r.data?Object.values(r.data.by_status).reduce((a,b)=>a+b,0):0;if(!base||!member)return <div className="page"><Skeleton className="skeleton-row"/></div>;const empty=!!r.data&&total===0&&!workspace?.is_demo,d=r.data;
  const tiles:Tile[]=[{label:'Today',value:d?.today_jobs??0,href:'/work-orders?today=true',icon:CalendarCheck,tone:'today'},{label:'Late',value:d?.overdue??0,href:'/work-orders?overdue=true',icon:AlertTriangle,tone:'late'},{label:'New',value:d?.pending_queue_rows??0,href:'/queue',icon:Inbox}];
- return <div className="page stack dashboard-page"><PageHeader><h1>Dashboard</h1><Link className="button primary" href="/work-orders/new"><Plus size={16} aria-hidden="true"/>New job</Link></PageHeader>{r.loading?<Skeleton className="skeleton-strip"/>:r.error?<ErrorState message="We couldn’t load your jobs." retry={r.reload}/>:!empty&&<Tiles items={tiles}/>}{(member.role==='admin'||member.role==='staff')&&<LeaveRequests base={base!} self={me.user.id}/>}{(member.role==='admin'||member.role==='staff')&&<AgentCard/>}{(member.role==='admin'||member.role==='staff')&&<ExpiringDocuments base={base}/>}{d&&<FirstUse base={base} total={total} initial={firstUse||!!workspace?.is_demo}/>}</div>; }
+ return <div className="page stack dashboard-page"><PageHeader><h1>Dashboard</h1><Link className="button primary" href="/work-orders/new"><Plus size={16} aria-hidden="true"/>New job</Link></PageHeader><NeedsAction base={base}/><DashboardJobs base={base} count={d?.today_jobs??0}/>{r.loading?<Skeleton className="skeleton-strip"/>:r.error?<ErrorState message="We couldn’t load your jobs." retry={r.reload}/>:!empty&&<Tiles items={tiles}/>}<LeaveRequests base={base} self={me.user.id}/><ExpiringDocuments base={base}/><AgentCard/>{d&&<FirstUse base={base} total={total} initial={firstUse||!!workspace?.is_demo}/>}</div>; }

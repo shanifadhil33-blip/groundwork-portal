@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { withFallback, stripThinking } from '../ai';
 import { withSystem, withUser } from '../db';
 import { LANGUAGES } from '../languages';
+import { designCopyFallbacks } from '../ui/design-copy';
 import { isEnglish, parseTranslations, translationRequest, validTranslation } from '../i18n';
 
 export async function translateUi(user: string, body: unknown) {
@@ -40,6 +41,9 @@ export async function translateUi(user: string, body: unknown) {
       console.warn('[ui translations] cache write failed');
     }
     Object.assign(translations, result);
+  }
+  for (const source of sources) {
+    if (!Object.hasOwn(translations, source) && designCopyFallbacks[lang]?.[source]) translations[source] = designCopyFallbacks[lang][source];
   }
   return { translations };
 }
