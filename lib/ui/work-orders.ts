@@ -25,7 +25,7 @@ export function sortOrders(orders: WorkOrder[], sort: string, dir: string) {
 }
 export function dateInput(value: string | null, timezone = workspaceTimezone) { return value ? localDate(value, timezone) : ''; }
 export function scheduleValue(value: string, timezone = workspaceTimezone) { return scheduledInstant(value, timezone); }
-export type Draft = { trade?: string; title: string; description: string; client_id: string; site_id: string; priority: string; assignee_id: string; scheduled_for: string; due_on: string };
+export type Draft = { trade?: string; title: string; description: string; preferred_window?: string; client_id: string; site_id: string; priority: string; assignee_id: string; scheduled_for: string; due_on: string };
 export function draftErrors(draft: Draft) { const errors: Record<string, string> = {}; if (!draft.title.trim()) errors.title = 'Enter a title.'; else if (draft.title.trim().length > 200) errors.title = 'Use 200 characters or fewer.'; if (draft.description.length > 20000) errors.description = 'Use 20,000 characters or fewer.'; if (!draft.client_id) errors.client_id = 'Choose a client.'; if (!draft.site_id) errors.site_id = 'Choose a site.'; return errors; }
 
 export const clientStatusHints:Record<string,string> = {waiting_on_parts:"We've ordered what's needed."};
