@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { ApiError,invalid,missing } from '../http';
 import { inWorkspace,replay,row,uuid } from './shared';
 import { getPreferences } from './settings';
-import { translateUi } from './translations';
+import { translationPieces,translationSource,replaceTranslation } from '../i18n';
+import { translateUi,type PrivateTranslationThread } from './translations';
 export const threadInput=z.object({conversation_id:uuid.optional(),work_order_id:uuid.optional()}).strict();
 export const messageInput=z.object({conversation_id:uuid.optional(),work_order_id:uuid.optional(),recipient_id:uuid.optional(),body:z.string().trim().max(20000).default(''),photo_ids:z.array(uuid).max(4).default([]),voice_note_text:z.string().trim().max(20000).optional(),visibility:z.enum(['client','internal']).default('client')}).strict();
 export async function messagePeople(user:string,ws:string){return inWorkspace(user,ws,async c=>(await c.db.query('SELECT * FROM message_people($1)',[ws])).rows);}
@@ -39,9 +40,16 @@ export async function listMessages(user:string,ws:string,body:unknown){const d=t
   return {language,messages};
  });
  // Translation occurs after the read transaction; it never gains access to another thread.
- const translated=await translateUi(user,{lang:result.language,strings:result.messages.map(m=>m.body)});
- return {data:result.messages.map(m=>({...m,original_body:m.body,body:translated.translations[m.body]??m.body,translated:!!translated.translations[m.body]&&translated.translations[m.body]!==m.body})),language:result.language,last_message_at:result.messages.at(-1)?.created_at??null};
+ const translated=await translateMessageBodies(user,result.language,result.messages.map(m=>m.body),{ws,...d});
+ return {data:result.messages.map((m,i)=>({...m,original_body:m.body,body:translated[i],translated:translated[i]!==m.body})),language:result.language,last_message_at:result.messages.at(-1)?.created_at??null};
 }
+export async function translateMessageBodies(user:string,language:string,bodies:string[],privateThread?:PrivateTranslationThread){
+ const sources=[...new Set(bodies.flatMap(body=>translationPieces(body).map(translationSource).filter((s):s is string=>!!s)))];
+ const translations:Record<string,string>=Object.create(null);
+ for(let offset=0;offset<sources.length;offset+=200)Object.assign(translations,(await translateUi(user,{lang:language,strings:sources.slice(offset,offset+200)},privateThread)).translations);
+ return bodies.map(body=>replaceTranslation(body,translations));
+}
+
 export async function unreadMessages(user:string,ws:string){return inWorkspace(user,ws,async c=>{
  const data=(await c.db.query(`WITH items AS (
  SELECT m.id,m.conversation_id,NULL::uuid AS work_order_id,m.sender_id,m.sender_name,m.created_at,NULL::integer AS order_number FROM messages m WHERE m.workspace_id=$1

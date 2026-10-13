@@ -187,3 +187,51 @@ Status describes the code connection. Tests are listed in the local progress log
 ## Verification limits
 
 The requested shared folder is outside the writable workspace. This repository copy is ready to copy to groundwork-connections.md in that folder. The ordinary test runner needs sockets, which this sandbox denies. Serial service and RLS tests use a temporary Postgres cluster with no sockets. Concurrent transaction tests still require the ordinary runner. Real WhatsApp wiring, push delivery on a real phone and external feedback delivery were not contacted.
+
+## Messages: Technician and client
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Technician, client or household | The other person in either direction | Messages or the job Messages tab, unread dot, bell, Agent list_messages and attention | Their assigned job connects them; reply in the same private thread | fixed now |
+
+## Messages: Technician and admin
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Technician or admin | The other person in either direction | Messages or the job Messages tab, unread dot, bell, Agent list_messages and attention | Company support; reply in the same private thread | fixed now |
+
+## Messages: Technician and supervisor
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Technician or supervisor | The other person in either direction | Messages or the job Messages tab, unread dot, bell, Agent list_messages and attention | Work planning; reply in the same private thread | fixed now |
+
+## Messages: Client and admin
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Client or admin | The other person in either direction | Messages or the job Messages tab, unread dot, bell, Agent list_messages and attention | Service company support; reply in the same private thread | fixed now |
+
+## Messages: Client and supervisor
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Client or supervisor | The other person in either direction | Messages or the job Messages tab, unread dot, bell, Agent list_messages and attention | Visit and job questions; reply in the same private thread | fixed now |
+
+## Messages: Admin and supervisor
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Admin or supervisor | The other person in either direction | Messages or the job Messages tab, unread dot, bell, Agent list_messages and attention | Company work; reply in the same private thread | fixed now |
+
+## Messages: Client manager and client office staff
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Client manager or client office staff | The other person in either direction | Messages or the job Messages tab, unread dot, bell, Agent list_messages and attention | Same client company only; reply in the same private thread | fixed now |
+
+## Messages: Office staff and technician
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Office staff or technician | The other person in either direction | Messages or the job Messages tab, unread dot, bell, Agent list_messages and attention | Company work; reply in the same private thread | fixed now |

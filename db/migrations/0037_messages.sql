@@ -84,3 +84,19 @@ END $$;
 CREATE TRIGGER direct_message_notification AFTER INSERT ON messages FOR EACH ROW EXECUTE FUNCTION notify_direct_message();
 REVOKE ALL ON conversations,messages,message_reads FROM PUBLIC;
 REVOKE ALL ON FUNCTION can_message_person(uuid,uuid),conversation_reader(uuid,uuid),message_people(uuid),link_message_photos(),notify_direct_message() FROM PUBLIC;
+-- Message translations contain private text and must never enter the global UI cache.
+CREATE TABLE message_translations (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),workspace_id uuid NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+ user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,conversation_id uuid,work_order_id uuid,
+ lang text NOT NULL,source_hash text NOT NULL,source text NOT NULL,translated text NOT NULL,
+ CHECK(num_nonnulls(conversation_id,work_order_id)=1),
+ FOREIGN KEY(workspace_id,conversation_id) REFERENCES conversations(workspace_id,id) ON DELETE CASCADE,
+ FOREIGN KEY(workspace_id,work_order_id) REFERENCES work_orders(workspace_id,id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX message_translation_direct ON message_translations(workspace_id,user_id,conversation_id,lang,source_hash) WHERE conversation_id IS NOT NULL;
+CREATE UNIQUE INDEX message_translation_job ON message_translations(workspace_id,user_id,work_order_id,lang,source_hash) WHERE work_order_id IS NOT NULL;
+ALTER TABLE message_translations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE message_translations FORCE ROW LEVEL SECURITY;
+DO $$ BEGIN EXECUTE format('CREATE POLICY system_owner ON message_translations TO %I USING(true) WITH CHECK(true)',current_user); END $$;
+CREATE POLICY message_translations_personal ON message_translations USING(user_id=app_user_id() AND (conversation_reader(workspace_id,conversation_id) OR EXISTS(SELECT 1 FROM work_orders w WHERE w.workspace_id=message_translations.workspace_id AND w.id=message_translations.work_order_id))) WITH CHECK(user_id=app_user_id() AND (conversation_reader(workspace_id,conversation_id) OR EXISTS(SELECT 1 FROM work_orders w WHERE w.workspace_id=message_translations.workspace_id AND w.id=message_translations.work_order_id)));
+REVOKE ALL ON message_translations FROM PUBLIC;

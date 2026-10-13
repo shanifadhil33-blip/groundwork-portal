@@ -21,7 +21,7 @@ async function raw(sql,values=[]){
  return new Promise((resolve,reject)=>{pending=(result,err)=>{
   const failure=(err+errors).match(/(?:ERROR|FATAL):\s+([A-Z0-9]{5}):\s*([^\n]*)/);
   if(failure){errors='';return reject(Object.assign(new Error(failure[2]),{code:failure[1]}));}
-  const columns=[...result.matchAll(/\t\s*\d+: ([^\t\n]+)\t\(typeid/g)].map(m=>m[1]);
+  const columns=[...result.matchAll(/\t\s*\d+: ([^\t\n=]+)\t\(typeid/g)].map(m=>m[1]);
   const blank=()=>Object.fromEntries(columns.map(k=>[k,null]));
   const rows=[];let row={};
   const pattern=/\t\s*(\d+): ([^\t\n]+) = (?:"([\s\S]*?)"|<>|NULL)\t\(typeid = (\d+),[^\n]*\)/g;

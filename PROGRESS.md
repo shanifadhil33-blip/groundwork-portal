@@ -589,3 +589,7 @@ Typecheck, 16 UI, voice, schema and copy tests and 3 real Postgres messaging ser
 ## Part F4
 Agent list_messages and send_message use the same services and permissions as the screens. Sending goes through Yes and Change with the message and reader on the card. Attention names unread senders and job numbers and returns real counts even when no model provider is available.
 Typecheck, 12 Agent reply, message schema and copy tests and 4 real Postgres messaging tests passed.
+
+## Part F5
+Added all pairs to the connection report and expanded receiver tests for household assignment, revoked access, private photos, long and photo only messages, job visibility, translated content and original text. Agent confirmation tests prove no send before Yes, no confirmation by another user and no repeated send.
+Message translations now use a private cache scoped to the reader and thread, with current thread permissions, rather than the public UI cache. Typecheck, 11 messaging service and RLS and confirmation tests, and 8 message UI, schema and copy tests passed with temporary Postgres. The serial adapter cannot prove simultaneous transaction races; the normal runner still needs sockets.
