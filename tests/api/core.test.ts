@@ -1,3 +1,5 @@
+import { decideSuggestion } from '../../lib/services/suggestions';
+import { getWorkOrder } from '../../lib/services/work-orders';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { setAuthResolverForTests } from '../../lib/auth';
@@ -79,7 +81,7 @@ describe('core API tenancy and auth',()=>{
  it('client creation forces own company and source and rejects controlled fields',async()=>{
   user=ids.pranav;
   const r=await call(ordersRoute.POST,'POST',{title:'Client request',site_id:siteId(1)});
-  expect(r.status).toBe(201);expect(r.body).toMatchObject({client_id:ids.harbor,source:'client',status:'open',assignee_id:null,scheduled_for:null});
+  expect(r.status).toBe(201);expect(r.body).toMatchObject({client_id:ids.harbor,source:'client',status:'pending',work_order_id:null});
   for(const field of [{status:'done'},{assignee_id:ids.sam},{scheduled_for:new Date().toISOString()}])expect((await call(ordersRoute.POST,'POST',{title:'Denied',site_id:siteId(1),...field})).status).toBe(422);
   expect((await call(ordersRoute.POST,'POST',{title:'Other company',site_id:siteId(4)})).status).toBe(404);
   expect((await call(ordersRoute.POST,'POST',{title:'Other company',site_id:siteId(1),client_id:ids.northgate})).status).toBe(422);
@@ -263,7 +265,8 @@ describe('transaction and lifecycle edge cases',()=>{
   const created=await call(ordersRoute.POST,'POST',{title:'Client lifecycle',site_id:siteId(2)});
   expect(created.status).toBe(201);
   user=ids.imran;
-  let current=created.body;
+  const accepted=await decideSuggestion(ids.imran,ids.ridgeline,created.body.id,{decision:'approved'});
+  let current=await getWorkOrder(ids.imran,ids.ridgeline,accepted.work_order_id);
   for(const status of ['scheduled','in_progress','waiting_on_parts','in_progress','done']) {
    const changed=await call(orderRoute.PATCH,'PATCH',{status,assignee_id:ids.sam,updated_at:current.updated_at},{id:current.id});
    expect(changed.status).toBe(200);expect(new Date(changed.body.updated_at).getTime()).toBeGreaterThan(new Date(current.updated_at).getTime());current=changed.body;
@@ -274,7 +277,7 @@ describe('transaction and lifecycle edge cases',()=>{
   expect(detail.body.assignee).toEqual({id:ids.sam,name:'Sam',image:null});
   expect(detail.body.timeline.filter((e:{kind:string})=>e.kind==='status_changed')).toHaveLength(5);
   const notifications=await withUser(ids.pranav,async db=>(await db.query('SELECT * FROM notifications WHERE entity_id=$1',[current.id])).rows);
-  expect(notifications).toHaveLength(5);
+  expect(notifications.filter(n=>n.kind==='status_changed')).toHaveLength(5);
  });
  it('deletes a populated workspace atomically and preserves audit history',async()=>{
   const workspace=(await call(wsRoute.POST,'POST',{name:'Populated workspace'})).body;const ws=workspace.id;

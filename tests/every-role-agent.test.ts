@@ -1,3 +1,4 @@
+import { approvedClientRequest } from './request-fixtures';
 import './fixtures';
 import { afterAll, expect, it } from 'vitest';
 import { closePools, withSystem } from '../lib/db';
@@ -28,7 +29,7 @@ it('a household sees only the requests he raised; only an admin sets the client 
   await setClientKind(ids.imran, ws, ids.omar, { kind: 'household' });
   try {
     const site = await withSystem(async db => (await db.query('SELECT id FROM sites WHERE workspace_id=$1 AND client_id=$2 LIMIT 1', [ws, ids.northgate])).rows[0].id);
-    const mine: any = await createWorkOrder(ids.omar, ws, { title: 'Leak under my sink', site_id: site });
+    const mine: any = await approvedClientRequest(ids.omar, ws, { title: 'Leak under my sink', site_id: site, preferred_window:'Saturday after 4 PM' });
     const seen: any = await listWorkOrders(ids.omar, ws, new URLSearchParams('pageSize=100&active=false'));
     expect(seen.data.map((o: any) => o.id)).toEqual([mine.id]);
     await expect(getWorkOrder(ids.omar, ws, other)).rejects.toMatchObject({ status: 404 });

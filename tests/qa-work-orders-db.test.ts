@@ -1,3 +1,4 @@
+import { approvedClientRequest } from './request-fixtures';
 import { afterAll, expect, it } from 'vitest';
 import { closePools, withSystem, withUser } from '../lib/db';
 import { ids, orderId, siteId } from '../lib/fixture';
@@ -49,7 +50,7 @@ it('the overdue list, detail, dashboard and agent agree, exclude today and futur
  expect(agent.structuredContent).toMatchObject({result:{total:list.total}});
 });
 it('numbers are allocated for every source and concurrent creation; chosen client site and description are preserved',async()=>{
- const requests=await Promise.all(Array.from({length:4},(_,i)=>createWorkOrder(ids.pranav,ws,{title:`QA client ${i}`,description:'Keep this description',site_id:siteId(3)})));
+ const requests=await Promise.all(Array.from({length:4},(_,i)=>approvedClientRequest(ids.pranav,ws,{title:`QA client ${i}`,description:'Keep this description',site_id:siteId(3)})));
  expect(new Set(requests.map(o=>o.order_number)).size).toBe(4);
  for(const o of requests){expect(o.site_id).toBe(siteId(3));expect(o.description).toBe('Keep this description');expect(o.order_number).toBeGreaterThan(60);expect((await getWorkOrderByNumber(ids.pranav,ws,o.order_number)).id).toBe(o.id);}
  const imp=await upload('Title,Site,Due Date,Scheduled For\nQA imported number,Marina Exchange,2026-11-20,2026-11-13');

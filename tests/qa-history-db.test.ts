@@ -1,3 +1,4 @@
+import { approvedClientRequest } from './request-fixtures';
 import { afterAll, beforeEach, expect, it, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { asAgent, closePools, ownerPool, withSystem, withUser } from '../lib/db';
@@ -13,10 +14,10 @@ const ws=ids.ridgeline,q=(text='')=>new URLSearchParams(text);
 beforeEach(async()=>{const db=await ownerPool.connect();try{await seed(db);}finally{db.release();}});
 afterAll(closePools);
 it('staff API comments default internal and client users cannot create internal notes',async()=>{
- const order=await orders.createWorkOrder(ids.pranav,ws,{title:'Privacy target',site_id:siteId(1)});
+ const order=await approvedClientRequest(ids.pranav,ws,{title:'Privacy target',site_id:siteId(1)});
  const note=await asAgent({kind:'assistant'},()=>orders.createComment(ids.sam,ws,order.id,{body:'Technician confirmed'}));expect(note.visibility).toBe('internal');
  expect((await orders.getWorkOrder(ids.pranav,ws,order.id)).comments).toEqual([]);
- expect((await notifications.listNotifications(ids.pranav,ws,q('pageSize=100'))).data.filter(n=>n.entity_id===order.id)).toEqual([]);
+ expect((await notifications.listNotifications(ids.pranav,ws,q('pageSize=100'))).data.filter(n=>n.entity_id===order.id&&n.kind==='comment_added')).toEqual([]);
  const entry=(await audit.listAudit(ids.imran,ws,q(`entity=comments&entity_id=${note.id}`))).data[0];expect(entry.summary).toBe('Sam created an internal note on Privacy target');expect(entry.actor_kind).toBe('assistant');
  const reply=await orders.createComment(ids.pranav,ws,order.id,{body:'Thanks'});expect(reply.visibility).toBe('client');
  await expect(orders.createComment(ids.pranav,ws,order.id,{body:'Hidden',visibility:'internal'})).rejects.toMatchObject({status:422});

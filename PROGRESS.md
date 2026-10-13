@@ -557,3 +557,7 @@ Typecheck, suggestion unit tests and copy and visual rule checks passed. Databas
 ## Part D6
 Agent tools list, approve and decline suggestions, and let technicians suggest jobs. Writes use the existing Yes and Change card. Attention reads actual pending counts and bell items. Client request confirmation now reports Request Received rather than a created job.
 Typecheck and Agent reply, suggestion unit and copy tests passed.
+
+## Part D7
+Added service and RLS tests for ownership, spoofed senders, technician refusal, approval, decline, notifications and preferred visit times. Updated earlier tests that needed an approved client job.
+The sandbox denies all sockets, so tests now also have a serial adapter using real Postgres through stdin in a temporary cluster. All migrations and 5 suggestion service and RLS tests passed with that adapter. Typecheck and 24 unit, voice, Agent reply and copy tests passed. The normal socket runner and concurrent transaction suites still need a socket enabled environment.

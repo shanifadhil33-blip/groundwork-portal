@@ -1,3 +1,4 @@
+import { decideSuggestion } from '../lib/services/suggestions';
 import './fixtures';
 import { afterAll, expect, it } from 'vitest';
 import { closePools, withSystem } from '../lib/db';
@@ -57,7 +58,7 @@ it('a household raises a request with a time window and sees only his own visits
   const r: any = await callTool({ user: ids.faisal, ws, scope: 'write', kind: 'assistant' }, 'create_request', { title: 'Kitchen tap dripping', site_id: site, preferred_window: 'Saturday after 4 PM' });
   expect(r.isError).toBeUndefined();
   const made = JSON.parse(r.content[0].text);
-  expect((await getWorkOrder(ids.faisal, ws, made.id) as any).preferred_window).toBe('Saturday after 4 PM');
+  expect((await getWorkOrder(ids.faisal, ws, (await decideSuggestion(ids.sam,ws,made.id,{decision:'approved'})).work_order_id) as any).preferred_window).toBe('Saturday after 4 PM');
   expect(((await callTool({ user: ids.faisal, ws, scope: 'write', kind: 'assistant' }, 'confirm_visit', { id: made.id })) as any).isError).toBe(true);
 });
 it('a client request with a guessed trade still goes through', async () => {

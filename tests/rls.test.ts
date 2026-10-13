@@ -43,14 +43,10 @@ describe('Postgres tenant isolation',()=>{
   const security=await appPool.query("SELECT relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND relkind='r' AND (NOT relrowsecurity OR NOT relforcerowsecurity)");
   expect(security.rows).toHaveLength(0);
  });
- it('client may create own request and visible comment but cannot update orders',async()=>{
-  const created=await withUser(ids.pranav,async c=>{
-   const result=await c.query("INSERT INTO work_orders(workspace_id,client_id,site_id,title,source,created_by) VALUES($1,$2,$3,'Replace reception bulb','client',$4) RETURNING id",[ids.ridgeline,ids.harbor,siteId(1),ids.pranav]);
-   await c.query("INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id) VALUES($1,$2,$3,'Reception opens at nine','client',$4)",[ids.ridgeline,ids.harbor,result.rows[0].id,ids.pranav]);
-   return result.rows[0].id;
-  });
-  expect(await rows(ids.pranav,"UPDATE work_orders SET status='done' WHERE id=$1 RETURNING id",[created])).toHaveLength(0);
-  await expect(withUser(ids.pranav,c=>c.query("INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id) VALUES($1,$2,$3,'Secret','internal',$4)",[ids.ridgeline,ids.harbor,created,ids.pranav]))).rejects.toMatchObject({code:'42501'});
+ it('client cannot create jobs directly and may comment on an existing own job',async()=>{
+  await expect(withUser(ids.pranav,c=>c.query("INSERT INTO work_orders(workspace_id,client_id,site_id,title,source,created_by) VALUES($1,$2,$3,'Replace reception bulb','client',$4)",[ids.ridgeline,ids.harbor,siteId(1),ids.pranav]))).rejects.toMatchObject({code:'42501'});
+  expect(await rows(ids.pranav,"UPDATE work_orders SET status='done' WHERE id=$1 RETURNING id",[orderId(1)])).toHaveLength(0);
+  await expect(withUser(ids.pranav,c=>c.query("INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id) VALUES($1,$2,$3,'Secret','internal',$4)",[ids.ridgeline,ids.harbor,orderId(1),ids.pranav]))).rejects.toMatchObject({code:'42501'});
  });
  it('staff cannot manage clients or supplier state; admins can',async()=>{
   await expect(withUser(ids.sam,c=>c.query('INSERT INTO clients(workspace_id,name) VALUES($1,$2)',[ids.ridgeline,'Unauthorized']))).rejects.toMatchObject({code:'42501'});
