@@ -18,9 +18,11 @@ const uuid = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/g
 export function plainAssistantReply(value: string, client=false) {
   const links: string[] = [];
   let text = value.replace(/\]\(\/work-orders\/[0-9a-f-]{36}\)/gi, link => { links.push(link);return `LINKPLACEHOLDER${links.length-1}END`; });
+  // Role words mid sentence stay lower case (office staff, admin), never Office Staff or Admin.
+  text = text.replace(/(?<=[a-z,] )(Admin|Supervisor|Technician|Staff|Client)\b/g, w => w.toLowerCase());
   text = text.replace(/\b(?:site|client|workspace|user|job|row)\s+ID\s*[:=]?\s*/gi, '')
     .replace(uuid, 'the linked record').replace(/\b[0-9a-f]{32,64}\b/gi,'the linked record').replace(/\b[0-9a-f]{8}(?:-[0-9a-f]{0,4})?(?:…|\.{3})/gi,'the linked record')
-    .replace(/\b(in_progress|waiting_on_parts|client_visible|internal_note|pending_approval|read_only|cancelled|scheduled|open|done|urgent|normal|high|low|admin|staff|client)\b/gi, word => statusLabels[word.toLowerCase()] ?? readableLabel(word.toLowerCase()))
+    .replace(/\b(in_progress|waiting_on_parts|client_visible|internal_note|pending_approval|read_only|cancelled|scheduled|open|done|urgent|normal|high|low)\b/gi, word => statusLabels[word.toLowerCase()] ?? readableLabel(word.toLowerCase()))
     .replace(/\b(?:[a-z]+_)+(?:id|at|for|on)\b/g, word => readableLabel(word))
     .replace(/\b(?:list|get|update|create|add|approve|reject|set)_(?:[a-z]+_)*[a-z]+\b/g,'the workspace action')
     .replace(/there (?:is|are) no available tool[s]? to (?:modify|change) priority/gi,"I can’t change priority here. Open the job and use Edit.")
@@ -71,6 +73,9 @@ const niceDay=(d:string)=>new Intl.DateTimeFormat('en',{weekday:'long',day:'nume
 export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',leave:'On leave',sick:'Sick'} as Record<string,string>)[kind]??'Time off'}, ${!to||to===from?niceDay(from):`${niceDay(from)} to ${niceDay(to)}`}`;
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
   const name = order ? assistantTarget(order) : plainAssistantReply(target ?? 'the selected row');
+  if(tool==='send_quote')return `Send a price of ${Number(args.amount).toLocaleString('en')} to the client for ${name}${args.note?`\n${plainAssistantReply(args.note)}`:''}\nThe client approves or declines it.`;
+  if(tool==='answer_quote')return `${args.decision==='approved'?'Approve':'Decline'} the price for ${name}${order&&(order as any).quote_amount!=null?`: ${Number((order as any).quote_amount).toLocaleString('en')}`:''}`;
+  if(tool==='confirm_visit')return `Confirm the visit time for ${name}${order?.scheduled_for?`: ${formatDate(order.scheduled_for,order.timezone)}`:''}`;
   if(tool==='request_time_off')return `Ask your supervisor for time off\n${offSpan(args.kind??'off',args.starts_on,args.ends_on)}\nIt waits until he says yes.`;
   if(tool==='decide_time_off')return `${args.decision==='approved'?'Approve':'Decline'} time off for ${plainAssistantReply(target??'this person')}`;
   if(tool==='save_job_report')return `Save the job report for ${name}\nHow it ended: ${OUTCOME_LABELS[args.outcome as keyof typeof OUTCOME_LABELS]}${args.problem?`\nProblem: ${plainAssistantReply(args.problem)}`:''}${args.work?`\nWhat you did: ${plainAssistantReply(args.work)}`:''}${args.outcome==='needs_part'?'\nThe job waits for the part.':args.outcome==='cant_fix'?'\nThe job stays open for your supervisor.':'\nThe job is marked done.'}`;
@@ -105,6 +110,9 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='set_job_payment')return `Marked ${link} as ${({to_bill:'to bill',contract:'covered by the contract',paid:'paid'} as Record<string,string>)[args.payment_status]}.`;
   if(tool==='set_job_trade')return `Set the trade for ${link} to ${args.trade?tradeLabels[args.trade as Trade]:'Any'}.`;
   if(tool==='set_priority')return `Changed priority for ${link} to ${readableLabel(args.priority)}.`;
+  if(tool==='send_quote')return `Sent the price for ${link}. I will tell you when the client answers.`;
+  if(tool==='answer_quote')return args.decision==='approved'?`Approved the price for ${link}. The team can go ahead.`:`Declined the price for ${link}. The team will be in touch.`;
+  if(tool==='confirm_visit')return `Confirmed the visit time for ${link}.`;
   if(tool==='save_job_report')return args.outcome==='needs_part'?`Saved the report on ${link}. It now waits for the part.`:args.outcome==='cant_fix'?`Saved the report on ${link}. Your supervisor will see it.`:`Saved the report on ${link}. Job done, well done.`;
   if(tool==='add_comment')return `Added ${args.visibility==='internal'?'an internal note':'a comment visible to the client'} to ${link}.\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_dates')return `Updated dates for ${link}.\n${actionSummary(tool,args,order).split('\n').slice(1).join('\n')}`;

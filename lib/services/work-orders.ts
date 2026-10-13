@@ -17,8 +17,13 @@ export const transitions:Record<string,string[]>={
  in_progress:['waiting_on_parts','done','cancelled'],waiting_on_parts:['in_progress','done','cancelled'],
  done:[],cancelled:[],
 };
-async function assignee(c:Parameters<typeof allow>[0],id:string|null|undefined) {
- if(id&&isOfficeStaff(c))throw new ApiError(403,'forbidden','Only an admin or supervisor can give jobs to people.');
+/** The first person who is not off and fits the trade or area: what Best match shows. */
+async function bestFor(c:Parameters<typeof allow>[0],id:string){
+ const {suggestWorkers}=await import('./assign');const s:any=await suggestWorkers(c.user,c.ws,id);const b=s.workers.find((w:any)=>!w.off);
+ return b&&(b.trade_match||b.area_match)?b.user_id as string:null;
+}
+async function assignee(c:Parameters<typeof allow>[0],id:string|null|undefined,best?:string|null) {
+ if(id&&isOfficeStaff(c)&&id!==best)throw new ApiError(403,'forbidden','Office staff can book the suggested technician only. Ask a supervisor for anyone else.');
  if(!id)return;
  const m=(await c.db.query("SELECT 1 FROM members WHERE workspace_id=$1 AND user_id=$2 AND archived_at IS NULL AND role IN ('admin','staff','technician')",[c.ws,id])).rowCount;
  if(!m)throw invalid('Choose someone from your team in this workspace.','assignee_id');
@@ -126,7 +131,9 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   } else if(reopen)throw invalid('Only completed work orders can be reopened.','status');
   if(order.status!=='done' && data.status && data.status!==order.status && !transitions[order.status].includes(data.status))throw invalid('This status change is not allowed.','status');
   if(typeof data.scheduled_for==='string' && data.scheduled_for.length===10)data.scheduled_for=(await c.db.query("SELECT ($1::date + time '09:00') AT TIME ZONE timezone AS value FROM workspaces WHERE id=$2",[data.scheduled_for,ws])).rows[0].value.toISOString();
-  await assignee(c,data.assignee_id);
+  // Office staff may book only the Best match for this job (ROLE08), the same person the Best match button shows.
+  const changedTo=data.assignee_id===order.assignee_id?undefined:data.assignee_id;
+  await assignee(c,changedTo,isOfficeStaff(c)&&changedTo?await bestFor(c,id):null);
   if('assignee_id' in data||'scheduled_for' in data)await assertWorking(c,'assignee_id' in data?data.assignee_id:order.assignee_id,'scheduled_for' in data?data.scheduled_for:order.scheduled_for);
   return update(c,'work_orders',id,data);
  });

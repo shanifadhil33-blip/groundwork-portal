@@ -24,7 +24,7 @@ export function OffDaysButton({ p, base, onDone }: { p: Person; base: string; on
 }
 
 /** The leave calendar: who is away and when. The office adds and removes entries. */
-export function LeaveCalendar({ base, people }: { base: string; people: Person[] }) {
+export function LeaveCalendar({ base, people, readOnly }: { base: string; people: Person[]; readOnly?: boolean }) {
   const list = useResource<{ time_off: Entry[] }>(`${base}/time-off`), toast = useToast();
   const workers = people.filter(p => p.role !== 'client');
   const [open, setOpen] = useState(false), [who, setWho] = useState(''), [kind, setKind] = useState('leave'), [from, setFrom] = useState(today()), [to, setTo] = useState(today()), [busy, setBusy] = useState(false), [error, setError] = useState('');
@@ -38,8 +38,8 @@ export function LeaveCalendar({ base, people }: { base: string; people: Person[]
   }
   async function remove(id: string) { try { await request(`${base}/time-off/${id}`, { method: 'DELETE' }); void list.reload(); toast('Removed.'); } catch { toast('That did not save. Try again.'); } }
   const rows = list.data?.time_off ?? [];
-  return <section className="stack compact card leave-calendar"><div className="heading-row"><h2>Leave</h2><Button variant="secondary" onClick={() => { setWho(workers[0]?.user_id ?? ''); setFrom(today()); setTo(today()); setKind('leave'); setOpen(true); }}>Add leave</Button></div>
-    {rows.length ? <ul className="timeoff-list">{rows.map(e => <li key={e.id}><span><strong>{e.name ?? 'Team member'}</strong> · {kindLabel(e.kind)} · {e.starts_on === e.ends_on ? nice(e.starts_on) : `${nice(e.starts_on)} to ${nice(e.ends_on)}`}</span><Button variant="secondary" onClick={() => void remove(e.id)} aria-label={`Remove leave for ${e.name ?? 'them'}`}>Remove</Button></li>)}</ul>
+  return <section className="stack compact card leave-calendar"><div className="heading-row"><h2>Leave</h2>{!readOnly && <Button variant="secondary" onClick={() => { setWho(workers[0]?.user_id ?? ''); setFrom(today()); setTo(today()); setKind('leave'); setOpen(true); }}>Add leave</Button>}</div>
+    {rows.length ? <ul className="timeoff-list">{rows.map(e => <li key={e.id}><span><strong>{e.name ?? 'Team member'}</strong> · {kindLabel(e.kind)}{(e as Entry & { status?: string }).status === 'pending' ? ' (waiting)' : ''} · {e.starts_on === e.ends_on ? nice(e.starts_on) : `${nice(e.starts_on)} to ${nice(e.ends_on)}`}</span>{!readOnly && <Button variant="secondary" onClick={() => void remove(e.id)} aria-label={`Remove leave for ${e.name ?? 'them'}`}>Remove</Button>}</li>)}</ul>
       : <p className="small muted">Nobody is away. Add leave here, and jobs are not given to that person on those days.</p>}
     <Dialog open={open} onClose={() => setOpen(false)} busy={busy} title="Add leave" footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} onClick={add}>Save</Button></>}>
       <div className="stack compact">

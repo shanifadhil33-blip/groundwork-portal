@@ -31,6 +31,7 @@ function Chip({ j, onOpen }: { j: Job; onOpen: (j: Job) => void }) {
 
 /** One sheet to move a job: day, hour, person. Done jobs only open. */
 function MoveSheet({ j, base, tz, people, onClose, onSaved }: { j: Job; base: string; tz: string; people: Person[]; onClose: () => void; onSaved: () => void }) {
+  const officeStaff = useApp().member?.staff_kind === 'office';
   const [day, setDay] = useState(j.day ?? localDate(Date.now(), tz)), [hour, setHour] = useState(String(j.hour ?? 9)), [who, setWho] = useState(j.assignee_id ?? ''), [busy, setBusy] = useState(false), [error, setError] = useState(''), toast = useToast();
   const done = j.status === 'done';
   async function save() {
@@ -43,7 +44,7 @@ function MoveSheet({ j, base, tz, people, onClose, onSaved }: { j: Job; base: st
     <div className="stack"><strong>{j.title}</strong><span className="small muted">{j.site_name}</span>
       {!done && <><div className="form-field"><span className="field-label">Day</span><DatePicker label="Day" value={day} onChange={v => v && setDay(v)} disabled={busy} /></div>
         <div className="form-field"><span className="field-label">Time</span><Dropdown label="Time" value={hour} disabled={busy} options={HOURS.map(h => ({ value: String(h), label: hourLabel(h) }))} onChange={setHour} /></div>
-        <div className="form-field"><span className="field-label">Person</span><Dropdown label="Person" value={who} disabled={busy} options={[{ value: '', label: 'Nobody yet' }, ...people.map(p => ({ value: p.user_id, label: p.name ?? 'Team member' }))]} onChange={setWho} /></div></>}
+        {!officeStaff && <div className="form-field"><span className="field-label">Person</span><Dropdown label="Person" value={who} disabled={busy} options={[{ value: '', label: 'Nobody yet' }, ...people.map(p => ({ value: p.user_id, label: p.name ?? 'Team member' }))]} onChange={setWho} /></div>}</>}
       {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog>;
 }
 

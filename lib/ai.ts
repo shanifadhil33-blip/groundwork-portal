@@ -4,25 +4,27 @@ import { z } from 'zod';
 export const unavailable={available:false as const,message:'AI summaries are unavailable right now. You can still review and approve rows.'};
 const item=z.object({row_id:z.uuid(),summary:z.string().max(140),priority:z.enum(['low','normal','high','urgent'])});
 /**
- * Free provider fallback chain. Order: Gemini (key in use), Groq, Cerebras, OpenRouter free models, Mistral, GitHub Models.
+ * Free provider fallback chain. Order: Gemini, OpenRouter free models, SambaNova (key expires about Jan 11 2027, renew before Jan 14), Cloudflare Workers AI (best for simple replies), then Groq, Cerebras, Mistral, GitHub Models when their keys exist.
  * A provider is used only when its key is set in Vercel env. Models can be changed without code via AI_<PROVIDER>_MODELS (comma list).
  * Every attempt has a timeout; 5xx and timeouts get one quick retry; 429 and quota errors move on at once and cool that model down.
  */
 type Kind='gemini'|'openai';
 export type Provider={name:string;kind:Kind;url:string;headers:Record<string,string>;model:string};
-const CHAIN:{id:string;kind:Kind;key:string;url:(model:string)=>string;models:string[];extra?:Record<string,string>}[]=[
+const CHAIN:{id:string;kind:Kind;key:string;url:(model:string,env:Record<string,string|undefined>)=>string;models:string[];extra?:Record<string,string>}[]=[
  {id:'gemini',kind:'gemini',key:'GEMINI_API_KEY',url:m=>`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,models:['gemini-3.8-flash','gemini-3.6-flash','gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-2.5-flash-lite']},
+ {id:'openrouter',kind:'openai',key:'OPENROUTER_API_KEY',url:()=>'https://openrouter.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','google/gemma-4-31b-it:free','nvidia/nemotron-3-ultra-550b-a55b:free','google/gemma-4-26b-a4b-it:free'],extra:{'HTTP-Referer':'https://groundwork-portal.vercel.app','X-Title':'Groundwork'}},
+ {id:'sambanova',kind:'openai',key:'SAMBANOVA_API_KEY',url:()=>'https://api.sambanova.ai/v1/chat/completions',models:['DeepSeek-V3.1','gpt-oss-120b']},
+ {id:'cloudflare',kind:'openai',key:'CLOUDFLARE_AI_TOKEN',url:(_m,env)=>`https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/ai/v1/chat/completions`,models:['@cf/meta/llama-3.3-70b-instruct-fp8-fast','@cf/openai/gpt-oss-120b']},
  {id:'groq',kind:'openai',key:'GROQ_API_KEY',url:()=>'https://api.groq.com/openai/v1/chat/completions',models:['openai/gpt-oss-120b','qwen/qwen3.8-27b','llama-3.3-70b-versatile']},
  {id:'cerebras',kind:'openai',key:'CEREBRAS_API_KEY',url:()=>'https://api.cerebras.ai/v1/chat/completions',models:['gpt-oss-120b','qwen-3.8-27b']},
- {id:'openrouter',kind:'openai',key:'OPENROUTER_API_KEY',url:()=>'https://openrouter.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','google/gemma-4-31b-it:free','nvidia/nemotron-3-ultra-550b-a55b:free','google/gemma-4-26b-a4b-it:free'],extra:{'HTTP-Referer':'https://groundwork-portal.vercel.app','X-Title':'Groundwork'}},
  {id:'mistral',kind:'openai',key:'MISTRAL_API_KEY',url:()=>'https://api.mistral.ai/v1/chat/completions',models:['mistral-medium-latest','mistral-small-latest']},
  {id:'github',kind:'openai',key:'GITHUB_MODELS_TOKEN',url:()=>'https://models.github.ai/inference/chat/completions',models:['openai/gpt-4.1-mini']},
 ];
 export function providers(env:Record<string,string|undefined>=process.env):Provider[]{
  const out:Provider[]=[];
- for(const p of CHAIN){const key=env[p.key];if(!key)continue;
+ for(const p of CHAIN){const key=env[p.key];if(!key||(p.id==='cloudflare'&&!env.CLOUDFLARE_ACCOUNT_ID))continue;
   const models=(env[`AI_${p.id.toUpperCase()}_MODELS`]?.split(',').map(m=>m.trim()).filter(Boolean))||p.models;
-  for(const model of models)out.push({name:`${p.id}/${model}`,kind:p.kind,url:p.url(model),model,headers:p.kind==='gemini'?{'x-goog-api-key':key}:{Authorization:`Bearer ${key}`,...p.extra}});}
+  for(const model of models)out.push({name:`${p.id}/${model}`,kind:p.kind,url:p.url(model,env),model,headers:p.kind==='gemini'?{'x-goog-api-key':key}:{Authorization:`Bearer ${key}`,...p.extra}});}
  return out;
 }
 // Warm instances remember models that just hit a limit, so the next request skips straight to one that works.

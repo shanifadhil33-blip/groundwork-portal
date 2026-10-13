@@ -12,6 +12,9 @@ export function notificationMessage(r:Record<string,any>, client=false) {
  const labels=client?clientStatusLabels:statusLabels, status=(value:string)=>labels[value]??label(value);
  const title=r.work_order_title??r.current_title??'your job',actor=r.actor_name??'Your team';
  if(r.kind==='status_changed')return r.from_status&&r.to_status?`${actor} moved ${title} from ${status(r.from_status)} to ${status(r.to_status)}.`:r.to_status?`${actor} moved ${title} to ${status(r.to_status)}.`:`${actor} updated the status of ${title}.`;
+ if(r.kind==='quote_sent')return `${actor} sent a price for ${title}. Approve or decline it on the job.`;
+ if(r.kind==='quote_decided')return `${actor} ${r.to_status==='approved'?'approved':'declined'} the price for ${title}.`;
+ if(r.kind==='visit_confirmed')return `${actor} confirmed the visit time for ${title}.`;
  if(r.kind==='leave_requested')return `${actor} asked for time off: ${r.work_order_title??'some days'}. Approve or decline it on Home.`;
  if(r.kind==='leave_decided')return `${actor} ${r.to_status==='approved'?'approved':'declined'} your time off: ${r.work_order_title??'your days'}.`;
  if(r.kind==='comment_added')return `${actor} added a comment visible to the client to ${title}.`;

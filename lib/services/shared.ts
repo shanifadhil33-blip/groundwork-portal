@@ -19,7 +19,7 @@ export async function inWorkspace<T>(user: string, ws: string, fn: (ctx: Context
     return fn({db,user,ws,...m});
   });
 }
-/** Office staff (ROLE11) run jobs, not the team: only admins and supervisors assign, change the team or decide leave. */
+/** Office staff (ROLE08) run jobs, not the team: only admins and supervisors assign, change the team or decide leave. */
 export const isOfficeStaff = (ctx: Context) => ctx.role === 'staff' && ctx.staff_kind === 'office';
 export function allowTeam(ctx: Context) { if (!['admin', 'staff'].includes(ctx.role) || isOfficeStaff(ctx)) throw new ApiError(403, 'forbidden', 'Only an admin or supervisor can change the team, give jobs to people or decide leave.'); }
 export function allow(ctx: Context, roles: string[]) { if (!roles.includes(ctx.role)) throw forbidden(); }

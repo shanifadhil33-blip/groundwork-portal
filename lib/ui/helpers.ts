@@ -4,7 +4,7 @@ export function safeRedirect(value?: string | null) {
   return value && value.startsWith('/') && !value.startsWith('//') && !/[\\\r\n]/.test(value) ? value : '/dashboard';
 }
 export function shouldDismissSheet(distance: number, velocity: number) { return distance > 100 || (distance > 24 && velocity > 0.6); }
-export function homeForPersona(persona: string) { return persona === 'pranav' || persona === 'omar' ? '/home' : '/dashboard'; }
+export function homeForPersona(persona: string) { return ['pranav', 'omar', 'kevin', 'faisal'].includes(persona) ? '/home' : '/dashboard'; }
 export function relativeLabel(value: string, now: number) {
   const diff = new Date(value).getTime() - now;
   if (!Number.isFinite(diff)) return 'Unknown time';

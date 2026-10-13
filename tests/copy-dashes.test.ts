@@ -54,8 +54,8 @@ function allowedData(text: string) {
     /^(?:groundwork-|lx-|demo-ip:|first-use:|work-order-draft:|comment-visibility:)[\w:=-]*$/.test(text) ||
     /^(?:COBALT-DEMO-\d*|demo-(?:ordered|shipped|delivered)-\d*)$/.test(text) ||
     /^groundwork-(?:demo|session)=.*; Path=\/; SameSite=Lax; Max-Age=\d+$/.test(text) ||
-    // AI model identifiers (provider/model-version, optional :free).
-    /^(?=[^ ]*\d)(?:[a-z0-9]+\/)?[a-z0-9.]+(?:-[a-z0-9.]+)+(?::free)?$/.test(text) ||
+    // AI model identifiers (provider/model-version, optional :free; SambaNova uses capitals, Cloudflare @cf/vendor/model).
+    /^(?=[^ ]*\d)(?:@?[a-z0-9-]+\/)*[A-Za-z0-9.]+(?:-[A-Za-z0-9.]+)+(?::free)?$/.test(text) ||
     /^; Path=\/api\/demo; HttpOnly; SameSite=Lax; Max-Age=\d+$/.test(text) ||
     /^=?;?\s*Path=\/; SameSite=/.test(text) ||
     /^attachment; filename="import-errors\.csv"$/.test(text) ||

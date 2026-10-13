@@ -4,6 +4,7 @@ export const ids = {
   imran: '10000000-0000-4000-8000-000000000001', sam: '10000000-0000-4000-8000-000000000002',
   pranav: '10000000-0000-4000-8000-000000000003', omar: '10000000-0000-4000-8000-000000000004',
   summitAdmin: '10000000-0000-4000-8000-000000000005', ravi: '10000000-0000-4000-8000-000000000006',
+  nabil: '10000000-0000-4000-8000-000000000007', kevin: '10000000-0000-4000-8000-000000000008', faisal: '10000000-0000-4000-8000-000000000009',
   ridgeline: '20000000-0000-4000-8000-000000000001', summit: '20000000-0000-4000-8000-000000000002',
   harbor: '30000000-0000-4000-8000-000000000001', northgate: '30000000-0000-4000-8000-000000000002',
   larkspur: '30000000-0000-4000-8000-000000000003', summitClient: '30000000-0000-4000-8000-000000000004',
@@ -31,7 +32,7 @@ export function fixtureDates(n:number,today:string,timezone:string) {
 type FixtureIds=typeof ids;
 export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n:number)=>string,orderId:(n:number)=>string,demo=false,supplierSandbox=false) {
  const prefix=demo?ids.ridgeline+':':''; // Supplier references and event IDs stay unique across sandboxes.
-  for (const [id,name] of ([[ids.imran,'Imran'],[ids.sam,'Sam'],[ids.pranav,'Pranav'],[ids.omar,'Omar'],[ids.ravi,'Ravi'],...(demo?[]:[[ids.summitAdmin,'Alex']])])) {
+  for (const [id,name] of ([[ids.imran,'Imran'],[ids.sam,'Sam'],[ids.pranav,'Pranav'],[ids.omar,'Omar'],[ids.ravi,'Ravi'],[ids.nabil,'Nabil'],[ids.kevin,'Kevin'],[ids.faisal,'Faisal'],...(demo?[]:[[ids.summitAdmin,'Alex']])])) {
    await client.query('INSERT INTO users(id,name,email,is_demo,demo_workspace_id,demo_persona) VALUES($1,$2,$3,$4,$5,$6)',[id,name,(demo||supplierSandbox)?`${name.toLowerCase()}.${ids.ridgeline}@demo.groundwork.invalid`:`${name.toLowerCase()}@${name==='Alex'?'summit':'ridgeline'}.demo`,(demo||supplierSandbox),(demo||supplierSandbox)?(name==='Alex'?ids.summit:ids.ridgeline):null,(demo||supplierSandbox)?(name==='Alex'?'imran':name.toLowerCase()):null]);
   }
   await client.query("SELECT set_config('app.user_id',$1,true)",[ids.imran]);
@@ -43,7 +44,10 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    [ids.larkspur,ids.ridgeline,'Larkspur Coworking Studio','Laith Haddad','+97165550172','hello@larkspur.example','Larkspur Studio, Floor 3','Al Khan Street','Al Majaz 3','Sharjah',null],
    ...(demo?[]:[[ids.summitClient,ids.summit,'Juniper Business Park','Rashid Al Nuaimi','+97125550145','estates@juniper.example','Juniper Tower, Floor 18','Hamdan Bin Mohammed Street','Al Danah','Abu Dhabi',null] as [string,string,string,string,string,string,string,string,string,string,string|null]])];
   for (const [id,ws,name,contact,phone,email,building,street,area,city,notes] of clientRecords) await client.query('INSERT INTO clients(id,workspace_id,name,contact_name,phone,email,billing_building,billing_street,billing_area,billing_city,billing_region,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',[id,ws,name,contact,phone,email,building,street,area,city,city,notes]);
-  for (const [ws,user,role,company] of [[ids.ridgeline,ids.imran,'admin',null],[ids.ridgeline,ids.sam,'staff',null],[ids.ridgeline,ids.ravi,'technician',null],[ids.ridgeline,ids.pranav,'client',ids.harbor],[ids.ridgeline,ids.omar,'client',ids.northgate],...(demo?[]:[[ids.summit,ids.summitAdmin,'admin',null]])]) await client.query('INSERT INTO members(workspace_id,user_id,role,client_id) VALUES($1,$2,$3,$4)',[ws,user,role,company]);
+  for (const [ws,user,role,company] of [[ids.ridgeline,ids.imran,'admin',null],[ids.ridgeline,ids.sam,'staff',null],[ids.ridgeline,ids.ravi,'technician',null],[ids.ridgeline,ids.pranav,'client',ids.harbor],[ids.ridgeline,ids.nabil,'staff',null],[ids.ridgeline,ids.kevin,'client',ids.harbor],[ids.ridgeline,ids.faisal,'client',ids.northgate],[ids.ridgeline,ids.omar,'client',ids.northgate],...(demo?[]:[[ids.summit,ids.summitAdmin,'admin',null]])]) await client.query('INSERT INTO members(workspace_id,user_id,role,client_id) VALUES($1,$2,$3,$4)',[ws,user,role,company]);
+  // Nabil is office staff at the maintenance company; Kevin is client office staff at Harbor & Pine; Faisal is a household at Northgate.
+  await client.query("UPDATE members SET staff_kind='office' WHERE workspace_id=$1 AND user_id=$2",[ids.ridgeline,ids.nabil]);
+  await client.query("UPDATE members SET client_kind=CASE WHEN user_id=$2 THEN 'office' ELSE 'household' END WHERE workspace_id=$1 AND user_id IN ($2,$3)",[ids.ridgeline,ids.kevin,ids.faisal]);
   // The demo company is based in Dubai: UAE emirates, +971 numbers and AED.
   if(demo) await client.query("UPDATE workspaces SET country='AE',region='Dubai',currency='AED' WHERE id=$1",[ids.ridgeline]);
   const names=['Marina Exchange','Pine Terrace','Harbor Annex','Northgate East','Northgate West','Larkspur Loft','Juniper Court'];
@@ -116,6 +120,9 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
  await client.query("UPDATE work_orders SET assignee_id=CASE WHEN order_number%2=0 THEN $2::uuid ELSE $3::uuid END WHERE workspace_id=$1 AND status='done' AND assignee_id IS NULL",[ids.ridgeline,extra[0],extra[1]]);
  for(const user of [ids.sam,ids.omar])await client.query("INSERT INTO notifications(user_id,workspace_id,kind,entity_id) VALUES($1,$2,'request_created',$3)",[user,ids.ridgeline,orderId(user===ids.sam?1:4)]);
  }
+ // Faisal (household) raised two Northgate requests himself. One Harbor job and one of Faisal's wait for a price answer; one booked visit waits for a confirmation.
+ await client.query("UPDATE work_orders SET created_by=$3 WHERE id IN (SELECT id FROM work_orders WHERE workspace_id=$1 AND client_id=$2 AND status NOT IN ('done','cancelled') ORDER BY order_number LIMIT 2)",[ids.ridgeline,ids.northgate,ids.faisal]);
+ await client.query("UPDATE work_orders SET quote_amount=CASE WHEN client_id=$2 THEN 850 ELSE 320 END, quote_note=CASE WHEN client_id=$2 THEN 'New pump motor and two hours of work.' ELSE 'Replace the tap cartridge, parts and labour.' END, quote_status='pending' WHERE id IN ((SELECT id FROM work_orders WHERE workspace_id=$1 AND client_id=$2 AND status NOT IN ('done','cancelled') ORDER BY order_number LIMIT 1),(SELECT id FROM work_orders WHERE workspace_id=$1 AND created_by=$3 ORDER BY order_number LIMIT 1))",[ids.ridgeline,ids.harbor,ids.faisal]);
  // Job reports on finished work, in the technician's own words, plus one waiting for a part and one the supervisor must decide on.
  await client.query(`UPDATE work_orders SET report_outcome=CASE WHEN order_number%5=0 THEN 'temporary' ELSE 'fixed' END, report_by=assignee_id, report_at=updated_at,
    report_problem=CASE WHEN title ~* 'light' THEN 'The light did not turn on.' WHEN title ~* '(tap|pump|drain)' THEN 'Water was leaking.' WHEN title ~* 'door' THEN 'The door did not close by itself.' WHEN title ~* '(cool|ventilation)' THEN 'The room was too warm.' ELSE 'It was broken.' END,

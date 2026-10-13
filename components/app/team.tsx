@@ -78,9 +78,9 @@ export function Team() {
       {!demo && <AddFieldWorker base={base} admin={member?.role === 'admin'} demo={demo} onDone={() => void team.reload()} />}</PageHeader>
     {demo && <p className="small muted">In the demo you cannot add new people. Everything else works.</p>}
     {team.loading ? <Skeleton className="skeleton-card" /> : team.error ? <ErrorState retry={team.reload} /> :
-      others.length ? <ul className="person-list">{(team.data ?? []).map(p => <PersonCard key={p.user_id} p={p} base={base} canLink={!demo} canEdit={office} canRoles={member?.role === 'admin'} areas={areas.data ?? []} self={p.user_id === me.user.id} onDone={() => { void team.reload(); if (p.user_id === me.user.id) reload(); }} />)}</ul> :
+      others.length ? <ul className="person-list">{(team.data ?? []).map(p => <PersonCard key={p.user_id} p={p} base={base} canLink={!demo&&member?.staff_kind!=='office'} canEdit={office&&member?.staff_kind!=='office'} canRoles={member?.role === 'admin'} areas={areas.data ?? []} self={p.user_id === me.user.id} onDone={() => { void team.reload(); if (p.user_id === me.user.id) reload(); }} />)}</ul> :
       <EmptyState title="Add your first worker">Add a name and phone. We give you a code to send on WhatsApp. They sign in with it. No email needed.</EmptyState>}
-    {office && others.length > 0 && <LeaveCalendar base={base} people={team.data ?? []} />}
+    {office && others.length > 0 && <LeaveCalendar base={base} people={team.data ?? []} readOnly={member?.staff_kind==='office'} />}
     {member?.role === 'admin' && <ArchivedMembers key={(team.data ?? []).length} base={base} onChanged={() => void team.reload()} />}
     {member?.role === 'admin' && !demo && <p className="small"><Link href="/settings?tab=members">Change roles or invite by email</Link></p>}
   </div>;
