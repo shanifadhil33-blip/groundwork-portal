@@ -64,9 +64,9 @@ describe('Postgres tenant isolation',()=>{
   expect(await rows(ids.pranav,'SELECT id FROM audit_log')).toHaveLength(0);
  });
  it('notifications belong only to their recipient',async()=>{
-  expect(await rows(ids.pranav,'SELECT id FROM notifications')).toHaveLength(1);
-  expect(await rows(ids.imran,'SELECT id FROM notifications')).toHaveLength(0);
-  expect(await rows(ids.pranav,'UPDATE notifications SET read_at=now() RETURNING id')).toHaveLength(1);
+  const own=await rows(ids.pranav,'SELECT id,user_id FROM notifications');expect(own.length).toBeGreaterThan(0);expect(own.every(n=>n.user_id===ids.pranav)).toBe(true);
+  expect((await rows(ids.imran,'SELECT user_id FROM notifications')).every(n=>n.user_id===ids.imran)).toBe(true);
+  expect(await rows(ids.pranav,'UPDATE notifications SET read_at=now() RETURNING id')).toHaveLength(own.length);
   await expect(withUser(ids.pranav,c=>c.query('UPDATE notifications SET user_id=$1',[ids.omar]))).rejects.toMatchObject({code:'42501'});
  });
  it('auth tables are owner-only',async()=>{

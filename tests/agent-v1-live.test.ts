@@ -60,7 +60,7 @@ it('a client edit by the agent has a why built from the request and effects, and
   const c = await post({ messages: [], confirm_action_id: p.body.pending_action.id }); expect(c.body.reply).toMatch(/^Done, Imran\./); expect(c.body.logged).toBe(true);
   const { undoDecision, listDecisions } = await import('../lib/services/agent-log');
   expect((await listDecisions(ids.imran, ids.ridgeline)).find((d: any) => d.id === p.body.pending_action.id)?.can_undo).toBe(true);
-  expect((await listDecisions(ids.sam, ids.ridgeline)).find((d: any) => d.id === p.body.pending_action.id)?.can_undo).toBe(false);
+  expect((await listDecisions(ids.sam, ids.ridgeline)).find((d: any) => d.id === p.body.pending_action.id)?.can_undo).toBeUndefined();
   await undoDecision(ids.imran, ids.ridgeline, p.body.pending_action.id);
   expect((await withSystem(async db => (await db.query('SELECT contact_name FROM clients WHERE id=$1', [ids.harbor])).rows[0])).contact_name ?? '').toBe(before.contact_name ?? '');
   await withSystem(db => db.query('DELETE FROM assistant_actions WHERE id=$1', [p.body.pending_action.id]));

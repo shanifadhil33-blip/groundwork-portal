@@ -133,15 +133,15 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
  // Harbor & Pine has a maintenance contract: two finished jobs are covered by it, one was paid, the rest are to bill.
  await client.query("UPDATE clients SET contract_visits=12, contract_ends_on=$3 WHERE workspace_id=$1 AND id=$2",[ids.ridgeline,ids.harbor,dayOffset(today,170)]);
  await client.query(`UPDATE work_orders SET payment_status=CASE WHEN r<=2 THEN 'contract' ELSE 'paid' END FROM (SELECT id, row_number() OVER (ORDER BY order_number) r FROM work_orders WHERE workspace_id=$1 AND client_id=$2 AND status='done') d WHERE work_orders.id=d.id AND d.r<=3`,[ids.ridgeline,ids.harbor]);
- // Decision log: two past agent actions with a why note; the second was undone by the supervisor.
+ // Decision log: two past agent actions with a why note; the second was undone by its owner.
  const past=(await client.query("SELECT id,order_number,title,assignee_id,priority FROM work_orders WHERE workspace_id=$1 AND status IN ('open','scheduled') ORDER BY order_number LIMIT 2",[ids.ridgeline])).rows;
  if(past.length===2){
   await client.query(`INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,before,consumed_at,outcome,expires_at) VALUES
    ($1,$2,'set_priority',$3,$4,'The client said water is reaching the corridor, so it should go first.',$5,now()-interval '3 hours','done',now()-interval '3 hours'),
    ($1,$2,'set_priority',$6,$7,'You asked me to move it down because the client is away this week.',$8,now()-interval '1 day','done',now()-interval '1 day')`,
-   [ids.ridgeline,ids.imran,JSON.stringify({id:past[0].id,priority:'high'}),`Change priority for WO-${past[0].order_number} ${past[0].title}: ${past[0].priority} to high`,JSON.stringify({id:past[0].id,priority:past[0].priority,status:'open'}),
-    JSON.stringify({id:past[1].id,priority:'low'}),`Change priority for WO-${past[1].order_number} ${past[1].title}: ${past[1].priority} to low`,JSON.stringify({id:past[1].id,priority:past[1].priority,status:'open'})]);
-  await client.query("UPDATE assistant_actions SET undone_at=now()-interval '20 hours', undone_by=$2 WHERE workspace_id=$1 AND consumed_at < now()-interval '20 hours'",[ids.ridgeline,ids.sam]);
+   [ids.ridgeline,ids.imran,JSON.stringify({id:past[0].id,priority:'high'}),`Change priority for WO ${past[0].order_number} ${past[0].title}: ${past[0].priority} to high`,JSON.stringify({id:past[0].id,priority:past[0].priority,status:'open'}),
+    JSON.stringify({id:past[1].id,priority:'low'}),`Change priority for WO ${past[1].order_number} ${past[1].title}: ${past[1].priority} to low`,JSON.stringify({id:past[1].id,priority:past[1].priority,status:'open'})]);
+  await client.query("UPDATE assistant_actions SET undone_at=now()-interval '20 hours', undone_by=$2 WHERE workspace_id=$1 AND consumed_at < now()-interval '20 hours'",[ids.ridgeline,ids.imran]);
  }
  // Creation events are inserted at record creation; updates/comments follow them.
  await client.query("UPDATE notifications n SET created_at=o.updated_at FROM work_orders o WHERE n.workspace_id=$1 AND n.entity_id=o.id",[ids.ridgeline]);

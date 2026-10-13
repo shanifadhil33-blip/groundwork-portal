@@ -103,7 +103,9 @@ export async function callTool(c:AgentContext,name:string,args:unknown) {
   if(t.write&&c.kind==='agent'&&!c.approved){
    const queued=await withSystem(async db=>{const m=(await db.query('SELECT approval_mode FROM workspaces WHERE id=$1',[c.ws])).rows[0]?.approval_mode;if(m!=='every')return null;
     const jobId=(a as any).work_order_id??(name.includes('work_order')||name.startsWith('set_job')||name==='set_priority'?(a as any).id:undefined);const order=jobId?(await db.query('SELECT * FROM work_orders WHERE id=$1 AND workspace_id=$2',[jobId,c.ws])).rows[0]??null:null;
-    return (await db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,source,token_id,expires_at) VALUES($1,$2,$3,$4,$5,$6,'key',$7,now()+interval '7 days') RETURNING id",[c.ws,c.user,name,JSON.stringify(a),actionSummary(name,a,order).slice(0,600),'Asked by a connected AI tool',c.tokenId??null])).rows[0].id as string;},c.user);
+    const action=(await db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,source,token_id,expires_at) VALUES($1,$2,$3,$4,$5,$6,'key',$7,now()+interval '7 days') RETURNING id",[c.ws,c.user,name,JSON.stringify(a),actionSummary(name,a,order).slice(0,600),'Asked by a connected AI tool',c.tokenId??null])).rows[0].id as string;
+    await db.query("INSERT INTO company_action_approvals(id,workspace_id,requested_by,tool,args,summary,token_id,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,now()+interval '7 days')",[action,c.ws,c.user,name,JSON.stringify(a),['send_message','send_team_message'].includes(name)?'Send a private message':actionSummary(name,a,order).slice(0,600),c.tokenId??null]);
+    return action;},c.user);
    if(queued){const data={status:'waiting_for_approval',approval_id:queued,message:'This company asks before every action. The change is waiting for an admin to approve it in Groundwork. Nothing has changed yet.'};return {content:[{type:'text' as const,text:JSON.stringify(data)}],structuredContent:{result:data}};}
   }
   const value=await asAgent({kind:c.kind,tokenId:c.tokenId},()=>t.run(c,a));

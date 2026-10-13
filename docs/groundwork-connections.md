@@ -241,3 +241,14 @@ The requested shared folder is outside the writable workspace. This repository c
 | Who does it | Who it reaches | Where it shows | What happens next | Status |
 | --- | --- | --- | --- | --- |
 | Company owner through admin access, admin, supervisor, technician or office staff | Current maintenance company members in the same workspace | Team space, unread dot, bell, Agent attention and list_team_messages | Reply, show original text, or admin pin or remove; clients and households cannot enter | fixed now |
+
+## Personal Agent data
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Each user changes his Agent name, voice, language, chat or personal learning | That user only, including separate admin and technician data | His Agent, personal settings, his chat and his log | Future replies use only his preferences and learning; admins cannot read another person's chat or log | fixed now |
+
+## Company rules and approval proposals
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| Admin saves a company rule or reviews a connected tool proposal | Company members for rules, admin for proposed company actions | What I've learned with Company rule label, separate approval queue | Rules provide company context; approved actions run with the original user's current permissions and stay in that user's personal log | fixed now |

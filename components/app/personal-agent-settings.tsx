@@ -31,4 +31,9 @@ export function PersonalAgentSettings(){
  {error&&<p role="alert">{error}</p>}{notice&&<p role="status">{notice}</p>}<Button type="submit" busy={busy} disabled={!!member&&(settings.loading||!!settings.error)}>Save</Button>
  </form>}<Link href="/settings/agent/log">What I've learned</Link></div>;
 }
-export function PersonalAgentLog(){const {member}=useApp();return <div className="page stack agent-settings"><Link href="/settings/agent">Back to Agent</Link><h1>What I've learned</h1>{member&&<AgentLog base={`/api/workspaces/${member.workspace_id}`}/>}</div>;}
+export function PersonalAgentLog(){
+ const {member}=useApp(),base=member?`/api/workspaces/${member.workspace_id}`:null,learning=useResource<{data:{id:string;body:string;label:string;scope:string}[]}>(base?`${base}/assistant/learning`:null);
+ const [body,setBody]=useState(''),[scope,setScope]=useState('personal'),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ async function save(){if(!base)return;setBusy(true);setError('');try{await request(`${base}/assistant/learning`,{method:'POST',body:JSON.stringify({body,scope})});setBody('');await learning.reload();}catch(e){setError(e instanceof Error?e.message:'Could not save. Try again.');}finally{setBusy(false);}}
+ return <div className="page stack agent-settings"><Link href="/settings/agent">Back to Agent</Link><h1>What I've learned</h1>{learning.error?<ErrorState retry={learning.reload}/>:<ul className="action-list">{learning.data?.data.map(l=><li key={l.id}><div><strong>{l.label}</strong><p data-no-translate>{l.body}</p></div></li>)}</ul>}<label>Remember this<textarea value={body} maxLength={2000} onChange={e=>setBody(e.target.value)}/></label>{member?.role==='admin'&&<label>Who is this for<select value={scope} onChange={e=>setScope(e.target.value)}><option value="personal">Only me</option><option value="company_rule">Company rule</option></select></label>}<Button busy={busy} disabled={!body.trim()} onClick={()=>void save()}>Save</Button>{error&&<p role="alert">{error}</p>}{base&&<AgentLog base={base}/>}</div>;
+}

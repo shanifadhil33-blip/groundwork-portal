@@ -43,18 +43,18 @@ describe('decision log and undo', () => {
     const changed = await patchWorkOrder(ids.imran, ws, o.id, { assignee_id: ids.sam, updated_at: new Date(o.updated_at).toISOString() }) as any;
     expect(changed.assignee_id).toBe(ids.sam);
     const id = await logAction('assign_work_order', snap);
-    const log = await listDecisions(ids.sam, ws);
+    const log = await listDecisions(ids.imran, ws);
     expect(log.find((d: any) => d.id === id)).toMatchObject({ why: 'Because the test said so', can_undo: true });
-    await undoDecision(ids.sam, ws, id);
+    await undoDecision(ids.imran, ws, id);
     const back = await withSystem(async db => (await db.query('SELECT assignee_id FROM work_orders WHERE id=$1', [o.id])).rows[0], ids.imran);
     expect(back.assignee_id).toBe(o.assignee_id ?? null);
-    expect((await listDecisions(ids.imran, ws)).find((d: any) => d.id === id)).toMatchObject({ undone_by_name: 'Sam', can_undo: false });
+    expect((await listDecisions(ids.imran, ws)).find((d: any) => d.id === id)).toMatchObject({ undone_by_name: 'Imran', can_undo: false });
     await expect(undoDecision(ids.imran, ws, id)).rejects.toMatchObject({ status: 409 });
   });
-  it('technicians and clients cannot read the log or undo', async () => {
+  it('technicians and clients read only their own logs and cannot undo another user action', async () => {
     const id = await logAction('set_priority', { id: (await job()).id, priority: 'normal' });
-    await expect(listDecisions(ids.ravi, ws)).rejects.toBeTruthy();
-    await expect(listDecisions(ids.pranav, ws)).rejects.toBeTruthy();
+    expect(await listDecisions(ids.ravi, ws)).toEqual([]);
+    expect(await listDecisions(ids.pranav, ws)).toEqual([]);
     await expect(undoDecision(ids.ravi, ws, id)).rejects.toBeTruthy();
   });
 });

@@ -1,5 +1,6 @@
 'use client';
 import { plainAssistantReply } from '../../lib/ui/assistant-replies';
+import { personalAgentChatKey } from '../../lib/ui/personal-agent';
 import { useApp } from './context';
 import Link from 'next/link';
 import { useResource } from './resource';
@@ -14,7 +15,7 @@ type Message={role:'user'|'assistant';content:string};
 type Pending={id:string;summary:string;why?:string};
 type Reply={available:boolean;logged?:boolean;reply?:string;choices?:string[];message?:string;pending_action?:Pending;result?:{isError?:boolean}};
 export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boolean;onClose:()=>void;ask?:{text:string;n:number}|null;docked?:boolean}){
- const {member}=useApp();
+ const {member,me}=useApp();
  const preferences=useResource<{agent_name:string|null;voice_enabled:boolean;language:string|null}>('/api/me/preferences');
  const agentName=preferences.data?.agent_name||'Agent';
  const heading=<Link href="/settings/agent" onClick={onClose} data-no-translate={!!preferences.data?.agent_name}>{agentName}</Link>;
@@ -22,13 +23,15 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
  const inputRef=useRef<HTMLTextAreaElement>(null);
  useEffect(()=>{const field=inputRef.current;if(!field)return;field.style.height='auto';field.style.height=`${Math.min(field.scrollHeight,156)}px`;field.style.overflowY=field.scrollHeight>156?'auto':'hidden';},[input,open]);
  // Keep chat across sheet closes and component remounts in this session.
+ const chatKey=personalAgentChatKey(me.user.id,ws);
+ const [restoredFor,setRestoredFor]=useState('');
  const [restored,setRestored]=useState(false),[choices,setChoices]=useState<string[]>([]);
  const newest=useRef<HTMLDivElement>(null),lock=useRef(false);
  useEffect(()=>{
-  try{const saved=JSON.parse(sessionStorage.getItem(`groundwork-assistant:${ws}`)??'null');if(Array.isArray(saved)&&saved.every(m=>m&&(m.role==='user'||m.role==='assistant')&&typeof m.content==='string'))setMessages(saved);}catch{ /* Storage may be unavailable. */ }
-  setRestored(true);
- },[ws]);
- useEffect(()=>{if(!restored)return;try{sessionStorage.setItem(`groundwork-assistant:${ws}`,JSON.stringify(messages));}catch{ /* Keep in-memory chat when storage is unavailable. */ }},[messages,ws,restored]);
+  try{sessionStorage.removeItem(`groundwork-assistant:${ws}`);const saved=JSON.parse(sessionStorage.getItem(personalAgentChatKey(me.user.id,ws))??'null');setMessages(Array.isArray(saved)&&saved.every(m=>m&&(m.role==='user'||m.role==='assistant')&&typeof m.content==='string')?saved:[]);}catch{ /* Storage may be unavailable. */ }
+  setRestoredFor(chatKey);setRestored(true);
+ },[ws,me.user.id]);
+ useEffect(()=>{if(!restored||restoredFor!==chatKey)return;try{sessionStorage.setItem(personalAgentChatKey(me.user.id,ws),JSON.stringify(messages));}catch{ /* Keep in-memory chat when storage is unavailable. */ }},[messages,ws,me.user.id,restored,restoredFor,chatKey]);
  useEffect(()=>{if(open||docked)newest.current?.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});},[messages,pending,resting,busy,open,docked]);
  async function send(payload:{messages:Message[];confirm_action_id?:string}){if(lock.current)return;lock.current=true;setBusy(true);setError('');setResting(false);setFailed(payload);try{const result=await post<Reply>(`/api/workspaces/${ws}/assistant`,payload);if(payload.confirm_action_id)setPending(null);if(!result.available){setMessages(current=>[...current,{role:'assistant',content:result.message??'I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.'}]);setFailed(null);}else{if(!result.pending_action)setMessages(current=>[...current,{role:'assistant',content:result.reply??'No changes were made.'}]);setPending(result.pending_action??null);if(result.logged)window.dispatchEvent(new Event('groundworkAgentLog'));setChoices(result.choices??[]);}if(result.available)setFailed(null);}catch(e){setError(e instanceof RequestError?e.message:'We couldn’t reach the agent. Please try again.');if(e instanceof RequestError&&[404,409].includes(e.status)){setPending(null);setFailed(null);}}finally{lock.current=false;setBusy(false);}}
  const asked=useRef(0);

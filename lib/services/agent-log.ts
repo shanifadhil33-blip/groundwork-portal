@@ -1,5 +1,5 @@
 import { restoreJob } from './job-records';
-import { withSystem } from '../db';
+import { withSystem,withUser } from '../db';
 import { ApiError, missing } from '../http';
 import { allow, inWorkspace, uuid } from './shared';
 import { patchWorkOrder } from './work-orders';
@@ -30,22 +30,21 @@ export function jobSnapshot(order: Record<string, any> | null) {
   return { id: order.id, ...Object.fromEntries(JOB_FIELDS.map(k => [k, order[k] instanceof Date ? order[k].toISOString() : order[k] ?? null])) };
 }
 
-/** The decision log: what the agent did in this company, why, and whether it was undone. Office only; read only. */
+/** Each person reads only what his own Agent did. Company approval proposals live separately. */
 export async function listDecisions(user: string, ws: string) {
-  const role = await inWorkspace(user, ws, async c => { allow(c, ['admin', 'staff']); return c.role; });
-  return withSystem(async db => (await db.query(
-    `SELECT a.id, a.tool, a.summary, a.why, a.consumed_at, a.undone_at, a.outcome, u.name AS by_name, x.name AS undone_by_name,
-       (a.undone_at IS NULL AND a.outcome='done' AND a.tool = ANY($2)) AS can_undo
-     FROM assistant_actions a LEFT JOIN users u ON u.id=a.user_id LEFT JOIN users x ON x.id=a.undone_by
-     WHERE a.workspace_id=$1 AND a.consumed_at IS NOT NULL ORDER BY a.consumed_at DESC LIMIT 20`, [ws, UNDOABLE])).rows
-    .map(r => ({ ...r, can_undo: r.can_undo && ((r.tool !== 'set_job_payment' && !RECORD_TOOLS.includes(r.tool)) || role === 'admin') })), user);
+ return inWorkspace(user,ws,async c=>(await c.db.query(
+  `SELECT a.id,a.tool,a.summary,a.why,a.consumed_at,a.undone_at,a.outcome,u.name AS by_name,x.name AS undone_by_name,
+    (a.undone_at IS NULL AND a.outcome='done' AND a.before->>'id' IS NOT NULL AND a.tool=ANY($2)) AS can_undo
+   FROM assistant_actions a LEFT JOIN LATERAL visible_user(a.user_id) u ON true LEFT JOIN LATERAL visible_user(a.undone_by) x ON true
+   WHERE a.workspace_id=$1 AND a.user_id=$3 AND a.consumed_at IS NOT NULL ORDER BY a.consumed_at DESC LIMIT 20`,[ws,UNDOABLE,user])).rows
+   .map(r=>({...r,can_undo:r.can_undo&&['admin','staff'].includes(c.role)&&((r.tool!=='set_job_payment'&&!RECORD_TOOLS.includes(r.tool))||c.role==='admin')})));
 }
 
 /** Undo puts the job back as it was. Same permission checks as doing it by hand, then the log records who undid it. */
 export async function undoDecision(user: string, ws: string, id: string) {
   uuid.parse(id);
   await inWorkspace(user, ws, async c => allow(c, ['admin', 'staff']));
-  const a = await withSystem(async db => (await db.query('SELECT * FROM assistant_actions WHERE workspace_id=$1 AND id=$2 AND consumed_at IS NOT NULL', [ws, id])).rows[0], user);
+  const a = await withUser(user,async db => (await db.query('SELECT * FROM assistant_actions WHERE workspace_id=$1 AND id=$2 AND user_id=$3 AND consumed_at IS NOT NULL', [ws, id,user])).rows[0]);
   if (!a) throw missing();
   if (a.undone_at) throw new ApiError(409, 'undone', 'This was already undone.');
   if (a.outcome !== 'done' || !UNDOABLE.includes(a.tool) || !a.before?.id) throw new ApiError(422, 'invalid', 'This one can not be undone here.');

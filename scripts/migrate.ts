@@ -54,6 +54,8 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT SELECT,INSERT,UPDATE ON message_reads,message_translations TO ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION can_message_person(uuid,uuid),conversation_reader(uuid,uuid),message_people(uuid) TO ${role}`);
     await client.query(`GRANT UPDATE(pinned_at,removed_at,removed_by,body,photo_ids,voice_note_text) ON messages TO ${role}`);
+    await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON personal_agent_learning,company_rules TO ${role}`);
+    await client.query(`GRANT SELECT(id,workspace_id,requested_by,tool,summary,token_id,created_at,expires_at,consumed_at,declined_at,decided_by,outcome) ON company_action_approvals TO ${role}`);
     await client.query('COMMIT');
   } catch(error) { await client.query('ROLLBACK'); throw error; }
 }
