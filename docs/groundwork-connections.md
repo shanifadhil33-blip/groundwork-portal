@@ -235,3 +235,9 @@ The requested shared folder is outside the writable workspace. This repository c
 | Who does it | Who it reaches | Where it shows | What happens next | Status |
 | --- | --- | --- | --- | --- |
 | Office staff or technician | The other person in either direction | Messages or the job Messages tab, unread dot, bell, Agent list_messages and attention | Company work; reply in the same private thread | fixed now |
+
+## Team space
+
+| Who does it | Who it reaches | Where it shows | What happens next | Status |
+| --- | --- | --- | --- | --- |
+| Company owner through admin access, admin, supervisor, technician or office staff | Current maintenance company members in the same workspace | Team space, unread dot, bell, Agent attention and list_team_messages | Reply, show original text, or admin pin or remove; clients and households cannot enter | fixed now |

@@ -27,6 +27,7 @@ async function raw(sql,values=[]){
   const pattern=/\t\s*(\d+): ([^\t\n]+) = (?:"([\s\S]*?)"|<>|NULL)\t\(typeid = (\d+),[^\n]*\)/g;
   for(const m of result.matchAll(pattern)){if(Number(m[1])===1&&Object.keys(row).length){rows.push(row);row={};}if(!Object.keys(row).length)row=blank();row[m[2]]=m[3]===undefined?null:types.getTypeParser(Number(m[4]))(m[3]);}
   if(Object.keys(row).length)rows.push(row);
+  if(!rows.length&&columns.length){const nullRows=result.split('\t----\n').length-2;for(let i=0;i<nullRows;i++)rows.push(blank());}
   resolve({rows,rowCount:rows.length});
  };backend.stdin.write(statement.replace(/\n\s*\n/g,'\n')+';\n\n');});
 }

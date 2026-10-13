@@ -85,6 +85,7 @@ const niceDay=(d:string)=>new Intl.DateTimeFormat('en',{weekday:'long',day:'nume
 /** Plain words for time off, like "Day off, Thursday 15 October". */
 export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',leave:'On leave',sick:'Sick'} as Record<string,string>)[kind]??'Time off'}, ${!to||to===from?niceDay(from):`${niceDay(from)} to ${niceDay(to)}`}`;
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
+  if(tool==='send_team_message')return `Send in Team space.\n${plainAssistantReply(args.body??'')}`;
   if(tool==='send_message')return `Send a message to ${plainAssistantReply(target??'this thread')}.\n${plainAssistantReply(args.body??'')}${args.photo_ids?.length?`\nPhotos: ${args.photo_ids.length}`:''}${args.work_order_id?`\nWho can read it: ${args.visibility==='internal'?'Team only':'Client and team'}`:''}`;
   if(tool==='suggest_job')return `Suggest ${plainAssistantReply(args.title)} for supervisor review.\n${plainAssistantReply(args.problem??'')}`;
   if(tool==='approve_suggestion')return `Approve ${plainAssistantReply(target??'this suggestion')} and create a job.${args.overrides?'\n'+Object.entries(args.overrides).map(([k,v])=>`${readableLabel(k)}: ${plainAssistantReply(String(v))}`).join('\n'):''}`;
@@ -113,6 +114,7 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   return `Reject ${name}:\n\n${plainAssistantReply(args.reason??'')}`;
 }
 export function actionResult(tool: string, args: Record<string,any>, order?: Order | null, target?: string) {
+  if(tool==='send_team_message')return 'Your message was sent in Team space.';
   if(tool==='send_message')return 'Your message was sent. The reader gets a notification.';
   if(tool==='suggest_job')return 'Sent your suggested job for review.';
   if(tool==='approve_suggestion')return 'Accepted the suggestion and created its job. The sender gets a message.';

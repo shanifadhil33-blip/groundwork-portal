@@ -593,3 +593,7 @@ Typecheck, 12 Agent reply, message schema and copy tests and 4 real Postgres mes
 ## Part F5
 Added all pairs to the connection report and expanded receiver tests for household assignment, revoked access, private photos, long and photo only messages, job visibility, translated content and original text. Agent confirmation tests prove no send before Yes, no confirmation by another user and no repeated send.
 Message translations now use a private cache scoped to the reader and thread, with current thread permissions, rather than the public UI cache. Typecheck, 11 messaging service and RLS and confirmation tests, and 8 message UI, schema and copy tests passed with temporary Postgres. The serial adapter cannot prove simultaneous transaction races; the normal runner still needs sockets.
+
+## Part G
+Added one private Team space per workspace for all maintenance company members. The nav has an unread dot; bells and Agent attention report new group messages. Text, photos, dictation, reader translation and Show original reuse the message system. Admins pin and remove. Removal leaves the required notice and clears photo and translation content.
+Typecheck, 16 UI, voice, copy and role unit tests and 11 Team space and messaging service tests passed. RLS and route tests refuse clients and households, and workspace separation is covered. Added Team space to the connection report.

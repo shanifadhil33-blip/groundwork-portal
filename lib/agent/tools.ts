@@ -1,3 +1,4 @@
+import { listTeamMessages,sendTeamMessage } from '../services/team-space';
 import { listMessages,listThreads,sendMessage,messageInput,threadInput } from '../services/messages';
 import { createSuggestion,decideSuggestion,listSuggestions,suggestionInput } from '../services/suggestions';
 import { needsAttention } from '../services/attention';
@@ -32,6 +33,8 @@ export type AgentContext={user:string;ws:string;scope:'read'|'write';kind:'agent
 type Tool={description:string;write:boolean;schema:z.ZodObject;run:(c:AgentContext,a:any)=>Promise<unknown>};
 function query(a:Record<string,unknown>) {const p=new URLSearchParams();for(const [k,v] of Object.entries(a))if(v!==undefined){if(Array.isArray(v))for(const value of v)p.append(k+'[]',String(value));else p.set(k,String(v));}return p;}
 export const tools:Record<string,Tool>={
+ list_team_messages:{description:'Read Team space, the private maintenance company group. Clients and households never have access.',write:false,schema:z.object({}).strict(),run:c=>listTeamMessages(c.user,c.ws)},
+ send_team_message:{description:'Send a message in Team space. Only maintenance company members. Review and confirm with Yes and Change first.',write:true,schema:messageInput.omit({conversation_id:true,work_order_id:true,recipient_id:true,visibility:true}),run:(c,a)=>sendTeamMessage(c.user,c.ws,a)},
  list_messages:{description:'Read visible messages in a direct conversation or a job. With no thread show your visible threads and unread counts. Never expose phone contact details.',write:false,schema:threadInput,run:(c,a)=>a.conversation_id||a.work_order_id?listMessages(c.user,c.ws,a):listThreads(c.user,c.ws)},
  send_message:{description:'Send a message to a permitted person or existing conversation, or on a visible job. Always show the Yes and Change confirmation first. Voice text fills body and never sends itself.',write:true,schema:messageInput,run:(c,a)=>sendMessage(c.user,c.ws,a)},
  list_suggestions:{description:'List suggested jobs with sender, source, time and pending count. Clients and technicians see only their own suggestions.',write:false,schema:z.object({}).strict(),run:c=>listSuggestions(c.user,c.ws)},
