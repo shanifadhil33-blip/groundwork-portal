@@ -72,6 +72,9 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='set_job_payment')return `Mark ${name} as ${({to_bill:'to bill',contract:'covered by the contract',paid:'paid'} as Record<string,string>)[args.payment_status]}${target?`\n${plainAssistantReply(target)}`:''}`;
   if(tool==='set_job_trade')return `Set the trade for ${name}: ${args.trade?tradeLabels[args.trade as Trade]:'Any'}`;
   if(tool==='set_worker_skills')return `Set what ${plainAssistantReply(target??'this person')} does:\nTrade: ${(args.trades??[]).map((t:Trade)=>tradeLabels[t]).join(', ')||'None'}\nArea: ${(args.areas??[]).map((a:string)=>plainAssistantReply(a)).join(', ')||'None'}`;
+  if(tool==='set_approval_mode')return args.approval_mode==='every'?'Ask before every change, notes too':'Ask before important changes only. Simple team notes are saved straight away';
+  if(tool==='set_member_roles')return `Give ${plainAssistantReply(target??"this person")} these roles, ${(args.roles??[]).map((r:string)=>({admin:'Admin',staff:'Supervisor',technician:'Technician',client:'Client'} as Record<string,string>)[r]??r).join(', ')}`;
+  if(tool==='rename_role')return args.name?`Call the ${({admin:'Admin',staff:'Supervisor',technician:'Technician',client:'Client'} as Record<string,string>)[args.role]} role ${plainAssistantReply(args.name)}`:`Put back the standard name for the ${({admin:'Admin',staff:'Supervisor',technician:'Technician',client:'Client'} as Record<string,string>)[args.role]} role`;
   if(tool==='add_worker')return `Add ${plainAssistantReply(args.name)} to the team as ${args.role==='staff'?'a supervisor':'a technician'}${args.phone?`\nPhone: ${plainAssistantReply(args.phone)}`:''}`;
   if(tool==='set_priority')return `Change priority for ${name}: ${readableLabel(order!.priority)} → ${readableLabel(args.priority)}`;
   if(tool==='update_work_order_dates')return `Change dates for ${name}:\n${['due_on','scheduled_for'].filter(key=>key in args).map(key=>`${key==='due_on'?'Due date':'Visit'}: ${order?.[key as 'due_on'|'scheduled_for']?formatDate(order[key as 'due_on'|'scheduled_for']!,order.timezone):'None'} → ${args[key]?formatDate(args[key],order?.timezone):'None'}`).join('\n')}`;
@@ -81,6 +84,9 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
 }
 export function actionResult(tool: string, args: Record<string,any>, order?: Order | null, target?: string) {
   if(tool==='set_worker_skills')return plainAssistantReply(`Saved what ${target??'this person'} does.`);
+  if(tool==='set_approval_mode')return args.approval_mode==='every'?'I will ask before every change from now on.':'I will ask before important changes and save simple notes straight away.';
+  if(tool==='set_member_roles')return plainAssistantReply(`Saved the roles of ${target??'this person'}.`);
+  if(tool==='rename_role')return args.name?plainAssistantReply(`The ${({admin:'Admin',staff:'Supervisor',technician:'Technician',client:'Client'} as Record<string,string>)[args.role]} role is now called ${args.name}.`):`The ${({admin:'Admin',staff:'Supervisor',technician:'Technician',client:'Client'} as Record<string,string>)[args.role]} role has its standard name again.`;
   if(tool==='add_worker')return plainAssistantReply(`Added ${args.name}. Open Team and tap New sign in to make a code.`);
   if(!order)return plainAssistantReply(tool==='reject_queue_row'?`Rejected ${target??'the selected row'}: ${args.reason}`:`Updated ${target??'the selected row'}.`);
   const name=assistantTarget(order).replace(/[\[\]\r\n]/g,' '),link=`[${name}](/work-orders/${order.id})`;

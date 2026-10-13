@@ -11,11 +11,12 @@ import { jobSnapshot,recordSnapshot,whyNote } from './agent-log';
 import { contractNote,contractUse } from './payments';
 /** The client or site a record write touches: its name for the card, and the current values to show what changes. */
 /** The record a client or site tool acts on, with the country its labels and formats follow. */
-const teamTools=['assign_work_order','set_job_trade','set_worker_skills','add_worker'];
+const teamTools=['assign_work_order','set_job_trade','set_worker_skills','add_worker','set_member_roles'];
+const ADMIN_ONLY=['set_job_payment','set_approval_mode','set_member_roles','rename_role'];
 /** The person a team action is about, by name, for the confirmation card. */
 async function personLabel(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:any[]}>}},ws:string,tool:string,args:any):Promise<string|undefined>{
  if(tool==='add_worker')return String(args.name??'');
- const id=tool==='assign_work_order'?args.assignee_id:tool==='set_worker_skills'?args.user_id:null;
+ const id=tool==='assign_work_order'?args.assignee_id:tool==='set_worker_skills'||tool==='set_member_roles'?args.user_id:null;
  if(!id)return tool==='assign_work_order'?'nobody':undefined;
  return (await x.db.query('SELECT u.name FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true WHERE m.workspace_id=$1 AND m.user_id=$2',[ws,id])).rows[0]?.name??'Team member';
 }
@@ -50,13 +51,13 @@ export async function assistant(user:string,ws:string,body:unknown) {
   const done=(t:string)=>result.isError?t:`Done${first?`, ${first}`:''}. ${t.replace(/^Done[.,!]?\s*/i,'')}`;
   return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?done(recordResult(a.tool,a.args,record)):done(audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client')),result,logged:!result.isError};
  }));
- const {role,first,extra}=await inWorkspace(user,ws,async c=>({role:c.role,extra:((await c.db.query('SELECT extra_roles FROM members WHERE workspace_id=$1 AND user_id=$2',[ws,user])).rows[0]?.extra_roles??[]) as string[],first:String((await c.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0]}));
+ const {role,first,extra,mode}=await inWorkspace(user,ws,async c=>({role:c.role,mode:String((await c.db.query('SELECT approval_mode FROM workspaces WHERE id=$1',[ws])).rows[0]?.approval_mode??'important'),extra:((await c.db.query('SELECT extra_roles FROM members WHERE workspace_id=$1 AND user_id=$2',[ws,user])).rows[0]?.extra_roles??[]) as string[],first:String((await c.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0]}));
  const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
  const history:AssistantMessage[]=[...d.messages];
  if(!history.length)history.push({role:'user',content:'Help me with my workspace.'});
  let saved=false;
  for(let i=0;i<10;i++){
-  const turn=await assistantTurn(history,declarations,`The person you are helping is ${first||'a team member'} (${[role,...extra].map(r=>r==='staff'?'supervisor':r).join(', ')}).${extra.includes('technician')?' They also do jobs themselves: my_day gives their own jobs today, and they can be assigned jobs.':''} Use the first name in a greeting now and then, not in every reply.`);if(!turn)return assistantUnavailable;
+  const turn=await assistantTurn(history,declarations,`The person you are helping is ${first||'a team member'} (${[role,...extra].map(r=>r==='staff'?'supervisor':r).join(', ')}).${extra.includes('technician')?' They also do jobs themselves: my_day gives their own jobs today, and they can be assigned jobs.':''}${mode==='every'?' This company asks before every change, so every write shows a card.':''} Use the first name in a greeting now and then, not in every reply.`);if(!turn)return assistantUnavailable;
   if(!turn.calls.length){const text=plainAssistantReply(turn.text??'How can I help?',role==='client');return {available:true,reply:!saved&&/please confirm|confirm this (?:action|change)|action completed|(?:I(?:’|')ve|I have|successfully) (?:changed|moved|updated|added|created|approved|rejected)/i.test(text)?'No changes have been made. Ask me to make the change so you can review and confirm it.':text};}
   history.push(...turn.calls.map(call=>({role:'call' as const,...call,raw:turn.raw})));
   for(const [index,call] of turn.calls.entries()){
@@ -87,12 +88,13 @@ export async function assistant(user:string,ws:string,body:unknown) {
     if(role==='technician'&&!['update_work_order_status','add_comment'].includes(call.name)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.'}]},id:call.id});continue;}
     if(teamTools.includes(call.name)&&!['admin','staff'].includes(role)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only admins and supervisors can assign jobs or change the team.'}]},id:call.id});continue;}
     // Record writes are admin only; a role that cannot make them gets the refusal now, not after a confirmation.
-    if(call.name==='set_job_payment'&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only an admin can change how a job is paid. Tell the person to ask the admin, and add a note on the job if they want.'}]},id:call.id});continue;}
+    if(ADMIN_ONLY.includes(call.name)&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:call.name==='set_job_payment'?'Only an admin can change how a job is paid. Tell the person to ask the admin, and add a note on the job if they want.':'Only an admin can change this. Tell the person to ask the admin.'}]},id:call.id});continue;}
     if(recordTools.includes(call.name)&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only workspace admins can add or change clients and sites.'}]},id:call.id});continue;}
     const record=recordTools.includes(call.name)?await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args)):null;
     const summary=record?recordSummary(call.name,args as Record<string,any>,record):audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');
     // Logging a team note is not consequential: do it straight away (still logged), no confirmation card.
-    if(call.name==='add_comment'&&(args as any).visibility==='internal'&&['admin','staff','technician'].includes(role)){
+    // Approval mode, enforced here on the server: in Ask before every action, even a team note waits for a card.
+    if(call.name==='add_comment'&&(args as any).visibility==='internal'&&['admin','staff','technician'].includes(role)&&mode==='important'){
      if(saved){history.push({role:'result',name:call.name,result:{content:[{type:'text',text:'The note is already saved. Tell the person it is done.'}]},id:call.id});continue;}
      const result=await callTool(c,call.name,args);
      const note=(result.structuredContent as any)?.result;

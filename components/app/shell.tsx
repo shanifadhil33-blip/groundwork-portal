@@ -1,6 +1,6 @@
 'use client';
 import { demoEmail } from '../../lib/ui/polish';
-import { doesJobs, isOffice, roleLabels } from '../../lib/roles';
+import { doesJobs, isOffice, labelsFor } from '../../lib/roles';
 import { LAST_PAGE_KEY } from '../../lib/ui/device';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -79,7 +79,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   const currentPersona = personas.find(p => p.key === (me.user.email??'').split('.')[0])?.name ?? me.user.name ?? 'a demo user';
   const accountOptions = [{ value: 'settings', label: 'Settings' }, { value: 'signout', label: 'Sign out' }];
   const context = member?.client_name ?? workspace?.name ?? member?.workspace_name ?? 'Your workspace';
-  const role = member?.role ? roleLabels[member.role] : 'Account';
+  const role = member?.role ? labelsFor(workspace?.role_names)[member.role] : 'Account';
   const workspaceContext = <div className="workspace-context"><strong>{context}</strong><Badge>{role}</Badge>{workspace?.is_demo && <Badge>Demo</Badge>}</div>;
   const navigation = <><div className="nav-links">{navLinks.slice(0, -1).slice(0, 3)}</div>{member && office && <div className="nav-links nav-group">{navLinks.slice(3, -1)}</div>}</>;
   const accountMenu = (compact = false) => <Dropdown label="Account menu" width={compact ? 44 : 240} menuWidth={240} options={accountOptions} header={<div className="account-info"><strong>{me.user.name ?? 'Your account'}</strong><small>{demoEmail(me.user.email)}</small><Badge>{role}</Badge></div>} onChange={value => { setDrawer(false); value === 'settings' ? guardedAction(() => router.push('/settings')) : openConfirm('signout'); }}>

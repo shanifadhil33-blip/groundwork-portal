@@ -1,4 +1,5 @@
 'use client';
+import { useApp } from './context';
 import { ResponsiveTable } from '../ui/layout';
 import { readableLabel } from '../../lib/ui/polish';
 import { useState, useRef } from 'react';
@@ -7,9 +8,10 @@ import { request, post, RequestError } from '../../lib/ui/api';
 import type { Client } from '../../lib/ui/work-orders';
 import { CopyButton } from './agent-access';
 import { Badge, Button, ConfirmDialog, Dropdown, EmptyState, ErrorState, LocalTime, Skeleton, useToast } from '../ui';
-import { ROLES, roleHints, roleLabels, type Role } from '../../lib/roles';
+import { ROLES, roleHints, labelsFor, type Role } from '../../lib/roles';
 type Invite={id:string;email:string;role:string;status:string;expires_at:string;client_id:string|null};
 export function SettingsInvites({base,demo}:{base:string;demo:boolean}){
+ const roleLabels = labelsFor(useApp().workspace?.role_names);
  const invites=useResource<Invite[]>(`${base}/invites`),clients=useResource<Client[]>(`${base}/clients`),[email,setEmail]=useState(''),[role,setRole]=useState('staff'),[client,setClient]=useState(''),[link,setLink]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[revoke,setRevoke]=useState<Invite|null>(null),lock=useRef(false),toast=useToast(),[emailError,setEmailError]=useState('');
  async function create(){if(lock.current)return;if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){setEmailError('Enter a valid email address.');document.getElementById('settings-invite-email')?.focus();return;}setEmailError('');lock.current=true;setBusy(true);setError('');setLink('');try{const result=await request<{token:string}>(`${base}/invites`,{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({email,role,...(role==='client'?{client_id:client}:{})})});setLink(`${location.origin}/invites/accept?token=${encodeURIComponent(result.token)}`);setEmail('');toast('Invite link created.');await invites.reload();}catch(e){setError(e instanceof RequestError?e.message:'We couldn’t create this invite. Please try again.');}finally{lock.current=false;setBusy(false);}}
  async function remove(){if(!revoke||lock.current)return;lock.current=true;setBusy(true);setError('');try{await post(`${base}/invites/${revoke.id}/revoke`);invites.setData(items=>items?.map(i=>i.id===revoke.id?{...i,status:"revoked"}:i)??null);setLink("");setRevoke(null);toast("Invite revoked.");await invites.reload();}catch(e){setError(e instanceof RequestError?e.message:'We couldn’t revoke this invite. Please try again.');}finally{lock.current=false;setBusy(false);}}

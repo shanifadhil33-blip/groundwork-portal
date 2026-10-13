@@ -35,9 +35,12 @@ export async function createWorkspace(user:string,body:unknown,key?:string) {
  }));
 }
 export async function getWorkspace(user:string,ws:string) { return inWorkspace(user,ws,c=>row(c,'workspaces',ws)); }
+/** The company's own words for each role; blank means the standard name. */
+export const roleNames=z.object({admin:z.string().trim().max(40).optional(),staff:z.string().trim().max(40).optional(),technician:z.string().trim().max(40).optional(),client:z.string().trim().max(40).optional()}).strict()
+ .transform(v=>Object.fromEntries(Object.entries(v).filter(([,x])=>x)));
 export async function patchWorkspace(user:string,ws:string,body:unknown) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin']);const current=await row(c,'workspaces',ws);
-  const data=z.object({name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional(),country:country.optional(),region:placeFields.region,currency:placeFields.currency}).strict()
+  const data=z.object({name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional(),country:country.optional(),region:placeFields.region,currency:placeFields.currency,approval_mode:z.enum(['important','every']).optional(),role_names:roleNames.optional()}).strict()
    .transform((d,ctx)=>{
     // A new country without a region clears the old one (it belonged to the old country's list).
     if(d.country&&d.country!==current.country&&d.region===undefined)d.region=null;
@@ -71,3 +74,10 @@ export async function dashboard(user:string,ws:string) {
 }
 
 export async function listWorkspaces(user:string){return withUser(user,async db=>(await db.query('SELECT w.* FROM workspaces w JOIN members m ON m.workspace_id=w.id WHERE m.user_id=$1 ORDER BY w.name',[user])).rows);}
+
+/** Rename one role in the company's own words (blank puts back the standard name). Admin only. */
+export async function renameRole(user:string,ws:string,role:string,name:string){
+ const current=await inWorkspace(user,ws,async c=>{allow(c,['admin']);return (await row(c,'workspaces',ws)).role_names??{};});
+ const next={...current,[role]:name.trim()};if(!name.trim())delete (next as Record<string,string>)[role];
+ return patchWorkspace(user,ws,{role_names:next});
+}

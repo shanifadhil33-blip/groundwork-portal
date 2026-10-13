@@ -1,9 +1,10 @@
 'use client';
+import { useApp } from './context';
 import { useState } from 'react';
 import { Copy, MessageCircle, UserPlus } from 'lucide-react';
 import { Button, Dialog, Dropdown, useToast } from '../ui';
 import { post, RequestError } from '../../lib/ui/api';
-import { roleLabels } from '../../lib/roles';
+import { labelsFor } from '../../lib/roles';
 
 type Link = { user_id: string; name: string; role: string; token: string; code: string; expires_at: string };
 const pretty = (code: string) => `${code.slice(0, 3)} ${code.slice(3)}`;
@@ -25,6 +26,7 @@ function LinkResult({ link, phone, onClose }: { link: Link | null; phone?: strin
   </Dialog>;
 }
 export function AddFieldWorker({ base, admin, demo, onDone }: { base: string; admin: boolean; demo: boolean; onDone: () => void }) {
+ const roleLabels = labelsFor(useApp().workspace?.role_names);
   const [open, setOpen] = useState(false), [name, setName] = useState(''), [phone, setPhone] = useState(''), [role, setRole] = useState('technician'), [busy, setBusy] = useState(false), [error, setError] = useState(''), [link, setLink] = useState<Link | null>(null);
   async function add() {
     if (!name.trim()) { setError('Write a name.'); return; }

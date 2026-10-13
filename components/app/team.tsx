@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { CalendarCheck, AlarmClock, ClipboardList, Phone } from 'lucide-react';
 import { PageHeader } from '../ui/layout';
 import { EmptyState, ErrorState, Skeleton } from '../ui';
-import { doesJobs, roleHints, roleLabels, rolesLabel, type Role } from '../../lib/roles';
+import { doesJobs, roleHints, labelsFor, rolesLabel, type Role } from '../../lib/roles';
 import { RequestError } from '../../lib/ui/api';
 import { useApp } from './context';
 import { useResource } from './resource';
@@ -32,6 +32,7 @@ type TeamPerson = { extra_roles?: string[]; trades: string[]; areas: string[]; u
 
 /** Turn each role on or off. A person can hold several; they can do everything any of them allows. */
 function RolesButton({ p, base, onDone }: { p: TeamPerson; base: string; onDone: () => void }) {
+  const roleLabels = labelsFor(useApp().workspace?.role_names);
   const now = [p.role, ...(p.extra_roles ?? [])], [open, setOpen] = useState(false), [on, setOn] = useState<string[]>(now), [busy, setBusy] = useState(false), [error, setError] = useState('');
   async function save() { setBusy(true); setError(''); try { await request(`${base}/members/${p.user_id}/roles`, { method: 'PUT', body: JSON.stringify({ roles: on }) }); setOpen(false); onDone(); } catch (e) { setError(e instanceof RequestError ? e.message : 'We could not save. Try again.'); } finally { setBusy(false); } }
   const roles = ['admin', 'staff', 'technician'] as const;
@@ -45,6 +46,7 @@ function RolesButton({ p, base, onDone }: { p: TeamPerson; base: string; onDone:
 
 /** One person: name, role, and three big numbers that open their jobs. */
 function PersonCard({ p, base, canLink, canEdit, canRoles, areas, onDone }: { p: TeamPerson; base: string; canLink: boolean; canEdit: boolean; canRoles: boolean; areas: string[]; onDone: () => void }) {
+  const roleLabels = labelsFor(useApp().workspace?.role_names);
   const worker = p.role !== 'admin' || doesJobs(p);
   const jobs = (q: string) => `/work-orders?assignee_id=${p.user_id}${q}`;
   const nums = [
@@ -53,7 +55,7 @@ function PersonCard({ p, base, canLink, canEdit, canRoles, areas, onDone }: { p:
     { label: 'Open', value: p.open, icon: ClipboardList, href: jobs('&active=true') },
   ];
   return <li className="person-card">
-    <div className="heading-row"><div><strong>{p.name ?? 'Team member'}</strong><p className="small muted">{rolesLabel(p)}</p></div>
+    <div className="heading-row"><div><strong>{p.name ?? 'Team member'}</strong><p className="small muted">{rolesLabel(p, roleLabels)}</p></div>
       {p.phone && <a className="button secondary" href={`tel:${p.phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${p.name ?? 'them'}`}><Phone size={16} aria-hidden="true" />Call</a>}</div>
     <div className="person-nums">{nums.map(n => <Link key={n.label} href={n.href} className={`person-num ${n.tone ? `tile-${n.tone}` : ''}`} aria-label={`${n.value} ${n.label} for ${p.name ?? 'them'}`}><n.icon size={18} aria-hidden="true" /><strong>{n.value}</strong><span>{n.label}</span></Link>)}</div>
     {(p.trades.length > 0 || p.areas.length > 0) && <div className="skill-chips">{p.trades.map(t => <span key={t} className="chip">{tradeLabels[t as Trade] ?? t}</span>)}{p.areas.map(a => <span key={a} className="chip chip-area">{a}</span>)}</div>}
