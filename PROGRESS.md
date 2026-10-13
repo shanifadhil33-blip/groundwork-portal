@@ -549,3 +549,7 @@ Typecheck, suggestion unit tests, voice composer tests and copy checks passed. A
 ## Part D4
 WhatsApp intake parses a message through suggestion creation and matches a unique known phone contact. Ambiguous matches stay unlinked for review. Demo simulation uses the same intake. The webhook stub checks a shared secret and returns not connected without writes.
 Typecheck and WhatsApp and suggestion unit tests passed. Real WhatsApp wiring remains out of scope.
+
+## Part D5
+Suggested now has review actions, a prefilled edit form, required decline reasons and a demo WhatsApp button. Dashboards show Suggested jobs and navigation shows the pending count. Office staff can view without decision buttons.
+Typecheck, suggestion unit tests and copy and visual rule checks passed. Database notification tests remain blocked.
