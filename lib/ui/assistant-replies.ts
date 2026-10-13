@@ -30,7 +30,7 @@ export function plainAssistantReply(value: string, client=false) {
   // Job numbers read WO 1 everywhere, matching the app.
   text = text.replace(/\bWO[-\u2010\u2011\u2012 ]?(?=\d)/g, 'WO ');
   // No dashes in user facing copy: spaced en, em or plain dashes become commas.
-  text = text.replace(/[ \t]+[\u2013\u2014][ \t]+/g, ', ').replace(/(?<=\S)[ \t]+-[ \t]+(?=\S)/g, ', ').replace(/(?<=\w)[\u2013\u2014](?=\w)/g, ' to ');
+  text = text.replace(/(\d)[^\S\n]*[\u2013\u2014][^\S\n]*(?=\d)/g, '$1 to ').replace(/[^\S\n]*[\u2013\u2014][^\S\n]*/g, ', ').replace(/(?<=\S)[^\S\n]+-[^\S\n]+(?=\S)/g, ', ');
   // Role words mid sentence stay lower case (office staff, admin), never Office Staff or Admin.
   text = text.replace(/(?<=[a-z,] )(Admin|Supervisor|Technician|Staff|Client)\b/g, w => w.toLowerCase());
   text = text.replace(/\b(?:site|client|workspace|user|job|row)\s+ID\s*[:=]?\s*/gi, '')

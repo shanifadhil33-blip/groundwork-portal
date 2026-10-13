@@ -20,3 +20,9 @@ describe('job numbers and money', () => {
     expect(withCurrency('Cost AED 1,200.50 and 300.00 AED, on 2026.10.13')).toBe('Cost AED 1,200.50 and 300.00 AED, on 2026.10.13');
   });
 });
+describe('dashes with odd spaces', () => {
+  it('handles non breaking spaces and number ranges', () => {
+    const out = plainAssistantReply('Northgate has the most\u00a0— 4 of them, week 13\u202f–\u202f19 Oct');
+    expect(out).not.toMatch(/[\u2013\u2014]/);
+  });
+});
