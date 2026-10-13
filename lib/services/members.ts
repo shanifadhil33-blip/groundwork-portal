@@ -106,3 +106,11 @@ export async function unarchiveMember(user:string,ws:string,id:string){
   return {unarchived:true,jobs_back:back};
  },user);
 }
+
+/** Client side role (ROLE09): facility manager (default), client office staff or household (sees only his own requests). Admin only; works in the demo. */
+export const CLIENT_KINDS=['manager','office','household'] as const;
+export async function setClientKind(user:string,ws:string,id:string,body:unknown){
+ uuid.parse(id);const {kind}=z.object({kind:z.enum(CLIENT_KINDS)}).strict().parse(body);
+ await inWorkspace(user,ws,async c=>{allow(c,['admin']);const m=(await c.db.query('SELECT role FROM members WHERE workspace_id=$1 AND user_id=$2',[ws,id])).rows[0];if(!m)throw new ApiError(404,'not_found','This person is not in your workspace.');if(m.role!=='client')throw invalid('Only client members have a client type.','kind');});
+ return withSystem(async db=>(await db.query('UPDATE members SET client_kind=$3 WHERE workspace_id=$1 AND user_id=$2 RETURNING user_id,client_kind',[ws,id,kind])).rows[0],user);
+}

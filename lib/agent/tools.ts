@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { asAgent, withSystem } from '../db';
 import { actionSummary } from '../ui/assistant-replies';
+import { allowedTool } from './role-tools';
 import { ApiError,errorResponse } from '../http';
 import { inWorkspace,priority,status,uuid } from '../services/shared';
 import { createWorkOrder,createComment,getWorkOrder,getWorkOrderByNumber,listWorkOrders,patchWorkOrder } from '../services/work-orders';
@@ -62,9 +63,15 @@ export const tools:Record<string,Tool>={
  notification_status:{description:'How many of my phones or computers have notifications on (new job for you, job done, job late). Turning them on or off is done on the device itself: Settings, Notifications.',write:false,schema:z.object({}).strict(),run:c=>pushStatus(c.user)},
  whoami:{description:'Read current workspace membership and client scope, plus the workspace country, region and currency (they set the address, phone and money rules). Roles are checked live for every tool.',write:false,schema:z.object({}).strict(),run:c=>inWorkspace(c.user,c.ws,async x=>{const w=(await x.db.query('SELECT country,region,currency FROM workspaces WHERE id=$1',[x.ws])).rows[0];return {user_id:x.user,workspace_id:x.ws,role:x.role,client_id:x.client_id,scope:c.scope,workspace_country:w?.country,workspace_region:w?.region??null,currency:w?.currency};})},
 };
+/**
+ * ROLE10: the agent never does more than the person could with the buttons. Each role gets only its own tools, checked here on
+ * the server for the in app agent and for Connect AI keys alike (the services and database check again underneath).
+ */
 export async function callTool(c:AgentContext,name:string,args:unknown) {
  try {
   const t=tools[name];if(!t)throw new ApiError(404,'not_found','Unknown tool.');
+  const role=await inWorkspace(c.user,c.ws,async x=>x.role);
+  if(!allowedTool(role,name))throw new ApiError(403,'forbidden',role==='client'?'You can raise and follow your own requests here. Ask your service company for anything else.':'You can update your own jobs and add notes. Ask a supervisor for other changes.');
   if(t.write&&c.scope==='read')throw new ApiError(403,'read_only','This token allows viewing only.');
   const a=t.schema.parse(args);
   // Approval mode covers Connect AI keys too: in Ask before every action, a key write waits for an admin.

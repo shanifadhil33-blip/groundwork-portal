@@ -11,6 +11,7 @@ import { useApp } from './context';
 import { useResource } from './resource';
 import { NoAccess } from './no-access';
 import { AddPhoto, type Photo } from './job-photos';
+import { AgentCard } from './dashboard';
 
 type Job = { id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; address: string | null; building: string | null; area: string | null; access_notes: string | null; contact_name: string | null; contact_phone: string | null };
 type Day = { timezone: string; today: Job[]; late: Job[]; next: Job[]; done: number };
@@ -97,6 +98,7 @@ export function MyDay() {
   const finished = (outcome: Outcome, record: JobRecord) => setDone({ outcome, record });
   return <div className="page stack my-day">
     <PageHeader><div><h1>Today</h1><p>{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }).format(new Date())}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div></PageHeader>
+    {member?.role === 'technician' && <AgentCard />}
     {done && <DoneMoment outcome={done.outcome} record={done.record} onClose={() => setDone(null)} />}
     {d.loading ? <Skeleton className="skeleton-card" /> : d.error || !data ? <ErrorState retry={d.reload} /> : <>
       <div className="tiles tiles-3">
