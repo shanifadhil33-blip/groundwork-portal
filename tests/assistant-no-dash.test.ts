@@ -10,3 +10,13 @@ describe('assistant replies have no dashes', () => {
     expect(plainAssistantReply('- one\n- two')).toMatch(/one/);
   });
 });
+import { withCurrency } from '../lib/ui/assistant-replies';
+describe('job numbers and money', () => {
+  it('writes WO 1 not WO-1', () => {
+    expect(plainAssistantReply('See WO-1 and WO‑31.')).toBe('See WO 1 and WO 31.');
+  });
+  it('adds currency to bare amounts only', () => {
+    expect(withCurrency('A pending quote of 850.00 for this.')).toBe('A pending quote of AED 850.00 for this.');
+    expect(withCurrency('Cost AED 1,200.50 and 300.00 AED, on 2026.10.13')).toBe('Cost AED 1,200.50 and 300.00 AED, on 2026.10.13');
+  });
+});

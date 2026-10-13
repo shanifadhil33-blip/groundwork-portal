@@ -27,6 +27,8 @@ const uuid = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/g
 export function plainAssistantReply(value: string, client=false) {
   const links: string[] = [];
   let text = value.replace(/\]\(\/work-orders\/[0-9a-f-]{36}\)/gi, link => { links.push(link);return `LINKPLACEHOLDER${links.length-1}END`; });
+  // Job numbers read WO 1 everywhere, matching the app.
+  text = text.replace(/\bWO[-\u2010\u2011\u2012 ]?(?=\d)/g, 'WO ');
   // No dashes in user facing copy: spaced en, em or plain dashes become commas.
   text = text.replace(/[ \t]+[\u2013\u2014][ \t]+/g, ', ').replace(/(?<=\S)[ \t]+-[ \t]+(?=\S)/g, ', ').replace(/(?<=\w)[\u2013\u2014](?=\w)/g, ' to ');
   // Role words mid sentence stay lower case (office staff, admin), never Office Staff or Admin.
@@ -128,4 +130,10 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='add_comment')return `Added ${args.visibility==='internal'?'an internal note':'a comment visible to the client'} to ${link}.\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_dates')return `Updated dates for ${link}.\n${actionSummary(tool,args,order).split('\n').slice(1).join('\n')}`;
   return `Created ${link}.`;
+}
+
+/** Money always carries its currency: "a quote of 850.00" becomes "a quote of AED 850.00". */
+export function withCurrency(text:string,currency='AED'){
+  const code=currency.toUpperCase();
+  return text.replace(/(^|[^\w.,])((?:AED|USD|SAR|QAR|KWD|BHD|OMR|EUR|GBP|INR|Dhs?|\$)\s?)?(\d{1,3}(?:,\d{3})*|\d+)\.(\d{2})(?![\d%]|\.\d)(\s?(?:AED|USD|SAR|QAR|KWD|BHD|OMR|dirhams?))?/gi,(m,pre,cur,whole,dec,post)=>cur||post?m:`${pre}${code} ${whole}.${dec}`);
 }
