@@ -68,7 +68,7 @@ function JobCard({ j, tz, base, onDone, onFinished, when }: { j: Job; tz: string
     finally { setBusy(false); }
   }
   return <li className="day-card">
-    <div className="day-when"><strong>{when}</strong>{j.status !== 'scheduled' && <Badge>{statusLabels[j.status] ?? j.status}</Badge>}{j.priority === 'urgent' && <Badge tone="danger">Urgent</Badge>}</div>
+    <div className="day-when"><strong>{when}</strong>{j.status !== 'scheduled' && <Badge>{statusLabels[j.status] ?? j.status}</Badge>}{j.priority === 'urgent' && <Badge tone="warning">Urgent</Badge>}</div>
     <Link href={`/work-orders/${j.id}`} className="day-title"><strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}{j.trade ? ` · ${tradeLabels[j.trade as Trade] ?? j.trade}` : ''}</span></Link>
     {j.access_notes && <p className="small day-note">{j.access_notes}</p>}
     <div className="day-actions">
@@ -104,11 +104,6 @@ export function MyDay() {
     {member && <LeaveRequests base={`/api/workspaces/${member.workspace_id}`} self={me.user.id} />}
     {done && <DoneMoment outcome={done.outcome} record={done.record} onClose={() => setDone(null)} />}
     {d.loading ? <Skeleton className="skeleton-card" /> : d.error || !data ? <ErrorState retry={d.reload} /> : <>
-      <div className="tiles tiles-3">
-        <a href="#today" className="tile"><strong>{data.today.length}</strong><span>Today</span></a>
-        <a href="#late" className={`tile ${data.late.length ? 'tile-danger' : ''}`}><strong>{data.late.length}</strong><span>Late</span></a>
-        <div className="tile"><strong>{data.done}</strong><span>Done</span></div>
-      </div>
       {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} j={j} tz={tz} base={base} onDone={reload} onFinished={finished} when={`Due ${day(j.due_on, tz)}`} />)}</ul></section>}
       <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} j={j} tz={tz} base={base} onDone={reload} onFinished={finished} when={time(j.scheduled_for, tz)} />)}</ul>
         : <EmptyState title={data.done ? 'All done for today' : 'No jobs today'}>{data.next[0] ? `Next: ${data.next[0].title}, ${day(data.next[0].scheduled_for, tz)}.` : 'When the office gives you a job, it shows here.'}</EmptyState>}</section>

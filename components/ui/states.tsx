@@ -4,7 +4,7 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Button } from './button';
 export function Card({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) { return <div {...props} className={`card ${className}`} />; }
-export function Badge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'info' }) { return <span className={`badge ${tone}`}>{children}</span>; }
+export function Badge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'info' }) { return <span className={`badge ${tone}${tone === 'danger' && children === 'Late' ? ' late' : ''}`}>{children}</span>; }
 
 export function StatusBadge({ status, children }: { status: string; children?: ReactNode }) { return <Badge tone={status === 'done' ? 'success' : status === 'waiting_on_parts' ? 'warning' : status === 'in_progress' || status === 'scheduled' ? 'info' : 'neutral'}>{children ?? statusLabels[status] ?? status}</Badge>; }
 export function Skeleton({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) { return <div {...props} aria-hidden="true" className={`skeleton ${className}`} />; }

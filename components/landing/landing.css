@@ -27,13 +27,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
     linear-gradient(to bottom,rgba(255,255,255,.3),rgba(255,255,255,.05) 46%,rgba(255,255,255,0) 52%),
     linear-gradient(to top,rgba(255,236,200,.22),rgba(255,236,200,0) 32%),
     linear-gradient(to bottom,#d8a24f,#c08a3e 55%,#a8772f);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.6),
-    inset 0 0 0 1px rgba(255,232,196,.2),
-    inset 0 -3px 6px rgba(92,58,16,.38),
-    0 1px 2px rgba(0,0,0,.5),
-    0 8px 22px rgba(0,0,0,.45),
-    0 2px 12px rgba(198,151,83,.22);
+  box-shadow:none;
   text-shadow:0 1px 0 rgba(255,240,215,.35);
   /* Colour and a small sink only; the label never animates. */
   transition:color .14s ease-out,transform .14s ease-out;
@@ -44,13 +38,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
     linear-gradient(to bottom,rgba(255,255,255,.38),rgba(255,255,255,.07) 46%,rgba(255,255,255,0) 52%),
     linear-gradient(to top,rgba(255,236,200,.26),rgba(255,236,200,0) 32%),
     linear-gradient(to bottom,#e0ad5c,#c9944a 55%,#b2803a);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.7),
-    inset 0 0 0 1px rgba(255,232,196,.26),
-    inset 0 -3px 6px rgba(92,58,16,.34),
-    0 1px 2px rgba(0,0,0,.5),
-    0 12px 28px rgba(0,0,0,.5),
-    0 3px 16px rgba(198,151,83,.3);
+  box-shadow:none;
   transform:translateY(-1px);
 }
 .lx-root .lx-primary:active{
@@ -58,10 +46,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
   background:
     linear-gradient(to bottom,rgba(255,255,255,.24),rgba(255,255,255,0) 45%),
     linear-gradient(to bottom,#c48a36,#a8732a);
-  box-shadow:
-    inset 0 2px 5px rgba(70,42,10,.55),
-    inset 0 0 0 1px rgba(255,232,196,.14),
-    0 1px 2px rgba(0,0,0,.5);
+  box-shadow:none;
   transform:translateY(1px);
 }
 .lx-root .lx-secondary{background:transparent;border-color:#3a3a3a;color:#fff;border-radius:999px}
@@ -106,12 +91,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
     linear-gradient(to bottom,rgba(255,255,255,.35),rgba(255,255,255,0) 40%),
     linear-gradient(to top,rgba(255,255,255,.07),rgba(255,255,255,0) 28%),
     rgba(198,151,83,.12);
-  box-shadow:
-    inset 0 .035em .09em rgba(255,255,255,.16),
-    inset .025em 0 .1em rgba(255,255,255,.06),
-    inset 0 -.055em .12em rgba(255,255,255,.08),
-    inset 0 -.12em .2em rgba(0,0,0,.18),
-    0 .06em .18em rgba(0,0,0,.2);
+  box-shadow:none;
   -webkit-box-decoration-break:clone;
   box-decoration-break:clone;
 }
@@ -120,10 +100,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-highlight--after-line::before{
   -webkit-mask-image:linear-gradient(to bottom,transparent,#000 38%);
   mask-image:linear-gradient(to bottom,transparent,#000 38%);
-  box-shadow:
-    inset .025em 0 .1em rgba(255,255,255,.06),
-    inset 0 -.055em .12em rgba(255,255,255,.08),
-    inset 0 -.12em .2em rgba(0,0,0,.18);
+  box-shadow:none;
 }
 .lx-root .lx-highlight--after-line::after{
   content:"";
@@ -132,7 +109,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
   inset:.12em 0 -.04em;
   pointer-events:none;
   border-radius:inherit;
-  box-shadow:0 .06em .18em rgba(0,0,0,.2);
+  box-shadow:none;
   -webkit-box-decoration-break:clone;
   box-decoration-break:clone;
 }
@@ -146,7 +123,7 @@ body:has(.lx-root),html:has(.lx-root){background:#000}
 .lx-root .lx-legend span{display:flex;gap:7px;align-items:center}
 .lx-root .lx-legend i{width:7px;height:7px;border-radius:1px;display:inline-block}
 /* The key mirrors the 3D bands exactly: unlit (Open) -> blue (Scheduled) -> ochre (Done). */
-.lx-root .lx-open{background:#292929;box-shadow:inset 0 0 0 1px #6e6e6e}
+.lx-root .lx-open{background:#292929;box-shadow:none}
 .lx-root .lx-scheduled{background:#89a9b0}
 .lx-root .lx-done{background:#c69753}
 .lx-root .lx-steps{display:grid;grid-template-columns:1fr;gap:44px;max-width:480px;width:44%;min-width:320px}
@@ -261,14 +238,14 @@ html:not([data-theme=dark]) .lx-root .lx-secondary:hover{background:#f5f6f7;bord
 html:not([data-theme=dark]) .lx-root .lx-secondary:active{background:#eceef0}
 /* The headline pill: soft warm glass on white instead of dark glass. */
 html:not([data-theme=dark]) .lx-root .lx-highlight{color:#111418}
-html:not([data-theme=dark]) .lx-root .lx-highlight::before{background:linear-gradient(to bottom,rgba(255,255,255,.9),rgba(255,255,255,0) 45%),rgba(198,151,83,.16);box-shadow:inset 0 0 0 1px rgba(168,115,42,.22),0 .05em .14em rgba(17,20,24,.08)}
-html:not([data-theme=dark]) .lx-root .lx-highlight--after-line::before{box-shadow:inset 0 0 0 1px rgba(168,115,42,.22)}
-html:not([data-theme=dark]) .lx-root .lx-highlight--after-line::after{box-shadow:0 .05em .14em rgba(17,20,24,.08)}
+html:not([data-theme=dark]) .lx-root .lx-highlight::before{background:linear-gradient(to bottom,rgba(255,255,255,.9),rgba(255,255,255,0) 45%),rgba(198,151,83,.16);box-shadow:none}
+html:not([data-theme=dark]) .lx-root .lx-highlight--after-line::before{box-shadow:none}
+html:not([data-theme=dark]) .lx-root .lx-highlight--after-line::after{box-shadow:none}
 html:not([data-theme=dark]) .lx-root .lx-scroll{color:#6b7280}
 html:not([data-theme=dark]) .lx-root .lx-scroll>span{background:#9aa3ad}
 html:not([data-theme=dark]) .lx-root .lx-rise p{color:#111418}
 html:not([data-theme=dark]) .lx-root .lx-legend{color:#4b5563}
-html:not([data-theme=dark]) .lx-root .lx-open{background:#eef0f2;box-shadow:inset 0 0 0 1px #9aa3ad}
+html:not([data-theme=dark]) .lx-root .lx-open{background:#eef0f2;box-shadow:none}
 html:not([data-theme=dark]) .lx-root .lx-config{border-color:#e2e5e9;background:#f8f9fa}
 html:not([data-theme=dark]) .lx-root .lx-config-head{border-bottom-color:#e6e8eb;color:#4b5563}
 html:not([data-theme=dark]) .lx-root .lx-config code{color:#1f2937}
@@ -276,8 +253,8 @@ html:not([data-theme=dark]) .lx-root .lx-config button{color:#1f2937}
 html:not([data-theme=dark]) .lx-root .lx-config button:hover{background:#eef0f2;color:#111418}
 html:not([data-theme=dark]) .lx-root .lx-footer{border-top-color:#e6e8eb;background:#fff}
 /* Gold buttons on white: same gold, a soft shadow instead of the heavy night shadow. */
-html:not([data-theme=dark]) .lx-root .lx-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 1px 2px rgba(17,20,24,.12),0 6px 16px rgba(168,115,42,.18)}
-html:not([data-theme=dark]) .lx-root .lx-primary:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(17,20,24,.14),0 8px 20px rgba(168,115,42,.24)}
+html:not([data-theme=dark]) .lx-root .lx-primary{box-shadow:none}
+html:not([data-theme=dark]) .lx-root .lx-primary:hover{box-shadow:none}
 /* Phones and fallbacks show pre rendered night frames. On white, flip them to a light look: invert turns black to white and
    dark slabs to pale; the hue turn brings the gold and blue grey glow back. Tradeoff: light and shadow are mirrored. */
 html:not([data-theme=dark]) .lx-root .lx-media img,html:not([data-theme=dark]) .lx-root .lx-media video{filter:invert(1) hue-rotate(180deg)}

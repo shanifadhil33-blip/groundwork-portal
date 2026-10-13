@@ -20,9 +20,10 @@ it('groups recent update badges and time below the request title',()=>{
  expect(html).toMatch(/request-update-meta"><span class="badge[^>]*>Request Received<\/span><span class="small muted">Updated /);
  expect(html).toContain('<h2>Open requests</h2>');expect(html).toContain('<h2>Needs action</h2>');expect(html).toContain('action-list client-requests');expect(html).toContain('Repair entry door');
 });
-it('uses short linked attention stats at every viewport',()=>{
+it('shows actionable records instead of dashboard count tiles',()=>{
  const html=render(<Dashboard/>,'admin');
- expect(html).toContain('<strong>13</strong><span>Late</span>');expect(html).toContain('<strong>0</strong><span>Today</span>');expect(html).toContain('<strong>2</strong><span>New</span>');expect(html).toContain('/work-orders?overdue=true');expect(html).not.toContain('across open statuses');
+ expect(html).toContain('<h2>Needs action</h2>');expect(html).toContain('Repair entry door');
+ expect(html).toContain('/work-orders/order');expect(html).not.toContain('class="tile');expect(html).not.toContain('stat-strip');
 });
 it('defines neutral canvases and prevents badge stretching in flex columns',()=>{
  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');

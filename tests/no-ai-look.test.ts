@@ -13,6 +13,7 @@ function violations(file: string, source: string): string[] {
     if (icon) report(match.index! + match[0].indexOf(match[1]) + icon.index, `Remove ${icon[0]} from lucide-react`);
   }
   for (const match of source.matchAll(/✨/gu)) report(match.index!, 'Remove sparkle emoji');
+  for (const match of source.matchAll(/(?:box-shadow|boxShadow|--shadow)\s*[:=]\s*['"]?([^;}\n]+)/g)) if (!/^none\b/.test(match[1].trim())) report(match.index!, 'Remove box shadows');
   // The landing can keep its visual treatment, but never its sparkle icons.
   if (!file.startsWith('components/landing/')) {
     const patterns: [RegExp, string][] = [
@@ -98,4 +99,11 @@ it('rejects small root tokens and unsupported font weights throughout globals.cs
   }
   expect(violations('app/globals.css', '.badge { font: 700 14px sans-serif; }')).toHaveLength(1);
   for (const weight of [400, 500, 600]) expect(violations('app/globals.css', `.badge { font-weight: ${weight}; font-size: 14px; }`)).toEqual([]);
+});
+
+it('forbids shadows in shared CSS, landing CSS and inline styles', () => {
+ for (const source of ['.dialog { box-shadow: 0 4px 8px #000; }', 'const style = { boxShadow: "0 1px 2px black" }', ':root { --shadow: 0 8px 16px #000; }']) {
+  expect(violations('components/landing/example.css', source)).toEqual(expect.arrayContaining([expect.stringContaining('Remove box shadows')]));
+ }
+ expect(violations('app/globals.css', '.dialog { box-shadow:none; }')).toEqual([]);
 });
