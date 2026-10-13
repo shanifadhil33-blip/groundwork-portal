@@ -1,3 +1,4 @@
+import { suggestWorkers } from '../lib/services/assign';
 import './fixtures';
 import { afterAll, expect, it } from 'vitest';
 import { closePools, withSystem } from '../lib/db';
@@ -30,7 +31,8 @@ it('office staff run jobs but not the team, checked on the server', async () => 
   await withSystem(db => db.query("UPDATE members SET staff_kind='office' WHERE workspace_id=$1 AND user_id=$2", [ws, ids.sam]));
   try {
     const job = await withSystem(async db => (await db.query("SELECT id, updated_at FROM work_orders WHERE workspace_id=$1 AND status NOT IN ('done','cancelled') LIMIT 1", [ws])).rows[0]);
-    const a: any = await callTool({ user: ids.sam, ws, scope: 'write', kind: 'agent' }, 'assign_work_order', { id: job.id, assignee_id: ids.imran, updated_at: new Date(job.updated_at).toISOString() });
+    const sw: any = await suggestWorkers(ids.sam, ws, job.id); const best = sw.workers.find((w: any) => !w.off && (w.trade_match || w.area_match)); const other = sw.workers.find((w: any) => w.user_id !== best?.user_id)?.user_id ?? ids.imran;
+    const a: any = await callTool({ user: ids.sam, ws, scope: 'write', kind: 'agent' }, 'assign_work_order', { id: job.id, assignee_id: other, updated_at: new Date(job.updated_at).toISOString() });
     expect(a.isError).toBe(true);
     const ok: any = await callTool({ user: ids.sam, ws, scope: 'read', kind: 'agent' }, 'list_work_orders', {});
     expect(ok.isError).toBeUndefined();

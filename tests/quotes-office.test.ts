@@ -60,3 +60,10 @@ it('a household raises a request with a time window and sees only his own visits
   expect((await getWorkOrder(ids.faisal, ws, made.id) as any).preferred_window).toBe('Saturday after 4 PM');
   expect(((await callTool({ user: ids.faisal, ws, scope: 'write', kind: 'assistant' }, 'confirm_visit', { id: made.id })) as any).isError).toBe(true);
 });
+it('a client request with a guessed trade still goes through', async () => {
+  const site = await withSystem(async db => (await db.query('SELECT id FROM sites WHERE workspace_id=$1 AND client_id=$2 LIMIT 1', [ws, ids.harbor])).rows[0].id);
+  const r: any = await callTool({ user: ids.kevin, ws, scope: 'write', kind: 'assistant' }, 'create_request', { title: 'Lobby light out', site_id: site, trade: 'electrical' });
+  expect(r.isError).toBeUndefined();
+  const f: any = await callTool({ user: ids.faisal, ws, scope: 'write', kind: 'assistant' }, 'create_request', { title: 'Door stuck', site_id: (await withSystem(async db => (await db.query('SELECT id FROM sites WHERE workspace_id=$1 AND client_id=$2 LIMIT 1', [ws, ids.northgate])).rows[0].id)) });
+  expect(f.isError).toBe(true);
+});

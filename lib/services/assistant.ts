@@ -86,6 +86,8 @@ export async function assistant(user:string,ws:string,body:unknown) {
      if(teamTools.includes(call.name))return {label:await personLabel(x,ws,call.name,args),timezone:undefined};
      return undefined;
     });}catch(e){if(e instanceof ApiError&&[403,404,422].includes(e.status)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'That was not found. Look it up first, or ask the person which one they mean with ask_choice.'}]},id:call.id});continue;}throw e;}
+    // A household request needs the time that suits him for the visit: ask before the confirmation card, never after.
+    if(call.name==='create_request'&&kind==='household'&&!(args as any).preferred_window){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Ask what time suits them for the visit (for example Saturday after 4 PM), then raise the request again with preferred_window.'}]},id:call.id});continue;}
     // Technicians change only the status of their own jobs and add notes; refuse anything else before a confirmation.
     if(role==='technician'&&!['update_work_order_status','save_job_report','add_comment','request_time_off'].includes(call.name)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.'}]},id:call.id});continue;}
     if(teamTools.includes(call.name)&&(!['admin','staff'].includes(role)||(office&&call.name!=='assign_work_order'))){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only admins and supervisors can assign jobs or change the team.'}]},id:call.id});continue;}

@@ -70,6 +70,8 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
 export async function createWorkOrder(user:string,ws:string,body:unknown,key?:string) {
  const made=await inWorkspace(user,ws,async c=>{
   if(c.role==='technician')throw new ApiError(403,'forbidden','Ask a supervisor to create the job.');
+  // A client's agent may guess a trade; the office sets the trade, so drop it rather than fail the request.
+  if(c.role==='client'&&body&&typeof body==='object'&&'trade' in body){const {trade:_t,...rest}=body as Record<string,unknown>;body=rest;}
   const data=(c.role==='client'?clientSchema:createSchema).parse(body);
   if(c.role==='client' && data.client_id && data.client_id!==c.client_id)throw invalid('Choose one of your own sites.','client_id');
   const site=await row(c,'sites',data.site_id);
