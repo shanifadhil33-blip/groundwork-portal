@@ -533,3 +533,7 @@ User-supplied production baseline (no after measurement in this sandbox):
 | Sign-in | 98 | 100 | Unmeasured |
 | Dashboard | 92 (CLS 0.09) | 98 | Unmeasured |
 | Work orders | 94 | 98 | Unmeasured |
+
+## Part D1, local work, October 13 2026
+Added suggestion storage, rollback, workspace and sender policies, and app grants.
+Typecheck passed. Postgres tests were attempted but blocked by the sandbox denying both TCP and Unix sockets. No real database was used. Database tests remain unverified until sockets are available.
