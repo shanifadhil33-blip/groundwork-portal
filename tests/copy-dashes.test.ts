@@ -21,7 +21,7 @@ const technicalValues = new Set(['mistral-medium-latest', 'mistral-small-latest'
   'sample-work-orders.csv', 'agent-access', 'data-label', 'aria-hidden',
   'x-vercel-forwarded-for', 'device-width', 'date-time', 'openai/gpt-oss-120b',
   'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite',
-  'private, max-age=86400', 'private, no-store', "default-src 'none'", 'from-image',
+  'private, max-age=86400', 'private, no-store', "default-src 'none'", 'from-image', 'data-no-translate',
 ]);
 const technicalProperties = new Set(['variable', 'powerPreference', 'cache', 'fontFamily']);
 const domMethods = new Set([

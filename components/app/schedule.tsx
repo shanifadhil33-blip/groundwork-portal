@@ -25,7 +25,7 @@ const HOURS = Array.from({ length: 15 }, (_, i) => i + 6);
 
 function Chip({ j, onOpen }: { j: Job; onOpen: (j: Job) => void }) {
   return <button type="button" className={`sched-job ${j.status === 'done' ? 'sched-done' : ''}`} onClick={() => onOpen(j)} aria-label={`Move ${j.title}`}>
-    {j.hour != null && <span className="sched-time">{hourLabel(j.hour)}</span>}<strong>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}</span>
+    {j.hour != null && <span className="sched-time">{hourLabel(j.hour)}</span>}<strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}</span>
     {j.status === 'done' && <Badge>Done</Badge>}{j.priority === 'urgent' && <Badge tone="danger">Urgent</Badge>}</button>;
 }
 
@@ -41,7 +41,7 @@ function MoveSheet({ j, base, tz, people, onClose, onSaved }: { j: Job; base: st
     finally { setBusy(false); }
   }
   return <Dialog open onClose={onClose} busy={busy} title={done ? 'Done job' : 'Move job'} footer={done ? <Link className="button secondary" href={`/work-orders/${j.id}`}>Open job</Link> : <><Link className="button secondary" href={`/work-orders/${j.id}`}>Open job</Link><Button busy={busy} onClick={() => void save()}>Save</Button></>}>
-    <div className="stack"><strong>{j.title}</strong><span className="small muted">{j.site_name}</span>
+    <div className="stack"><strong data-no-translate>{j.title}</strong><span className="small muted">{j.site_name}</span>
       {!done && <><div className="form-field"><span className="field-label">Day</span><DatePicker label="Day" value={day} onChange={v => v && setDay(v)} disabled={busy} /></div>
         <div className="form-field"><span className="field-label">Time</span><Dropdown label="Time" value={hour} disabled={busy} options={HOURS.map(h => ({ value: String(h), label: hourLabel(h) }))} onChange={setHour} /></div>
         {!officeStaff && <div className="form-field"><span className="field-label">Person</span><Dropdown label="Person" value={who} disabled={busy} options={[{ value: '', label: 'Nobody yet' }, ...people.map(p => ({ value: p.user_id, label: p.name ?? 'Team member' }))]} onChange={setWho} /></div>}</>}
@@ -64,7 +64,7 @@ export function Schedule() {
   const name = (p: Person | null) => p ? p.name ?? 'Team member' : 'Nobody yet';
   return <div className="page stack schedule-page">
     <PageHeader><div><h1>Schedule</h1><p>Who does what, and when. Tap a job to move it.</p></div></PageHeader>
-    <div className="sched-nav"><Button variant="secondary" aria-label="Last week" onClick={() => shift(-1)}><ChevronLeft size={18} aria-hidden="true" /></Button><strong>{dayName(days[0])} to {dayName(days[6])}</strong><Button variant="secondary" aria-label="Next week" onClick={() => shift(1)}><ChevronRight size={18} aria-hidden="true" /></Button>{from !== weekStart(today) && <Button variant="secondary" onClick={() => { setFrom(weekStart(today)); setDay(today); }}>Today</Button>}</div>
+    <div className="sched-nav"><Button variant="secondary" aria-label="Last week" onClick={() => shift(-1)}><ChevronLeft className="directional-icon" size={18} aria-hidden="true" /></Button><strong>{dayName(days[0])} to {dayName(days[6])}</strong><Button variant="secondary" aria-label="Next week" onClick={() => shift(1)}><ChevronRight className="directional-icon" size={18} aria-hidden="true" /></Button>{from !== weekStart(today) && <Button variant="secondary" onClick={() => { setFrom(weekStart(today)); setDay(today); }}>Today</Button>}</div>
     {board.loading ? <Skeleton className="skeleton-card" /> : board.error || !b ? <ErrorState retry={board.reload} /> : <>
       {/* Phone: one day, grouped by person */}
       <div className="sched-phone stack compact">

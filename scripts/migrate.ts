@@ -37,6 +37,7 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT EXECUTE ON FUNCTION remove_member(uuid,uuid),visible_assignee(uuid,uuid),visible_user(uuid),create_workspace(text,text),accept_invite(text),inspect_invite(text),delete_workspace(uuid) TO ${role}`);
     await client.query(`REVOKE ALL ON FUNCTION delete_workspace_data(uuid),delete_demo_workspace(uuid),remove_member_real(uuid,uuid),create_workspace_real(text,text),accept_invite_real(text) FROM ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION require_real_user(),approve_import_batch(uuid,uuid,jsonb),store_import_drafts(uuid,uuid,jsonb) TO ${role}`);
+    await client.query(`GRANT SELECT ON ui_translations TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE ON user_preferences TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,DELETE ON job_photos TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON push_subscriptions TO ${role}`);

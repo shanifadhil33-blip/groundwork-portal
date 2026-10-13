@@ -58,7 +58,7 @@ function PersonCard({ p, base, canLink, canEdit, canRoles, areas, onDone, self }
     { label: 'Open', value: p.open, icon: ClipboardList, href: jobs('&active=true') },
   ];
   return <li className="person-card">
-    <div className="heading-row"><div><strong>{p.name ?? 'Team member'}</strong><p className="small muted">{rolesLabel(p, roleLabels)}</p></div>
+    <div className="heading-row"><div><strong data-no-translate>{p.name ?? 'Team member'}</strong><p className="small muted">{rolesLabel(p, roleLabels)}</p></div>
       <div className="person-head-actions">
       {p.phone && <a className="button secondary" href={`tel:${p.phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${p.name ?? 'them'}`}><Phone size={16} aria-hidden="true" />Call</a>}{canRoles && !self && <MemberMenu person={p} base={base} onChanged={onDone} />}</div></div>
     <div className="person-nums">{nums.map(n => <Link key={n.label} href={n.href} className={`person-num ${n.tone ? `tile-${n.tone}` : ''}`} aria-label={`${n.value} ${n.label} for ${p.name ?? 'them'}`}><n.icon size={18} aria-hidden="true" /><strong>{n.value}</strong><span>{n.label}</span></Link>)}</div>

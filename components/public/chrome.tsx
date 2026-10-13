@@ -13,4 +13,4 @@ export function PublicHeader({signedIn}:{signedIn?:boolean}={}) {
   return <header className="public-header"><Brand /><nav aria-label="Public navigation" className="row">{signedIn===undefined?<><span className="session-variant" data-variant="out">{signedOut}</span><span className="session-variant" data-variant="in">{dashboard}</span></>:signedIn?dashboard:signedOut}</nav></header>;
 }
 export function PublicFooter() { return <footer className="public-footer"><div className="footer-brand"><Brand /><small>© 2026 Groundwork</small></div><nav aria-label="Legal" className="row"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></nav></footer>; }
-export function BackLink({ href = '/', label = 'Home' }: { href?: string; label?: string }) { return <Link href={href} className="back-link"><ArrowLeft size={16} />{label}</Link>; }
+export function BackLink({ href = '/', label = 'Home' }: { href?: string; label?: string }) { return <Link href={href} className="back-link"><ArrowLeft className="directional-icon" size={16} />{label}</Link>; }

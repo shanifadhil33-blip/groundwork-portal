@@ -48,7 +48,7 @@ function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string; onClo
   }
   const pick = OUTCOMES.find(o => o.v === outcome)!;
   return <Dialog open onClose={onClose} busy={busy} title="Job report" footer={<><Button variant="secondary" disabled={busy} onClick={onClose}>Cancel</Button><Button busy={busy} onClick={() => void save()}><CheckCircle2 size={18} aria-hidden="true" />{outcome === 'fixed' || outcome === 'temporary' ? 'Job done' : 'Save report'}</Button></>}>
-    <div className="stack compact job-report"><strong>{j.title}</strong>
+    <div className="stack compact job-report"><strong data-no-translate>{j.title}</strong>
       <label className="field"><span>What was the problem?</span><textarea rows={2} value={problem} onChange={e => setProblem(e.target.value)} placeholder="For example: the AC was leaking water" /></label>
       <label className="field"><span>What did you do?</span><textarea rows={2} value={work} onChange={e => setWork(e.target.value)} placeholder="For example: cleaned the drain pipe" /></label>
       <fieldset className="outcome-pick"><legend>How did it end?</legend>
@@ -69,7 +69,7 @@ function JobCard({ j, tz, base, onDone, onFinished, when }: { j: Job; tz: string
   }
   return <li className="day-card">
     <div className="day-when"><strong>{when}</strong>{j.status !== 'scheduled' && <Badge>{statusLabels[j.status] ?? j.status}</Badge>}{j.priority === 'urgent' && <Badge tone="danger">Urgent</Badge>}</div>
-    <Link href={`/work-orders/${j.id}`} className="day-title"><strong>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}{j.trade ? ` · ${tradeLabels[j.trade as Trade] ?? j.trade}` : ''}</span></Link>
+    <Link href={`/work-orders/${j.id}`} className="day-title"><strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}{j.trade ? ` · ${tradeLabels[j.trade as Trade] ?? j.trade}` : ''}</span></Link>
     {j.access_notes && <p className="small day-note">{j.access_notes}</p>}
     <div className="day-actions">
       {step ? <Button busy={busy} onClick={() => step.to === 'done' ? setConfirm(true) : void go()}>{step.to === 'done' ? <CheckCircle2 size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}{step.label}</Button> : <span className="small muted">Waiting for a time</span>}
