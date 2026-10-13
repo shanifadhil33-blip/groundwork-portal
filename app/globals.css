@@ -668,3 +668,4 @@ th.row-menu,td.row-menu{width:56px;text-align:right}
 .archived-list li:first-child{border-top:0}
 .desktop-table td:not(:first-child),.desktop-table th{white-space:nowrap}
 th.row-menu,td.row-menu{width:48px;padding-left:0;padding-right:8px}
+.desktop-table td:not(:first-child),.desktop-table td:not(:first-child) *{overflow-wrap:normal;word-break:normal;white-space:nowrap}
