@@ -148,4 +148,20 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
  await client.query("UPDATE audit_log a SET at=o.created_at FROM work_orders o WHERE a.workspace_id=$1 AND a.entity_id=o.id AND a.entity='work_orders' AND a.action='insert'",[ids.ridgeline]);
  await client.query("UPDATE audit_log a SET at=e.created_at FROM work_order_events e WHERE a.workspace_id=$1 AND a.entity_id=e.id AND a.entity='work_order_events'",[ids.ridgeline]);
  await client.query("UPDATE audit_log a SET at=c.created_at FROM comments c WHERE a.workspace_id=$1 AND a.entity_id=c.id AND a.entity='comments'",[ids.ridgeline]);
+ // Waiting items so the Suggested and Team space screens are never empty in the demo.
+ if(demo){
+  const job=(await client.query("SELECT id,client_id,site_id FROM work_orders WHERE workspace_id=$1 AND client_id IS NOT NULL AND site_id IS NOT NULL ORDER BY order_number LIMIT 1",[ids.ridgeline])).rows[0];
+  if(job){
+   await client.query("INSERT INTO job_suggestions(workspace_id,source,sender_user_id,sender_name,client_id,site_id,from_work_order_id,title,problem,priority) VALUES($1,'technician',$2,'Ravi',$3,$4,$5,'Replace the second pump seal','The pump next to this one is also leaking a little. Better to change the seal before it gets worse.','normal')",[ids.ridgeline,ids.ravi,job.client_id,job.site_id,job.id]);
+   await client.query("INSERT INTO job_suggestions(workspace_id,source,sender_name,sender_phone,client_id,site_id,title,problem,priority,preferred_window) VALUES($1,'whatsapp','Kevin','+971 50 555 0142',$2,$3,'Lobby lights flickering','Two lights in the lobby keep flickering since this morning.','high','Tomorrow morning')",[ids.ridgeline,job.client_id,job.site_id]);
+  }
+  const team=(await client.query("SELECT id FROM conversations WHERE workspace_id=$1 AND kind='team' LIMIT 1",[ids.ridgeline])).rows[0];
+  if(team){
+   await client.query("SELECT set_config('app.user_id',$1,true)",[ids.imran]);
+   await client.query("INSERT INTO messages(workspace_id,conversation_id,sender_id,sender_name,body,created_at) VALUES($1,$2,$3,'Imran','Good morning team. Northgate asked for an early visit today, please check your jobs.',now()-interval '2 hours')",[ids.ridgeline,team.id,ids.imran]);
+   await client.query("SELECT set_config('app.user_id',$1,true)",[ids.sam]);
+   await client.query("INSERT INTO messages(workspace_id,conversation_id,sender_id,sender_name,body,created_at) VALUES($1,$2,$3,'Sam','On my way. I have the spare filters in the van.',now()-interval '90 minutes')",[ids.ridgeline,team.id,ids.sam]);
+   await client.query("SELECT set_config('app.user_id',$1,true)",[ids.imran]);
+  }
+ }
 }
