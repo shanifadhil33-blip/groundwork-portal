@@ -1,0 +1,36 @@
+/**
+ * LANG04: every language a person can pick, for the searchable dropdown at sign up and in the profile.
+ * English (India) is the default for everyone, and every user can change his own language at any time.
+ * Search works on the English name and the name in the language's own script. rtl flips the layout for that user only.
+ */
+export type Language = { code: string; name: string; native: string; group: string; rtl?: boolean };
+export const DEFAULT_LANGUAGE = 'en-IN';
+export const LANGUAGES: Language[] = [
+  { code: 'en-IN', name: 'English (India)', native: 'English (India)', group: 'English' },
+  { code: 'en-US', name: 'English (US)', native: 'English (US)', group: 'English' },
+  { code: 'en-GB', name: 'English (UK)', native: 'English (UK)', group: 'English' },
+  { code: 'ar-AE', name: 'Gulf Arabic', native: 'العربية الخليجية', group: 'Arabic', rtl: true },
+  { code: 'ne', name: 'Nepali', native: 'नेपाली', group: 'South Asia' },
+  { code: 'hi', name: 'Hindi', native: 'हिन्दी', group: 'South Asia' },
+  { code: 'ur', name: 'Urdu', native: 'اردو', group: 'South Asia', rtl: true },
+  { code: 'bn', name: 'Bangla (Bengali)', native: 'বাংলা', group: 'South Asia' },
+  { code: 'ml', name: 'Malayalam', native: 'മലയാളം', group: 'South Asia' },
+  { code: 'ta', name: 'Tamil', native: 'தமிழ்', group: 'South Asia' },
+  { code: 'ps', name: 'Pashto', native: 'پښتو', group: 'Afghanistan', rtl: true },
+  { code: 'fa-AF', name: 'Dari', native: 'دری', group: 'Afghanistan', rtl: true },
+  { code: 'fa-IR', name: 'Farsi (Persian)', native: 'فارسی', group: 'Middle East', rtl: true },
+  { code: 'fil', name: 'Filipino (Tagalog)', native: 'Filipino', group: 'East and Southeast Asia' },
+  { code: 'zh-CN', name: 'Chinese (Simplified)', native: '简体中文', group: 'East and Southeast Asia' },
+  { code: 'sw-KE', name: 'Swahili (Kenya)', native: 'Kiswahili', group: 'Africa: Kenya' },
+  { code: 'am', name: 'Amharic', native: 'አማርኛ', group: 'Africa: Ethiopia' },
+  { code: 'ti', name: 'Tigrinya', native: 'ትግርኛ', group: 'Africa: Eritrea' },
+  { code: 'so', name: 'Somali', native: 'Soomaali', group: 'Africa: Somalia' },
+  { code: 'yo', name: 'Yoruba', native: 'Yorùbá', group: 'Africa: Nigeria' },
+  { code: 'ha', name: 'Hausa', native: 'Hausa', group: 'Africa: Nigeria' },
+  { code: 'ig', name: 'Igbo', native: 'Igbo', group: 'Africa: Nigeria' },
+  { code: 'lg', name: 'Luganda', native: 'Luganda', group: 'Africa: Uganda' },
+  { code: 'tw', name: 'Twi', native: 'Twi', group: 'Africa: Ghana' },
+];
+export const isRtl = (code?: string | null) => !!LANGUAGES.find(l => l.code === (code ?? DEFAULT_LANGUAGE))?.rtl;
+/** Searchable dropdown filter: English name, own script name or code, any case. */
+export function searchLanguages(q: string) { const s = q.trim().toLowerCase(); return s ? LANGUAGES.filter(l => [l.name, l.native, l.code].some(v => v.toLowerCase().includes(s))) : LANGUAGES; }
