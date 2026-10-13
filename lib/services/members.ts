@@ -1,6 +1,7 @@
 import { assertRealUser } from './demo';
 import { z } from 'zod';
 import { ApiError, invalid } from '../http';
+import { withSystem } from '../db';
 import { allow, inWorkspace, role, row, update, uuid } from './shared';
 export const membershipSchema=z.object({role,client_id:uuid.nullable().optional()}).strict().superRefine((v,ctx)=>{
  if((v.role==='client')!==Boolean(v.client_id))ctx.addIssue({code:'custom',path:['client_id'],message:'Client roles require a client; other roles must have no client.'});
@@ -40,13 +41,19 @@ export function splitRoles(roles:string[]){const sorted=TEAM_ORDER.filter(r=>rol
  * and are changed in Settings. The last admin can not drop Admin.
  */
 export async function setMemberRoles(user:string,ws:string,id:string,body:unknown){
- return inWorkspace(user,ws,async c=>{
-  allow(c,['admin']);uuid.parse(id);
-  await row(c,'workspaces',ws,true);
-  const member=await row(c,'members',id,true);
+ uuid.parse(id);const next=splitRoles(rolesSchema.parse(body).roles);
+ await inWorkspace(user,ws,async c=>{
+  allow(c,['admin']);
+  const member=(await c.db.query('SELECT role FROM members WHERE workspace_id=$1 AND user_id=$2',[ws,id])).rows[0];
+  if(!member)throw new ApiError(404,'not_found','This person is not on your team.');
   if(member.role==='client')throw invalid('Clients are changed in Settings, Members.','roles');
-  const next=splitRoles(rolesSchema.parse(body).roles);
-  if(member.role==='admin'&&next.role!=='admin'){const n=(await c.db.query("SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND role='admin'",[ws])).rows[0].n;if(n<=1)throw new ApiError(409,'last_admin','Keep at least one admin.');}
-  return (await c.db.query('UPDATE members SET role=$3, extra_roles=$4 WHERE workspace_id=$1 AND user_id=$2 RETURNING user_id, role, extra_roles',[ws,id,next.role,next.extra_roles])).rows[0];
  });
+ // Same pattern as skills: the admin check above is the gate, then the owner connection writes (so it works in the demo sandbox).
+ // The workspace lock serializes changes so the last admin can never be removed by two admins at once.
+ return withSystem(async db=>{
+  await db.query('SELECT id FROM workspaces WHERE id=$1 FOR UPDATE',[ws]);
+  const cur=(await db.query('SELECT role FROM members WHERE workspace_id=$1 AND user_id=$2 FOR UPDATE',[ws,id])).rows[0];
+  if(cur.role==='admin'&&next.role!=='admin'){const n=(await db.query("SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND role='admin'",[ws])).rows[0].n;if(n<=1)throw new ApiError(409,'last_admin','Keep at least one admin.');}
+  return (await db.query('UPDATE members SET role=$3, extra_roles=$4 WHERE workspace_id=$1 AND user_id=$2 RETURNING user_id, role, extra_roles',[ws,id,next.role,next.extra_roles])).rows[0];
+ },user);
 }
