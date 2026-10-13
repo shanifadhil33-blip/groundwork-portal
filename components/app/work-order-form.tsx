@@ -18,7 +18,9 @@ const blank:Draft={trade:'',title:'',description:'',client_id:'',site_id:'',prio
 function fromOrder(o:Detail,timezone?:string):Draft{return {trade:o.trade??'',title:o.title,description:o.description??'',client_id:o.client_id,site_id:o.site_id,priority:o.priority,assignee_id:o.assignee_id??'',scheduled_for:dateInput(o.scheduled_for,timezone),due_on:o.due_on??''};}
 export function WorkOrderForm({ id }: { id?: string }) {
   const {member,me,workspace}=useApp(),router=useRouter(),toast=useToast(),base=member?`/api/workspaces/${member.workspace_id}`:null, client=member?.role==='client', allowed=!!member&&(!client||!id);
-  const initial=client?{...blank,client_id:member?.client_id??''}:blank;
+  // New job here: the client and site menus open this form with them already chosen.
+  const preset=!id&&typeof window!=='undefined'?new URLSearchParams(window.location.search):null;
+  const initial=client?{...blank,client_id:member?.client_id??'',site_id:preset?.get('site')??''}:{...blank,client_id:preset?.get('client')??'',site_id:preset?.get('site')??''};
   const order=useResource<Detail>(base&&id&&allowed?`${base}/work-orders/${id}`:null),clients=useResource<Client[]>(base&&allowed&&!client?`${base}/clients`:null),team=useResource<Member[]>(base&&allowed&&!client?`${base}/members`:null);
   const draftKey=`work-order-draft:${me.user.id}:${member?.workspace_id}:${id??'new'}`, initialized=useRef(''), orderVersion=useRef(''), originalSchedule=useRef<string|null>(null), submission=useRef({body:'',key:''});
   const [restored,setRestored]=useState(false),[newClient,setNewClient]=useState(''),[newSite,setNewSite]=useState('');

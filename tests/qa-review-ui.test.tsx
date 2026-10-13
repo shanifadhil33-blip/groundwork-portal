@@ -25,9 +25,9 @@ it('offers searchable IANA options with workspace fallback only for personal pre
  for(const {value} of options)expect(()=>new Intl.DateTimeFormat('en',{timeZone:value})).not.toThrow();
 
 });
-it('renders clients without team management and names each site edit button',()=>{
+it('renders clients without team management and names each site menu',()=>{
  state.resources={[base+'/clients']:[{id:'harbor',name:'Harbor & Pine'}],[base+'/members']:[{user_id:'sam',name:'Sam',role:'staff',email:'sam@example.test',client_id:null}],[base+'/clients/harbor']:{id:'harbor',name:'Harbor & Pine'},[base+'/clients/harbor/sites']:[{id:'marina',name:'Marina Exchange',address:'12 Road',client_id:'harbor'}],[base+'/invites']:[]};
- expect(render(<Clients/>)).not.toContain('Team members');expect(render(<ClientDetail id="harbor"/>)).toContain('aria-label="Edit site Marina Exchange"');
+ expect(render(<Clients/>)).not.toContain('Team members');expect(render(<ClientDetail id="harbor"/>)).toContain('aria-label="More for Marina Exchange"');
 });
 it('renders one invite creation button, labeled role, title-case invite states and a focus action',()=>{
  state.resources={[base+'/invites']:[],[base+'/clients']:[]};

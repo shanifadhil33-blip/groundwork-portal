@@ -32,6 +32,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   if(query.status.length)add('status=ANY(?::work_order_status[])',query.status);
   if(query.priority.length)add('priority=ANY(?::work_order_priority[])',query.priority);
   if(query.client_id)add('client_id=?',query.client_id);
+  if(query.site_id)add('site_id=?',query.site_id);
   if(query.assignee_id==='unassigned')clauses.push('assignee_id IS NULL');else if(query.assignee_id)add('assignee_id=?',query.assignee_id);
   if(query.overdue)clauses.push('('+overdueSql+')');
   if(query.today)clauses.push('('+todaySql+')');
@@ -68,6 +69,7 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
   const site=await row(c,'sites',data.site_id);
   const client_id=c.role==='client'?c.client_id:(data.client_id??site.client_id);
   if(site.client_id!==client_id)throw invalid('The site must belong to the selected client.','site_id');
+  if(site.archived_at||(await c.db.query('SELECT archived_at FROM clients WHERE workspace_id=$1 AND id=$2',[ws,client_id])).rows[0]?.archived_at)throw invalid('This site or client is archived. Unarchive it first to add a job.','site_id');
   await assignee(c,'assignee_id' in data?data.assignee_id as string|null|undefined:undefined);
   if('status' in data && data.status && data.status!=='open')throw invalid('New requests must start open.','status');
   if('scheduled_for' in data && typeof data.scheduled_for==='string' && data.scheduled_for.length===10) {

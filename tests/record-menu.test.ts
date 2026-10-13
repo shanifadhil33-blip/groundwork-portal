@@ -1,0 +1,34 @@
+import './fixtures';
+import { afterAll, expect, it } from 'vitest';
+import { closePools, withSystem } from '../lib/db';
+import { ids } from '../scripts/seed';
+import { createClient, createSite, deleteClient, deleteSite, listClients, listSites, clientImpact, siteImpact, setClientArchived, setSiteArchived } from '../lib/services/clients';
+import { createWorkOrder } from '../lib/services/work-orders';
+afterAll(closePools);
+const ws = ids.ridgeline;
+it('a client with jobs can not be deleted, says why, and can be archived and unarchived', async () => {
+  const use = await clientImpact(ids.sam, ws, ids.harbor); expect(use.jobs).toBeGreaterThan(0);
+  await expect(deleteClient(ids.imran, ws, ids.harbor)).rejects.toMatchObject({ status: 409, message: expect.stringContaining('Archive it instead') });
+  await expect(setClientArchived(ids.sam, ws, ids.harbor, true)).rejects.toMatchObject({ status: 403 });
+  await setClientArchived(ids.imran, ws, ids.harbor, true);
+  expect((await listClients(ids.imran, ws)).some((c: any) => c.id === ids.harbor)).toBe(false);
+  expect((await listClients(ids.imran, ws, true)).some((c: any) => c.id === ids.harbor)).toBe(true);
+  const site = (await listSites(ids.imran, ws, ids.harbor))[0];
+  await expect(createWorkOrder(ids.imran, ws, { title: 'On archived', client_id: ids.harbor, site_id: site.id })).rejects.toMatchObject({ status: 422 });
+  await setClientArchived(ids.imran, ws, ids.harbor, false);
+  expect((await listClients(ids.imran, ws)).some((c: any) => c.id === ids.harbor)).toBe(true);
+});
+it('a new client and site with no jobs can be deleted by an admin only, with its sites', async () => {
+  const c: any = await createClient(ids.imran, ws, { name: 'Menu Test Client' });
+  const s: any = await createSite(ids.imran, ws, c.id, { name: 'Menu Test Site' });
+  const s2: any = await createSite(ids.imran, ws, c.id, { name: 'Menu Test Site 2' });
+  expect(await siteImpact(ids.imran, ws, s.id)).toEqual({ jobs: 0 });
+  expect(await clientImpact(ids.imran, ws, c.id)).toMatchObject({ sites: 2, jobs: 0, users: 0 });
+  await expect(deleteSite(ids.sam, ws, s.id)).rejects.toMatchObject({ status: 403 });
+  await setSiteArchived(ids.imran, ws, s2.id, true);
+  expect((await listSites(ids.imran, ws, c.id)).map((x: any) => x.id)).toEqual([s.id]);
+  expect((await listSites(ids.imran, ws, c.id, true)).map((x: any) => x.id)).toEqual([s2.id]);
+  await deleteSite(ids.imran, ws, s.id);
+  await deleteClient(ids.imran, ws, c.id);
+  expect(await withSystem(async db => (await db.query('SELECT count(*)::int n FROM sites WHERE client_id=$1', [c.id])).rows[0].n)).toBe(0);
+});

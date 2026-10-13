@@ -5,12 +5,13 @@ export { formatPhone, normalizePhone, normalizeRegion, phoneHint, regionField } 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export type ClientRecord = {
-  contract_visits?: number | null; contract_ends_on?: string | null; contract_used?: number;
+  contract_visits?: number | null; contract_ends_on?: string | null; contract_used?: number; archived_at?: string | null;
   id: string; name: string; country?: string | null; contact_name?: string | null; phone?: string | null; email?: string | null;
   billing_building?: string | null; billing_street?: string | null; billing_area?: string | null; billing_city?: string | null; billing_region?: string | null;
   notes?: string | null;
 };
 export type SiteRecord = {
+  archived_at?: string | null;
   id: string; client_id: string; name: string; address: string; building?: string | null; area?: string | null; region?: string | null;
   access_notes?: string | null; contact_name?: string | null; contact_phone?: string | null;
 };

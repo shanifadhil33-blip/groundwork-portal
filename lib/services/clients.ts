@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { invalid } from '../http';
+import { ApiError, invalid } from '../http';
 import { allow, inWorkspace, insert, name, replay, row, update, type Context } from './shared';
 import { EMAIL_PATTERN, normalizePhone, normalizeRegion, phoneHint, regionField } from '../records';
 import { an, isCountry } from '../countries/rules';
@@ -41,8 +41,9 @@ function bodyCountry(body:unknown,current:string|null|undefined,fallback:string)
  const parsed=countryOverride.safeParse(sent);return (parsed.success&&parsed.data)||fallback;
 }
 
-export async function listClients(user:string,ws:string) {
- return inWorkspace(user,ws,async c=>{allow(c,['admin','staff']);return (await c.db.query('SELECT * FROM clients WHERE workspace_id=$1 ORDER BY name,id',[ws])).rows.map(publicClient);});
+/** Daily lists hide archived clients; archived=true lists only the archived ones (the Archived view). */
+export async function listClients(user:string,ws:string,archived=false) {
+ return inWorkspace(user,ws,async c=>{allow(c,['admin','staff']);return (await c.db.query(`SELECT * FROM clients WHERE workspace_id=$1 AND archived_at IS ${archived?'NOT ':''}NULL ORDER BY name,id`,[ws])).rows.map(publicClient);});
 }
 export async function getClient(user:string,ws:string,id:string) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin','staff']);const client=publicClient(await row(c,'clients',id));const used=(await c.db.query("SELECT count(*)::int AS n FROM work_orders WHERE workspace_id=$1 AND client_id=$2 AND payment_status='contract' AND status<>'cancelled'",[ws,id])).rows[0].n;return {...client,contract_used:used};});
@@ -53,13 +54,28 @@ export async function createClient(user:string,ws:string,body:unknown,key?:strin
 export async function patchClient(user:string,ws:string,id:string,body:unknown) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin']);const current=await row(c,'clients',id);const cc=bodyCountry(body,current.country,await workspaceCountry(c));const data=defined(clientSchema(cc).partial().parse(body));if(!Object.keys(data).length)throw invalid('Provide at least one change.');return publicClient(await update(c,'clients',id,data));});
 }
+/** What a delete would touch, so the confirmation can say it plainly. Office roles can read it. */
+async function clientUse(c:Context,id:string){return (await c.db.query(`SELECT (SELECT count(*)::int FROM sites WHERE workspace_id=$1 AND client_id=$2) sites,(SELECT count(*)::int FROM work_orders WHERE workspace_id=$1 AND client_id=$2) jobs,(SELECT count(*)::int FROM members WHERE workspace_id=$1 AND client_id=$2) users,(SELECT count(*)::int FROM invites WHERE workspace_id=$1 AND client_id=$2 AND status='pending') invites`,[c.ws,id])).rows[0] as {sites:number;jobs:number;users:number;invites:number};}
+async function siteUse(c:Context,id:string){return (await c.db.query('SELECT count(*)::int jobs FROM work_orders WHERE workspace_id=$1 AND site_id=$2',[c.ws,id])).rows[0] as {jobs:number};}
+export async function clientImpact(user:string,ws:string,id:string){return inWorkspace(user,ws,async c=>{allow(c,['admin','staff']);await row(c,'clients',id);return clientUse(c,id);});}
+export async function siteImpact(user:string,ws:string,id:string){return inWorkspace(user,ws,async c=>{allow(c,['admin','staff']);await row(c,'sites',id);return siteUse(c,id);});}
+const n=(k:number,w:string)=>`${k} ${w}${k===1?'':'s'}`;
+/**
+ * Delete is for a record made by mistake. A client or site with jobs is never deleted, so job history is never lost:
+ * the server refuses with a plain reason. Client users must be removed first. Sites with no jobs and open invites go with the client.
+ */
 export async function deleteClient(user:string,ws:string,id:string) {
- return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'clients',id);await c.db.query('DELETE FROM clients WHERE workspace_id=$1 AND id=$2',[ws,id]);return {deleted:true};});
+ return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'clients',id);const u=await clientUse(c,id);
+  if(u.jobs)throw new ApiError(409,'has_history',`This client has ${n(u.jobs,'job')}, so it can not be deleted. Archive it instead to keep the job history.`);
+  if(u.users)throw new ApiError(409,'in_use',`This client has ${n(u.users,'user')}. Remove them in Settings, Members first.`);
+  await c.db.query('DELETE FROM invites WHERE workspace_id=$1 AND client_id=$2',[ws,id]);await c.db.query('DELETE FROM sites WHERE workspace_id=$1 AND client_id=$2',[ws,id]);
+  await c.db.query('DELETE FROM clients WHERE workspace_id=$1 AND id=$2',[ws,id]);return {deleted:true};});
 }
+
 /** A site follows its client's country. */
 async function siteCountry(c:Context,client:string){return (await c.db.query('SELECT coalesce(cl.country,w.country) AS country FROM clients cl JOIN workspaces w ON w.id=cl.workspace_id WHERE cl.workspace_id=$1 AND cl.id=$2',[c.ws,client])).rows[0]?.country as string;}
-export async function listSites(user:string,ws:string,client:string) {
- return inWorkspace(user,ws,async c=>{allow(c,['admin','staff']);await row(c,'clients',client);return (await c.db.query('SELECT * FROM sites WHERE workspace_id=$1 AND client_id=$2 ORDER BY name,id',[ws,client])).rows;});
+export async function listSites(user:string,ws:string,client:string,archived=false) {
+ return inWorkspace(user,ws,async c=>{allow(c,['admin','staff']);await row(c,'clients',client);return (await c.db.query(`SELECT * FROM sites WHERE workspace_id=$1 AND client_id=$2 AND archived_at IS ${archived?'NOT ':''}NULL ORDER BY name,id`,[ws,client])).rows;});
 }
 export async function createSite(user:string,ws:string,client:string,body:unknown,key?:string) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'clients',client);const data=defined(siteSchema(await siteCountry(c,client)).parse(body));if(data.address===undefined)data.address='';return replay(c.db,user,ws+'/clients/'+client+'/sites',key,data,()=>insert(c,'sites',{workspace_id:ws,client_id:client,...data}));});
@@ -68,10 +84,21 @@ export async function patchSite(user:string,ws:string,id:string,body:unknown) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin']);const site=await row(c,'sites',id);const data=defined(siteSchema(await siteCountry(c,site.client_id)).partial().parse(body));if(!Object.keys(data).length)throw invalid('Provide at least one change.');return update(c,'sites',id,data);});
 }
 export async function deleteSite(user:string,ws:string,id:string) {
- return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'sites',id);await c.db.query('DELETE FROM sites WHERE workspace_id=$1 AND id=$2',[ws,id]);return {deleted:true};});
+ return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'sites',id);const u=await siteUse(c,id);
+  if(u.jobs)throw new ApiError(409,'has_history',`This site has ${n(u.jobs,'job')}, so it can not be deleted. Archive it instead to keep the job history.`);
+  await c.db.query('DELETE FROM sites WHERE workspace_id=$1 AND id=$2',[ws,id]);return {deleted:true};});
 }
+
 
 // A narrow client form lookup; RLS and membership scope every returned site.
 export async function requestSites(user:string,ws:string) {
  return inWorkspace(user,ws,async c=>{allow(c,['client']);return (await c.db.query('SELECT id,client_id,name,address,building,area,region FROM sites WHERE workspace_id=$1 AND client_id=$2 ORDER BY name,id',[ws,c.client_id])).rows;});
+}
+
+/** Archive hides a client or site from daily lists and new jobs; every job and record stays. Unarchive brings it back. Admin only. */
+export async function setClientArchived(user:string,ws:string,id:string,archived:boolean){
+ return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'clients',id);return publicClient((await c.db.query(`UPDATE clients SET archived_at=${archived?'now()':'NULL'} WHERE workspace_id=$1 AND id=$2 RETURNING *`,[ws,id])).rows[0]);});
+}
+export async function setSiteArchived(user:string,ws:string,id:string,archived:boolean){
+ return inWorkspace(user,ws,async c=>{allow(c,['admin']);await row(c,'sites',id);return (await c.db.query(`UPDATE sites SET archived_at=${archived?'now()':'NULL'} WHERE workspace_id=$1 AND id=$2 RETURNING *`,[ws,id])).rows[0];});
 }
