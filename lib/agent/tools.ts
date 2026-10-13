@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { asAgent } from '../db';
+import { asAgent, withSystem } from '../db';
+import { actionSummary } from '../ui/assistant-replies';
 import { ApiError,errorResponse } from '../http';
 import { inWorkspace,priority,status,uuid } from '../services/shared';
 import { createWorkOrder,createComment,getWorkOrder,getWorkOrderByNumber,listWorkOrders,patchWorkOrder } from '../services/work-orders';
@@ -19,7 +20,7 @@ import { setWorkerSkills, suggestWorkers } from '../services/assign';
 import { TRADES } from '../trades';
 import { addFieldWorker } from '../services/field-signin';
 import { name as recordName } from '../services/shared';
-export type AgentContext={user:string;ws:string;scope:'read'|'write';kind:'agent'|'assistant';tokenId?:string};
+export type AgentContext={user:string;ws:string;scope:'read'|'write';kind:'agent'|'assistant';tokenId?:string;approved?:boolean};
 type Tool={description:string;write:boolean;schema:z.ZodObject;run:(c:AgentContext,a:any)=>Promise<unknown>};
 function query(a:Record<string,unknown>) {const p=new URLSearchParams();for(const [k,v] of Object.entries(a))if(v!==undefined){if(Array.isArray(v))for(const value of v)p.append(k+'[]',String(value));else p.set(k,String(v));}return p;}
 export const tools:Record<string,Tool>={
@@ -66,6 +67,12 @@ export async function callTool(c:AgentContext,name:string,args:unknown) {
   const t=tools[name];if(!t)throw new ApiError(404,'not_found','Unknown tool.');
   if(t.write&&c.scope==='read')throw new ApiError(403,'read_only','This token allows viewing only.');
   const a=t.schema.parse(args);
+  // Approval mode covers Connect AI keys too: in Ask before every action, a key write waits for an admin.
+  if(t.write&&c.kind==='agent'&&!c.approved){
+   const queued=await withSystem(async db=>{const m=(await db.query('SELECT approval_mode FROM workspaces WHERE id=$1',[c.ws])).rows[0]?.approval_mode;if(m!=='every')return null;
+    return (await db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,source,token_id,expires_at) VALUES($1,$2,$3,$4,$5,$6,'key',$7,now()+interval '7 days') RETURNING id",[c.ws,c.user,name,JSON.stringify(a),actionSummary(name,a).slice(0,600),'Asked by a connected AI tool',c.tokenId??null])).rows[0].id as string;},c.user);
+   if(queued){const data={status:'waiting_for_approval',approval_id:queued,message:'This company asks before every action. The change is waiting for an admin to approve it in Groundwork. Nothing has changed yet.'};return {content:[{type:'text' as const,text:JSON.stringify(data)}],structuredContent:{result:data}};}
+  }
   const value=await asAgent({kind:c.kind,tokenId:c.tokenId},()=>t.run(c,a));
   const data=JSON.parse(JSON.stringify(value??null));
   return {content:[{type:'text' as const,text:JSON.stringify(data)}],structuredContent:{result:data}};

@@ -652,3 +652,7 @@ button.chip{cursor:pointer;min-height:44px}
 .choice-row>span{flex:1;min-width:0}
 fieldset{border:0;padding:0;margin:0;min-width:0}
 fieldset legend{font-weight:600;margin-bottom:.4rem;padding:0}
+.key-ask{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.6rem .75rem;border:1px solid var(--border,#e5e7eb);border-radius:10px}
+.key-ask>div:first-child{min-width:0}
+.key-ask-actions{display:flex;gap:.5rem;flex:none}
+@media (max-width:600px){.key-ask{flex-direction:column;align-items:stretch}.key-ask-actions>*{flex:1}}

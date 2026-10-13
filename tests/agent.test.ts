@@ -170,3 +170,23 @@ it('priority changes respect staff permissions, client restrictions and stale ve
  expect((await tool(t.token,'set_priority',{id:order.id,priority:'low',updated_at:order.updated_at.toISOString()})).isError).toBe(true);
  const client=await mint(ids.pranav,'write'),own=await getWorkOrder(ids.pranav,ids.ridgeline,orderId(1));expect((await tool(client.token,'set_priority',{id:own.id,priority:'urgent',updated_at:own.updated_at.toISOString()})).isError).toBe(true);
 });
+
+it('approval mode every queues Connect AI key writes for an admin', async () => {
+ const { listKeyApprovals, decideKeyApproval } = await import('../lib/services/key-approvals');
+ await withSystem(db=>db.query("UPDATE workspaces SET approval_mode='every' WHERE id=$1",[ids.ridgeline]));
+ try {
+  const t=await mint();const before=await count();
+  const r=await tool(t.token,'create_request',{title:'Key asks first',site_id:siteId(1)});
+  expect(r.structuredContent.result.status).toBe('waiting_for_approval');expect(await count()).toBe(before);
+  const id=r.structuredContent.result.approval_id;
+  await expect(listKeyApprovals(ids.sam,ids.ridgeline)).rejects.toThrow();
+  await expect(decideKeyApproval(ids.sam,ids.ridgeline,id,{approve:true})).rejects.toThrow();
+  expect((await listKeyApprovals(ids.imran,ids.ridgeline)).some((a:any)=>a.id===id)).toBe(true);
+  expect(await decideKeyApproval(ids.imran,ids.ridgeline,id,{approve:true})).toEqual({done:true});
+  expect(await count()).toBe(before+1);
+  await expect(decideKeyApproval(ids.imran,ids.ridgeline,id,{approve:true})).rejects.toThrow(/already/);
+  const r2=await tool(t.token,'create_request',{title:'Key declined',site_id:siteId(1)});
+  expect(await decideKeyApproval(ids.imran,ids.ridgeline,r2.structuredContent.result.approval_id,{approve:false})).toEqual({declined:true});
+  expect(await count()).toBe(before+1);
+ } finally { await withSystem(db=>db.query("UPDATE workspaces SET approval_mode='important' WHERE id=$1",[ids.ridgeline])); }
+});
