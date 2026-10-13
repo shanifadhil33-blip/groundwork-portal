@@ -37,7 +37,7 @@ async function post(p:Provider,body:unknown,timeout:number){
  catch{throw new Skip(true);}
  if(r.status===429||r.status===402||r.status===403){cooldown.set(p.name,Date.now()+60_000);throw new Skip(false,r.status);}
  if(r.status>=500)throw new Skip(true,r.status);
- if(!r.ok)throw new Skip(false,r.status);
+ if(!r.ok){if(r.status===400)console.warn('[ai] bad request',{provider:p.name,reason:(await r.text().catch(()=>'')).replace(/key[^\s"]*/gi,'').slice(0,400)});throw new Skip(false,r.status);}
  try{return await r.json();}catch{throw new Skip(true,r.status);}
 }
 /** Per provider timeout. Gemini free often hangs, so it gets a short leash and the chain moves on. */
