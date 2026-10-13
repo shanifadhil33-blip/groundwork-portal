@@ -1,3 +1,4 @@
+import { listMessages,listThreads,sendMessage,messageInput,threadInput } from '../services/messages';
 import { createSuggestion,decideSuggestion,listSuggestions,suggestionInput } from '../services/suggestions';
 import { needsAttention } from '../services/attention';
 import { z } from 'zod';
@@ -31,6 +32,8 @@ export type AgentContext={user:string;ws:string;scope:'read'|'write';kind:'agent
 type Tool={description:string;write:boolean;schema:z.ZodObject;run:(c:AgentContext,a:any)=>Promise<unknown>};
 function query(a:Record<string,unknown>) {const p=new URLSearchParams();for(const [k,v] of Object.entries(a))if(v!==undefined){if(Array.isArray(v))for(const value of v)p.append(k+'[]',String(value));else p.set(k,String(v));}return p;}
 export const tools:Record<string,Tool>={
+ list_messages:{description:'Read visible messages in a direct conversation or a job. With no thread show your visible threads and unread counts. Never expose phone contact details.',write:false,schema:threadInput,run:(c,a)=>a.conversation_id||a.work_order_id?listMessages(c.user,c.ws,a):listThreads(c.user,c.ws)},
+ send_message:{description:'Send a message to a permitted person or existing conversation, or on a visible job. Always show the Yes and Change confirmation first. Voice text fills body and never sends itself.',write:true,schema:messageInput,run:(c,a)=>sendMessage(c.user,c.ws,a)},
  list_suggestions:{description:'List suggested jobs with sender, source, time and pending count. Clients and technicians see only their own suggestions.',write:false,schema:z.object({}).strict(),run:c=>listSuggestions(c.user,c.ws)},
  approve_suggestion:{description:'Admin and supervisor only: accept a suggestion and create its job. Review and confirm first. Use overrides for edits before approval.',write:true,schema:z.object({id:uuid,overrides:suggestionInput.partial().optional()}).strict(),run:(c,a)=>decideSuggestion(c.user,c.ws,a.id,{decision:'approved',overrides:a.overrides})},
  decline_suggestion:{description:'Admin and supervisor only: decline a suggestion with a required plain reason. Review and confirm first.',write:true,schema:z.object({id:uuid,reason:z.string().trim().min(1).max(2000)}).strict(),run:(c,a)=>decideSuggestion(c.user,c.ws,a.id,{decision:'declined',reason:a.reason})},

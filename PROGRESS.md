@@ -585,3 +585,7 @@ Typecheck, 3 messaging service tests and 6 message schema and copy tests passed.
 ## Part F3
 Added Messages navigation with unread dots, a private direct thread page and a Messages tab on each job. Text, resized photos and voice dictation share the existing upload and composer paths. Readers get their chosen translation with Show original. Bell links open the matching thread.
 Typecheck, 16 UI, voice, schema and copy tests and 3 real Postgres messaging service tests passed. No external translation provider was contacted by the English service tests.
+
+## Part F4
+Agent list_messages and send_message use the same services and permissions as the screens. Sending goes through Yes and Change with the message and reader on the card. Attention names unread senders and job numbers and returns real counts even when no model provider is available.
+Typecheck, 12 Agent reply, message schema and copy tests and 4 real Postgres messaging tests passed.

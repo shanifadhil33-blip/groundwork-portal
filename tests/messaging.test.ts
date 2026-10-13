@@ -28,3 +28,11 @@ it('clients cannot reach another company and technicians cannot reach an unassig
  if(client)await expect(sendMessage(ids.ravi,ids.ridgeline,{recipient_id:client.user_id,body:'Wrong client'})).rejects.toMatchObject({status:403});
  expect((await messagePeople(ids.pranav,ids.ridgeline)).some(p=>p.user_id===ids.omar)).toBe(false);
 });
+it('Agent attention names unread senders and reads the same thread results',async()=>{
+ const {callTool}=await import('../lib/agent/tools');
+ const sent=await sendMessage(ids.sam,ids.ridgeline,{recipient_id:ids.pranav,body:'Please check reception'});
+ const attention=await callTool({user:ids.pranav,ws:ids.ridgeline,kind:'assistant',scope:'read'},'needs_attention',{});
+ expect((attention.structuredContent as any).result.messages.some((m:any)=>m.id===sent.id&&m.summary.includes('Sam'))).toBe(true);
+ const read=await callTool({user:ids.pranav,ws:ids.ridgeline,kind:'assistant',scope:'read'},'list_messages',{conversation_id:sent.conversation_id});
+ expect((read.structuredContent as any).result.data.some((m:any)=>m.id===sent.id)).toBe(true);
+});
