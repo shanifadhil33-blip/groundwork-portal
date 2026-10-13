@@ -666,6 +666,5 @@ th.row-menu,td.row-menu{width:56px;text-align:right}
 .archived-list{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
 .archived-list li{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.4rem 0;border-top:1px solid var(--border)}
 .archived-list li:first-child{border-top:0}
-.desktop-table td:not(:first-child),.desktop-table th{white-space:nowrap}
 th.row-menu,td.row-menu{width:48px;padding-left:0;padding-right:8px}
-.desktop-table td:not(:first-child),.desktop-table td:not(:first-child) *{overflow-wrap:normal;word-break:normal;white-space:nowrap}
+.desktop-table .priority-text,.desktop-table .priority-text *,.desktop-table td.date-cell,.desktop-table .assignee-cell,.desktop-table .assignee-cell *{overflow-wrap:normal;word-break:normal;white-space:nowrap}
