@@ -20,7 +20,7 @@ test('phone: long press a finished job offers Archive; archived job moves to Arc
     const bar = page.locator('.selection-bar'); await expect(bar).toContainText('Archive');
     const title = (await page.locator('.work-card-wrap').first().locator('strong').first().innerText()).trim();
     await bar.getByRole('button', { name: 'Archive' }).click(); await expect(page.getByText(/archived\./)).toBeVisible();
-    await page.goto('/work-orders?archived=true'); await expect(page.getByText(title).first()).toBeVisible();
+    await page.goto('/work-orders?archived=true'); await expect(page.locator('.work-card-wrap', { hasText: title }).first()).toBeVisible();
     await hold(page, '.work-card-wrap'); await page.locator('.selection-bar').getByRole('button', { name: 'Bring back' }).click();
     await expect(page.getByText(/back in the list/)).toBeVisible();
   } finally { await d.reset(); }
