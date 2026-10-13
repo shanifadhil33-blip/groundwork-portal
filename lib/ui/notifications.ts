@@ -11,6 +11,7 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
 export function notificationMessage(r:Record<string,any>, client=false) {
  const labels=client?clientStatusLabels:statusLabels, status=(value:string)=>labels[value]??label(value);
  const title=r.work_order_title??r.current_title??'your job',actor=r.actor_name??'Your team';
+ if(r.kind==='message_received')return `${actor} sent you a message.`;
  if(r.kind==='job_assigned')return `${actor} assigned ${title} to you.`;
  if(r.kind==='job_reported')return `${actor} saved a report on ${title}. Review it on the job.`;
  if(r.kind==='roles_changed')return `${actor} changed your roles. Your access now follows these roles.`;

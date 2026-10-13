@@ -581,3 +581,7 @@ Typecheck and the direct thread RLS tests passed using temporary Postgres.
 ## Part F2
 All required direct role pairs send both ways through the same permission checked service. Job messages reuse comments. Sender names come from the account, phone fields are excluded, current readers see translated text with original content, and precise read markers keep newer messages unread.
 Typecheck, 3 messaging service tests and 6 message schema and copy tests passed. The pair test exercises both directions for all eight required pairs.
+
+## Part F3
+Added Messages navigation with unread dots, a private direct thread page and a Messages tab on each job. Text, resized photos and voice dictation share the existing upload and composer paths. Readers get their chosen translation with Show original. Bell links open the matching thread.
+Typecheck, 16 UI, voice, schema and copy tests and 3 real Postgres messaging service tests passed. No external translation provider was contacted by the English service tests.

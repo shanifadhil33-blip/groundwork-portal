@@ -992,3 +992,8 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 @media(prefers-reduced-motion:reduce) { .recording-dot { animation:none; } }
 .agent-settings .choice-row { min-height:44px; }
 .agent-settings input[role=switch] { width:24px; min-height:24px; height:24px; }
+
+.message-list { list-style: none; padding: 0; margin: 0; }
+.message-list > li { padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+.message-thread { max-width: 760px; width: 100%; }
+.unread-message-dot { color: var(--accent); font-size: 14px; }

@@ -22,7 +22,7 @@ export function Notifications({ open, onClose, ws, onChange }: { open: boolean; 
   async function openNotification(item:Notification) {
    if(lock.current||!item.link_target)return;
    lock.current=true;setBusy(item.id);setActionError(null);
-   try {await openNotificationTarget(item,notificationId=>post(`/api/workspaces/${ws}/notifications/${notificationId}/read`),orderId=>{if(!item.read_at)applyRead(item.id,true);else onChange();onClose();router.push(item.link_target?.entity==='job_suggestions'?(member?.role==='client'?'/work-orders':'/suggestions'):item.link_target?.entity==='time_off'?(member?.role==='technician'?'/today':'/dashboard'):item.link_target?.entity==='members'?'/settings':`/work-orders/${orderId}`);});}
+   try {await openNotificationTarget(item,notificationId=>post(`/api/workspaces/${ws}/notifications/${notificationId}/read`),orderId=>{if(!item.read_at)applyRead(item.id,true);else onChange();onClose();router.push(item.link_target?.entity==='conversations'?`/messages?thread=${orderId}`:item.link_target?.entity==='job_suggestions'?(member?.role==='client'?'/work-orders':'/suggestions'):item.link_target?.entity==='time_off'?(member?.role==='technician'?'/today':'/dashboard'):item.link_target?.entity==='members'?'/settings':`/work-orders/${orderId}`);});}
    catch {setActionError('We couldn’t open this notification. Try again.');}
    finally {lock.current=false;setBusy(null);}
   }
