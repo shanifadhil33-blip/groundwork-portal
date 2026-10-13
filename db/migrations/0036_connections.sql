@@ -45,3 +45,13 @@ BEGIN
 END $$;
 CREATE TRIGGER member_connections AFTER UPDATE ON members FOR EACH ROW EXECUTE FUNCTION notify_role_change();
 REVOKE ALL ON FUNCTION notify_assignment_and_report(),notify_role_change() FROM PUBLIC;
+CREATE FUNCTION notify_leave_decision() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $$
+BEGIN
+ IF OLD.status='pending' AND NEW.status IN ('approved','declined') THEN
+  INSERT INTO public.notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title,to_status)
+  SELECT NEW.user_id,NEW.workspace_id,'leave_decided','time_off',NEW.id,public.app_user_id(),coalesce(u.name,'Your supervisor'),NEW.starts_on::text||' to '||NEW.ends_on::text,NEW.status FROM public.users u WHERE u.id=public.app_user_id();
+ END IF;
+ RETURN NULL;
+END $$;
+CREATE TRIGGER leave_connections AFTER UPDATE ON time_off FOR EACH ROW EXECUTE FUNCTION notify_leave_decision();
+REVOKE ALL ON FUNCTION notify_leave_decision() FROM PUBLIC;

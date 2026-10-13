@@ -569,3 +569,7 @@ Typecheck passed and the connection document was checked for the required action
 ## Part E2
 Fixed missing assignment bells, client status delivery to permitted readers, comments reaching the team, and preferred visit windows in the schedule and assignment form. Role changes notify the member and job reports notify supervisors. Notification links open the relevant screen. Agent attention includes pending prices and leave requests. Prices go to client managers.
 Typecheck and Agent reply, copy and connection notification unit tests passed. The connection report now marks these links fixed now. External provider and real device checks remain outside local verification.
+
+## Part E3
+Added 9 connection tests that act as sender and receiver across suggestions, household status and preferred time, leave, quotes, assignment, client status, visible and internal comments, closed outcomes and counts, cancel and restore, archives, roles, WhatsApp and a mocked feedback inbox.
+Typecheck passed. All 9 tests passed against temporary Postgres through the serial adapter. Feedback was captured by a test receiver and no external request was sent. Leave decision notices now share their transaction and leave reads use caller policies. Missing external checks are provider WhatsApp wiring and delivery on a real device. The shared report folder remains read only here; the complete report is in docs.

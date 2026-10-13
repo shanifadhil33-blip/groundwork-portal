@@ -29,7 +29,7 @@ export async function assertWorking(c: Context, assignee: string | null | undefi
   if (!assignee || !scheduledFor) return;
   const date = (await c.db.query('SELECT ($1::timestamptz AT TIME ZONE timezone)::date::text AS d FROM workspaces WHERE id=$2', [scheduledFor, c.ws])).rows[0]?.d;
   if (!date) return;
-  const reason = await withSystem(db => offReason(db, c.ws, assignee, date), c.user);
+  const reason = await offReason(c.db, c.ws, assignee, date);
   if (reason) throw invalid(`${reason} Choose someone else or another day.`, 'assignee_id');
 }
 
@@ -115,8 +115,6 @@ export async function decideTimeOff(user: string, ws: string, id: string, body: 
     allowTeam(c);
     const r = (await c.db.query("UPDATE time_off SET status=$3, decided_by=$4, decided_at=now() WHERE workspace_id=$1 AND id=$2 AND status='pending' RETURNING id, user_id, kind, status, starts_on::text, ends_on::text", [ws, id, decision, user])).rows[0];
     if (!r) { const any = (await c.db.query('SELECT status FROM time_off WHERE workspace_id=$1 AND id=$2', [ws, id])).rows[0]; if (!any) throw missing(); throw new ApiError(409, 'decided', 'This request was already decided.'); }
-    const me = String((await c.db.query('SELECT name FROM visible_user($1)', [user])).rows[0]?.name ?? 'Your supervisor');
-    await withSystem(db => db.query("INSERT INTO notifications(user_id,workspace_id,kind,entity_id,actor_id,actor_name,work_order_title,to_status) VALUES($1,$2,'leave_decided',$3,$4,$5,$6,$7)", [r.user_id, ws, r.id, user, me, spanLabel(r.kind, r.starts_on, r.ends_on), decision]), user);
     return r;
   });
 }
@@ -126,9 +124,9 @@ export async function leaveRequests(user: string, ws: string) {
   return inWorkspace(user, ws, async c => {
     allow(c, ['admin', 'staff', 'technician']);
     const team = ['admin', 'staff'].includes(c.role) && c.staff_kind !== 'office';
-    const rows = (await withSystem(db => db.query(`SELECT t.id, t.user_id, u.name, t.kind, t.status, t.starts_on::text, t.ends_on::text, t.note FROM time_off t LEFT JOIN users u ON u.id=t.user_id
+    const rows = (await c.db.query(`SELECT t.id, t.user_id, u.name, t.kind, t.status, t.starts_on::text, t.ends_on::text, t.note FROM time_off t LEFT JOIN LATERAL visible_user(t.user_id) u ON true
       WHERE t.workspace_id=$1 AND t.created_by=t.user_id AND t.ends_on >= (now() AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=$1))::date - 30 AND ${team ? "(t.status='pending' OR t.user_id=$2)" : 't.user_id=$2'}
-      ORDER BY t.starts_on LIMIT 50`, [ws, user]), user)).rows;
+      ORDER BY t.starts_on LIMIT 50`, [ws, user])).rows;
     return { can_decide: team, requests: rows };
   });
 }

@@ -23,3 +23,5 @@ BEGIN
  END IF;
  RETURN NULL;
 END $$;
+DROP TRIGGER IF EXISTS leave_connections ON time_off;
+DROP FUNCTION IF EXISTS notify_leave_decision();
