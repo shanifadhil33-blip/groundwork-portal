@@ -561,3 +561,7 @@ Typecheck and Agent reply, suggestion unit and copy tests passed.
 ## Part D7
 Added service and RLS tests for ownership, spoofed senders, technician refusal, approval, decline, notifications and preferred visit times. Updated earlier tests that needed an approved client job.
 The sandbox denies all sockets, so tests now also have a serial adapter using real Postgres through stdin in a temporary cluster. All migrations and 5 suggestion service and RLS tests passed with that adapter. Typecheck and 24 unit, voice, Agent reply and copy tests passed. The normal socket runner and concurrent transaction suites still need a socket enabled environment.
+
+## Part E1
+Read the master feature ledger and traced existing actions through services, lists, dashboards, notifications and Agent tools. The connection table is in docs/groundwork-connections.md. The requested shared folder is outside the sandbox writable roots, so this reviewable repository copy is used here.
+Typecheck passed and the connection document was checked for the required actions. The socket enabled test runner remains unavailable; serial Postgres checks passed for suggestions.
