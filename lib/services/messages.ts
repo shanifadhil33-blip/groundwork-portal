@@ -75,8 +75,20 @@ export async function markThreadRead(user:string,ws:string,body:unknown){const d
   if(new Date(d.through).getTime()>Date.now()+1000)throw invalid('Use the last message time.','through');
   let through=d.through;
   if(d.through_id){const table=d.work_order_id?'comments':'messages';const stamp=(await c.db.query(`SELECT created_at::text AS stamp FROM ${table} WHERE workspace_id=$1 AND ${field}=$2 AND id=$3`,[ws,id,d.through_id])).rows[0];if(!stamp)throw missing();through=stamp.stamp;}
-  await c.db.query(`INSERT INTO message_reads(workspace_id,user_id,${field},last_read_at) VALUES($1,$2,$3,$4) ON CONFLICT(workspace_id,user_id,${field}) WHERE ${field} IS NOT NULL DO UPDATE SET last_read_at=greatest(message_reads.last_read_at,EXCLUDED.last_read_at)`,[ws,user,id,through]);
-  await c.db.query("UPDATE notifications SET read_at=coalesce(read_at,clock_timestamp()) WHERE workspace_id=$1 AND user_id=$2 AND entity_id=$3 AND kind IN ('message_received','comment_added','team_message') AND created_at<=$4",[ws,user,id,through]);
-  return {read:true};
+  const previous=(await c.db.query(`SELECT last_read_at FROM message_reads WHERE workspace_id=$1 AND user_id=$2 AND ${field}=$3 FOR UPDATE`,[ws,user,id])).rows[0];
+  const saved=(await c.db.query(`INSERT INTO message_reads(workspace_id,user_id,${field},last_read_at) VALUES($1,$2,$3,$4) ON CONFLICT(workspace_id,user_id,${field}) WHERE ${field} IS NOT NULL DO UPDATE SET last_read_at=greatest(message_reads.last_read_at,EXCLUDED.last_read_at) RETURNING last_read_at`,[ws,user,id,through])).rows[0];
+  const notices=(await c.db.query("UPDATE notifications SET read_at=clock_timestamp() WHERE workspace_id=$1 AND user_id=$2 AND entity_id=$3 AND kind IN ('message_received','comment_added','team_message') AND created_at<=$4 AND read_at IS NULL RETURNING id,read_at",[ws,user,id,through])).rows;
+  return {read:true,undo:{...d,through:undefined,through_id:undefined,previous_read_at:previous?.last_read_at??null,last_read_at:saved.last_read_at,notices}};
+ });
+}
+
+export async function undoThreadRead(user:string,ws:string,body:unknown){
+ const data=threadInput.extend({previous_read_at:z.iso.datetime({offset:true}).nullable(),last_read_at:z.iso.datetime({offset:true}),notices:z.array(z.object({id:uuid,read_at:z.iso.datetime({offset:true})})).max(1000)}).strict().parse(body);
+ return inWorkspace(user,ws,async c=>{await checkThread(c,data);const field=data.conversation_id?'conversation_id':'work_order_id',id=data.conversation_id??data.work_order_id;
+  const current=(await c.db.query(`SELECT last_read_at FROM message_reads WHERE workspace_id=$1 AND user_id=$2 AND ${field}=$3 FOR UPDATE`,[ws,user,id])).rows[0];
+  if(!current||new Date(current.last_read_at).getTime()!==new Date(data.last_read_at).getTime())throw new ApiError(409,'stale','These messages changed. Refresh and try again.');
+  if(data.previous_read_at)await c.db.query(`UPDATE message_reads SET last_read_at=$4 WHERE workspace_id=$1 AND user_id=$2 AND ${field}=$3`,[ws,user,id,data.previous_read_at]);else await c.db.query(`UPDATE message_reads SET last_read_at='epoch' WHERE workspace_id=$1 AND user_id=$2 AND ${field}=$3`,[ws,user,id]);
+  for(const n of data.notices)await c.db.query('UPDATE notifications SET read_at=NULL WHERE workspace_id=$1 AND user_id=$2 AND entity_id=$3 AND id=$4 AND read_at=$5',[ws,user,id,n.id,n.read_at]);
+  return {read:false};
  });
 }

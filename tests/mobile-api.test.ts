@@ -1,0 +1,5 @@
+import {expect,it,vi} from 'vitest';
+import {endpoint} from '../lib/api';
+vi.mock('../lib/auth',()=>({requireUser:vi.fn().mockResolvedValue('Ravi')}));
+it('refuses an Outbox send if the browser has changed to another account',async()=>{const send=vi.fn().mockResolvedValue({sent:true});const handler=endpoint(send,{body:true});const response=await handler(new Request('http://localhost/api/messages',{method:'POST',headers:{'Content-Type':'application/json','groundwork-user':'Omar'},body:'{}'}));expect(response.status).toBe(409);expect(send).not.toHaveBeenCalled();expect(await response.json()).toMatchObject({error:{code:'account_changed'}});});
+it('allows a matching Outbox account and ordinary calls without an account hint',async()=>{const send=vi.fn().mockResolvedValue({sent:true});const handler=endpoint(send,{body:true});for(const headers of [{},{'groundwork-user':'Ravi'}] as Record<string,string>[]){const response=await handler(new Request('http://localhost/api/messages',{method:'POST',headers:{'Content-Type':'application/json',...headers},body:'{}'}));expect(response.status).toBe(200);}expect(send).toHaveBeenCalledTimes(2);});

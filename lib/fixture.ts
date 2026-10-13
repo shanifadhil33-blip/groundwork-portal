@@ -133,6 +133,11 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
  // Harbor & Pine has a maintenance contract: two finished jobs are covered by it, one was paid, the rest are to bill.
  await client.query("UPDATE clients SET contract_visits=12, contract_ends_on=$3 WHERE workspace_id=$1 AND id=$2",[ids.ridgeline,ids.harbor,dayOffset(today,170)]);
  await client.query(`UPDATE work_orders SET payment_status=CASE WHEN r<=2 THEN 'contract' ELSE 'paid' END FROM (SELECT id, row_number() OVER (ORDER BY order_number) r FROM work_orders WHERE workspace_id=$1 AND client_id=$2 AND status='done') d WHERE work_orders.id=d.id AND d.r<=3`,[ids.ridgeline,ids.harbor]);
+ // Recorded receipts and supplier costs support the overview with the same jobs and contract shown elsewhere.
+ await client.query("UPDATE work_orders SET quote_amount=480,quote_status='approved',quote_note='Parts and labour for the completed repair.' WHERE workspace_id=$1 AND payment_status='paid' AND status='done'",[ids.ridgeline]);
+ await client.query("INSERT INTO workspace_money(workspace_id,direction,amount,currency,note,created_by) VALUES($1,'in',7200,'AED','Harbor and Pine annual maintenance contract payment',$2)",[ids.ridgeline,ids.imran]);
+ const supplierCosts=[145,90,220,360];
+ for(const [index,amount] of supplierCosts.entries())await client.query("INSERT INTO workspace_money(workspace_id,direction,amount,currency,note,created_by) VALUES($1,'out',$2,'AED',$3,$4)",[ids.ridgeline,amount,`Cobalt parts for WO ${index+1}`,ids.imran]);
  // Decision log: two past agent actions with a why note; the second was undone by its owner.
  const past=(await client.query("SELECT id,order_number,title,assignee_id,priority FROM work_orders WHERE workspace_id=$1 AND status IN ('open','scheduled') ORDER BY order_number LIMIT 2",[ids.ridgeline])).rows;
  if(past.length===2){

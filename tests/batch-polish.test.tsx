@@ -1,6 +1,6 @@
 import React from 'react';
-import { readFileSync, existsSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it, vi } from 'vitest';
 import { Dropdown, SEARCH_AFTER } from '../components/ui/dropdown';
@@ -16,8 +16,8 @@ it('shows a placeholder on the trigger instead of offering it as an option', () 
 });
 
 it('never lists a pure "Choose ..." placeholder as a selectable option', () => {
-  const hits = execSync(`grep -rnE "value: ?''[^}]*label: ?['\\\`]Choose" app components || true`, { encoding: 'utf8' });
-  expect(hits.trim()).toBe('');
+  function scan(dir:string):string[]{return readdirSync(dir,{withFileTypes:true}).flatMap(entry=>{const file=join(dir,entry.name);return entry.isDirectory()?scan(file):/\.[jt]sx?$/.test(file)&&/value: ?''[^}]*label: ?['`]Choose/.test(read(file))?[file]:[];});}
+  expect(['app','components'].flatMap(scan)).toEqual([]);
 });
 
 it('adds a sticky search to any list longer than 15, and a trigger wide panel', () => {

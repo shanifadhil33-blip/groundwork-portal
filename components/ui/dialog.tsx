@@ -1,4 +1,5 @@
 'use client';
+import { usePhoneLayer } from '../../lib/ui/phone-back';
 import { createPortal } from 'react-dom';
 import { useEffect, useId, useRef, useState, type ReactNode, type PointerEvent } from 'react';
 import { X } from 'lucide-react';
@@ -11,6 +12,7 @@ export function Dialog({ open, onClose, title, children, busy = false, sheet = f
   const titleId = useId(), closeRef = useRef(onClose), busyRef = useRef(busy), dirtyRef=useRef(dirty);dirtyRef.current=dirty; closeRef.current = onClose; busyRef.current = busy;
   useEffect(() => { setMounted(true); return () => { if (closeTimer.current) clearTimeout(closeTimer.current); }; }, []);
   const close = (force = false) => { if (busyRef.current || closing) return;if(dirtyRef.current&&!force){setDiscard(true);return;} setClosing(true); closeTimer.current = setTimeout(() => { closeRef.current(); setClosing(false); setOffset(0); }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180); };
+  usePhoneLayer(open&&mounted,()=>{if(busyRef.current)return false;if(dirtyRef.current){setDiscard(v=>!v);return false;}closeRef.current();});
   useEffect(() => {
     if (!open || !mounted) return;
     setOffset(0); setClosing(false);setDiscard(false);

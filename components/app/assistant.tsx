@@ -1,4 +1,5 @@
 'use client';
+import { useLocalDraft } from '../../lib/ui/drafts';
 import { ContactText } from './contact-name';
 import { plainAssistantReply } from '../../lib/ui/assistant-replies';
 import { personalAgentChatKey } from '../../lib/ui/personal-agent';
@@ -20,7 +21,8 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
  const preferences=useResource<{agent_name:string|null;voice_enabled:boolean;language:string|null}>('/api/me/preferences');
  const agentName=preferences.data?.agent_name||'Agent';
  const heading=<Link href="/settings/agent" onClick={onClose} data-no-translate={!!preferences.data?.agent_name}>{agentName}</Link>;
- const [messages,setMessages]=useState<Message[]>([]),[input,setInput]=useState(''),[busy,setBusy]=useState(false),[pending,setPending]=useState<Pending|null>(null),[resting,setResting]=useState(false),[error,setError]=useState(''),[failed,setFailed]=useState<{messages:Message[];confirm_action_id?:string}|null>(null);
+ const [messages,setMessages]=useState<Message[]>([]),[inputDraft,setInputDraft]=useLocalDraft(`groundwork-agent-draft:${me.user.id}:${ws}`,{body:''}),[busy,setBusy]=useState(false),[pending,setPending]=useState<Pending|null>(null),[resting,setResting]=useState(false),[error,setError]=useState(''),[failed,setFailed]=useState<{messages:Message[];confirm_action_id?:string}|null>(null);
+ const input=inputDraft.body,setInput=(v:React.SetStateAction<string>)=>setInputDraft(d=>({body:typeof v==='function'?v(d.body):v}));
  const inputRef=useRef<HTMLTextAreaElement>(null);
  useEffect(()=>{const field=inputRef.current;if(!field)return;field.style.height='auto';field.style.height=`${Math.min(field.scrollHeight,156)}px`;field.style.overflowY=field.scrollHeight>156?'auto':'hidden';},[input,open]);
  // Keep chat across sheet closes and component remounts in this session.

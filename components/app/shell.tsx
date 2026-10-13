@@ -1,4 +1,5 @@
 'use client';
+import { Outbox } from './outbox';
 import { ContactNamesProvider } from './contact-names-context';
 import { menuEnabled } from '../../lib/company';
 import { demoEmail } from '../../lib/ui/polish';
@@ -106,7 +107,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
     {!compact && <span className="account-copy"><strong data-no-translate>{me.user.name ?? 'Account'}</strong><small>{role}</small></span>}
   </Dropdown>;
   return <InitialResourceProvider resources={initial?.user===me.user.id?initial.resources:{}}><AppContext.Provider key={`${me.user.id}:${member?.workspace_id??''}`} value={{ me, member, workspace, reload: load, askAssistant: text => { setAsk(a => ({ text, n: (a?.n ?? 0) + 1 })); setAssistant(true); }, updateName: name => setMe(current => current ? { ...current, user: { ...current.user, name } } : current) }}>
-    <ContactNamesProvider><Translator />
+    <ContactNamesProvider><Translator /><Outbox key={`${me.user.id}:${member?.workspace_id}`}/>
     <a href="#app-content" className="skip-link">Skip to content</a>
     <div className={`app-shell ${collapsed ? 'collapsed' : ''} ${dashboardAssistant ? 'with-dashboard-assistant' : ''}`}>
       <aside className="sidebar">

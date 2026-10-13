@@ -11,7 +11,7 @@ import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, 
 const timestamp=z.iso.datetime({offset:true});
 const mutable=z.object({trade:z.enum(TRADES).nullable(),title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable(),preferred_window:z.string().trim().max(200).nullable()});
 const createSchema=mutable.partial().extend({title:name,client_id:uuid.optional(),site_id:uuid}).strict();
-const patchSchema=mutable.partial().extend({updated_at:timestamp.optional(),reopen:z.literal(true).optional()}).strict();
+const patchSchema=mutable.partial().extend({updated_at:timestamp.optional(),reopen:z.literal(true).optional(),undo_status:z.literal(true).optional()}).strict();
 const clientSchema=z.object({title:name,description:z.string().max(20000).optional(),preferred_window:z.string().trim().max(200).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();
 export const transitions:Record<string,string[]>={
  open:['scheduled','cancelled'],scheduled:['in_progress','cancelled'],
@@ -121,19 +121,24 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   const order=await row(c,'work_orders',id,true);before=order;
   const parsed=patchSchema.parse(body);
   // Technicians see only their own jobs (RLS) and change only the status, never to cancelled.
-  if(c.role==='technician'){const {updated_at:_u,reopen:_r,...changes}=parsed;if(Object.keys(changes).some(k=>k!=='status')||_r)throw new ApiError(403,'forbidden','You can update the status of your own jobs. Ask a supervisor for other changes.');if(changes.status==='cancelled')throw new ApiError(403,'forbidden','Ask a supervisor to cancel a job.');}
+  if(c.role==='technician'){const {updated_at:_u,reopen:_r,undo_status:_undo,...changes}=parsed;if(Object.keys(changes).some(k=>k!=='status')||_r)throw new ApiError(403,'forbidden','You can update the status of your own jobs. Ask a supervisor for other changes.');if(changes.status==='cancelled')throw new ApiError(403,'forbidden','Ask a supervisor to cancel a job.');}
   const version=ifMatch?.replace(/^"|"$/g,'')??parsed.updated_at;
   if(!version)throw invalid('Refresh the work order before saving your changes.','updated_at');
   timestamp.parse(version);
   if(new Date(version).getTime()!==order.updated_at.getTime())throw new ApiError(409,'stale','This request changed since you opened it. Refresh it and try again.');
-  const {updated_at:_,reopen,...data}=parsed;
+  const {updated_at:_,reopen,undo_status,...data}=parsed;
   if(!Object.keys(data).length)throw invalid('Provide at least one change.');
   if(order.status==='done') {
    const target=order.scheduled_for?'scheduled':'open';
    if(c.role!=='admin')throw new ApiError(403,'forbidden','Only an admin can reopen a completed work order.');
    if(!reopen||data.status!==target||Object.keys(data).length!==1)throw invalid('This work order is completed. Reopen it before making changes.','status');
   } else if(reopen)throw invalid('Only completed work orders can be reopened.','status');
-  if(order.status!=='done' && data.status && data.status!==order.status && !transitions[order.status].includes(data.status))throw invalid('This status change is not allowed.','status');
+  if(undo_status){
+   if(!data.status||Object.keys(data).some(k=>k!=='status')||['done','cancelled'].includes(order.status)||['done','cancelled'].includes(data.status))throw invalid('This status change cannot be undone.','status');
+   const event=(await c.db.query("SELECT actor_id,details FROM work_order_events WHERE workspace_id=$1 AND work_order_id=$2 AND kind='status_changed' ORDER BY created_at DESC,id DESC LIMIT 1",[ws,id])).rows[0];
+   if(event?.actor_id!==user||event.details?.to_status!==order.status||event.details?.from_status!==data.status)throw new ApiError(409,'stale','This job changed. Refresh it and try again.');
+  }
+  if(!undo_status && order.status!=='done' && data.status && data.status!==order.status && !transitions[order.status].includes(data.status))throw invalid('This status change is not allowed.','status');
   if(typeof data.scheduled_for==='string' && data.scheduled_for.length===10)data.scheduled_for=(await c.db.query("SELECT ($1::date + time '09:00') AT TIME ZONE timezone AS value FROM workspaces WHERE id=$2",[data.scheduled_for,ws])).rows[0].value.toISOString();
   // Office staff may book only the Best match for this job (ROLE08), the same person the Best match button shows.
   const changedTo=data.assignee_id===order.assignee_id?undefined:data.assignee_id;

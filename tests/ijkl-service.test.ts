@@ -52,8 +52,9 @@ it('small company owners hold all working rights, two owners work, and size chan
  await expect(createWorkspace(ids.imran,{name:' bilal service works ',country:'AE'})).rejects.toMatchObject({status:409,code:'company_exists'});
 });
 it('company overview records money with the workspace currency and refuses non admins',async()=>{
+ const before=await ownerOverview(ids.imran,ws);
  await addMoney(ids.imran,ws,{direction:'in',amount:850});await addMoney(ids.imran,ws,{direction:'out',amount:120});
- expect(await ownerOverview(ids.imran,ws)).toMatchObject({currency:'AED',money_in:'850.00',money_out:'120.00'});await expect(ownerOverview(ids.sam,ws)).rejects.toMatchObject({status:403});
+ expect(await ownerOverview(ids.imran,ws)).toMatchObject({currency:'AED',money_in:(Number(before.money_in)+850).toFixed(2),money_out:(Number(before.money_out)+120).toFixed(2)});await expect(ownerOverview(ids.sam,ws)).rejects.toMatchObject({status:403});
 });
 it('setup saves each answer and resumes the next question without making a company early',async()=>{
  expect((await getOnboarding(ids.imran)).step).toBe('language');await saveOnboarding(ids.imran,{answers:{language:'en-IN'},advance:true});

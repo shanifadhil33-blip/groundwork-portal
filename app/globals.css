@@ -1001,3 +1001,17 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 .guided-onboarding{font-size:16px;max-width:640px}.guided-onboarding .button{min-height:52px;font-size:16px;white-space:normal}.guided-onboarding input,.guided-onboarding select,.guided-onboarding textarea,.overview-grid{font-size:16px}.guided-onboarding .onboarding-steps{flex-wrap:wrap}.contact-name{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}.contact-name:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}.overview-grid dt{font-size:16px}.overview-grid dd{margin:12px 0 0;font-size:24px;font-weight:600}.workspace-context>.button,.workspace-context>a{font-size:14px}
 
 @media (hover:none),(pointer:coarse){.assistant-composer .composer-hint.composer-keys-hint{display:none}}
+
+.selection-mark { display:none; min-width:48px; min-height:48px; border:0; border-radius:50%; color:var(--text); background:transparent; font-size:16px; }
+.selection-bar { position:sticky; top:0; z-index:10; display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px; background:var(--surface); border-bottom:1px solid var(--border); }
+@media (pointer:coarse) {
+ .selection-mark { display:inline-flex; align-items:center; justify-content:center; }
+ [data-selected] { background:var(--accent-soft, #e8eef8); }
+}
+.outbox { padding:16px; background:var(--surface); border-bottom:1px solid var(--border); }
+@media (pointer:coarse) {
+ body:has(.app-shell) :is(button,.button,input:not([type=checkbox]):not([type=radio]),select,.nav-link,.bottom-tabs a,summary) { min-height:48px; min-width:48px; }
+ body:has(.app-shell) :is(input[type=checkbox],input[type=radio]) { width:24px; height:24px; margin:12px; }
+ .work-card-wrap { position:relative; }
+ .work-card-wrap>.selection-mark { position:absolute; inset-inline-end:48px; top:0; z-index:1; }
+}

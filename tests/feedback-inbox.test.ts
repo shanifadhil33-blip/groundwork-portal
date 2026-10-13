@@ -1,5 +1,5 @@
-import { execSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { feedbackSecret, senderHash, INBOX_ORIGIN } from '../lib/inbox';
 import { deviceSummary } from '../lib/ui/device';
@@ -10,7 +10,8 @@ afterEach(() => { delete process.env.FEEDBACK_SECRET; });
 describe('Groundwork plays no part in signing in to the portfolio inbox', () => {
   it('has no inbox pass, pass route or inbox sign in cookie anywhere', () => {
     expect(existsSync(new URL('../app/api/inbox-pass', import.meta.url))).toBe(false);
-    const files = execSync("git ls-files app lib components", { encoding: 'utf8' }).split('\n').filter(f => /\.(ts|tsx)$/.test(f));
+    function scan(dir:string):string[]{return readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?scan(join(dir,e.name)):/\.tsx?$/.test(e.name)?[join(dir,e.name)]:[]);}
+    const files=['app','lib','components'].flatMap(scan);
     const hits = files.filter(f => /inbox-pass|inboxPass|INBOX_PASS|inbox-flow|isInboxOwner/.test(readFileSync(f, 'utf8')));
     expect(hits).toEqual([]);
   });
