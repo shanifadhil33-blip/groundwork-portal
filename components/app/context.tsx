@@ -1,7 +1,7 @@
 'use client';
 import { createContext, useContext } from 'react';
 import type { Role } from '../../lib/roles';
-export type Membership = { workspace_id: string; workspace_name: string; role: Role; client_id: string | null; client_name: string | null };
+export type Membership = { workspace_id: string; workspace_name: string; role: Role; extra_roles?: string[]; client_id: string | null; client_name: string | null };
 export type Me = { user: { id: string; name: string | null; email: string | null; image: string | null }; memberships: Membership[] };
 export type Workspace = { id: string; name: string; is_demo: boolean; timezone: string; country: string; region: string | null; currency: string };
 export const AppContext = createContext<{ me: Me; member: Membership | null; workspace: Workspace | null; reload: () => void; updateName: (name: string) => void; askAssistant?: (text: string) => void } | null>(null);

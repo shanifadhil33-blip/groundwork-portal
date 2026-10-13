@@ -50,13 +50,13 @@ export async function assistant(user:string,ws:string,body:unknown) {
   const done=(t:string)=>result.isError?t:`Done${first?`, ${first}`:''}. ${t.replace(/^Done[.,!]?\s*/i,'')}`;
   return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?done(recordResult(a.tool,a.args,record)):done(audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client')),result,logged:!result.isError};
  }));
- const {role,first}=await inWorkspace(user,ws,async c=>({role:c.role,first:String((await c.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0]}));
+ const {role,first,extra}=await inWorkspace(user,ws,async c=>({role:c.role,extra:((await c.db.query('SELECT extra_roles FROM members WHERE workspace_id=$1 AND user_id=$2',[ws,user])).rows[0]?.extra_roles??[]) as string[],first:String((await c.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0]}));
  const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
  const history:AssistantMessage[]=[...d.messages];
  if(!history.length)history.push({role:'user',content:'Help me with my workspace.'});
  let saved=false;
  for(let i=0;i<10;i++){
-  const turn=await assistantTurn(history,declarations,`The person you are helping is ${first||'a team member'} (${role==='staff'?'supervisor':role}). Use the first name in a greeting now and then, not in every reply.`);if(!turn)return assistantUnavailable;
+  const turn=await assistantTurn(history,declarations,`The person you are helping is ${first||'a team member'} (${[role,...extra].map(r=>r==='staff'?'supervisor':r).join(', ')}).${extra.includes('technician')?' They also do jobs themselves: my_day gives their own jobs today, and they can be assigned jobs.':''} Use the first name in a greeting now and then, not in every reply.`);if(!turn)return assistantUnavailable;
   if(!turn.calls.length){const text=plainAssistantReply(turn.text??'How can I help?',role==='client');return {available:true,reply:!saved&&/please confirm|confirm this (?:action|change)|action completed|(?:I(?:’|')ve|I have|successfully) (?:changed|moved|updated|added|created|approved|rejected)/i.test(text)?'No changes have been made. Ask me to make the change so you can review and confirm it.':text};}
   history.push(...turn.calls.map(call=>({role:'call' as const,...call,raw:turn.raw})));
   for(const [index,call] of turn.calls.entries()){

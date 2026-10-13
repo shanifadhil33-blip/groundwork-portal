@@ -23,8 +23,30 @@ export async function changeMember(user:string,ws:string,id:string,body?:unknown
   if(data?.client_id)await row(c,'clients',data.client_id);
   if(data) {
    if(member.client_id!==data.client_id && (await c.db.query('SELECT 1 FROM work_orders WHERE workspace_id=$1 AND assignee_id=$2 LIMIT 1',[ws,id])).rowCount && data.role==='client')throw invalid('Unassign this member before changing them to a client.','role');
-   return update(c,'members',id,{role:data.role,client_id:data.client_id??null});
+   // Extra roles must stay below the main role; a client has none.
+   const below=data.role==='admin'?['staff','technician']:data.role==='staff'?['technician']:[];
+   return update(c,'members',id,{role:data.role,client_id:data.client_id??null,extra_roles:(member.extra_roles??[]).filter((r:string)=>below.includes(r))});
   }
   await c.db.query('SELECT remove_member($1,$2)',[ws,id]);return {deleted:true};
+ });
+}
+
+/** Roles a team member can hold together. The main role is the highest; the rest are kept as extra roles. */
+const TEAM_ORDER=['admin','staff','technician'] as const;
+const rolesSchema=z.object({roles:z.array(z.enum(TEAM_ORDER)).min(1,'Keep at least one role.').max(3)}).strict();
+export function splitRoles(roles:string[]){const sorted=TEAM_ORDER.filter(r=>roles.includes(r));return {role:sorted[0],extra_roles:sorted.slice(1)};}
+/**
+ * The owner or an admin turns a person's roles on and off (works in the demo sandbox too). Clients are a separate kind of member
+ * and are changed in Settings. The last admin can not drop Admin.
+ */
+export async function setMemberRoles(user:string,ws:string,id:string,body:unknown){
+ return inWorkspace(user,ws,async c=>{
+  allow(c,['admin']);uuid.parse(id);
+  await row(c,'workspaces',ws,true);
+  const member=await row(c,'members',id,true);
+  if(member.role==='client')throw invalid('Clients are changed in Settings, Members.','roles');
+  const next=splitRoles(rolesSchema.parse(body).roles);
+  if(member.role==='admin'&&next.role!=='admin'){const n=(await c.db.query("SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND role='admin'",[ws])).rows[0].n;if(n<=1)throw new ApiError(409,'last_admin','Keep at least one admin.');}
+  return (await c.db.query('UPDATE members SET role=$3, extra_roles=$4 WHERE workspace_id=$1 AND user_id=$2 RETURNING user_id, role, extra_roles',[ws,id,next.role,next.extra_roles])).rows[0];
  });
 }

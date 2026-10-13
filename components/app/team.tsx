@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { CalendarCheck, AlarmClock, ClipboardList, Phone } from 'lucide-react';
 import { PageHeader } from '../ui/layout';
 import { EmptyState, ErrorState, Skeleton } from '../ui';
-import { roleLabels, type Role } from '../../lib/roles';
+import { doesJobs, roleHints, roleLabels, rolesLabel, type Role } from '../../lib/roles';
+import { RequestError } from '../../lib/ui/api';
 import { useApp } from './context';
 import { useResource } from './resource';
 import { AddFieldWorker, NewLinkButton } from './field-workers';
@@ -27,10 +28,24 @@ function SkillsButton({ p, base, areas, onDone }: { p: TeamPerson; base: string;
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
 }
 
-type TeamPerson = { trades: string[]; areas: string[]; user_id: string; role: Role; name: string | null; email: string | null; phone: string | null; open: number; today: number; late: number; done_month: number; done_total: number; off_days: number[]; signs_in_with: 'google' | 'code' };
+type TeamPerson = { extra_roles?: string[]; trades: string[]; areas: string[]; user_id: string; role: Role; name: string | null; email: string | null; phone: string | null; open: number; today: number; late: number; done_month: number; done_total: number; off_days: number[]; signs_in_with: 'google' | 'code' };
+
+/** Turn each role on or off. A person can hold several; they can do everything any of them allows. */
+function RolesButton({ p, base, onDone }: { p: TeamPerson; base: string; onDone: () => void }) {
+  const now = [p.role, ...(p.extra_roles ?? [])], [open, setOpen] = useState(false), [on, setOn] = useState<string[]>(now), [busy, setBusy] = useState(false), [error, setError] = useState('');
+  async function save() { setBusy(true); setError(''); try { await request(`${base}/members/${p.user_id}/roles`, { method: 'PUT', body: JSON.stringify({ roles: on }) }); setOpen(false); onDone(); } catch (e) { setError(e instanceof RequestError ? e.message : 'We could not save. Try again.'); } finally { setBusy(false); } }
+  const roles = ['admin', 'staff', 'technician'] as const;
+  return <><Button variant="secondary" onClick={() => { setOn(now); setError(''); setOpen(true); }}>Roles</Button>
+    <Dialog open={open} onClose={() => setOpen(false)} busy={busy} title={`What ${p.name ?? 'they'} does`} footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} disabled={!on.length} onClick={save}>Save</Button></>}>
+      <div className="stack"><p className="small">Turn on everything this person does. In a small company one person can do it all.</p>
+        <div className="role-toggles">{roles.map(r => <button key={r} type="button" className={`role-toggle ${on.includes(r) ? 'on' : ''}`} aria-pressed={on.includes(r)} disabled={busy} onClick={() => setOn(on.includes(r) ? on.filter(x => x !== r) : [...on, r])}><strong>{roleLabels[r]}</strong><span className="small">{roleHints[r]}</span></button>)}</div>
+        {!on.length && <p className="small inline-error">Keep at least one.</p>}
+        {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
+}
 
 /** One person: name, role, and three big numbers that open their jobs. */
-function PersonCard({ p, base, canLink, canEdit, areas, onDone }: { p: TeamPerson; base: string; canLink: boolean; canEdit: boolean; areas: string[]; onDone: () => void }) {
+function PersonCard({ p, base, canLink, canEdit, canRoles, areas, onDone }: { p: TeamPerson; base: string; canLink: boolean; canEdit: boolean; canRoles: boolean; areas: string[]; onDone: () => void }) {
+  const worker = p.role !== 'admin' || doesJobs(p);
   const jobs = (q: string) => `/work-orders?assignee_id=${p.user_id}${q}`;
   const nums = [
     { label: 'Today', value: p.today, icon: CalendarCheck, href: jobs('&today=true') },
@@ -38,17 +53,17 @@ function PersonCard({ p, base, canLink, canEdit, areas, onDone }: { p: TeamPerso
     { label: 'Open', value: p.open, icon: ClipboardList, href: jobs('&active=true') },
   ];
   return <li className="person-card">
-    <div className="heading-row"><div><strong>{p.name ?? 'Team member'}</strong><p className="small muted">{roleLabels[p.role] ?? p.role}</p></div>
+    <div className="heading-row"><div><strong>{p.name ?? 'Team member'}</strong><p className="small muted">{rolesLabel(p)}</p></div>
       {p.phone && <a className="button secondary" href={`tel:${p.phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${p.name ?? 'them'}`}><Phone size={16} aria-hidden="true" />Call</a>}</div>
     <div className="person-nums">{nums.map(n => <Link key={n.label} href={n.href} className={`person-num ${n.tone ? `tile-${n.tone}` : ''}`} aria-label={`${n.value} ${n.label} for ${p.name ?? 'them'}`}><n.icon size={18} aria-hidden="true" /><strong>{n.value}</strong><span>{n.label}</span></Link>)}</div>
     {(p.trades.length > 0 || p.areas.length > 0) && <div className="skill-chips">{p.trades.map(t => <span key={t} className="chip">{tradeLabels[t as Trade] ?? t}</span>)}{p.areas.map(a => <span key={a} className="chip chip-area">{a}</span>)}</div>}
-    {p.role !== 'admin' && <p className="small muted person-record">Jobs done: {p.done_month} this month, {p.done_total} in total{p.off_days?.length ? ` · Off every ${p.off_days.map(d => DAYS[d]).join(', ')}` : ''}</p>}
-    {(canEdit || canLink) && <div className="row">{canEdit && p.role !== 'admin' && <><SkillsButton p={p} base={base} areas={areas} onDone={onDone} /><OffDaysButton p={p} base={base} onDone={onDone} /></>}{canLink && p.signs_in_with === 'code' && <NewLinkButton base={base} userId={p.user_id} name={p.name ?? 'them'} phone={p.phone} />}</div>}
+    {worker && <p className="small muted person-record">Jobs done: {p.done_month} this month, {p.done_total} in total{p.off_days?.length ? ` · Off every ${p.off_days.map(d => DAYS[d]).join(', ')}` : ''}</p>}
+    {(canEdit || canLink || canRoles) && <div className="row">{canRoles && <RolesButton p={p} base={base} onDone={onDone} />}{canEdit && worker && <><SkillsButton p={p} base={base} areas={areas} onDone={onDone} /><OffDaysButton p={p} base={base} onDone={onDone} /></>}{canLink && p.signs_in_with === 'code' && <NewLinkButton base={base} userId={p.user_id} name={p.name ?? 'them'} phone={p.phone} />}</div>}
   </li>;
 }
 
 export function Team() {
-  const { me, member, workspace } = useApp(), base = `/api/workspaces/${member?.workspace_id}`, office = member?.role === 'admin' || member?.role === 'staff';
+  const { me, member, workspace, reload } = useApp(), base = `/api/workspaces/${member?.workspace_id}`, office = member?.role === 'admin' || member?.role === 'staff';
   const team = useResource<TeamPerson[]>(office ? `${base}/team` : null), areas = useResource<string[]>(office ? `${base}/areas` : null);
   if (member && !office) return <NoAccess />;
   const others = (team.data ?? []).filter(p => p.user_id !== me.user.id), demo = !!workspace?.is_demo;
@@ -57,7 +72,7 @@ export function Team() {
       {!demo && <AddFieldWorker base={base} admin={member?.role === 'admin'} demo={demo} onDone={() => void team.reload()} />}</PageHeader>
     {demo && <p className="small muted">In the demo you cannot add new people. Everything else works.</p>}
     {team.loading ? <Skeleton className="skeleton-card" /> : team.error ? <ErrorState retry={team.reload} /> :
-      others.length ? <ul className="person-list">{(team.data ?? []).map(p => <PersonCard key={p.user_id} p={p} base={base} canLink={!demo} canEdit={office} areas={areas.data ?? []} onDone={() => void team.reload()} />)}</ul> :
+      others.length ? <ul className="person-list">{(team.data ?? []).map(p => <PersonCard key={p.user_id} p={p} base={base} canLink={!demo} canEdit={office} canRoles={member?.role === 'admin'} areas={areas.data ?? []} onDone={() => { void team.reload(); if (p.user_id === me.user.id) reload(); }} />)}</ul> :
       <EmptyState title="Add your first worker">Add a name and phone. We give you a code to send on WhatsApp. They sign in with it. No email needed.</EmptyState>}
     {office && others.length > 0 && <LeaveCalendar base={base} people={team.data ?? []} />}
     {member?.role === 'admin' && !demo && <p className="small"><Link href="/settings?tab=members">Change roles or invite by email</Link></p>}

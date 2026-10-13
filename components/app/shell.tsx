@@ -1,6 +1,6 @@
 'use client';
 import { demoEmail } from '../../lib/ui/polish';
-import { isOffice, roleLabels } from '../../lib/roles';
+import { doesJobs, isOffice, roleLabels } from '../../lib/roles';
 import { LAST_PAGE_KEY } from '../../lib/ui/device';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -8,7 +8,7 @@ import type { AppPageData } from '../../lib/server-page-data';
 import { InitialResourceProvider } from './initial-resources';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { FileText, Building2, Users, CalendarCheck, CalendarDays, ClipboardList, Bell, House, LayoutDashboard, Menu, PanelLeftClose, PanelLeftOpen, Settings, Upload, ListChecks, History, Truck, MessageSquare } from 'lucide-react';
+import { FileText, Building2, Users, CalendarCheck, CalendarDays, ClipboardList, ClipboardCheck, Bell, House, LayoutDashboard, Menu, PanelLeftClose, PanelLeftOpen, Settings, Upload, ListChecks, History, Truck, MessageSquare } from 'lucide-react';
 import { request, post, RequestError } from '../../lib/ui/api';
 import { homeForPersona } from '../../lib/ui/helpers';
 import { Badge, BottomSheet, Button, ConfirmDialog, Dropdown, ErrorState, IconButton, PageSkeleton, useToast } from '../ui';
@@ -74,7 +74,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   useEffect(() => { if (!path.startsWith('/settings')) sessionStorage.setItem(LAST_PAGE_KEY, path); }, [path]);
   if (error) return <div className="public-page"><Brand /><ErrorState message="We couldn’t open your workspace. Please try again." retry={load} /></div>;
   if (loading || !me || (member && (!workspace || path === '/onboarding')) || (!member && path !== '/onboarding' && path !== '/invites/accept') || (member?.role === 'client' && path === '/dashboard') || (member?.role === 'technician' && path === '/dashboard') || (member && member.role !== 'client' && path === '/home')) return <><div className="public-header"><Brand /></div><PageSkeleton /></>;
-  const nav = member?.role === 'technician' ? [{ href: '/today', label: 'Today', icon: CalendarCheck }, { href: '/work-orders', label: 'My jobs', icon: ClipboardList }, { href: '/settings', label: 'Settings', icon: Settings }] : [{ href: home, label: 'Home', icon: member?.role === 'client' ? House : LayoutDashboard }, ...(member && office ? [{ href: '/work-orders', label: 'Jobs', icon: ClipboardList }, { href: '/schedule', label: 'Schedule', icon: CalendarDays }, { href: '/documents', label: 'Documents', icon: FileText }, { href: '/queue', label: 'New requests', icon: ListChecks }, { href: '/team', label: 'Team', icon: Users }, { href: '/clients', label: 'Clients', icon: Building2 }, { href: '/import', label: 'Add from Excel', icon: Upload }, { href: '/supplier', label: 'Parts', icon: Truck }] : member ? [{href:'/work-orders',label:'Requests',icon:ClipboardList}] : []), { href: '/settings', label: 'Settings', icon: Settings }];
+  const nav = member?.role === 'technician' ? [{ href: '/today', label: 'Today', icon: CalendarCheck }, { href: '/work-orders', label: 'My jobs', icon: ClipboardList }, { href: '/settings', label: 'Settings', icon: Settings }] : [{ href: home, label: 'Home', icon: member?.role === 'client' ? House : LayoutDashboard }, ...(office && doesJobs(member) ? [{ href: '/today', label: 'My day', icon: CalendarCheck }, { href: `/work-orders?assignee_id=${me.user.id}&active=true`, label: 'My jobs', icon: ClipboardCheck }] : []), ...(member && office ? [{ href: '/work-orders', label: 'Jobs', icon: ClipboardList }, { href: '/schedule', label: 'Schedule', icon: CalendarDays }, { href: '/documents', label: 'Documents', icon: FileText }, { href: '/queue', label: 'New requests', icon: ListChecks }, { href: '/team', label: 'Team', icon: Users }, { href: '/clients', label: 'Clients', icon: Building2 }, { href: '/import', label: 'Add from Excel', icon: Upload }, { href: '/supplier', label: 'Parts', icon: Truck }] : member ? [{href:'/work-orders',label:'Requests',icon:ClipboardList}] : []), { href: '/settings', label: 'Settings', icon: Settings }];
   const navLinks = nav.map(item => <Link href={item.href} prefetch={true} key={item.href} className="nav-link" aria-label={item.href === '/queue' && pending ? `${item.label}, ${pending} waiting` : item.label} aria-current={path === item.href || path.startsWith(item.href + '/') ? 'page' : undefined} title={collapsed ? item.label : undefined} onClick={() => setDrawer(false)}><item.icon size={16} /><span className="nav-label">{item.label}</span>{item.href === '/queue' && pending !== null && pending > 0 && <span className="nav-queue-count"><span className="num">{pending > 99 ? '99+' : pending}</span></span>}</Link>);
   const currentPersona = personas.find(p => p.key === (me.user.email??'').split('.')[0])?.name ?? me.user.name ?? 'a demo user';
   const accountOptions = [{ value: 'settings', label: 'Settings' }, { value: 'signout', label: 'Sign out' }];

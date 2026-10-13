@@ -21,7 +21,7 @@ const schema=z.object({name,timezone:timezone.default('Asia/Dubai'),...placeFiel
 export async function me(user: string) {
  return withUser(user,async db=>({
   user:(await db.query('SELECT * FROM visible_user($1)',[user])).rows[0],
-  memberships:(await db.query('SELECT m.workspace_id,m.role,m.client_id,w.name AS workspace_name,c.name AS client_name FROM members m JOIN workspaces w ON w.id=m.workspace_id LEFT JOIN clients c ON c.id=m.client_id WHERE m.user_id=$1 ORDER BY w.name',[user])).rows,
+  memberships:(await db.query('SELECT m.workspace_id,m.role,m.extra_roles,m.client_id,w.name AS workspace_name,c.name AS client_name FROM members m JOIN workspaces w ON w.id=m.workspace_id LEFT JOIN clients c ON c.id=m.client_id WHERE m.user_id=$1 ORDER BY w.name',[user])).rows,
  }));
 }
 export async function createWorkspace(user:string,body:unknown,key?:string) {
