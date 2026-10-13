@@ -9,4 +9,6 @@ ALTER TABLE shared_photos DROP COLUMN IF EXISTS conversation_id,DROP COLUMN IF E
 DROP TABLE IF EXISTS message_reads,messages;
 DROP TABLE IF EXISTS conversations CASCADE;
 DROP FUNCTION IF EXISTS conversation_reader(uuid,uuid),message_people(uuid),can_message_person(uuid,uuid);
-ALTER TABLE comments DROP COLUMN IF EXISTS photo_ids,DROP COLUMN IF EXISTS voice_note_text,DROP COLUMN IF EXISTS original_language;
+ALTER TABLE comments DROP COLUMN IF EXISTS author_name,DROP COLUMN IF EXISTS photo_ids,DROP COLUMN IF EXISTS voice_note_text,DROP COLUMN IF EXISTS original_language;
+
+ALTER TABLE comments ALTER COLUMN created_at SET DEFAULT now();

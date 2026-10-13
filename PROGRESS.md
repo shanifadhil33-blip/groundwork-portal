@@ -577,3 +577,7 @@ Typecheck passed. All 9 tests passed against temporary Postgres through the seri
 ## Part F1
 Added migration 0037 and rollback for private direct threads, messages and personal thread read receipts. Job threads reuse comments with photo, voice text and original language fields. Current membership and job assignments govern contact reachability and thread reads. Payloads expose names and ids, never phones.
 Typecheck and the direct thread RLS tests passed using temporary Postgres.
+
+## Part F2
+All required direct role pairs send both ways through the same permission checked service. Job messages reuse comments. Sender names come from the account, phone fields are excluded, current readers see translated text with original content, and precise read markers keep newer messages unread.
+Typecheck, 3 messaging service tests and 6 message schema and copy tests passed. The pair test exercises both directions for all eight required pairs.

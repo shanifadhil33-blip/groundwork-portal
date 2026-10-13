@@ -26,12 +26,13 @@ CREATE TABLE messages (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),workspace_id uuid NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
  conversation_id uuid,work_order_id uuid,sender_id uuid NOT NULL REFERENCES users(id),sender_name text NOT NULL,
  body text NOT NULL CHECK(length(body)<=20000),photo_ids jsonb NOT NULL DEFAULT '[]' CHECK(jsonb_typeof(photo_ids)='array'),voice_note_text text,original_language text NOT NULL DEFAULT 'en',
- created_at timestamptz NOT NULL DEFAULT clock_timestamp(),UNIQUE(workspace_id,id),
+ created_at timestamptz NOT NULL DEFAULT date_trunc('milliseconds',clock_timestamp()),UNIQUE(workspace_id,id),
  CHECK(num_nonnulls(conversation_id,work_order_id)=1),CHECK(length(trim(body))>0 OR jsonb_array_length(photo_ids)>0),
  FOREIGN KEY(workspace_id,conversation_id) REFERENCES conversations(workspace_id,id) ON DELETE CASCADE,
  FOREIGN KEY(workspace_id,work_order_id) REFERENCES work_orders(workspace_id,id) ON DELETE CASCADE
 );
-ALTER TABLE comments ADD COLUMN photo_ids jsonb NOT NULL DEFAULT '[]' CHECK(jsonb_typeof(photo_ids)='array'),ADD COLUMN voice_note_text text,ADD COLUMN original_language text NOT NULL DEFAULT 'en';
+ALTER TABLE comments ADD COLUMN author_name text,ADD COLUMN photo_ids jsonb NOT NULL DEFAULT '[]' CHECK(jsonb_typeof(photo_ids)='array'),ADD COLUMN voice_note_text text,ADD COLUMN original_language text NOT NULL DEFAULT 'en';
+ALTER TABLE comments ALTER COLUMN created_at SET DEFAULT date_trunc('milliseconds',clock_timestamp());
 CREATE TABLE message_reads (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),workspace_id uuid NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,conversation_id uuid,work_order_id uuid,last_read_at timestamptz NOT NULL,
@@ -62,7 +63,8 @@ DECLARE photo uuid; author uuid; thread uuid; job uuid;
 BEGIN
  author=coalesce((to_jsonb(NEW)->>'author_id')::uuid,(to_jsonb(NEW)->>'sender_id')::uuid);
  thread=(to_jsonb(NEW)->>'conversation_id')::uuid;job=NEW.work_order_id;
- IF TG_TABLE_NAME='messages' THEN SELECT coalesce(name,'Team member') INTO NEW.sender_name FROM public.users WHERE id=author; END IF;
+ IF TG_TABLE_NAME='messages' THEN SELECT coalesce(name,'Team member') INTO NEW.sender_name FROM public.users WHERE id=author;
+ ELSE SELECT coalesce(name,'Team member') INTO NEW.author_name FROM public.users WHERE id=author; END IF;
  IF jsonb_array_length(NEW.photo_ids)>4 THEN RAISE EXCEPTION 'Choose up to four photos' USING ERRCODE='P0422'; END IF;
  FOR photo IN SELECT value::uuid FROM jsonb_array_elements_text(NEW.photo_ids) LOOP
   UPDATE public.shared_photos SET conversation_id=thread,work_order_id=job WHERE workspace_id=NEW.workspace_id AND id=photo AND uploaded_by=author AND suggestion_id IS NULL AND conversation_id IS NULL AND work_order_id IS NULL;
