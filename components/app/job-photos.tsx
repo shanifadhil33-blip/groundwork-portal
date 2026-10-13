@@ -9,7 +9,7 @@ export type Photo = { id: string; kind: 'before' | 'after'; width: number; heigh
 const LIMIT = 600 * 1024;
 
 /** Shrink on the phone: max 1600px, JPEG. Drawing to a canvas also drops location and other EXIF data. */
-async function shrinkPhoto(file: File): Promise<{ data: string; mime: 'image/jpeg'; width: number; height: number }> {
+export async function shrinkPhoto(file: File): Promise<{ data: string; mime: 'image/jpeg'; width: number; height: number }> {
   const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' } as ImageBitmapOptions);
   for (const [max, q] of [[1600, 0.72], [1280, 0.62], [1024, 0.55]] as const) {
     const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height)), width = Math.round(bitmap.width * scale), height = Math.round(bitmap.height * scale);

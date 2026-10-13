@@ -4,9 +4,9 @@ import { inWorkspace, row, uuid } from './shared';
 
 /** Before and after photos, stored in Postgres. The phone shrinks each photo (and drops its location data) before upload. */
 const PHOTO_MAX_BYTES = 600 * 1024, PHOTOS_PER_KIND = 4;
-const uploadSchema = z.object({ kind: z.enum(['before', 'after']), mime: z.enum(['image/jpeg', 'image/webp']), data: z.string().min(100).max(Math.ceil(PHOTO_MAX_BYTES * 4 / 3) + 8), width: z.number().int().min(1).max(4000), height: z.number().int().min(1).max(4000) }).strict();
+export const uploadSchema = z.object({ kind: z.enum(['before', 'after']), mime: z.enum(['image/jpeg', 'image/webp']), data: z.string().min(100).max(Math.ceil(PHOTO_MAX_BYTES * 4 / 3) + 8), width: z.number().int().min(1).max(4000), height: z.number().int().min(1).max(4000) }).strict();
 
-function looksLike(mime: string, b: Buffer) {
+export function looksLike(mime: string, b: Buffer) {
   if (mime === 'image/jpeg') return b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
   return b.subarray(0, 4).toString('latin1') === 'RIFF' && b.subarray(8, 12).toString('latin1') === 'WEBP';
 }

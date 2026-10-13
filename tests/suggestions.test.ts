@@ -23,3 +23,11 @@ it('decline requires a reason and reaches only the sender',async()=>{
  expect((await listSuggestions(ids.pranav,ids.ridgeline)).data.find(r=>r.id===s.id)?.decline_reason).toBe('Please tell us which tap');
  expect((await listSuggestions(ids.omar,ids.ridgeline)).data.find(r=>r.id===s.id)).toBeUndefined();
 });
+it('technician suggests from his job and can never create or approve a job',async()=>{
+ const {withUser}=await import('../lib/db');
+ const job=await withUser(ids.ravi,async db=>(await db.query('SELECT id,site_id,client_id FROM work_orders WHERE assignee_id=$1 LIMIT 1',[ids.ravi])).rows[0]);
+ const s=await createSuggestion(ids.ravi,ids.ridgeline,{title:'Replace valve',problem:'Valve is worn',site_id:job.site_id,client_id:job.client_id,from_work_order_id:job.id});
+ expect(s.source).toBe('technician');expect(s.from_work_order_id).toBe(job.id);
+ await expect(createWorkOrder(ids.ravi,ids.ridgeline,{title:'Direct job',site_id:job.site_id})).rejects.toMatchObject({status:403});
+ await expect(decideSuggestion(ids.ravi,ids.ridgeline,s.id,{decision:'approved'})).rejects.toMatchObject({status:403});
+});

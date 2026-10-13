@@ -541,3 +541,7 @@ Typecheck passed. Postgres tests were attempted but blocked by the sandbox denyi
 ## Part D2
 Client and household requests now wait as suggestions. Decisions preserve preferred times, require a decline reason, create one job under a row lock, and notify the sender. Pending and declined requests show in client lists.
 Typecheck and suggestion unit and copy tests passed. Added service tests; Postgres execution remains blocked by sandbox socket restrictions.
+
+## Part D3
+Technicians can suggest work from Today, More and a job. Job links prefill the client, site and original job. Draft photos reuse phone resizing and validation, then copy onto the approved job. The Agent voice composer fills the problem and requires a deliberate send.
+Typecheck, suggestion unit tests, voice composer tests and copy checks passed. Added technician service coverage; database tests remain blocked.

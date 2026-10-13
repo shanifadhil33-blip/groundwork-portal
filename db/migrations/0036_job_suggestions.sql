@@ -50,3 +50,18 @@ BEGIN
 END $$;
 CREATE TRIGGER suggestion_notification AFTER INSERT OR UPDATE ON job_suggestions FOR EACH ROW EXECUTE FUNCTION notify_suggestion();
 REVOKE ALL ON FUNCTION notify_suggestion() FROM PUBLIC;
+-- Reuses the job photo format for drafts that do not have a job yet.
+CREATE TABLE shared_photos (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(), workspace_id uuid NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+ uploaded_by uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE, suggestion_id uuid,
+ mime text NOT NULL CHECK(mime IN ('image/jpeg','image/webp')), bytes bytea NOT NULL CHECK(octet_length(bytes) BETWEEN 100 AND 614400),
+ width integer NOT NULL CHECK(width BETWEEN 1 AND 4000), height integer NOT NULL CHECK(height BETWEEN 1 AND 4000), created_at timestamptz NOT NULL DEFAULT now(),
+ UNIQUE(workspace_id,id), FOREIGN KEY(workspace_id,suggestion_id) REFERENCES job_suggestions(workspace_id,id) ON DELETE CASCADE
+);
+ALTER TABLE shared_photos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shared_photos FORCE ROW LEVEL SECURITY;
+DO $$ BEGIN EXECUTE format('CREATE POLICY system_owner ON shared_photos TO %I USING(true) WITH CHECK(true)',current_user); END $$;
+CREATE POLICY shared_photos_read ON shared_photos FOR SELECT USING(is_member(workspace_id) AND (uploaded_by=app_user_id() OR EXISTS(SELECT 1 FROM job_suggestions s WHERE s.workspace_id=shared_photos.workspace_id AND s.id=shared_photos.suggestion_id)));
+CREATE POLICY shared_photos_insert ON shared_photos FOR INSERT WITH CHECK(is_member(workspace_id) AND uploaded_by=app_user_id() AND suggestion_id IS NULL);
+CREATE POLICY shared_photos_update ON shared_photos FOR UPDATE USING(is_member(workspace_id) AND uploaded_by=app_user_id() AND suggestion_id IS NULL) WITH CHECK(uploaded_by=app_user_id() AND EXISTS(SELECT 1 FROM job_suggestions s WHERE s.workspace_id=shared_photos.workspace_id AND s.id=shared_photos.suggestion_id AND s.sender_user_id=app_user_id()));
+REVOKE ALL ON shared_photos FROM PUBLIC;
