@@ -133,6 +133,7 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='add_worker')return plainAssistantReply(`Added ${args.name}. Open Team and tap New sign in to make a code.`);
   if(tool==='request_time_off')return `Sent your time off request: ${offSpan(args.kind??'off',args.starts_on,args.ends_on)}. I will tell you when your supervisor answers.`;
   if(tool==='decide_time_off')return args.decision==='approved'?'Approved. It shows on the schedule now.':'Declined. He gets a message.';
+  if(tool==='ask_supervisor')return 'Sent to your supervisor. Nothing changes until they answer. I will tell you when they do.';
   if(!order)return plainAssistantReply(tool==='reject_queue_row'?`Rejected ${target??'the selected row'}: ${args.reason}`:`Updated ${target??'the selected row'}.`);
   const name=assistantTarget(order).replace(/[\[\]\r\n]/g,' '),link=`[${name}](/work-orders/${order.id})`;
   if(tool==='update_work_order_status')return `Moved ${link} to ${statusLabels[args.status] ?? readableLabel(args.status)}.`;
