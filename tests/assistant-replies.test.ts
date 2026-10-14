@@ -31,7 +31,7 @@ it.each([false, true])('translates machine statuses and explicit status labels f
 
 it('includes the chosen visit window in the request confirmation text shown to a client', () => {
  const summary = actionSummary('create_request', {
-  description:'Water is dripping and needs a look',title: 'Repair cooling', description: 'The visit is not scheduled yet',
+  title: 'Repair cooling', description: 'The visit is not scheduled yet',
   preferred_window: 'Saturday after 4 PM',
  }, null, 'Home');
  const cardText = plainAssistantReply(audienceStatusReply(summary, true), true);

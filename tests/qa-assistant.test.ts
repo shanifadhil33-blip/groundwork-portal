@@ -57,7 +57,7 @@ it('rejects another owner and an expired confirmation before executing anything'
  await expect(assistant('other',ws,{messages:[],confirm_action_id:pending!.id})).rejects.toMatchObject({status:404});state.actions.get(pending!.id).expires_at=new Date(Date.now()-1);await expect(assistant(user,ws,{messages:[],confirm_action_id:pending!.id})).rejects.toMatchObject({status:409});expect(state.call).not.toHaveBeenCalled();
 });
 it('names the site and full request contents in a creation proposal and dates in workspace time',async()=>{
- const proposal=await propose('create_request',{description:'Water is dripping and needs a look',site_id:'40000000-0000-4000-8000-000000000001',title:'Repair cooling',description:'Meeting room cooling is not running.'});const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('Harbor & Pine · Marina Exchange');expect(pending?.summary).toContain('Meeting room cooling is not running.');expect(state.call).not.toHaveBeenCalled();
+ const proposal=await propose('create_request',{site_id:'40000000-0000-4000-8000-000000000001',title:'Repair cooling',description:'Meeting room cooling is not running.'});const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('Harbor & Pine · Marina Exchange');expect(pending?.summary).toContain('Meeting room cooling is not running.');expect(state.call).not.toHaveBeenCalled();
  expect(actionSummary('update_work_order_dates',{due_on:'2026-11-15'},state.order)).toContain('Due date: Nov 10, 2026 → Nov 15, 2026');
 });
 
