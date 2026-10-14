@@ -1036,3 +1036,5 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 .selection-bar>* { flex-shrink:0; white-space:nowrap; }
 .selection-bar .button { padding-inline:12px; }
 .selection-bar strong { margin-inline-end:4px; }
+/* Selection ticks appear only once something is selected, on every list. */
+@media (pointer:coarse){ body:not(:has([data-selected])) .selection-mark{display:none !important} }

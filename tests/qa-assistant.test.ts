@@ -27,30 +27,30 @@ const user='10000000-0000-4000-8000-000000000002',ws='20000000-0000-4000-8000-00
 beforeEach(()=>{state.turn.mockReset();state.call.mockReset();state.actions.clear();state.role='staff';state.kind='manager';state.call.mockResolvedValue({content:[{type:'text',text:'{}'}],structuredContent:{result:{...state.order}}});});
 async function propose(name:string,args:object,text='Change the work order'){state.turn.mockResolvedValue({calls:[{id:'1',name,args}],text:'Action completed.'});return assistant(user,ws,{messages:[{role:'user',content:text}]});}
 it('removes complete/truncated IDs and raw words, while retaining safe work-order destinations',()=>{
- const result=plainAssistantReply(`site ID e4ca7ce3…: in_progress; waiting_on_parts; list_sites. [WO-58](/work-orders/${state.order.id}) ${state.order.id}`);
+ const result=plainAssistantReply(`site ID e4ca7ce3…: in_progress; waiting_on_parts; list_sites. [WO 58](/work-orders/${state.order.id}) ${state.order.id}`);
  expect(result).not.toMatch(/site ID|e4ca7ce3|in_progress|waiting_on_parts|list_sites/);expect(result).toContain('In Progress');expect(result).toContain('Waiting on Parts');expect(result).toContain(`](/work-orders/${state.order.id})`);expect(result.split(`](/work-orders/${state.order.id})`)[1]).not.toContain(state.order.id);
  expect(plainAssistantReply('there is no available tool to modify priority')).toContain('Open the job and use Edit');
 });
 it('saves a team note straight away, with no confirmation card, and logs it',async()=>{
  const body='Technician checked alignment.\nReplace the damaged reader bracket and test three badges.';
- const result=await propose('add_comment',{work_order_id:state.order.id,body,visibility:'client'},'Add an internal note to WO-58');
+ const result=await propose('add_comment',{work_order_id:state.order.id,body,visibility:'client'},'Add an internal note to WO 58');
  expect('pending_action' in result&&result.pending_action).toBeFalsy();expect(state.call).toHaveBeenCalledTimes(1);expect(state.call.mock.calls[0][2]).toMatchObject({visibility:'internal',body});
 });
 it('confirms priority with old/new values, then returns a concrete linked result exactly once',async()=>{
  const proposal=await propose('set_priority',{id:state.order.id,priority:'high',updated_at:'2026-10-11T00:00:00Z'});const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('Normal → High');expect(state.call).not.toHaveBeenCalled();
- const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Done. Changed priority for [WO-58 Test access control reader](/work-orders/${state.order.id}) to High.`);expect(state.call).toHaveBeenCalledTimes(1);expect(state.turn).toHaveBeenCalledTimes(1);
+ const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Done. Changed priority for [WO 58 Test access control reader](/work-orders/${state.order.id}) to High.`);expect(state.call).toHaveBeenCalledTimes(1);expect(state.turn).toHaveBeenCalledTimes(1);
  await expect(assistant(user,ws,{messages:[],confirm_action_id:pending!.id})).rejects.toMatchObject({status:409});expect(state.call).toHaveBeenCalledTimes(1);
 });
 it('shows status from/to before the write and names the confirmed change afterward',async()=>{
  const proposal=await propose('update_work_order_status',{id:state.order.id,status:'in_progress',updated_at:'2026-10-11T00:00:00Z'});const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('Scheduled → In Progress');expect(('reply' in proposal?proposal.reply:'')).not.toContain('Action completed');expect(state.call).not.toHaveBeenCalled();
- const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Done. Moved [WO-58 Test access control reader](/work-orders/${state.order.id}) to In Progress.`);
+ const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Done. Moved [WO 58 Test access control reader](/work-orders/${state.order.id}) to In Progress.`);
 });
 it('keeps explicitly client-visible text in both proposal and result',async()=>{
- const proposal=await propose('add_comment',{work_order_id:state.order.id,body:'Please keep the entrance clear.',visibility:'client'},'Add a client-visible comment to WO-58');const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('visible to the client');
+ const proposal=await propose('add_comment',{work_order_id:state.order.id,body:'Please keep the entrance clear.',visibility:'client'},'Add a client-visible comment to WO 58');const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('visible to the client');
  const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toContain('comment visible to the client');expect(('reply' in result?result.reply:'')).toContain('Please keep the entrance clear.');expect(('reply' in result?result.reply:'')).toContain('](/work-orders/');
 });
 it.each(['Please confirm this action before I make the change. Action completed.','Please confirm this action before I make the change.'])( 'does not trust provider prose without a stored confirmation: %s',async text=>{
- state.turn.mockResolvedValue({calls:[],text});const result=await assistant(user,ws,{messages:[{role:'user',content:'Move WO-58 to In progress'}]});expect(('reply' in result?result.reply:'')).toContain('No changes have been made.');expect(state.call).not.toHaveBeenCalled();expect(state.actions.size).toBe(0);
+ state.turn.mockResolvedValue({calls:[],text});const result=await assistant(user,ws,{messages:[{role:'user',content:'Move WO 58 to In progress'}]});expect(('reply' in result?result.reply:'')).toContain('No changes have been made.');expect(state.call).not.toHaveBeenCalled();expect(state.actions.size).toBe(0);
 });
 it('rejects another owner and an expired confirmation before executing anything',async()=>{
  const proposal=await propose('set_priority',{id:state.order.id,priority:'high',updated_at:'2026-10-11T00:00:00Z'});const pending='pending_action' in proposal?proposal.pending_action:null;

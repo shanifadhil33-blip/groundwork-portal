@@ -80,7 +80,7 @@ export function recordResult(tool: string, args: Record<string,any>, target?: { 
   return `Updated ${tool === 'update_site' ? 'site' : 'client'} ${name}.`;
 }
 type Order = {id:string;order_number:number;title:string;status:string;priority:string;timezone?:string;due_on?:string|null;scheduled_for?:string|null};
-function assistantTarget(order: Order) { return `WO-${order.order_number} ${plainAssistantReply(order.title)}`; }
+function assistantTarget(order: Order) { return `WO ${order.order_number} ${plainAssistantReply(order.title)}`; }
 const niceDay=(d:string)=>new Intl.DateTimeFormat('en',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(`${d}T00:00:00Z`));
 /** Plain words for time off, like "Day off, Thursday 15 October". */
 export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',leave:'On leave',sick:'Sick'} as Record<string,string>)[kind]??'Time off'}, ${!to||to===from?niceDay(from):`${niceDay(from)} to ${niceDay(to)}`}`;

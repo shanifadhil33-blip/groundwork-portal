@@ -52,8 +52,8 @@ describe('assign by trade and area', () => {
     expect(tools.suggest_worker.write).toBe(false);
     for (const t of ['assign_work_order', 'set_job_trade', 'set_worker_skills']) expect(tools[t].write).toBe(true);
     const order = { id: 'x', order_number: 7, title: 'Leak', status: 'open', priority: 'normal' };
-    expect(actionSummary('assign_work_order', {}, order, 'Ravi')).toBe('Assign WO-7 Leak to Ravi');
-    expect(actionSummary('set_job_trade', { trade: 'ac' }, order)).toBe('Set the trade for WO-7 Leak: AC');
+    expect(actionSummary('assign_work_order', {}, order, 'Ravi')).toBe('Assign WO 7 Leak to Ravi');
+    expect(actionSummary('set_job_trade', { trade: 'ac' }, order)).toBe('Set the trade for WO 7 Leak: AC');
     expect(actionSummary('set_worker_skills', { trades: ['plumbing'], areas: ['Al Barsha'] }, null, 'Ravi')).toContain('Trade: Plumbing');
   });
 });

@@ -55,4 +55,4 @@ export function WorkOrderList() {
 }
 export function ListSkeleton() { return <div className="stack" role="status" aria-label="Loading jobs">{Array.from({length:6},(_,i)=><Skeleton className="skeleton-row" key={i}/>)}</div>; }
 
-export function orderNumber(order:Pick<WorkOrder,'order_number'>) {return `WO-${order.order_number}`;}
+export function orderNumber(order:Pick<WorkOrder,'order_number'>) {return `WO ${order.order_number}`;}
