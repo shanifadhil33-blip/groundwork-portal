@@ -34,3 +34,12 @@ export const LANGUAGES: Language[] = [
 export const isRtl = (code?: string | null) => !!LANGUAGES.find(l => l.code === (code ?? DEFAULT_LANGUAGE))?.rtl;
 /** Searchable dropdown filter: English name, own script name or code, any case. */
 export function searchLanguages(q: string) { const s = q.trim().toLowerCase(); return s ? LANGUAGES.filter(l => [l.name, l.native, l.code].some(v => v.toLowerCase().includes(s))) : LANGUAGES; }
+
+/** LANG02: how ready each language is. Ready = English, written and checked. Early = machine translated, not yet checked by a native speaker (LANG05 raises languages to Checked). */
+const VOICE_EARLY = new Set(['ti', 'yo', 'ha', 'ig', 'lg', 'tw', 'so']);
+export function languageQuality(code: string): 'Ready' | 'Early' { return code.startsWith('en') ? 'Ready' : 'Early'; }
+export function languageVoice(code: string): 'Voice' | 'Voice early' { return VOICE_EARLY.has(code) ? 'Voice early' : 'Voice'; }
+/** Options for the Language dropdown: grouped by region, searchable by English name, own script, code or region, with quality and voice shown. */
+export function languageOptions() {
+  return LANGUAGES.map(l => ({ value: l.code, noTranslate: true, group: l.group, label: l.native === l.name ? l.name : `${l.name}, ${l.native}`, hint: `${languageQuality(l.code)} · ${languageVoice(l.code)}`, keywords: [l.code, ...l.group.split(/[: ]+/).filter(Boolean)] }));
+}

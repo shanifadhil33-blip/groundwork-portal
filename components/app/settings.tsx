@@ -5,7 +5,7 @@ import { PushSettings } from './push-settings';
 import Link from 'next/link';
 import { HelpFeedback } from './help-feedback';
 import { changeAppLanguage } from './translator';
-import { LANGUAGES, DEFAULT_LANGUAGE } from '../../lib/languages';
+import { LANGUAGES, DEFAULT_LANGUAGE, languageOptions as langOpts } from '../../lib/languages';
 import { timezoneOptions } from '../../lib/ui/timezones';
 import { an, countryOptions, currencyFor, currencyOptions, phoneHint, regionField } from '../../lib/countries/rules';
 import { PageHeader } from '../ui/layout';
@@ -22,7 +22,7 @@ import { useTheme } from '../ui/theme';
 import { request, RequestError } from '../../lib/ui/api';
 import { themes, type Theme } from '../../lib/ui/helpers';
 type Preferences={email_notifications:boolean;timezone:string|null;language?:string|null};
-const languageOptions=LANGUAGES.map(l=>({value:l.code,noTranslate:true,label:l.native===l.name?l.name:`${l.name}, ${l.native}`}));
+const languageOptions=langOpts();
 function Profile(){const {me,updateName}=useApp(),preferences=useResource<Preferences>('/api/me/preferences'),[name,setName]=useState(me.user.name??''),[timezone,setTimezone]=useState(''),[language,setLanguage]=useState(DEFAULT_LANGUAGE),[email,setEmail]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),toast=useToast(),[fieldErrors,setFieldErrors]=useState<Record<string,string[]>>({});
  useEffect(()=>{if(preferences.data){setTimezone(preferences.data.timezone??'');setLanguage(preferences.data.language??DEFAULT_LANGUAGE);setEmail(preferences.data.email_notifications);}},[preferences.data]);
  async function save(){if(busy)return;setBusy(true);setError('');setNotice('');try{const result=await request<{name:string}>('/api/me',{method:'PATCH',body:JSON.stringify({name})});updateName(result.name);await request('/api/me/preferences',{method:'PATCH',body:JSON.stringify({timezone:timezone.trim()||null,language,email_notifications:email})});changeAppLanguage(language);setNotice('Profile and preferences saved.');toast('Saved');setFieldErrors({});}catch(e){if(e instanceof RequestError)setFieldErrors(e.fields??{});setError(e instanceof RequestError?e.message:'We couldn’t save your preferences. Please try again.');}finally{setBusy(false);}}

@@ -3,7 +3,7 @@ import { AVATARS, AVATAR_LABELS } from '../../lib/avatars';
 import { AgentAvatar } from './agent-avatar';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { LANGUAGES, DEFAULT_LANGUAGE } from '../../lib/languages';
+import { LANGUAGES, DEFAULT_LANGUAGE, languageOptions as langOpts } from '../../lib/languages';
 import { request, RequestError } from '../../lib/ui/api';
 import { Button, Dropdown, ErrorState } from '../ui';
 import { useApp } from './context';
@@ -28,7 +28,7 @@ export function PersonalAgentSettings(){
  return <div className="page stack agent-settings"><Link href="/settings">Back to settings</Link><h1>Agent</h1>{prefs.loading?<p>Loading settings…</p>:prefs.error?<ErrorState retry={prefs.reload}/>:<form className="stack" onSubmit={e=>{e.preventDefault();void save();}}>
  <label className="form-field">Name<input value={name} maxLength={40} placeholder="Agent" disabled={busy} onChange={e=>setName(e.target.value)}/></label><p>Leave the name empty to use Agent.</p>
  <fieldset className="avatar-pick"><legend>Picture</legend><div className="avatar-grid" role="radiogroup" aria-label="Picture">{AVATARS.map(a=><button key={a} type="button" role="radio" aria-checked={avatar===a} aria-label={AVATAR_LABELS[a]} className={avatar===a?'on':''} disabled={busy} onClick={()=>setAvatar(a)}><AgentAvatar avatar={a} size={24}/></button>)}</div></fieldset>
- <div className="form-field"><label htmlFor="agent-language">Language</label><Dropdown id="agent-language" label="Language" value={language} disabled={busy} options={LANGUAGES.map(l=>({value:l.code,noTranslate:true,label:l.native===l.name?l.name:`${l.name}, ${l.native}`}))} onChange={setLanguage}/></div>
+ <div className="form-field"><label htmlFor="agent-language">Language</label><Dropdown id="agent-language" label="Language" value={language} disabled={busy} options={langOpts()} onChange={setLanguage}/></div>
  <label className="choice-row"><input type="checkbox" role="switch" checked={voice} disabled={busy} onChange={e=>setVoice(e.target.checked)}/>Voice {voice?'on':'off'}</label>
  {member&&<div className="form-field"><label htmlFor="agent-approval">Approval mode</label>{settings.loading?<p>Loading…</p>:settings.error?<ErrorState retry={settings.reload}/>:admin?<Dropdown id="agent-approval" label="Approval mode" value={mode} disabled={busy} options={[{value:'important',label:'Ask before important actions'},{value:'every',label:'Ask before every action'}]} onChange={setMode}/>:<p>{mode==='every'?'Ask before every action':'Ask before important actions'}</p>}</div>}
  {error&&<p role="alert">{error}</p>}{notice&&<p role="status">{notice}</p>}<Button type="submit" busy={busy} disabled={!!member&&(settings.loading||!!settings.error)}>Save</Button>
