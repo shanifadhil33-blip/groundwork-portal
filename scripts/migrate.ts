@@ -64,6 +64,7 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT EXECUTE ON FUNCTION onboarding_invite_info(text),onboarding_accept_invite(text,boolean),onboarding_find_company(text) TO ${role}`);
     await client.query(`GRANT SELECT,INSERT ON job_ratings TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE ON job_prechecks TO ${role}`);
+    await client.query(`GRANT SELECT,INSERT,UPDATE ON agent_questions TO ${role}`);
     // TECH08 English copy columns are covered by existing work_orders grants.
     await client.query('COMMIT');
   } catch(error) { await client.query('ROLLBACK'); throw error; }

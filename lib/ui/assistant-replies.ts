@@ -87,6 +87,7 @@ export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',le
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
   if(tool === 'fill_onboarding') return 'Save these setup answers?\n'+Object.entries(args.answers??{}).map(([k,v])=>`${readableLabel(k)}: ${typeof v==='object'?JSON.stringify(v):v}`).join('\n');
   if(tool === 'suggest_contact_name') return `Save ${target??'this contact'} as ${args.nickname}?`;
+  if(tool === 'ask_supervisor') return `Ask your supervisor?\n${args.question}${args.proposed?`\nMy suggestion: ${args.proposed}`:''}`;
 
   if(tool==='send_team_message')return `Send in Team space.\n${plainAssistantReply(args.body??'')}`;
   if(tool==='send_message')return `Send a message to ${plainAssistantReply(target??'this thread')}.\n${plainAssistantReply(args.body??'')}${args.photo_ids?.length?`\nPhotos: ${args.photo_ids.length}`:''}${args.work_order_id?`\nWho can read it: ${args.visibility==='internal'?'Team only':'Client and team'}`:''}`;
