@@ -1,0 +1,10 @@
+import { chromium, request } from '@playwright/test';
+const B='https://groundwork-portal.vercel.app',O='/workspace/qa/shots-cmp';
+const api=await request.newContext({baseURL:B,extraHTTPHeaders:{origin:B}});await api.post('/api/demo/start',{data:{persona:'ravi'}});await api.post('/api/demo/switch',{data:{persona:'ravi'}});
+const br=await chromium.launch();const c=await br.newContext({viewport:{width:360,height:640},isMobile:true,hasTouch:true});await c.addCookies((await api.storageState()).cookies);const pg=await c.newPage();
+await pg.goto(B+'/settings/agent',{waitUntil:'networkidle'});await pg.waitForTimeout(1000);await pg.screenshot({path:O+'/avatar-page.png'});console.log('url',pg.url());
+await pg.locator('.agent-settings input[maxlength="40"]').first().fill('Tiger');await pg.getByRole('radio',{name:'Cat'}).click();await pg.locator('.avatar-pick').scrollIntoViewIfNeeded();await pg.screenshot({path:O+'/avatar-pick.png'});
+await pg.getByRole('button',{name:'Save'}).click();await pg.waitForTimeout(1500);console.log(await pg.getByRole('status').allTextContents());
+const p=await (await api.get('/api/me/preferences')).json();console.log('saved',p.agent_name,p.agent_avatar);
+const l=await br.newContext({viewport:{width:1440,height:900}});await l.addCookies((await api.storageState()).cookies);const lp=await l.newPage();await lp.goto(B+'/today',{waitUntil:'networkidle'});await lp.waitForTimeout(1500);await lp.screenshot({path:O+'/avatar-header.png'});console.log('header',await lp.locator('.agent-heading').first().innerText().catch(()=>'none'));
+await api.post('/api/demo/reset',{data:{confirm:true}}).catch(()=>{});await br.close();
