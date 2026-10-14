@@ -5,6 +5,7 @@ import { useSelection } from './selection';
 import Link from 'next/link';
 import { useEffect,useRef,useState } from 'react';
 import { AssistantComposer } from './assistant';
+import { Greeting } from './greeting';
 import { CheckCircle2, MapPin, Phone, Play } from 'lucide-react';
 import { PageHeader } from '../ui/layout';
 import { Badge, Button, Dialog, EmptyState, ErrorState, Skeleton, useToast } from '../ui';
@@ -119,7 +120,7 @@ export function MyDay() {
   const primaryJob = [...(data?.today??[]),...(data?.late??[])].find(j=>j.status==='in_progress')??[...(data?.today??[]),...(data?.late??[])].find(j=>nextStep(j.status));
   const finished = (outcome: Outcome, record: JobRecord) => setDone({ outcome, record });
   return <div className="page stack my-day">
-    {selection.bar}<PageHeader><div><h1>Today</h1><p>{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }).format(new Date())}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div>{data&&!primaryJob&&<Link className="button primary" href="/work-orders">View jobs</Link>}</PageHeader><Link className="button secondary" href="/suggestions/new">Suggest a job</Link>
+    {selection.bar}<Greeting tz={tz}/><PageHeader><div><h1>Today</h1><p>{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }).format(new Date())}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div>{data&&!primaryJob&&<Link className="button primary" href="/work-orders">View jobs</Link>}</PageHeader><Link className="button secondary" href="/suggestions/new">Suggest a job</Link>
     {member?.role === 'technician' && <AgentCard />}
     {member && <div className="row"><RequestTimeOff base={`/api/workspaces/${member.workspace_id}`} /></div>}
     {member && <LeaveRequests base={`/api/workspaces/${member.workspace_id}`} self={me.user.id} />}
