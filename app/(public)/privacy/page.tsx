@@ -12,6 +12,6 @@ export default function Page() { return <div className="public-page legal"><Back
   <section><h2>What we never do</h2><p>We never sell your data, share it for advertising, or use tracking cookies. The only cookies keep you signed in and remember your theme.</p></section>
   <section><h2>Who helps us run it</h2><p>Google handles sign in. Neon stores the database. Vercel runs the website. Your browser maker delivers notifications you turn on. If you use the assistant or Draft summaries, the text you send goes to Google Gemini or Groq to write a reply.</p></section>
   <section><h2>Who can see what</h2><p>Each company sees only its own data. A client sees only his own company’s jobs. A technician sees only the jobs given to him.</p></section>
-  <section><h2>Demo</h2><p>The demo uses made up data in a private copy for each visitor. It is deleted within a day.</p></section>
+  <section><h2>Demo</h2><p>The demo uses made up data in a private copy for each visitor. It is deleted within a day, usually after 6 hours.</p></section>
   <section><h2>Deleting your data</h2><p>An admin can remove people, clients and jobs in Settings. To delete your account or all your company’s data, email <a href={`mailto:${MAIL}`}>{MAIL}</a> and we will do it within 30 days.</p></section>
  </article></div>; }

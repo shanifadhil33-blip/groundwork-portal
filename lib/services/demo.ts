@@ -26,7 +26,7 @@ async function session(db:PoolClient,user:string,expires:Date){
 }
 async function create(db:PoolClient,persona:Persona){
  const ids=Object.fromEntries(Object.keys(fixtureIds).map(k=>[k,randomUUID()])) as typeof fixtureIds;
- const expires=(await db.query("INSERT INTO workspaces(id,name,is_demo,demo_expires_at) VALUES($1,'Ridgeline Facility Services',true,now()+interval '24 hours') RETURNING demo_expires_at",[ids.ridgeline])).rows[0].demo_expires_at as Date;
+ const expires=(await db.query("INSERT INTO workspaces(id,name,is_demo,demo_expires_at) VALUES($1,'Ridgeline Facility Services',true,now()+interval '6 hours') RETURNING demo_expires_at",[ids.ridgeline])).rows[0].demo_expires_at as Date;
  const sites=Array.from({length:6},()=>randomUUID()),orders=Array.from({length:60},()=>randomUUID());
  await populateFixture(db,ids,n=>sites[n-1],n=>orders[n-1],true);
  // Storage: seed noise in the audit log (bell and timeline rows) is about half of each sandbox. Keep the job, comment and team history.
