@@ -58,5 +58,9 @@ export async function pushLateJobs() {
     WHERE w.status NOT IN ('done','cancelled') AND w.due_on = (CURRENT_TIMESTAMP AT TIME ZONE s.timezone)::date - 1 AND s.demo_expires_at IS NULL`))).rows;
   let sent = 0;
   for (const j of late) sent += await sendPush([j.assignee_id, ...(await office(j.workspace_id, j.client_id, null))], { title: 'Job late', body: `${j.title} was due yesterday.`, url: `/work-orders/${j.id}`, tag: `late-${j.id}` });
-  return { late: late.length, sent };
+  // Stalled: an active job nobody touched for three days goes to the office once (same tag, no repeats).
+  const stalled = (await withSystem(db => db.query(`SELECT w.id,w.workspace_id,w.title,w.order_number,w.client_id FROM work_orders w JOIN workspaces s ON s.id=w.workspace_id
+    WHERE w.status IN ('scheduled','in_progress') AND w.archived_at IS NULL AND w.updated_at < now() - interval '3 days' AND w.updated_at >= now() - interval '4 days' AND s.demo_expires_at IS NULL`))).rows;
+  for (const j of stalled) sent += await sendPush(await office(j.workspace_id, j.client_id, null), { title: 'Job not moving', body: `WO ${j.order_number} ${j.title} has had no update for three days. Tap to reassign or check in.`, url: `/work-orders/${j.id}`, tag: `stalled-${j.id}` });
+  return { late: late.length, stalled: stalled.length, sent };
 }
