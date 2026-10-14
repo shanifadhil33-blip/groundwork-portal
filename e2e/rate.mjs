@@ -1,0 +1,11 @@
+import { chromium, request } from '@playwright/test';
+const B='https://groundwork-portal.vercel.app',O='/workspace/qa/shots-cmp';
+const api=await request.newContext({baseURL:B,extraHTTPHeaders:{origin:B}});await api.post('/api/demo/start',{data:{persona:'omar'}});await api.post('/api/demo/switch',{data:{persona:'omar'}});
+const me=await (await api.get('/api/me')).json();const ws=(me.memberships??me.members??[])[0]?.workspace_id??me.member?.workspace_id;console.log('ws',ws,Object.keys(me));
+const list=await (await api.get(`/api/workspaces/${ws}/work-orders?status=done&pageSize=20`)).json();const done=(list.data??[]).find(o=>o.status==='done');console.log('done',done?.order_number);
+const br=await chromium.launch();const c=await br.newContext({viewport:{width:360,height:640},isMobile:true,hasTouch:true});await c.addCookies((await api.storageState()).cookies);const pg=await c.newPage();
+await pg.goto(B+'/work-orders/'+done.id,{waitUntil:'networkidle'});await pg.waitForTimeout(1200);await pg.getByText('How did we do?').scrollIntoViewIfNeeded();await pg.screenshot({path:O+'/rate-before.png'});
+await pg.getByRole('radio',{name:'4 of 5'}).click();await pg.getByRole('button',{name:'Send rating'}).click();await pg.waitForTimeout(1500);await pg.screenshot({path:O+'/rate-after.png'});
+console.log('shown',await pg.getByText('Client rating').count());
+await api.post('/api/demo/switch',{data:{persona:'sam'}});console.log('sam sees',JSON.stringify(await (await api.get(`/api/workspaces/${ws}/work-orders/${done.id}/rating`)).json()));
+await api.post('/api/demo/reset',{data:{confirm:true}}).catch(()=>{});await br.close();

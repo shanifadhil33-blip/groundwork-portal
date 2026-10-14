@@ -63,6 +63,7 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT SELECT,INSERT,UPDATE ON onboarding_progress,onboarding_actions TO ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION onboarding_invite_info(text),onboarding_accept_invite(text,boolean),onboarding_find_company(text) TO ${role}`);
     await client.query(`GRANT SELECT,INSERT ON job_ratings TO ${role}`);
+    await client.query(`GRANT SELECT,INSERT,UPDATE ON job_prechecks TO ${role}`);
     await client.query('COMMIT');
   } catch(error) { await client.query('ROLLBACK'); throw error; }
 }
