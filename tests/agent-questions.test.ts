@@ -18,3 +18,7 @@ it('TEAM09: technician asks, supervisor approves or fixes, once; clients cannot 
   expect((await decideAgentQuestion(ids.imran, ids.ridgeline, b.id, { decision: 'fix', answer: '120 AED fitted' })).answer).toBe('120 AED fitted');
   await expect(askSupervisor(ids.omar, ids.ridgeline, { question: 'Can you come now?' })).rejects.toThrow();
 });
+it('TEAM09: the in app Agent lets a technician use ask_supervisor', async () => {
+  const src = (await import('node:fs')).readFileSync('lib/services/assistant.ts', 'utf8');
+  expect(src).toMatch(/role==='technician'&&!\[[^\]]*'ask_supervisor'/);
+});
