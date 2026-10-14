@@ -17,7 +17,7 @@ import { AddPhoto, type Photo } from './job-photos';
 import { AgentCard } from './dashboard';
 import { LeaveRequests, RequestTimeOff } from './time-off';
 
-type Job = { id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; address: string | null; building: string | null; area: string | null; access_notes: string | null; contact_name: string | null; contact_phone: string | null };
+type Job = { heat_warning?: string|null; outdoor?: boolean; id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; address: string | null; building: string | null; area: string | null; access_notes: string | null; contact_name: string | null; contact_phone: string | null };
 type Day = { timezone: string; today: Job[]; late: Job[]; next: Job[]; done: number };
 
 /** The one next step for a worker. Open jobs wait for the office to set a time. */
@@ -80,7 +80,7 @@ function JobCard({ j:original, tz, base, onDone, onFinished, when, primary=false
   }
   return <li className="day-card" {...selection?.row(j.id)}>{selection?.mark(j.id)}
     <div className="day-when"><strong>{when}</strong>{j.status !== 'scheduled' && <Badge>{statusLabels[j.status] ?? j.status}</Badge>}{j.priority === 'urgent' && <Badge tone="warning">Urgent</Badge>}</div>
-    <Link href={`/work-orders/${j.id}`} className="day-title"><strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}{j.trade ? ` · ${tradeLabels[j.trade as Trade] ?? j.trade}` : ''}</span></Link>
+    <Link href={`/work-orders/${j.id}`} className="day-title"><strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}{j.trade ? ` · ${tradeLabels[j.trade as Trade] ?? j.trade}` : ''}</span></Link>{j.heat_warning&&<p className="heat-note" role="note">{j.heat_warning}</p>}
     {j.access_notes && <p className="small day-note">{j.access_notes}</p>}
     <div className="day-actions">
       {step ? <Button variant={primary?'primary':'secondary'} busy={busy} onClick={() => step.to === 'done' ? setConfirm(true) : void go()}>{step.to === 'done' ? <CheckCircle2 size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}{step.label}</Button> : <span className="small muted">Waiting for a time</span>}

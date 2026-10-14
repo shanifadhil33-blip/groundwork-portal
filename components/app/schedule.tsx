@@ -12,7 +12,7 @@ import { useApp } from './context';
 import { useResource } from './resource';
 import { NoAccess } from './no-access';
 
-type Job = { preferred_window?:string|null; id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; assignee_id: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; area: string | null; day?: string; hour?: number };
+type Job = { heat_warning?: string|null; preferred_window?:string|null; id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; assignee_id: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; area: string | null; day?: string; hour?: number };
 type Person = { user_id: string; role: string; name: string | null };
 type Board = { timezone: string; from: string; days: number; people: Person[]; jobs: Job[]; unscheduled: Job[]; away?: { user_id: string; kind: string; starts_on: string; ends_on: string }[] };
 
@@ -26,7 +26,7 @@ const HOURS = Array.from({ length: 15 }, (_, i) => i + 6);
 
 function Chip({ j, onOpen }: { j: Job; onOpen: (j: Job) => void }) {
   return <button type="button" className={`sched-job ${j.status === 'done' ? 'sched-done' : ''}`} onClick={() => onOpen(j)} aria-label={`Move ${j.title}`}>
-    {j.hour != null && <span className="sched-time">{hourLabel(j.hour)}</span>}<strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}</span>
+    {j.hour != null && <span className="sched-time">{hourLabel(j.hour)}</span>}<strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}</span>{j.heat_warning&&<span className="heat-note">Midday heat: move this</span>}
     {j.status === 'done' && <Badge>Done</Badge>}{j.priority === 'urgent' && <Badge tone="danger">Urgent</Badge>}</button>;
 }
 
