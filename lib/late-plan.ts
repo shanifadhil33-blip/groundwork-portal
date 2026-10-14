@@ -17,5 +17,6 @@ export function latePlan(workers: Worker[], current: string | null, viewer?: str
   const free = workers.filter(w => w.user_id !== current && w.user_id !== viewer && !w.off);
   const ok = [...free.filter(tech), ...free.filter(w => !tech(w))];
   const why = (w: Worker) => [w.trade_match && 'right trade', w.area_match && 'works this area', `${w.today ?? 0} jobs today`].filter(Boolean).join(', ');
-  return ok.length ? { main: ok[0], backup: ok[1] ?? null, why: why(ok[0]) } : null;
+  // The backup is always a technician: office people and supervisors are never the field backup.
+  return ok.length ? { main: ok[0], backup: ok.slice(1).find(tech) ?? null, why: why(ok[0]) } : null;
 }
