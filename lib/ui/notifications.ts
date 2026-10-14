@@ -28,3 +28,14 @@ export function notificationMessage(r:Record<string,any>, client=false) {
  if(r.kind==='request_created')return `${actor} created ${title}.`;
  return `${actor} updated ${title}.`;
 }
+
+/** CMP08: several updates on one job show as one row, newest first, with a count of the rest. */
+export function groupNotifications<T extends { id: string; read_at: string | null; link_target?: { entity: string; id: string } | null }>(items: T[]) {
+  const out: { item: T; rest: T[] }[] = []; const at = new Map<string, number>();
+  for (const n of items) {
+    const key = n.link_target && (n.link_target.entity === 'work_orders' || n.link_target.entity === 'work_order') ? `wo:${n.link_target.id}` : null;
+    if (key && at.has(key)) { out[at.get(key)!].rest.push(n); continue; }
+    if (key) at.set(key, out.length); out.push({ item: n, rest: [] });
+  }
+  return out;
+}

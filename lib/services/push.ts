@@ -25,16 +25,22 @@ export async function unsubscribePush(user: string, body: unknown) {
   return { on: false };
 }
 
-type Msg = { title: string; body: string; url: string; tag: string };
+type Msg = { title: string; body: string; url: string; tag: string; urgent?: boolean };
+/** CMP08: at most this many pushes per device in 10 minutes. The next one becomes a single summary; the rest wait in the bell. Urgent ones always go. */
+export const BURST_LIMIT = 6;
+const SUMMARY: Msg = { title: 'More job updates', body: 'You have more updates. Open Groundwork to see them all.', url: '/home', tag: 'summary' };
 /** Send to every device of these people. Dead devices (404/410) are removed. Never throws. */
 export async function sendPush(users: string[], msg: Msg) {
   const k = keys(); const list = [...new Set(users)].filter(Boolean); if (!k || !list.length) return 0;
   try {
     webpush.setVapidDetails('mailto:shanifadhil33@gmail.com', k.pub, k.priv);
-    const subs = (await withSystem(db => db.query('SELECT id,endpoint,p256dh,auth FROM push_subscriptions WHERE user_id = ANY($1::uuid[])', [list]))).rows;
+    const fresh = "burst_start IS NULL OR burst_start < now() - interval '10 minutes'";
+    const subs = (await withSystem(db => db.query(`UPDATE push_subscriptions SET burst_start=CASE WHEN ${fresh} THEN now() ELSE burst_start END, burst_count=CASE WHEN ${fresh} THEN 1 ELSE burst_count+1 END
+      WHERE user_id = ANY($1::uuid[]) RETURNING id,endpoint,p256dh,auth,burst_count`, [list]))).rows
+      .filter(s => msg.urgent || s.burst_count <= BURST_LIMIT + 1).map(s => ({ ...s, out: msg.urgent || s.burst_count <= BURST_LIMIT ? msg : SUMMARY }));
     let sent = 0;
     await Promise.all(subs.map(async s => {
-      try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(msg), { TTL: 86400, timeout: 5000, urgency: 'high' }); sent++; }
+      try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(s.out), { TTL: 86400, timeout: 5000, urgency: 'high' }); sent++; }
       catch (e) { const code = (e as { statusCode?: number }).statusCode; if (code === 404 || code === 410) await withSystem(db => db.query('DELETE FROM push_subscriptions WHERE id=$1', [s.id])); else console.error('push failed', code ?? (e as Error).message); }
     }));
     return sent;
@@ -49,7 +55,7 @@ export async function office(ws: string, client: string, creator: string | null)
 export async function pushJobChange(actor: string, before: Partial<Job> | null, after: Job) {
   const url = `/work-orders/${after.id}`;
   if (after.assignee_id && after.assignee_id !== before?.assignee_id && after.assignee_id !== actor)
-    await sendPush([after.assignee_id], { title: 'New job for you', body: after.title, url, tag: `assigned-${after.id}` });
+    await sendPush([after.assignee_id], { title: 'New job for you', body: after.title, url, tag: `assigned-${after.id}`, urgent: (after as { priority?: string }).priority === 'urgent' });
   // CMP05: the requester hears each step in their own language, only if they may see this job (office() checks that).
   const changed = !!before && after.status !== before.status && isStep(after.status);
   if (!changed) return;

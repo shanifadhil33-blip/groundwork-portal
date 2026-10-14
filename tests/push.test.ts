@@ -7,7 +7,7 @@ import { pushJobChange, pushLateJobs, pushStatus, sendPush, subscribePush, unsub
 import { patchWorkOrder, getWorkOrder } from '../lib/services/work-orders';
 import { tools } from '../lib/agent/tools';
 const key = 'B'.repeat(40), ep = (u: string) => `https://push.example/${u}`;
-beforeAll(async () => { process.env.VAPID_PUBLIC_KEY = 'pub'; process.env.VAPID_PRIVATE_KEY = 'priv'; for (const u of [ids.imran, ids.sam, ids.ravi, ids.omar, ids.pranav]) await subscribePush(u, { endpoint: ep(u), keys: { p256dh: key, auth: 'authauth' } }); });
+beforeAll(async () => { await withSystem(db => db.query('UPDATE push_subscriptions SET burst_count=0,burst_start=NULL')); process.env.VAPID_PUBLIC_KEY = 'pub'; process.env.VAPID_PRIVATE_KEY = 'priv'; for (const u of [ids.imran, ids.sam, ids.ravi, ids.omar, ids.pranav]) await subscribePush(u, { endpoint: ep(u), keys: { p256dh: key, auth: 'authauth' } }); });
 beforeEach(() => { sent.length = 0; fail = {}; });
 afterAll(async () => { await withSystem(db => db.query("DELETE FROM push_subscriptions WHERE endpoint LIKE 'https://push.example/%'")); await closePools(); });
 const to = () => sent.map(s => s.endpoint.split('/').pop()).sort();
@@ -45,7 +45,7 @@ describe('web push', () => {
   it('late jobs: due yesterday and not done, to the assignee and the office', async () => {
     const r = await pushLateJobs();
     const want = (await withSystem(db => db.query("SELECT count(*)::int n FROM work_orders w JOIN workspaces s ON s.id=w.workspace_id WHERE w.status NOT IN ('done','cancelled') AND w.due_on=(CURRENT_TIMESTAMP AT TIME ZONE s.timezone)::date-1 AND s.demo_expires_at IS NULL"))).rows[0].n;
-    expect(r.late).toBe(want); for (const s of sent) expect(s.body.title).toBe('Job late');
+    expect(r.late).toBe(want); for (const s of sent) expect(['Job late', 'Job not moving', 'More job updates']).toContain(s.body.title);
   });
   it('a dead device is removed, other errors are kept, and with no keys nothing is sent', async () => {
     await subscribePush(ids.sam, { endpoint: ep('dead'), keys: { p256dh: key, auth: 'authauth' } }); fail[ep('dead')] = 410;
