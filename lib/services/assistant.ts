@@ -1,3 +1,4 @@
+import { safetyLine } from '../emergency';
 import { dataAnswer, brokenReply } from '../agent/data-answers';
 import { listContactNames } from './contact-names';
 import { explicitClientComment } from '../ui/comments';
@@ -37,6 +38,14 @@ async function recordTarget(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:a
 export const assistantUnavailable={available:false,message:'I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.'};
 const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant']),content:z.string().min(1).max(20000)}).strict()).max(30),confirm_action_id:uuid.optional()}).strict();
 export async function assistant(user:string,ws:string,body:unknown) {
+ const r=await assistantInner(user,ws,body);
+ const last=(body as {messages?:{role:string;content:string}[]})?.messages?.filter(m=>m.role==='user').at(-1)?.content;
+ const sos=(body as {confirm_action_id?:string})?.confirm_action_id?null:safetyLine(last);
+ if(sos&&r&&typeof r==='object'&&'reply' in r&&typeof (r as {reply?:unknown}).reply==='string'&&!(r as {reply:string}).reply.startsWith('Safety first'))return {...r,reply:`${sos}\n\n${(r as {reply:string}).reply}`};
+ if(sos&&r&&typeof r==='object'&&(r as {available?:boolean}).available===false)return {available:true,reply:sos};
+ return r;
+}
+async function assistantInner(user:string,ws:string,body:unknown) {
  const d=schema.parse(body),c:AgentContext={user,ws,scope:'write',kind:'assistant',approved:!!d.confirm_action_id};
  if(d.confirm_action_id)return asAgent({kind:'assistant'},()=>inWorkspace(user,ws,async x=>{
   const a=(await x.db.query('SELECT * FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND id=$3 FOR UPDATE',[ws,user,d.confirm_action_id])).rows[0];

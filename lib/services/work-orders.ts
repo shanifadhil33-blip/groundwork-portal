@@ -1,3 +1,4 @@
+import { detectEmergency } from '../emergency';
 import { createSuggestion } from './suggestions';
 import { assertWorking } from './time-off';
 import { pushJobChange } from './push';
@@ -75,6 +76,7 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
   // A client's agent may guess a trade; the office sets the trade, so drop it rather than fail the request.
   if(c.role==='client'&&body&&typeof body==='object'&&'trade' in body){const {trade:_t,...rest}=body as Record<string,unknown>;body=rest;}
   const data=(c.role==='client'?clientSchema:createSchema).parse(body);
+  if(detectEmergency(`${(data as {title?:string}).title??''} ${(data as {description?:string}).description??''}`))(data as {priority?:string}).priority='urgent';
   if(c.role==='client'){const {description,...fields}=data as z.infer<typeof clientSchema>;return createSuggestion(user,ws,{...fields,problem:description??''},undefined,key);}
   if(c.role==='client' && data.client_id && data.client_id!==c.client_id)throw invalid('Choose one of your own sites.','client_id');
   const site=await row(c,'sites',data.site_id);

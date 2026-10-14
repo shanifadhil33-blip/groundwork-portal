@@ -1,3 +1,4 @@
+import { detectEmergency } from '../emergency';
 import { z } from 'zod';
 import { ApiError, invalid, missing } from '../http';
 import { allowTeam, inWorkspace, name, priority, replay, row, uuid } from './shared';
@@ -5,6 +6,7 @@ export const suggestionInput=z.object({title:name,problem:z.string().trim().max(
 export type SuggestionSource='agent'|'client'|'household'|'technician'|'whatsapp';
 export async function createSuggestion(user:string,ws:string,body:unknown,source?:SuggestionSource,key?:string,intake?:{name:string;phone:string;sender_user_id?:string|null}){
  const data=suggestionInput.parse(body);
+ if(detectEmergency(`${data.title} ${data.problem}`))(data as {priority?:string}).priority='urgent';
  return inWorkspace(user,ws,async c=>{
   if(intake||source==='whatsapp')allowTeam(c);
   const actualSource=intake?'whatsapp':c.role==='client'?(c.client_kind==='household'?'household':'client'):c.role==='technician'?'technician':source??'agent';
