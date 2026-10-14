@@ -51,11 +51,11 @@ it('the facility manager sees the fix history; facility staff and households do 
   expect(Array.isArray(list)).toBe(true);
   for (const x of list) expect(x).toHaveProperty('cost');
   for (const who of [ids.kevin, ids.faisal]) expect(((await callTool({ user: who, ws, scope: 'read', kind: 'assistant' }, 'fix_history', {})) as any).isError).toBe(true);
-  expect(((await callTool({ user: ids.kevin, ws, scope: 'write', kind: 'assistant' }, 'create_request', { title: 'Lift light out', site_id: (await withSystem(async db => (await db.query('SELECT id FROM sites WHERE workspace_id=$1 AND client_id=$2 LIMIT 1', [ws, ids.harbor])).rows[0].id)) })) as any).isError).toBeUndefined();
+  expect(((await callTool({ user: ids.kevin, ws, scope: 'write', kind: 'assistant' }, 'create_request', { description:'Water is dripping and needs a look',title: 'Lift light out', site_id: (await withSystem(async db => (await db.query('SELECT id FROM sites WHERE workspace_id=$1 AND client_id=$2 LIMIT 1', [ws, ids.harbor])).rows[0].id)) })) as any).isError).toBeUndefined();
 });
 it('a household raises a request with a time window and sees only his own visits', async () => {
   const site = await withSystem(async db => (await db.query('SELECT id FROM sites WHERE workspace_id=$1 AND client_id=$2 LIMIT 1', [ws, ids.northgate])).rows[0].id);
-  const r: any = await callTool({ user: ids.faisal, ws, scope: 'write', kind: 'assistant' }, 'create_request', { title: 'Kitchen tap dripping', site_id: site, preferred_window: 'Saturday after 4 PM' });
+  const r: any = await callTool({ user: ids.faisal, ws, scope: 'write', kind: 'assistant' }, 'create_request', { description:'Water is dripping and needs a look',title: 'Kitchen tap dripping', site_id: site, preferred_window: 'Saturday after 4 PM' });
   expect(r.isError).toBeUndefined();
   const made = JSON.parse(r.content[0].text);
   expect((await getWorkOrder(ids.faisal, ws, (await decideSuggestion(ids.sam,ws,made.id,{decision:'approved'})).work_order_id) as any).preferred_window).toBe('Saturday after 4 PM');
@@ -63,8 +63,8 @@ it('a household raises a request with a time window and sees only his own visits
 });
 it('a client request with a guessed trade still goes through', async () => {
   const site = await withSystem(async db => (await db.query('SELECT id FROM sites WHERE workspace_id=$1 AND client_id=$2 LIMIT 1', [ws, ids.harbor])).rows[0].id);
-  const r: any = await callTool({ user: ids.kevin, ws, scope: 'write', kind: 'assistant' }, 'create_request', { title: 'Lobby light out', site_id: site, trade: 'electrical' });
+  const r: any = await callTool({ user: ids.kevin, ws, scope: 'write', kind: 'assistant' }, 'create_request', { description:'Water is dripping and needs a look',title: 'Lobby light out', site_id: site, trade: 'electrical' });
   expect(r.isError).toBeUndefined();
-  const f: any = await callTool({ user: ids.faisal, ws, scope: 'write', kind: 'assistant' }, 'create_request', { title: 'Door stuck', site_id: (await withSystem(async db => (await db.query('SELECT id FROM sites WHERE workspace_id=$1 AND client_id=$2 LIMIT 1', [ws, ids.northgate])).rows[0].id)) });
+  const f: any = await callTool({ user: ids.faisal, ws, scope: 'write', kind: 'assistant' }, 'create_request', { description:'Water is dripping and needs a look',title: 'Door stuck', site_id: (await withSystem(async db => (await db.query('SELECT id FROM sites WHERE workspace_id=$1 AND client_id=$2 LIMIT 1', [ws, ids.northgate])).rows[0].id)) });
   expect(f.isError).toBe(true);
 });

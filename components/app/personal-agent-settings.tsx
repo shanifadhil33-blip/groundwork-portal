@@ -29,7 +29,7 @@ export function PersonalAgentSettings(){
  <label className="choice-row"><input type="checkbox" role="switch" checked={voice} disabled={busy} onChange={e=>setVoice(e.target.checked)}/>Voice {voice?'on':'off'}</label>
  {member&&<div className="form-field"><label htmlFor="agent-approval">Approval mode</label>{settings.loading?<p>Loading…</p>:settings.error?<ErrorState retry={settings.reload}/>:admin?<Dropdown id="agent-approval" label="Approval mode" value={mode} disabled={busy} options={[{value:'important',label:'Ask before important actions'},{value:'every',label:'Ask before every action'}]} onChange={setMode}/>:<p>{mode==='every'?'Ask before every action':'Ask before important actions'}</p>}</div>}
  {error&&<p role="alert">{error}</p>}{notice&&<p role="status">{notice}</p>}<Button type="submit" busy={busy} disabled={!!member&&(settings.loading||!!settings.error)}>Save</Button>
- </form>}<Link href="/settings/agent/log">What I've learned</Link></div>;
+ </form>}<Link href="/settings/agent/log">What I've learned</Link><Link href="/how-agent-works">How your Agent works</Link></div>;
 }
 export function PersonalAgentLog(){
  const {member}=useApp(),base=member?`/api/workspaces/${member.workspace_id}`:null,learning=useResource<{data:{id:string;body:string;label:string;scope:string}[]}>(base?`${base}/assistant/learning`:null);

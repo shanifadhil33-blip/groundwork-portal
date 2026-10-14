@@ -31,12 +31,12 @@ it.each([false, true])('translates machine statuses and explicit status labels f
 
 it('includes the chosen visit window in the request confirmation text shown to a client', () => {
  const summary = actionSummary('create_request', {
-  title: 'Repair cooling', description: 'The visit is not scheduled yet',
+  description:'Water is dripping and needs a look',title: 'Repair cooling', description: 'The visit is not scheduled yet',
   preferred_window: 'Saturday after 4 PM',
  }, null, 'Home');
  const cardText = plainAssistantReply(audienceStatusReply(summary, true), true);
  expect(cardText).toContain('\nBest time for the visit: Saturday after 4 PM\n');
  expect(cardText).toContain('The visit is not scheduled yet');
  expect(cardText).not.toMatch(/[-–—]/);
- expect(actionSummary('create_request', { title: 'Repair cooling' })).not.toContain('Best time for the visit:');
+ expect(actionSummary('create_request', { description:'Water is dripping and needs a look',title: 'Repair cooling' })).not.toContain('Best time for the visit:');
 });
