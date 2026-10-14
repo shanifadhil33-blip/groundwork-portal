@@ -16,7 +16,7 @@ const technicalAttributes = new Set([
   'aria-describedby', 'aria-labelledby', 'aria-controls', 'aria-activedescendant',
 ]);
 const technicalValues = new Set(['mistral-medium-latest', 'mistral-small-latest', 
-  'x-whatsapp-secret', 'content-length', 'not-allowed', 'service-not-allowed', 'Idempotency-Key', 'Set-Cookie', 'WWW-Authenticate', 'Content-Type', 'content-type',
+  'x-whatsapp-secret', 'latin-ext', 'content-length', 'not-allowed', 'service-not-allowed', 'Idempotency-Key', 'Set-Cookie', 'WWW-Authenticate', 'Content-Type', 'content-type',
   'Content-Disposition', 'If-Match', 'no-store', 'multipart/form-data',
   'sample-work-orders.csv', 'agent-access', 'data-label', 'aria-hidden',
   'x-vercel-forwarded-for', 'device-width', 'date-time', 'openai/gpt-oss-120b',
