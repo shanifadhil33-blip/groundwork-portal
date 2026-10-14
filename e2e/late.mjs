@@ -4,7 +4,7 @@ const api=await request.newContext({baseURL:B,extraHTTPHeaders:{origin:B}});awai
 const br=await chromium.launch();const c=await br.newContext({viewport:{width:360,height:640},isMobile:true,hasTouch:true});await c.addCookies((await api.storageState()).cookies);const pg=await c.newPage();
 await pg.goto(B+'/dashboard',{waitUntil:'networkidle'});await pg.waitForTimeout(1000);const n0=await pg.getByRole('button',{name:'Reassign'}).count();
 await pg.getByRole('button',{name:'Reassign'}).first().click();await pg.waitForTimeout(2500);await pg.screenshot({path:O+'/late-plan.png'});
-console.log('plan',await pg.locator('.late-plan').innerText().catch(()=>'none'));
+console.log('plan',(await pg.locator('.late-plan').innerText().catch(()=>'none')).replace(/\n+/g,' '));
 await pg.getByRole('button',{name:'Yes, do it'}).click();await pg.waitForTimeout(2500);console.log('late rows before',n0,'after',await pg.getByRole('button',{name:'Reassign'}).count(),'alert',await pg.getByRole('alert').allTextContents());
 await pg.screenshot({path:O+'/late-plan-after.png'});
 await api.post('/api/demo/reset',{data:{confirm:true}}).catch(()=>{});await br.close();

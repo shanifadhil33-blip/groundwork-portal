@@ -1,4 +1,5 @@
 'use client';
+import { AgentAvatar } from './agent-avatar';
 import { useLocalDraft } from '../../lib/ui/drafts';
 import { ContactText } from './contact-name';
 import { plainAssistantReply } from '../../lib/ui/assistant-replies';
@@ -18,9 +19,9 @@ type Pending={id:string;summary:string;why?:string};
 type Reply={available:boolean;logged?:boolean;reply?:string;choices?:string[];message?:string;pending_action?:Pending;result?:{isError?:boolean}};
 export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boolean;onClose:()=>void;ask?:{text:string;n:number}|null;docked?:boolean}){
  const {member,me}=useApp();
- const preferences=useResource<{agent_name:string|null;voice_enabled:boolean;language:string|null}>('/api/me/preferences');
+ const preferences=useResource<{agent_avatar?:string|null;agent_name:string|null;voice_enabled:boolean;language:string|null}>('/api/me/preferences');
  const agentName=preferences.data?.agent_name||'Agent';
- const heading=<Link href="/settings/agent" onClick={onClose} data-no-translate={!!preferences.data?.agent_name}>{agentName}</Link>;
+ const heading=<Link href="/settings/agent" className="agent-heading" onClick={onClose} data-no-translate={!!preferences.data?.agent_name}><AgentAvatar avatar={preferences.data?.agent_avatar}/>{agentName}</Link>;
  const [messages,setMessages]=useState<Message[]>([]),[inputDraft,setInputDraft]=useLocalDraft(`groundwork-agent-draft:${me.user.id}:${ws}`,{body:''}),[busy,setBusy]=useState(false),[pending,setPending]=useState<Pending|null>(null),[resting,setResting]=useState(false),[error,setError]=useState(''),[failed,setFailed]=useState<{messages:Message[];confirm_action_id?:string}|null>(null);
  const input=inputDraft.body,setInput=(v:React.SetStateAction<string>)=>setInputDraft(d=>({body:typeof v==='function'?v(d.body):v}));
  const inputRef=useRef<HTMLTextAreaElement>(null);
