@@ -1,3 +1,4 @@
+import { isStep, statusLine, type Step } from '../status-updates';
 import webpush from 'web-push';
 import { z } from 'zod';
 import { withSystem, withUser } from '../db';
@@ -49,8 +50,17 @@ export async function pushJobChange(actor: string, before: Partial<Job> | null, 
   const url = `/work-orders/${after.id}`;
   if (after.assignee_id && after.assignee_id !== before?.assignee_id && after.assignee_id !== actor)
     await sendPush([after.assignee_id], { title: 'New job for you', body: after.title, url, tag: `assigned-${after.id}` });
-  if (after.status === 'done' && before?.status !== 'done')
-    await sendPush((await office(after.workspace_id, after.client_id, after.created_by)).filter(u => u !== actor), { title: 'Job done', body: `${after.title} is done.`, url, tag: `done-${after.id}` });
+  // CMP05: the requester hears each step in their own language, only if they may see this job (office() checks that).
+  const changed = !!before && after.status !== before.status && isStep(after.status);
+  if (!changed) return;
+  const allowed = (await office(after.workspace_id, after.client_id, after.created_by)).filter(u => u !== actor);
+  const asker = after.created_by && after.created_by !== actor && allowed.includes(after.created_by) ? after.created_by : null;
+  if (asker) {
+    const lang = (await withSystem(db => db.query('SELECT language FROM user_preferences WHERE user_id=$1', [asker]))).rows[0]?.language ?? null;
+    const m = statusLine(lang, after.status as Step, (after as { order_number?: number }).order_number ?? '', after.title);
+    await sendPush([asker], { title: m.title, body: m.body, url, tag: `status-${after.id}` });
+  }
+  if (after.status === 'done') await sendPush(allowed.filter(u => u !== asker), { title: 'Job done', body: `${after.title} is done.`, url, tag: `done-${after.id}` });
 }
 /** Daily: jobs that became late today (due yesterday, still not done). Tells the assignee and the office, once. */
 export async function pushLateJobs() {

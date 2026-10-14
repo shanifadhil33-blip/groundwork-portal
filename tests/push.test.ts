@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-const sent: { endpoint: string; body: { title: string } }[] = []; let fail: Record<string, number> = {};
+const sent: { endpoint: string; body: { title: string; tag?: string } }[] = []; let fail: Record<string, number> = {};
 vi.mock('web-push', () => ({ default: { setVapidDetails: () => {}, sendNotification: async (s: { endpoint: string }, body: string) => { if (fail[s.endpoint]) throw Object.assign(new Error('gone'), { statusCode: fail[s.endpoint] }); sent.push({ endpoint: s.endpoint, body: JSON.parse(body) }); } } }));
 import { closePools, withSystem } from '../lib/db';
 import { ids } from '../scripts/seed';
@@ -38,7 +38,7 @@ describe('web push', () => {
   it('a done job tells the office and the client who asked, not the person who finished it', async () => {
     const base = { id: 'x', workspace_id: ids.ridgeline, title: 'Fix tap', assignee_id: ids.ravi, client_id: (await withSystem(db => db.query("SELECT client_id FROM members WHERE user_id=$1 AND workspace_id=$2", [ids.omar, ids.ridgeline]))).rows[0].client_id };
     await pushJobChange(ids.ravi, { ...base, status: 'in_progress' }, { ...base, status: 'done', created_by: ids.omar });
-    expect(to()).toEqual([ids.imran, ids.omar, ids.sam].sort()); expect(sent[0].body.title).toBe('Job done');
+    expect(to()).toEqual([ids.imran, ids.omar, ids.sam].sort()); expect(sent.find(x => x.body.title === 'Job done')).toBeTruthy(); expect(sent.filter(x => x.body.tag === `status-x`).length).toBe(1); // the asker gets one update in their language, not two
     sent.length = 0; await pushJobChange(ids.ravi, { ...base, status: 'done' }, { ...base, status: 'done', created_by: ids.omar }); expect(sent).toEqual([]);
     sent.length = 0; await pushJobChange(ids.imran, { ...base, status: 'in_progress' }, { ...base, status: 'done', created_by: ids.pranav }); expect(to()).not.toContain(ids.pranav); // client of another company never hears
   });
