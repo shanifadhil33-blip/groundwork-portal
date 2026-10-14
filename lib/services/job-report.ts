@@ -7,7 +7,7 @@ import type { PoolClient } from 'pg';
 
 export const OUTCOMES = ['fixed', 'temporary', 'needs_part', 'cant_fix'] as const;
 export const OUTCOME_LABELS: Record<(typeof OUTCOMES)[number], string> = { fixed: 'Fixed', temporary: 'Temporary fix', needs_part: 'Needs a part', cant_fix: "Can't be fixed" };
-const reportSchema = z.object({ problem: z.string().trim().max(2000).default(''), work: z.string().trim().max(2000).default(''), outcome: z.enum(OUTCOMES).default('fixed'), updated_at: z.iso.datetime({offset:true}) }).strict();
+const reportSchema = z.object({ problem: z.string().trim().max(2000).default(''), work: z.string().trim().max(2000).default(''), outcome: z.enum(OUTCOMES).default('fixed'), problem_en: z.string().trim().max(2000).optional(), work_en: z.string().trim().max(2000).optional(), language: z.string().max(12).optional(), updated_at: z.iso.datetime({offset:true}) }).strict();
 /** Where the job goes next. Fixed and Temporary fix close the visit; Needs a part waits for parts; Can't be fixed stays open for the supervisor. */
 const nextStatus = { fixed: 'done', temporary: 'done', needs_part: 'waiting_on_parts', cant_fix: null } as const;
 
@@ -25,7 +25,7 @@ export async function saveJobReport(user:string,ws:string,id:string,body:unknown
   return replay(db,user,ws+'/work-orders/'+id+'/report',key,data,async()=>{
    if(o.status==='done'||o.status==='cancelled')throw new ApiError(409,'closed','This job is already closed.');
    if(new Date(data.updated_at).getTime()!==new Date(o.updated_at).getTime())throw new ApiError(409,'stale','This job changed. Open it and review your report before sending again.');
-   await db.query('UPDATE work_orders SET report_problem=$3,report_work=$4,report_outcome=$5,report_at=now(),report_by=$6 WHERE workspace_id=$1 AND id=$2',[ws,id,data.problem||null,data.work||null,data.outcome,user]);
+   await db.query('UPDATE work_orders SET report_problem=$3,report_work=$4,report_outcome=$5,report_at=now(),report_by=$6,report_problem_en=$7,report_work_en=$8,report_language=$9 WHERE workspace_id=$1 AND id=$2',[ws,id,data.problem||null,data.work||null,data.outcome,user,data.problem_en||null,data.work_en||null,data.language||null]);
    const target=nextStatus[data.outcome];
    const path:string[]=target==='done'?(o.status==='open'?['scheduled','in_progress','done']:o.status==='scheduled'?['in_progress','done']:['done']):target==='waiting_on_parts'?(o.status==='open'?['scheduled','in_progress','waiting_on_parts']:o.status==='scheduled'?['in_progress','waiting_on_parts']:o.status==='waiting_on_parts'?[]:['waiting_on_parts']):[];
    for(const status of path)await db.query('UPDATE work_orders SET status=$3 WHERE workspace_id=$1 AND id=$2',[ws,id,status]);
@@ -46,4 +46,15 @@ export async function jobRecord(user: string, ws: string, of: string) {
     return (await c.db.query(`SELECT count(*) FILTER (WHERE date_trunc('month', coalesce(report_at, updated_at) AT TIME ZONE w.timezone) = date_trunc('month', now() AT TIME ZONE w.timezone))::int AS month, count(*)::int AS total
       FROM work_orders o JOIN workspaces w ON w.id=o.workspace_id WHERE o.workspace_id=$1 AND o.assignee_id=$2 AND o.status='done'`, [ws, of])).rows[0] as { month: number; total: number };
   });
+}
+
+/** TECH08: turn his spoken words into a draft report. Nothing is saved here; he confirms with Job done. */
+export async function voiceDraft(user:string,ws:string,id:string,body:unknown){
+ const d=z.object({words:z.string().trim().min(1).max(4000),language:z.string().max(12).default('en')}).strict().parse(body);
+ const job=await inWorkspace(user,ws,async c=>{allow(c,['admin','staff','technician']);const o=(await c.db.query('SELECT id,title,assignee_id,status FROM work_orders WHERE workspace_id=$1 AND id=$2',[ws,id])).rows[0];if(!o||(c.role==='technician'&&o.assignee_id!==user))throw new ApiError(403,'forbidden','This job is not yours.');return o;});
+ const { fillFromWords, missingQuestion } = await import('../voice-report');
+ const r=await fillFromWords(d.words,d.language,job.title);
+ // AI down: keep his words as what he did, and ask how it ended. Never guess.
+ if(!r)return {problem:'',work:d.words,outcome:null,problem_en:'',work_en:'',question:missingQuestion(d.language,{problem:'',outcome:null}),ai:false};
+ return {...r,ai:true};
 }

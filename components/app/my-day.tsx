@@ -3,7 +3,8 @@ import { enqueue } from '../../lib/ui/outbox';
 import { useLocalDraft } from '../../lib/ui/drafts';
 import { useSelection } from './selection';
 import Link from 'next/link';
-import { useEffect,useState } from 'react';
+import { useEffect,useRef,useState } from 'react';
+import { AssistantComposer } from './assistant';
 import { CheckCircle2, MapPin, Phone, Play } from 'lucide-react';
 import { PageHeader } from '../ui/layout';
 import { Badge, Button, Dialog, EmptyState, ErrorState, Skeleton, useToast } from '../ui';
@@ -46,10 +47,16 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
   const [draft,setDraft,clearDraft]=useLocalDraft(`groundwork-report:${me.user.id}:${member?.workspace_id}:${j.id}`,{problem:'',work:'',outcome:null as Outcome|null});
   const {problem,work,outcome}=draft;const setProblem=(problem:string)=>setDraft(d=>({...d,problem})),setWork=(work:string)=>setDraft(d=>({...d,work})),setOutcome=(outcome:Outcome)=>setDraft(d=>({...d,outcome}));
   const [busy,setBusy]=useState(false),toast=useToast();
+  // TECH08: say it in his own language; the Agent fills the fields only from his words. Nothing saves until Job done.
+  const prefs=useResource<{language:string}>('/api/me/preferences'),lang=prefs.data?.language??'en';
+  const [words,setWords]=useState(''),wordsRef=useRef<HTMLTextAreaElement|null>(null),[filling,setFilling]=useState(false),[question,setQuestion]=useState<string|null>(null),[english,setEnglish]=useState<{problem_en:string;work_en:string}|null>(null);
+  async function fill(){if(!words.trim()||filling)return;setFilling(true);setQuestion(null);try{const r=await request<{problem:string;work:string;outcome:Outcome|null;problem_en:string;work_en:string;question:string|null}>(`${base}/work-orders/${j.id}/report/voice`,{method:'POST',body:JSON.stringify({words,language:lang})});
+    setDraft(d=>({...d,problem:r.problem||d.problem,work:r.work||d.work,outcome:r.outcome??d.outcome}));setEnglish({problem_en:r.problem_en,work_en:r.work_en});setQuestion(r.question);setWords('');}
+   catch{toast('Could not fill the report. Type it below instead.');}finally{setFilling(false);}}
   async function save() {
     if(!outcome)return;
     setBusy(true);
-    const payload=JSON.stringify({problem,work,outcome,updated_at:j.updated_at});const key=crypto.randomUUID();
+    const payload=JSON.stringify({problem,work,outcome,...(english?{problem_en:english.problem_en,work_en:english.work_en,language:lang}:{}),updated_at:j.updated_at});const key=crypto.randomUUID();
     const queue=()=>{enqueue(me.user.id,member!.workspace_id,{id:key,url:`${base}/work-orders/${j.id}/report`,body:payload,label:`Job report for WO ${j.order_number}`});clearDraft();toast('Waiting to send');onClose();};
     try { if(navigator.onLine===false){queue();return;}const r = await request<{ record: JobRecord }>(`${base}/work-orders/${j.id}/report`, { method: 'POST', headers:{'Idempotency-Key':key},body:payload }); clearDraft();onSaved(outcome, r.record); }
     catch (e) { if(e instanceof RequestError&&e.status===0){try{queue();}catch{toast('Could not keep this report on your phone. Your draft is saved.');}return;}toast(e instanceof RequestError && e.status === 409 ? 'This job changed. We loaded the new version.' : 'That did not save. Try again.'); }
@@ -58,6 +65,7 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
   const pick = OUTCOMES.find(o => o.v === outcome);
   return <Dialog open onClose={onClose} busy={busy} title="Job report" footer={<><Button variant="secondary" disabled={busy} onClick={onClose}>Cancel</Button><Button busy={busy} disabled={!outcome} onClick={() => void save()}><CheckCircle2 size={18} aria-hidden="true" />{outcome === 'fixed' || outcome === 'temporary' ? 'Job done' : 'Save report'}</Button></>}>
     <div className="stack compact job-report"><strong data-no-translate>{j.title}</strong>
+      <div className="voice-report stack compact"><span className="field-label">Say what you found and did, in your language</span><AssistantComposer ws={member?.workspace_id??''} language={lang} input={words} setInput={setWords} inputRef={wordsRef} busy={filling} blocked={false} active submit={()=>void fill()} inputLabel="Your words" placeholder="Speak or type, then tap Fill report"/><Button variant="secondary" busy={filling} disabled={!words.trim()} onClick={()=>void fill()}>Fill report</Button>{question&&<p className="voice-question" role="status">{question}</p>}</div>
       <label className="field"><span>What was the problem?</span><textarea rows={2} value={problem} onChange={e => setProblem(e.target.value)} placeholder="For example: the AC was leaking water" /></label>
       <label className="field"><span>What did you do?</span><textarea rows={2} value={work} onChange={e => setWork(e.target.value)} placeholder="For example: cleaned the drain pipe" /></label>
       <fieldset className="outcome-pick"><legend>How did it end?</legend>
