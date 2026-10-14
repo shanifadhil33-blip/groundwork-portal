@@ -1055,3 +1055,4 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 .voice-report .field-label{font-weight:500}
 .voice-question{margin:0;padding:8px;border-left:3px solid var(--accent,#1f5c55);background:#f3f7f6}
 .report-en{display:block;margin-top:4px;color:var(--muted,#555);font-size:14px}
+.late-plan{padding:12px;border:1px solid var(--border,#e5e5e5);border-radius:8px;margin-bottom:12px}.late-plan p{margin:0}
