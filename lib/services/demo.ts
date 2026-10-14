@@ -29,6 +29,8 @@ async function create(db:PoolClient,persona:Persona){
  const expires=(await db.query("INSERT INTO workspaces(id,name,is_demo,demo_expires_at) VALUES($1,'Ridgeline Facility Services',true,now()+interval '24 hours') RETURNING demo_expires_at",[ids.ridgeline])).rows[0].demo_expires_at as Date;
  const sites=Array.from({length:6},()=>randomUUID()),orders=Array.from({length:60},()=>randomUUID());
  await populateFixture(db,ids,n=>sites[n-1],n=>orders[n-1],true);
+ // Storage: seed noise in the audit log (bell and timeline rows) is about half of each sandbox. Keep the job, comment and team history.
+ await db.query("DELETE FROM audit_log WHERE workspace_id=$1 AND entity IN ('notifications','work_order_events')",[ids.ridgeline]);
  return {body:{workspace_id:ids.ridgeline,persona,expires_at:expires},cookie:await session(db,ids[persona],expires)};
 }
 /** Signed pointer to the visitor's own sandbox, so signing in again (any person, many times) reuses it instead of building a new one. */

@@ -26,3 +26,8 @@ it('an expired demo with ratings, visit checks, Agent questions and preferences 
   await cleanupDemo();
   expect((await withSystem(db => db.query('SELECT 1 FROM workspaces WHERE id=$1', [ws]))).rowCount).toBe(0);
 });
+it('a new demo keeps job history in the audit log but not bell and timeline seed noise', async () => {
+  const d = await startDemo({ persona: 'sam' }, 'audit-ip-' + Date.now()); const ws = d.body.workspace_id;
+  const r = (await withSystem(db => db.query("SELECT count(*) FILTER (WHERE entity IN ('notifications','work_order_events'))::int noise, count(*) FILTER (WHERE entity='work_orders')::int jobs FROM audit_log WHERE workspace_id=$1", [ws]))).rows[0];
+  expect(r.noise).toBe(0); expect(r.jobs).toBeGreaterThan(0);
+});
