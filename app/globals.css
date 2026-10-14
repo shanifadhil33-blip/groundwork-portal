@@ -1042,3 +1042,7 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 .outcome-grid .outcome.on{border:2px solid var(--primary);background:color-mix(in srgb,var(--primary) 12%,var(--surface));color:var(--text);font-weight:600}
 .reassign-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .reassign-list li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--border,#e5e5e5)}
+.rating-pick{display:flex;gap:8px}
+.rating-pick button{min-width:48px;min-height:48px;font-size:28px;line-height:1;background:none;border:1px solid var(--border,#d4d4d4);border-radius:8px;color:#8a8a8a;cursor:pointer}
+.rating-pick button.on{color:#b7791f;border-color:#b7791f}
+.rating-stars{font-size:20px;color:#b7791f}.rating-stars span{font-size:16px;color:inherit}

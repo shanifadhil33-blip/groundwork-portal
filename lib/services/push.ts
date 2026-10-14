@@ -42,7 +42,7 @@ export async function sendPush(users: string[], msg: Msg) {
 }
 
 type Job = { id: string; workspace_id: string; title: string; status: string; assignee_id: string | null; created_by: string | null; client_id: string };
-async function office(ws: string, client: string, creator: string | null) {
+export async function office(ws: string, client: string, creator: string | null) {
   return (await withSystem(db => db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND archived_at IS NULL AND (role IN ('admin','staff') OR (role='client' AND client_id=$2 AND user_id=$3))", [ws, client, creator]))).rows.map(r => r.user_id as string);
 }
 /** After a job is saved: new assignee hears "New job for you"; when it turns done, the office and the client who asked hear "Job done". Not the person who did it. */
