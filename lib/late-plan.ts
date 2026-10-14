@@ -9,10 +9,13 @@ export function nextSlot(now: Date, tz: string, workingDays: number[] = [1, 2, 3
   }
   return new Date(now.getTime() + 86400000).toISOString();
 }
-export type Worker = { user_id: string; name: string | null; off?: unknown; trade_match?: boolean; area_match?: boolean; today?: number };
+export type Worker = { user_id: string; name: string | null; role?: string; extra_roles?: string[] | null; off?: unknown; trade_match?: boolean; area_match?: boolean; today?: number };
 /** Pick a main person and a backup from the ranked list, never the current assignee, never someone off. */
-export function latePlan(workers: Worker[], current: string | null) {
-  const ok = workers.filter(w => w.user_id !== current && !w.off);
+export function latePlan(workers: Worker[], current: string | null, viewer?: string | null) {
+  const tech = (w: Worker) => w.role === 'technician' || !!w.extra_roles?.includes('technician');
+  // Technicians first (keeping the ranked order), never the person looking, never the current assignee, never someone off.
+  const free = workers.filter(w => w.user_id !== current && w.user_id !== viewer && !w.off);
+  const ok = [...free.filter(tech), ...free.filter(w => !tech(w))];
   const why = (w: Worker) => [w.trade_match && 'right trade', w.area_match && 'works this area', `${w.today ?? 0} jobs today`].filter(Boolean).join(', ');
   return ok.length ? { main: ok[0], backup: ok[1] ?? null, why: why(ok[0]) } : null;
 }

@@ -9,3 +9,8 @@ it('main and backup skip the current person and anyone off', () => {
   expect(p?.main.name).toBe('Bilal'); expect(p?.backup?.name).toBe('Hamid'); expect(p?.why).toBe('right trade, 2 jobs today');
   expect(latePlan([{ user_id: 'a', name: 'Ravi' }], 'a')).toBeNull();
 });
+it('backup prefers a technician and is never the supervisor looking', () => {
+  const p = latePlan([{ user_id: 's', name: 'Sam', role: 'staff', trade_match: true }, { user_id: 'b', name: 'Bilal', role: 'technician' }, { user_id: 'n', name: 'Nabil', role: 'staff' }, { user_id: 'h', name: 'Hamid', role: 'technician' }], 'r', 's');
+  expect(p?.main.name).toBe('Bilal'); expect(p?.backup?.name).toBe('Hamid');
+  expect(latePlan([{ user_id: 's', name: 'Sam', role: 'staff' }], null, 's')).toBeNull();
+});

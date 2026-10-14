@@ -75,8 +75,8 @@ export function Dashboard({firstUse=false}:{firstUse?:boolean}) {const {member,w
 
 /** Top 10 moment 8: the Agent drafts a new time and a backup for a late job. It suggests, Sam decides. */
 function LatePlan({base,job,busy,onYes}:{base:string;job:WorkOrder;busy:boolean;onYes:(to:string,when:string)=>void}){
- const {workspace}=useApp(),r=useResource<{workers:Worker[]}>(`${base}/work-orders/${job.id}/suggest`);
- if(!r.data)return null;const plan=latePlan(r.data.workers,job.assignee_id??null);if(!plan)return null;
+ const {workspace,me}=useApp(),r=useResource<{workers:Worker[]}>(`${base}/work-orders/${job.id}/suggest`);
+ if(!r.data)return null;const plan=latePlan(r.data.workers,job.assignee_id??null,me.user.id);if(!plan)return null;
  const tz=workspace?.timezone??'Asia/Dubai',when=nextSlot(new Date(),tz,(workspace as {working_days?:number[]}|null)?.working_days);
  const label=new Intl.DateTimeFormat('en-GB',{timeZone:tz,weekday:'long',hour:'numeric',minute:'2-digit'}).format(new Date(when));
  return <div className="late-plan stack compact"><strong>Agent suggests</strong><p>Give it to <span data-no-translate>{plan.main.name}</span> on {label}{plan.backup?<>, with <span data-no-translate>{plan.backup.name}</span> as backup</>:null}.</p><p className="small muted">Why: {plan.why}. Nothing changes until you tap Yes.</p><Button busy={busy} onClick={()=>onYes(plan.main.user_id,when)}>Yes, do it</Button></div>;
