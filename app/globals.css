@@ -1030,3 +1030,9 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 .outbox-bar .outbox-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
 .outbox-bar .outbox-state { color:var(--text-muted); font-size:14px; white-space:nowrap; }
 .outbox-slot{padding:8px 16px 0}.outbox-slot:empty{display:none}
+/* Selection bar stays on one line on phones; extra actions scroll sideways instead of wrapping. */
+.selection-bar { flex-wrap:nowrap; overflow-x:auto; gap:4px; scrollbar-width:none; }
+.selection-bar::-webkit-scrollbar { display:none; }
+.selection-bar>* { flex-shrink:0; white-space:nowrap; }
+.selection-bar .button { padding-inline:12px; }
+.selection-bar strong { margin-inline-end:4px; }
