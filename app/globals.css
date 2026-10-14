@@ -1039,3 +1039,4 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 /* Selection ticks appear only once something is selected, on every list. */
 @media (pointer:coarse){ body:not(:has([data-selected])) .selection-mark{display:none !important} }
 .agent-steps{list-style:none;padding:0;margin:0;display:grid;gap:16px}.agent-steps li{padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}.agent-steps h2{font-size:18px;margin:0}.agent-steps p{margin:0;font-size:16px}
+.outcome-grid .outcome.on{border:2px solid var(--primary);background:color-mix(in srgb,var(--primary) 12%,var(--surface));color:var(--text);font-weight:600}
