@@ -52,13 +52,20 @@ export function validTranslation(source: string, translated: unknown): translate
   // Dashes in identifiers, email addresses and dates are data and must remain.
   return !/\p{Pd}/u.test(translated.replace(protectedPattern, ''));
 }
+/** Numbers stay as 0 to 9 so they match the data on screen (models often write ६ or ৬ or ۶). */
+const NATIVE_DIGITS = /[\u0660-\u0669\u06F0-\u06F9\u0966-\u096F\u09E6-\u09EF\u0BE6-\u0BEF\u0D66-\u0D6F\u1369-\u1371]/g;
+const DIGIT_BASES = [0x0660, 0x06F0, 0x0966, 0x09E6, 0x0BE6, 0x0D66];
+export function asciiDigits(text: string): string {
+  return text.replace(NATIVE_DIGITS, ch => { const c = ch.codePointAt(0)!; if (c >= 0x1369) return String(c - 0x1368); const base = DIGIT_BASES.find(b => c >= b && c <= b + 9)!; return String(c - base); });
+}
 export function parseTranslations(text: string, sources: string[]): Record<string, string> | null {
   let value: unknown;
   try { value = JSON.parse(text.trim().replace(/^```(?:json)?\s*|\s*```$/g, '')); } catch { return null; }
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const out: Record<string, string> = Object.create(null);
   for (const source of sources) {
-    const translated = Object.hasOwn(value, source) ? (value as Record<string, unknown>)[source] : undefined;
+    const raw = Object.hasOwn(value, source) ? (value as Record<string, unknown>)[source] : undefined;
+    const translated = typeof raw === 'string' ? asciiDigits(raw) : raw;
     if (validTranslation(source, translated)) out[source] = translated.trim();
   }
   return Object.keys(out).length ? out : null;
