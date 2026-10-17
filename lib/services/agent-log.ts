@@ -23,7 +23,7 @@ export function whyNote(ask: string, effects: string[]) {
   const said = ask.replace(/\s+/g, ' ').trim().replace(/[.!?]+$/, '');
   const quote = said.length > 140 ? `${said.slice(0, 137).trim()}...` : said;
   const does = effects.map(e => e.replace(/\s+/g, ' ').trim().replace(/[.:]+$/, '')).filter(Boolean).join('. ').replace(/:\./g, '.');
-  return `${quote ? `You said "${quote}". ` : ''}${does ? `${does}.` : ''}`.slice(0, 400);
+  return `${quote ? `You said "${quote}". ` : ''}${does ? (/[.?!]$/.test(does) ? does : `${does}.`) : ''}`.slice(0, 400);
 }
 export function jobSnapshot(order: Record<string, any> | null) {
   if (!order) return null;
