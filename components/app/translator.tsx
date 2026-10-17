@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { DEFAULT_LANGUAGE, LANGUAGES, isRtl } from '../../lib/languages';
 import { isEnglish, readTranslationCache, replaceTranslation, translationPieces, translationSource, TRANSLATION_ATTRIBUTES, TRANSLATION_SKIP } from '../../lib/i18n';
 import { useResource } from './resource';
+import { LANG_HINT_KEY } from '../../lib/head-scripts';
 
 const LANGUAGE_EVENT = 'groundwork-language-changed';
 export function changeAppLanguage(lang: string) {
@@ -33,7 +34,9 @@ export function Translator() {
     const previousLang = root.lang, previousDir = root.dir;
     root.lang = language;
     root.dir = isRtl(language) ? 'rtl' : 'ltr';
-    if (isEnglish(language)) return () => { root.lang = previousLang; root.dir = previousDir; };
+    const quiet = (on: boolean) => { if (on) root.dataset.translating = ''; else delete root.dataset.translating; };
+    let quietTimer: ReturnType<typeof setTimeout> | undefined;
+    if (isEnglish(language)) { quiet(false); return () => { root.lang = previousLang; root.dir = previousDir; }; }
 
     const key = `groundwork-ui-translations:v1:${language}`;
     let cache: Record<string, string> = Object.create(null);
@@ -94,6 +97,9 @@ export function Translator() {
         }
       }
       observer.observe(document.body, options);
+      // Quiet loading: hide the screen (never show English) while a batch of its words is still on the way, at most 3 seconds.
+      if (pending.size >= 3) { quiet(true); clearTimeout(quietTimer); quietTimer = setTimeout(() => quiet(false), 3000); }
+      else if (!running || !pending.size) { quiet(false); }
       void flush();
     }
     function schedule() {
@@ -108,29 +114,36 @@ export function Translator() {
           const strings = [...pending].slice(0, 200);
           for (const source of strings) { pending.delete(source); attempted.add(source); }
           try {
-            const response = await fetch('/api/i18n/translate', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ lang: language, strings }), signal: abort.signal,
-            });
-            if (!response.ok) continue;
-            const result = await response.json();
-            if (stopped) return;
-            const received = readTranslationCache(JSON.stringify(result.translations));
-            for (const source of strings) if (Object.hasOwn(received, source)) cache[source] = received[source];
-            try { localStorage.setItem(key, JSON.stringify(Object.fromEntries(Object.entries(cache).slice(-5000)))); } catch { /* Keep the in memory cache. */ }
-            scan();
+            // Saved words first (fast, no AI), then only the new ones, so a new word never holds back the rest of the screen.
+            for (const cachedOnly of [true, false]) {
+              const ask = cachedOnly ? strings : strings.filter(x => !Object.hasOwn(cache, x));
+              if (!ask.length) break;
+              const response = await fetch('/api/i18n/translate', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lang: language, strings: ask, ...(cachedOnly ? { cached_only: true } : {}) }), signal: abort.signal,
+              });
+              if (!response.ok) continue;
+              const result = await response.json();
+              if (stopped) return;
+              const received = readTranslationCache(JSON.stringify(result.translations));
+              for (const source of ask) if (Object.hasOwn(received, source)) cache[source] = received[source];
+              try { localStorage.setItem(key, JSON.stringify(Object.fromEntries(Object.entries(cache).slice(-5000)))); } catch { /* Keep the in memory cache. */ }
+              scan();
+            }
           } catch { /* Keep English when offline or when translation is unavailable. */ }
         }
-      } finally { running = false; }
+      } finally { running = false; quiet(false); }
     }
     scan();
     return () => {
-      stopped = true; abort.abort(); observer.disconnect(); clearTimeout(timer);
+      stopped = true; abort.abort(); observer.disconnect(); clearTimeout(timer); clearTimeout(quietTimer); quiet(false);
       for (const slot of [...textSlots.values(), ...[...attributeSlots.values()].flatMap(slots => [...slots.values()])]) {
         if (slot.node.isConnected && read(slot) === slot.applied) write(slot, slot.source);
       }
       root.lang = previousLang; root.dir = previousDir;
     };
   }, [language]);
+  // Remember the language for the pre-paint hint once it is known (never guess before preferences load).
+  useEffect(() => { if (preferences.data || chosen) { try { localStorage.setItem(LANG_HINT_KEY, language); } catch { /* Storage may be disabled. */ } } }, [language, preferences.data, chosen]);
   return null;
 }

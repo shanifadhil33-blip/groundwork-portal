@@ -87,6 +87,9 @@ export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',le
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
   if(tool === 'fill_onboarding') return 'Save these setup answers?\n'+Object.entries(args.answers??{}).map(([k,v])=>`${readableLabel(k)}: ${typeof v==='object'?JSON.stringify(v):v}`).join('\n');
   if(tool === 'suggest_contact_name') return `Save ${target??'this contact'} as ${args.nickname}?`;
+  if(tool === 'remember_about_me') return `Remember this about you?\n${args.note}`;
+  if(tool === 'forget_about_me') return 'Forget this note about you?';
+  if(tool === 'set_call_me') return `Call you ${args.name} from now on?`;
   if(tool === 'ask_supervisor') return `Ask your supervisor?\n${args.question}${args.proposed?`\nMy suggestion: ${args.proposed}`:''}`;
 
   if(tool==='send_team_message')return `Send in Team space.\n${plainAssistantReply(args.body??'')}`;
@@ -133,6 +136,9 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='add_worker')return plainAssistantReply(`Added ${args.name}. Open Team and tap New sign in to make a code.`);
   if(tool==='request_time_off')return `Sent your time off request: ${offSpan(args.kind??'off',args.starts_on,args.ends_on)}. I will tell you when your supervisor answers.`;
   if(tool==='decide_time_off')return args.decision==='approved'?'Approved. It shows on the schedule now.':'Declined. He gets a message.';
+  if(tool==='remember_about_me')return 'Saved. You can see it on your Memory page.';
+  if(tool==='forget_about_me')return 'Forgotten. I will not use it again.';
+  if(tool==='set_call_me')return `Done, ${args.name}.`;
   if(tool==='ask_supervisor')return 'Sent to your supervisor. Nothing changes until they answer. I will tell you when they do.';
   if(!order)return plainAssistantReply(tool==='reject_queue_row'?`Rejected ${target??'the selected row'}: ${args.reason}`:`Updated ${target??'the selected row'}.`);
   const name=assistantTarget(order).replace(/[\[\]\r\n]/g,' '),link=`[${name}](/work-orders/${order.id})`;

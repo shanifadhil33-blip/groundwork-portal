@@ -12,3 +12,7 @@ export function rememberSession(state: 'in' | 'out') {
   document.documentElement.dataset.session = state;
   try { localStorage.setItem(SESSION_HINT_KEY, state); } catch {}
 }
+/** Pre-paint: a person who reads the app in another language never sees English first. The Translator lifts this once
+ * the screen is translated (at most 3 seconds). RTL is set here too so the layout does not flip after load. */
+export const LANG_HINT_KEY = 'groundwork-lang';
+export const languageHintScript = `try{var l=localStorage.getItem('${LANG_HINT_KEY}');if(l&&!/^en(-|$)/i.test(l)){var d=document.documentElement;d.lang=l;d.dir=/^(ar|ur|ps|fa)(-|$)/.test(l)?'rtl':'ltr';d.dataset.translating='';setTimeout(function(){delete d.dataset.translating},3000)}}catch(e){}`;

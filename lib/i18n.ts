@@ -5,6 +5,8 @@ export const isEnglish = (lang: string) => /^en(?:-|$)/i.test(lang);
 export const translationRequest = z.object({
   lang: z.enum(LANGUAGES.map(l => l.code) as [string, ...string[]]),
   strings: z.array(z.string().min(1).max(500)).max(200),
+  /** Saved translations only, no AI call: the screen fills at once and the rest follows. */
+  cached_only: z.boolean().optional(),
 }).strict();
 export const TRANSLATION_ATTRIBUTES = ['placeholder', 'aria-label', 'title', 'alt', 'data-label'] as const;
 export const TRANSLATION_SKIP = 'script,style,code,pre,textarea,[data-no-translate],[contenteditable]:not([contenteditable="false"])';

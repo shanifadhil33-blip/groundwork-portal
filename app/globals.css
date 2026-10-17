@@ -1067,8 +1067,17 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 .agent-heading{display:inline-flex;align-items:center}
 
 /* Phone tabs: one line each, icon and label centred, long translations truncate cleanly. */
-.bottom-tabs>a,.bottom-tabs>button{min-width:0;justify-content:flex-start;padding-top:var(--s1)}
+.bottom-tabs{padding-inline:4px;gap:0}
+.bottom-tabs>a,.bottom-tabs>button{min-width:0;justify-content:flex-start;padding-top:var(--s1);padding-inline:2px}
 .bottom-tabs .tab-label{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;line-height:1.3}
 /* Native scripts use real Noto faces at 400; never fake bold or italics. */
 html{font-synthesis:none}
 [data-no-translate]{font-synthesis:none}
+
+/* Quiet loading while a screen's words are translated: no English flash, just a calm bar. */
+html[data-translating] .app-main>*:not(.app-header){opacity:0}
+html[data-translating] .app-main{position:relative}
+html[data-translating] .app-main::before{content:"";position:fixed;inset-inline:0;top:0;height:2px;background:var(--accent);opacity:.5;z-index:var(--z-toast)}
+.app-main>*{transition:opacity .12s}
+.memory-page .action-list li{align-items:flex-start;gap:var(--s2)}.memory-actions{gap:var(--s2);flex-shrink:0}.memory-actions .button{min-height:44px}.memory-edit{flex:1}
+label:has(>input[type=checkbox]),label:has(>input[type=radio]){min-height:44px;display:flex;align-items:center;gap:var(--s2);cursor:pointer}

@@ -4,7 +4,7 @@ import { Geist, Noto_Sans_Tamil, Noto_Sans_Malayalam, Noto_Sans_Devanagari, Noto
 import { ThemeProvider } from '../components/ui/theme';
 import { ToastProvider } from '../components/ui/toast';
 import { RequestRecovery } from '../components/ui/request-recovery';
-import { sessionHintScript, themeScript } from '../lib/head-scripts';
+import { languageHintScript, sessionHintScript, themeScript } from '../lib/head-scripts';
 import './globals.css';
 const geist = Geist({ subsets: ['latin'], variable: '--font-ui', display: 'swap' });
 // Real faces for each script at weight 400 (no fake bold). Each only downloads when its characters are on screen.
@@ -20,4 +20,4 @@ const notoLatin = Noto_Sans({ weight: '400', display: 'swap', preload: false, su
 const fontVars = [geist, tamil, malayalam, devanagari, bengali, arabic, sinhala, chinese, ethiopic, notoLatin].map(f => f.variable).join(' ');
 export const metadata: Metadata = { title: { default: 'Groundwork: client portal and back office', template: '%s · Groundwork' }, description: 'A client portal and back office for service companies. Jobs, private client views, spreadsheet approval, supplier sync, and AI agent access through MCP.' };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };
-export default function Layout({ children }: { children: ReactNode }) { return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript + ';' + sessionHintScript }} /></head><body className={fontVars}><ThemeProvider><ToastProvider><RequestRecovery />{children}</ToastProvider></ThemeProvider></body></html>; }
+export default function Layout({ children }: { children: ReactNode }) { return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript + ';' + sessionHintScript + ';' + languageHintScript }} /></head><body className={fontVars}><ThemeProvider><ToastProvider><RequestRecovery />{children}</ToastProvider></ThemeProvider></body></html>; }
