@@ -3,7 +3,7 @@
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';
 const OUT = process.argv[2] ?? '/workspace/qa/sweep'; fs.mkdirSync(OUT, { recursive: true });
 const PERSONAS = (process.argv[3] ?? 'imran,sam,ravi,nabil,pranav,kevin,omar,faisal').split(',');
-const LANGS = (process.argv[4] ?? 'en-IN,ar-AE,ta').split(','); const WIDTHS = [360, 390];
+const LANGS = (process.argv[4] ?? 'en-IN,ar-AE,ta').split(','); const WIDTHS = (process.env.WIDTHS ?? '360,390').split(',').map(Number);
 const HOME = { ravi: '/today', pranav: '/home', kevin: '/home', omar: '/home', faisal: '/home' };
 const s = await sandbox('imran'); const br = await chromium.launch(); const issues = []; let pages = 0;
 const check = () => {
@@ -11,7 +11,7 @@ const check = () => {
   if (document.documentElement.scrollWidth > innerWidth + 1) out.push(['sideways scroll', document.documentElement.scrollWidth]);
   if (getComputedStyle(document.documentElement).fontSynthesis !== 'none') out.push(['font synthesis on']);
   for (const t of document.querySelectorAll('.bottom-tabs>a,.bottom-tabs>button')) {
-    const l = t.querySelector('.tab-label'); const r = t.getBoundingClientRect(); const txt = (l ?? t).textContent;
+    const l = t.querySelector('.tab-label'); const r = t.getBoundingClientRect(); if (!r.height) continue; const txt = (l ?? t).textContent;
     if (l && l.scrollWidth > l.clientWidth + 1) out.push(['tab label cut', txt]);
     const lh = l ? parseFloat(getComputedStyle(l).lineHeight) || 20 : 20; if ((l ?? t).getBoundingClientRect().height > lh * 1.5 + (l ? 0 : 30)) out.push(['tab label wraps', txt]);
     if (r.height < 44) out.push(['tab too small', txt, Math.round(r.height)]);
@@ -38,7 +38,7 @@ for (const who of PERSONAS) {
           const found = await p.evaluate(check); const tag = `${who}-${lang}-${w}${path.replace(/\//g, '_')}`;
           await p.screenshot({ path: `${OUT}/${tag}.png` });
           for (const f of found) issues.push({ who, lang, w, path, issue: f[0], detail: f.slice(1).join(' ') });
-          if (path === '/settings' && w === 360) { // rule 3: dropdown attached to its field
+          if (path === '/settings' && (w === 360 || w >= 1000)) { // rule 3: dropdown attached to its field
             const trig = p.locator('.dropdown-trigger').filter({ has: p.locator('[data-no-translate]') }).last();
             if (await trig.count()) { await trig.scrollIntoViewIfNeeded(); await trig.tap(); await p.waitForTimeout(400); const m = await p.locator('.dropdown-menu').boundingBox(), t = await trig.boundingBox();
               if (m && t) { const gap = Math.min(Math.abs(m.y + m.height - t.y), Math.abs(t.y + t.height - m.y)); if (gap > 8) issues.push({ who, lang, w, path, issue: 'dropdown detached', detail: Math.round(gap) + 'px' }); }
