@@ -124,7 +124,7 @@ export const TAB_WORDS: Record<string, Record<string, string>> = {
   "schedule": "திட்டம்",
   "home": "முகப்பு",
   "more": "மேலும்",
-  "suggested": "புதிய",
+  "suggested": "யோசனை",
   "overview": "சுருக்கம்",
   "c_home": "முகப்பு",
   "c_requests": "வேலைகள்",

@@ -63,7 +63,7 @@ async function assistantInner(user:string,ws:string,body:unknown) {
   // Decision log: outcome, and for a new job its id so Undo can cancel it.
   const created=a.tool==='create_request'&&!result.isError&&value?.result?.order_number?{id:value.result.id}:null;
   await x.db.query('UPDATE assistant_actions SET consumed_at=now(), outcome=$2, before=coalesce($3::jsonb,before) WHERE id=$1',[a.id,result.isError?'failed':'done',created?JSON.stringify(created):null]);
-  const first=String((await x.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0];
+  const first=a.tool==='set_call_me'?String(a.args?.name??'').trim():String((await x.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0];
   const done=(t:string)=>result.isError?t:`Done${first?`, ${first}`:''}. ${t.replace(/^Done[.,!]?\s*/i,'')}`;
   return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?done(recordResult(a.tool,a.args,record)):done(audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client')),result,logged:!result.isError};
  }));

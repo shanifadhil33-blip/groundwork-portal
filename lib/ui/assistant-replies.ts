@@ -138,7 +138,7 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='decide_time_off')return args.decision==='approved'?'Approved. It shows on the schedule now.':'Declined. He gets a message.';
   if(tool==='remember_about_me')return 'Saved. You can see it on your Memory page.';
   if(tool==='forget_about_me')return 'Forgotten. I will not use it again.';
-  if(tool==='set_call_me')return `Done, ${args.name}.`;
+  if(tool==='set_call_me')return 'I will call you that from now on.';
   if(tool==='ask_supervisor')return 'Sent to your supervisor. Nothing changes until they answer. I will tell you when they do.';
   if(!order)return plainAssistantReply(tool==='reject_queue_row'?`Rejected ${target??'the selected row'}: ${args.reason}`:`Updated ${target??'the selected row'}.`);
   const name=assistantTarget(order).replace(/[\[\]\r\n]/g,' '),link=`[${name}](/work-orders/${order.id})`;
