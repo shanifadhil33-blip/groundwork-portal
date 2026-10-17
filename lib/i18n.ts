@@ -43,7 +43,7 @@ export function replaceTranslation(text: string, translations: Record<string, st
       ? piece.replace(source, () => translations[source]) : piece;
   }).join('');
 }
-const protectedPattern = /\{\{[^{}]+\}\}|\{[^{}]+\}|\$\{[^{}]+\}|%\d*\$?[sdif]|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\b[A-Za-z]+-\d+\b|\d+(?:[.,:/-]\d+)*/g;
+const protectedPattern = /\{\{[^{}]+\}\}|\{[^{}]+\}|\$\{[^{}]+\}|%\d*\$?[sdif]|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\b[A-Za-z]+(?:-[A-Za-z]+)*-\d+\b|\d+(?:[.,:/-]\d+)*/g;
 export function protectedTokens(text: string): string[] { return text.match(protectedPattern) ?? []; }
 export function validTranslation(source: string, translated: unknown): translated is string {
   if (typeof translated !== 'string' || !translated.trim() || translated.length > 4000) return false;
