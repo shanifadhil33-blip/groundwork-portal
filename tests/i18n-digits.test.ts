@@ -10,3 +10,7 @@ it('order codes with several parts stay as data', () => {
   const r = parseTranslations(JSON.stringify({ [src]: 'قام Imran بتحديث طلب المورد COBALT-DEMO-4 لفحص إضاءة الطوارئ · تم الطلب' }), [src]);
   expect(r?.[src]).toContain('COBALT-DEMO-4');
 });
+it('reads the Persian and Arabic decimal and thousands marks as . and ,', () => {
+  expect(asciiDigits('AED ۸۵۰٫۰۰')).toBe('AED 850.00');
+  expect(asciiDigits('AED ۷٬۶۸۰٫۰۰')).toBe('AED 7,680.00');
+});

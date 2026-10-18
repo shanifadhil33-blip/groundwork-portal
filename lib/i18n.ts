@@ -63,7 +63,7 @@ export function validTranslation(source: string, translated: unknown, lang?: str
 const NATIVE_DIGITS = /[\u0660-\u0669\u06F0-\u06F9\u0966-\u096F\u09E6-\u09EF\u0BE6-\u0BEF\u0D66-\u0D6F\u1369-\u1371]/g;
 const DIGIT_BASES = [0x0660, 0x06F0, 0x0966, 0x09E6, 0x0BE6, 0x0D66];
 export function asciiDigits(text: string): string {
-  return text.replace(NATIVE_DIGITS, ch => { const c = ch.codePointAt(0)!; if (c >= 0x1369) return String(c - 0x1368); const base = DIGIT_BASES.find(b => c >= b && c <= b + 9)!; return String(c - base); });
+  return text.replace(/(?<=[\d\u0660-\u0669\u06F0-\u06F9])\u066B(?=[\d\u0660-\u0669\u06F0-\u06F9])/g, '.').replace(/(?<=[\d\u0660-\u0669\u06F0-\u06F9])\u066C(?=[\d\u0660-\u0669\u06F0-\u06F9])/g, ',').replace(NATIVE_DIGITS, ch => { const c = ch.codePointAt(0)!; if (c >= 0x1369) return String(c - 0x1368); const base = DIGIT_BASES.find(b => c >= b && c <= b + 9)!; return String(c - base); });
 }
 export function parseTranslations(text: string, sources: string[], lang?: string): Record<string, string> | null {
   let value: unknown;
