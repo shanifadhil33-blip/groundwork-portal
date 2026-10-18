@@ -13,7 +13,7 @@ it('one company space reaches technician and office staff in list bell and Agent
  for(const user of [ids.ravi,ids.nabil,ids.imran])expect((await listTeamMessages(user,ids.ridgeline)).data.some(m=>m.id===sent.id)).toBe(true);
  expect((await unreadMessages(ids.ravi,ids.ridgeline)).team_unread_count).toBe(1);
  expect((await listNotifications(ids.ravi,ids.ridgeline,new URLSearchParams('pageSize=100'))).data.some(n=>n.kind==='team_message'&&n.link_target?.entity==='team_space')).toBe(true);
- const attention=await callTool({user:ids.ravi,ws:ids.ridgeline,kind:'assistant',scope:'read'},'needs_attention',{});expect((attention.structuredContent as any).result.summary).toContain('1 new messages in Team space');
+ const attention=await callTool({user:ids.ravi,ws:ids.ridgeline,kind:'assistant',scope:'read'},'needs_attention',{});expect((attention.structuredContent as any).result.summary).toContain('1 new message in Team space');
  await markThreadRead(ids.ravi,ids.ridgeline,{conversation_id:team.id,through:sent.created_at.toISOString(),through_id:sent.id});expect((await unreadMessages(ids.ravi,ids.ridgeline)).team_unread_count).toBe(0);
 });
 it('clients households and other workspaces cannot read or send, including raw RLS and route',async()=>{
