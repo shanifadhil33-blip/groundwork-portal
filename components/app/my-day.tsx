@@ -6,6 +6,10 @@ import Link from 'next/link';
 import { useEffect,useRef,useState } from 'react';
 import { AssistantComposer } from './assistant';
 import { Greeting } from './greeting';
+import { MyAgentQuestions } from './agent-questions';
+import { useUiLang } from './use-ui-lang';
+import type { ReactNode } from 'react';
+import { formatInLang } from '../../lib/date-lang';
 import { CheckCircle2, MapPin, Phone, Play } from 'lucide-react';
 import { PageHeader } from '../ui/layout';
 import { Badge, Button, Dialog, EmptyState, ErrorState, Skeleton, useToast } from '../ui';
@@ -28,8 +32,8 @@ export function nextStep(status: string): { to: string; label: string } | null {
   if (status === 'in_progress') return { to: 'done', label: 'Done' };
   return null;
 }
-const time = (v: string | null, tz: string) => v ? new Intl.DateTimeFormat('en', { hour: 'numeric', minute: '2-digit', timeZone: tz }).format(new Date(v)) : '';
-const day = (v: string | null, tz: string) => v ? new Intl.DateTimeFormat('en', { weekday: 'short', day: 'numeric', month: 'short', timeZone: tz }).format(new Date(v)) : '';
+const time = (v: string | null, tz: string, lang?: string) => v ? formatInLang(v, { hour: 'numeric', minute: '2-digit', timeZone: tz }, lang) : '';
+const day = (v: string | null, tz: string, lang?: string) => v ? formatInLang(v, { weekday: 'short', day: 'numeric', month: 'short', timeZone: tz }, lang) : '';
 const mapUrl = (j: Job) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([j.building, j.address, j.area].filter(Boolean).join(', ') || j.site_name)}`;
 
 type Outcome = 'fixed' | 'temporary' | 'needs_part' | 'cant_fix';
@@ -77,7 +81,7 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
   </Dialog>;
 }
 
-function JobCard({ j:original, tz, base, onDone, onFinished, when, primary=false,selection }: { selection?:ReturnType<typeof useSelection>;primary?: boolean; j: Job; tz: string; base: string; onDone: () => void; onFinished: (o: Outcome, r: JobRecord) => void; when: string }) {
+function JobCard({ j:original, tz, base, onDone, onFinished, when, primary=false,selection }: { selection?:ReturnType<typeof useSelection>;primary?: boolean; j: Job; tz: string; base: string; onDone: () => void; onFinished: (o: Outcome, r: JobRecord) => void; when: ReactNode }) {
   const [optimistic,setOptimistic]=useState<string|null>(null);const j=optimistic?{...original,status:optimistic}:original;
   useEffect(()=>setOptimistic(null),[original.updated_at]);
   const step = nextStep(j.status), [busy, setBusy] = useState(false), [confirm, setConfirm] = useState(false), toast = useToast();
@@ -115,21 +119,22 @@ export function MyDay() {
   const rec = useResource<JobRecord>(member && member.role !== 'client' ? `${base}/members/${me.user.id}/record` : null);
   const [done, setDone] = useState<{ outcome: Outcome; record: JobRecord } | null>(null);
   const selection=useSelection([...(d.data?.today??[]),...(d.data?.late??[]),...(d.data?.next??[])].map(j=>j.id),[{label:'Open job',available:ids=>ids.length===1,run:ids=>{window.location.href=`/work-orders/${ids[0]}`;}}]);
+  const lang = useUiLang();
   if (member?.role === 'client') return <NoAccess />;
   const data = d.data, tz = data?.timezone ?? 'Asia/Dubai', reload = () => { void d.reload(); void rec.reload(); };
   const primaryJob = [...(data?.today??[]),...(data?.late??[])].find(j=>j.status==='in_progress')??[...(data?.today??[]),...(data?.late??[])].find(j=>nextStep(j.status));
   const finished = (outcome: Outcome, record: JobRecord) => setDone({ outcome, record });
   return <div className="page stack my-day">
-    {selection.bar}<Greeting tz={tz}/><PageHeader><div><h1>Today</h1><p>{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }).format(new Date())}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div>{data&&!primaryJob&&<Link className="button primary" href="/work-orders">View jobs</Link>}</PageHeader><Link className="button secondary" href="/suggestions/new">Suggest a job</Link>
+    {selection.bar}<Greeting tz={tz}/><PageHeader><div><h1>Today</h1><p data-no-translate>{formatInLang(new Date(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }, lang)}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div>{data&&!primaryJob&&<Link className="button primary" href="/work-orders">View jobs</Link>}</PageHeader>{member?.workspace_id&&<MyAgentQuestions base={base}/>}<Link className="button secondary" href="/suggestions/new">Suggest a job</Link>
     {member?.role === 'technician' && <AgentCard />}
     {member && <div className="row"><RequestTimeOff base={`/api/workspaces/${member.workspace_id}`} /></div>}
     {member && <LeaveRequests base={`/api/workspaces/${member.workspace_id}`} self={me.user.id} />}
     {done && <DoneMoment outcome={done.outcome} record={done.record} onClose={() => setDone(null)} />}
     {d.loading ? <Skeleton className="skeleton-card" /> : d.error || !data ? <ErrorState retry={d.reload} /> : <>
-      {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={`Due ${day(j.due_on, tz)}`} />)}</ul></section>}
-      <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={time(j.scheduled_for, tz)} />)}</ul>
-        : <EmptyState title={data.done ? 'All done for today' : 'No jobs today'}>{data.next[0] ? `Next: ${data.next[0].title}, ${day(data.next[0].scheduled_for, tz)}.` : 'When the office gives you a job, it shows here.'}</EmptyState>}</section>
-      {data.next.length > 0 && <section className="stack compact"><h2>Next days</h2><ul className="day-list">{data.next.map(j => <li key={j.id} className="day-next" {...selection.row(j.id)}>{selection.mark(j.id)}<Link href={`/work-orders/${j.id}`}><strong>{day(j.scheduled_for, tz)}</strong> {time(j.scheduled_for, tz)} · {j.title}</Link></li>)}</ul></section>}
+      {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<>Due <span data-no-translate>{day(j.due_on, tz, lang)}</span></>} />)}</ul></section>}
+      <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<span data-no-translate>{time(j.scheduled_for, tz, lang)}</span>} />)}</ul>
+        : <EmptyState title={data.done ? 'All done for today' : 'No jobs today'}>{data.next[0] ? `Next: ${data.next[0].title}, ${day(data.next[0].scheduled_for, tz, 'en')}.` : 'When the office gives you a job, it shows here.'}</EmptyState>}</section>
+      {data.next.length > 0 && <section className="stack compact"><h2>Next days</h2><ul className="day-list">{data.next.map(j => <li key={j.id} className="day-next" {...selection.row(j.id)}>{selection.mark(j.id)}<Link href={`/work-orders/${j.id}`}><strong data-no-translate>{day(j.scheduled_for, tz, lang)}</strong> <span data-no-translate>{time(j.scheduled_for, tz, lang)}</span> · {j.title}</Link></li>)}</ul></section>}
       <p className="small"><Link href="/work-orders">All my jobs</Link></p>
     </>}
   </div>;

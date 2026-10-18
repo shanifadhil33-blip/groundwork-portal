@@ -65,6 +65,17 @@ const DIGIT_BASES = [0x0660, 0x06F0, 0x0966, 0x09E6, 0x0BE6, 0x0D66];
 export function asciiDigits(text: string): string {
   return text.replace(/(?<=[\d\u0660-\u0669\u06F0-\u06F9])\u066B(?=[\d\u0660-\u0669\u06F0-\u06F9])/g, '.').replace(/(?<=[\d\u0660-\u0669\u06F0-\u06F9])\u066C(?=[\d\u0660-\u0669\u06F0-\u06F9])/g, ',').replace(NATIVE_DIGITS, ch => { const c = ch.codePointAt(0)!; if (c >= 0x1369) return String(c - 0x1368); const base = DIGIT_BASES.find(b => c >= b && c <= b + 9)!; return String(c - base); });
 }
+/** The script each language is written in. A model sometimes answers Malayalam in Devanagari ("सुप्रभातम्"); such a
+ * translation is refused. Latin letters are always allowed (names, codes, brand words). */
+const SCRIPTS: Record<string, RegExp> = { 'ar-AE': /\p{Script=Arabic}/u, ur: /\p{Script=Arabic}/u, ps: /\p{Script=Arabic}/u, 'fa-AF': /\p{Script=Arabic}/u, 'fa-IR': /\p{Script=Arabic}/u,
+  hi: /\p{Script=Devanagari}/u, ne: /\p{Script=Devanagari}/u, bn: /\p{Script=Bengali}/u, ml: /\p{Script=Malayalam}/u, ta: /\p{Script=Tamil}/u,
+  am: /\p{Script=Ethiopic}/u, ti: /\p{Script=Ethiopic}/u, 'zh-CN': /\p{Script=Han}/u };
+export function rightScript(text: string, lang?: string): boolean {
+  const script = lang ? SCRIPTS[lang] : undefined;
+  if (!script) return true;
+  for (const ch of text.match(/\p{L}/gu) ?? []) if (!/\p{Script=Latin}|\p{Script=Common}|\p{Script=Inherited}/u.test(ch) && !script.test(ch)) return false;
+  return true;
+}
 export function parseTranslations(text: string, sources: string[], lang?: string): Record<string, string> | null {
   let value: unknown;
   try { value = JSON.parse(text.trim().replace(/^```(?:json)?\s*|\s*```$/g, '')); } catch { return null; }
@@ -73,7 +84,7 @@ export function parseTranslations(text: string, sources: string[], lang?: string
   for (const source of sources) {
     const raw = Object.hasOwn(value, source) ? (value as Record<string, unknown>)[source] : undefined;
     const translated = typeof raw === 'string' ? plainHyphens(asciiDigits(raw)) : raw;
-    if (validTranslation(source, translated, lang)) out[source] = translated.trim();
+    if (validTranslation(source, translated, lang) && rightScript(translated, lang)) out[source] = translated.trim();
   }
   return Object.keys(out).length ? out : null;
 }
@@ -83,7 +94,7 @@ export function readTranslationCache(raw: string | null, lang?: string): Record<
     const value: unknown = JSON.parse(raw ?? '{}');
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       for (const [source, translated] of Object.entries(value).slice(-5000)) {
-        if (translationSource(source) && validTranslation(source, translated, lang)) out[source] = translated;
+        if (translationSource(source) && validTranslation(source, translated, lang) && rightScript(translated, lang)) out[source] = translated;
       }
     }
   } catch { /* A broken or unavailable cache must not prevent navigation. */ }

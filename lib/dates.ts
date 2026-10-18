@@ -1,3 +1,4 @@
+import { formatInLang } from './date-lang';
 // Calendar dates are kept as YYYY-MM-DD, never interpreted in the browser timezone.
 export const workspaceTimezone = 'Asia/Dubai';
 export function localDate(value: string | Date | number, timezone = workspaceTimezone): string {
@@ -10,10 +11,11 @@ export function localDate(value: string | Date | number, timezone = workspaceTim
  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(date);
  return ['year','month','day'].map(key => parts.find(part => part.type === key)?.value).join('-');
 }
-export function formatDate(value: string | Date, timezone = workspaceTimezone, short = false): string {
+/** lang: English inside English sentences (the translator turns the whole sentence); the person's language for a date shown on its own (LANG01 slice 2). */
+export function formatDate(value: string | Date, timezone = workspaceTimezone, short = false, lang = 'en'): string {
  const day = localDate(value, timezone);
  if (!day) return 'Unknown date';
- return new Intl.DateTimeFormat('en', {timeZone:'UTC',month:'short',day:'numeric',...(!short || day.slice(0,4) !== localDate(Date.now(),timezone).slice(0,4) ? {year:'numeric' as const} : {})}).format(new Date(`${day}T12:00:00Z`));
+ return formatInLang(new Date(`${day}T12:00:00Z`), {timeZone:'UTC',month:'short',day:'numeric',...(!short || day.slice(0,4) !== localDate(Date.now(),timezone).slice(0,4) ? {year:'numeric' as const} : {})}, lang);
 }
 export function isOverdue(order: {due_on?: string | null; status:string}, now: number | Date = Date.now(), timezone = workspaceTimezone): boolean {
  return !!order.due_on && order.due_on < localDate(now, timezone) && !['done','cancelled'].includes(order.status);

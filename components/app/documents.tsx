@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
+import { formatInLang } from '../../lib/date-lang';
 import { FileText, Plus, Upload } from 'lucide-react';
 import { Badge, Button, Card, ConfirmDialog, Dialog, Dropdown, EmptyState, ErrorState, Skeleton, useToast } from '../ui';
 import { DatePicker } from '../ui/lazy-date-picker';
@@ -20,7 +21,7 @@ function expiryBadge(d: Pick<Doc, 'days_left'>) {
   if (d.days_left <= 30) return <Badge tone="warning">{d.days_left === 1 ? 'Expires tomorrow' : `Expires in ${d.days_left} days`}</Badge>;
   return <Badge tone="success">Valid</Badge>;
 }
-const show = (iso: string | null) => iso ? new Date(iso + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set';
+const show = (iso: string | null) => iso ? <span data-no-translate>{formatInLang(new Date(iso + 'T00:00:00'), { day: 'numeric', month: 'short', year: 'numeric' })}</span> : 'Not set';
 
 async function readFile(file: File) {
   if (file.size > LIMIT) throw new Error('This file is bigger than 1 MB. Try a smaller scan or a photo.');

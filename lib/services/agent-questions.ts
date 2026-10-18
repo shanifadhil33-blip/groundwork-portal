@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ApiError } from '../http';
-import { allowTeam, inWorkspace, uuid } from './shared';
+import { allowTeam, inWorkspace, isOfficeStaff, uuid } from './shared';
 import { sendPush } from './push';
 import { withSystem } from '../db';
 // TEAM09: the Agent never guesses on something it is unsure about. It asks a supervisor, who approves or fixes in one tap.
@@ -17,11 +17,13 @@ export async function askSupervisor(user: string, ws: string, body: unknown) {
   await sendPush(sups, { title: 'Agent needs your call', body: d.question.slice(0, 160), url: '/dashboard', tag: `ask-${row.id}` });
   return { id: row.id, status: 'open', message: 'Sent to your supervisor. Nothing changes until they answer.' };
 }
-export async function listAgentQuestions(user: string, ws: string) {
+/** Supervisors and admins see every open question; everyone else (office staff, technicians), or a lead asking for
+ * mine, sees only his own recent questions with their answers, so the answer also waits in the app, not only in a push. */
+export async function listAgentQuestions(user: string, ws: string, mine = false) {
   return inWorkspace(user, ws, async c => {
-    const staff = ['admin', 'staff'].includes(c.role);
-    const rows = (await c.db.query(`SELECT q.*, u.name AS asked_by_name, w.order_number, w.title AS job_title FROM agent_questions q LEFT JOIN LATERAL visible_user(q.asked_by) u ON true LEFT JOIN work_orders w ON w.id=q.work_order_id
-      WHERE q.workspace_id=$1 AND ${staff ? "q.status='open'" : 'q.asked_by=$2'} ORDER BY q.created_at DESC LIMIT 20`, staff ? [ws] : [ws, user])).rows;
+    const lead = ['admin', 'staff'].includes(c.role) && !isOfficeStaff(c) && !mine;
+    const rows = (await c.db.query(`SELECT q.*, u.name AS asked_by_name, v.name AS decided_by_name, w.order_number, w.title AS job_title FROM agent_questions q LEFT JOIN LATERAL visible_user(q.asked_by) u ON true LEFT JOIN LATERAL visible_user(q.decided_by) v ON true LEFT JOIN work_orders w ON w.id=q.work_order_id
+      WHERE q.workspace_id=$1 AND ${lead ? "q.status='open'" : "q.asked_by=$2 AND (q.status='open' OR q.decided_at > now() - interval '3 days')"} ORDER BY q.created_at DESC LIMIT ${lead ? 20 : 5}`, lead ? [ws] : [ws, user])).rows;
     return { data: rows };
   });
 }

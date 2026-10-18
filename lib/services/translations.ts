@@ -3,7 +3,7 @@ import { withFallback, stripThinking, aiCallsToday } from '../ai';
 import { withSystem, withUser } from '../db';
 import { LANGUAGES } from '../languages';
 import { designCopyFallbacks } from '../ui/design-copy';
-import { isEnglish, parseTranslations, translationRequest, validTranslation } from '../i18n';
+import { isEnglish, parseTranslations, rightScript, translationRequest, validTranslation } from '../i18n';
 
 /** Product names stay as they are in every language (Arabic machine translation turned Agent into "employee"). */
 export const KEEP_AS_IS = new Set(['Agent', 'Groundwork']);
@@ -24,7 +24,7 @@ export async function translateUi(user: string, body: unknown, privateThread?:Pr
   )).rows);
   const translations: Record<string, string> = Object.create(null);
   for (const s of sources) if (KEEP_AS_IS.has(s.trim())) translations[s] = s;
-  for (const row of cached) if (!Object.hasOwn(translations, row.source) && sources.includes(row.source) && validTranslation(row.source, row.translated, lang)) translations[row.source] = row.translated;
+  for (const row of cached) if (!Object.hasOwn(translations, row.source) && sources.includes(row.source) && validTranslation(row.source, row.translated, lang) && rightScript(row.translated, lang)) translations[row.source] = row.translated;
   const misses = sources.filter(s => !Object.hasOwn(translations, s));
   if (!misses.length) return { translations };
   if (cached_only) return { translations, missing: misses.length };

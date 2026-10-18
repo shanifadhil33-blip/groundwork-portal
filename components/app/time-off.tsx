@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { formatInLang } from '../../lib/date-lang';
 import { Button, Dialog, useToast } from '../ui';
 import { request, RequestError } from '../../lib/ui/api';
 import { useResource } from './resource';
@@ -9,7 +10,7 @@ const KINDS = [{ v: 'leave', label: 'On leave' }, { v: 'sick', label: 'Sick' }, 
 const kindLabel = (k: string) => KINDS.find(x => x.v === k)?.label ?? k;
 type Person = { user_id: string; name: string | null; role: string; off_days?: number[] };
 type Entry = { id: string; user_id: string; name: string | null; kind: string; starts_on: string; ends_on: string; note: string | null };
-const nice = (d: string) => new Intl.DateTimeFormat('en', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${d}T00:00:00Z`));
+const nice = (d: string) => formatInLang(new Date(`${d}T00:00:00Z`), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
 const today = () => new Date().toLocaleDateString('sv');
 
 /** Weekly days off. Tap a day to turn it on or off. Jobs are never given to someone on his day off. */
@@ -39,7 +40,7 @@ export function LeaveCalendar({ base, people, readOnly }: { base: string; people
   async function remove(id: string) { try { await request(`${base}/time-off/${id}`, { method: 'DELETE' }); void list.reload(); toast('Removed.'); } catch { toast('That did not save. Try again.'); } }
   const rows = list.data?.time_off ?? [];
   return <section className="stack compact card leave-calendar"><div className="heading-row"><h2>Leave</h2>{!readOnly && <Button variant="secondary" onClick={() => { setWho(workers[0]?.user_id ?? ''); setFrom(today()); setTo(today()); setKind('leave'); setOpen(true); }}>Add leave</Button>}</div>
-    {rows.length ? <ul className="timeoff-list">{rows.map(e => <li key={e.id}><span><strong>{e.name ?? 'Team member'}</strong> · {kindLabel(e.kind)}{(e as Entry & { status?: string }).status === 'pending' ? ' (waiting)' : ''} · {e.starts_on === e.ends_on ? nice(e.starts_on) : `${nice(e.starts_on)} to ${nice(e.ends_on)}`}</span>{!readOnly && <Button variant="secondary" onClick={() => void remove(e.id)} aria-label={`Remove leave for ${e.name ?? 'them'}`}>Remove</Button>}</li>)}</ul>
+    {rows.length ? <ul className="timeoff-list">{rows.map(e => <li key={e.id}><span><strong>{e.name ?? 'Team member'}</strong> · {kindLabel(e.kind)}{(e as Entry & { status?: string }).status === 'pending' ? ' (waiting)' : ''} · {e.starts_on === e.ends_on ? <span data-no-translate>{nice(e.starts_on)}</span> : <><span data-no-translate>{nice(e.starts_on)}</span> to <span data-no-translate>{nice(e.ends_on)}</span></>}</span>{!readOnly && <Button variant="secondary" onClick={() => void remove(e.id)} aria-label={`Remove leave for ${e.name ?? 'them'}`}>Remove</Button>}</li>)}</ul>
       : <p className="small muted">Nobody is away. Add leave here, and jobs are not given to that person on those days.</p>}
     <Dialog open={open} onClose={() => setOpen(false)} busy={busy} title="Add leave" footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} onClick={add}>Save</Button></>}>
       <div className="stack compact">
