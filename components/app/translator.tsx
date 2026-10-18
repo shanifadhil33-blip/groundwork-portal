@@ -45,7 +45,8 @@ export function Translator() {
     const attempted = new Set<string>();
     const pending = new Set<string>();
     const abort = new AbortController();
-    let stopped = false, running = false;
+    let stopped = false, running = false, aiRunning = false;
+    const aiQueue = new Set<string>();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const options: MutationObserverInit = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...TRANSLATION_ATTRIBUTES, 'data-no-translate', 'contenteditable'] };
     const observer = new MutationObserver(() => schedule());
@@ -106,6 +107,21 @@ export function Translator() {
       clearTimeout(timer);
       timer = setTimeout(scan, 120);
     }
+    async function ask(strings: string[], cachedOnly: boolean) {
+      const response = await fetch('/api/i18n/translate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang: language, strings, ...(cachedOnly ? { cached_only: true } : {}) }), signal: abort.signal,
+      });
+      if (!response.ok || stopped) return;
+      const result = await response.json();
+      if (stopped) return;
+      const received = readTranslationCache(JSON.stringify(result.translations), language);
+      for (const source of strings) if (Object.hasOwn(received, source)) cache[source] = received[source];
+      try { localStorage.setItem(key, JSON.stringify(Object.fromEntries(Object.entries(cache).slice(-5000)))); } catch { /* Keep the in memory cache. */ }
+      scan();
+    }
+    // Saved words first (fast, no AI). New words go to a separate AI queue, so a slow AI call never holds back
+    // saved words that appear later on the screen (a card that loads after the page).
     async function flush() {
       if (running || stopped || !pending.size) return;
       running = true;
@@ -113,26 +129,22 @@ export function Translator() {
         while (pending.size && !stopped) {
           const strings = [...pending].slice(0, 200);
           for (const source of strings) { pending.delete(source); attempted.add(source); }
-          try {
-            // Saved words first (fast, no AI), then only the new ones, so a new word never holds back the rest of the screen.
-            for (const cachedOnly of [true, false]) {
-              const ask = cachedOnly ? strings : strings.filter(x => !Object.hasOwn(cache, x));
-              if (!ask.length) break;
-              const response = await fetch('/api/i18n/translate', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ lang: language, strings: ask, ...(cachedOnly ? { cached_only: true } : {}) }), signal: abort.signal,
-              });
-              if (!response.ok) continue;
-              const result = await response.json();
-              if (stopped) return;
-              const received = readTranslationCache(JSON.stringify(result.translations), language);
-              for (const source of ask) if (Object.hasOwn(received, source)) cache[source] = received[source];
-              try { localStorage.setItem(key, JSON.stringify(Object.fromEntries(Object.entries(cache).slice(-5000)))); } catch { /* Keep the in memory cache. */ }
-              scan();
-            }
-          } catch { /* Keep English when offline or when translation is unavailable. */ }
+          try { await ask(strings, true); } catch { /* Keep English when offline or when translation is unavailable. */ }
+          for (const source of strings) if (!Object.hasOwn(cache, source)) aiQueue.add(source);
+          void flushAi();
         }
       } finally { running = false; quiet(false); }
+    }
+    async function flushAi() {
+      if (aiRunning || stopped || !aiQueue.size) return;
+      aiRunning = true;
+      try {
+        while (aiQueue.size && !stopped) {
+          const strings = [...aiQueue].slice(0, 200);
+          for (const source of strings) aiQueue.delete(source);
+          try { await ask(strings, false); } catch { /* Keep English when offline or when translation is unavailable. */ }
+        }
+      } finally { aiRunning = false; }
     }
     scan();
     return () => {
