@@ -12,7 +12,7 @@ if (offer) {
   const p = await s.api.post(`${A}/agent-questions`, { data: { question: offer.question, proposed: offer.proposed, ...(offer.work_order_id ? { work_order_id: offer.work_order_id } : {}) } }); res.post = { st: p.status(), body: await p.json().catch(() => ({})) };
   const who = offer.to_name === 'Imran' ? 'imran' : 'sam'; await s.as(who);
   const list = await (await s.api.get(`${A}/agent-questions`)).json(); const rows = list.data ?? list.questions ?? list;
-  res.seenBy = { who, found: JSON.stringify(rows).includes(offer.question.slice(0, 40)) };
+  res.seenBy = { who, found: (Array.isArray(rows) ? rows : []).some(q => q.question === offer.question) };
 }
 fs.mkdirSync('/workspace/qa/agent11-live', { recursive: true }); fs.writeFileSync('/workspace/qa/agent11-live/report.json', JSON.stringify(res, null, 1)); console.log(JSON.stringify(res, null, 1));
 await s.as('imran');
