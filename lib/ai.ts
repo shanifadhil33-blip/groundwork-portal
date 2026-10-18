@@ -137,7 +137,7 @@ export function toGeminiSchema(schema:unknown):unknown {
  return visit(schema);
 }
 export type AssistantMessage={role:'user'|'assistant';content:string}|{role:'call';name:string;args:unknown;id:string;raw?:unknown[]}|{role:'result';name:string;result:unknown;id:string};
-export type AssistantTurn={text?:string;calls:{name:string;args:unknown;id:string}[];raw?:unknown[]};
+export type AssistantTurn={text?:string;calls:{name:string;args:unknown;id:string}[];raw?:unknown[];provider?:string};
 function geminiContents(history:AssistantMessage[]) {
  const contents:{role:string;parts:unknown[]}[]=[];
  for(const m of history){
@@ -178,12 +178,12 @@ export async function assistantTurn(history: AssistantMessage[], declarations:{n
    const calls=parts.filter((v:any)=>v.functionCall).map((v:any,i:number)=>({name:v.functionCall.name,args:v.functionCall.args??{},id:String(i)}));
    // Thinking parts are the model's private notes and must never reach the user.
    const text=stripThinking(parts.filter((v:any)=>typeof v.text==='string'&&!v.thought).map((v:any)=>v.text).join('\n'));
-   return (!text||META.test(text))&&!calls.length?null:{text,calls,raw:parts};}
+   return (!text||META.test(text))&&!calls.length?null:{text,calls,raw:parts,provider:p.name};}
   const message=data?.choices?.[0]?.message;if(!message)return null;
   let calls:AssistantTurn['calls'];
   try{calls=(message.tool_calls??[]).map((v:any)=>({name:v.function.name,args:typeof v.function.arguments==='string'?JSON.parse(v.function.arguments||'{}'):v.function.arguments??{},id:v.id??String(Math.random())}));}catch{return null;}
   const content=typeof message.content==='string'?stripThinking(message.content):'';
-  return (!content||META.test(content))&&!calls.length?null:{text:content||undefined,calls};
+  return (!content||META.test(content))&&!calls.length?null:{text:content||undefined,calls,provider:p.name};
  },{timeout:15000,deadline:Math.max(2000,deadline)});
 }
 
