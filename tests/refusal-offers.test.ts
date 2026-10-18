@@ -101,3 +101,13 @@ it('AGENT11: a technician and a supervisor are offered the changes they may not 
  const client=await withSystem(async db=>(await db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND role='client' AND archived_at IS NULL LIMIT 1",[ws])).rows[0]?.user_id);
  if(client){const c=await names(client);for(const t of ['assign_work_order','set_priority','set_job_payment','create_client'])expect(c.tools).not.toContain(t);}
 });
+it('AGENT11: when the model refuses in its own words without a tool call, a technician still gets an offer with his own words; a lookup miss or a client gets none',async()=>{
+ const text=(t:string)=>{vi.mocked(assistantTurn).mockReset();vi.mocked(assistantTurn).mockResolvedValueOnce({calls:[],text:t} as any);};
+ text("I'm not able to change a work order's priority. A supervisor can do it.");
+ const r=await ask(ids.ravi,'Change the priority of WO 1 to urgent');
+ expect(r.offers?.[0]).toMatchObject({to_name:'Sam',label:'Ask Sam'});
+ expect(r.offers[0].question).toContain('Change the priority of WO 1 to urgent');expect(r.offers[0].question).not.toMatch(/[-\u2013\u2014]/);
+ text("I can't find WO 999. Check the number.");expect((await ask(ids.ravi,'Open WO 999')).offers).toBeUndefined();
+ const client=await withSystem(async db=>(await db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND role='client' AND archived_at IS NULL LIMIT 1",[ws])).rows[0]?.user_id);
+ if(client){text('Only an admin can change that.');expect((await ask(client,'Change the price')).offers).toBeUndefined();}
+});

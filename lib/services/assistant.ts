@@ -47,6 +47,7 @@ const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant
 export async function assistant(user:string,ws:string,body:unknown) {
  const offers:RefusalOffer[]=[];
  const result=await assistantInner(user,ws,body,offers);
+ if(!offers.length)await refusedOnItsOwn(user,ws,body,result,offers).catch(()=>undefined);
  const r=offers.length?{...result,offers}:result;
  const last=(body as {messages?:{role:string;content:string}[]})?.messages?.filter(m=>m.role==='user').at(-1)?.content;
  const sos=(body as {confirm_action_id?:string})?.confirm_action_id?null:safetyLine(last);
@@ -198,4 +199,24 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   }
  }
  return {available:true,reply:'I reached the limit for workspace actions. Please ask a more specific question.'};
+}
+
+/** AGENT11 fallback: a free model sometimes refuses in its own words without calling the tool, so no refusal offer was made.
+ * When a technician or supervisor gets such a refusal with no card, offer to ask his supervisor (or the owner admin), with his own words. */
+const OWN_REFUSAL=/\b(?:(?:not able to|unable to|can(?:no|')t|cannot) (?:directly )?(?:change|update|assign|reassign|give|move|set|mark|edit|approve|decide|add|delete|remove)|permission|not allowed|only (?:a |an |your )?(?:supervisors?|admins?))/i;
+async function refusedOnItsOwn(user:string,ws:string,body:unknown,result:unknown,offers:RefusalOffer[]){
+ const r=result as {reply?:unknown;pending_action?:unknown};
+ const asked=(body as {messages?:{role:string;content:string}[]})?.messages?.filter(m=>m.role==='user').at(-1)?.content?.trim();
+ if(!asked||typeof r?.reply!=='string'||r.pending_action||!OWN_REFUSAL.test(r.reply.replace(/’/g,"'")))return;
+ const me=await inWorkspace(user,ws,async x=>({role:x.role,office:x.role==='staff'&&x.staff_kind==='office',name:String((await x.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'')}));
+ if(!['technician','staff'].includes(me.role))return;
+ const admin=me.role==='staff'&&!me.office;
+ const people=(await withSystem(db=>db.query(`SELECT user_id FROM members WHERE workspace_id=$1 AND user_id<>$2 AND archived_at IS NULL
+  AND ${admin?"role='admin'":"(role='staff' AND coalesce(staff_kind,'')<>'office' OR role='admin' AND is_owner)"}
+  ORDER BY ${admin?'is_owner DESC':"(role='staff') DESC"},created_at,user_id`,[ws,user]))).rows;
+ const contacts=await listContactNames(user,ws);
+ const person=people.map(p=>contacts.find(c=>c.user_id===p.user_id)).find(p=>p?.name.trim());
+ if(!person)return;
+ const said=plainAssistantReply(asked).slice(0,250);
+ offers.push({to_name:person.name,label:`Ask ${person.name}`,question:`${me.name||'A team member'} asked the Agent: "${said}". The Agent could not do it for his role. Can you help?`.slice(0,1000),proposed:said});
 }
