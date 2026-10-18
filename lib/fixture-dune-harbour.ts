@@ -127,6 +127,8 @@ export async function populateDuneHarbour(db:PoolClient,ws:string,expires:'6 hou
   {client:'clinic',site:'clinic',title:'Server room AC check',description:'Monthly check of the server room AC under the contract.',status:'done',trade:'ac',tech:'ramon',visit:at(-3,8),due:-3,by:'joseph',created:-6,report:['fixed','No fault. Monthly check.','Cleaned the filters and checked the temperature.'],paid:'contract'},
   {client:'faisal',site:'faisal',title:'Washing machine tap leaking',description:'Voice note: the tap behind the washing machine leaks.',status:'done',trade:'plumbing',tech:'dipendra',visit:at(-6,17),due:-6,by:'faisal',created:-7,report:['fixed','The tap washer was worn.','Changed the washer.'],paid:'paid'},
  ];
+ // Oldest first, so job numbers follow the order the work came in.
+ jobs.sort((a,b)=>a.created-b.created);
  const ids:string[]=[];
  for(const j of jobs){
   const actor=id[j.by??'nabil'];await db.query("SELECT set_config('app.user_id',$1,true)",[actor]);
