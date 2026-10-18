@@ -42,6 +42,8 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
  useEffect(()=>{if(!restored||!ask||ask.n===asked.current)return;asked.current=ask.n;submit(ask.text);});
  function submit(value=input){const text=value.trim();if(!text||busy||pending||failed)return;setChoices([]);const next=[...messages,{role:'user' as const,content:text}];setMessages(next);setInput('');void send({messages:next.slice(-30)});}
  function change(){
+  // The log keeps that he said no. Nothing changes either way, so a failed save never blocks him.
+  if(pending)void post(`/api/workspaces/${ws}/assistant/log/${pending.id}/decline`,{}).then(()=>window.dispatchEvent(new Event('groundworkAgentLog'))).catch(()=>undefined);
   setPending(null);setFailed(null);setError('');setChoices([]);
   setInput([...messages].reverse().find(m=>m.role==='user')?.content??'');
   setMessages(m=>[...m,{role:'assistant',content:'No change was made. Tell me what to change.'}]);

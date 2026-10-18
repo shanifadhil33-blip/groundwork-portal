@@ -18,7 +18,7 @@ import { listAgentLearning } from './agent-learning';
 import { needsAttention } from './attention';
 import { tools,callTool,type AgentContext } from '../agent/tools';
 import { allowedTool } from '../agent/role-tools';
-import { jobSnapshot,recordSnapshot,whyNote } from './agent-log';
+import { jobSnapshot,logRefusal,recordSnapshot,REFUSAL_REASON,whyNote } from './agent-log';
 import { contractNote,contractUse } from './payments';
 /** The client or site a record write touches: its name for the card, and the current values to show what changes. */
 /** The record a client or site tool acts on, with the country its labels and formats follow. */
@@ -57,6 +57,7 @@ async function assistantInner(user:string,ws:string,body:unknown) {
   const a=(await x.db.query('SELECT * FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND id=$3 FOR UPDATE',[ws,user,d.confirm_action_id])).rows[0];
   if(!a)throw missing();
   if(a.consumed_at)throw new ApiError(409,'consumed','This action has already been confirmed.');
+  if(a.declined_at)throw new ApiError(409,'declined','You said no to this one. Ask Agent again.');
   if(new Date(a.expires_at)<=new Date())throw new ApiError(409,'expired','This action has expired. Ask Agent again.');
   // Shared services reuse this same app-role transaction: write and consume commit together.
   const previous=['update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','add_comment','assign_work_order','set_job_trade','set_job_payment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
@@ -68,7 +69,10 @@ async function assistantInner(user:string,ws:string,body:unknown) {
   const order=result.isError?null:previous??(['create_request','approve_queue_row'].includes(a.tool)?value.result:null);
   // Decision log: outcome, and for a new job its id so Undo can cancel it.
   const created=a.tool==='create_request'&&!result.isError&&value?.result?.order_number?{id:value.result.id}:null;
-  await x.db.query('UPDATE assistant_actions SET consumed_at=now(), outcome=$2, before=coalesce($3::jsonb,before) WHERE id=$1',[a.id,result.isError?'failed':'done',created?JSON.stringify(created):null]);
+  // Decision log: the job or record as it is after the change, so the log shows what moved.
+  let after:unknown=null;
+  if(!result.isError){try{after=record?.record?recordSnapshot(a.tool,a.args,(await recordTarget(x,ws,a.tool,a.args)).record):previous?jobSnapshot(await getWorkOrder(user,ws,previous.id)):a.tool==='create_request'&&value?.result?.id?jobSnapshot(value.result):null;}catch{after=null;}}
+  await x.db.query('UPDATE assistant_actions SET consumed_at=now(), outcome=$2, before=coalesce($3::jsonb,before), after=$4::jsonb WHERE id=$1',[a.id,result.isError?'failed':'done',created?JSON.stringify(created):null,after?JSON.stringify(after):null]);
   const first=a.tool==='set_call_me'?String(a.args?.name??'').trim():String((await x.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'').trim().split(/\s+/)[0];
   const done=(t:string)=>result.isError?t:`Done${first?`, ${first}`:''}. ${t.replace(/^Done[.,!]?\s*/i,'')}`;
   return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):record?done(recordResult(a.tool,a.args,record)):done(audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client')),result,logged:!result.isError};
@@ -83,6 +87,7 @@ async function assistantInner(user:string,ws:string,body:unknown) {
  const history:AssistantMessage[]=[...d.messages];
  if(!history.length)history.push({role:'user',content:'Help me with my workspace.'});
  let saved=false;
+ const refused=new Set<string>();
  // One question has 55 seconds in total, whatever the providers do, so a person is never left waiting minutes.
  const until=Date.now()+55_000;
  for(let i=0;i<10;i++){
@@ -121,12 +126,17 @@ async function assistantInner(user:string,ws:string,body:unknown) {
     });}catch(e){if(e instanceof ApiError&&[403,404,422].includes(e.status)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'That was not found. Look it up first, or ask the person which one they mean with ask_choice.'}]},id:call.id});continue;}throw e;}
     // A household request needs the time that suits him for the visit: ask before the confirmation card, never after.
     if(call.name==='create_request'&&kind==='household'&&!(args as any).preferred_window){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Ask what time suits them for the visit (for example Saturday after 4 PM), then raise the request again with preferred_window.'}]},id:call.id});continue;}
-    // Technicians change only the status of their own jobs and add notes; refuse anything else before a confirmation.
-    if(role==='technician'&&!['update_work_order_status','save_job_report','add_comment','request_time_off','suggest_job','send_message','send_team_message','suggest_contact_name','fill_onboarding','ask_supervisor','remember_about_me','forget_about_me','set_call_me'].includes(call.name)){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.'}]},id:call.id});continue;}
-    if(teamTools.includes(call.name)&&(!['admin','staff'].includes(role)||(office&&call.name!=='assign_work_order'))){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only admins and supervisors can assign jobs or change the team.'}]},id:call.id});continue;}
-    // Record writes are admin only; a role that cannot make them gets the refusal now, not after a confirmation.
-    if(ADMIN_ONLY.includes(call.name)&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:call.name==='set_job_payment'?'Only an admin can change how a job is paid. Tell the person to ask the admin, and add a note on the job if they want.':'Only an admin can change this. Tell the person to ask the admin.'}]},id:call.id});continue;}
-    if(recordTools.includes(call.name)&&role!=='admin'){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Only workspace admins can add or change clients and sites.'}]},id:call.id});continue;}
+    // Refuse before any card what this role may not do: the Agent gets its wording, and the decision log keeps what was asked and why it did not happen.
+    // Technicians change only the status of their own jobs and add notes. Record writes are admin only.
+    const refusal:[string,string]|null=role==='technician'&&!['update_work_order_status','save_job_report','add_comment','request_time_off','suggest_job','send_message','send_team_message','suggest_contact_name','fill_onboarding','ask_supervisor','remember_about_me','forget_about_me','set_call_me'].includes(call.name)?['Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.',REFUSAL_REASON.technician]
+     :teamTools.includes(call.name)&&(!['admin','staff'].includes(role)||(office&&call.name!=='assign_work_order'))?['Only admins and supervisors can assign jobs or change the team.',REFUSAL_REASON.team]
+     :ADMIN_ONLY.includes(call.name)&&role!=='admin'?[call.name==='set_job_payment'?'Only an admin can change how a job is paid. Tell the person to ask the admin, and add a note on the job if they want.':'Only an admin can change this. Tell the person to ask the admin.',REFUSAL_REASON.admin]
+     :recordTools.includes(call.name)&&role!=='admin'?['Only workspace admins can add or change clients and sites.',REFUSAL_REASON.records]:null;
+    if(refusal){
+     if(!refused.has(call.name)){refused.add(call.name);let what='';try{what=audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');}catch{what='';}
+      await logRefusal(user,ws,{tool:call.name,args,summary:what||'A change the Agent was not allowed to make',why:whyNote(d.messages.filter(m=>m.role==='user').at(-1)?.content??'',[]).trim(),reason:refusal[1]}).catch(()=>undefined);}
+     history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:refusal[0]}]},id:call.id});continue;
+    }
     const record=recordTools.includes(call.name)?await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args)):null;
     const summary=record?recordSummary(call.name,args as Record<string,any>,record):audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');
     // Logging a team note is not consequential: do it straight away (still logged), no confirmation card.

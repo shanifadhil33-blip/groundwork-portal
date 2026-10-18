@@ -1086,3 +1086,10 @@ label:has(>input[type=checkbox]),label:has(>input[type=radio]){min-height:44px;d
 .messages-page>label>select{width:100%;min-height:48px;padding:0 var(--s3);border:1px solid var(--border);border-radius:var(--radius-control);background:var(--surface);color:var(--text);font-weight:400}
 /* Request cards: the time sits under the status, start aligned, not centred as a full width button. */
 .action-list .stack.compact>.time-button{align-self:flex-start;justify-self:start;text-align:start;padding:0;color:var(--text-muted)}
+/* AGENT05 decision log: heading with See all, filter row that wraps on phones, outcome and change lines. */
+.agent-log-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3)}
+.agent-log-filters{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.agent-log-filters .button[aria-pressed=true]{border-color:var(--text);font-weight:500}
+.agent-log .agent-change{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.agent-log .agent-outcome{color:var(--text)}
+.agent-log-head a{min-height:44px;display:inline-flex;align-items:center}

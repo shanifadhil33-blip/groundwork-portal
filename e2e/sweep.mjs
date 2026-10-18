@@ -32,7 +32,7 @@ for (const who of PERSONAS) {
     await s.api.patch('/api/me/preferences', { data: { language: lang } });
     for (const w of WIDTHS) {
       const ctx = await br.newContext({ viewport: { width: w, height: 800 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }); await ctx.addCookies((await s.api.storageState()).cookies); const p = await ctx.newPage();
-      for (const path of [HOME[who] ?? '/dashboard', '/work-orders', '/settings']) {
+      for (const path of [HOME[who] ?? '/dashboard', '/work-orders', '/settings', ...(process.env.PATHS ?? '').split(',').filter(Boolean)]) {
         try {
           await p.goto(B + path, { waitUntil: 'load', timeout: 45000 }); await p.waitForTimeout(lang === 'en-IN' ? 1500 : 4000); pages++;
           const found = await p.evaluate(check); const tag = `${who}-${lang}-${w}${path.replace(/\//g, '_')}`;

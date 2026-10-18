@@ -34,7 +34,8 @@ for(const role of ['admin','staff','technician','client'] as const){
 it('Change restores the request for editing without applying the pending action',async()=>{
  api.post.mockResolvedValue({available:true,pending_action:{id:'approval',summary:'Save this change?'}});
  await mount('client',false);await click('Show jobs waiting on parts');await click('Change');
- expect(api.post).toHaveBeenCalledTimes(1);expect(host.querySelector('textarea')?.value).toBe('Show jobs waiting on parts');expect(host.querySelector('.pending-reply')).toBeNull();expect(host.textContent).toContain('No change was made.');
+ // AGENT05: Change only records that he said no; it never confirms the action.
+ expect(api.post).toHaveBeenCalledTimes(2);expect(api.post.mock.calls[1][0]).toMatch(/\/assistant\/log\/approval\/decline$/);expect(api.post.mock.calls.some((c:any[])=>c[1]?.confirm_action_id)).toBe(false);expect(host.querySelector('textarea')?.value).toBe('Show jobs waiting on parts');expect(host.querySelector('.pending-reply')).toBeNull();expect(host.textContent).toContain('No change was made.');
 });
 it('keeps server choice answers inside the agent reply',async()=>{
  api.post.mockResolvedValue({available:true,reply:'Save this report?',choices:['Yes','Change']});await mount('technician');await click('Show jobs waiting on parts');

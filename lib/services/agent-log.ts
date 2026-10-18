@@ -30,14 +30,58 @@ export function jobSnapshot(order: Record<string, any> | null) {
   return { id: order.id, ...Object.fromEntries(JOB_FIELDS.map(k => [k, order[k] instanceof Date ? order[k].toISOString() : order[k] ?? null])) };
 }
 
-/** Each person reads only what his own Agent did. Company approval proposals live separately. */
-export async function listDecisions(user: string, ws: string) {
- return inWorkspace(user,ws,async c=>(await c.db.query(
-  `SELECT a.id,a.tool,a.summary,a.why,a.consumed_at,a.undone_at,a.outcome,u.name AS by_name,x.name AS undone_by_name,
+/** One field that a confirmed change moved: what it was and what it is now. */
+export type Change = { field: string; from: string | null; to: string | null };
+/** Compares the saved before and after so the log can show exactly what moved. Only fields that changed. */
+export function changeList(before: Record<string, any> | null, after: Record<string, any> | null): Change[] {
+  if (!before || !after) return [];
+  const b = before.fields ?? before, a = after.fields ?? after;
+  const norm = (v: unknown) => v === undefined || v === null || v === '' ? null : String(v);
+  return Object.keys(a).filter(k => k !== 'id' && k !== 'comment_id' && norm(b[k]) !== norm(a[k])).map(k => ({ field: k, from: norm(b[k]), to: norm(a[k]) }));
+}
+const LOGGED = "(a.consumed_at IS NOT NULL OR a.outcome IN ('declined','refused'))";
+/** Each person reads only what his own Agent did: done, failed, said no and not allowed, newest first. Company approval proposals live separately. */
+export async function listDecisions(user: string, ws: string, limit = 20) {
+ const n = Math.max(1, Math.min(100, Math.floor(Number(limit)) || 20));
+ return inWorkspace(user,ws,async c=>{
+  const rows=(await c.db.query(
+  `SELECT a.id,a.tool,a.summary,a.why,a.reason,a.outcome,coalesce(a.consumed_at,a.declined_at) AS at,a.consumed_at,a.undone_at,a.before,a.after,u.name AS by_name,x.name AS undone_by_name,
     (a.undone_at IS NULL AND a.outcome='done' AND a.before->>'id' IS NOT NULL AND a.tool=ANY($2)) AS can_undo
    FROM assistant_actions a LEFT JOIN LATERAL visible_user(a.user_id) u ON true LEFT JOIN LATERAL visible_user(a.undone_by) x ON true
-   WHERE a.workspace_id=$1 AND a.user_id=$3 AND a.consumed_at IS NOT NULL ORDER BY a.consumed_at DESC LIMIT 20`,[ws,UNDOABLE,user])).rows
-   .map(r=>({...r,can_undo:r.can_undo&&['admin','staff'].includes(c.role)&&((r.tool!=='set_job_payment'&&!RECORD_TOOLS.includes(r.tool))||c.role==='admin')})));
+   WHERE a.workspace_id=$1 AND a.user_id=$3 AND ${LOGGED} ORDER BY coalesce(a.consumed_at,a.declined_at) DESC LIMIT $4`,[ws,UNDOABLE,user,n])).rows;
+  // A person in the change is shown by the name this workspace can see, never by an id.
+  const people=new Map<string,string>();
+  for(const r of rows)for(const k of ['before','after'])if(r[k]?.assignee_id&&!people.has(r[k].assignee_id))people.set(r[k].assignee_id,String((await c.db.query('SELECT name FROM visible_user($1)',[r[k].assignee_id])).rows[0]?.name??'Team member'));
+  return rows.map(({before,after,...r})=>({...r,
+   changes:r.outcome==='done'?changeList(before,after).map(ch=>ch.field==='assignee_id'?{field:'assignee',from:ch.from?people.get(ch.from)??null:null,to:ch.to?people.get(ch.to)??null:null}:ch):[],
+   can_undo:r.can_undo&&['admin','staff'].includes(c.role)&&((r.tool!=='set_job_payment'&&!RECORD_TOOLS.includes(r.tool))||c.role==='admin')}));
+ });
+}
+
+/** The person tapped Change on a card: nothing happens, and the log keeps that he said no and when. */
+export async function declineDecision(user: string, ws: string, id: string) {
+  uuid.parse(id);
+  return inWorkspace(user, ws, async c => {
+    const a = (await c.db.query('SELECT consumed_at,declined_at,outcome FROM assistant_actions WHERE workspace_id=$1 AND id=$2 AND user_id=$3 FOR UPDATE', [ws, id, user])).rows[0];
+    if (!a) throw missing();
+    if (a.consumed_at) throw new ApiError(409, 'consumed', 'This action has already been confirmed.');
+    if (a.declined_at) return { declined: true };
+    await c.db.query("UPDATE assistant_actions SET declined_at=now(), decided_by=$3, outcome='declined', reason='You said no on the card. Nothing was changed.' WHERE workspace_id=$1 AND id=$2", [ws, id, user]);
+    return { declined: true };
+  });
+}
+
+/** Plain reasons for the log when a role may not make a change. The Agent gets its own wording to explain it. */
+export const REFUSAL_REASON = {
+  technician: 'Technicians change the status of their own jobs and add notes. A supervisor makes other changes.',
+  team: 'Only admins and supervisors assign jobs or change the team.',
+  admin: 'Only an admin can make this change.',
+  records: 'Only an admin adds or changes clients and sites.',
+} as const;
+/** A change the Agent was not allowed to make is saved too, so the log shows what was asked and why it did not happen. */
+export async function logRefusal(user: string, ws: string, entry: { tool: string; args: unknown; summary: string; why: string; reason: string }) {
+  await inWorkspace(user, ws, c => c.db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,reason,declined_at,outcome) VALUES($1,$2,$3,$4,$5,$6,$7,now(),'refused')",
+    [ws, user, entry.tool, JSON.stringify(entry.args ?? {}), entry.summary.slice(0, 600), entry.why.slice(0, 400), entry.reason.slice(0, 400)]));
 }
 
 /** Undo puts the job back as it was. Same permission checks as doing it by hand, then the log records who undid it. */

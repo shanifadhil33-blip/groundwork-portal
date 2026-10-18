@@ -54,5 +54,5 @@ export function PersonalAgentLog(){
  {rules.length>0&&<><h2>Company rules</h2><ul className="action-list">{rules.map(n=><li key={n.id}><div><p data-no-translate>{n.body}</p></div></li>)}</ul></>}
  <label className="form-field">Remember this<textarea value={body} maxLength={2000} onChange={e=>setBody(e.target.value)}/></label>{member?.role==='admin'&&<label className="form-field">Who is this for<select value={scope} onChange={e=>setScope(e.target.value)}><option value="personal">Only me</option><option value="company_rule">Company rule</option></select></label>}<Button busy={busy} disabled={!body.trim()} onClick={()=>void save()}>Save</Button>
  {mine.length>0&&(confirmReset?<div className="stack compact" role="group" aria-label="Reset memory"><p>Forget everything your Agent knows about you? Company rules stay.</p><div className="row"><Button busy={busy} onClick={()=>void reset()}>Yes, forget all</Button><Button variant="secondary" onClick={()=>setConfirmReset(false)}>Keep</Button></div></div>:<Button variant="secondary" onClick={()=>setConfirmReset(true)}>Reset everything</Button>)}
- {error&&<p role="alert">{error}</p>}{base&&<AgentLog base={base}/>}</div>;
+ {error&&<p role="alert">{error}</p>}{base&&<div id="decision-log"><AgentLog base={base} full/></div>}</div>;
 }
