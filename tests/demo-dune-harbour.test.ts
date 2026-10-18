@@ -2,6 +2,7 @@ import { afterAll,afterEach,beforeEach,expect,it } from 'vitest';
 import { closePools,ownerPool,withSystem } from '../lib/db';
 import { getSessionUserId,setAuthResolverForTests } from '../lib/auth';
 import { seed } from '../scripts/seed';
+import { ownerOverview } from '../lib/services/owner-overview';
 import { DUNE_HARBOUR_NAME,DUNE_STAFF,DUNE_TECHS,DUNE_CLIENTS } from '../lib/fixture-dune-harbour';
 import * as start from '../app/api/demo/start/route';
 import * as switchRoute from '../app/api/demo/switch/route';
@@ -59,6 +60,10 @@ it('builds the full Dune Harbour cast in a demo sandbox with no real logins and 
  const off=await q("SELECT u.name,t.kind,t.status FROM time_off t JOIN users u ON u.id=t.user_id WHERE t.workspace_id=$1 ORDER BY u.name",[ws]);
  expect(off).toEqual([{name:'Kamau',kind:'sick',status:'pending'},{name:'Sanjay',kind:'leave',status:'approved'}]);
  expect((await q("SELECT sender_name FROM job_suggestions WHERE workspace_id=$1 AND status='pending'",[ws])).map(s=>s.sender_name)).toEqual(['Kevin']);
+ // Company overview shows recorded money, never AED 0.00: five paid repairs plus the clinic contract payment, three supplier costs.
+ const imran=(await q("SELECT u.id FROM members m JOIN users u ON u.id=m.user_id WHERE m.workspace_id=$1 AND u.name='Imran'",[ws]))[0].id;
+ expect(await ownerOverview(imran,ws)).toMatchObject({currency:'AED',money_in:'11150.00',money_out:'645.00'});
+ for(const m of await q('SELECT note FROM workspace_money WHERE workspace_id=$1',[ws]))expect(m.note).not.toMatch(/[-\u2013\u2014]/);
  // Public copy: no dashes in names, titles or notes.
  for(const j of jobs)expect(j.title).not.toMatch(/[-\u2013\u2014]/);
 });

@@ -139,6 +139,17 @@ export async function populateDuneHarbour(db:PoolClient,ws:string,expires:'6 hou
   if(j.quote&&j.quote[0]>0)await db.query("UPDATE work_orders SET quote_amount=$2,quote_note=$3,quote_status='pending' WHERE id=$1",[wo,...j.quote]);
   if(j.paid)await db.query('UPDATE work_orders SET payment_status=$2 WHERE id=$1',[wo,j.paid]);
  }
+ // Company overview reads recorded money only: paid repair prices, the clinic contract payment and supplier costs (sample amounts).
+ for(const [title,amount,note] of [
+  ['AC leaking water, waiting room 2',220,'Sample price: drain pipe cleared and refitted.'],
+  ['AC leaking again, waiting room 2',380,'Sample price: new drain tray and fitting.'],
+  ['Grease trap overflowing',650,'Sample price: grease trap pumped out and cleaned.'],
+  ['Lobby socket burnt',180,'Sample price: new socket and fitting.'],
+  ['Washing machine tap leaking',120,'Sample price: new tap washer and fitting.'],
+ ] as const){const wo=ids[jobs.findIndex(j=>j.title===title)];await db.query("SELECT set_config('app.user_id',$1,true)",[id.imran]);await db.query("UPDATE work_orders SET quote_amount=$2,quote_note=$3,quote_status='approved',payment_status='paid' WHERE id=$1",[wo,amount,note]);}
+ await db.query("SELECT set_config('app.user_id',$1,true)",[id.imran]);
+ await db.query("INSERT INTO workspace_money(workspace_id,direction,amount,currency,note,created_by) VALUES($1,'in',9600,'AED','Qasr Lantern Clinic maintenance contract payment (sample)',$2)",[ws,id.imran]);
+ for(const [amount,note] of [[240,'AC drain tray for the clinic (sample)'],[310,'Breaker for the Creekgate floor 9 riser (sample)'],[95,'Grease trap cleaning supplies (sample)']] as const)await db.query("INSERT INTO workspace_money(workspace_id,direction,amount,currency,note,created_by) VALUES($1,'out',$2,'AED',$3,$4)",[ws,amount,note,id.imran]);
  // Ramon's fan motor price is waiting for the owner to send it to the clinic.
  await db.query("SELECT set_config('app.user_id',$1,true)",[id.ramon]);
  const fan=ids[jobs.findIndex(j=>j.title.startsWith('AC fan motor'))];
