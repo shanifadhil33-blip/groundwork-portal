@@ -1093,3 +1093,4 @@ label:has(>input[type=checkbox]),label:has(>input[type=radio]){min-height:44px;d
 .agent-log .agent-change{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
 .agent-log .agent-outcome{color:var(--text)}
 .agent-log-head a{min-height:44px;display:inline-flex;align-items:center}
+.agent-log-filters .button,.agent-log li>.button{min-height:44px}
