@@ -2,7 +2,7 @@ import { beforeEach, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({query:vi.fn(),ownerQuery:vi.fn(),fallback:vi.fn(),auth:vi.fn()}));
 vi.mock('../lib/auth', () => ({requireUser:mocks.auth}));
 vi.mock('../lib/db', () => ({withUser: async (_user:string, fn:Function) => fn({query:mocks.query}),withSystem:async(fn:Function)=>fn({query:mocks.ownerQuery})}));
-vi.mock('../lib/ai', () => ({withFallback:mocks.fallback,stripThinking:(s:string)=>s}));
+vi.mock('../lib/ai', () => ({withFallback:mocks.fallback,stripThinking:(s:string)=>s,aiCallsToday:async()=>0}));
 import { translateUi } from '../lib/services/translations';
 import { POST } from '../app/api/i18n/translate/route';
 import { ApiError } from '../lib/http';

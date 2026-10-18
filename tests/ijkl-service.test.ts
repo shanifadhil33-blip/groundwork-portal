@@ -1,7 +1,7 @@
 import { createClient,createSite } from '../lib/services/clients';
 import { randomUUID } from 'node:crypto';
 import { afterAll,expect,it,vi } from 'vitest';
-vi.mock('../lib/ai',()=>({assistantTurn:vi.fn(),withFallback:vi.fn().mockResolvedValue(null)}));
+vi.mock('../lib/ai',()=>({assistantTurn:vi.fn(),withFallback:vi.fn().mockResolvedValue(null),aiCallsToday:async()=>0}));
 import { withUser,withSystem,closePools } from '../lib/db';
 import { ids } from '../scripts/seed';
 import { listContactNames,saveContactName } from '../lib/services/contact-names';

@@ -10,11 +10,17 @@ const item=z.object({row_id:z.uuid(),summary:z.string().max(140),priority:z.enum
  */
 type Kind='gemini'|'openai';
 export type Provider={name:string;kind:Kind;url:string;headers:Record<string,string>;model:string};
-const CHAIN:{id:string;kind:Kind;key:string;url:(model:string,env:Record<string,string|undefined>)=>string;models:string[];extra?:Record<string,string>}[]=[
+const CHAIN:{id:string;kind:Kind;key:string;keyless?:boolean;url:(model:string,env:Record<string,string|undefined>)=>string;models:string[];extra?:Record<string,string>}[]=[
  {id:'gemini',kind:'gemini',key:'GEMINI_API_KEY',url:m=>`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,models:['gemini-3.8-flash','gemini-3.6-flash','gemini-3.5-flash-lite','gemini-3.1-flash-lite']},
  {id:'openrouter',kind:'openai',key:'OPENROUTER_API_KEY',url:()=>'https://openrouter.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','google/gemma-4-31b-it:free','nvidia/nemotron-3-ultra-550b-a55b:free','google/gemma-4-26b-a4b-it:free'],extra:{'HTTP-Referer':'https://groundwork-portal.vercel.app','X-Title':'Groundwork'}},
  {id:'sambanova',kind:'openai',key:'SAMBANOVA_API_KEY',url:()=>'https://api.sambanova.ai/v1/chat/completions',models:['DeepSeek-V3.1','gpt-oss-120b']},
  {id:'cloudflare',kind:'openai',key:'CLOUDFLARE_AI_TOKEN',url:(_m,env)=>`https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/ai/v1/chat/completions`,models:['@cf/meta/llama-3.3-70b-instruct-fp8-fast','@cf/openai/gpt-oss-120b']},
+ // Free with no key (checked Oct 18 2026): Kilo AI Gateway ':free' models, 200 an hour per IP; OVHcloud AI Endpoints anonymous, 2 a minute per IP per model. Used only when AI_KEYLESS=1.
+ {id:'kilo',kind:'openai',key:'KILO_API_KEY',keyless:true,url:()=>'https://ai-gateway.kilo.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','kilo-auto/free']},
+ {id:'ovh',kind:'openai',key:'OVH_AI_TOKEN',keyless:true,url:()=>'https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions',models:['gpt-oss-120b','Meta-Llama-3_3-70B-Instruct','Mistral-Small-3.2-24B-Instruct-2506','Qwen3.5-397B-A17B']},
+ // Free with a key (no card): Z.AI GLM Flash, NVIDIA NIM free endpoints (phone check). Used when their keys are set.
+ {id:'zai',kind:'openai',key:'ZAI_API_KEY',url:()=>'https://api.z.ai/api/paas/v4/chat/completions',models:['glm-4.7-flash','glm-4.5-flash']},
+ {id:'nvidia',kind:'openai',key:'NVIDIA_API_KEY',url:()=>'https://integrate.api.nvidia.com/v1/chat/completions',models:['openai/gpt-oss-20b','nvidia/nemotron-3-super-120b-a12b','z-ai/glm-5.3-flash']},
  {id:'groq',kind:'openai',key:'GROQ_API_KEY',url:()=>'https://api.groq.com/openai/v1/chat/completions',models:['openai/gpt-oss-120b','qwen/qwen3.8-27b','llama-3.3-70b-versatile']},
  {id:'cerebras',kind:'openai',key:'CEREBRAS_API_KEY',url:()=>'https://api.cerebras.ai/v1/chat/completions',models:['gpt-oss-120b','qwen-3.8-27b']},
  {id:'mistral',kind:'openai',key:'MISTRAL_API_KEY',url:()=>'https://api.mistral.ai/v1/chat/completions',models:['mistral-medium-latest','mistral-small-latest']},
@@ -22,26 +28,42 @@ const CHAIN:{id:string;kind:Kind;key:string;url:(model:string,env:Record<string,
 ];
 export function providers(env:Record<string,string|undefined>=process.env):Provider[]{
  const out:Provider[]=[];
- for(const p of CHAIN){const key=env[p.key];if(!key||(p.id==='cloudflare'&&!env.CLOUDFLARE_ACCOUNT_ID))continue;
+ for(const p of CHAIN){const key=env[p.key];if((!key&&!(p.keyless&&env.AI_KEYLESS==='1'))||(p.id==='cloudflare'&&!env.CLOUDFLARE_ACCOUNT_ID))continue;
   const models=(env[`AI_${p.id.toUpperCase()}_MODELS`]?.split(',').map(m=>m.trim()).filter(Boolean))||p.models;
-  for(const model of models)out.push({name:`${p.id}/${model}`,kind:p.kind,url:p.url(model,env),model,headers:p.kind==='gemini'?{'x-goog-api-key':key}:{Authorization:`Bearer ${key}`,...p.extra}});}
+  for(const model of models)out.push({name:`${p.id}/${model}`,kind:p.kind,url:p.url(model,env),model,headers:p.kind==='gemini'?{'x-goog-api-key':key!}:{...(key?{Authorization:`Bearer ${key}`}:{}),...p.extra}});}
  return out;
 }
 // Warm instances remember models that just hit a limit, so the next request skips straight to one that works.
 const cooldown=new Map<string,number>();
-export const resetCooldowns=()=>cooldown.clear();
-class Skip extends Error{constructor(readonly retry:boolean,readonly status=0){super('provider failed');}}
+export const resetCooldowns=()=>{cooldown.clear();exhausted.clear();};
+class Skip extends Error{constructor(readonly retry:boolean,readonly status=0,readonly cool=0){super('provider failed');}}
+/** A model out of its daily allowance (or asking for payment) is skipped in both sweeps until it can work again. */
+const exhausted=new Map<string,number>();
+const DAILY=/per.?day|daily|neurons|free-models-per-day|insufficient balance|payment method|resource package/i;
 async function post(p:Provider,body:unknown,timeout:number){
  let r:Response;
  try{r=await fetch(p.url,{method:'POST',headers:{'Content-Type':'application/json',...p.headers},body:JSON.stringify(body),signal:AbortSignal.timeout(timeout)});}
  catch{throw new Skip(true);}
- if(r.status===429||r.status===402||r.status===403){cooldown.set(p.name,Date.now()+60_000);throw new Skip(false,r.status);}
+ if(r.status===429||r.status===402||r.status===403){const body=await r.text().catch(()=>'');const cool=r.status===402?6*3_600_000:DAILY.test(body)?3_600_000:60_000;if(cool>=3_600_000)exhausted.set(p.name,Date.now()+cool);cooldown.set(p.name,Date.now()+cool);throw new Skip(false,r.status,cool);}
  if(r.status>=500)throw new Skip(true,r.status);
  if(!r.ok){if(r.status===400)console.warn('[ai] bad request',{provider:p.name,reason:(await r.text().catch(()=>'')).replace(/key[^\s"]*/gi,'').slice(0,400)});throw new Skip(false,r.status);}
  try{return await r.json();}catch{throw new Skip(true,r.status);}
 }
 /** Per provider timeout. Gemini free often hangs, so it gets a short leash and the chain moves on. */
-const TIMEOUTS:Record<string,number>={gemini:9000,openrouter:15000,sambanova:12000,cloudflare:15000};
+const TIMEOUTS:Record<string,number>={gemini:9000,openrouter:15000,sambanova:12000,cloudflare:15000,kilo:18000,ovh:18000,zai:15000,nvidia:15000,groq:10000};
+/** Spread the free allowances (AI_SPREAD=1). The Agent rotates its first provider each call. Translations and summaries never use OpenRouter (50 a day, kept for the Agent) or the strong Gemini models, and try Gemini lite last. */
+export type Task='assistant'|'bulk';
+const BULK=new Set(['ui translations','summaries']);
+const turns:Record<Task,number>={assistant:0,bulk:0};
+export function route(task:Task,list:Provider[],turn:number,env:Record<string,string|undefined>=process.env):Provider[]{
+ if(env.AI_SPREAD!=='1')return list;
+ let l=list;
+ if(task==='bulk'){const b=l.filter(p=>!p.name.startsWith('openrouter/')&&!(p.name.startsWith('gemini/')&&!p.model.includes('lite')));if(b.length)l=b;}
+ const groups=[...new Set(l.map(p=>p.name.split('/')[0]))];
+ const head=task==='bulk'?groups.filter(g=>g!=='gemini'):groups,tail=task==='bulk'?groups.filter(g=>g==='gemini'):[];
+ const k=head.length?turn%head.length:0;const order=[...head.slice(k),...head.slice(0,k),...tail];
+ return order.flatMap(g=>l.filter(p=>p.name.split('/')[0]===g));
+}
 /** Interleave providers: first model of every provider, then second models, so one slow provider can not eat the whole deadline. */
 export function interleave(list:Provider[]):Provider[]{
  const groups=new Map<string,Provider[]>();for(const p of list){const id=p.name.split('/')[0];groups.set(id,[...(groups.get(id)??[]),p]);}
@@ -49,17 +71,19 @@ export function interleave(list:Provider[]):Provider[]{
 }
 /** Runs build/parse against each provider until one gives a usable answer. Any failure moves on to the next provider; after a full sweep it tries once more. Never throws; null means every provider failed twice. */
 export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,parse:(p:Provider,data:any)=>T|null,{timeout=15000,deadline=40000}={},list=providers()):Promise<T|null>{
- const until=Date.now()+deadline;const order=interleave(list);const dead=new Set<string>();
+ const task:Task=BULK.has(label)?'bulk':'assistant';
+ const until=Date.now()+deadline;const order=interleave(route(task,list,turns[task]++));const dead=new Set<string>();
  for(let sweep=0;sweep<2;sweep++){
   for(const p of order){
    if(dead.has(p.name))continue;
    if(sweep===0&&(cooldown.get(p.name)??0)>Date.now())continue;
+   if((exhausted.get(p.name)??0)>Date.now())continue;
    const left=until-Date.now();if(left<1500)return null;
    const t=Math.min(TIMEOUTS[p.name.split('/')[0]]??timeout,timeout,left);
-   try{const out=parse(p,await post(p,build(p),t));if(out!==null)return out;console.warn(`[${label}] empty answer`,{provider:p.name});}
+   try{const out=parse(p,await post(p,build(p),t));if(out!==null){await recordUsage(label,p.name,true);return out;}console.warn(`[${label}] empty answer`,{provider:p.name});}
    catch(e){const status=e instanceof Skip?e.status:0;console.warn(`[${label}] provider failed`,{provider:p.name,status,sweep});
     if(status===404||status===400||status===401)dead.add(p.name);
-    cooldown.set(p.name,Date.now()+(status===404?3_600_000:status===429?60_000:20_000));}
+    cooldown.set(p.name,Date.now()+((e instanceof Skip&&e.cool)||(status===404?3_600_000:status===429?60_000:20_000)));await recordUsage(label,p.name,false);}
   }
  }
  return null;
@@ -159,4 +183,14 @@ export async function assistantTurn(history: AssistantMessage[], declarations:{n
   const content=typeof message.content==='string'?stripThinking(message.content):'';
   return (!content||META.test(content))&&!calls.length?null:{text:content||undefined,calls};
  },{timeout:15000,deadline:55000});
+}
+
+/** Counts AI calls per UTC day, task and provider (table ai_usage, migration 0051), so test runs and translations can be capped and the success rate seen. Never throws. */
+export async function recordUsage(task:string,provider:string,ok:boolean){
+ if(process.env.AI_USAGE_LOG!=='1')return;
+ try{const {withSystem}=await import('./db');await withSystem(db=>db.query(`INSERT INTO ai_usage(day,task,provider,ok,failed) VALUES((now() AT TIME ZONE 'UTC')::date,$1,$2,$3,$4) ON CONFLICT(day,task,provider) DO UPDATE SET ok=ai_usage.ok+EXCLUDED.ok,failed=ai_usage.failed+EXCLUDED.failed`,[task,provider.slice(0,120),ok?1:0,ok?0:1]));}catch{/* counting must never break an answer */}
+}
+export async function aiCallsToday(task:string):Promise<number>{
+ if(process.env.AI_USAGE_LOG!=='1')return 0;
+ try{const {withSystem}=await import('./db');return Number((await withSystem(db=>db.query(`SELECT coalesce(sum(ok+failed),0)::int n FROM ai_usage WHERE day=(now() AT TIME ZONE 'UTC')::date AND task=$1`,[task]))).rows[0]?.n??0);}catch{return 0;}
 }
