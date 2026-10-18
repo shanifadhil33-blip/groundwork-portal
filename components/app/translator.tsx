@@ -40,7 +40,7 @@ export function Translator() {
 
     const key = `groundwork-ui-translations:v1:${language}`;
     let cache: Record<string, string> = Object.create(null);
-    try { cache = readTranslationCache(localStorage.getItem(key)); } catch { /* Storage may be disabled. */ }
+    try { cache = readTranslationCache(localStorage.getItem(key), language); } catch { /* Storage may be disabled. */ }
     const textSlots = new Map<Text, Slot>(), attributeSlots = new Map<Element, Map<string, Slot>>();
     const attempted = new Set<string>();
     const pending = new Set<string>();
@@ -125,7 +125,7 @@ export function Translator() {
               if (!response.ok) continue;
               const result = await response.json();
               if (stopped) return;
-              const received = readTranslationCache(JSON.stringify(result.translations));
+              const received = readTranslationCache(JSON.stringify(result.translations), language);
               for (const source of ask) if (Object.hasOwn(received, source)) cache[source] = received[source];
               try { localStorage.setItem(key, JSON.stringify(Object.fromEntries(Object.entries(cache).slice(-5000)))); } catch { /* Keep the in memory cache. */ }
               scan();

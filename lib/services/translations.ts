@@ -20,7 +20,7 @@ export async function translateUi(user: string, body: unknown, privateThread?:Pr
   )).rows);
   const translations: Record<string, string> = Object.create(null);
   for (const s of sources) if (KEEP_AS_IS.has(s.trim())) translations[s] = s;
-  for (const row of cached) if (!Object.hasOwn(translations, row.source) && sources.includes(row.source) && validTranslation(row.source, row.translated)) translations[row.source] = row.translated;
+  for (const row of cached) if (!Object.hasOwn(translations, row.source) && sources.includes(row.source) && validTranslation(row.source, row.translated, lang)) translations[row.source] = row.translated;
   const misses = sources.filter(s => !Object.hasOwn(translations, s));
   if (!misses.length) return { translations };
   if (cached_only) return { translations, missing: misses.length };
@@ -33,7 +33,7 @@ export async function translateUi(user: string, body: unknown, privateThread?:Pr
       const text = p.kind === 'gemini'
         ? data?.candidates?.[0]?.content?.parts?.filter((v: {thought?: boolean}) => !v.thought).map((v: {text?: string}) => v.text ?? '').join('')
         : data?.choices?.[0]?.message?.content;
-      return typeof text === 'string' ? parseTranslations(stripThinking(text), misses) : null;
+      return typeof text === 'string' ? parseTranslations(stripThinking(text), misses, lang) : null;
     });
   if (result) {
     // Use owner access for this global cache; signed in users only need read access.

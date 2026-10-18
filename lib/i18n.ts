@@ -45,12 +45,19 @@ export function replaceTranslation(text: string, translations: Record<string, st
 }
 const protectedPattern = /\{\{[^{}]+\}\}|\{[^{}]+\}|\$\{[^{}]+\}|%\d*\$?[sdif]|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\b[A-Za-z]+(?:-[A-Za-z]+)*-\d+\b|\d+(?:[.,:/-]\d+)*/g;
 export function protectedTokens(text: string): string[] { return text.match(protectedPattern) ?? []; }
-export function validTranslation(source: string, translated: unknown): translated is string {
+/** Languages whose spelling joins parts of a word with a hyphen (Igbo na-eme, Filipino I-save, Yoruba, Hausa, Somali). */
+export const WORD_HYPHEN_LANGS = new Set(['ig', 'fil', 'yo', 'ha', 'so']);
+/** Models often write a code or a word hyphen as ‐ or ‑; inside a word it is the plain hyphen. */
+export function plainHyphens(text: string): string { return text.replace(/(?<=[\p{L}\p{N}])[\u2010\u2011](?=[\p{L}\p{N}])/gu, '-'); }
+export function validTranslation(source: string, translated: unknown, lang?: string): translated is string {
   if (typeof translated !== 'string' || !translated.trim() || translated.length > 4000) return false;
   const expected = protectedTokens(source).sort(), actual = protectedTokens(translated).sort();
   if (JSON.stringify(expected) !== JSON.stringify(actual)) return false;
   // Dashes in identifiers, email addresses and dates are data and must remain.
-  return !/\p{Pd}/u.test(translated.replace(protectedPattern, ''));
+  let rest = translated.replace(protectedPattern, '');
+  // A hyphen inside a word is spelling in these languages, not a dash. Spaced dashes are still refused.
+  if (lang && WORD_HYPHEN_LANGS.has(lang)) rest = rest.replace(/(?<=\p{L})-(?=\p{L})/gu, '');
+  return !/\p{Pd}/u.test(rest);
 }
 /** Numbers stay as 0 to 9 so they match the data on screen (models often write ६ or ৬ or ۶). */
 const NATIVE_DIGITS = /[\u0660-\u0669\u06F0-\u06F9\u0966-\u096F\u09E6-\u09EF\u0BE6-\u0BEF\u0D66-\u0D6F\u1369-\u1371]/g;
@@ -58,25 +65,25 @@ const DIGIT_BASES = [0x0660, 0x06F0, 0x0966, 0x09E6, 0x0BE6, 0x0D66];
 export function asciiDigits(text: string): string {
   return text.replace(NATIVE_DIGITS, ch => { const c = ch.codePointAt(0)!; if (c >= 0x1369) return String(c - 0x1368); const base = DIGIT_BASES.find(b => c >= b && c <= b + 9)!; return String(c - base); });
 }
-export function parseTranslations(text: string, sources: string[]): Record<string, string> | null {
+export function parseTranslations(text: string, sources: string[], lang?: string): Record<string, string> | null {
   let value: unknown;
   try { value = JSON.parse(text.trim().replace(/^```(?:json)?\s*|\s*```$/g, '')); } catch { return null; }
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const out: Record<string, string> = Object.create(null);
   for (const source of sources) {
     const raw = Object.hasOwn(value, source) ? (value as Record<string, unknown>)[source] : undefined;
-    const translated = typeof raw === 'string' ? asciiDigits(raw) : raw;
-    if (validTranslation(source, translated)) out[source] = translated.trim();
+    const translated = typeof raw === 'string' ? plainHyphens(asciiDigits(raw)) : raw;
+    if (validTranslation(source, translated, lang)) out[source] = translated.trim();
   }
   return Object.keys(out).length ? out : null;
 }
-export function readTranslationCache(raw: string | null): Record<string, string> {
+export function readTranslationCache(raw: string | null, lang?: string): Record<string, string> {
   const out: Record<string, string> = Object.create(null);
   try {
     const value: unknown = JSON.parse(raw ?? '{}');
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       for (const [source, translated] of Object.entries(value).slice(-5000)) {
-        if (translationSource(source) && validTranslation(source, translated)) out[source] = translated;
+        if (translationSource(source) && validTranslation(source, translated, lang)) out[source] = translated;
       }
     }
   } catch { /* A broken or unavailable cache must not prevent navigation. */ }
