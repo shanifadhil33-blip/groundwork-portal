@@ -165,7 +165,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
       await logRefusal(user,ws,{tool:call.name,args,summary,why:whyNote(question,offer?[`Offered to ask ${offer.to_name}.`]:[]).trim(),reason:refusal[1]}).catch(()=>undefined);
      }
      const offer=offerByTool.get(call.name);
-     history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:refusal[0]+(offer?` Say you can ask ${offer.to_name} for him; the app shows a button.`:'')}]},id:call.id});continue;
+     history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:refusal[0]+(offer?` Nothing is sent yet. Say ${offer.to_name} can make this change and he can tap Ask ${offer.to_name} below to send the request. Never say you will ask or have asked.`:'')}]},id:call.id});continue;
     }
     const record=recordTools.includes(call.name)?await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args)):null;
     const summary=record?recordSummary(call.name,args as Record<string,any>,record):audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');

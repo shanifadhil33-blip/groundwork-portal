@@ -44,7 +44,7 @@ it('AGENT11: technician gets one named supervisor offer per refused tool, with t
  const log=(await listDecisions(ids.ravi,ws)).find((r:any)=>r.tool==='assign_work_order')!;
  expect(log).toMatchObject({outcome:'refused',reason:REFUSAL_REASON.technician});expect(log.summary).toBe(offer.proposed);expect(log.why).toContain('Offered to ask Sam.');
  const history=vi.mocked(assistantTurn).mock.calls[1][0];
- for(const result of history.filter(m=>m.role==='result'))expect((result as any).result.content[0].text).toMatch(/Say you can ask Sam for him; the app shows a button\.$/);
+ for(const result of history.filter(m=>m.role==='result'))expect((result as any).result.content[0].text).toMatch(/Nothing is sent yet\. Say Sam can make this change and he can tap Ask Sam below to send the request\. Never say you will ask or have asked\.$/);
  setAuthResolverForTests(async()=>ids.ravi);
  const response=await POST(new Request('http://localhost/api',{method:'POST',body:JSON.stringify({question:offer.question,proposed:offer.proposed,work_order_id:offer.work_order_id})}),{params:Promise.resolve({ws})});
  expect(response.status).toBe(200);const sent=await response.json();questions.push(sent.id);

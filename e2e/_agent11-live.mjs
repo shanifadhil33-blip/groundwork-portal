@@ -5,7 +5,7 @@ const ask = async content => { const t = Date.now(); const r = await s.api.post(
 await s.as('ravi'); const jobs = (await (await s.api.get(`${A}/work-orders?pageSize=20`)).json()).data ?? []; const j = jobs.find(o => !['done', 'cancelled'].includes(o.status));
 let offer;
 for (const q of [`Give WO ${j.order_number} to Arjun`, `Change the priority of WO ${j.order_number} to urgent`, `Mark WO ${j.order_number} as paid`]) {
-  const a = await ask(q); res.tries.push({ q, st: a.st, ms: a.ms, reply: (a.body.reply ?? '').slice(0, 220), offers: a.body.offers, provider: a.body.provider });
+  const a = await ask(q); res.tries.push({ q, st: a.st, ms: a.ms, reply: (a.body.reply ?? '').slice(0, 220), offers: a.body.offers, provider: a.body.provider, keys: Object.keys(a.body), cards: a.body.actions ?? a.body.pending ?? a.body.cards ?? null });
   if (a.body.offers?.length) { offer = a.body.offers[0]; break; }
 }
 if (offer) {
