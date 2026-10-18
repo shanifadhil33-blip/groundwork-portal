@@ -6,7 +6,7 @@ const grab=()=>{const out=[];const skip='script,style,code,pre,textarea,[data-no
  while((n=w.nextNode())){if(n.nodeType===3){if(!n.parentElement?.closest(skip))out.push(n.data);}else{for(const a of ['placeholder','aria-label','title','alt','data-label']){const v=n.getAttribute(a);if(v&&!n.closest(skip.replace('textarea,','')))out.push(v);}}}return out;};
 const tabs=async p=>{for(const t of await p.getByRole('tab').all()){await t.click().catch(()=>{});await p.waitForTimeout(500);(await p.evaluate(grab)).forEach(x=>all.add(x));}};
 for(const who of ['imran','sam','ravi','nabil','pranav','kevin','omar','faisal']){
- await s.as(who); for(const w of (who==='imran'||who==='sam'?[390,1280]:[390])){
+ await s.as(who); await s.api.patch('/api/me/preferences',{data:{language:'en-IN'}}); for(const w of (who==='imran'||who==='sam'?[390,1280]:[390])){
  const ctx=await br.newContext({viewport:{width:w,height:844}}); await ctx.addCookies((await s.api.storageState()).cookies); const p=await ctx.newPage();
  const seen=new Set(), q=['/today','/dashboard','/home','/work-orders','/settings','/settings/agent','/schedule','/messages','/team','/clients','/suggestions','/queue','/documents','/overview','/how-agent-works','/supplier','/import','/audit','/team-space','/invites'];
  while(q.length&&seen.size<30){const path=q.shift();if(seen.has(path))continue;seen.add(path);

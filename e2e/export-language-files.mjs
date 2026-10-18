@@ -14,6 +14,9 @@ for(const lang of LANGS){const words={};
   const r=await s.api.post('/api/i18n/translate',{data:{lang,strings:batch,cached_only:true},timeout:60000});
   if(!r.ok())throw new Error(lang+' '+r.status());const tr=(await r.json()).translations;
   for(const k of batch)if(typeof tr[k]==='string'&&tr[k].trim()&&tr[k]!==k)words[k]=tr[k];}
+ // Words already in the file win: hand fixes and words added by hand (greetings, script refills) are never dropped by a new export.
+ let existing={};try{existing=JSON.parse(fs.readFileSync(new URL(lang+'.json',OUT),'utf8'));}catch{}
+ Object.assign(words,existing);
  const sorted=Object.fromEntries(Object.keys(words).sort().map(k=>[k,words[k]]));
  fs.writeFileSync(new URL(lang+'.json',OUT),JSON.stringify(sorted,null,0).replace(/","/g,'",\n"')+'\n');
  report[lang]={words:Object.keys(words).length,of:strings.length};console.log(lang,JSON.stringify(report[lang]));}
