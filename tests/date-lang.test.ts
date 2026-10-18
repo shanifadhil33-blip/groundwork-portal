@@ -36,6 +36,7 @@ describe('LANG01 slice 2: dates in the person language', () => {
     expect(formatInLang(at, today, 'ne')).toBe('आइतबार 18 अक्टोबर');
     expect(formatInLang(at, { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Dubai' }, 'ne')).toBe('16:04');
     expect(formatInLang(at, { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Dubai' }, 'ps')).toBe('18 اکتوبر 2026, 16:04');
+    expect(formatInLang(at, {weekday:'long',month:'numeric',day:'numeric',timeZone:'Asia/Dubai'}, 'ne')).toBe('आइतबार 18/10');
     for (const code of Object.keys(DATE_WORDS)) {
       const text = formatInLang(at, today, code);
       expect(text, code).not.toMatch(/Sunday|October|Sun|Oct/);
@@ -51,6 +52,21 @@ describe('LANG01 slice 2: dates in the person language', () => {
     }
     expect(DATE_WORDS.ne.dl[0]).toBe('आइतबार');
     expect(DATE_WORDS.ne.ml[9]).toBe('अक्टोबर');
+  });
+  it.each(['ne', 'yo', 'ps'])('uses the same saved words for %s with or without native support', code => {
+    const supported = vi.spyOn(Intl.DateTimeFormat, 'supportedLocalesOf');
+    const outputs = [true, false].map(native => {
+      resetDateSupport();
+      supported.mockReturnValue(native ? [code] : []);
+      return [
+        formatInLang(at, today, code),
+        formatInLang(at, {dateStyle:'full',timeStyle:'short',timeZone:'Asia/Dubai'}, code),
+        weekLetters(code),
+      ];
+    });
+    expect(outputs[0]).toEqual(outputs[1]);
+    expect(outputs[0][0]).toBe(`${DATE_WORDS[code].dl[0]} 18 ${DATE_WORDS[code].ml[9]}`);
+    expect(supported).not.toHaveBeenCalled();
   });
   it('an unknown language stays fully English', () => {
     expect(formatInLang(at, today, 'xx')).toBe('Sunday, October 18');

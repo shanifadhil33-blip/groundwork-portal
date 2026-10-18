@@ -6,6 +6,7 @@ import { withUser } from './db';
 import { ApiError } from './http';
 import { me, getWorkspace, dashboard } from './services/workspaces';
 import { unreadCount } from './services/notifications';
+import { getPreferences } from './services/settings';
 import type { Me, Workspace } from '../components/app/context';
 import type { InitialResources } from '../components/app/initial-resources';
 export type AppPageData = {user:string;me:Me;workspace:Workspace|null;resources:InitialResources};
@@ -17,6 +18,8 @@ export const getAppPageData=cache(async ():Promise<AppPageData|null>=>{
       const identity=await me(user);const selected=(await headers()).get('cookie')?.split(';').map(v=>v.trim()).find(v=>v.startsWith('groundwork-workspace='))?.slice(21);identity.memberships.sort((a,b)=>Number(b.workspace_id===selected)-Number(a.workspace_id===selected));const member=identity.memberships[0];
       const workspace=member?await getWorkspace(user,member.workspace_id):null;
       const resources=await initialResources(user,[
+        // Match the table defaults without inserting a row during a page render.
+        ['/api/me/preferences',async()=>await getPreferences(user,false)??{language:null,theme:'system',email_notifications:true,timezone:null,voice_enabled:true,agent_name:null,agent_avatar:null,preferred_name:null,name_asked_at:null}],
         ['/api/notifications/unread-count',()=>unreadCount(user)],
         ...(member?[[`/api/workspaces/${member.workspace_id}/dashboard`,()=>dashboard(user,member.workspace_id)] as const]:[]),
       ]);

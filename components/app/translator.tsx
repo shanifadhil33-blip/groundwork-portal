@@ -149,7 +149,7 @@ export function Translator() {
       } finally { aiRunning = false; }
     }
     // LANG01: the language file comes first (one static file, no AI and no database), then saved words, then the AI queue.
-    const fileReady: Promise<void> = fetch(languageFileUrl(language), { signal: abort.signal })
+    const fileReady: Promise<void> = fetch(languageFileUrl(language), { signal: abort.signal, mode: 'cors', credentials: 'same-origin' })
       .then(r => (r.ok ? r.text() : null))
       .then(raw => { if (!stopped && mergeLanguageFile(cache, raw, language)) scan(); })
       .catch(() => { /* No file yet or offline: saved words and the AI still fill the screen. */ });

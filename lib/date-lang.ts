@@ -1,8 +1,8 @@
 /**
  * LANG01 slice 2: dates and times written in the person's language by the app itself, so today's date never waits
- * for the AI translator. The browser's own calendar data (Intl) is used when it has the language; for languages a
+ * for the AI translator. The browser's own calendar data (Intl) is used except for languages a
  * browser may lack (Nepali, Pashto, Tigrinya, Somali, Yoruba, Hausa, Igbo, Luganda, Twi in Chrome today) the weekday
- * and month names below are used, copied from the Unicode CLDR calendar data. Never a mix: either the whole date is
+ * and month names below are always used on both server and browser, copied from Unicode CLDR. Never a mix: either the whole date is
  * in the person's language, or (unknown language) the whole date stays in English.
  * Numbers stay 0 to 9 and the calendar stays Gregorian (Farsi and Dari would otherwise switch to the Persian
  * calendar and show a different day number from the job data). Times are 24 hour outside English, so no AM or PM
@@ -64,7 +64,8 @@ export function formatInLang(value: Date | number | string, options: Intl.DateTi
   const date = value instanceof Date ? value : new Date(value);
   if (!Number.isFinite(date.getTime())) return '';
   if (isEnglish(lang)) return new Intl.DateTimeFormat(english, options).format(date);
-  if (hasNativeDates(lang)) {
+  // The saved words must be identical during server render and browser hydration, regardless of ICU support.
+  if (!DATE_WORDS[lang] && hasNativeDates(lang)) {
     try { return new Intl.DateTimeFormat(`${intlLocale(lang)}-u-nu-latn-ca-gregory`, withClock(options)).format(date); } catch { /* fall through */ }
   }
   const words = DATE_WORDS[lang];
@@ -75,14 +76,13 @@ export function formatInLang(value: Date | number | string, options: Intl.DateTi
     const { dateStyle, timeStyle, ...rest } = opts;
     opts = { ...rest, ...(dateStyle ? { day: 'numeric', month: dateStyle === 'full' || dateStyle === 'long' ? 'long' : 'short', year: 'numeric', ...(dateStyle === 'full' ? { weekday: 'long' } : {}) } : {}), ...(timeStyle ? { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' } : {}) } as Intl.DateTimeFormatOptions;
   }
-  if (opts.month === 'numeric' || opts.month === '2-digit') return new Intl.DateTimeFormat(ENGLISH, opts).format(date);
   const parts = new Intl.DateTimeFormat(ENGLISH, opts).formatToParts(date);
   const tz = opts.timeZone;
   const pick = (o: Intl.DateTimeFormatOptions) => Number(new Intl.DateTimeFormat('en-US', { ...o, timeZone: tz }).format(date)) - 1;
   const weekday = (() => { const d = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: tz }).format(date); return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(d); })();
   return parts.map(p => {
     if (p.type === 'weekday') { const w = (opts.weekday === 'long' ? words.dl : words.ds)[weekday] ?? p.value; return opts.weekday === 'narrow' ? firstLetter(w) : w; }
-    if (p.type === 'month') return (opts.month === 'long' ? words.ml : words.ms)[pick({ month: 'numeric' })] ?? p.value;
+    if (p.type === 'month' && opts.month !== 'numeric' && opts.month !== '2-digit') return (opts.month === 'long' ? words.ml : words.ms)[pick({ month: 'numeric' })] ?? p.value;
     if (p.type === 'dayPeriod') return '';
     if (p.type === 'literal' && /[A-Za-z]/.test(p.value)) return ' ';
     return p.value;

@@ -23,7 +23,7 @@ const technicalValues = new Set(['mistral-medium-latest', 'mistral-small-latest'
   'kilo-auto/free', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite',
   'private, max-age=86400', 'private, no-store', "default-src 'none'", 'from-image', 'data-no-translate',
 ]);
-const technicalProperties = new Set(['variable', 'powerPreference', 'cache', 'fontFamily']);
+const technicalProperties = new Set(['variable', 'powerPreference', 'cache', 'fontFamily', 'credentials']);
 const domMethods = new Set([
   'getElementById', 'querySelector', 'querySelectorAll', 'closest', 'matches',
   'setProperty', 'setAttribute', 'supports',
@@ -116,6 +116,7 @@ it('detects JSX, string and template copy while allowing technical data and comm
   `;
   expect(violations(source, 'example.tsx')).toHaveLength(6);
   expect(violations(`const label = 'WO-55 on 2026-11-20'; const x = <p>View only</p>;`, 'example.tsx')).toEqual([]);
+  expect(violations(`fetch('/i18n/ne.json', {credentials:'same-origin'});`, 'example.tsx')).toEqual([]);
 });
 
 
