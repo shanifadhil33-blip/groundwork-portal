@@ -52,7 +52,9 @@ export function WorkOrderDetail({ id }: { id: string }) {
   const o=order.data;if(!o)return <PageSkeleton/>;
   const completed=o.status==='done',overdue=isOverdue(o,Date.now(),workspace?.timezone);
   const active=!completed&&o.status!=='cancelled',canComplete=office&&active&&statusTransitions[o.status]?.includes('done');
-  const clientManager=!staff&&((member as {client_kind?:string}).client_kind??'manager')==='manager';
+  const clientKind=(member as {client_kind?:string}).client_kind??'manager';
+  // The facility manager answers prices and visit times; a household answers them on his own request (a home has no facility manager).
+  const clientManager=!staff&&(clientKind==='manager'||(clientKind==='household'&&(o as {created_by?:string|null}).created_by===me?.user.id));
   const quote=o as Detail & {quote_status?:string|null;visit_confirmed_for?:string|null};
   const clientAction=clientManager&&active&&quote.quote_status==='pending'?'quote':clientManager&&active&&o.scheduled_for&&(!quote.visit_confirmed_for||new Date(quote.visit_confirmed_for).getTime()!==new Date(o.scheduled_for).getTime())?'visit':'comment';
   const commentPrimary=(!staff&&clientAction==='comment')||(!active&&staff);

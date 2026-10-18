@@ -26,6 +26,8 @@ export async function inWorkspace<T>(user: string, ws: string, fn: (ctx: Context
 /** Office staff (ROLE08) run jobs, not the team: only admins and supervisors assign, change the team or decide leave. */
 /** ROLE09: only the client facility manager approves prices and confirms visits. Facility staff and households raise and follow requests. */
 export function allowClientManager(ctx: Context) { if (ctx.role !== 'client' || (ctx.client_kind ?? 'manager') !== 'manager') throw new ApiError(403, 'forbidden', 'Your facility manager answers prices and visit times. You can add a message on the request.'); }
+/** Prices and visit times: the client facility manager, or a household on his own request (a home has no facility manager). */
+export function allowClientAnswer(ctx: Context, order: { created_by?: string | null }) { if (ctx.role === 'client' && ctx.client_kind === 'household' && order.created_by === ctx.user) return; allowClientManager(ctx); }
 export const isOfficeStaff = (ctx: Context) => ctx.role === 'staff' && ctx.staff_kind === 'office';
 export function allowTeam(ctx: Context) { if (!['admin', 'staff'].includes(ctx.role) || isOfficeStaff(ctx)) throw new ApiError(403, 'forbidden', 'Only an admin or supervisor can change the team, give jobs to people or decide leave.'); }
 export function allow(ctx: Context, roles: string[]) { if (!roles.includes(ctx.role)) throw forbidden(); }

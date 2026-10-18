@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ApiError, invalid } from '../http';
 import { withSystem } from '../db';
-import { allow, allowClientManager, inWorkspace, isOfficeStaff, uuid, type Context } from './shared';
+import { allow, allowClientAnswer, inWorkspace, isOfficeStaff, uuid, type Context } from './shared';
 import { getWorkOrder } from './work-orders';
 
 /** The office sends a price for a job. The client approves or declines it. Amounts only ever come from the office. */
@@ -23,7 +23,7 @@ export async function sendQuote(user: string, ws: string, id: string, body: unkn
     const r = (await db.query("UPDATE work_orders SET quote_amount=$3, quote_note=$4, quote_status='pending', quote_decided_by=NULL, quote_decided_at=NULL WHERE workspace_id=$1 AND id=$2 RETURNING id, quote_amount, quote_note, quote_status", [ws, id, data.amount, data.note || null])).rows[0];
     // Every client person who can see this job hears about it; a household only for his own request.
     await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title)
-      SELECT m.user_id,$1,'quote_sent','work_orders',$2,$3,$4,$5 FROM members m WHERE m.workspace_id=$1 AND m.role='client' AND m.client_id=$6 AND m.archived_at IS NULL AND coalesce(m.client_kind,'manager')='manager' AND $7::uuid IS NOT NULL`,
+      SELECT m.user_id,$1,'quote_sent','work_orders',$2,$3,$4,$5 FROM members m WHERE m.workspace_id=$1 AND m.role='client' AND m.client_id=$6 AND m.archived_at IS NULL AND (coalesce(m.client_kind,'manager')='manager' OR m.user_id=$7::uuid) AND $7::uuid IS NOT NULL`,
       [ws, id, user, name, o.title, o.client_id, o.created_by]);
     return r;
   }, user);
@@ -33,7 +33,7 @@ export async function sendQuote(user: string, ws: string, id: string, body: unkn
 export async function decideQuote(user: string, ws: string, id: string, body: unknown) {
   uuid.parse(id); const { decision } = decideSchema.parse(body);
   const o: any = await getWorkOrder(user, ws, id);
-  const name = await inWorkspace(user, ws, async c => { allowClientManager(c); return who(c); });
+  const name = await inWorkspace(user, ws, async c => { allowClientAnswer(c, o); return who(c); });
   if (o.quote_status !== 'pending') throw new ApiError(409, 'no_quote', o.quote_status ? 'This price was already answered.' : 'There is no price to approve on this job yet.');
   return withSystem(async db => {
     const r = (await db.query("UPDATE work_orders SET quote_status=$3, quote_decided_by=$4, quote_decided_at=now() WHERE workspace_id=$1 AND id=$2 AND quote_status='pending' RETURNING id, quote_amount, quote_status", [ws, id, decision, user])).rows[0];
@@ -47,7 +47,7 @@ export async function decideQuote(user: string, ws: string, id: string, body: un
 export async function confirmVisit(user: string, ws: string, id: string) {
   uuid.parse(id);
   const o: any = await getWorkOrder(user, ws, id);
-  const name = await inWorkspace(user, ws, async c => { allowClientManager(c); return who(c); });
+  const name = await inWorkspace(user, ws, async c => { allowClientAnswer(c, o); return who(c); });
   if (!o.scheduled_for) throw invalid('This job has no visit time yet.', 'scheduled_for');
   if (o.status === 'done' || o.status === 'cancelled') throw invalid('This job is closed.', 'scheduled_for');
   return withSystem(async db => {
