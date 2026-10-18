@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { DEFAULT_LANGUAGE, LANGUAGES, isRtl } from '../../lib/languages';
-import { isEnglish, readTranslationCache, replaceTranslation, translationPieces, translationSource, TRANSLATION_ATTRIBUTES, TRANSLATION_SKIP } from '../../lib/i18n';
+import { isEnglish, languageFileUrl, mergeLanguageFile, readTranslationCache, replaceTranslation, translationPieces, translationSource, TRANSLATION_ATTRIBUTES, TRANSLATION_SKIP } from '../../lib/i18n';
 import { useResource } from './resource';
 import { LANG_HINT_KEY } from '../../lib/head-scripts';
 
@@ -126,6 +126,8 @@ export function Translator() {
       if (running || stopped || !pending.size) return;
       running = true;
       try {
+        await fileReady;
+        for (const source of [...pending]) if (Object.hasOwn(cache, source)) pending.delete(source);
         while (pending.size && !stopped) {
           const strings = [...pending].slice(0, 200);
           for (const source of strings) { pending.delete(source); attempted.add(source); }
@@ -146,6 +148,11 @@ export function Translator() {
         }
       } finally { aiRunning = false; }
     }
+    // LANG01: the language file comes first (one static file, no AI and no database), then saved words, then the AI queue.
+    const fileReady: Promise<void> = fetch(languageFileUrl(language), { signal: abort.signal })
+      .then(r => (r.ok ? r.text() : null))
+      .then(raw => { if (!stopped && mergeLanguageFile(cache, raw, language)) scan(); })
+      .catch(() => { /* No file yet or offline: saved words and the AI still fill the screen. */ });
     scan();
     return () => {
       stopped = true; abort.abort(); observer.disconnect(); clearTimeout(timer); clearTimeout(quietTimer); quiet(false);

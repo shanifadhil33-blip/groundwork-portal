@@ -89,3 +89,14 @@ export function readTranslationCache(raw: string | null, lang?: string): Record<
   } catch { /* A broken or unavailable cache must not prevent navigation. */ }
   return out;
 }
+/** LANG01: interface text ships in language files, one per language (public/i18n/<code>.json, written by e2e/export-language-files.mjs). */
+export const languageFileUrl = (lang: string) => `/i18n/${encodeURIComponent(lang)}.json`;
+/** Adds the language file's words to the cache. The file wins over machine words saved in this browser, because files are what native speakers review. Returns how many words changed. */
+export function mergeLanguageFile(cache: Record<string, string>, raw: string | null, lang: string): number {
+  if (isEnglish(lang)) return 0;
+  let changed = 0;
+  for (const [source, translated] of Object.entries(readTranslationCache(raw, lang))) {
+    if (cache[source] !== translated) { cache[source] = translated; changed++; }
+  }
+  return changed;
+}
