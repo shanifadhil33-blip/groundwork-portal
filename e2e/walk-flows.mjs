@@ -1,12 +1,12 @@
 // End to end flow walk on the fixed sandbox, every role, with 390 screenshots. Records gaps; never resets.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';
-const OUT='/workspace/qa/walk-oct18'; const s=await sandbox('imran'); const ws=s.ws; const log=[]; const gaps=[];
+const OUT=process.env.OUT||'/workspace/qa/walk-oct18'; const s=await sandbox('imran'); const ws=s.ws; const log=[]; const gaps=[];
 const api=async(m,path,data)=>{const r=await s.api.fetch(`/api/workspaces/${ws}${path}`,{method:m,data,timeout:60000});let b=null;try{b=await r.json();}catch{}return {st:r.status(),b};};
-const as=async p=>{const r=await s.as(p);if(r.status()!==200)throw new Error('switch '+p+' '+r.status());};
+let cur=null;const as=async p=>{cur=p;const r=await s.as(p);if(r.status()!==200)throw new Error('switch '+p+' '+r.status());};
 const step=(name,ok,detail)=>{log.push({name,ok,detail});if(!ok)gaps.push({name,detail});console.log(ok?'ok  ':'GAP ',name,detail?JSON.stringify(detail).slice(0,220):'');};
 const list=b=>Array.isArray(b)?b:b?.data??b?.rows??b?.items??b?.time_off??[];
 const ua=async id=>(await api('GET',`/work-orders/${id}`)).b?.updated_at;
-const br=await chromium.launch(); const shot=async(who,path,name)=>{const ctx=await br.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});await ctx.addCookies((await s.api.storageState()).cookies);const p=await ctx.newPage();try{await p.goto(B+path,{waitUntil:'load',timeout:45000});await p.waitForTimeout(2500);await p.screenshot({path:`${OUT}/${name}.png`});const t=await p.evaluate(()=>document.body.innerText);await ctx.close();return t;}catch(e){await ctx.close();return 'ERR '+e.message;}};
+const br=await chromium.launch(); const shot=async(who,path,name)=>{const back=cur;if(who!==cur)await as(who);try{return await shot0(who,path,name);}finally{if(back&&back!==cur)await as(back);}};const shot0=async(who,path,name)=>{const ctx=await br.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});await ctx.addCookies((await s.api.storageState()).cookies);const p=await ctx.newPage();try{await p.goto(B+path,{waitUntil:'load',timeout:45000});await p.waitForTimeout(2500);await p.screenshot({path:`${OUT}/${name}.png`});const t=await p.evaluate(()=>document.body.innerText);await ctx.close();return t;}catch(e){await ctx.close();return 'ERR '+e.message;}};
 const today=new Date().toISOString().slice(0,10);
 // people
 await as('imran'); const members=list((await api('GET','/members')).b); const id=n=>members.find(m=>(m.name??'').toLowerCase().startsWith(n))?.user_id;
@@ -37,7 +37,7 @@ await shot('ravi','/today','D1-ravi-today');
 await as('pranav'); const pc=await api('POST',`/work-orders/${wo}/precheck`,{answers:{},note:'Room free after 2 pm'}); step('client answers the visit check', [200,201].includes(pc.st), {st:pc.st,err:pc.b?.error}); await as('ravi');
 const st1=await api('PATCH',`/work-orders/${wo}`,{updated_at:await ua(wo),status:'in_progress'}); step('Ravi starts the job', st1.st===200, {st:st1.st,err:st1.b?.error});
 const assignTry=await api('PATCH',`/work-orders/${wo}`,{updated_at:await ua(wo),assignee_id:sam}); step('Ravi cannot reassign', assignTry.st>=400, {st:assignTry.st});
-const cur=(await api('GET',`/work-orders/${wo}`)).b; const rp=await api('POST',`/work-orders/${wo}/report`,{updated_at:await ua(wo),problem:'Drain line blocked',work:'Cleared the drain line and tested',outcome:'fixed'}); step('Ravi saves the job report', [200,201].includes(rp.st), {st:rp.st,err:rp.b?.error,status:rp.b?.status});
+const rp=await api('POST',`/work-orders/${wo}/report`,{updated_at:await ua(wo),problem:'Drain line blocked',work:'Cleared the drain line and tested',outcome:'fixed'}); step('Ravi saves the job report', [200,201].includes(rp.st), {st:rp.st,err:rp.b?.error,status:rp.b?.status});
 let after=(await api('GET',`/work-orders/${wo}`)).b; if(after?.status!=='done'){const dn=await api('PATCH',`/work-orders/${wo}`,{updated_at:await ua(wo),status:'done'});step('Ravi marks done', dn.st===200,{st:dn.st,err:dn.b?.error});after=(await api('GET',`/work-orders/${wo}`)).b;}
 step('job is done after report', after?.status==='done', {status:after?.status});
 // E client sees done, rates
