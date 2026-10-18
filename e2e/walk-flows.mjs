@@ -7,7 +7,7 @@ const step=(name,ok,detail)=>{log.push({name,ok,detail});if(!ok)gaps.push({name,
 const list=b=>Array.isArray(b)?b:b?.data??b?.rows??b?.items??b?.time_off??[];
 const ua=async id=>(await api('GET',`/work-orders/${id}`)).b?.updated_at;
 const br=await chromium.launch(); const shot=async(who,path,name)=>{const back=cur;if(who!==cur)await as(who);try{return await shot0(who,path,name);}finally{if(back&&back!==cur)await as(back);}};const shot0=async(who,path,name)=>{const ctx=await br.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});await ctx.addCookies((await s.api.storageState()).cookies);const p=await ctx.newPage();try{await p.goto(B+path,{waitUntil:'load',timeout:45000});await p.waitForTimeout(2500);await p.screenshot({path:`${OUT}/${name}.png`});const t=await p.evaluate(()=>document.body.innerText);await ctx.close();return t;}catch(e){await ctx.close();return 'ERR '+e.message;}};
-const today=new Date().toISOString().slice(0,10);
+const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai'}).format(new Date()); // the workspace day, not the UTC day (a run after midnight Dubai scheduled the job for yesterday)
 // people
 await as('imran'); const members=list((await api('GET','/members')).b); const id=n=>members.find(m=>(m.name??'').toLowerCase().startsWith(n))?.user_id;
 const ravi=id('ravi'), sam=id('sam'); step('members listed', !!ravi&&!!sam, {count:members.length});
