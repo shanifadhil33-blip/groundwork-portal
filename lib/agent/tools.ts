@@ -3,7 +3,7 @@ import { onboardingAnswers } from '../onboarding';
 import { saveContactName,listContactNames } from '../services/contact-names';
 import { listTeamMessages,sendTeamMessage } from '../services/team-space';
 import { listMessages,listThreads,sendMessage,messageInput,threadInput } from '../services/messages';
-import { createSuggestion,decideSuggestion,listSuggestions,suggestionInput } from '../services/suggestions';
+import { createSuggestion,decideSuggestion,listSuggestions,suggestionInput,withdrawSuggestion } from '../services/suggestions';
 import { needsAttention } from '../services/attention';
 import { z } from 'zod';
 import { asAgent, withSystem } from '../db';
@@ -49,6 +49,7 @@ export const tools:Record<string,Tool>={
  send_message:{description:'Send a message to a permitted person or existing conversation, or on a visible job. Always show the Yes and Change confirmation first. Voice text fills body and never sends itself.',write:true,schema:messageInput,run:(c,a)=>sendMessage(c.user,c.ws,a)},
  list_suggestions:{description:'List suggested jobs with sender, source, time and pending count. Clients and technicians see only their own suggestions.',write:false,schema:z.object({}).strict(),run:c=>listSuggestions(c.user,c.ws)},
  approve_suggestion:{description:'Admin and supervisor only: accept a suggestion and create its job. Review and confirm first. Use overrides for edits before approval.',write:true,schema:z.object({id:uuid,overrides:suggestionInput.partial().optional()}).strict(),run:(c,a)=>decideSuggestion(c.user,c.ws,a.id,{decision:'approved',overrides:a.overrides})},
+ withdraw_request:{description:'Clients only: withdraw a request you sent that the office has not answered yet (list_suggestions shows status pending). Only when the person clearly asks to cancel or withdraw it. The portal shows a confirmation card first.',write:true,schema:z.object({id:uuid}).strict(),run:(c,a)=>withdrawSuggestion(c.user,c.ws,a.id)},
  decline_suggestion:{description:'Admin and supervisor only: decline a suggestion with a required plain reason. Review and confirm first.',write:true,schema:z.object({id:uuid,reason:z.string().trim().min(1).max(2000)}).strict(),run:(c,a)=>decideSuggestion(c.user,c.ws,a.id,{decision:'declined',reason:a.reason})},
  suggest_job:{description:'Suggest a job for review. Technicians never create jobs directly. When inside a job use its client_id, site_id and from_work_order_id. Voice text belongs in problem.',write:true,schema:suggestionInput,run:(c,a)=>createSuggestion(c.user,c.ws,a)},
  needs_attention:{description:'Read what needs attention: suggested jobs and unread bell notifications. Use when asked what needs attention. Never guess counts.',write:false,schema:z.object({}).strict(),run:c=>needsAttention(c.user,c.ws)},

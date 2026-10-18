@@ -96,6 +96,7 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='send_message')return `Send a message to ${plainAssistantReply(target??'this thread')}.\n${plainAssistantReply(args.body??'')}${args.photo_ids?.length?`\nPhotos: ${args.photo_ids.length}`:''}${args.work_order_id?`\nWho can read it: ${args.visibility==='internal'?'Team only':'Client and team'}`:''}`;
   if(tool==='suggest_job')return `Suggest ${plainAssistantReply(args.title)} for supervisor review.\n${plainAssistantReply(args.problem??'')}`;
   if(tool==='approve_suggestion')return `Approve ${plainAssistantReply(target??'this suggestion')} and create a job.${args.overrides?'\n'+Object.entries(args.overrides).map(([k,v])=>`${readableLabel(k)}: ${plainAssistantReply(String(v))}`).join('\n'):''}`;
+  if(tool==='withdraw_request')return `Withdraw your request ${plainAssistantReply(target??'')}. The office will not see it any more.`;
   if(tool==='decline_suggestion')return `Decline ${plainAssistantReply(target??'this suggestion')}.\nReason: ${plainAssistantReply(args.reason)}`;
   const name = order ? assistantTarget(order) : plainAssistantReply(target ?? 'the selected row');
   if(tool==='send_quote')return `Send a price of ${Number(args.amount).toLocaleString('en')} to the client for ${name}${args.note?`\n${plainAssistantReply(args.note)}`:''}\nThe client approves or declines it.`;
@@ -127,6 +128,7 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='send_message')return 'Your message was sent. The reader gets a notification.';
   if(tool==='suggest_job')return 'Sent your suggested job for review.';
   if(tool==='approve_suggestion')return 'Accepted the suggestion and created its job. The sender gets a message.';
+  if(tool==='withdraw_request')return 'Your request is withdrawn.';
   if(tool==='decline_suggestion')return `The request was not accepted. The sender gets this reason: ${plainAssistantReply(args.reason)}`;
   if(tool==='create_request'&&order&&!(order as any).order_number)return 'Request Received. Your service company will review it.';
   if(tool==='set_worker_skills')return plainAssistantReply(`Saved what ${target??'this person'} does.`);
