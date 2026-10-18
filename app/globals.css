@@ -1081,3 +1081,8 @@ html[data-translating] .app-main::before{content:"";position:fixed;inset-inline:
 .app-main>*{transition:opacity .12s}
 .memory-page .action-list li{align-items:flex-start;gap:var(--s2)}.memory-actions{gap:var(--s2);flex-shrink:0}.memory-actions .button{min-height:44px}.memory-edit{flex:1}
 label:has(>input[type=checkbox]),label:has(>input[type=radio]){min-height:44px;display:flex;align-items:center;gap:var(--s2);cursor:pointer}
+/* Messages: the person picker matches the search field above it. */
+.messages-page>label{display:grid;gap:var(--s1);font-weight:500}
+.messages-page>label>select{width:100%;min-height:48px;padding:0 var(--s3);border:1px solid var(--border);border-radius:var(--radius-control);background:var(--surface);color:var(--text);font-weight:400}
+/* Request cards: the time sits under the status, start aligned, not centred as a full width button. */
+.action-list .stack.compact>.time-button{align-self:flex-start;justify-self:start;text-align:start;padding:0;min-height:24px;color:var(--text-muted)}
