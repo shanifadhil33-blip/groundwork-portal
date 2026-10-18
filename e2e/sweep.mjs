@@ -1,5 +1,5 @@
 // Pre-release phone UI sweep (build-knowledge/rules/phone-ui-sweep.md). Fixed sandbox only.
-// node sweep.mjs <outdir> [personas] [langs] : every role at 360 and 390 in English, Gulf Arabic and Tamil.
+// node sweep.mjs <outdir> [personas] [langs] : every role at 360 and 390 in English, Gulf Arabic and Tamil. CACHED_ONLY=1 makes no AI translation calls.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';
 const OUT = process.argv[2] ?? '/workspace/qa/sweep'; fs.mkdirSync(OUT, { recursive: true });
 const PERSONAS = (process.argv[3] ?? 'imran,sam,ravi,nabil,pranav,kevin,omar,faisal').split(',');
@@ -32,6 +32,8 @@ for (const who of PERSONAS) {
     await s.api.patch('/api/me/preferences', { data: { language: lang } });
     for (const w of WIDTHS) {
       const ctx = await br.newContext({ viewport: { width: w, height: 800 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }); await ctx.addCookies((await s.api.storageState()).cookies); const p = await ctx.newPage();
+      // CACHED_ONLY=1: saved words only, never an AI translation call (the free AI allowance is shared); missing words stay English and are reported.
+      if (process.env.CACHED_ONLY) await ctx.route('**/api/i18n/translate', r => { let b = {}; try { b = JSON.parse(r.request().postData() || '{}'); } catch {} return r.continue({ postData: JSON.stringify({ ...b, cached_only: true }) }); });
       for (const path of [HOME[who] ?? '/dashboard', '/work-orders', '/settings', ...(process.env.PATHS ?? '').split(',').filter(Boolean)]) {
         try {
           await p.goto(B + path, { waitUntil: 'load', timeout: 45000 }); await p.waitForTimeout(lang === 'en-IN' ? 1500 : 4000); pages++;
