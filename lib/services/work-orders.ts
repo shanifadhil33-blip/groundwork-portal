@@ -1,7 +1,8 @@
 import { detectEmergency } from '../emergency';
 import { createSuggestion } from './suggestions';
 import { assertWorking } from './time-off';
-import { pushJobChange } from './push';
+import { pushJobChange, sendPush } from './push';
+import { withSystem } from '../db';
 import { TRADES } from '../trades';
 import { publicClient } from './clients';
 import { z } from 'zod';
@@ -15,8 +16,8 @@ const createSchema=mutable.partial().extend({title:name,client_id:uuid.optional(
 const patchSchema=mutable.partial().extend({updated_at:timestamp.optional(),reopen:z.literal(true).optional(),undo_status:z.literal(true).optional()}).strict();
 const clientSchema=z.object({title:name,description:z.string().max(20000).optional(),preferred_window:z.string().trim().max(200).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();
 export const transitions:Record<string,string[]>={
- open:['scheduled','cancelled'],scheduled:['in_progress','cancelled'],
- in_progress:['waiting_on_parts','done','cancelled'],waiting_on_parts:['in_progress','done','cancelled'],
+ open:['scheduled','cancelled'],scheduled:['in_progress','open','cancelled'],
+ in_progress:['waiting_on_parts','done','scheduled','cancelled'],waiting_on_parts:['in_progress','done','cancelled'],
  done:[],cancelled:[],
 };
 /** The first person who is not off and fits the trade or area: what Best match shows. */
@@ -131,6 +132,10 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   if(new Date(version).getTime()!==order.updated_at.getTime())throw new ApiError(409,'stale','This request changed since you opened it. Refresh it and try again.');
   const {updated_at:_,reopen,undo_status,...data}=parsed;
   if(!Object.keys(data).length)throw invalid('Provide at least one change.');
+  // Audit A5: a booked job with nobody on it goes back to Open, so it shows up as needing a person.
+  if('assignee_id' in data&&data.assignee_id===null&&order.status==='scheduled'&&!data.status)data.status='open';
+  // Audit A6: the client declined the price, so the technician checks with the office before he starts.
+  if(c.role==='technician'&&data.status==='in_progress'&&order.quote_status==='declined')throw new ApiError(409,'price_declined','The client declined the price. Ask your supervisor before you start.');
   if(order.status==='done') {
    const target=order.scheduled_for?'scheduled':'open';
    if(c.role!=='admin')throw new ApiError(403,'forbidden','Only an admin can reopen a completed work order.');
@@ -150,7 +155,27 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   return update(c,'work_orders',id,data);
  });
  await pushJobChange(user,before,saved as never);
+ await notifyMovedOrRescheduled(user,ws,before,saved as Record<string,unknown>);
  return saved;
+}
+/** Audit A2 and A4: the technician who lost a job hears it moved; a new visit time reaches the technician and the client people who follow the job. */
+async function notifyMovedOrRescheduled(actor:string,ws:string,before:Record<string,any>|null,after:Record<string,any>){
+ if(!before)return;
+ const t=(v:unknown)=>v?new Date(v as string).getTime():null;
+ const moved=before.assignee_id&&before.assignee_id!==after.assignee_id&&before.assignee_id!==actor;
+ const rescheduled=t(before.scheduled_for)!==null&&t(after.scheduled_for)!==null&&t(before.scheduled_for)!==t(after.scheduled_for)&&!['done','cancelled'].includes(String(after.status));
+ if(!moved&&!rescheduled)return;
+ await withSystem(async db=>{
+  const name=String((await db.query('SELECT name FROM users WHERE id=$1',[actor])).rows[0]?.name??'Your team');
+  const add=(users:string[],kind:string,entity:string)=>users.length?db.query('INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title) SELECT u,$2,$3,$4,$5,$6,$7,$8 FROM unnest($1::uuid[]) u',[users,ws,kind,entity,after.id,actor,name,after.title]):null;
+  if(moved)await add([before.assignee_id],'job_unassigned','job_unassigned');
+  if(rescheduled){
+   const tech=after.assignee_id&&after.assignee_id!==actor&&after.assignee_id===before.assignee_id?[after.assignee_id as string]:[];
+   const clients=(await db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND role='client' AND client_id=$2 AND archived_at IS NULL AND user_id<>$4 AND (coalesce(client_kind,'manager')='manager' OR user_id=$3)",[ws,after.client_id,after.created_by,actor])).rows.map(r=>r.user_id as string);
+   await add([...tech,...clients],'visit_changed','work_orders');
+  }
+ },actor);
+ if(moved)await sendPush([before.assignee_id],{title:'Job moved',body:`${after.title} was given to someone else. You do not need to go.`,url:'/today',tag:`moved-${after.id}`});
 }
 export async function createComment(user:string,ws:string,id:string,body:unknown,key?:string) {
  return inWorkspace(user,ws,async c=>{

@@ -1,7 +1,7 @@
 import { localDate, formatDate, scheduledInstant, workspaceTimezone } from '../dates';
 export { isOverdue } from '../dates';
 export const statusLabels: Record<string, string> = { open: 'Open', scheduled: 'Scheduled', in_progress: 'In Progress', waiting_on_parts: 'Waiting on Parts', done: 'Done', cancelled: 'Cancelled' };
-export const statusTransitions: Record<string, string[]> = { open: ['scheduled', 'cancelled'], scheduled: ['in_progress', 'cancelled'], in_progress: ['waiting_on_parts', 'done', 'cancelled'], waiting_on_parts: ['in_progress', 'done', 'cancelled'], done: [], cancelled: [] };
+export const statusTransitions: Record<string, string[]> = { open: ['scheduled', 'cancelled'], scheduled: ['in_progress', 'open', 'cancelled'], in_progress: ['waiting_on_parts', 'done', 'scheduled', 'cancelled'], waiting_on_parts: ['in_progress', 'done', 'cancelled'], done: [], cancelled: [] };
 export const priorities = ['low', 'normal', 'high', 'urgent'];
 export const label = (value: string) => statusLabels[value] ?? value.replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 import type { ClientRecord, SiteRecord } from '../records';

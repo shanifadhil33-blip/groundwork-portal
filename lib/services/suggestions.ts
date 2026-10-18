@@ -1,6 +1,7 @@
 import { detectEmergency } from '../emergency';
 import { z } from 'zod';
 import { ApiError, invalid, missing } from '../http';
+import { withSystem } from '../db';
 import { allowTeam, inWorkspace, name, priority, replay, row, uuid } from './shared';
 export const suggestionInput=z.object({title:name,problem:z.string().trim().max(20000).default(''),client_id:uuid.nullable().optional(),site_id:uuid.nullable().optional(),from_work_order_id:uuid.nullable().optional(),priority:priority.default('normal'),preferred_window:z.string().trim().max(200).nullable().optional(),photo_ids:z.array(uuid).max(4).default([]),voice_note_text:z.string().trim().max(20000).nullable().optional()}).strict();
 export type SuggestionSource='agent'|'client'|'household'|'technician'|'whatsapp';
@@ -52,4 +53,20 @@ export async function decideSuggestion(user:string,ws:string,id:string,body:unkn
   if(jobId)await c.db.query("INSERT INTO job_photos(id,workspace_id,client_id,work_order_id,kind,mime,bytes,width,height,taken_by) SELECT id,workspace_id,$3,$4,'before',mime,bytes,width,height,uploaded_by FROM shared_photos WHERE workspace_id=$1 AND suggestion_id=$2",[ws,id,(d.decision==='approved'?d.overrides?.client_id:undefined)??s.client_id,jobId]);
   return (await c.db.query('UPDATE job_suggestions SET status=$3,decline_reason=$4,work_order_id=$5,decided_by=$6,decided_at=now() WHERE workspace_id=$1 AND id=$2 RETURNING id,status,decline_reason,work_order_id',[ws,id,d.decision,d.decision==='declined'?d.reason:null,jobId,user])).rows[0];
  });
+}
+
+/** Audit A7: the person who sent a request may withdraw it while the office has not answered. It is removed, with its bell items. */
+export async function withdrawSuggestion(user:string,ws:string,id:string){
+ uuid.parse(id);
+ await inWorkspace(user,ws,async c=>{
+  const s=(await c.db.query('SELECT status,sender_user_id FROM job_suggestions WHERE workspace_id=$1 AND id=$2',[ws,id])).rows[0];
+  if(!s||s.sender_user_id!==user)throw missing();
+  if(s.status!=='pending')throw new ApiError(409,'decided','The office already answered this request.');
+ });
+ await withSystem(async db=>{
+  const gone=(await db.query("DELETE FROM job_suggestions WHERE workspace_id=$1 AND id=$2 AND sender_user_id=$3 AND status='pending' RETURNING id",[ws,id,user])).rowCount;
+  if(!gone)throw new ApiError(409,'decided','The office already answered this request.');
+  await db.query('DELETE FROM notifications WHERE workspace_id=$1 AND entity_id=$2',[ws,id]);
+ },user);
+ return {withdrawn:true};
 }

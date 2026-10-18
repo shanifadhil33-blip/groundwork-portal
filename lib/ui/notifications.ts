@@ -25,6 +25,8 @@ export function notificationMessage(r:Record<string,any>, client=false) {
  if(r.kind==='leave_requested')return `${actor} asked for time off: ${r.work_order_title??'some days'}. Approve or decline it on Home.`;
  if(r.kind==='leave_decided')return `${actor} ${r.to_status==='approved'?'approved':'declined'} your time off: ${r.work_order_title??'your days'}.`;
  if(r.kind==='comment_added')return r.to_status==='internal'?`${actor} added an internal note on ${title}.`:`${actor} added a comment visible to the client to ${title}.`;
+ if(r.kind==='job_unassigned')return `${actor} gave ${title} to someone else. You do not need to go.`;
+ if(r.kind==='visit_changed')return `${actor} changed the visit time for ${title}. Open the job to see the new time.`;
  if(r.kind==='request_created')return `${actor} created ${title}.`;
  return `${actor} updated ${title}.`;
 }

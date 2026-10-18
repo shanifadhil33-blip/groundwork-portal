@@ -109,10 +109,26 @@ export async function requestTimeOff(user: string, ws: string, body: unknown) {
 }
 
 /** An admin or supervisor approves or declines a pending request. Approved time off counts everywhere: schedule, planner, assignment. */
+/** Audit A3: jobs still booked to this person on these days. Leave over them would leave the jobs with someone who is away. */
+async function bookedDuring(c: { db: { query: (q: string, v: unknown[]) => Promise<{ rows: any[] }> } }, ws: string, userId: string, start: string, end: string) {
+  const rows = (await c.db.query(`SELECT w.order_number, w.title, to_char(w.scheduled_for AT TIME ZONE s.timezone, 'Dy Mon FMDD') AS day FROM work_orders w JOIN workspaces s ON s.id=w.workspace_id
+    WHERE w.workspace_id=$1 AND w.assignee_id=$2 AND w.status IN ('scheduled','in_progress','waiting_on_parts') AND w.archived_at IS NULL
+      AND (w.scheduled_for AT TIME ZONE s.timezone)::date BETWEEN $3::date AND $4::date ORDER BY w.scheduled_for LIMIT 5`, [ws, userId, start, end])).rows;
+  return rows;
+}
+async function refuseIfBooked(c: Parameters<typeof bookedDuring>[0], ws: string, userId: string, start: string, end: string) {
+  const jobs = await bookedDuring(c, ws, userId, start, end);
+  if (!jobs.length) return;
+  const name = String((await c.db.query('SELECT name FROM visible_user($1)', [userId])).rows[0]?.name ?? 'This person');
+  const list = jobs.map(j => `WO ${j.order_number} ${j.title} (${j.day})`).join(', ');
+  throw new ApiError(409, 'booked', `${name} has ${jobs.length === 1 ? 'a job' : `${jobs.length} jobs`} booked on those days: ${list}. Give ${jobs.length === 1 ? 'it' : 'them'} to someone else or move ${jobs.length === 1 ? 'it' : 'them'}, then approve.`);
+}
+
 export async function decideTimeOff(user: string, ws: string, id: string, body: unknown) {
   uuid.parse(id); const { decision } = z.object({ decision: z.enum(['approved', 'declined']) }).strict().parse(body);
   return inWorkspace(user, ws, async c => {
     allowTeam(c);
+    if (decision === 'approved') { const t = (await c.db.query("SELECT user_id, starts_on::text, ends_on::text FROM time_off WHERE workspace_id=$1 AND id=$2 AND status='pending'", [ws, id])).rows[0]; if (t) await refuseIfBooked(c, ws, t.user_id, t.starts_on, t.ends_on); }
     const r = (await c.db.query("UPDATE time_off SET status=$3, decided_by=$4, decided_at=now() WHERE workspace_id=$1 AND id=$2 AND status='pending' RETURNING id, user_id, kind, status, starts_on::text, ends_on::text", [ws, id, decision, user])).rows[0];
     if (!r) { const any = (await c.db.query('SELECT status FROM time_off WHERE workspace_id=$1 AND id=$2', [ws, id])).rows[0]; if (!any) throw missing(); throw new ApiError(409, 'decided', 'This request was already decided.'); }
     return r;
