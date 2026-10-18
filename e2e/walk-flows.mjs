@@ -28,7 +28,7 @@ const asg=await api('PATCH',`/work-orders/${wo}`,{updated_at:await ua(wo),assign
 await shot('sam',`/work-orders/${wo}`,'B1-sam-job-assigned');
 // C quote
 const q=await api('POST',`/work-orders/${wo}/quote`,{amount:250,note:'Drain line clean and test'}); step('supervisor sends a price', [200,201].includes(q.st), {st:q.st,err:q.b?.error});
-await as('pranav'); const pn=list((await api('GET','/notifications?pageSize=50')).b); step('facility manager is told about the price', pn.some(n=>JSON.stringify(n).match(/price|quote|250/i)), {latest:pn.slice(0,3).map(n=>n.title??n.body)});
+await as('pranav'); const pn=list((await api('GET','/notifications?pageSize=50')).b); step('facility manager is told about the price', pn.some(n=>JSON.stringify(n).match(/price|quote|250/i)), {latest:pn.slice(0,2)});
 await shot('pranav',`/work-orders/${wo}`,'C1-pranav-price');
 const qd=await api('POST',`/work-orders/${wo}/quote/decision`,{decision:'approved'}); step('facility manager approves the price', [200,201].includes(qd.st), {st:qd.st,err:qd.b?.error});
 // D technician does the job
@@ -48,12 +48,12 @@ await shot('pranav',`/work-orders/${wo}`,'E1-pranav-done-rated');
 const rt2=await api('POST',`/work-orders/${wo}/rating`,{stars:1}); step('rating can not be given twice (or updates)', rt2.st!==500, {st:rt2.st});
 // F other client roles
 await as('kevin'); const kv=await api('GET',`/work-orders/${wo}`); step('client staff (same client) can view the request', kv.st===200, {st:kv.st});
-const kr=await api('POST',`/work-orders/${wo}/rating`,{stars:3}); step('client staff can not rate (manager only?)', true, {st:kr.st,note:'record only'});
+const kr=await api('POST',`/work-orders/${wo}/rating`,{stars:3}); step('a job takes one rating only', kr.st===409, {st:kr.st});
 await as('faisal'); const fv=await api('GET',`/work-orders/${wo}`); step('household can not see another client job', fv.st===404||fv.st===403, {st:fv.st});
 await as('omar'); const ov=await api('GET',`/work-orders/${wo}`); step('omar (other client) can not see it', ov.st===404||ov.st===403, {st:ov.st});
 // internal note privacy
 await as('sam'); const ic=await api('POST',`/work-orders/${wo}/comments`,{body:'Internal: client is slow to pay',visibility:'internal'}); step('supervisor adds an internal note', [200,201].includes(ic.st), {st:ic.st,err:ic.b?.error});
-await as('pranav'); const pcm=await api('GET',`/work-orders/${wo}/comments`); step('client never sees internal notes', !JSON.stringify(pcm.b).includes('slow to pay'), {st:pcm.st});
+await as('pranav'); const pcm=await api('GET',`/work-orders/${wo}`); step('client never sees internal notes', pcm.st===200&&!JSON.stringify(pcm.b).includes('slow to pay'), {st:pcm.st,comments:(pcm.b?.comments??[]).length}); await as('kevin'); const kcm=await api('GET',`/work-orders/${wo}`); step('client staff never sees internal notes', kcm.st===200&&!JSON.stringify(kcm.b).includes('slow to pay'), {st:kcm.st}); await as('sam'); const scm=await api('GET',`/work-orders/${wo}`); step('supervisor sees the internal note', JSON.stringify(scm.b).includes('slow to pay'));
 // G suggestion
 await as('ravi'); const sg=await api('POST','/suggestions',{title:'Walk: lobby light flickering',problem:'Second light from the door flickers',site_id:sites[0]?.id}); step('Ravi suggests a job', [200,201].includes(sg.st), {st:sg.st,err:sg.b?.error});
 await as('sam'); const sd=await api('POST',`/suggestions/${sg.b?.id}`,{decision:'approved'}); step('supervisor approves the suggestion into a job', [200,201].includes(sd.st), {st:sd.st,err:sd.b?.error,wo:sd.b?.work_order_id??sd.b?.work_order?.id});
