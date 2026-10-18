@@ -65,3 +65,13 @@ it('a client withdraws his pending request but not an answered one', async () =>
   await decideSuggestion(ids.sam, ws, t.id, { decision: 'approved' });
   await expect(withdrawSuggestion(ids.faisal, ws, t.id)).rejects.toMatchObject({ status: 409 });
 });
+// Audit A2: an old bell item no longer links to a job that was given to someone else.
+it('a moved technician keeps the bell item but it no longer opens the job', async () => {
+  const { listNotifications } = await import('../lib/services/notifications');
+  let o = await job('Audit stale link');
+  o = await patchWorkOrder(ids.sam, ws, o.id, { assignee_id: ids.ravi, scheduled_for: day(34), status: 'scheduled', updated_at: v(o) });
+  o = await patchWorkOrder(ids.sam, ws, o.id, { assignee_id: ids.sam, updated_at: v(o) });
+  const mine = (await listNotifications(ids.ravi, ws, new URLSearchParams('pageSize=100'))).data.filter(n => n.entity_id === o.id);
+  expect(mine.length).toBeGreaterThan(0);
+  expect(mine.every(n => !n.link_target)).toBe(true);
+});
