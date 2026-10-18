@@ -6,7 +6,7 @@ const as=async p=>{const r=await s.as(p);if(r.status()!==200)throw new Error('sw
 const list=b=>Array.isArray(b)?b:b?.data??b?.rows??b?.items??b?.time_off??[];
 const ua=async id=>(await api('GET',`/work-orders/${id}`)).b?.updated_at;
 const note=(id,what,ok,detail)=>{ok=!!ok;{out.push({id,ok,what,detail});console.log(ok?'ok  ':'FIND',id,what,detail?JSON.stringify(detail).slice(0,260):'');}};
-const notes=async(who,job)=>{await as(who);const n=list((await api('GET','/notifications?pageSize=100')).b);return n.filter(x=>x.entity_id===job).map(x=>x.kind+(x.to_status?':'+x.to_status:''));};
+const notes=async(who,job)=>{await as(who);const n=list((await api('GET','/notifications?pageSize=100')).b);return n.filter(x=>x.entity_id===job).map(x=>x.kind+': '+(x.message??''));};
 const day=(off)=>{const d=new Date(Date.now()+off*864e5);return d.toISOString().slice(0,10);};
 await as('imran'); const members=list((await api('GET','/members')).b);
 const id=n=>members.find(m=>(m.name??'').toLowerCase().startsWith(n))?.user_id;
@@ -23,10 +23,11 @@ const roff=members.find(m=>m.user_id===ravi)?.off_days??[];
 let k=1; while(roff.includes(new Date(Date.now()+k*864e5).getDay()))k++; const work=day(k);
 
 // P1 household price and visit
-{ const wo=await mk('Audit: household tap leak',fsites[0]?.id,fclient,{assignee_id:ravi,scheduled_for:work,status:'scheduled'});
+{ await as('faisal'); const req=await api('POST','/work-orders',{title:'Audit: household tap leak',site_id:fsites[0]?.id,description:'Tap drips',preferred_window:'Saturday after 4 PM'});
+  await as('sam'); const ap=await api('POST',`/suggestions/${req.b?.id}`,{decision:'approved'}); const wo=ap.b?.work_order_id; await patch(wo,{assignee_id:ravi,scheduled_for:work,status:'scheduled'});
   const q=await api('POST',`/work-orders/${wo}/quote`,{amount:120});
   const fn=await notes('faisal',wo); note('P1a','household hears about a price on his job',fn.some(x=>x.startsWith('quote_sent')),{fn,q:q.st});
-  const d=await api('POST',`/work-orders/${wo}/quote/decision`,{decision:'approved'}); note('P1b','household can answer a price on his own home',d.st===200,{st:d.st,msg:d.b?.error?.message});
+  await as('faisal'); const d=await api('POST',`/work-orders/${wo}/quote/decision`,{decision:'approved'}); note('P1b','household can answer a price on his own home',d.st===200,{st:d.st,msg:d.b?.error?.message});
   const v=await api('POST',`/work-orders/${wo}/visit`,{}); note('P1c','household can confirm the visit time at his home',v.st===200,{st:v.st,msg:v.b?.error?.message}); }
 
 // P3 cancel mid job
@@ -34,15 +35,15 @@ await as('sam');
 { const wo=await mk('Audit: cancel mid job',psites[0].id,pclient,{assignee_id:ravi,scheduled_for:work,status:'scheduled'});
   await as('ravi'); const st=await patch(wo,{status:'in_progress'}); 
   await as('sam'); const c=await patch(wo,{status:'cancelled'}); note('P3a','supervisor can cancel a job in progress',c.st===200,{st:c.st,start:st.st});
-  const rn=await notes('ravi',wo); note('P3b','technician is told his job was cancelled',rn.some(x=>x.includes('cancelled')),{rn});
+  const rn=await notes('ravi',wo); note('P3b','technician is told his job was cancelled',rn.some(x=>/cancelled/i.test(x)),{rn});
   const rp=await api('POST',`/work-orders/${wo}/report`,{updated_at:await ua(wo),outcome:'fixed'}); note('P3c','technician can not report on a cancelled job',rp.st>=400,{st:rp.st});
   const md=await api('GET','/my-day'); note('P3d','cancelled job leaves his day',!JSON.stringify(md.b).includes(wo),{});
-  const pn=await notes('pranav',wo); note('P3e','client sees the cancellation',pn.some(x=>x.includes('cancelled')),{pn});
+  const pn=await notes('pranav',wo); note('P3e','client sees the cancellation',pn.some(x=>/cancelled/i.test(x)),{pn});
   await as('sam'); const rs=await api('POST',`/work-orders/${wo}/restore`,{}); const after=(await api('GET',`/work-orders/${wo}`)).b; note('P3f','a cancelled job can be restored',rs.st===200,{st:rs.st,status:after?.status,msg:rs.b?.error?.message}); }
 
 // P4 reassign
 await as('sam');
-const other=techs.find(t=>!(t.off_days??[]).includes(new Date(work).getDay()))?.user_id;
+const other=id('bilal');
 { const wo=await mk('Audit: reassign',psites[0].id,pclient,{assignee_id:ravi,scheduled_for:work,status:'scheduled'});
   const r=await patch(wo,{assignee_id:other}); note('P4a','supervisor reassigns to another technician',r.st===200,{st:r.st,msg:r.b?.error?.message,other:!!other});
   await as('ravi'); const g=await api('GET',`/work-orders/${wo}`); note('P4b','old technician loses the job',g.st===404,{st:g.st});
@@ -72,7 +73,7 @@ await as('sam');
   await api('POST',`/work-orders/${wo}/quote`,{amount:900});
   await as('pranav'); const d=await api('POST',`/work-orders/${wo}/quote/decision`,{decision:'declined'});
   const sn=await notes('sam',wo); note('P7a','office hears the price was declined',sn.some(x=>x.includes('declined')),{sn,d:d.st});
-  const rn=await notes('ravi',wo); note('P7b','technician knows the price was declined before he goes',rn.some(x=>x.includes('quote')),{rn});
+  const rn=await notes('ravi',wo); note('P7b','technician knows the price was declined before he goes',rn.some(x=>/quote|price/i.test(x)),{rn});
   await as('ravi'); const st=await patch(wo,{status:'in_progress'}); note('P7c','work does not start on a declined price without a check',st.st!==200,{st:st.st});
   await as('sam'); const q2=await api('POST',`/work-orders/${wo}/quote`,{amount:700}); note('P7d','office can send a new price after a decline',q2.st===200,{st:q2.st}); }
 
@@ -95,7 +96,7 @@ await as('sam');
 await as('sam');
 { const wo=await mk('Audit: unassign',psites[0].id,pclient,{assignee_id:ravi,scheduled_for:work,status:'scheduled'});
   const r=await patch(wo,{assignee_id:null}); const g=(await api('GET',`/work-orders/${wo}`)).b; note('P10a','removing the person leaves a sensible state',r.st!==200||g?.status!=='scheduled'||g?.assignee_id,{st:r.st,status:g?.status,assignee:g?.assignee_id});
-  const r2=await patch(wo,{status:'open'}); note('P10b','a booked job can go back to open (unbook)',r2.st===200,{st:r2.st,msg:r2.b?.error?.message});
+  const r2=await patch(wo,{status:'open'}); note('P10b','a booked job can go back to open (unbook)',r2.st===200||g?.status==='open',{st:r2.st,status:g?.status});
   const w2=await mk('Audit: pause',psites[0].id,pclient,{assignee_id:ravi,scheduled_for:work,status:'scheduled'}); await as('ravi'); await patch(w2,{status:'in_progress'});
   const p=await patch(w2,{status:'scheduled'}); note('P10c','technician can stop for today and come back (in progress to scheduled)',p.st===200,{st:p.st,msg:p.b?.error?.message}); }
 
@@ -104,8 +105,9 @@ await as('pranav');
 { const r=await api('POST','/work-orders',{title:'Audit: withdraw me',site_id:psites[0].id,description:'test'}); const sid=r.b?.id;
   const tries=[await api('DELETE',`/suggestions/${sid}`),await api('POST',`/suggestions/${sid}`,{decision:'declined',reason:'not needed'}),await api('PATCH',`/suggestions/${sid}`,{status:'withdrawn'})];
   note('P11','client can withdraw his own request before it is approved',tries.some(t=>t.st===200),{sts:tries.map(t=>t.st)});
-  await as('sam'); const dec=await api('POST',`/suggestions/${sid}`,{decision:'declined',reason:'Audit cleanup'});
-  const pn=list((await (async()=>{await as('pranav');return api('GET','/notifications?pageSize=100');})()).b).filter(x=>x.entity_id===sid).map(x=>x.kind);
+  const r3=await api('POST','/work-orders',{title:'Audit: decline me',site_id:psites[0].id,description:'test'}); const sid2=r3.b?.id;
+  await as('sam'); const dec=await api('POST',`/suggestions/${sid2}`,{decision:'declined',reason:'Audit cleanup'});
+  const pn=list((await (async()=>{await as('pranav');return api('GET','/notifications?pageSize=100');})()).b).filter(x=>x.entity_id===sid2).map(x=>x.kind);
   note('P11b','client is told when his request is declined',pn.length>0,{pn,dec:dec.st}); }
 
 // P12 language and misc

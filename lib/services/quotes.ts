@@ -39,6 +39,9 @@ export async function decideQuote(user: string, ws: string, id: string, body: un
     const r = (await db.query("UPDATE work_orders SET quote_status=$3, quote_decided_by=$4, quote_decided_at=now() WHERE workspace_id=$1 AND id=$2 AND quote_status='pending' RETURNING id, quote_amount, quote_status", [ws, id, decision, user])).rows[0];
     if (!r) throw new ApiError(409, 'no_quote', 'This price was already answered.');
     await notifyOffice(db, ws, id, user, name, o.title, 'quote_decided', decision);
+    // Audit P7b: the technician on the job hears about a declined price before he goes.
+    if (decision === 'declined' && o.assignee_id) await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title,to_status)
+      SELECT m.user_id,$1,'quote_decided','work_orders',$2,$3,$4,$5,'declined' FROM members m WHERE m.workspace_id=$1 AND m.user_id=$6 AND m.role='technician' AND m.archived_at IS NULL`, [ws, id, user, name, o.title, o.assignee_id]);
     return r;
   }, user);
 }

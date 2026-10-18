@@ -45,6 +45,7 @@ it('a technician cannot start after the client declined the price', async () => 
   await sendQuote(ids.sam, ws, o.id, { amount: 90 });
   await decideQuote(ids.pranav, ws, o.id, { decision: 'declined' });
   o = await getWorkOrder(ids.ravi, ws, o.id);
+  expect(await bell(ids.ravi, o.id, 'quote_decided')).toBe(1);
   await expect(patchWorkOrder(ids.ravi, ws, o.id, { status: 'in_progress', updated_at: v(o) })).rejects.toMatchObject({ status: 409 });
 });
 // Audit A3: approving leave over booked jobs is refused with the job named.
