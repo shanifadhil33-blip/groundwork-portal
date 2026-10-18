@@ -17,6 +17,16 @@ it('translations never use OpenRouter or the strong Gemini models and try Gemini
   expect(r.filter(p => p.name.startsWith('gemini/')).every(p => p.model.includes('lite'))).toBe(true);
   expect(groups(r).at(-1)).toBe('gemini');
 });
+it('Requesty joins only with its key, sends its key, uses its free models, and stays out of translations', () => {
+  expect(groups(providers(env))).not.toContain('requesty');
+  const e = { ...env, REQUESTY_API_KEY: 'r' };
+  const l = providers(e).filter(p => p.name.startsWith('requesty/'));
+  expect(l.map(p => p.model)).toEqual(['nvidia/nemotron-3-ultra-550b-a55b', 'nvidia/nemotron-3-super-120b-a12b', 'google/gemma-4-31b-it', 'novita/ling-3.1-flash']);
+  expect(l.every(p => p.url === 'https://router.requesty.ai/v1/chat/completions' && p.headers.Authorization === 'Bearer r')).toBe(true);
+  expect(providers({ ...e, AI_REQUESTY_MODELS: 'google/gemma-4-31b-it' }).filter(p => p.name.startsWith('requesty/')).map(p => p.model)).toEqual(['google/gemma-4-31b-it']);
+  expect(route('bulk', providers(e), 0, e).some(p => p.name.startsWith('requesty/'))).toBe(false);
+  expect(route('assistant', providers(e), 0, e).some(p => p.name.startsWith('requesty/'))).toBe(true);
+});
 it('the Agent rotates its first provider on each call', () => {
   const firsts = [0, 1, 2, 3, 4].map(t => interleave(route('assistant', providers(env), t, env))[0].name.split('/')[0]);
   expect(new Set(firsts).size).toBe(5);

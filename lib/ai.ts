@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const unavailable={available:false as const,message:'AI summaries are unavailable right now. You can still review and approve rows.'};
 const item=z.object({row_id:z.uuid(),summary:z.string().max(140),priority:z.enum(['low','normal','high','urgent'])});
 /**
- * Free provider fallback chain. Order: Gemini, OpenRouter free models, Cloudflare Workers AI, Kilo and OVH (no key), Z.AI and NVIDIA when keyed (best for simple replies), then Groq, Cerebras, Mistral, GitHub Models when their keys exist.
+ * Free provider fallback chain. Order: Gemini, OpenRouter free models, Cloudflare Workers AI, Kilo and OVH (no key), Z.AI, NVIDIA and Requesty free models when keyed (best for simple replies), then Groq, Cerebras, Mistral, GitHub Models when their keys exist.
  * A provider is used only when its key is set in Vercel env. Models can be changed without code via AI_<PROVIDER>_MODELS (comma list).
  * Every attempt has a timeout; 5xx and timeouts get one quick retry; 429 and quota errors move on at once and cool that model down.
  */
@@ -21,6 +21,8 @@ const CHAIN:{id:string;kind:Kind;key:string;keyless?:boolean;url:(model:string,e
  // Free with a key (no card): Z.AI GLM Flash, NVIDIA NIM free endpoints (phone check). Used when their keys are set.
  {id:'zai',kind:'openai',key:'ZAI_API_KEY',url:()=>'https://api.z.ai/api/paas/v4/chat/completions',models:['glm-4.7-flash','glm-4.5-flash']},
  {id:'nvidia',kind:'openai',key:'NVIDIA_API_KEY',url:()=>'https://integrate.api.nvidia.com/v1/chat/completions',models:['openai/gpt-oss-20b','nvidia/nemotron-3-super-120b-a12b','z-ai/glm-5.3-flash']},
+ // Requesty free models (checked Oct 18 2026): $0 price, 200 a day and 20 a minute per organisation, but only 1 request in flight on a $0 balance, and a timed out request holds that slot for minutes. Never top up. Kept out of translations.
+ {id:'requesty',kind:'openai',key:'REQUESTY_API_KEY',url:()=>'https://router.requesty.ai/v1/chat/completions',models:['nvidia/nemotron-3-ultra-550b-a55b','nvidia/nemotron-3-super-120b-a12b','google/gemma-4-31b-it','novita/ling-3.1-flash']},
  {id:'groq',kind:'openai',key:'GROQ_API_KEY',url:()=>'https://api.groq.com/openai/v1/chat/completions',models:['openai/gpt-oss-120b','qwen/qwen3.8-27b','llama-3.3-70b-versatile']},
  {id:'cerebras',kind:'openai',key:'CEREBRAS_API_KEY',url:()=>'https://api.cerebras.ai/v1/chat/completions',models:['gpt-oss-120b','qwen-3.8-27b']},
  {id:'mistral',kind:'openai',key:'MISTRAL_API_KEY',url:()=>'https://api.mistral.ai/v1/chat/completions',models:['mistral-medium-latest','mistral-small-latest']},
@@ -50,15 +52,15 @@ async function post(p:Provider,body:unknown,timeout:number){
  try{return await r.json();}catch{throw new Skip(true,r.status);}
 }
 /** Per provider timeout. Gemini free often hangs, so it gets a short leash and the chain moves on. */
-const TIMEOUTS:Record<string,number>={gemini:9000,openrouter:15000,sambanova:12000,cloudflare:15000,kilo:18000,ovh:18000,zai:15000,nvidia:15000,groq:10000};
-/** Spread the free allowances (AI_SPREAD=1). The Agent rotates its first provider each call. Translations and summaries never use OpenRouter (50 a day, kept for the Agent) or the strong Gemini models, and try Gemini lite last. */
+const TIMEOUTS:Record<string,number>={gemini:9000,openrouter:15000,sambanova:12000,cloudflare:15000,kilo:18000,ovh:18000,zai:15000,nvidia:15000,requesty:12000,groq:10000};
+/** Spread the free allowances (AI_SPREAD=1). The Agent rotates its first provider each call. Translations and summaries never use OpenRouter (50 a day) or Requesty (200 a day, 1 at a time), both kept for the Agent, or the strong Gemini models, and try Gemini lite last. */
 export type Task='assistant'|'bulk';
 const BULK=new Set(['ui translations','summaries']);
 const turns:Record<Task,number>={assistant:0,bulk:0};
 export function route(task:Task,list:Provider[],turn:number,env:Record<string,string|undefined>=process.env):Provider[]{
  if(env.AI_SPREAD!=='1')return list;
  let l=list;
- if(task==='bulk'){const b=l.filter(p=>!p.name.startsWith('openrouter/')&&!(p.name.startsWith('gemini/')&&!p.model.includes('lite')));if(b.length)l=b;}
+ if(task==='bulk'){const b=l.filter(p=>!p.name.startsWith('openrouter/')&&!p.name.startsWith('requesty/')&&!(p.name.startsWith('gemini/')&&!p.model.includes('lite')));if(b.length)l=b;}
  const groups=[...new Set(l.map(p=>p.name.split('/')[0]))];
  const head=task==='bulk'?groups.filter(g=>g!=='gemini'):groups,tail=task==='bulk'?groups.filter(g=>g==='gemini'):[];
  const k=head.length?turn%head.length:0;const order=[...head.slice(k),...head.slice(0,k),...tail];
