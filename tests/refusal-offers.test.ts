@@ -111,3 +111,15 @@ it('AGENT11: when the model refuses in its own words without a tool call, a tech
  const client=await withSystem(async db=>(await db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND role='client' AND archived_at IS NULL LIMIT 1",[ws])).rows[0]?.user_id);
  if(client){text('Only an admin can change that.');expect((await ask(client,'Change the price')).offers).toBeUndefined();}
 });
+it('AGENT11: after a refusal, an ask_supervisor call in the same turn makes no second card, only the one Ask button',async()=>{
+ const o=await job();vi.mocked(assistantTurn).mockReset();
+ vi.mocked(assistantTurn)
+  .mockResolvedValueOnce({calls:[{name:'set_priority',args:{id:o.id,priority:'urgent',updated_at:new Date(o.updated_at).toISOString()},id:'a'}]} as any)
+  .mockResolvedValueOnce({calls:[{name:'ask_supervisor',args:{question:'Can you change the priority to urgent?',proposed:'Yes',work_order_id:o.id},id:'b'}]} as any)
+  .mockResolvedValueOnce({calls:[],text:'I can ask Sam for you.'} as any);
+ const r=await ask(ids.ravi,'Change the priority to urgent');
+ expect(r.pending_action).toBeUndefined();expect(r.offers).toHaveLength(1);expect(r.offers[0].label).toBe('Ask Sam');
+ // assistant_actions may force row level security: count as Ravi, who would own the card.
+ const cards=await withSystem(async db=>{await db.query("SELECT set_config('app.user_id',$1,true)",[ids.ravi]);return (await db.query("SELECT count(*)::int n FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND tool='ask_supervisor' AND consumed_at IS NULL",[ws,ids.ravi])).rows[0].n;});
+ expect(cards).toBe(0);
+});

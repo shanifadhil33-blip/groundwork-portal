@@ -181,6 +181,9 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
      // The done reply is a server template with the person's name, never model text.
      return {available:true,reply:`Done${first?`, ${first}`:''}. ${audienceStatusReply(actionResult(call.name,args,order),false)}`,logged:true};
     }
+    // AGENT11: after a refusal this turn the reply already carries one Ask button for the right person. A second
+    // "Ask your supervisor?" card for the same request is clutter, so the model is told to stop instead.
+    if(call.name==='ask_supervisor'&&offers.length){history.push({role:'result',name:call.name,result:{content:[{type:'text',text:'The app already shows an Ask button for the right person. Do not ask again. Reply in one short sentence.'}]},id:call.id});continue;}
     // Contract facts go on the card so the admin decides; the agent never decides an over limit or ended contract.
     const contract=call.name==='set_job_payment'&&(args as any).payment_status==='contract'&&order?await inWorkspace(user,ws,async x=>contractNote(await contractUse(x,(order as any).client_id))):'';
     const pay=(args as any).payment_status;
