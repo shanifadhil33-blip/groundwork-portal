@@ -28,3 +28,14 @@ it('a model that used up its day is skipped in the retry sweep too', async () =>
   expect(await withFallback('assistant', () => ({}), () => 'x')).toBeNull();
   expect(fetch).toHaveBeenCalledTimes(1);
 });
+// Audit A17: moving a visit never clears the due date unless asked.
+it('a null date from the model is ignored unless clearing was asked', async () => {
+  const { datesAsked } = await import('../lib/agent/tools');
+  expect(datesAsked({ due_on: null, scheduled_for: '2026-10-27' })).toEqual({ scheduled_for: '2026-10-27' });
+  expect(datesAsked({ clear_due_on: true })).toEqual({ clear_due_on: true, due_on: null });
+});
+// Audit A18: Agent replies keep the no dash rule.
+it('typography hyphens and (s) are cleaned from Agent replies', async () => {
+  const { plainAssistantReply } = await import('../lib/ui/assistant-replies');
+  expect(plainAssistantReply('Open the leave\u2011request list and approve the pending request(s).')).toBe('Open the leave request list and approve the pending requests.');
+});

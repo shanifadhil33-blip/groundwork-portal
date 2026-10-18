@@ -43,11 +43,11 @@ it('drafts batch at most 25 rows, stores suggestions and next call handles remai
 });
 it('invalid AI items do not modify queue rows',async()=>{const imp=await queue();vi.stubGlobal('fetch',vi.fn().mockResolvedValue(gemini('[{"row_id":"bad","summary":"PRIVATE","priority":"impossible"}]')));expect(await imports.importDrafts(ids.imran,ids.ridgeline,imp.id)).toEqual({available:true,stored:0,suggestion:true});expect((await imports.importRows(ids.imran,ids.ridgeline,imp.id,new URLSearchParams())).data[0].ai_summary).toBeNull();});
 it('AI finishing after approval does not write suggestions onto decided rows',async()=>{const imp=await queue();const row=(await imports.importRows(ids.imran,ids.ridgeline,imp.id,new URLSearchParams())).data[0];vi.stubGlobal('fetch',vi.fn().mockImplementation(async()=>{await imports.approveRow(ids.sam,ids.ridgeline,row.id,{});return gemini(JSON.stringify([{row_id:row.id,summary:'Late draft',priority:'urgent'}]));}));expect(await imports.importDrafts(ids.imran,ids.ridgeline,imp.id)).toEqual({available:true,stored:0,suggestion:true});const decided=(await imports.importRows(ids.imran,ids.ridgeline,imp.id,new URLSearchParams())).data[0];expect(decided.decision).toBe('approved');expect(decided.ai_summary).toBeNull();});
-it('fallback order is Gemini, OpenRouter free, SambaNova, then Cloudflare (which needs its account id)', async () => {
+it('fallback order is Gemini, OpenRouter free, then Cloudflare (which needs its account id); SambaNova is gone (asks for payment)', async () => {
   const { providers } = await import('../lib/ai');
   const env = { GEMINI_API_KEY: 'g', OPENROUTER_API_KEY: 'o', SAMBANOVA_API_KEY: 's', CLOUDFLARE_AI_TOKEN: 'c', CLOUDFLARE_ACCOUNT_ID: 'acct' };
   const ids = [...new Set(providers(env).map(p => p.name.split('/')[0]))];
-  expect(ids).toEqual(['gemini', 'openrouter', 'sambanova', 'cloudflare']);
+  expect(ids).toEqual(['gemini', 'openrouter', 'cloudflare']);
   expect(providers(env).filter(p => p.name.startsWith('openrouter/')).every(p => p.model.endsWith(':free'))).toBe(true);
   expect(providers(env).find(p => p.name.startsWith('cloudflare/'))!.url).toBe('https://api.cloudflare.com/client/v4/accounts/acct/ai/v1/chat/completions');
   expect(providers({ ...env, CLOUDFLARE_ACCOUNT_ID: '' }).some(p => p.name.startsWith('cloudflare/'))).toBe(false);

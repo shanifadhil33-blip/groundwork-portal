@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const unavailable={available:false as const,message:'AI summaries are unavailable right now. You can still review and approve rows.'};
 const item=z.object({row_id:z.uuid(),summary:z.string().max(140),priority:z.enum(['low','normal','high','urgent'])});
 /**
- * Free provider fallback chain. Order: Gemini, OpenRouter free models, SambaNova (key expires about Jan 11 2027, renew before Jan 14), Cloudflare Workers AI (best for simple replies), then Groq, Cerebras, Mistral, GitHub Models when their keys exist.
+ * Free provider fallback chain. Order: Gemini, OpenRouter free models, Cloudflare Workers AI, Kilo and OVH (no key), Z.AI and NVIDIA when keyed (best for simple replies), then Groq, Cerebras, Mistral, GitHub Models when their keys exist.
  * A provider is used only when its key is set in Vercel env. Models can be changed without code via AI_<PROVIDER>_MODELS (comma list).
  * Every attempt has a timeout; 5xx and timeouts get one quick retry; 429 and quota errors move on at once and cool that model down.
  */
@@ -13,7 +13,7 @@ export type Provider={name:string;kind:Kind;url:string;headers:Record<string,str
 const CHAIN:{id:string;kind:Kind;key:string;keyless?:boolean;url:(model:string,env:Record<string,string|undefined>)=>string;models:string[];extra?:Record<string,string>}[]=[
  {id:'gemini',kind:'gemini',key:'GEMINI_API_KEY',url:m=>`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,models:['gemini-3.8-flash','gemini-3.6-flash','gemini-3.5-flash-lite','gemini-3.1-flash-lite']},
  {id:'openrouter',kind:'openai',key:'OPENROUTER_API_KEY',url:()=>'https://openrouter.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','google/gemma-4-31b-it:free','nvidia/nemotron-3-ultra-550b-a55b:free','google/gemma-4-26b-a4b-it:free'],extra:{'HTTP-Referer':'https://groundwork-portal.vercel.app','X-Title':'Groundwork'}},
- {id:'sambanova',kind:'openai',key:'SAMBANOVA_API_KEY',url:()=>'https://api.sambanova.ai/v1/chat/completions',models:['DeepSeek-V3.1','gpt-oss-120b']},
+ // SambaNova: removed Oct 18 2026, its free tier now asks for a payment method (402). Never paid.
  {id:'cloudflare',kind:'openai',key:'CLOUDFLARE_AI_TOKEN',url:(_m,env)=>`https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/ai/v1/chat/completions`,models:['@cf/meta/llama-3.3-70b-instruct-fp8-fast','@cf/openai/gpt-oss-120b']},
  // Free with no key (checked Oct 18 2026): Kilo AI Gateway ':free' models, 200 an hour per IP; OVHcloud AI Endpoints anonymous, 2 a minute per IP per model. Used only when AI_KEYLESS=1.
  {id:'kilo',kind:'openai',key:'KILO_API_KEY',keyless:true,url:()=>'https://ai-gateway.kilo.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','kilo-auto/free']},
