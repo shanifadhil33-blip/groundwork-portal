@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { closePools, withSystem } from '../lib/db';
 import { ids } from '../scripts/seed';
-import { assistant } from '../lib/services/assistant';
+import { assistant, offerReply } from '../lib/services/assistant';
 import { assistantTurn } from '../lib/ai';
 import { setAuthResolverForTests } from '../lib/auth';
 import { POST } from '../app/api/workspaces/[ws]/agent-questions/route';
@@ -122,4 +122,14 @@ it('AGENT11: after a refusal, an ask_supervisor call in the same turn makes no s
  // assistant_actions may force row level security: count as Ravi, who would own the card.
  const cards=await withSystem(async db=>{await db.query("SELECT set_config('app.user_id',$1,true)",[ids.ravi]);return (await db.query("SELECT count(*)::int n FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND tool='ask_supervisor' AND consumed_at IS NULL",[ws,ids.ravi])).rows[0].n;});
  expect(cards).toBe(0);
+});
+
+it('the reply with an Ask button never echoes app instructions or claims the request went out', () => {
+ const one=[{to_name:'Sam'}];
+ expect(offerReply('The app already shows an Ask button for the right person. Do not ask again. Reply in one short sentence.',one)).toBe('Sam can make this change. Tap Ask Sam to send it.');
+ expect(offerReply('I will ask Sam for you.',one)).toBe('Sam can make this change. Tap Ask Sam to send it.');
+ expect(offerReply("I've asked your supervisor.",one)).toBe('Sam can make this change. Tap Ask Sam to send it.');
+ expect(offerReply('',one)).toBe('Sam can make this change. Tap Ask Sam to send it.');
+ expect(offerReply('Only a supervisor can change the priority. Sam can do it for you.',one)).toBe('Only a supervisor can change the priority. Sam can do it for you.');
+ expect(offerReply('I will ask Sam for you.',[{to_name:'Sam'},{to_name:'Imran'}])).toBe('Sam and Imran can make these changes. Tap a button below to send each one.');
 });

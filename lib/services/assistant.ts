@@ -48,12 +48,19 @@ export async function assistant(user:string,ws:string,body:unknown) {
  const offers:RefusalOffer[]=[];
  const result=await assistantInner(user,ws,body,offers);
  if(!offers.length)await refusedOnItsOwn(user,ws,body,result,offers).catch(()=>undefined);
- const r=offers.length?{...result,offers}:result;
+ const r=offers.length?{...result,offers,...(result&&typeof result==='object'&&typeof (result as {reply?:unknown}).reply==='string'?{reply:offerReply((result as {reply:string}).reply,offers)}:{})}:result;
  const last=(body as {messages?:{role:string;content:string}[]})?.messages?.filter(m=>m.role==='user').at(-1)?.content;
  const sos=(body as {confirm_action_id?:string})?.confirm_action_id?null:safetyLine(last);
  if(sos&&r&&typeof r==='object'&&'reply' in r&&typeof (r as {reply?:unknown}).reply==='string'&&!(r as {reply:string}).reply.startsWith('Safety first'))return {...r,reply:`${sos}\n\n${(r as {reply:string}).reply}`};
  if(sos&&r&&typeof r==='object'&&(r as {available?:boolean}).available===false)return {available:true,reply:sos};
  return r;
+}
+/** AGENT11: with an Ask button on screen the reply must not echo the app's own instructions to the model, and must not claim
+ * a request was sent or will be sent: nothing goes out until the person taps the button. Otherwise the model's words stay. */
+export function offerReply(reply:string,offers:{to_name:string}[]):string{
+ const names=[...new Set(offers.map(o=>o.to_name))];if(!names.length)return reply;
+ const fixed=names.length===1?`${names[0]} can make this change. Tap Ask ${names[0]} to send it.`:`${names.join(' and ')} can make these changes. Tap a button below to send each one.`;
+ return !reply.trim()||/Ask button|Do not ask again|one short sentence|Nothing is sent yet|the app (?:shows|already)|\bI(?:'ll| will| have|'ve| am going to)? ?(?:ask(?:ed)?|sen[dt]|forward(?:ed)?) (?:it |this |the request )?(?:to )?(?:him|them|your|the|[A-Z])/.test(reply)?fixed:reply;
 }
 async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalOffer[]) {
  const d=schema.parse(body),c:AgentContext={user,ws,scope:'write',kind:'assistant',approved:!!d.confirm_action_id};

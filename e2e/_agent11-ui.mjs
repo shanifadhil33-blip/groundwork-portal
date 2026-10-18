@@ -10,6 +10,7 @@ await p.getByRole('button', { name: /^Agent$/ }).first().click(); await p.waitFo
 await p.fill('#assistant-input', `Change the priority of WO ${j.order_number} to urgent`); await p.keyboard.press('Enter');
 const btn = p.getByRole('button', { name: /^Ask / }); res.offerShown = await btn.first().waitFor({ timeout: 90000 }).then(() => true).catch(() => false);
 res.reply = (await p.locator('.assistant-chat').innerText()).slice(-300);
+await p.waitForTimeout(1500); res.askButtons = await btn.count(); res.secondCard = await p.getByText(/Ask your supervisor\?|Confirm this change/).count();
 res.sideways = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
 await p.screenshot({ path: `${OUT}/ravi-offer-${W}.png` });
 if (res.offerShown) { const b = btn.first(); res.btnHeight = (await b.boundingBox())?.height; res.label = await b.innerText(); await b.click(); await b.click().catch(() => {});
