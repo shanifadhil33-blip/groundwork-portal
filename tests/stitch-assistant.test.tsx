@@ -62,3 +62,31 @@ it('links the custom name from both chat headers and respects voice off',async()
  expect(host.querySelector('.assistant-panel-header a')?.textContent).toBe('Omar');expect(host.querySelector('.assistant-panel-header a')?.getAttribute('href')).toBe('/settings/agent');expect(host.querySelector('[aria-label="Use microphone"]')).toBeNull();
  await mount('admin',false);expect(host.querySelector('[role="dialog"] h2 a')?.textContent).toBe('Omar');expect(host.querySelector('[role="dialog"] h2 a')?.getAttribute('href')).toBe('/settings/agent');
 });
+
+const refusalOffer={to_name:'Sam',label:'Ask Sam',question:'Ravi asked to give WO 58 to Yusuf. Can you help?',proposed:'Assign WO 58 to Yusuf',work_order_id:'job'};
+it('sends a refusal offer once, protects the name, and keeps the sent line after reopening',async()=>{
+ api.post.mockResolvedValueOnce({available:true,reply:"I can't change that. I can ask Sam for you.",offers:[refusalOffer],choices:['Thanks']});
+ await mount('technician');await click('Show jobs waiting on parts');
+ const button=Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Ask Sam')!;
+ expect(button.style.minHeight).toBe('44px');expect(button.querySelector('[data-no-translate]')?.textContent).toBe('Sam');
+ let finish!:(value:unknown)=>void;api.post.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
+ await act(async()=>{button.click();button.click();});
+ expect(button.disabled).toBe(true);expect(button.getAttribute('aria-busy')).toBe('true');expect(api.post).toHaveBeenCalledTimes(2);
+ expect(api.post).toHaveBeenLastCalledWith('/api/workspaces/workspace/agent-questions',{question:refusalOffer.question,proposed:refusalOffer.proposed,work_order_id:'job'});
+ await act(async()=>finish({id:'question',status:'open'}));
+ expect(host.textContent).toContain('Sent to Sam. Nothing changes until he answers.');expect(host.textContent).not.toContain('Ask Sam');
+ await mount('technician',false);expect(host.textContent).toContain('Sent to Sam. Nothing changes until he answers.');
+ // Offer metadata stays in local chat only; the assistant message schema is unchanged.
+ api.post.mockResolvedValueOnce({available:true,reply:'You are welcome.'});await click('Thanks');
+ expect(api.post.mock.calls.at(-1)![1].messages.every((m:any)=>Object.keys(m).sort().join(',')==='content,role')).toBe(true);
+ await act(async()=>root.unmount());root=createRoot(host);await mount('technician');
+ expect(host.textContent).toContain('Sent to Sam. Nothing changes until he answers.');
+ expect(host.querySelector('article.assistant [data-no-translate]')?.textContent).toBe('Sam');
+});
+it('shows a plain retry line for a failed offer and supports another tap in a right to left layout',async()=>{
+ host.dir='rtl';api.post.mockResolvedValueOnce({available:true,reply:"I can't change that.",offers:[refusalOffer]}).mockRejectedValueOnce(new Error('private database details')).mockResolvedValueOnce({id:'question'});
+ await mount('technician');await click('Show jobs waiting on parts');await click('Ask Sam');
+ expect(host.textContent).toContain('Could not send. Tap Ask to try again.');expect(host.textContent).not.toContain('private database details');
+ await click('Ask Sam');expect(host.textContent).toContain('Sent to Sam. Nothing changes until he answers.');
+ expect(host.querySelector('bdi')?.textContent).toBe('Sam');
+});
