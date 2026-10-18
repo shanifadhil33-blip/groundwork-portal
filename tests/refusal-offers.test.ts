@@ -60,9 +60,11 @@ it('clients receive no offer',async()=>{
  turns('set_approval_mode',{approval_mode:'every'});const r=await ask(ids.omar,'Ask before every change');expect(r.offers).toBeUndefined();expect(r.pending_action).toBeUndefined();
 });
 it('uses the visible saved name for the supervisor',async()=>{
- await withSystem(db=>db.query("INSERT INTO contact_nicknames(owner_user_id,workspace_id,target_user_id,nickname) VALUES($1,$2,$3,'Samuel')",[ids.ravi,ws,ids.sam]));
+ // contact_nicknames forces row level security even for the owner connection: write it as Ravi.
+ await withSystem(async db=>{await db.query("SELECT set_config('app.user_id',$1,true)",[ids.ravi]);await db.query("INSERT INTO contact_nicknames(owner_user_id,workspace_id,target_user_id,nickname) VALUES($1,$2,$3,'Samuel')",[ids.ravi,ws,ids.sam]);});
  const o=await job();turns('set_priority',{id:o.id,priority:'urgent',updated_at:new Date(o.updated_at).toISOString()});
- expect((await ask(ids.ravi)).offers[0].to_name).toBe('Samuel');
+ try { expect((await ask(ids.ravi)).offers[0].to_name).toBe('Samuel'); }
+ finally { await withSystem(async db=>{await db.query("SELECT set_config('app.user_id',$1,true)",[ids.ravi]);await db.query('DELETE FROM contact_nicknames WHERE owner_user_id=$1 AND workspace_id=$2',[ids.ravi,ws]);}); }
 });
 it('falls back to the owner when there is no supervisor, and makes no offer if neither is active',async()=>{
  const o=await job();await withSystem(db=>db.query("UPDATE members SET staff_kind='office' WHERE workspace_id=$1 AND user_id=$2",[ws,ids.sam]));
