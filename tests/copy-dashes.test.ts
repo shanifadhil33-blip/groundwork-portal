@@ -20,7 +20,7 @@ const technicalValues = new Set(['mistral-medium-latest', 'mistral-small-latest'
   'Content-Disposition', 'If-Match', 'no-store', 'multipart/form-data',
   'sample-work-orders.csv', 'agent-access', 'data-label', 'aria-hidden',
   'x-vercel-forwarded-for', 'device-width', 'date-time', 'openai/gpt-oss-120b',
-  'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite',
+  'kilo-auto/free', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite',
   'private, max-age=86400', 'private, no-store', "default-src 'none'", 'from-image', 'data-no-translate',
 ]);
 const technicalProperties = new Set(['variable', 'powerPreference', 'cache', 'fontFamily']);
@@ -56,7 +56,7 @@ function allowedData(text: string) {
     /^(?:COBALT-DEMO-\d*|demo-(?:ordered|shipped|delivered)-\d*)$/.test(text) ||
     /^groundwork-(?:demo|session)=.*; Path=\/; SameSite=Lax; Max-Age=\d+$/.test(text) ||
     // AI model identifiers (provider/model-version, optional :free; SambaNova uses capitals, Cloudflare @cf/vendor/model).
-    /^(?=[^ ]*\d)(?:@?[a-z0-9-]+\/)*[A-Za-z0-9.]+(?:-[A-Za-z0-9.]+)+(?::free)?$/.test(text) ||
+    /^(?=[^ ]*\d)(?:@?[a-z0-9-]+\/)*[A-Za-z0-9._]+(?:-[A-Za-z0-9._]+)+(?::free)?$/.test(text) ||
     /^; Path=\/api\/demo; HttpOnly; SameSite=Lax; Max-Age=\d+$/.test(text) ||
     /^=?;?\s*Path=\/; SameSite=/.test(text) ||
     /^attachment; filename="import-errors\.csv"$/.test(text) ||
