@@ -230,7 +230,7 @@ html:not([data-theme=dark]) .lx-root{color-scheme:light;background:#fff;color:#1
 html:not([data-theme=dark]) .lx-root p{color:#4b5563}
 html:not([data-theme=dark]) .lx-root a:hover{color:#8a5d1f}
 html:not([data-theme=dark]) .lx-root :focus-visible{outline-color:#1f5f5b}
-html:not([data-theme=dark]) .lx-root .lx-header{background:rgba(255,255,255,.92);border-bottom-color:#e6e8eb;backdrop-filter:saturate(1.2) blur(8px)}
+html:not([data-theme=dark]) .lx-root .lx-header{background:rgba(255,255,255,.97);border-bottom-color:#e6e8eb}
 html:not([data-theme=dark]) .lx-root .lx-brand svg{color:#a8732a}
 html:not([data-theme=dark]) .lx-root .lx-header-link:active,html:not([data-theme=dark]) .lx-root .lx-config button:active{background:#eef0f2}
 html:not([data-theme=dark]) .lx-root .lx-secondary{border-color:#d4d8dd;color:#111418;background:#fff}
