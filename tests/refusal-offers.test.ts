@@ -92,3 +92,12 @@ it('admins get their normal card with no refusal offer',async()=>{
  const r=await ask(ids.imran,'Ask before every change');expect(r.pending_action).toBeTruthy();expect(r.offers).toBeUndefined();
  await withSystem(db=>db.query('DELETE FROM assistant_actions WHERE id=$1',[r.pending_action.id]));
 });
+it('AGENT11: a technician and a supervisor are offered the changes they may not make, so the refusal and the offer can happen; a client is not',async()=>{
+ const names=async(user:string)=>{vi.mocked(assistantTurn).mockReset();vi.mocked(assistantTurn).mockResolvedValueOnce({calls:[],text:'Okay.'} as any);await ask(user,'Hello');const [,decl,prompt]=vi.mocked(assistantTurn).mock.calls[0] as any;return {tools:(decl as {name:string}[]).map(d=>d.name),prompt:String(prompt)};};
+ const tech=await names(ids.ravi);
+ for(const t of ['assign_work_order','set_priority','set_job_payment','decide_time_off'])expect(tech.tools).toContain(t);
+ expect(tech.prompt).toContain('call the tool for that change');
+ const sup=await names(ids.sam);for(const t of ['set_job_payment','create_client'])expect(sup.tools).toContain(t);
+ const client=await withSystem(async db=>(await db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND role='client' AND archived_at IS NULL LIMIT 1",[ws])).rows[0]?.user_id);
+ if(client){const c=await names(client);for(const t of ['assign_work_order','set_priority','set_job_payment','create_client'])expect(c.tools).not.toContain(t);}
+});
