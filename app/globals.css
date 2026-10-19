@@ -1164,3 +1164,6 @@ body:has(.app-shell) .button.primary.primary:active:not(:disabled){background:co
 @media(min-width:1024px){body:has(.app-shell.with-dashboard-assistant) .app-main .button.primary.primary:active:not(:disabled){background:var(--pressed)}}
 @media(hover:hover) and (pointer:fine){body:has(.app-shell) .assistant-chat .assistant-suggestions .button:hover:not(:disabled),body:has(.app-shell) .assistant-input-row .assistant-control:not(.assistant-send):not(.assistant-stop):hover:not(:disabled){background:var(--hover)}}
 body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:active:not(:disabled),body:has(.app-shell) .assistant-input-row .assistant-control.assistant-control:not(.assistant-send):not(.assistant-stop):active:not(:disabled){background:var(--pressed)}
+
+/* Household request card: label then value, wraps on narrow phones */
+.household-card-fields{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0 0}.household-card-fields dt{color:var(--text-muted);font-size:var(--text-sm)}.household-card-fields dd{margin:0;min-width:0;overflow-wrap:anywhere}

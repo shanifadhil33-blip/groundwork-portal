@@ -1,4 +1,4 @@
-import { householdFields } from '../agent/household';
+import { householdFields, HOUSEHOLD_SINCE_CHOICES, HOUSEHOLD_WHERE_CHOICES } from '../agent/household';
 import { z } from 'zod';
 import { ApiError, invalid } from '../http';
 import { inWorkspace, uuid, type Context } from './shared';
@@ -32,8 +32,8 @@ function next(d: Draft, sites: Site[]) {
 }
 function question(d: Draft, sites: Site[]) {
  if (d.step === 'site') return { reply: 'Which home is this for?', choices: sites.map(s => s.name) };
- if (d.step === 'where') return { reply: 'Where in your home is the problem?', choices: ['Kitchen', 'Bathroom', 'Bedroom', 'Living room', 'Somewhere else'] };
- if (d.step === 'since') return { reply: 'Since when has this been happening?', choices: ['Today', 'A few days', 'Longer'] };
+ if (d.step === 'where') return { reply: 'Where in your home is the problem?', choices: HOUSEHOLD_WHERE_CHOICES };
+ if (d.step === 'since') return { reply: 'Since when has this been happening?', choices: HOUSEHOLD_SINCE_CHOICES };
  return { reply: 'You can add a photo or skip it.', choices: ['Skip photo'], household_photo: true };
 }
 
@@ -79,7 +79,9 @@ export async function householdIntake(user: string, ws: string, messages: {role:
   const tool = d.step === 'confirm' ? 'household_request' : 'household_intake';
   const id = a?.id ?? (await c.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,$3,$4,$5,$6) RETURNING id', [ws, user, tool, JSON.stringify(d), summary.slice(0,600), 'Your own words for the company.'])).rows[0].id;
   if (a) await c.db.query("UPDATE assistant_actions SET tool=$2,args=$3,summary=$4,expires_at=now()+interval '10 minutes' WHERE id=$1", [id, tool, JSON.stringify(d), summary.slice(0,600)]);
-  return d.step === 'confirm' ? { available: true, pending_action: { id, summary, household: true, words: d.words, why: 'Nothing is sent until you tap Yes.' } } : { available: true, ...question(d, sites) };
+  // The card shows app labels in his language and his own words untouched, so it gets the parts, not only the summary.
+  const fieldsOut = { title: fields.title, words: d.words, home: sites.find(s => s.id === d.site_id)?.name ?? null, where: d.where ?? null, since: d.since ?? null, photos: d.photo_ids.length };
+  return d.step === 'confirm' ? { available: true, pending_action: { id, tool, summary, household: true, words: d.words, fields: fieldsOut, why: 'Nothing is sent until you tap Yes.' } } : { available: true, ...question(d, sites) };
  });
 }
 

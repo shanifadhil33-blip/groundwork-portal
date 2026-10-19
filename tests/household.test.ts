@@ -34,6 +34,8 @@ it('asks site then where then since once with a cap of three and saves only afte
  const r = await send('Skip photo');
  expect(r.pending_action.summary).toContain('my AC is not cooling');
  expect(r.pending_action.summary).toContain('Where: Bedroom\nSince: Today\nPhoto: No');
+ expect(r.pending_action).toMatchObject({ tool: 'household_request', fields: { words: 'my AC is not cooling', where: 'Bedroom', since: 'Today', photos: 0 } });
+ expect(typeof r.pending_action.fields.home).toBe('string');
  expect((await saved()).length).toBe(before);
  const draft = await withSystem(async db => (await db.query('SELECT args FROM assistant_actions WHERE id=$1', [r.pending_action.id])).rows[0].args);
  expect(draft.asked).toEqual(['site', 'where', 'since']);
