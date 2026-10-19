@@ -131,7 +131,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
  if(/^(?:what needs attention|what do I need to do|what is waiting|show unread messages)[?.!]*$/i.test(question)){const a=await needsAttention(user,ws);return {available:true,reply:[a.summary+'.',`You have ${a.unread_messages} unread messages.`,...a.messages.slice(0,5).map(m=>m.summary)].join('\n')};}
  // Quick lookups (Oct 19): common read questions answer from the database with no AI call, well under a second.
  if(quickLookup(question)){
-  const who=await inWorkspace(user,ws,async x=>({role:x.role as string,tomorrow:String((await x.db.query("SELECT ((now() AT TIME ZONE timezone)::date+1)::text AS d FROM workspaces WHERE id=$1",[ws])).rows[0]?.d??'')}));
+  const who=await inWorkspace(user,ws,async x=>{const w=(await x.db.query("SELECT ((now() AT TIME ZONE timezone)::date+1)::text AS d,timezone FROM workspaces WHERE id=$1",[ws])).rows[0];return {role:x.role as string,tomorrow:String(w?.d??''),timezone:w?.timezone?String(w.timezone):undefined};});
   const answer=await quickAnswer({user,ws,scope:'read',kind:'assistant'},question,who);
   if(answer)return {available:true,reply:answer,quick:true};
  }

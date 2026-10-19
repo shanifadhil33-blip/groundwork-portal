@@ -36,7 +36,11 @@ res.firstContentMs = got ? Date.now() - t : null; res.reply = got ? (await panel
 await p.screenshot({ path: `${OUT}/${name}-3-answer.png` });
 // Ask an AI question and close while it thinks.
 if (!docked) {
-  await input.fill('Summarise what my week looks like in two lines'); const t2 = Date.now(); await input.press('Enter'); await p.waitForTimeout(700);
+  // SLOW=1 (default after the fix): hold this quick question 8 s in the browser to act like a slow model, with no AI call (lesson 48).
+  const slow = process.env.SLOW !== '0'; if (slow) await p.route('**/assistant', async r => { await new Promise(d => setTimeout(d, 8000)); await r.continue().catch(() => {}); });
+  await input.fill(slow ? 'Which jobs are late?' : 'Summarise what my week looks like in two lines'); const t2 = Date.now(); await input.press('Enter'); await p.waitForTimeout(700);
+  res.thinking2 = { closeDisabled: await closeBtn.isDisabled().catch(() => null), inputDisabled: await input.isDisabled().catch(() => null), stop: await panel.getByRole('button', { name: /^Stop$/ }).count() };
+  await input.click({ timeout: 2000 }).catch(() => {}); await p.keyboard.type('typed while waiting', { delay: 5 }).catch(() => {}); res.typedWhileThinking2 = (await input.inputValue().catch(() => '')).includes('typed while waiting');
   await p.screenshot({ path: `${OUT}/${name}-4-thinking-ai.png` });
   await closeBtn.click({ timeout: 3000 }).catch(e => { res.closeError = String(e).slice(0, 120); });
   await p.waitForTimeout(600); res.closedWhileThinking = !(await input.isVisible().catch(() => false)); res.closeMs = Date.now() - t2;

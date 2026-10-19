@@ -1,7 +1,7 @@
 // Agent speed check on the fixed sandbox: 4 common questions per role (technician, supervisor, admin), time to the first useful content.
 // The answer arrives in one response, so time to first content = time to the full reply. Up to 9 AI calls per run (lesson 48: shared quota).
 import { sandbox } from './sandbox.mjs'; import fs from 'node:fs';
-const OUT = process.env.OUT || '/workspace/qa/agent-panel-fix/speed-before.json';
+const OUT = process.env.OUT || '/workspace/qa/agent-panel-fix/speed-before.json'; // after: OUT=.../speed-after.json
 const QS = { ravi: ['What is my next job?', 'Show jobs waiting on parts', 'Which jobs are late?', 'What needs attention?'],
   sam: ['Which jobs are late?', 'Who is free tomorrow?', 'Show jobs waiting on parts', 'What needs attention?'],
   imran: ['Which jobs are late?', 'Show jobs waiting on parts', 'Who is free tomorrow?', 'What needs attention?'] };

@@ -38,7 +38,7 @@ export function brokenReply(text: string | undefined | null): boolean {
   return /limit for workspace actions|request is incomplete|incomplete request|rate limit|quota|too many requests|internal error|something went wrong|an error occurred|\b(?:429|500|502|503)\b|invalid tool arguments|tool limit reached|unknown tool/i.test(text);
 }
 
-const STATUS: Record<string, string> = { open: 'Open', scheduled: 'Visit booked', in_progress: 'In progress', on_hold: 'On hold', done: 'Done', cancelled: 'Cancelled' };
+const STATUS: Record<string, string> = { open: 'Open', scheduled: 'Visit booked', in_progress: 'In progress', on_hold: 'On hold', waiting_on_parts: 'Waiting on parts', done: 'Done', cancelled: 'Cancelled' };
 const label = (s: string) => STATUS[s] ?? s.replace(/_/g, ' ');
 const when = (v: unknown, tz?: string) => { if (!v) return ''; const d = new Date(String(v)); if (Number.isNaN(d.getTime())) return String(v); return d.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: tz }); };
 const line = (j: any, tz?: string) => `• WO ${j.order_number}: ${j.title}${j.site_name ? ` at ${j.site_name}` : ''}${j.scheduled_for ? `, ${when(j.scheduled_for, tz)}` : ''} (${label(j.status)})`;
@@ -71,10 +71,10 @@ async function today(c: AgentContext) {
   return open.data?.length ? [`You have ${plural(open.total ?? open.data.length, 'open job')}.`, ...open.data.map((j: any) => line(j))].join('\n') : 'You have no open jobs right now.';
 }
 
-async function late(c: AgentContext) {
+async function late(c: AgentContext, tz?: string) {
   const r = await read(c, 'list_work_orders', { overdue: true, sort: 'due_on', dir: 'asc', pageSize: 6 });
   if (!r) return null;
-  return r.data?.length ? [`${plural(r.total ?? r.data.length, 'job is', 'jobs are')} late.`, ...r.data.map((j: any) => line(j))].join('\n') : 'Nothing is late. Every job is on time.';
+  return r.data?.length ? [`${plural(r.total ?? r.data.length, 'job is', 'jobs are')} late.`, ...r.data.map((j: any) => line(j, tz))].join('\n') : 'Nothing is late. Every job is on time.';
 }
 
 async function job(c: AgentContext, n: number) {
@@ -151,11 +151,11 @@ export function quickLookup(question: string): QuickLookup | null {
   for (const [k, re] of QUICK) if (re.test(q)) return k;
   return null;
 }
-async function parts(c: AgentContext) {
+async function parts(c: AgentContext, tz?: string) {
   const r = await read(c, 'list_work_orders', { status: ['waiting_on_parts'], sort: 'updated_at', dir: 'desc', pageSize: 8 });
   if (!r) return null;
   const n = r.total ?? r.data?.length ?? 0;
-  return n ? [`${plural(n, 'job is', 'jobs are')} waiting on parts.`, ...r.data.map((j: any) => line(j))].join('\n') : 'No jobs are waiting on parts.';
+  return n ? [`${plural(n, 'job is', 'jobs are')} waiting on parts.`, ...r.data.map((j: any) => line(j, tz))].join('\n') : 'No jobs are waiting on parts.';
 }
 async function nextJob(c: AgentContext) {
   const d = await read(c, 'my_day');
@@ -176,23 +176,23 @@ async function freeTomorrow(c: AgentContext, from: string) {
   const day = new Date(from + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   return [free.length ? `Technicians free tomorrow (${day}): ${free.join(', ')}.` : `Every technician has a job tomorrow (${day}).`, ...(busy.length ? [`Booked: ${busy.join(', ')}.`] : []), ...(off.length ? [`Away: ${off.join(', ')}.`] : [])].join('\n');
 }
-async function clientRequests(c: AgentContext) {
+async function clientRequests(c: AgentContext, tz?: string) {
   const r = await read(c, 'list_work_orders', { status: ['open', 'scheduled', 'in_progress', 'waiting_on_parts'], sort: 'updated_at', dir: 'desc', pageSize: 6 });
   if (!r) return null;
   const s = await read(c, 'list_suggestions');
   const waiting = (s?.data ?? []).filter((x: any) => x.status === 'pending').length;
   const n = r.total ?? r.data?.length ?? 0;
-  return [n ? `You have ${plural(n, 'open request')}.` : 'You have no open requests.', ...(r.data ?? []).map((j: any) => line(j)), ...(waiting ? [`${plural(waiting, 'new request is', 'new requests are')} waiting for the company to accept.`] : [])].join('\n');
+  return [n ? `You have ${plural(n, 'open request')}.` : 'You have no open requests.', ...(r.data ?? []).map((j: any) => line(j, tz)), ...(waiting ? [`${plural(waiting, 'new request is', 'new requests are')} waiting for the company to accept.`] : [])].join('\n');
 }
-async function clientVisit(c: AgentContext) {
+async function clientVisit(c: AgentContext, tz?: string) {
   const r = await read(c, 'list_work_orders', { status: ['scheduled', 'in_progress'], sort: 'scheduled_for', dir: 'asc', pageSize: 10 });
   if (!r) return null;
   const soon = (r.data ?? []).filter((j: any) => j.scheduled_for && (j.status === 'in_progress' || new Date(j.scheduled_for).getTime() > Date.now() - 2 * 3600_000));
   if (!soon.length) return 'No visit is booked yet. The company will confirm a time.';
-  return [soon.length === 1 ? 'Your next visit:' : `You have ${plural(soon.length, 'visit')} booked:`, ...soon.slice(0, 3).map((j: any) => line(j))].join('\n');
+  return [soon.length === 1 ? 'Your next visit:' : `You have ${plural(soon.length, 'visit')} booked:`, ...soon.slice(0, 3).map((j: any) => line(j, tz))].join('\n');
 }
 /** The quick answer, or null to let the AI answer. tomorrow is the workspace's next day as YYYY-MM-DD. */
-export async function quickAnswer(c: AgentContext, question: string, who: { role: string; tomorrow: string }): Promise<string | null> {
+export async function quickAnswer(c: AgentContext, question: string, who: { role: string; tomorrow: string; timezone?: string }): Promise<string | null> {
   const k = quickLookup(question);
   if (!k) return null;
   const client = who.role === 'client';
@@ -200,12 +200,12 @@ export async function quickAnswer(c: AgentContext, question: string, who: { role
   if ((k === 'client_requests' || k === 'client_visit') && !client) return null;
   if ((k === 'next' || k === 'today' || k === 'free_tomorrow') && client) return null;
   try {
-    if (k === 'parts') return await parts(c);
-    if (k === 'late') return await late(c);
+    if (k === 'parts') return await parts(c, who.timezone);
+    if (k === 'late') return await late(c, who.timezone);
     if (k === 'next') return await nextJob(c);
     if (k === 'today') return await today(c);
     if (k === 'free_tomorrow') return who.role === 'technician' || !who.tomorrow ? null : await freeTomorrow(c, who.tomorrow);
-    if (k === 'client_requests') return await clientRequests(c);
-    return await clientVisit(c);
+    if (k === 'client_requests') return await clientRequests(c, who.timezone);
+    return await clientVisit(c, who.timezone);
   } catch { return null; }
 }
