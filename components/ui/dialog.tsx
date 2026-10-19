@@ -6,12 +6,12 @@ import { X } from 'lucide-react';
 import { Button, IconButton } from './button';
 import { shouldDismissSheet } from '../../lib/ui/helpers';
 const focusable = 'button:not(:disabled),a[href],input:not(:disabled),textarea:not(:disabled),[tabindex="0"]';
-export function Dialog({ open, onClose, title, children, busy = false, sheet = false, presentation, footer, headerActions, dirty = false }: { open: boolean; onClose: () => void; title: ReactNode; children: ReactNode; busy?: boolean; sheet?: boolean; presentation?: 'drawer' | 'popover' | 'assistant'; footer?: ReactNode; headerActions?: ReactNode; dirty?: boolean }) {
+export function Dialog({ open, onClose, onCloseStart, title, children, busy = false, sheet = false, presentation, footer, headerActions, dirty = false }: { open: boolean; onClose: () => void; onCloseStart?: () => void; title: ReactNode; children: ReactNode; busy?: boolean; sheet?: boolean; presentation?: 'drawer' | 'popover' | 'assistant'; footer?: ReactNode; headerActions?: ReactNode; dirty?: boolean }) {
   const [mounted, setMounted] = useState(false), [offset, setOffset] = useState(0), [dragging, setDragging] = useState(false), [closing, setClosing] = useState(false), [discard, setDiscard] = useState(false);
   const panel = useRef<HTMLDivElement>(null), drag = useRef({ start: 0, time: 0 }), closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const titleId = useId(), closeRef = useRef(onClose), busyRef = useRef(busy), dirtyRef=useRef(dirty);dirtyRef.current=dirty; closeRef.current = onClose; busyRef.current = busy;
   useEffect(() => { setMounted(true); return () => { if (closeTimer.current) clearTimeout(closeTimer.current); }; }, []);
-  const close = (force = false) => { if (busyRef.current || closing) return;if(dirtyRef.current&&!force){setDiscard(true);return;} setClosing(true); closeTimer.current = setTimeout(() => { closeRef.current(); setClosing(false); setOffset(0); }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180); };
+  const close = (force = false) => { if (busyRef.current || closing) return;if(dirtyRef.current&&!force){setDiscard(true);return;} onCloseStart?.();setClosing(true); closeTimer.current = setTimeout(() => { closeRef.current(); setClosing(false); setOffset(0); }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180); };
   usePhoneLayer(open&&mounted,()=>{if(busyRef.current)return false;if(dirtyRef.current){setDiscard(v=>!v);return false;}closeRef.current();});
   useEffect(() => {
     if (!open || !mounted) return;
