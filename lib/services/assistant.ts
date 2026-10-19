@@ -19,7 +19,7 @@ import { getWorkOrder } from './work-orders';
 import { listAgentLearning } from './agent-learning';
 import { needsAttention } from './attention';
 import { tools,callTool,type AgentContext } from '../agent/tools';
-import { allowedTool } from '../agent/role-tools';
+import { allowedTool, ADMIN_ONLY } from '../agent/role-tools';
 import { jobSnapshot,logRefusal,recordSnapshot,REFUSAL_REASON,whyNote } from './agent-log';
 import { contractNote,contractUse } from './payments';
 /** The client or site a record write touches: its name for the card, and the current values to show what changes. */
@@ -27,7 +27,6 @@ import { contractNote,contractUse } from './payments';
 const teamTools=['assign_work_order','set_job_trade','set_worker_skills','add_worker','set_member_roles','decide_time_off'];
 /** What a memory change does, for the why note (the card already shows the words). */
 const MEMORY_EFFECT:Record<string,string>={remember_about_me:'It goes on your Memory page and is used only when helping you.',forget_about_me:'It comes off your Memory page and is not used again.',set_call_me:'The Agent calls you by this name from now on.'};
-const ADMIN_ONLY=['set_job_payment','set_approval_mode','set_member_roles','rename_role'];
 function savedNoteReply(name:string,order:{id:string;order_number:number;title:string}){
  const jobLink=`/work-orders/${order.id}`;
  return `Done${name?`, ${plainAssistantReply(name)}`:''}. I saved your note on WO ${order.order_number} ${plainAssistantReply(order.title)}. [Open job](${jobLink})`;

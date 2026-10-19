@@ -150,8 +150,8 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   if(typeof data.scheduled_for==='string' && data.scheduled_for.length===10)data.scheduled_for=(await c.db.query("SELECT ($1::date + time '09:00') AT TIME ZONE timezone AS value FROM workspaces WHERE id=$2",[data.scheduled_for,ws])).rows[0].value.toISOString();
   // Office staff may book only the Best match for this job (ROLE08), the same person the Best match button shows.
   const changedTo=data.assignee_id===order.assignee_id?undefined:data.assignee_id;
-  await assignee(c,changedTo,isOfficeStaff(c)&&changedTo?await bestFor(c,id):null);
   if('assignee_id' in data||'scheduled_for' in data)await assertWorking(c,'assignee_id' in data?data.assignee_id:order.assignee_id,'scheduled_for' in data?data.scheduled_for:order.scheduled_for);
+  await assignee(c,changedTo,isOfficeStaff(c)&&changedTo?await bestFor(c,id):null);
   return update(c,'work_orders',id,data);
  });
  await pushJobChange(user,before,saved as never);

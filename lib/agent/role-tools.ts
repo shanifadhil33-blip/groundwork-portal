@@ -11,4 +11,7 @@ const TECH_TOOLS=['my_memory','remember_about_me','forget_about_me','set_call_me
 export const OFFICE_DENY=['approve_suggestion','decline_suggestion','set_worker_skills','add_worker','set_member_roles','rename_role','set_approval_mode','set_job_payment','decide_time_off'];
 /** The tools a role may use, or null for every tool (admin and supervisor). */
 export function toolsFor(role:string):string[]|null{return CLIENT_KIND_TOOLS[role]??(role==='client'?CLIENT_TOOLS:role==='technician'?TECH_TOOLS:null);}
-export const allowedTool=(role:string,name:string)=>{if(role==='office')return !OFFICE_DENY.includes(name);const l=toolsFor(role);return !l||l.includes(name);};
+/** These checks also run before a connected key can queue a write for approval. */
+export const ADMIN_ONLY=['set_job_payment','set_approval_mode','set_member_roles','rename_role'];
+const ADMIN_RECORDS=['create_client','update_client','create_site','update_site'];
+export const allowedTool=(role:string,name:string)=>{if([...ADMIN_ONLY,...ADMIN_RECORDS].includes(name)&&role!=='admin')return false;if(role==='office')return !OFFICE_DENY.includes(name);const l=toolsFor(role);return !l||l.includes(name);};
