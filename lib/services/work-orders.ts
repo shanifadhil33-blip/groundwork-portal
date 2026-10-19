@@ -1,3 +1,4 @@
+import { tenantFields, normalizeTenant, checkTenantInput, visibleTenant } from './tenant';
 import { checkJobAsset } from './assets';
 import { reportEmergency } from './emergencies';
 import { detectEmergency, isFalseAlarm } from '../emergency';
@@ -13,10 +14,10 @@ import { ApiError, invalid, missing } from '../http';
 import { parseListQuery } from '../pagination';
 import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, update, uuid ,isOfficeStaff} from './shared';
 const timestamp=z.iso.datetime({offset:true});
-const mutable=z.object({asset_id:uuid.nullable(),trade:z.enum(TRADES).nullable(),title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable(),preferred_window:z.string().trim().max(200).nullable()});
+const mutable=z.object({...tenantFields,asset_id:uuid.nullable(),trade:z.enum(TRADES).nullable(),title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable(),preferred_window:z.string().trim().max(200).nullable()});
 const createSchema=mutable.partial().extend({title:name,client_id:uuid.optional(),site_id:uuid}).strict();
 const patchSchema=mutable.partial().extend({on_way:z.literal(true).optional(),updated_at:timestamp.optional(),reopen:z.literal(true).optional(),undo_status:z.literal(true).optional()}).strict();
-const clientSchema=z.object({same_technician:z.boolean().optional(),title:name,description:z.string().max(20000).optional(),preferred_window:z.string().trim().max(200).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();
+const clientSchema=z.object({...tenantFields,same_technician:z.boolean().optional(),title:name,description:z.string().max(20000).optional(),preferred_window:z.string().trim().max(200).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();
 export const transitions:Record<string,string[]>={
  open:['scheduled','cancelled'],scheduled:['in_progress','open','cancelled'],
  in_progress:['waiting_on_parts','done','scheduled','cancelled'],waiting_on_parts:['in_progress','done','cancelled'],
@@ -68,12 +69,13 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
    ORDER BY w.${query.sort} ${query.dir} NULLS LAST,w.id ${query.dir}`,all?values:[...values,query.pageSize,offset])).rows;
   // Empty/out-of-range pages still return the full filtered count.
   const total=data[0]?data[0]._total:(await c.db.query('SELECT count(*)::int AS n FROM work_orders WHERE '+where,values)).rows[0].n;
-  for(const order of data)delete order._total;
+  for(const order of data){delete order._total;visibleTenant(c,order);}
   const next_cursor=offset+data.length<total?Buffer.from(JSON.stringify({offset:offset+data.length,signature})).toString('base64url'):null;
   return {data:data.map(order=>({...order,overdue:isOverdue(order,now,timezone)})),timezone,today:localDate(now,timezone),total,page:Math.floor(offset/query.pageSize)+1,pageSize:query.pageSize,next_cursor};
  });
 }
 export async function createWorkOrder(user:string,ws:string,body:unknown,key?:string) {
+ await inWorkspace(user,ws,async c=>checkTenantInput(c,body));
  if(body&&typeof body==='object'){
   const input=body as Record<string,unknown>;
   const words=`${input.title??''} ${input.description??''}`;
@@ -86,7 +88,8 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
   if(c.role==='technician')throw new ApiError(403,'forbidden','Ask a supervisor to create the job.');
   // A client's agent may guess a trade; the office sets the trade, so drop it rather than fail the request.
   if(c.role==='client'&&body&&typeof body==='object'&&'trade' in body){const {trade:_t,...rest}=body as Record<string,unknown>;body=rest;}
-  const data=(c.role==='client'?clientSchema:createSchema).parse(body);
+  checkTenantInput(c,body);
+  const data=normalizeTenant((c.role==='client'?clientSchema:createSchema).parse(body));
   if(detectEmergency(`${(data as {title?:string}).title??''} ${(data as {description?:string}).description??''}`))(data as {priority?:string}).priority='urgent';
   if(c.role==='client'){const {description,...fields}=data as z.infer<typeof clientSchema>;return createSuggestion(user,ws,{...fields,problem:description??''},undefined,key);}
   if(c.role==='client' && data.client_id && data.client_id!==c.client_id)throw invalid('Choose one of your own sites.','client_id');
@@ -129,7 +132,7 @@ export async function getWorkOrder(user:string,ws:string,id:string) {
   if(order.client)order.client=publicClient(order.client);
   if(c.role==='client'&&(c.client_kind??'manager')!=='manager'){delete order.asset_id;if(order.asset)order.asset={name:order.asset.name};}
   if(c.role==='client'){for(const key of CLIENT_HIDDEN_SITE)delete order.site?.[key];for(const key of CLIENT_HIDDEN_CLIENT)delete order.client?.[key];}
-  return {...order,overdue:isOverdue(order,Date.now(),order.timezone)};
+  return {...visibleTenant(c,order),overdue:isOverdue(order,Date.now(),order.timezone)};
  });
 }
 export async function patchWorkOrder(user:string,ws:string,id:string,body:unknown,ifMatch?:string) {
@@ -138,7 +141,8 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   // Check record visibility first, then role: own-client PATCH is 403; hidden records 404.
   await row(c,'work_orders',id);allow(c,['admin','staff','technician']);
   const order=await row(c,'work_orders',id,true);before=order;
-  const parsed=patchSchema.parse(body);
+  checkTenantInput(c,body);
+  const parsed=normalizeTenant(patchSchema.parse(body));
   // Technicians see only their own jobs (RLS) and change only the status, never to cancelled.
   if(c.role==='technician'){const {updated_at:_u,reopen:_r,undo_status:_undo,...changes}=parsed;if(Object.keys(changes).some(k=>!['status','on_way'].includes(k))||_r)throw new ApiError(403,'forbidden','You can update the status of your own jobs. Ask a supervisor for other changes.');if(changes.status==='cancelled')throw new ApiError(403,'forbidden','Ask a supervisor to cancel a job.');}
   if('asset_id' in parsed && parsed.asset_id!==order.asset_id)await checkJobAsset(c,parsed.asset_id,order.site_id);

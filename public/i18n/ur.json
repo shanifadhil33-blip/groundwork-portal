@@ -687,5 +687,11 @@
 "· Only your changes":"· صرف آپ کی تبدیلیاں",
 "· Plumbing":"· پلمبنگ",
 "· Wood":"· لکڑی",
-"On the way":"راستے میں"
+"On the way":"راستے میں",
+ "For a tenant": "کرایہ دار کے لیے",
+ "Flat or unit": "فلیٹ یا یونٹ",
+ "Tenant name": "کرایہ دار کا نام",
+ "Tenant phone": "کرایہ دار کا فون",
+ "Tenant": "کرایہ دار",
+ "Only a building manager can add a tenant.": "صرف عمارت کا مینیجر کرایہ دار شامل کر سکتا ہے۔"
 }

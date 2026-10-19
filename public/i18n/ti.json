@@ -667,5 +667,11 @@
 "· Only your changes":"· ናይካ ለውጢ ጥራይ",
 "· Plumbing":"· ቧንቧ",
 "· Wood":"· ዕንጸይቲ",
-"On the way":"ኣብ መንገዲ"
+"On the way":"ኣብ መንገዲ",
+ "For a tenant": "ንተኻራዪ",
+ "Flat or unit": "ኣፓርታማ ወይ ክፍሊ",
+ "Tenant name": "ስም ተኻራዪ",
+ "Tenant phone": "ተሌፎን ተኻራዪ",
+ "Tenant": "ተኻራዪ",
+ "Only a building manager can add a tenant.": "ኣመሓዳሪ ህንጻ ጥራይ ተኻራዪ ክውስኽ ይኽእል።"
 }

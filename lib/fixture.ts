@@ -84,6 +84,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    if(n<=18) for(const [index,visibility] of ['client','internal'].entries()) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,company,orderId(n),visibility==='client'?'We have received your request and confirmed access with the site manager.':'Check stock and technician availability before the next visit.',visibility,actor,new Date(dates.updated.getTime()-(2-index)*3600000)]);
    if(n<=4) await client.query('INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,$3)',[ws,orderId(n),`${prefix}COBALT-DEMO-${n}`]);
   }
+  await client.query("UPDATE work_orders SET tenant_unit='1204',tenant_name='Hassan',tenant_phone='+971 50 000 1204' WHERE id=$1",[orderId(1)]);
   // Trades and areas so assigning by trade and area shows real matches in the demo.
   await client.query(`UPDATE work_orders SET trade=CASE WHEN title ~* '(leak|pipe|drain|water|toilet|tap)' THEN 'plumbing' WHEN title ~* '(\\mac\\M|air con|cool|hvac|chiller)' THEN 'ac' WHEN title ~* '(light|power|socket|electric|breaker)' THEN 'electrical' WHEN title ~* '(door|cabinet|wood)' THEN 'carpentry' WHEN title ~* 'paint' THEN 'painting' WHEN title ~* 'clean' THEN 'cleaning' ELSE (ARRAY['plumbing','ac','electrical','general'])[1+(order_number%4)] END WHERE workspace_id=$1`,[ids.ridgeline]);
   const areas=siteRecords.map(s=>s[2]);

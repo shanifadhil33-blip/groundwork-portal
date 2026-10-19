@@ -658,5 +658,11 @@
 "· Only your changes":"· Isbeddelladaada oo keliya",
 "· Plumbing":"· Tuubiste",
 "· Wood":"· Qoryo",
-"On the way":"Jidka ku soo jira"
+"On the way":"Jidka ku soo jira",
+ "For a tenant": "Loogu talagalay kirayste",
+ "Flat or unit": "Dabaq ama qayb",
+ "Tenant name": "Magaca kiraystaha",
+ "Tenant phone": "Telefoonka kiraystaha",
+ "Tenant": "Kirayste",
+ "Only a building manager can add a tenant.": "Maamulaha dhismaha oo keliya ayaa ku dari kara kirayste."
 }

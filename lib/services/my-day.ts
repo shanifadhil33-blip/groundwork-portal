@@ -3,7 +3,7 @@ import { overdueSql, todaySql } from '../dates';
 import { ApiError } from '../http';
 import { inWorkspace } from './shared';
 
-const cols = `w.id, w.order_number, w.title, w.description, w.status, w.priority, w.trade, w.scheduled_for, w.due_on, w.updated_at,
+const cols = `w.tenant_unit, w.tenant_name, w.tenant_phone, w.id, w.order_number, w.title, w.description, w.status, w.priority, w.trade, w.scheduled_for, w.due_on, w.updated_at,
   s.name AS site_name, s.address, s.building, s.area, s.access_notes, s.contact_name, s.contact_phone`;
 const from = 'FROM work_orders w JOIN sites s ON s.workspace_id=w.workspace_id AND s.id=w.site_id';
 // The date helpers name the table work_orders; here it is aliased w.

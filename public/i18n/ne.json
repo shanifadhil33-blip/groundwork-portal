@@ -683,5 +683,11 @@
 "· Only your changes":"· केवल तपाईंका परिवर्तनहरू",
 "· Plumbing":"· प्लम्बिङ",
 "· Wood":"· काठ",
-"On the way":"बाटोमा"
+"On the way":"बाटोमा",
+ "For a tenant": "भाडावालाका लागि",
+ "Flat or unit": "फ्ल्याट वा युनिट",
+ "Tenant name": "भाडावालाको नाम",
+ "Tenant phone": "भाडावालाको फोन",
+ "Tenant": "भाडावाला",
+ "Only a building manager can add a tenant.": "भवन व्यवस्थापकले मात्र भाडावाला थप्न सक्छन्।"
 }

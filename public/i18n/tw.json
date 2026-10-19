@@ -643,5 +643,11 @@
 "· Only your changes":"· Wo nsesae nkutoo",
 "· Plumbing":"· Nsu ho adwuma",
 "· Wood":"· Dua",
-"On the way":"Ɔnam kwan so reba"
+"On the way":"Ɔnam kwan so reba",
+ "For a tenant": "Ma ɔdan gyefo",
+ "Flat or unit": "Ɔdan anaa ɔdan fã",
+ "Tenant name": "Ɔdan gyefo din",
+ "Tenant phone": "Ɔdan gyefo telefon",
+ "Tenant": "Ɔdan gyefo",
+ "Only a building manager can add a tenant.": "Ɔdan no sohwɛfo nko ara na obetumi de ɔdan gyefo aka ho."
 }

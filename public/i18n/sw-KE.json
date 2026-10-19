@@ -638,5 +638,11 @@
 "· Only your changes":"· Mabadiliko yako pekee",
 "· Plumbing":"· Mabomba",
 "· Wood":"· Mbao",
-"On the way":"Njiani"
+"On the way":"Njiani",
+ "For a tenant": "Kwa mpangaji",
+ "Flat or unit": "Fleti au nyumba",
+ "Tenant name": "Jina la mpangaji",
+ "Tenant phone": "Simu ya mpangaji",
+ "Tenant": "Mpangaji",
+ "Only a building manager can add a tenant.": "Msimamizi wa jengo pekee anaweza kuongeza mpangaji."
 }

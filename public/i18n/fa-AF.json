@@ -663,5 +663,11 @@
 "· Only your changes":"· فقط تغییرات شما",
 "· Plumbing":"· پلمپینگ",
 "· Wood":"· چوب",
-"On the way":"در راه"
+"On the way":"در راه",
+ "For a tenant": "برای مستأجر",
+ "Flat or unit": "آپارتمان یا واحد",
+ "Tenant name": "نام مستأجر",
+ "Tenant phone": "تلفن مستأجر",
+ "Tenant": "مستأجر",
+ "Only a building manager can add a tenant.": "فقط مدیر ساختمان می‌تواند مستأجر اضافه کند."
 }

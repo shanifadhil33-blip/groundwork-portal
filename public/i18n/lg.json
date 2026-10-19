@@ -637,5 +637,11 @@
 "· Only your changes":"· Enkyukakyuka zo zokka",
 "· Plumbing":"· Okuteeka emivumbiriro",
 "· Wood":"· Enku",
-"On the way":"Ali mu kkubo"
+"On the way":"Ali mu kkubo",
+ "For a tenant": "Ku mupangisa",
+ "Flat or unit": "Ekisenge oba ennyumba",
+ "Tenant name": "Erinnya ly’omupangisa",
+ "Tenant phone": "Essimu y’omupangisa",
+ "Tenant": "Omupangisa",
+ "Only a building manager can add a tenant.": "Omuddukanya w’ekizimbe yekka y’asobola okwongerako omupangisa."
 }

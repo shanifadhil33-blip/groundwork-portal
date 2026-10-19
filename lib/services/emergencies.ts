@@ -1,21 +1,24 @@
+import { redactTenantContacts, checkTenantInput, normalizeTenant, tenantValues } from './tenant';
 import { sendPush } from './push';
 import { detectEmergency, isFalseAlarm, SAFETY } from '../emergency';
 import { withSystem } from '../db';
 import { hash, inWorkspace } from './shared';
 
-type Intake = { site_id?: string | null; work_order_id?: string | null; title?: string; prepareCard?: boolean };
+type Intake = { site_id?: string | null; work_order_id?: string | null; title?: string; prepareCard?: boolean; tenant?: {tenant_unit?:string|null;tenant_name?:string|null;tenant_phone?:string|null} };
 /** Safety intake commits independently of AI and of any later booking confirmation. */
 export async function reportEmergency(user: string, ws: string, words: string, intake: Intake = {}) {
  const kind = detectEmergency(words), falseAlarm = isFalseAlarm(words);
  if (!kind && !falseAlarm) return null;
  // Resolve only records the sender can see before using the privileged notification writer.
  const context = await inWorkspace(user, ws, async c => {
+  checkTenantInput(c,intake.tenant);
   const sites = (await c.db.query('SELECT id,client_id,name FROM sites WHERE workspace_id=$1 AND archived_at IS NULL ORDER BY id', [ws])).rows;
   const number = words.match(/\bWO\s*(\d+)\b/i)?.[1];
   const job = intake.work_order_id || number ? (await c.db.query('SELECT id,site_id,assignee_id FROM work_orders WHERE workspace_id=$1 AND (id=$2 OR order_number=$3)', [ws, intake.work_order_id ?? null, number ? Number(number) : null])).rows[0] : null;
   const site = sites.find(s => s.id === (intake.site_id ?? job?.site_id)) ?? sites.find(s => words.toLowerCase().includes(String(s.name).toLowerCase())) ?? (sites.length === 1 ? sites[0] : null);
-  return { role: c.role, client: c.client_id, site, job };
+  return { client_kind:c.client_kind,role: c.role, client: c.client_id, site, job };
  });
+ const tenant=normalizeTenant(tenantValues(intake.tenant??{}));
  const result = await withSystem(async db => {
   const scope = `${ws}/emergencies`, key = kind ?? 'falseAlarm';
   await db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [JSON.stringify([scope, user, key])]);
@@ -37,11 +40,11 @@ export async function reportEmergency(user: string, ws: string, words: string, i
   } else if (context.role === 'client' && kind !== 'people' && !job) {
    const trade = kind === 'flood' ? 'plumbing' : kind === 'electric' ? 'electrical' : 'general';
    if (context.site) {
-    request = (await db.query("INSERT INTO work_orders(workspace_id,client_id,site_id,title,description,priority,trade,source,created_by) VALUES($1,$2,$3,$4,$5,'urgent',$6,'client',$7) RETURNING *", [ws, context.client, context.site.id, intake.title ?? words.slice(0,200), words, trade, user])).rows[0];
+    request = (await db.query("INSERT INTO work_orders(workspace_id,client_id,site_id,title,description,priority,trade,source,created_by,tenant_unit,tenant_name,tenant_phone) VALUES($1,$2,$3,$4,$5,'urgent',$6,'client',$7,$8,$9,$10) RETURNING *", [ws, context.client, context.site.id, intake.title ?? words.slice(0,200), words, trade, user,tenant.tenant_unit??null,tenant.tenant_name??null,tenant.tenant_phone??null])).rows[0];
     job = request;
    } else {
     // A request can arrive before its site is known. The supervisor resolves its location.
-    request = (await db.query("INSERT INTO job_suggestions(workspace_id,client_id,title,problem,priority,source,sender_user_id,sender_name) VALUES($1,$2,$3,$4,'urgent',CASE WHEN $5='household' THEN 'household' ELSE 'client' END,$6,$7) RETURNING *", [ws, context.client, intake.title ?? words.slice(0,200), words, (await db.query('SELECT client_kind FROM members WHERE workspace_id=$1 AND user_id=$2',[ws,user])).rows[0]?.client_kind, user, who])).rows[0];
+    request = (await db.query("INSERT INTO job_suggestions(workspace_id,client_id,title,problem,priority,source,sender_user_id,sender_name,tenant_unit,tenant_name,tenant_phone) VALUES($1,$2,$3,$4,'urgent',CASE WHEN $5='household' THEN 'household' ELSE 'client' END,$6,$7,$8,$9,$10) RETURNING *", [ws, context.client, intake.title ?? words.slice(0,200), words, (await db.query('SELECT client_kind FROM members WHERE workspace_id=$1 AND user_id=$2',[ws,user])).rows[0]?.client_kind, user, who,tenant.tenant_unit??null,tenant.tenant_name??null,tenant.tenant_phone??null])).rows[0];
    }
   }
   const message = falseAlarm ? `${who} reported a false alarm. Should the emergency job be cancelled? He said: ${words.slice(0,140)}` : `Emergency reported by ${who}: ${words.slice(0,140)}`;
@@ -71,6 +74,6 @@ export async function reportEmergency(user: string, ws: string, words: string, i
  }, user);
  if (!result.duplicate) await sendPush(result.recipients, { title: falseAlarm ? 'Emergency review' : 'Emergency', body: result.notification, url: result.job ? `/work-orders/${result.job.id}` : '/home', tag: `emergency:${user}:${kind ?? 'review'}`, urgent: true });
  const {recipients:_recipients,notification:_notification,notificationIds:_notificationIds,...visible}=result;
- return visible;
+ return redactTenantContacts(context,visible);
 }
 

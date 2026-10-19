@@ -684,5 +684,11 @@
 "· Only your changes":"· یوازې ستاسو بدلونونه",
 "· Plumbing":"· پلمبنګ",
 "· Wood":"· لرګی",
-"On the way":"په لاره"
+"On the way":"په لاره",
+ "For a tenant": "د کرایه دار لپاره",
+ "Flat or unit": "فلیټ یا واحد",
+ "Tenant name": "د کرایه دار نوم",
+ "Tenant phone": "د کرایه دار تلیفون",
+ "Tenant": "کرایه دار",
+ "Only a building manager can add a tenant.": "یوازې د ودانۍ مدیر کرایه دار زیاتولی شي."
 }

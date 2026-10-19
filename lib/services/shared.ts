@@ -1,3 +1,4 @@
+import { redactTenantContacts } from './tenant';
 import { contactRows } from './contact-names';
 import { personalNames } from '../contact-names';
 import { createHash } from 'node:crypto';
@@ -18,7 +19,7 @@ export async function inWorkspace<T>(user: string, ws: string, fn: (ctx: Context
   return withUser(user, async db => {
     const m = (await db.query('SELECT my_role($1) AS role,my_client($1) AS client_id,my_staff_kind($1) AS staff_kind,my_client_kind($1) AS client_kind',[ws])).rows[0];
     if (!m.role) throw missing();
-    const result=await fn({db,user,ws,...m});
+    const result=redactTenantContacts(m,await fn({db,user,ws,...m}));
     if(result && typeof result === 'object') return personalNames(result,await contactRows(db,user,ws));
     return result;
   });

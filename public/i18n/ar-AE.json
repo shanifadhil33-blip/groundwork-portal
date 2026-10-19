@@ -757,5 +757,11 @@
  "Choose each region once and enter its amount.": "اختر كل منطقة مرة واحدة وأدخل مبلغها.",
  "The full price depends on what the technician finds. He will tell you before any extra work.": "السعر الكامل يعتمد على ما يجده الفني. سيخبرك قبل أي عمل إضافي.",
  "The office will confirm the price. I won't guess it.": "سيؤكد المكتب السعر. لن أخمّنه.",
-"On the way":"في الطريق"
+"On the way":"في الطريق",
+ "For a tenant": "لمستأجر",
+ "Flat or unit": "الشقة أو الوحدة",
+ "Tenant name": "اسم المستأجر",
+ "Tenant phone": "هاتف المستأجر",
+ "Tenant": "المستأجر",
+ "Only a building manager can add a tenant.": "يمكن لمدير المبنى فقط إضافة مستأجر."
 }

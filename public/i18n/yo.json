@@ -633,5 +633,11 @@
 "· Off every Sun":"· Isinmi gbogbo Sun",
 "· Only your changes":"· Awọn ayipada rẹ nikan",
 "· Wood":"· Igi",
-"On the way":"Ń bọ̀ lọ́nà"
+"On the way":"Ń bọ̀ lọ́nà",
+ "For a tenant": "Fún ayálégbé",
+ "Flat or unit": "Ilé tàbí yàrá",
+ "Tenant name": "Orúkọ ayálégbé",
+ "Tenant phone": "Fóònù ayálégbé",
+ "Tenant": "Ayálégbé",
+ "Only a building manager can add a tenant.": "Alábòójútó ilé nìkan ló lè fi ayálégbé kún un."
 }

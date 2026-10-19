@@ -652,5 +652,11 @@
 "· Only your changes":"· Naanị mgbanwe gị",
 "· Plumbing":"· Ọrụ ọkpọnkpa",
 "· Wood":"· Osisi",
-"On the way":"Nọ nʼụzọ"
+"On the way":"Nọ nʼụzọ",
+ "For a tenant": "Maka onye mgbazinye",
+ "Flat or unit": "Ụlọ ma ọ bụ ngalaba",
+ "Tenant name": "Aha onye mgbazinye",
+ "Tenant phone": "Ekwentị onye mgbazinye",
+ "Tenant": "Onye mgbazinye",
+ "Only a building manager can add a tenant.": "Naanị onye njikwa ụlọ nwere ike itinye onye mgbazinye."
 }

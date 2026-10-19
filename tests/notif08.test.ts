@@ -9,7 +9,7 @@ import { pushJobChange, subscribePush } from '../lib/services/push';
 import { statusLine } from '../lib/status-updates';
 import { listNotifications } from '../lib/services/notifications';
 import { groupNotifications, notificationMessage, openNotificationTarget } from '../lib/ui/notifications';
-import { clientStatusLabel } from '../lib/ui/work-orders';
+import { clientStatusLabel, staffStatusLabel } from '../lib/ui/work-orders';
 const ws = ids.ridgeline;
 const manager = randomUUID(), office = randomUUID(), household = randomUUID(), archived = randomUUID();
 let client: string; let priorLang: string | null = null, priorTz = 'Asia/Dubai';
@@ -83,4 +83,7 @@ it('words travel notifications and only changes the scheduled client label', () 
   expect(clientStatusLabel({ status: 'scheduled' })).toBe('Visit Scheduled');
   expect(clientStatusLabel({ status: 'scheduled', on_way_at: '2032-01-12' })).toBe('On the way');
   expect(clientStatusLabel({ status: 'done', on_way_at: '2032-01-12' })).toBe('Completed');
+  expect(staffStatusLabel({ status: 'scheduled', on_way_at: '2032-01-12' })).toBe('On the way');
+  expect(staffStatusLabel({ status: 'scheduled' })).toBe('Scheduled');
+  expect(staffStatusLabel({ status: 'in_progress', on_way_at: '2032-01-12' })).toBe('In Progress');
 });

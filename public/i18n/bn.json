@@ -707,5 +707,11 @@
 "· Only your changes":"· শুধুমাত্র আপনার পরিবর্তনগুলো",
 "· Plumbing":"· প্লাম্বিং",
 "· Wood":"· কাঠ",
-"On the way":"পথে আছেন"
+"On the way":"পথে আছেন",
+ "For a tenant": "ভাড়াটিয়ার জন্য",
+ "Flat or unit": "ফ্ল্যাট বা ইউনিট",
+ "Tenant name": "ভাড়াটিয়ার নাম",
+ "Tenant phone": "ভাড়াটিয়ার ফোন",
+ "Tenant": "ভাড়াটিয়া",
+ "Only a building manager can add a tenant.": "শুধু ভবনের ব্যবস্থাপক ভাড়াটিয়া যোগ করতে পারেন।"
 }

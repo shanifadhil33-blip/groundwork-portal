@@ -647,5 +647,11 @@
 "· Only your changes":"· Ang iyong mga pagbabago lamang",
 "· Plumbing":"· Pagtutubero",
 "· Wood":"· Kahoy",
-"On the way":"Papunta na"
+"On the way":"Papunta na",
+ "For a tenant": "Para sa nangungupahan",
+ "Flat or unit": "Apartment o yunit",
+ "Tenant name": "Pangalan ng nangungupahan",
+ "Tenant phone": "Telepono ng nangungupahan",
+ "Tenant": "Nangungupahan",
+ "Only a building manager can add a tenant.": "Tagapamahala lang ng gusali ang puwedeng magdagdag ng nangungupahan."
 }

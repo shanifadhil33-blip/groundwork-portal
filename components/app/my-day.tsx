@@ -23,7 +23,7 @@ import { AddPhoto, type Photo } from './job-photos';
 import { AgentCard } from './dashboard';
 import { LeaveRequests, RequestTimeOff } from './time-off';
 
-type Job = { heat_warning?: string|null; outdoor?: boolean; id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; address: string | null; building: string | null; area: string | null; access_notes: string | null; contact_name: string | null; contact_phone: string | null };
+type Job = { tenant_unit?:string|null; heat_warning?: string|null; outdoor?: boolean; id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; address: string | null; building: string | null; area: string | null; access_notes: string | null; contact_name: string | null; contact_phone: string | null };
 type Day = { timezone: string; today: Job[]; late: Job[]; next: Job[]; done: number };
 
 /** The one next step for a worker. Open jobs wait for the office to set a time. */
@@ -69,7 +69,7 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
   }
   const pick = OUTCOMES.find(o => o.v === outcome);
   return <Dialog open onClose={onClose} busy={busy} title="Job report" footer={<><Button variant="secondary" disabled={busy} onClick={onClose}>Cancel</Button><Button busy={busy} disabled={!outcome} onClick={() => void save()}><CheckCircle2 size={18} aria-hidden="true" />{outcome === 'fixed' || outcome === 'temporary' ? 'Job done' : 'Save report'}</Button></>}>
-    <div className="stack compact job-report"><strong data-no-translate>{j.title}</strong>
+    <div className="stack compact job-report"><strong data-no-translate>{j.title}</strong>{j.tenant_unit&&<span className="small muted"><span>Flat or unit</span>: <span data-no-translate>{j.tenant_unit}</span></span>}
       <div className="voice-report stack compact"><span className="field-label">Say what you found and did, in your language</span><AssistantComposer ws={member?.workspace_id??''} language={lang} input={words} setInput={setWords} inputRef={wordsRef} busy={filling} blocked={false} active submit={()=>void fill()} inputLabel="Your words" placeholder="Speak or type"/><Button variant="secondary" busy={filling} disabled={!words.trim()} onClick={()=>void fill()}>Fill report</Button>{question&&<p className="voice-question" role="status">{question}</p>}</div>
       <label className="field"><span>What was the problem?</span><textarea rows={2} value={problem} onChange={e => setProblem(e.target.value)} placeholder="For example: the AC was leaking water" /></label>
       <label className="field"><span>What did you do?</span><textarea rows={2} value={work} onChange={e => setWork(e.target.value)} placeholder="For example: cleaned the drain pipe" /></label>
@@ -93,7 +93,7 @@ function JobCard({ j:original, tz, base, onDone, onFinished, when, primary=false
   }
   return <li className="day-card" {...selection?.row(j.id)}>{selection?.mark(j.id)}
     <div className="day-when"><strong>{when}</strong>{j.status !== 'scheduled' && <Badge>{statusLabels[j.status] ?? j.status}</Badge>}{j.priority === 'urgent' && <Badge tone="warning">Urgent</Badge>}</div>
-    <Link href={`/work-orders/${j.id}`} className="day-title"><strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}{j.trade ? ` · ${tradeLabels[j.trade as Trade] ?? j.trade}` : ''}</span></Link>{j.heat_warning&&<p className="heat-note" role="note">{j.heat_warning}</p>}
+    <Link href={`/work-orders/${j.id}`} className="day-title"><strong data-no-translate>{j.title}</strong>{j.tenant_unit&&<span className="small muted"><span>Flat or unit</span>: <span data-no-translate>{j.tenant_unit}</span></span>}<span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}{j.trade ? ` · ${tradeLabels[j.trade as Trade] ?? j.trade}` : ''}</span></Link>{j.heat_warning&&<p className="heat-note" role="note">{j.heat_warning}</p>}
     {j.access_notes && <p className="small day-note">{j.access_notes}</p>}
     <div className="day-actions">
       {step ? <Button variant={primary?'primary':'secondary'} busy={busy} onClick={() => step.to === 'done' ? setConfirm(true) : void go()}>{step.to === 'done' ? <CheckCircle2 size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}{step.label}</Button> : <span className="small muted">Waiting for a time</span>}
@@ -134,7 +134,7 @@ export function MyDay() {
       {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<>Due <span data-no-translate>{day(j.due_on, tz, lang)}</span></>} />)}</ul></section>}
       <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<span data-no-translate>{time(j.scheduled_for, tz, lang)}</span>} />)}</ul>
         : <EmptyState title={data.done ? 'All done for today' : 'No jobs today'}>{data.next[0] ? `Next: ${data.next[0].title}, ${day(data.next[0].scheduled_for, tz, 'en')}.` : 'When the office gives you a job, it shows here.'}</EmptyState>}</section>
-      {data.next.length > 0 && <section className="stack compact"><h2>Next days</h2><ul className="day-list">{data.next.map(j => <li key={j.id} className="day-next" {...selection.row(j.id)}>{selection.mark(j.id)}<Link href={`/work-orders/${j.id}`}><strong data-no-translate>{day(j.scheduled_for, tz, lang)}</strong> <span data-no-translate>{time(j.scheduled_for, tz, lang)}</span> · {j.title}</Link></li>)}</ul></section>}
+      {data.next.length > 0 && <section className="stack compact"><h2>Next days</h2><ul className="day-list">{data.next.map(j => <li key={j.id} className="day-next" {...selection.row(j.id)}>{selection.mark(j.id)}<Link href={`/work-orders/${j.id}`}><strong data-no-translate>{day(j.scheduled_for, tz, lang)}</strong> <span data-no-translate>{time(j.scheduled_for, tz, lang)}</span> · {j.title}{j.tenant_unit&&<span data-no-translate>{` · ${j.tenant_unit}`}</span>}</Link></li>)}</ul></section>}
       <p className="small"><Link href="/work-orders">All my jobs</Link></p>
     </>}
   </div>;

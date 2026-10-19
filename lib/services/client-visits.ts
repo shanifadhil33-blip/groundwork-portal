@@ -1,3 +1,4 @@
+import { visibleTenant } from './tenant';
 import { z } from 'zod';
 import { asAgent, withSystem } from '../db';
 import { ApiError, invalid, missing } from '../http';
@@ -80,9 +81,9 @@ async function notice(c: Context, job: Record<string, any>, kind: string, superv
 async function clientTransaction<T>(user: string, ws: string, id: string, fn: (c: Context, job: any) => Promise<T>) {
   await inWorkspace(user, ws, c => own(c, id));
   return asAgent({ kind: 'assistant' }, () => withSystem(async db => {
-    const m = (await db.query("SELECT client_id FROM members WHERE workspace_id=$1 AND user_id=$2 AND role='client' AND archived_at IS NULL", [ws, user])).rows[0];
+    const m = (await db.query("SELECT client_id,client_kind FROM members WHERE workspace_id=$1 AND user_id=$2 AND role='client' AND archived_at IS NULL", [ws, user])).rows[0];
     if (!m) throw missing();
-    const c: Context = { db, ws, user, role: 'client', client_id: m.client_id };
+    const c: Context = { db, ws, user, role: 'client', client_kind:m.client_kind,client_id: m.client_id };
     const job = await row(c, 'work_orders', id, true);
     if (job.created_by !== user || job.client_id !== m.client_id || job.archived_at) throw missing();
     job.started = await hasStarted(c, id);
@@ -125,7 +126,7 @@ export async function changeClientVisit(user: string, ws: string, tool: 'resched
       ? (await c.db.query("UPDATE work_orders SET status='cancelled' WHERE workspace_id=$1 AND id=$2 RETURNING *", [ws, d.id])).rows[0]
       : (await c.db.query('UPDATE work_orders SET scheduled_for=$3,visit_confirmed_for=NULL WHERE workspace_id=$1 AND id=$2 RETURNING *', [ws, d.id, d.scheduled_for])).rows[0];
     await notice(c, job, tool === 'cancel_visit' ? 'job_cancelled' : 'visit_changed');
-    return saved;
+    return visibleTenant(c,saved);
   });
 }
 

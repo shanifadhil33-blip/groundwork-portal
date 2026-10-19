@@ -646,5 +646,11 @@
 "· Only your changes":"· የእርስዎ ለውጦች ብቻ",
 "· Plumbing":"· የቧንቧ ስራ",
 "· Wood":"· እንጨት",
-"On the way":"በመንገድ ላይ"
+"On the way":"በመንገድ ላይ",
+ "For a tenant": "ለተከራይ",
+ "Flat or unit": "አፓርታማ ወይም ክፍል",
+ "Tenant name": "የተከራይ ስም",
+ "Tenant phone": "የተከራይ ስልክ",
+ "Tenant": "ተከራይ",
+ "Only a building manager can add a tenant.": "ተከራይ ማከል የሚችለው የሕንፃ አስተዳዳሪ ብቻ ነው።"
 }
