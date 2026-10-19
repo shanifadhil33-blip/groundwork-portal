@@ -65,7 +65,8 @@ it.each([true,false])('owner and admin can save visit charge with Saved feedback
  const amounts=host.querySelectorAll<HTMLInputElement>('input[type="number"]');
  expect(amounts[0].value).toBe('150.00');expect(amounts[1].value).toBe('200');
  expect(amounts[0].style.minHeight).toBe('44px');
- expect(host.querySelector<HTMLSelectElement>('select')!.value).toBe('Sharjah');
+ // The region picker is the app dropdown (known issues: custom dropdowns for known options), not a native select.
+ expect(host.querySelector('select')).toBeNull();expect(host.querySelector('#visit-region-0')!.textContent).toContain('Sharjah');
  await act(async()=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(amounts[0],'175');amounts[0].dispatchEvent(new Event('input',{bubbles:true}));});
  await act(async()=>host.querySelector('form')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
  expect(JSON.parse(state.request.mock.calls[0][1].body)).toEqual({visit_charge:175,visit_charge_regions:{Sharjah:200},visit_charge_sample:true});
