@@ -787,5 +787,12 @@
  "The booked visit is after the promised time.": "موعد الزيارة المحجوزة بعد الموعد الموعود.",
  "Most of the promised time has passed and nobody is on the way yet.": "مر معظم الوقت الموعود ولم ينطلق أحد إلى الموقع بعد.",
  "No contract jobs need attention.": "لا توجد أعمال بعقود تحتاج إلى متابعة.",
- "Reach the site within": "الوصول إلى الموقع خلال"
+ "Reach the site within": "الوصول إلى الموقع خلال",
+ "You can see your own count.": "يمكنك رؤية عدد أعمالك فقط.",
+ "I could not find that person on your team.": "لم أجد هذا الشخص في فريقك.",
+ "Which person do you mean? {names}.": "أي شخص تقصد؟ {names}.",
+ "{name} finished {month} jobs this month and {total} in total.": "أنجز {name} عدد {month} من الأعمال هذا الشهر و{total} في المجموع.",
+ "{name} finished {month} job this month and {total} in total.": "أنجز {name} عدد {month} من الأعمال هذا الشهر و{total} في المجموع.",
+ "You finished {month} jobs this month and {total} in total.": "أنجزت {month} من الأعمال هذا الشهر و{total} في المجموع.",
+ "You finished {month} job this month and {total} in total.": "أنجزت {month} من الأعمال هذا الشهر و{total} في المجموع."
 }

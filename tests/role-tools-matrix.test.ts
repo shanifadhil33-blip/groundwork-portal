@@ -13,7 +13,7 @@ remember_about_me forget_about_me set_call_me add_comment list_sites ask_choice 
 const clientOnly = ['free_visit_slots','previous_technician','reschedule_visit','cancel_visit'];
 const client = `withdraw_request create_request`.split(' ');
 const clientAnswers = `waiting_prices answer_quote confirm_visit`.split(' ');
-const technician = `list_team_messages send_team_message suggest_job ask_supervisor update_work_order_status
+const technician = `job_counts list_team_messages send_team_message suggest_job ask_supervisor update_work_order_status
 save_job_report request_time_off list_leave_requests my_day get_schedule list_documents`.split(/\s+/);
 const office = `contract_watch visit_charge update_work_order_dates set_priority list_approval_queue approve_queue_row reject_queue_row
 list_assets get_dashboard list_clients list_team suggest_worker assign_work_order set_job_trade send_quote update_document remove_document`.split(/\s+/);

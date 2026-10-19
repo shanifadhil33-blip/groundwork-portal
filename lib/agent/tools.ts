@@ -27,7 +27,7 @@ import { setJobPayment } from '../services/payments';
 import { patchWorkspace, renameRole } from '../services/workspaces';
 import { setMemberRoles } from '../services/members';
 import { clientShape,createClient,createSite,listClients,patchClient,patchSite,siteShape } from '../services/clients';
-import { teamToday } from '../services/team';
+import { jobCountMembers, teamToday } from '../services/team';
 import { myDay } from '../services/my-day';
 import { scheduleBoard } from '../services/schedule';
 import { pushStatus } from '../services/push';
@@ -37,7 +37,7 @@ import { setWorkerSkills, suggestWorkers } from '../services/assign';
 import { TRADES } from '../trades';
 import { addFieldWorker } from '../services/field-signin';
 import { name as recordName } from '../services/shared';
-import { OUTCOMES, saveJobReport } from '../services/job-report';
+import { OUTCOMES, saveJobReport, jobRecord } from '../services/job-report';
 import { confirmVisit, decideQuote, sendQuote } from '../services/quotes';
 import { askSupervisor } from '../services/agent-questions';
 import { listAgentLearning, savePersonalLearning, deletePersonalLearning } from '../services/agent-learning';
@@ -101,6 +101,16 @@ export const tools:Record<string,Tool>={
  update_client:{description:'Admin only: change fields on a client record (send only the fields to change; null clears an optional field, and country null makes it follow the workspace). Same country rules as create_client. Use list_clients for the id. The portal shows a confirmation card first.',write:true,schema:z.object({id:uuid,name:recordName.optional(),...clientShape}).strict(),run:(c,a)=>{const {id,...data}=a;return patchClient(c.user,c.ws,id,data);}},
  create_site:{description:'Admin only: add a site for a client: name required; street address, building name/number, area, region (from the client country list), access notes and site contact name and phone optional. The site follows its client country. The portal shows a confirmation card first.',write:true,schema:z.object({client_id:uuid,name:recordName,address:z.string().trim().max(2000).optional(),...siteShape}).strict(),run:(c,a)=>{const {client_id,...data}=a;return createSite(c.user,c.ws,client_id,data);}},
  update_site:{description:'Admin only: change fields on a site (send only the fields to change; null clears an optional field). Use list_sites for the id. The portal shows a confirmation card first.',write:true,schema:z.object({id:uuid,name:recordName.optional(),address:z.string().trim().max(2000).optional(),...siteShape}).strict(),run:(c,a)=>{const {id,...data}=a;return patchSite(c.user,c.ws,id,data);}},
+ job_counts:{description:'Read how many jobs a team member finished this month and in total. person is a name or first name; omit it for yourself. Office can ask about anyone on the team. Technicians can only ask about themselves. Clients cannot read counts. If names match more than one person, ask which full name.',write:false,schema:z.object({person:z.string().trim().max(200).optional()}).strict(),run:async(c,a)=>{
+  const {role,members}=await jobCountMembers(c.user,c.ws);
+  const person=(a.person??'').toLowerCase();
+  const matches=person?members.filter(m=>m.name&&(m.name.toLowerCase()===person||m.name.toLowerCase().split(/\s+/)[0]===person)):members.filter(m=>m.user_id===c.user);
+  if(!matches.length)throw new ApiError(404,'not_found','I could not find that person on your team.');
+  if(role==='technician'&&!matches.some(m=>m.user_id===c.user))throw new ApiError(403,'own_count','You can see your own count.');
+  if(matches.length>1)throw new ApiError(422,'ambiguous',`Which person do you mean? ${matches.map(m=>m.name).join(', ')}.`);
+  const member=matches[0];
+  return {name:member.name,...await jobRecord(c.user,c.ws,member.user_id)};
+ }},
  list_team:{description:'Admin or supervisor only: list the team (not clients) with role, phone, and each person\'s jobs today, late and open. signs_in_with is google or code. Use it to answer who is free or who is busy.',write:false,schema:z.object({}).strict(),run:c=>teamToday(c.user,c.ws)},
  add_worker:{description:'Admin or supervisor only: add a worker who has no email (name required, phone optional, role technician or staff; supervisors may add technicians only). It does not make a sign in code; tell the user to open Team and tap New sign in. The portal shows a confirmation card first.',write:true,schema:z.object({name:z.string().trim().min(1).max(120),phone:z.string().trim().max(30).optional(),role:z.enum(['technician','staff']).default('technician')}).strict(),run:(c,a)=>addFieldWorker(c.user,c.ws,a)},
  suggest_worker:{description:'Admin or supervisor only: rank who fits one job best: right trade first, then the site area, then fewest jobs today. Use before assign_work_order.',write:false,schema:z.object({id:uuid}).strict(),run:(c,a)=>suggestWorkers(c.user,c.ws,a.id)},

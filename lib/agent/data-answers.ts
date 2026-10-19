@@ -146,8 +146,16 @@ export async function dataAnswer(c: AgentContext, question: string): Promise<str
  * his own jobs and a client only his own requests. Returns null when the question is not a quick lookup or the role
  * can not use the tool (the AI then answers as before).
  */
-export type QuickLookup = 'attention' | 'contract_watch' | 'parts' | 'late' | 'next' | 'today' | 'free_tomorrow' | 'client_requests' | 'client_visit';
+export type QuickLookup = 'job_counts' | 'attention' | 'contract_watch' | 'parts' | 'late' | 'next' | 'today' | 'free_tomorrow' | 'client_requests' | 'client_visit';
+// Whole questions only: a second request must continue to the Agent.
+const COUNT_QUESTION = /^how many jobs (?:has|did) ([\p{L}][\p{L}' ]*?) (?:complete|completed|finish|finished|do|done)(?: this month)?(?:[?,]? and in total)?$|^([\p{L}][\p{L}' ]*?)'s job count$/u;
+function countPerson(question: string): string | null {
+  const match = normalizeQuick(question).match(COUNT_QUESTION);
+  return match ? (match[1] ?? match[2]).trim() : null;
+}
+const normalizeQuick = (question: string) => question.toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().replace(/[?.!\s]+$/, '');
 const QUICK: [QuickLookup, RegExp][] = [
+  ['job_counts', COUNT_QUESTION],
   ['attention', /^what needs (?:my )?attention(?: today)?$|^(?:is there )?anything (?:that )?needs my attention$/],
   ['contract_watch', /^(?:(?:show|list)(?: me)? )?contract response times$|^(?:any |are there any |which )?contract jobs (?:are )?(?:about to miss|close to|past)(?: the promised time)?$/],
   ['parts', /^(?:(?:show|list|which|what)(?: me)?(?: the)?(?: my)? )?(?:jobs|work orders)(?: that)?(?: are)? (?:waiting|on hold) (?:on|for) (?:a )?parts?$|^(?:waiting (?:on|for) parts|parts waiting)$/],
@@ -159,8 +167,8 @@ const QUICK: [QuickLookup, RegExp][] = [
   ['client_visit', /^when is (?:the|my) technician coming$|^when is my (?:next )?visit$/],
 ];
 function directQuick(question: string): QuickLookup | null {
-  const q = question.toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().replace(/[?.!\s]+$/, '');
-  if (!q || q.length > 60) return null;
+  const q = normalizeQuick(question);
+  if (!q || q.length > (COUNT_QUESTION.test(q) ? 160 : 60)) return null;
   for (const [k, re] of QUICK) if (re.test(q)) return k;
   return null;
 }
@@ -210,6 +218,14 @@ async function clientVisit(c: AgentContext, tz?: string) {
 /** The quick answer, or null to let the AI answer. tomorrow is the workspace's next day as YYYY-MM-DD. */
 export async function quickAnswer(c: AgentContext, question: string, who: { role: string; tomorrow: string; timezone?: string }): Promise<string | null> {
   question=resolveWords(question,await listWords(c.user,c.ws));
+  const person=countPerson(question);
+  if(person!==null){
+    const result=await callTool(c,'job_counts',person==='i'?{}:{person});
+    const data=result.structuredContent as any;
+    if(result.isError)return ['own_count','ambiguous'].includes(data?.error?.code)?data.error.message:null;
+    const counts=data?.result;
+    return counts?`${person==='i'?'You':counts.name} finished ${plural(counts.month,'job')} this month and ${counts.total} in total.`:null;
+  }
   const scoped=await scopedQuickAnswer(c,question,who.timezone);
   if(scoped!==undefined)return scoped;
   if(splitQuick(question))return null;
@@ -239,6 +255,7 @@ export async function quickAnswer(c: AgentContext, question: string, who: { role
 
 /** A named place or unit narrows the database query before pagination. Unknown or ambiguous names go to the Agent. */
 function splitQuick(question:string){
+ if(countPerson(question)!==null)return null;
  const text=question.trim().replace(/[?.!]+$/,'');
  const m=text.match(/^(.+?)\s+(?:at|about)\s+(.+)$/i)??text.match(/^(.+)\s+for\s+(.+)$/i);
  if(!m||!directQuick(m[1])||/\b(?:and|then)\s+(?:tell|send|show|change|give|make|add)\b/i.test(m[2]))return null;

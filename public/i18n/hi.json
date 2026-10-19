@@ -716,5 +716,12 @@
 "The booked visit is after the promised time.":"तय की गई यात्रा वादा किए गए समय के बाद है।",
 "Most of the promised time has passed and nobody is on the way yet.":"वादा किए गए समय का अधिकांश हिस्सा बीत गया है और अभी तक कोई रास्ते में नहीं है।",
 "No contract jobs need attention.":"अनुबंध के किसी काम पर ध्यान देने की ज़रूरत नहीं है।",
-"Reach the site within":"स्थल पर पहुँचने का समय"
+"Reach the site within":"स्थल पर पहुँचने का समय",
+"You can see your own count.":"आप केवल अपने कामों की गिनती देख सकते हैं।",
+"I could not find that person on your team.":"मुझे आपकी टीम में यह व्यक्ति नहीं मिला।",
+"Which person do you mean? {names}.":"आप किस व्यक्ति की बात कर रहे हैं? {names}.",
+"{name} finished {month} jobs this month and {total} in total.":"{name} ने इस महीने {month} काम और कुल {total} काम पूरे किए।",
+"{name} finished {month} job this month and {total} in total.":"{name} ने इस महीने {month} काम और कुल {total} काम पूरे किए।",
+"You finished {month} jobs this month and {total} in total.":"आपने इस महीने {month} काम और कुल {total} काम पूरे किए।",
+"You finished {month} job this month and {total} in total.":"आपने इस महीने {month} काम और कुल {total} काम पूरे किए।"
 }

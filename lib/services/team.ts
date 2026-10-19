@@ -1,3 +1,5 @@
+import { listContactNames } from './contact-names';
+import { listMembers } from './members';
 import { allow, inWorkspace } from './shared';
 import { withSystem } from '../db';
 
@@ -25,4 +27,17 @@ export async function teamToday(user: string, ws: string) {
     const phoneOf = new Map(phones.map(p => [p.user_id, p.phone]));
     return rows.map(r => ({ ...r, phone: phoneOf.get(r.user_id) ?? null, signs_in_with: r.email ? 'google' : 'code' }));
   });
+}
+
+/** Names for job counts. Office reads the team; technicians use names they can already see in their contacts. */
+export async function jobCountMembers(user: string, ws: string) {
+  const role = await inWorkspace(user, ws, async c => { allow(c, ['admin', 'staff', 'technician']); return c.role; });
+  const members = role === 'technician'
+    ? await inWorkspace(user, ws, async c => (await c.db.query('SELECT m.user_id, u.name FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true WHERE m.workspace_id=$1 AND m.user_id=$2 AND m.archived_at IS NULL', [ws, user])).rows)
+    : (await listMembers(user, ws)).filter(m => m.role !== 'client' && !m.archived_at);
+  if (role === 'technician') {
+    const contacts = await listContactNames(user, ws);
+    members.push(...contacts.filter(p => p.role !== 'client').map(p => ({ user_id: p.user_id, name: p.real_name })));
+  }
+  return { role, members: members.map(m => ({ user_id: m.user_id, name: m.real_name ?? m.name })) };
 }
