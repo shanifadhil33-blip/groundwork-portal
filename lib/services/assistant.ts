@@ -49,6 +49,7 @@ async function personLabel(x:{user?:string;db:{query:(q:string,v:unknown[])=>Pro
 }
 async function recordTarget(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:any[]}>}},ws:string,tool:string,args:any){
  const home=(await x.db.query('SELECT country FROM workspaces WHERE id=$1',[ws])).rows[0]?.country as string;
+ if(tool==='add_asset'){const r=(await x.db.query('SELECT name FROM sites WHERE workspace_id=$1 AND id=$2',[ws,args.site_id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:null,country:home};}
  if(tool==='create_client')return {label:args.name as string,record:null,country:(args.country as string)||home};
  if(tool==='update_client'){const r=(await x.db.query('SELECT * FROM clients WHERE workspace_id=$1 AND id=$2',[ws,args.id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:r,country:(args.country===undefined?r.country:args.country)||home};}
  if(tool==='create_site'){const r=(await x.db.query('SELECT name,country FROM clients WHERE workspace_id=$1 AND id=$2',[ws,args.client_id])).rows[0];if(!r)throw missing();return {label:r.name as string,record:null,country:r.country||home};}
@@ -220,7 +221,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
     const refusal:[string,string]|null=role==='technician'&&!['update_work_order_status','save_job_report','add_comment','request_time_off','suggest_job','send_message','send_team_message','suggest_contact_name','fill_onboarding','ask_supervisor','remember_about_me','forget_about_me','set_call_me'].includes(call.name)?['Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.',REFUSAL_REASON.technician]
      :teamTools.includes(call.name)&&(!['admin','staff'].includes(role)||(office&&call.name!=='assign_work_order'))?['Only admins and supervisors can assign jobs or change the team.',REFUSAL_REASON.team]
      :ADMIN_ONLY.includes(call.name)&&role!=='admin'?[call.name==='set_job_payment'?'Only an admin can change how a job is paid. Tell the person to ask the admin, and add a note on the job if they want.':'Only an admin can change this. Tell the person to ask the admin.',REFUSAL_REASON.admin]
-     :recordTools.includes(call.name)&&role!=='admin'?['Only workspace admins can add or change clients and sites.',REFUSAL_REASON.records]:null;
+     :recordTools.includes(call.name)&&role!=='admin'&&!(call.name==='add_asset'&&role==='staff'&&!office)?['Only workspace admins can add or change clients and sites.',REFUSAL_REASON.records]:null;
     if(refusal){
      if(!refused.has(call.name)){
       refused.add(call.name);

@@ -1,3 +1,4 @@
+import { checkJobAsset } from './assets';
 import { reportEmergency } from './emergencies';
 import { detectEmergency, isFalseAlarm } from '../emergency';
 import { createSuggestion } from './suggestions';
@@ -12,7 +13,7 @@ import { ApiError, invalid, missing } from '../http';
 import { parseListQuery } from '../pagination';
 import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, update, uuid ,isOfficeStaff} from './shared';
 const timestamp=z.iso.datetime({offset:true});
-const mutable=z.object({trade:z.enum(TRADES).nullable(),title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable(),preferred_window:z.string().trim().max(200).nullable()});
+const mutable=z.object({asset_id:uuid.nullable(),trade:z.enum(TRADES).nullable(),title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable(),preferred_window:z.string().trim().max(200).nullable()});
 const createSchema=mutable.partial().extend({title:name,client_id:uuid.optional(),site_id:uuid}).strict();
 const patchSchema=mutable.partial().extend({on_way:z.literal(true).optional(),updated_at:timestamp.optional(),reopen:z.literal(true).optional(),undo_status:z.literal(true).optional()}).strict();
 const clientSchema=z.object({same_technician:z.boolean().optional(),title:name,description:z.string().max(20000).optional(),preferred_window:z.string().trim().max(200).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();
@@ -90,6 +91,7 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
   if(c.role==='client'){const {description,...fields}=data as z.infer<typeof clientSchema>;return createSuggestion(user,ws,{...fields,problem:description??''},undefined,key);}
   if(c.role==='client' && data.client_id && data.client_id!==c.client_id)throw invalid('Choose one of your own sites.','client_id');
   const site=await row(c,'sites',data.site_id);
+  await checkJobAsset(c,'asset_id' in data?data.asset_id as string|null:undefined,site.id);
   const client_id=c.role==='client'?c.client_id:(data.client_id??site.client_id);
   if(site.client_id!==client_id)throw invalid('The site must belong to the selected client.','site_id');
   if(site.archived_at||(await c.db.query('SELECT archived_at FROM clients WHERE workspace_id=$1 AND id=$2',[ws,client_id])).rows[0]?.archived_at)throw invalid('This site or client is archived. Unarchive it first to add a job.','site_id');
@@ -113,7 +115,7 @@ const CLIENT_HIDDEN_SITE=['access_notes','contact_name','contact_phone'],CLIENT_
 export async function getWorkOrder(user:string,ws:string,id:string) {
  return inWorkspace(user,ws,async c=>{
   uuid.parse(id);
-  const order=(await c.db.query(`SELECT w.*,to_jsonb(s) AS site,to_jsonb(cl) AS client,ws.timezone,
+  const order=(await c.db.query(`SELECT w.*,(SELECT to_jsonb(a) FROM visible_job_asset(w.workspace_id,w.id) a) AS asset,to_jsonb(s) AS site,to_jsonb(cl) AS client,ws.timezone,
    CASE WHEN w.assignee_id IS NULL THEN NULL ELSE coalesce((SELECT to_jsonb(a) FROM visible_assignee(w.workspace_id,w.id) a),jsonb_build_object('id',w.assignee_id)) END AS assignee,
    coalesce((SELECT jsonb_agg(cm ORDER BY cm.created_at,cm.id) FROM comments cm WHERE cm.workspace_id=w.workspace_id AND cm.work_order_id=w.id),'[]') AS comments,
    coalesce((SELECT jsonb_agg(e ORDER BY e.created_at,CASE WHEN e.kind='created' THEN 0 ELSE 1 END,e.id) FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id),'[]') AS timeline
@@ -125,6 +127,7 @@ export async function getWorkOrder(user:string,ws:string,id:string) {
   for(const nested of [order.site,order.client,...order.comments,...order.timeline])for(const key of ['created_at','updated_at'])if(nested[key])nested[key]=new Date(nested[key]);
   // Client users see where the work is, never the team's access notes, site contact or internal client notes.
   if(order.client)order.client=publicClient(order.client);
+  if(c.role==='client'&&(c.client_kind??'manager')!=='manager'){delete order.asset_id;if(order.asset)order.asset={name:order.asset.name};}
   if(c.role==='client'){for(const key of CLIENT_HIDDEN_SITE)delete order.site?.[key];for(const key of CLIENT_HIDDEN_CLIENT)delete order.client?.[key];}
   return {...order,overdue:isOverdue(order,Date.now(),order.timezone)};
  });
@@ -138,6 +141,7 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   const parsed=patchSchema.parse(body);
   // Technicians see only their own jobs (RLS) and change only the status, never to cancelled.
   if(c.role==='technician'){const {updated_at:_u,reopen:_r,undo_status:_undo,...changes}=parsed;if(Object.keys(changes).some(k=>!['status','on_way'].includes(k))||_r)throw new ApiError(403,'forbidden','You can update the status of your own jobs. Ask a supervisor for other changes.');if(changes.status==='cancelled')throw new ApiError(403,'forbidden','Ask a supervisor to cancel a job.');}
+  if('asset_id' in parsed && parsed.asset_id!==order.asset_id)await checkJobAsset(c,parsed.asset_id,order.site_id);
   const version=ifMatch?.replace(/^"|"$/g,'')??parsed.updated_at;
   if(!version)throw invalid('Refresh the work order before saving your changes.','updated_at');
   timestamp.parse(version);

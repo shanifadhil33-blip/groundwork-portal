@@ -174,4 +174,10 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    await client.query("SELECT set_config('app.user_id',$1,true)",[ids.imran]);
   }
  }
+  // CLIENT05: equipment at two sites, one finished job linked to each so the unit history is not empty. People and job assignments stay as they are.
+  await client.query("SELECT set_config('app.user_id',$1,true)",[ids.imran]);
+  for(const [site,name,kind,location] of [[1,'Roof AC 1','ac','Roof'],[1,'Roof AC 2','ac','Roof'],[1,'Main panel','panel','Ground floor'],[4,'Water pump','pump','Plant room'],[4,'Office water heater','water_heater','Office kitchen']] as const){
+   const asset=(await client.query('INSERT INTO assets(workspace_id,site_id,name,kind,location,created_by) VALUES($1,$2,$3,$4,$5,$6) RETURNING id',[ids.ridgeline,siteId(site),name,kind,location,ids.imran])).rows[0];
+   if(name==='Roof AC 1'||name==='Water pump')await client.query("UPDATE work_orders SET asset_id=$3 WHERE id=(SELECT id FROM work_orders WHERE workspace_id=$1 AND site_id=$2 AND status='done' ORDER BY order_number LIMIT 1)",[ids.ridgeline,siteId(site),asset.id]);
+  }
 }

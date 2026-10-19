@@ -1,3 +1,4 @@
+import { assetShape, createAsset, listAssets } from '../services/assets';
 import { setMySetting, settingInput } from '../services/personalsettings';
 import { freeVisitSlots, slotInput, changeInput, changeClientVisit, previousTechnician } from '../services/client-visits';
 import { saveOnboarding,getOnboarding } from '../services/onboarding';
@@ -11,7 +12,7 @@ import { z } from 'zod';
 import { asAgent, withSystem } from '../db';
 import { actionSummary } from '../ui/assistant-replies';
 import { allowedTool } from './role-tools';
-import { ApiError,errorResponse } from '../http';
+import { ApiError,errorResponse,invalid } from '../http';
 import { inWorkspace,priority,status,uuid } from '../services/shared';
 import { createWorkOrder,createComment,getWorkOrder,getWorkOrderByNumber,listWorkOrders,patchWorkOrder } from '../services/work-orders';
 import { approveRow,rejectRow,listQueue } from '../services/imports';
@@ -82,6 +83,8 @@ export const tools:Record<string,Tool>={
  approve_queue_row:{description:'Staff/admin only: approve one pending row into a work order, optionally correcting mapped fields. No bulk approval.',write:true,schema:z.object({row_id:uuid,edits:z.object({title:z.string().max(500).optional(),description:z.string().max(20000).optional(),client:z.string().max(500).optional(),site:z.string().max(500).optional(),priority:z.string().max(500).optional(),scheduled_for:z.string().max(500).optional(),due_on:z.string().max(500).optional(),external_ref:z.string().max(500).optional()}).strict().optional()}).strict(),run:(c,a)=>approveRow(c.user,c.ws,a.row_id,{edits:a.edits})},
  reject_queue_row:{description:'Staff/admin only: reject one pending row with a plain English reason.',write:true,schema:z.object({row_id:uuid,reason:z.string().trim().min(1).max(2000)}).strict(),run:(c,a)=>rejectRow(c.user,c.ws,a.row_id,{reason:a.reason})},
  get_dashboard:{description:'Read status counts and dashboard metrics for visible work only.',write:false,schema:z.object({}).strict(),run:c=>dashboard(c.user,c.ws)},
+ list_assets:{description:'List equipment at a visible site. Choose the site by name or id.',write:false,schema:z.object({site_id:uuid.optional(),site_name:z.string().trim().min(1).optional()}).strict(),run:(c,a)=>inWorkspace(c.user,c.ws,async x=>{let site=a.site_id;if(!site&&a.site_name){const matches=(await x.db.query('SELECT id FROM sites WHERE workspace_id=$1 AND lower(name)=lower($2)',[c.ws,a.site_name])).rows;if(matches.length!==1)throw invalid('Choose one site by its name or id.');site=matches[0].id;}return listAssets(c.user,c.ws,{site_id:site});})},
+ add_asset:{description:'Admin or supervisor: add equipment at a site. The portal shows a confirmation card first.',write:true,schema:z.object({site_id:uuid,...assetShape}).strict(),run:(c,a)=>createAsset(c.user,c.ws,a)},
  list_sites:{description:'List visible sites with IDs needed to create requests, with building, address, area and region. Staff/admin also see access notes and the site contact. Clients see only their own company sites.',write:false,schema:z.object({}).strict(),run:c=>inWorkspace(c.user,c.ws,async x=>(await x.db.query(x.role==='client'?'SELECT id,client_id,name,address,building,area,region FROM sites WHERE workspace_id=$1 ORDER BY name,id':'SELECT * FROM sites WHERE workspace_id=$1 ORDER BY name,id',[c.ws])).rows)},
  list_clients:{description:'Staff/admin only: list clients with contact name, phone, email, billing address (building, street, area, city, region), country (null means the workspace country) and notes. whoami gives the workspace country and currency.',write:false,schema:z.object({}).strict(),run:c=>listClients(c.user,c.ws)},
  create_client:{description:'Admin only: add a client record. name is required; everything else is optional. Rules follow the client country (country, else the workspace country from whoami): local phone numbers are read in that country, billing_region must be one of its regions when it has a list (UAE emirate, Saudi region, Oman governorate, Qatar municipality, Bahrain or Kuwait governorate, India or US state). The portal shows a confirmation card first.',write:true,schema:z.object({name:recordName,...clientShape}).strict(),run:(c,a)=>createClient(c.user,c.ws,a)},
@@ -131,10 +134,11 @@ export async function callTool(c:AgentContext,name:string,args:unknown) {
   if(['reschedule_visit','cancel_visit'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the change in Groundwork and choose Yes or Change first.');
   // Approval mode covers Connect AI keys too: in Ask before every action, a key write waits for an admin.
   if(t.write&&name!=='set_my_setting'&&c.kind==='agent'&&!c.approved){
+   const assetSite=name==='add_asset'?await inWorkspace(c.user,c.ws,async x=>{const r=(await x.db.query('SELECT name FROM sites WHERE workspace_id=$1 AND id=$2',[c.ws,(a as any).site_id])).rows[0];if(!r)throw new ApiError(404,'not_found','Choose a site you can see.');return r.name as string;}):undefined;
    const queued=await withSystem(async db=>{const m=(await db.query('SELECT approval_mode FROM workspaces WHERE id=$1',[c.ws])).rows[0]?.approval_mode;if(m!=='every')return null;
     const jobId=(a as any).work_order_id??(name.includes('work_order')||name.startsWith('set_job')||name==='set_priority'?(a as any).id:undefined);const order=jobId?(await db.query('SELECT * FROM work_orders WHERE id=$1 AND workspace_id=$2',[jobId,c.ws])).rows[0]??null:null;
-    const action=(await db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,source,token_id,expires_at) VALUES($1,$2,$3,$4,$5,$6,'key',$7,now()+interval '7 days') RETURNING id",[c.ws,c.user,name,JSON.stringify(a),actionSummary(name,a,order).slice(0,600),'Asked by a connected AI tool',c.tokenId??null])).rows[0].id as string;
-    await db.query("INSERT INTO company_action_approvals(id,workspace_id,requested_by,tool,args,summary,token_id,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,now()+interval '7 days')",[action,c.ws,c.user,name,JSON.stringify(a),['send_message','send_team_message'].includes(name)?'Send a private message':actionSummary(name,a,order).slice(0,600),c.tokenId??null]);
+    const action=(await db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,source,token_id,expires_at) VALUES($1,$2,$3,$4,$5,$6,'key',$7,now()+interval '7 days') RETURNING id",[c.ws,c.user,name,JSON.stringify(a),actionSummary(name,a,order,assetSite).slice(0,600),'Asked by a connected AI tool',c.tokenId??null])).rows[0].id as string;
+    await db.query("INSERT INTO company_action_approvals(id,workspace_id,requested_by,tool,args,summary,token_id,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,now()+interval '7 days')",[action,c.ws,c.user,name,JSON.stringify(a),['send_message','send_team_message'].includes(name)?'Send a private message':actionSummary(name,a,order,assetSite).slice(0,600),c.tokenId??null]);
     return action;},c.user);
    if(queued){const data={status:'waiting_for_approval',approval_id:queued,message:'This company asks before every action. The change is waiting for an admin to approve it in Groundwork. Nothing has changed yet.'};return {content:[{type:'text' as const,text:JSON.stringify(data)}],structuredContent:{result:data}};}
   }

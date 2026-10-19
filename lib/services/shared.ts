@@ -31,7 +31,7 @@ export function allowClientAnswer(ctx: Context, order: { created_by?: string | n
 export const isOfficeStaff = (ctx: Context) => ctx.role === 'staff' && ctx.staff_kind === 'office';
 export function allowTeam(ctx: Context) { if (!['admin', 'staff'].includes(ctx.role) || isOfficeStaff(ctx)) throw new ApiError(403, 'forbidden', 'Only an admin or supervisor can change the team, give jobs to people or decide leave.'); }
 export function allow(ctx: Context, roles: string[]) { if (!roles.includes(ctx.role)) throw forbidden(); }
-export async function row(ctx: Context, table: 'workspaces'|'clients'|'sites'|'work_orders'|'invites'|'members', id: string, lock=false) {
+export async function row(ctx: Context, table: 'workspaces'|'assets'|'clients'|'sites'|'work_orders'|'invites'|'members', id: string, lock=false) {
   uuid.parse(id);
   const key=table==='members'?'user_id':'id';
   const sql=table==='workspaces'?'id=$1':`workspace_id=$1 AND ${key}=$2`;
@@ -54,11 +54,11 @@ export async function replay<T>(db: PoolClient,user: string,scope: string,key: s
   // Normalize first response to the same JSON representation as subsequent responses.
   return JSON.parse(JSON.stringify(result)) as T;
 }
-export async function insert(ctx: Context,table: 'clients'|'sites'|'work_orders'|'comments'|'invites',data: Record<string,unknown>) {
+export async function insert(ctx: Context,table: 'assets'|'clients'|'sites'|'work_orders'|'comments'|'invites',data: Record<string,unknown>) {
  const keys=Object.keys(data);
  return (await ctx.db.query(`INSERT INTO ${table}(${keys.join(',')}) VALUES(${keys.map((_,i)=>'$'+(i+1)).join(',')}) RETURNING *`,Object.values(data))).rows[0];
 }
-export async function update(ctx: Context,table: 'workspaces'|'clients'|'sites'|'members'|'work_orders',id:string,data:Record<string,unknown>) {
+export async function update(ctx: Context,table: 'workspaces'|'assets'|'clients'|'sites'|'members'|'work_orders',id:string,data:Record<string,unknown>) {
  const keys=Object.keys(data);
  const key=table==='members'?'user_id':'id';
  const values=[...Object.values(data),id,...(table==='workspaces'?[]:[ctx.ws])];

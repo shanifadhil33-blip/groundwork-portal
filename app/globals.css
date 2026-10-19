@@ -1167,3 +1167,12 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 
 /* Household request card: label then value, wraps on narrow phones */
 .household-card-fields{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0 0}.household-card-fields dt{color:var(--text-muted);font-size:var(--text-sm)}.household-card-fields dd{margin:0;min-width:0;overflow-wrap:anywhere}
+
+.equipment { min-width: 0; width: 100%; font-size: 14px; }
+.equipment .heading-row { flex-wrap: wrap; }
+.equipment-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.equipment-unit { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 44px; width: 100%; text-align: start; font-size: 14px; padding: 10px; color: inherit; background: transparent; border: 1px solid var(--border); border-radius: 8px; overflow-wrap: anywhere; }
+.equipment-unit strong { flex-basis: 100%; }
+.equipment-job { display: block; min-height: 44px; overflow-wrap: anywhere; }
+.site-row:has(.equipment) { flex-wrap: wrap; }
+.site-row:has(.equipment) > .stack { flex: 1 1 260px; min-width: 0; }

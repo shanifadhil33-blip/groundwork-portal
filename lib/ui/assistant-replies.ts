@@ -1,3 +1,4 @@
+import { equipmentKinds } from './assets';
 /** Same words as the Job report screen. Kept here so client code never imports server code. */
 const OUTCOME_LABELS={fixed:'Fixed',temporary:'Temporary fix',needs_part:'Needs a part',cant_fix:"Can't be fixed"} as const;
 import { tradeLabels, type Trade } from '../trades';
@@ -47,7 +48,7 @@ export function plainAssistantReply(value: string, client=false) {
     .replace(/LINKPLACEHOLDER(\d+)END/g,(_,index) => links[Number(index)]);
   return audienceStatusReply(text,client);
 }
-export const recordTools = ['create_client','update_client','create_site','update_site'];
+export const recordTools = ['create_client','update_client','create_site','update_site','add_asset'];
 const recordLabels: Record<string,string> = { name:'Name', contact_name:'Main contact', phone:'Phone', email:'Email', billing_building:'Building', billing_street:'Street', billing_area:'Area', billing_city:'City', notes:'Notes', address:'Address', building:'Building name or number', area:'Area', access_notes:'Access notes', contact_phone:'Site contact phone' };
 type RecordTarget = { label: string; record?: Record<string,any> | null; country?: string };
 /** Labels that depend on the record's country: its region level. */
@@ -69,6 +70,7 @@ function recordLines(tool: string, args: Record<string,any>, previous?: Record<s
 }
 /** Confirmation card text for client and site writes. target is the record (update) or the client name (create site). */
 export function recordSummary(tool: string, args: Record<string,any>, target?: RecordTarget) {
+  if(tool==='add_asset')return `Add ${equipmentKinds[args.kind]??'equipment'} '${plainAssistantReply(args.name)}' at ${plainAssistantReply(target?.label??'this site')}`;
   const lines = recordLines(tool, args, tool.startsWith('update') ? target?.record : null, target?.country);
   const name = plainAssistantReply(target?.label ?? 'the selected record');
   if (tool === 'create_client') return `Add client “${plainAssistantReply(args.name)}”${lines ? `\n${lines}` : ''}`;
@@ -77,6 +79,7 @@ export function recordSummary(tool: string, args: Record<string,any>, target?: R
 }
 export function recordResult(tool: string, args: Record<string,any>, target?: { label: string }) {
   const name = plainAssistantReply(target?.label ?? 'the selected record');
+  if(tool==='add_asset')return `Added ${plainAssistantReply(args.name)} at ${name}.`;
   if (tool === 'create_client') return `Added client ${plainAssistantReply(args.name)}.`;
   if (tool === 'create_site') return `Added site ${plainAssistantReply(args.name)} for ${name}.`;
   return `Updated ${tool === 'update_site' ? 'site' : 'client'} ${name}.`;
@@ -87,6 +90,7 @@ const niceDay=(d:string)=>new Intl.DateTimeFormat('en',{weekday:'long',day:'nume
 /** Plain words for time off, like "Day off, Thursday 15 October". */
 export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',leave:'On leave',sick:'Sick'} as Record<string,string>)[kind]??'Time off'}, ${!to||to===from?niceDay(from):`${niceDay(from)} to ${niceDay(to)}`}`;
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
+  if(tool==='add_asset')return recordSummary(tool,args,{label:target??'this site'});
   if(tool==='cancel_visit')return `Cancel WO ${order?.order_number} ${order?.title}?`;
   if(tool==='reschedule_visit')return `Move WO ${order?.order_number} ${order?.title} to ${formatDate(args.scheduled_for,order?.timezone)}?`;
   if(tool === 'fill_onboarding') return 'Save these setup answers?\n'+Object.entries(args.answers??{}).map(([k,v])=>`${readableLabel(k)}: ${typeof v==='object'?JSON.stringify(v):v}`).join('\n');
