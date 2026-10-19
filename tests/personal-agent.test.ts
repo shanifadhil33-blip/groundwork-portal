@@ -55,3 +55,30 @@ it('company approval proposals stay separate from private logs and hide private 
  const thread=(await listThreads(ids.pranav,ws)).data.find(t=>t.kind==='direct');expect((await listMessages(ids.pranav,ws,{conversation_id:thread.id})).data.some(m=>m.body==='Private message for Pranav')).toBe(true);
  }finally{await withUser(ids.imran,db=>db.query("UPDATE workspaces SET approval_mode='important' WHERE id=$1",[ws]));}
 });
+it('remembers reply length for one reader and Undo restores it without a card even in every approval mode',async()=>{
+ const other=await getPreferences(ids.imran);
+ expect(other.reply_length).toBe('normal');
+ await patchPreferences(ids.ravi,{reply_length:'detailed'});
+ await withUser(ids.imran,db=>db.query("UPDATE workspaces SET approval_mode='every' WHERE id=$1",[ws]));
+ vi.mocked(assistantTurn).mockClear();
+ try{
+  const saved:any=await assistant(ids.ravi,ws,{messages:[{role:'user',content:'keep it short'}]});
+  expect(saved).toMatchObject({reply:'Reply length set to Short (was Detailed).',choices:['Undo']});expect(saved.pending_action).toBeUndefined();
+  expect((await getPreferences(ids.ravi)).reply_length).toBe('short');
+  expect(await getPreferences(ids.imran)).toEqual(other);
+  const undone:any=await assistant(ids.ravi,ws,{messages:[{role:'assistant',content:saved.reply},{role:'user',content:'Undo'}]});
+  expect(undone.reply).toBe('Reply length restored to Detailed.');
+  expect((await getPreferences(ids.ravi)).reply_length).toBe('detailed');expect(await getPreferences(ids.imran)).toEqual(other);
+  expect(vi.mocked(assistantTurn)).not.toHaveBeenCalled();
+  vi.mocked(assistantTurn).mockResolvedValue({calls:[],text:'Hello Ravi'});
+  await assistant(ids.ravi,ws,{messages:[{role:'user',content:'Hello'}]});
+  expect(vi.mocked(assistantTurn).mock.calls.at(-1)![2]).toContain('Use up to six sentences and include the reason.');
+ }finally{await withUser(ids.imran,db=>db.query("UPDATE workspaces SET approval_mode='important' WHERE id=$1",[ws]));}
+});
+
+it('preserves the complete safety line for a reader who prefers short replies',async()=>{
+ const {SAFETY}=await import('../lib/emergency');
+ await patchPreferences(ids.ravi,{reply_length:'short'});vi.mocked(assistantTurn).mockClear();
+ const result:any=await assistant(ids.ravi,ws,{messages:[{role:'user',content:'I smell gas'}]});
+ expect(result.reply).toContain(SAFETY.gas);expect(vi.mocked(assistantTurn)).not.toHaveBeenCalled();
+});

@@ -1,4 +1,5 @@
 'use client';
+import { REPLY_LENGTHS, replyLengthLabels, type ReplyLength } from '../../lib/agent/replylength';
 import { AVATARS, AVATAR_LABELS } from '../../lib/avatars';
 import { AgentAvatar } from './agent-avatar';
 import Link from 'next/link';
@@ -10,17 +11,17 @@ import { useApp } from './context';
 import { useResource } from './resource';
 import { changeAppLanguage } from './translator';
 import { AgentLog } from './dashboard';
-export type AgentPreferences={agent_avatar?:string|null;agent_name:string|null;voice_enabled:boolean;language:string|null};
+export type AgentPreferences={agent_avatar?:string|null;agent_name:string|null;voice_enabled:boolean;reply_length?:ReplyLength;language:string|null};
 export function PersonalAgentSettings(){
  const {member}=useApp(),prefs=useResource<AgentPreferences>('/api/me/preferences');
  const base=member?`/api/workspaces/${member.workspace_id}`:null;
  const settings=useResource<{approval_mode:'important'|'every'}>(base?`${base}/settings`:null);
- const [name,setName]=useState(''),[avatar,setAvatar]=useState<string>('bot'),[language,setLanguage]=useState(DEFAULT_LANGUAGE),[voice,setVoice]=useState(true),[mode,setMode]=useState('important'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
+ const [name,setName]=useState(''),[avatar,setAvatar]=useState<string>('bot'),[language,setLanguage]=useState(DEFAULT_LANGUAGE),[voice,setVoice]=useState(true),[replyLength,setReplyLength]=useState<ReplyLength>('normal'),[mode,setMode]=useState('important'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const admin=member?.role==='admin';
- useEffect(()=>{if(prefs.data){setName(prefs.data.agent_name??'');setAvatar(prefs.data.agent_avatar??'bot');setLanguage(prefs.data.language??DEFAULT_LANGUAGE);setVoice(prefs.data.voice_enabled);}},[prefs.data]);
+ useEffect(()=>{if(prefs.data){setName(prefs.data.agent_name??'');setAvatar(prefs.data.agent_avatar??'bot');setLanguage(prefs.data.language??DEFAULT_LANGUAGE);setVoice(prefs.data.voice_enabled);setReplyLength(prefs.data.reply_length??'normal');}},[prefs.data]);
  useEffect(()=>{if(settings.data)setMode(settings.data.approval_mode);},[settings.data]);
  async function save(){setBusy(true);setError('');setNotice('');try{
-  await request('/api/me/preferences',{method:'PATCH',body:JSON.stringify({agent_name:name,agent_avatar:avatar,language,voice_enabled:voice})});
+  await request('/api/me/preferences',{method:'PATCH',body:JSON.stringify({agent_name:name,agent_avatar:avatar,language,voice_enabled:voice,reply_length:replyLength})});
   changeAppLanguage(language);window.dispatchEvent(new Event('groundwork-retry-resources'));
   if(admin&&base&&mode!==settings.data?.approval_mode)await request(`${base}/settings`,{method:'PATCH',body:JSON.stringify({approval_mode:mode})});
   setNotice('Agent settings saved.');
@@ -29,6 +30,7 @@ export function PersonalAgentSettings(){
  <label className="form-field">Name<input value={name} maxLength={40} placeholder="Agent" disabled={busy} onChange={e=>setName(e.target.value)}/></label><p>Leave the name empty to use Agent.</p>
  <fieldset className="avatar-pick"><legend>Picture</legend><div className="avatar-grid" role="radiogroup" aria-label="Picture">{AVATARS.map(a=><button key={a} type="button" role="radio" aria-checked={avatar===a} aria-label={AVATAR_LABELS[a]} className={avatar===a?'on':''} disabled={busy} onClick={()=>setAvatar(a)}><AgentAvatar avatar={a} size={24}/></button>)}</div></fieldset>
  <div className="form-field"><label htmlFor="agent-language">Language</label><Dropdown id="agent-language" label="Language" value={language} disabled={busy} options={langOpts()} onChange={setLanguage}/></div>
+ <div><label htmlFor="replylength">Reply length</label><Dropdown id="replylength" label="Reply length" value={replyLength} disabled={busy} options={REPLY_LENGTHS.map(value=>({value,label:replyLengthLabels[value]}))} onChange={value=>setReplyLength(value as ReplyLength)}/></div>
  <label className="choice-row"><input type="checkbox" role="switch" checked={voice} disabled={busy} onChange={e=>setVoice(e.target.checked)}/>Voice {voice?'on':'off'}</label>
  {member&&<div className="form-field"><label htmlFor="agent-approval">Approval mode</label>{settings.loading?<p>Loading…</p>:settings.error?<ErrorState retry={settings.reload}/>:admin?<Dropdown id="agent-approval" label="Approval mode" value={mode} disabled={busy} options={[{value:'important',label:'Ask before important actions'},{value:'every',label:'Ask before every action'}]} onChange={setMode}/>:<p>{mode==='every'?'Ask before every action':'Ask before important actions'}</p>}</div>}
  {error&&<p role="alert">{error}</p>}{notice&&<p role="status">{notice}</p>}<Button type="submit" busy={busy} disabled={!!member&&(settings.loading||!!settings.error)}>Save</Button>

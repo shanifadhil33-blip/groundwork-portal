@@ -8,3 +8,14 @@ it('reads the default personal agent choices for the signed in user',async()=>{e
 it('trims a personal name and accepts forty letters',async()=>{await patchPreferences('Imran',{agent_name:'  Omar  ',voice_enabled:false});expect(db.query.mock.calls.at(-1)?.[1]).toEqual(['Imran','Omar',false]);await patchPreferences('Imran',{agent_name:'x'.repeat(40)});});
 it('stores empty or null names as the default',async()=>{for(const agent_name of ['  ','',null]){await patchPreferences('Imran',{agent_name});expect(db.query.mock.calls.at(-1)?.[1]).toEqual(['Imran',null]);}});
 it('rejects long names and another user id before touching storage',async()=>{for(const body of [{agent_name:'x'.repeat(41)},{agent_name:'Omar',user_id:'Ahmed'},{voice_enabled:'false'}])await expect(patchPreferences('Imran',body)).rejects.toThrow();expect(db.query).not.toHaveBeenCalled();});
+
+it('saves each reply length with a filter for only the signed in user',async()=>{
+ for(const reply_length of ['short','normal','detailed']){
+  await patchPreferences('Imran',{reply_length});
+  expect(db.query).toHaveBeenLastCalledWith('UPDATE user_preferences SET reply_length=$2,updated_at=clock_timestamp() WHERE user_id=$1 RETURNING *',['Imran',reply_length]);
+ }
+});
+it('rejects an invalid reply length or another user before any preference write',async()=>{
+ for(const body of [{reply_length:'brief'},{reply_length:null},{reply_length:'short',user_id:'Omar'}])await expect(patchPreferences('Imran',body)).rejects.toThrow();
+ expect(db.query).not.toHaveBeenCalled();
+});

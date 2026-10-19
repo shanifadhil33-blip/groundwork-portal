@@ -1,9 +1,9 @@
 import { beforeEach,expect,it,vi } from 'vitest';
 import { actionSummary,plainAssistantReply } from '../lib/ui/assistant-replies';
-const state=vi.hoisted(()=>({turn:vi.fn(),call:vi.fn(),actions:new Map<string,any>(),order:{id:'50000000-0000-4000-8000-000000000058',order_number:58,title:'Test access control reader',status:'scheduled',priority:'normal',timezone:'Asia/Dubai',due_on:'2026-11-10',scheduled_for:'2026-11-08T05:00:00Z'},role:'staff',kind:'manager'}));
+const state=vi.hoisted(()=>({turn:vi.fn(),call:vi.fn(),actions:new Map<string,any>(),order:{id:'50000000-0000-4000-8000-000000000058',order_number:58,title:'Test access control reader',status:'scheduled',priority:'normal',timezone:'Asia/Dubai',due_on:'2026-11-10',scheduled_for:'2026-11-08T05:00:00Z'},role:'staff',kind:'manager',lengths:new Map<string,string>(),patch:vi.fn()}));
 vi.mock('../lib/db',()=>({withSystem:async(cb:(db:unknown)=>unknown)=>cb({query:async()=>({rows:[]})}),ownerPool:{query:async()=>({rows:[]})},appPool:{query:async()=>({rows:[]})},withUser:async(_u:unknown,cb:(db:unknown)=>unknown)=>cb({query:async()=>({rows:[]})}),asAgent:(_actor:unknown,callback:()=>unknown)=>callback()}));
 vi.mock('../lib/ai',()=>({assistantTurn:state.turn}));
-vi.mock('../lib/services/settings',()=>({getPreferences:async()=>({agent_name:null,approval_mode:'ask'})}));
+vi.mock('../lib/services/settings',()=>({getPreferences:async(user:string)=>({agent_name:null,approval_mode:'ask',reply_length:state.lengths.get(user)??'normal'}),patchPreferences:state.patch}));
 vi.mock('../lib/services/agent-learning',()=>({listAgentLearning:async()=>({data:[]})}));
 vi.mock('../lib/services/work-orders',()=>({getWorkOrder:async()=>state.order}));
 vi.mock('../lib/services/shared',async(orig)=>{const {z}=await import('zod');return {...(await orig<any>()),uuid:z.uuid(),inWorkspace:async(user:string,ws:string,callback:(c:unknown)=>unknown)=>callback({role:state.role,db:{query:async(sql:string,args:any[])=>{
@@ -24,7 +24,7 @@ vi.mock('../lib/agent/tools',async()=>{const {z}=await import('zod');return {cal
  }}});
 import { assistant } from '../lib/services/assistant';
 const user='10000000-0000-4000-8000-000000000002',ws='20000000-0000-4000-8000-000000000001';
-beforeEach(()=>{state.turn.mockReset();state.call.mockReset();state.actions.clear();state.role='staff';state.kind='manager';state.call.mockResolvedValue({content:[{type:'text',text:'{}'}],structuredContent:{result:{...state.order}}});});
+beforeEach(()=>{state.turn.mockReset();state.call.mockReset();state.actions.clear();state.lengths.clear();state.patch.mockReset();state.patch.mockImplementation(async(user:string,body:{reply_length:string})=>{state.lengths.set(user,body.reply_length);return body;});state.role='staff';state.kind='manager';state.call.mockResolvedValue({content:[{type:'text',text:'{}'}],structuredContent:{result:{...state.order}}});});
 async function propose(name:string,args:object,text='Change the work order'){state.turn.mockResolvedValue({calls:[{id:'1',name,args}],text:'Action completed.'});return assistant(user,ws,{messages:[{role:'user',content:text}]});}
 it('removes complete/truncated IDs and raw words, while retaining safe work-order destinations',()=>{
  const result=plainAssistantReply(`site ID e4ca7ce3…: in_progress; waiting_on_parts; list_sites. [WO 58](/work-orders/${state.order.id}) ${state.order.id}`);
@@ -90,4 +90,38 @@ it('contract payment shows its knock on effects on the same card, and a supervis
  expect(p.pending_action.summary).toContain('covered by the contract');expect(p.pending_action.summary).toContain('no invoice');expect(state.call).not.toHaveBeenCalled();
  state.role='staff';state.turn.mockReset();state.turn.mockResolvedValueOnce({calls:[{id:'1',name:'set_job_payment',args:{id:state.order.id,payment_status:'contract'}}]}).mockResolvedValueOnce({text:'Only an admin can change that.',calls:[]});
  const s:any=await assistant(user,ws,{messages:[{role:'user',content:'mark it as contract'}]});expect(s.pending_action).toBeUndefined();expect(state.call).not.toHaveBeenCalled();
+});
+
+for(const length of ['short','normal','detailed'] as const)it(`sends the saved ${length} instruction on every model turn`,async()=>{
+ state.lengths.set(user,length);
+ state.turn.mockResolvedValueOnce({calls:[{id:'1',name:'ask_choice',args:{question:'Which job?',options:['WO 58','Another job']}}]});
+ await assistant(user,ws,{messages:[{role:'user',content:'Help with a job'}]});
+ const {replyLengthPrompt}=await import('../lib/agent/replylength');
+ expect(state.turn.mock.calls[0][2]).toContain('\n'+replyLengthPrompt(length));
+});
+it('saves a personal length at once and Undo restores the previous value for only that user',async()=>{
+ state.lengths.set(user,'detailed');state.lengths.set('Omar','normal');
+ const result:any=await assistant(user,ws,{messages:[{role:'user',content:'shorter'}]});
+ expect(result).toMatchObject({reply:'Reply length set to Short (was Detailed).',choices:['Undo']});
+ expect(result.pending_action).toBeUndefined();expect(state.actions.size).toBe(0);expect(state.turn).not.toHaveBeenCalled();expect(state.call).not.toHaveBeenCalled();
+ expect(state.patch).toHaveBeenLastCalledWith(user,{reply_length:'short'});
+ expect(state.lengths.get('Omar')).toBe('normal');
+ const undone:any=await assistant(user,ws,{messages:[{role:'user',content:'shorter'},{role:'assistant',content:result.reply},{role:'user',content:'Undo'}]});
+ expect(undone.reply).toBe('Reply length restored to Detailed.');expect(undone.choices).toEqual([]);
+ expect(state.lengths.get(user)).toBe('detailed');expect(state.lengths.get('Omar')).toBe('normal');expect(state.patch).toHaveBeenCalledTimes(2);
+});
+it('does not overwrite a newer setting when an old Undo is tapped',async()=>{
+ state.lengths.set(user,'normal');
+ await assistant(user,ws,{messages:[{role:'assistant',content:'Reply length set to Short (was Detailed).'},{role:'user',content:'Undo'}]});
+ expect(state.patch).not.toHaveBeenCalled();expect(state.turn).not.toHaveBeenCalled();
+});
+it('keeps complete confirmation cards and refusal text for short replies',async()=>{
+ const args={id:state.order.id,priority:'high',updated_at:state.order.due_on};
+ const normal:any=await propose('set_priority',args);
+ state.lengths.set(user,'short');
+ const short:any=await propose('set_priority',args);
+ expect(short.pending_action.summary).toBe(normal.pending_action.summary);expect(short.pending_action.why).toBe(normal.pending_action.why);
+ const refusal='I cannot assign this job. Only an admin can change it. Please ask him to review the current assignment.';
+ state.role='admin';state.turn.mockResolvedValue({calls:[],text:refusal});
+ const result:any=await assistant(user,ws,{messages:[{role:'user',content:'Who can assign this job?'}]});expect(result.reply).toBe(refusal);
 });
