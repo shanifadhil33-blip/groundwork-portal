@@ -40,6 +40,8 @@ export function brokenReply(text: string | undefined | null): boolean {
   if (!text || !text.trim()) return true;
   // A reply that is only a JSON object or names a tool input is the model writing its tool call as text (Oct 19 live: Pranav saw {"workspace action": ...}).
   const t = text.trim(); if (/^[{\[][\s\S]*[}\]]$/.test(t) || /"tool input"\s*:/i.test(t)) return true;
+  // The same call wrapped in a code fence, tool call tags, or a {"name": ..., "arguments": ...} object inside prose.
+  if (/^```(?:json|tool_code|python)?\s*[\s\S]*```$/i.test(t) || /<\/?(?:tool_call|function_call|tool_code)\b|<function=/i.test(t) || /\{\s*"(?:name|tool|function)"\s*:\s*"[a-z_]+"\s*,\s*"(?:arguments|args|parameters|input)"\s*:/i.test(t)) return true;
   return /limit for workspace actions|request is incomplete|incomplete request|rate limit|quota|too many requests|internal error|something went wrong|an error occurred|\b(?:429|500|502|503)\b|invalid tool arguments|tool limit reached|unknown tool/i.test(text);
 }
 

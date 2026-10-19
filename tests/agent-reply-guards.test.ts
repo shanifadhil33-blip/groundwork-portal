@@ -5,6 +5,11 @@ it('a tool call written as text counts as a broken reply, a normal sentence does
   expect(brokenReply('Here you go: "Tool input": {}')).toBe(true);
   expect(brokenReply('[1, 2]')).toBe(true);
   expect(brokenReply('You have 2 suggested jobs. {Lobby} is first.')).toBe(false);
+  expect(brokenReply('```json\n{"name": "needs_attention", "arguments": {}}\n```')).toBe(true);
+  expect(brokenReply('Let me check. {"name": "list_work_orders", "arguments": {"status": "open"}}')).toBe(true);
+  expect(brokenReply('<tool_call>needs_attention</tool_call>')).toBe(true);
+  expect(brokenReply('<function=waiting_prices>{}</function>')).toBe(true);
+  expect(brokenReply('Your price for WO 12 is AED 150.00. Reply Yes to approve it.')).toBe(false);
 });
 it('what needs my attention is answered from app data without AI', () => {
   for (const q of ['What needs my attention?', 'what needs attention', 'Anything that needs my attention?']) expect(quickLookup(q)).toBe('attention');
