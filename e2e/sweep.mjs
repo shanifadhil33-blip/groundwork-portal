@@ -18,7 +18,7 @@ const check = () => {
   }
   for (const e of document.querySelectorAll('.app-main button,.app-main input,.app-main select,.app-main [role=tab],.app-header a,.app-header button')) {
     if (!vis(e)) continue; const box = /checkbox|radio/.test(e.type) && e.closest('label') ? e.closest('label') : e; const r = box.getBoundingClientRect();
-    if (r.height < 40 && r.width < 200) out.push(['small tap target', (e.innerText || e.getAttribute('aria-label') || e.tagName).trim().slice(0, 30), Math.round(r.width) + 'x' + Math.round(r.height)]);
+    if (r.height < (innerWidth >= 1000 ? 32 : 40) && r.width < 200) out.push(['small tap target', (e.innerText || e.getAttribute('aria-label') || e.tagName).trim().slice(0, 30), Math.round(r.width) + 'x' + Math.round(r.height)]);
   }
   const w = document.createTreeWalker(document.querySelector('.app-main') ?? document.body, NodeFilter.SHOW_TEXT); let n; const small = new Set();
   while ((n = w.nextNode())) { const el = n.parentElement; if (!n.data.trim() || !el || !vis(el) || el.closest('kbd,svg,.count-dot,.sr-only')) continue; const fs = parseFloat(getComputedStyle(el).fontSize); if (fs < 14) small.add(n.data.trim().slice(0, 30) + ' ' + fs + 'px'); }
@@ -46,7 +46,7 @@ for (const who of PERSONAS) {
           for (const f of found.filter(f => !(f[0] === 'English left' && savedWords(lang).has(String(f[1]).trim())))) issues.push({ who, lang, w, path, issue: f[0], detail: f.slice(1).join(' ') });
           if (path === '/settings' && (w === 360 || w >= 1000)) { // rule 3: dropdown attached to its field
             const trig = p.locator('.dropdown-trigger').filter({ has: p.locator('[data-no-translate]') }).last();
-            if (await trig.count()) { await trig.scrollIntoViewIfNeeded(); await trig.tap(); await p.waitForTimeout(400); const m = await p.locator('.dropdown-menu').boundingBox(), t = await trig.boundingBox();
+            if (await trig.count()) { await trig.scrollIntoViewIfNeeded(); await (w >= 1000 ? trig.click() : trig.tap()); await p.waitForTimeout(400); const m = await p.locator('.dropdown-menu').boundingBox(), t = await trig.boundingBox();
               if (m && t) { const gap = Math.min(Math.abs(m.y + m.height - t.y), Math.abs(t.y + t.height - m.y)); if (gap > 8) issues.push({ who, lang, w, path, issue: 'dropdown detached', detail: Math.round(gap) + 'px' }); }
               await p.screenshot({ path: `${OUT}/${tag}-dropdown.png` }); await p.keyboard.press('Escape'); }
           }

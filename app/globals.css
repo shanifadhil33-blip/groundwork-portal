@@ -1094,3 +1094,6 @@ label:has(>input[type=checkbox]),label:has(>input[type=radio]){min-height:44px;d
 .agent-log .agent-outcome{color:var(--text)}
 .agent-log-head a{min-height:44px;display:inline-flex;align-items:center}
 .agent-log-filters .button,.agent-log li>.button{min-height:44px}
+
+/* Laptop pass Oct 19: the sidebar More button kept the browser grey button fill; it looks like the other links until pressed. */
+button.nav-link:not([aria-current=page]):not(:active){background:transparent}
