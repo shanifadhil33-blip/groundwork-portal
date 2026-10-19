@@ -82,7 +82,7 @@ export function NeedsAction({base,client=false}:{base:string;client?:boolean}) {
 export function ContractTimes({items}:{items:ResponseWatchItem[]}){
  const {member}=useApp();
  if(!['admin','staff'].includes(member?.role??'')||!items.length)return null;
- return <Card className="stack"><h2>Contract times</h2><ul className="stack" style={{listStyle:'none',padding:0,minWidth:0}}>{items.slice(0,5).map(j=><li key={j.id} className="stack compact" style={{minWidth:0,overflowWrap:'anywhere'}}>
+ return <Card className="stack"><h2>Contract times</h2><ul className="stack" style={{listStyle:'none',padding:0,margin:0,minWidth:0}}>{items.slice(0,5).map(j=><li key={j.id} className="stack compact" style={{minWidth:0,overflowWrap:'anywhere'}}>
   <Link href={`/work-orders/${j.id}`} className="row" style={{minHeight:44}}><span>WO {j.order_number}</span><strong data-no-translate>{j.title}</strong></Link>
   <p className="small muted"><span data-no-translate>{j.client_name}</span> · <span data-no-translate>{j.site_name}</span></p>
   <Badge tone={j.state==='missed'?'danger':'warning'}>{j.state==='missed'?'Promised time missed':'Close to promised time'}</Badge>

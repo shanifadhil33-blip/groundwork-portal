@@ -57,7 +57,8 @@ async function read(c: AgentContext, name: string, args: unknown = {}): Promise<
 async function attention(c: AgentContext) {
   const a = await read(c, 'needs_attention');
   if (!a) return null;
-  const bits = [a.summary ? `${a.summary}.` : `You have ${plural(a.suggested_jobs ?? 0, 'suggested job')}.`];
+  // The summary can hold several lines; each ends with a full stop (Oct 19 live: "You have 2 suggested jobs" had none).
+  const bits = [a.summary ? String(a.summary).split('\n').map((l: string) => l.trim()).filter(Boolean).map((l: string) => /[.!?]$/.test(l) ? l : `${l}.`).join('\n') : `You have ${plural(a.suggested_jobs ?? 0, 'suggested job')}.`];
   for (const s of (a.suggestions ?? []).slice(0, 3)) bits.push(`• ${s.title}${s.sender_name ? ` from ${s.sender_name}` : ''}`);
   if (a.unread_notifications) bits.push(`You have ${plural(a.unread_notifications, 'unread update')}.`);
   for (const n of (a.notifications ?? []).slice(0, 3)) if (n.title || n.body) bits.push(`• ${n.title ?? n.body}`);
@@ -222,7 +223,7 @@ export async function quickAnswer(c: AgentContext, question: string, who: { role
       if(!['admin','staff'].includes(who.role))return null;
       const items=await read(c,'contract_watch');
       if(!items)return null;
-      return items.length?['Contract times',...items.map((j:any)=>`• [WO ${j.order_number}](/work-orders/${j.id})\n\n${j.why}`)].join('\n\n'):'No contract jobs need attention.';
+      return items.length?['Contract times',...items.map((j:any)=>`• [WO ${j.order_number}: ${String(j.title).replace(/[\[\]\r\n]/g,' ')}](/work-orders/${j.id})\n\n${j.why}`)].join('\n\n'):'No contract jobs need attention.';
     }
     if (k === 'parts') return await parts(c, who.timezone);
     if (k === 'late') return await late(c, who.timezone);
