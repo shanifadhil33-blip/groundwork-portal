@@ -3,7 +3,7 @@
 // Technician: only units on his jobs. Household: none.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';
 const OUT = process.env.OUT || '/workspace/qa/client05-live'; fs.mkdirSync(OUT, { recursive: true });
-const s = await sandbox('imran'); if (!process.env.NO_RESET) await s.reset(); await s.as('imran'); const ws = s.ws; const res = {};
+let s = await sandbox('imran'); if (!process.env.NO_RESET) { await s.reset(); s = await sandbox('imran'); } await s.as('imran'); const ws = s.ws; const res = {};
 const j = async r => { try { return await r.json(); } catch { return null; } };
 const clients = await j(await s.api.get(`/api/workspaces/${ws}/clients`)); const list = clients?.data ?? clients ?? [];
 const harbor = list.find(c => /Harbor/.test(c.name)); res.harbor = !!harbor;
