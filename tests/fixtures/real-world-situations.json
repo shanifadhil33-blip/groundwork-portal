@@ -1,0 +1,4950 @@
+[
+  {
+    "id": "RW01",
+    "number": 1,
+    "section": "Payment and contracts",
+    "title": "Today's job was under the contract, not paid",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Ramon",
+    "notes": [
+      "Ramon maps to Ravi for the catalogue technician role.",
+      "set_job_payment belongs to the later owner approval step. Ravi can report coverage but cannot change billing.",
+      "The primary Says variant is used. The alternate speaker also needs a later run."
+    ],
+    "says_en": "This job is under the clinic's contract, they did not pay.",
+    "says": {
+      "en": "This job is under the clinic's contract, they did not pay.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Record reported contract coverage",
+        "Request billing approval",
+        "Count the approved contract visit"
+      ],
+      "confirm_by": "admin",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Expired contract needs owner decision",
+      "Split extras from covered work",
+      "Visit limit needs owner decision"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "ask_supervisor",
+      "get_work_order",
+      "set_job_payment",
+      {
+        "missing": "Contract invoice suppression and scope review"
+      }
+    ]
+  },
+  {
+    "id": "RW02",
+    "number": 2,
+    "section": "Payment and contracts",
+    "title": "Partial payment",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Owner Imran",
+    "notes": [
+      "120 AED is the sample washing machine tap repair amount in lib/fixture-dune-harbour.ts. It supplies a realistic test amount, not evidence of this payment."
+    ],
+    "says_en": "Faisal paid 120 AED of the invoice, the rest next week.",
+    "says": {
+      "en": "Faisal paid 120 AED of the invoice, the rest next week.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Record payment date and amount",
+        "Show partly paid and remaining balance",
+        "Update service history paid amount"
+      ],
+      "confirm_by": "admin",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household",
+        "staff"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask before recording an overpayment",
+      "Preserve entered amount during a dispute",
+      "Ask before a balance reminder"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_work_orders",
+      "get_work_order",
+      {
+        "missing": "Partial invoice payments"
+      }
+    ]
+  },
+  {
+    "id": "RW03",
+    "number": 3,
+    "section": "Payment and contracts",
+    "title": "Cash paid to the technician",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Bilal",
+    "notes": [
+      "Bilal maps to Ravi for the catalogue technician role.",
+      "120 AED is the sample washing machine tap repair amount in lib/fixture-dune-harbour.ts. It supplies a realistic test amount, not evidence of this payment."
+    ],
+    "says_en": "The client paid me 120 AED cash.",
+    "says": {
+      "en": "The client paid me 120 AED cash.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Record cash received on own job",
+        "Show cash awaiting owner check",
+        "Mark paid only after owner receipt"
+      ],
+      "confirm_by": "technician then admin",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Keep invoice amount hidden from technician",
+      "Escalate conflicting statements",
+      "Refuse cash on another technician job"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "get_work_order",
+      {
+        "missing": "Technician cash receipt and owner handover"
+      }
+    ]
+  },
+  {
+    "id": "RW04",
+    "number": 4,
+    "section": "Payment and contracts",
+    "title": "Warranty callback",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household Faisal",
+    "notes": [],
+    "says_en": "The AC you fixed last week is leaking again.",
+    "says": {
+      "en": "The AC you fixed last week is leaking again.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Link callback to earlier job and asset",
+        "Flag possible warranty",
+        "Propose same available technician",
+        "Notify supervisor"
+      ],
+      "confirm_by": "household then supervisor",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Owner decides expired warranty",
+      "Different fault needs owner pricing",
+      "Never assume the same fault"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "create_request",
+      "list_work_orders",
+      {
+        "missing": "Warranty callback links and billing decision"
+      },
+      {
+        "missing": "Asset history updates"
+      },
+      {
+        "missing": "Client booking with leave checks"
+      }
+    ]
+  },
+  {
+    "id": "RW05",
+    "number": 5,
+    "section": "Payment and contracts",
+    "title": "Client disputes the charge",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Facility manager Arun",
+    "notes": [
+      "Arun maps to Pranav for the catalogue facility manager role."
+    ],
+    "says_en": "We should not pay for this visit, the technician only looked at it.",
+    "says": {
+      "en": "We should not pay for this visit, the technician only looked at it.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Mark own invoice disputed",
+        "Pause reminders",
+        "Attach visit evidence for owner",
+        "Notify when owner has read it"
+      ],
+      "confirm_by": "admin",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Owner records any external refund",
+      "Escalate threatening messages politely"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "get_work_order",
+      "list_job_photos",
+      {
+        "missing": "Invoice disputes and reminder pause"
+      },
+      {
+        "missing": "Owner read receipts"
+      }
+    ]
+  },
+  {
+    "id": "RW06",
+    "number": 6,
+    "section": "Payment and contracts",
+    "title": "Out of contract extra work",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Anil",
+    "notes": [
+      "Anil maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "The contract covers the AC service, but they also want me to fix a socket.",
+    "says": {
+      "en": "The contract covers the AC service, but they also want me to fix a socket.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Propose linked extra socket job",
+        "Keep extra work separate",
+        "Wait for client price approval and trade review"
+      ],
+      "confirm_by": "client then supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Office quotes when no price exists",
+      "Route a different trade to supervisor"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "suggest_job",
+      "ask_supervisor",
+      {
+        "missing": "Contract scope split and extra work approval"
+      }
+    ]
+  },
+  {
+    "id": "RW07",
+    "number": 7,
+    "section": "Payment and contracts",
+    "title": "Discount",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Owner Imran",
+    "notes": [],
+    "says_en": "Give Tariq's restaurant a discount on this invoice.",
+    "says": {
+      "en": "Give Tariq's restaurant a discount on this invoice.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Ask for discount amount or percent",
+        "Apply discount to draft",
+        "Show old and new totals"
+      ],
+      "confirm_by": "owner",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household",
+        "staff"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Offer corrected invoice if already sent",
+      "Refuse a total below zero"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "ask_choice",
+      "get_work_order",
+      {
+        "missing": "Invoice discounts and corrections"
+      }
+    ]
+  },
+  {
+    "id": "RW08",
+    "number": 8,
+    "section": "Payment and contracts",
+    "title": "Price changed on site",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Sanjay",
+    "notes": [
+      "Sanjay maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "It is not just a filter, the fan motor needs replacing, that will cost more.",
+    "says": {
+      "en": "It is not just a filter, the fan motor needs replacing, that will cost more.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Record technician finding verbatim",
+        "Hold work",
+        "Request owner price",
+        "Wait for client approval"
+      ],
+      "confirm_by": "admin then client",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Handle refusal without starting work",
+      "Resolve absent payer",
+      "Treat technician price as an unapproved statement"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "add_comment",
+      "ask_supervisor",
+      {
+        "missing": "Work hold pending revised price approval"
+      }
+    ]
+  },
+  {
+    "id": "RW09",
+    "number": 9,
+    "section": "Payment and contracts",
+    "title": "Client wants a quote before work",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household Murugan (in Tamil)",
+    "notes": [
+      "Murugan maps to Faisal for the catalogue household role."
+    ],
+    "says_en": "How much will it cost to fix my water heater?",
+    "says": {
+      "en": "How much will it cost to fix my water heater?",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Read configured visit charge",
+        "Explain diagnosis is needed for full price",
+        "Propose quote visit"
+      ],
+      "confirm_by": "household",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Office confirms when visit charge is absent"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "create_request",
+      "ask_choice",
+      {
+        "missing": "Configured visit charges and quote visits"
+      }
+    ]
+  },
+  {
+    "id": "RW10",
+    "number": 10,
+    "section": "Payment and contracts",
+    "title": "Visit charge waived",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Supervisor Joseph",
+    "notes": [
+      "Joseph maps to Sam for the catalogue supervisor role."
+    ],
+    "says_en": "Waive the visit charge for Omar, it was our mistake.",
+    "says": {
+      "en": "Waive the visit charge for Omar, it was our mistake.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Request removal of visit charge",
+        "Save supervisor reason",
+        "Wait for owner approval"
+      ],
+      "confirm_by": "admin",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Owner records any external refund after payment"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "get_work_order",
+      "add_comment",
+      {
+        "missing": "Visit charge waivers"
+      }
+    ]
+  },
+  {
+    "id": "RW11",
+    "number": 11,
+    "section": "Payment and contracts",
+    "title": "Payment by bank transfer later",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Admin Saeed",
+    "notes": [
+      "Saeed maps to Imran for the catalogue admin role.",
+      "No invoice number exists in the seed. Work order numbers are not invoice numbers."
+    ],
+    "says_en": "The clinic paid invoice [number] by bank transfer today.",
+    "says": {
+      "en": "The clinic paid invoice [number] by bank transfer today.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": true,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Locate invoice",
+        "Record bank transfer date and method",
+        "Update paid service history"
+      ],
+      "confirm_by": "admin",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household",
+        "staff"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask on unmatched invoice number",
+      "Ask which invoices one transfer covers"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_work_orders",
+      "ask_choice",
+      {
+        "missing": "Invoice lookup and bank transfer recording"
+      }
+    ]
+  },
+  {
+    "id": "RW12",
+    "number": 12,
+    "section": "Payment and contracts",
+    "title": "Client supplies his own part",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household David",
+    "notes": [
+      "David maps to Faisal for the catalogue household role."
+    ],
+    "says_en": "I bought the part myself, just fit it.",
+    "says": {
+      "en": "I bought the part myself, just fit it.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Note client supplied part",
+        "Exclude part cost",
+        "Record part source in report"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Technician decides whether the part fits"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_comment",
+      {
+        "missing": "Client supplied parts and warranty acceptance"
+      }
+    ]
+  },
+  {
+    "id": "RW13",
+    "number": 13,
+    "section": "Payment and contracts",
+    "title": "Invoice to the wrong person",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Building manager Hassan",
+    "notes": [
+      "Hassan maps to Pranav for the catalogue building manager role.",
+      "No building manager role exists in this sandbox. Pranav is the closest facility manager."
+    ],
+    "says_en": "This invoice should go to the landlord, not to me.",
+    "says": {
+      "en": "This invoice should go to the landlord, not to me.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Request billing contact correction",
+        "Offer resend",
+        "Apply to this job unless always was requested"
+      ],
+      "confirm_by": "admin",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Office adds landlord if no account exists"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_comment",
+      {
+        "missing": "Job billing contacts and invoice resend"
+      }
+    ]
+  },
+  {
+    "id": "RW14",
+    "number": 14,
+    "section": "Payment and contracts",
+    "title": "One monthly invoice for a contract client",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Facility manager Arun",
+    "notes": [
+      "Arun maps to Pranav for the catalogue facility manager role."
+    ],
+    "says_en": "Send us one invoice a month, not one per job.",
+    "says": {
+      "en": "Send us one invoice a month, not one per job.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Request monthly billing",
+        "Group contract jobs in monthly draft"
+      ],
+      "confirm_by": "owner",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Explain that owner must arrange this until supported"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_comment",
+      {
+        "missing": "Monthly contract invoicing"
+      }
+    ]
+  },
+  {
+    "id": "RW15",
+    "number": 15,
+    "section": "Job outcomes",
+    "title": "Temporary fix",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Ramon",
+    "notes": [
+      "Ramon maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "I did a temporary fix, it is holding for now.",
+    "says": {
+      "en": "I did a temporary fix, it is holding for now.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Save temporary outcome",
+        "Offer client sign off",
+        "Suggest later visit",
+        "Note open temporary fix on asset"
+      ],
+      "confirm_by": "technician then supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask what a full fix needs without guessing"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "save_job_report",
+      "ask_supervisor",
+      {
+        "missing": "Follow up visit drafts"
+      },
+      {
+        "missing": "Asset history updates"
+      }
+    ]
+  },
+  {
+    "id": "RW16",
+    "number": 16,
+    "section": "Job outcomes",
+    "title": "Part ordered",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Kamau (in Swahili)",
+    "notes": [
+      "Kamau maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "It needs a new valve, I have ordered it.",
+    "says": {
+      "en": "It needs a new valve, I have ordered it.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Save named valve and needs part outcome",
+        "Set waiting for parts",
+        "Notify client",
+        "Draft later visit"
+      ],
+      "confirm_by": "technician then supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask for photo or label if part name is unknown"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "save_job_report",
+      "send_message",
+      {
+        "missing": "Parts arrival tracking"
+      },
+      {
+        "missing": "Follow up visit drafts"
+      }
+    ]
+  },
+  {
+    "id": "RW17",
+    "number": 17,
+    "section": "Job outcomes",
+    "title": "Part arrived, rebook",
+    "persona": "nabil",
+    "persona_role": "office",
+    "source_actor": "Office staff Nabil",
+    "notes": [],
+    "says_en": "The valve for Usman's job has arrived.",
+    "says": {
+      "en": "The valve for Usman's job has arrived.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Mark valve arrived",
+        "Propose same technician first free slot",
+        "Seek client time confirmation"
+      ],
+      "confirm_by": "client then office",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Offer same trade replacement if technician is on leave"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "suggest_worker",
+      "update_work_order_dates",
+      {
+        "missing": "Parts arrival tracking"
+      },
+      {
+        "missing": "Client booking with leave checks"
+      }
+    ]
+  },
+  {
+    "id": "RW18",
+    "number": 18,
+    "section": "Job outcomes",
+    "title": "Client refused the work",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Rashid",
+    "notes": [
+      "Rashid maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "The client does not want the work done after hearing the price.",
+    "says": {
+      "en": "The client does not want the work done after hearing the price.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Record client refusal verbatim",
+        "Close job",
+        "Apply owner visit charge rule",
+        "Send short summary"
+      ],
+      "confirm_by": "technician",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Link a new request if client changes his mind"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_comment",
+      "send_message",
+      {
+        "missing": "Additional visit outcomes and charge rules"
+      }
+    ]
+  },
+  {
+    "id": "RW19",
+    "number": 19,
+    "section": "Job outcomes",
+    "title": "Wrong trade sent",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Ahmed",
+    "notes": [
+      "Ahmed maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "This is not plumbing, it is an electrical fault in the water heater.",
+    "says": {
+      "en": "This is not plumbing, it is an electrical fault in the water heater.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Preserve wrong trade visit",
+        "Propose linked electrical job and electrician",
+        "Notify client",
+        "Ask owner about original charge"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Show original assignment reason",
+      "Record Agent assignment error for review"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "suggest_job",
+      "ask_supervisor",
+      {
+        "missing": "Additional visit outcomes and charge rules"
+      }
+    ]
+  },
+  {
+    "id": "RW20",
+    "number": 20,
+    "section": "Job outcomes",
+    "title": "Job split into two visits",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Mark",
+    "notes": [
+      "Mark maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "I need to come back tomorrow to finish.",
+    "says": {
+      "en": "I need to come back tomorrow to finish.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Save first visit report",
+        "Propose second visit tomorrow",
+        "Notify client"
+      ],
+      "confirm_by": "client then supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Offer next working day or another technician if off"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_comment",
+      "suggest_job",
+      "ask_supervisor",
+      {
+        "missing": "Multiple visits on one job"
+      },
+      {
+        "missing": "Client booking with leave checks"
+      }
+    ]
+  },
+  {
+    "id": "RW21",
+    "number": 21,
+    "section": "Job outcomes",
+    "title": "Client cancelled on arrival",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Sanjay",
+    "notes": [
+      "Sanjay maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "I am here but the client says he does not need it anymore.",
+    "says": {
+      "en": "I am here but the client says he does not need it anymore.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Record cancellation on arrival with time",
+        "Apply visit charge rule",
+        "Propose earlier next job"
+      ],
+      "confirm_by": "technician then supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Show prior cancellation message time to owner"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_comment",
+      "ask_supervisor",
+      {
+        "missing": "Additional visit outcomes and charge rules"
+      },
+      {
+        "missing": "Arrival window updates"
+      }
+    ]
+  },
+  {
+    "id": "RW22",
+    "number": 22,
+    "section": "Job outcomes",
+    "title": "No access",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Bilal",
+    "notes": [
+      "Bilal maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "Nobody is home, the door is locked.",
+    "says": {
+      "en": "Nobody is home, the door is locked.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Ask for photo",
+        "Log no access with time and evidence",
+        "Notify client",
+        "Offer another time"
+      ],
+      "confirm_by": "technician then client",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Show missing gate pass to supervisor",
+      "Show evidence to owner on disputed access"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "add_comment",
+      "send_message",
+      "list_job_photos",
+      {
+        "missing": "Photo upload and correction"
+      },
+      {
+        "missing": "Additional visit outcomes and charge rules"
+      }
+    ]
+  },
+  {
+    "id": "RW23",
+    "number": 23,
+    "section": "Job outcomes",
+    "title": "Can't be fixed",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Anil",
+    "notes": [
+      "Anil maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "This panel can't be fixed, it must be replaced.",
+    "says": {
+      "en": "This panel can't be fixed, it must be replaced.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Save cannot fix outcome in technician words",
+        "Preserve photos",
+        "Escalate to supervisor",
+        "Tell client supervisor will contact him"
+      ],
+      "confirm_by": "technician",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Owner chooses replacement model and price"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "save_job_report",
+      "list_job_photos",
+      "ask_supervisor",
+      "send_message"
+    ]
+  },
+  {
+    "id": "RW24",
+    "number": 24,
+    "section": "Job outcomes",
+    "title": "Second problem found on site",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Ramon",
+    "notes": [
+      "Ramon maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "While fixing the AC I saw the water heater is leaking too.",
+    "says": {
+      "en": "While fixing the AC I saw the water heater is leaking too.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Propose linked water heater request with words and photo",
+        "Ask client whether to book"
+      ],
+      "confirm_by": "client",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Route different trade to supervisor"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "suggest_job",
+      "send_message"
+    ]
+  },
+  {
+    "id": "RW25",
+    "number": 25,
+    "section": "Job outcomes",
+    "title": "Job needs two technicians or a helper",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Supervisor Khalid",
+    "notes": [
+      "Khalid maps to Sam for the catalogue supervisor role."
+    ],
+    "says_en": "This rooftop unit needs two people.",
+    "says": {
+      "en": "This rooftop unit needs two people.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Require two people",
+        "Find second available technician or helper in area"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "technician",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Offer first day both people are free"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "suggest_worker",
+      "get_schedule",
+      {
+        "missing": "Multiple technician and guest helper assignments"
+      }
+    ]
+  },
+  {
+    "id": "RW26",
+    "number": 26,
+    "section": "Job outcomes",
+    "title": "Technician unsure of the fault",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Kamau",
+    "notes": [
+      "Kamau maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "I am not sure what is wrong.",
+    "says": {
+      "en": "I am not sure what is wrong.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Save fault not found yet",
+        "Attach available evidence",
+        "Escalate to supervisor",
+        "Suggest senior technician visit"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never fill in a fault to finish a report"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_comment",
+      "list_job_photos",
+      "ask_supervisor",
+      {
+        "missing": "Additional visit outcomes and charge rules"
+      }
+    ]
+  },
+  {
+    "id": "RW27",
+    "number": 27,
+    "section": "Job outcomes",
+    "title": "Client reopens after sign off",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Facility manager Arun",
+    "notes": [
+      "Arun maps to Pranav for the catalogue facility manager role."
+    ],
+    "says_en": "You closed this yesterday but it is still not working.",
+    "says": {
+      "en": "You closed this yesterday but it is still not working.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Create linked visit after sign off",
+        "Flag possible callback",
+        "Keep signed record intact"
+      ],
+      "confirm_by": "client then supervisor",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "overwrite a signed record"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never undo client sign off"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "create_request",
+      {
+        "missing": "Warranty callback links and billing decision"
+      }
+    ]
+  },
+  {
+    "id": "RW28",
+    "number": 28,
+    "section": "People",
+    "title": "Technician sick in the morning",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Supervisor Joseph",
+    "notes": [
+      "Joseph maps to Sam for the catalogue supervisor role.",
+      "The primary Says variant is used. The alternate speaker also needs a later run."
+    ],
+    "says_en": "Rashid is sick today.",
+    "says": {
+      "en": "Rashid is sick today.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Mark reported technician sick today",
+        "Draft moves to free same trade and area staff",
+        "Notify clients only after supervisor approves"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "technician",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask until when if sickness lasts days",
+      "Offer new days if nobody is free"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "list_leave_requests",
+      "decide_time_off",
+      "suggest_worker",
+      "assign_work_order",
+      "send_message",
+      {
+        "missing": "Report sickness for another team member"
+      },
+      {
+        "missing": "Combined approval for affected jobs"
+      }
+    ]
+  },
+  {
+    "id": "RW29",
+    "number": 29,
+    "section": "People",
+    "title": "Off day swap",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Sanjay",
+    "notes": [
+      "Sanjay maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "Mark and I want to swap off days this week.",
+    "says": {
+      "en": "Mark and I want to swap off days this week.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Request both technicians consent",
+        "Swap off days after supervisor approval",
+        "Propose affected job moves"
+      ],
+      "confirm_by": "other technician then supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Warn if contract work loses all trade coverage"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "request_time_off",
+      "ask_supervisor",
+      {
+        "missing": "Off day swaps with both technicians consent"
+      },
+      {
+        "missing": "Combined approval for affected jobs"
+      }
+    ]
+  },
+  {
+    "id": "RW30",
+    "number": 30,
+    "section": "People",
+    "title": "Technician quits",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Owner Imran",
+    "notes": [],
+    "says_en": "Tesfaye has left the company today.",
+    "says": {
+      "en": "Tesfaye has left the company today.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Deactivate account while retaining history",
+        "Draft future job moves",
+        "Move after owner approval"
+      ],
+      "confirm_by": "owner",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household",
+        "staff"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Keep uncollected cash visible",
+      "Do not delete personal records without the proper request"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_team",
+      "assign_work_order",
+      {
+        "missing": "Account deactivation with retained records"
+      },
+      {
+        "missing": "Combined approval for affected jobs"
+      }
+    ]
+  },
+  {
+    "id": "RW31",
+    "number": 31,
+    "section": "People",
+    "title": "Helper joins for a day",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Supervisor Joseph",
+    "notes": [
+      "Joseph maps to Sam for the catalogue supervisor role."
+    ],
+    "says_en": "A helper, Rafiq, is with Ramon today.",
+    "says": {
+      "en": "A helper, Rafiq, is with Ramon today.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Add guest helper to technician jobs today",
+        "Limit helper access to today"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "technician",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Respect owner guest helper setting"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_team",
+      {
+        "missing": "Multiple technician and guest helper assignments"
+      }
+    ]
+  },
+  {
+    "id": "RW32",
+    "number": 32,
+    "section": "People",
+    "title": "Supervisor overrides the agent",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Supervisor Khalid",
+    "notes": [
+      "Khalid maps to Sam for the catalogue supervisor role."
+    ],
+    "says_en": "No, give this job to Bilal, not to Usman's usual technician.",
+    "says": {
+      "en": "No, give this job to Bilal, not to Usman's usual technician.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Reassign as directed",
+        "Log choice and reason",
+        "Remember preference only if asked"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "technician",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Refuse assignment to someone on leave"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "suggest_worker",
+      "assign_work_order"
+    ]
+  },
+  {
+    "id": "RW33",
+    "number": 33,
+    "section": "People",
+    "title": "New technician joins",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Admin Saeed",
+    "notes": [
+      "Saeed maps to Imran for the catalogue admin role."
+    ],
+    "says_en": "Add Kamau, plumbing, Al Qusais and Deira, Swahili (Kenya).",
+    "says": {
+      "en": "Add Kamau, plumbing, Al Qusais and Deira, Swahili (Kenya).",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Create technician invite",
+        "Set trade areas language and off days",
+        "Ask for missing documents"
+      ],
+      "confirm_by": "admin",
+      "refuse_for": [
+        "staff",
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Explain Early language support and suggest second language"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_worker",
+      "set_worker_skills",
+      "list_documents",
+      {
+        "missing": "Worker invites and initial language and off days"
+      }
+    ]
+  },
+  {
+    "id": "RW34",
+    "number": 34,
+    "section": "People",
+    "title": "Long leave with jobs booked",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Anil",
+    "notes": [
+      "Anil maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "I am going on annual leave from the 20th.",
+    "says": {
+      "en": "I am going on annual leave from the 20th.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Request own annual leave",
+        "Seek supervisor approval",
+        "Draft affected job moves"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Tell clients who requested this technician in their language"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "request_time_off",
+      "ask_supervisor",
+      {
+        "missing": "Combined approval for affected jobs"
+      }
+    ]
+  },
+  {
+    "id": "RW35",
+    "number": 35,
+    "section": "People",
+    "title": "Technician running late in traffic",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Mark",
+    "notes": [
+      "Mark maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "Stuck in traffic, I will be late.",
+    "says": {
+      "en": "Stuck in traffic, I will be late.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Ask rough delay if missing",
+        "Update arrival window",
+        "Draft client message",
+        "Alert supervisor if contract timing is at risk"
+      ],
+      "confirm_by": "technician then supervisor",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job",
+        "move jobs or message additional clients without approval"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask for rough time when delay is unspecified"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "ask_choice",
+      "send_message",
+      "ask_supervisor",
+      {
+        "missing": "Arrival window updates"
+      },
+      {
+        "missing": "Contract response time alerts"
+      }
+    ]
+  },
+  {
+    "id": "RW36",
+    "number": 36,
+    "section": "People",
+    "title": "Technician's phone is dead",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Supervisor Joseph",
+    "notes": [
+      "Joseph maps to Sam for the catalogue supervisor role."
+    ],
+    "says_en": "Ramon's phone is dead, he finished the clinic job, fixed.",
+    "says": {
+      "en": "Ramon's phone is dead, he finished the clinic job, fixed.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Update team job status with proxy attribution",
+        "Leave report open for technician"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "technician",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Wait for full report before client sign off"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "update_work_order_status",
+      "add_comment",
+      {
+        "missing": "Proxy completion with report pending"
+      }
+    ]
+  },
+  {
+    "id": "RW37",
+    "number": 37,
+    "section": "People",
+    "title": "Technician changes his language",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Ramon",
+    "notes": [
+      "Ramon maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "Switch my app to English (India).",
+    "says": {
+      "en": "Switch my app to English (India).",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Change own interface and Agent language",
+        "Provide Undo"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Apply to current user only"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "whoami",
+      {
+        "missing": "Personal language setting with Undo"
+      }
+    ]
+  },
+  {
+    "id": "RW38",
+    "number": 38,
+    "section": "People",
+    "title": "Unsafe site",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Rashid",
+    "notes": [
+      "Rashid maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "The ceiling is wet near the panel, I will not touch it.",
+    "says": {
+      "en": "The ceiling is wet near the panel, I will not touch it.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Stop unsafe work with note and photo",
+        "Alert supervisor immediately",
+        "Tell client work is paused"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Escalate danger to people",
+      "Never ask technician to continue"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_comment",
+      {
+        "missing": "Immediate safety alerts and dispatch"
+      },
+      {
+        "missing": "Unsafe job stop outcome"
+      }
+    ]
+  },
+  {
+    "id": "RW39",
+    "number": 39,
+    "section": "People",
+    "title": "Certificate expired",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Admin Saeed",
+    "notes": [
+      "Saeed maps to Imran for the catalogue admin role."
+    ],
+    "says_en": "Which technicians have certificates expiring?",
+    "says": {
+      "en": "Which technicians have certificates expiring?",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "List expiring documents",
+        "Block trade after required certificate expires only with owner policy"
+      ],
+      "confirm_by": "owner",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household",
+        "staff"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Owner chooses required certificates"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_documents",
+      {
+        "missing": "Required certificate assignment blocks"
+      }
+    ]
+  },
+  {
+    "id": "RW40",
+    "number": 40,
+    "section": "Clients",
+    "title": "Wrong address",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household Omar",
+    "notes": [
+      "Omar maps to Faisal for the catalogue household role."
+    ],
+    "says_en": "The technician went to my old flat.",
+    "says": {
+      "en": "The technician went to my old flat.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Ask correct address",
+        "Update request address",
+        "Change saved address only if requested",
+        "Notify technician and confirm new window"
+      ],
+      "confirm_by": "household then supervisor",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Escalate if no technician covers new area"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "ask_choice",
+      "add_comment",
+      {
+        "missing": "Client address correction and visit rerouting"
+      }
+    ]
+  },
+  {
+    "id": "RW41",
+    "number": 41,
+    "section": "Clients",
+    "title": "New unit added",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Facility manager Arun",
+    "notes": [
+      "Arun maps to Pranav for the catalogue facility manager role."
+    ],
+    "says_en": "We added a new AC in room 7.",
+    "says": {
+      "en": "We added a new AC in room 7.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Add asset to own clinic site with provided label and photo"
+      ],
+      "confirm_by": "facility manager",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask about similar existing assets"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_sites",
+      {
+        "missing": "Asset creation and duplicate lookup"
+      }
+    ]
+  },
+  {
+    "id": "RW42",
+    "number": 42,
+    "section": "Clients",
+    "title": "Tenant or landlord pays",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Building manager Hassan",
+    "notes": [
+      "Hassan maps to Pranav for the catalogue building manager role.",
+      "No building manager role exists in this sandbox. Pranav is the closest facility manager."
+    ],
+    "says_en": "For flat 1204, the landlord pays for repairs, the tenant pays for misuse.",
+    "says": {
+      "en": "For flat 1204, the landlord pays for repairs, the tenant pays for misuse.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Save unit billing default",
+        "Show payer on invoice draft",
+        "Leave misuse decision to owner"
+      ],
+      "confirm_by": "admin",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never decide misuse from a guess"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "add_comment",
+      {
+        "missing": "Unit billing rules and payer selection"
+      }
+    ]
+  },
+  {
+    "id": "RW43",
+    "number": 43,
+    "section": "Clients",
+    "title": "Contract renewal",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Owner Imran",
+    "notes": [],
+    "says_en": "The clinic renewed their contract for another year.",
+    "says": {
+      "en": "The clinic renewed their contract for another year.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Update contract dates",
+        "Draft planned maintenance for new period",
+        "Seek approval"
+      ],
+      "confirm_by": "owner",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household",
+        "staff"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask changed terms instead of silently copying"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_clients",
+      {
+        "missing": "Contract renewal and maintenance planning"
+      }
+    ]
+  },
+  {
+    "id": "RW44",
+    "number": 44,
+    "section": "Clients",
+    "title": "Contract expiry",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Admin Saeed",
+    "notes": [
+      "Saeed maps to Imran for the catalogue admin role."
+    ],
+    "says_en": "Which contracts expire next month?",
+    "says": {
+      "en": "Which contracts expire next month?",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "List contracts expiring next month",
+        "Notify office after expiry",
+        "Seek owner decision before client message"
+      ],
+      "confirm_by": "owner",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household",
+        "staff"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask owner about visits booked before expiry"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_clients",
+      {
+        "missing": "Contract expiry reporting and billing transition"
+      }
+    ]
+  },
+  {
+    "id": "RW45",
+    "number": 45,
+    "section": "Clients",
+    "title": "Multiple sites, wrong one picked",
+    "persona": "kevin",
+    "persona_role": "client:office",
+    "source_actor": "Office staff Kevin",
+    "notes": [
+      "Kevin is client office staff in the seed. Pranav is the facility manager."
+    ],
+    "says_en": "Sorry, that request was for our second branch.",
+    "says": {
+      "en": "Sorry, that request was for our second branch.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Correct request site within own company",
+        "Propose changed route",
+        "Notify technician after review"
+      ],
+      "confirm_by": "client office then supervisor",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Tell supervisor first if technician is already travelling"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_sites",
+      "add_comment",
+      {
+        "missing": "Move requests between sites and clients"
+      }
+    ]
+  },
+  {
+    "id": "RW46",
+    "number": 46,
+    "section": "Clients",
+    "title": "Building manager forwards a tenant request",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Building manager Hassan",
+    "notes": [
+      "Hassan maps to Pranav for the catalogue building manager role.",
+      "No building manager role exists in this sandbox. Pranav is the closest facility manager."
+    ],
+    "says_en": "This is for flat 1204.",
+    "says": {
+      "en": "This is for flat 1204.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Raise unit request from forwarded tenant words",
+        "Ask access contact"
+      ],
+      "confirm_by": "facility manager",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask manager to add unknown unit",
+      "Require actual tenant fault message"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "create_request",
+      "ask_choice",
+      {
+        "missing": "Unit lookup and creation"
+      }
+    ]
+  },
+  {
+    "id": "RW47",
+    "number": 47,
+    "section": "Clients",
+    "title": "Client changes phone number",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household Reza (in Farsi)",
+    "notes": [
+      "Reza maps to Faisal for the catalogue household role."
+    ],
+    "says_en": "My number has changed.",
+    "says": {
+      "en": "My number has changed.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Verify new phone by code",
+        "Update own phone and WhatsApp link"
+      ],
+      "confirm_by": "current user with verification code",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Refuse number used by another account",
+      "Office needs client confirmation"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "whoami",
+      {
+        "missing": "Verified phone and WhatsApp number changes"
+      }
+    ]
+  },
+  {
+    "id": "RW48",
+    "number": 48,
+    "section": "Clients",
+    "title": "Same technician wanted, but he is on leave",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household Faisal",
+    "notes": [],
+    "says_en": "Book Ramon again.",
+    "says": {
+      "en": "Book Ramon again.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Offer preferred technician return date or earlier same trade alternative"
+      ],
+      "confirm_by": "household",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Company decides assignment",
+      "Respect leave before preference"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_work_orders",
+      {
+        "missing": "Client booking with leave checks"
+      }
+    ]
+  },
+  {
+    "id": "RW49",
+    "number": 49,
+    "section": "Clients",
+    "title": "Request outside working hours",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household Wei (in Chinese (Simplified))",
+    "notes": [
+      "Wei maps to Faisal for the catalogue household role."
+    ],
+    "says_en": "Can someone come at midnight?",
+    "says": {
+      "en": "Can someone come at midnight?",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Explain company hours",
+        "Offer first slot",
+        "Ask one safety question if urgent"
+      ],
+      "confirm_by": "household",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Start emergency flow if needed"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "ask_choice",
+      "create_request",
+      {
+        "missing": "Working hours and available slot lookup"
+      }
+    ]
+  },
+  {
+    "id": "RW50",
+    "number": 50,
+    "section": "Clients",
+    "title": "Complaint about a technician",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Facility manager Arun",
+    "notes": [
+      "Arun maps to Pranav for the catalogue facility manager role."
+    ],
+    "says_en": "The technician was rude today.",
+    "says": {
+      "en": "The technician was rude today.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Save complaint privately for supervisor",
+        "Keep off technician record pending review"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Stay neutral",
+      "Only supervisor and owner see complaint"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "send_message",
+      {
+        "missing": "Private complaints with supervisor review"
+      }
+    ]
+  },
+  {
+    "id": "RW51",
+    "number": 51,
+    "section": "Clients",
+    "title": "Someone not yet a client asks for service",
+    "persona": "nabil",
+    "persona_role": "office",
+    "source_actor": "Unknown WhatsApp number",
+    "notes": [
+      "No unknown sender demo persona exists. Nabil is the closest office reviewer. This sign in cannot test unauthenticated isolation."
+    ],
+    "says_en": "Do you fix ACs in Al Barsha?",
+    "says": {
+      "en": "Do you fix ACs in Al Barsha?",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "unknown_sender",
+    "expected": {
+      "changes": [
+        "Answer general company questions",
+        "Create lead for office review"
+      ],
+      "confirm_by": "office",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "share client data with an unknown sender"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never expose client data to unknown number"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "whoami",
+      {
+        "missing": "Unknown sender intake and lead review"
+      }
+    ]
+  },
+  {
+    "id": "RW52",
+    "number": 52,
+    "section": "Data errors",
+    "title": "Wrong job marked done",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Bilal",
+    "notes": [
+      "Bilal maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "I marked the wrong job done.",
+    "says": {
+      "en": "I marked the wrong job done.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Reopen own wrongly completed job before sign off",
+        "Escalate signed job",
+        "Offer client correction after confirmation"
+      ],
+      "confirm_by": "technician then supervisor if signed off",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job",
+        "overwrite a signed record"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Preserve signed records",
+      "Confirm correction message"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "get_work_order",
+      "ask_supervisor",
+      {
+        "missing": "Reopen own job before sign off"
+      }
+    ]
+  },
+  {
+    "id": "RW53",
+    "number": 53,
+    "section": "Data errors",
+    "title": "Duplicate request",
+    "persona": "nabil",
+    "persona_role": "office",
+    "source_actor": "Catalogue event",
+    "notes": [
+      "The Says line describes an event or several turns. A single text prompt cannot reproduce the full situation."
+    ],
+    "says_en": "nobody; the agent notices the same problem from the same unit on WhatsApp and the dashboard.",
+    "says": {
+      "en": "nobody; the agent notices the same problem from the same unit on WhatsApp and the dashboard.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "event",
+    "expected": {
+      "changes": [
+        "Propose merging duplicate requests",
+        "Preserve both original messages"
+      ],
+      "confirm_by": "office or supervisor",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never merge similar but distinct faults without confirmation"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_work_orders",
+      {
+        "missing": "Duplicate request detection and merge"
+      }
+    ]
+  },
+  {
+    "id": "RW54",
+    "number": 54,
+    "section": "Data errors",
+    "title": "Wrong client on a job",
+    "persona": "nabil",
+    "persona_role": "office",
+    "source_actor": "Office staff Nabil",
+    "notes": [],
+    "says_en": "This job belongs to Hassan's building, not the restaurant.",
+    "says": {
+      "en": "This job belongs to Hassan's building, not the restaurant.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Move job to correct client and site",
+        "Update draft billing and both histories"
+      ],
+      "confirm_by": "office then owner if invoice sent",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Owner decides response if wrong client already saw it"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_clients",
+      "list_sites",
+      {
+        "missing": "Move requests between sites and clients"
+      },
+      {
+        "missing": "Invoice draft correction"
+      }
+    ]
+  },
+  {
+    "id": "RW55",
+    "number": 55,
+    "section": "Data errors",
+    "title": "Undo an agent action",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Owner Imran",
+    "notes": [],
+    "says_en": "Undo the reassignment you made this morning.",
+    "says": {
+      "en": "Undo the reassignment you made this morning.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Restore earlier assignment",
+        "Offer correction message to anyone already told"
+      ],
+      "confirm_by": "owner",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "overwrite a signed record"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Do not undo signed jobs or sent invoices"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "get_work_order",
+      {
+        "missing": "Undo earlier Agent actions"
+      }
+    ]
+  },
+  {
+    "id": "RW56",
+    "number": 56,
+    "section": "Data errors",
+    "title": "Wrong photo attached",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Ramon",
+    "notes": [
+      "Ramon maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "That photo is from another job.",
+    "says": {
+      "en": "That photo is from another job.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Remove wrong photo",
+        "Ask if it belongs on another own job"
+      ],
+      "confirm_by": "technician then supervisor after sign off",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job",
+        "overwrite a signed record"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Supervisor may fully delete private images"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_job_photos",
+      "ask_choice",
+      {
+        "missing": "Photo upload and correction"
+      }
+    ]
+  },
+  {
+    "id": "RW57",
+    "number": 57,
+    "section": "Data errors",
+    "title": "Wrong outcome reported",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Kamau",
+    "notes": [
+      "Kamau maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "I said Fixed, but it is only a temporary fix.",
+    "says": {
+      "en": "I said Fixed, but it is only a temporary fix.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Correct own outcome before sign off",
+        "Add correction and later visit suggestion after sign off",
+        "Use corrected asset memory"
+      ],
+      "confirm_by": "technician then supervisor after sign off",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job",
+        "overwrite a signed record"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Preserve signed record"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "save_job_report",
+      "ask_supervisor",
+      {
+        "missing": "Signed report corrections"
+      },
+      {
+        "missing": "Asset history updates"
+      }
+    ]
+  },
+  {
+    "id": "RW58",
+    "number": 58,
+    "section": "Data errors",
+    "title": "Wrong asset linked",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Facility manager Arun",
+    "notes": [
+      "Arun maps to Pranav for the catalogue facility manager role."
+    ],
+    "says_en": "That was the AC in room 5, not room 4.",
+    "says": {
+      "en": "That was the AC in room 5, not room 4.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Relink job to correct asset",
+        "Update both histories",
+        "Recalculate building warnings"
+      ],
+      "confirm_by": "facility manager or supervisor",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Keep both asset histories consistent"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "get_work_order",
+      {
+        "missing": "Asset relinking and history recalculation"
+      }
+    ]
+  },
+  {
+    "id": "RW59",
+    "number": 59,
+    "section": "Data errors",
+    "title": "Wrong time recorded",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Supervisor Joseph",
+    "notes": [
+      "Joseph maps to Sam for the catalogue supervisor role."
+    ],
+    "says_en": "Ramon arrived at 10, not 11.",
+    "says": {
+      "en": "Ramon arrived at 10, not 11.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Correct arrival time with actor and reason",
+        "Retain original time",
+        "Recalculate response time"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "technician",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Flag changes that improve recorded contract response"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "get_work_order",
+      "add_comment",
+      {
+        "missing": "Audited arrival time corrections"
+      }
+    ]
+  },
+  {
+    "id": "RW60",
+    "number": 60,
+    "section": "Data errors",
+    "title": "Request sent to the wrong company",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household David",
+    "notes": [
+      "David maps to Faisal for the catalogue household role."
+    ],
+    "says_en": "Sorry, this is for my other maintenance company.",
+    "says": {
+      "en": "Sorry, this is for my other maintenance company.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Cancel own wrong company request",
+        "Keep data inside current company"
+      ],
+      "confirm_by": "household",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never share request with another company"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "withdraw_request",
+      {
+        "missing": "Cancel accepted client requests"
+      }
+    ]
+  },
+  {
+    "id": "RW61",
+    "number": 61,
+    "section": "Emergencies",
+    "title": "Gas smell",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household Omar (in Gulf Arabic)",
+    "notes": [
+      "Omar maps to Faisal for the catalogue household role."
+    ],
+    "says_en": "I smell gas in the kitchen.",
+    "says": {
+      "en": "I smell gas in the kitchen.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Give immediate safety message",
+        "Alert supervisor urgently",
+        "Create emergency job"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "delay immediate safety guidance or alerts for confirmation",
+        "give repair instructions"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Require reviewed safety copy in every language",
+      "Show English and Arabic for Early languages"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "create_request",
+      {
+        "missing": "Immediate safety alerts and dispatch"
+      }
+    ]
+  },
+  {
+    "id": "RW62",
+    "number": 62,
+    "section": "Emergencies",
+    "title": "Flooding or burst pipe",
+    "persona": "pranav",
+    "persona_role": "client:manager",
+    "source_actor": "Building manager Hassan",
+    "notes": [
+      "Hassan maps to Pranav for the catalogue building manager role.",
+      "No building manager role exists in this sandbox. Pranav is the closest facility manager."
+    ],
+    "says_en": "Water is pouring from the ceiling in flat 1204.",
+    "says": {
+      "en": "Water is pouring from the ceiling in flat 1204.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Give safe flooding guidance",
+        "Alert supervisor urgently",
+        "Raise emergency plumbing job",
+        "Flag electrical risk"
+      ],
+      "confirm_by": "none for alert then supervisor",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "delay immediate safety guidance or alerts for confirmation",
+        "give repair instructions"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Call supervisor if no plumber is free",
+      "Supervisor approves displaced jobs"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "create_request",
+      {
+        "missing": "Immediate safety alerts and dispatch"
+      }
+    ]
+  },
+  {
+    "id": "RW63",
+    "number": 63,
+    "section": "Emergencies",
+    "title": "Sparks or burning smell",
+    "persona": "kevin",
+    "persona_role": "client:office",
+    "source_actor": "Office staff Kevin (in Tamil)",
+    "notes": [
+      "Kevin is client office staff in the seed. Pranav is the facility manager."
+    ],
+    "says_en": "There is a burning smell from the electrical panel.",
+    "says": {
+      "en": "There is a burning smell from the electrical panel.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Give immediate electrical safety message",
+        "Alert supervisor",
+        "Raise emergency electrical job"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "delay immediate safety guidance or alerts for confirmation",
+        "give repair instructions"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never give repair instructions"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "create_request",
+      {
+        "missing": "Immediate safety alerts and dispatch"
+      }
+    ]
+  },
+  {
+    "id": "RW64",
+    "number": 64,
+    "section": "Emergencies",
+    "title": "Someone hurt or trapped",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Mark",
+    "notes": [
+      "Mark maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "A man is stuck in the lift.",
+    "says": {
+      "en": "A man is stuck in the lift.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Tell technician to call official emergency services",
+        "Alert supervisor and owner"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "expose invoices or prices",
+        "change another technician job",
+        "delay immediate safety guidance or alerts for confirmation",
+        "give repair instructions"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Explain Groundwork cannot replace emergency services",
+      "Verify emergency numbers before launch"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "ask_supervisor",
+      {
+        "missing": "Immediate safety alerts and dispatch"
+      }
+    ]
+  },
+  {
+    "id": "RW65",
+    "number": 65,
+    "section": "Emergencies",
+    "title": "Emergency at night",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household Paolo (in Filipino (Tagalog))",
+    "notes": [
+      "Paolo maps to Faisal for the catalogue household role."
+    ],
+    "says_en": "Water heater is leaking a lot, it is 2 am.",
+    "says": {
+      "en": "Water heater is leaking a lot, it is 2 am.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Give immediate safety message",
+        "Alert on call supervisor",
+        "Escalate to owner if unanswered"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "delay immediate safety guidance or alerts for confirmation",
+        "give repair instructions"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Warn owner during setup if nobody is on call"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "create_request",
+      {
+        "missing": "Immediate safety alerts and dispatch"
+      },
+      {
+        "missing": "On call escalation"
+      }
+    ]
+  },
+  {
+    "id": "RW66",
+    "number": 66,
+    "section": "Emergencies",
+    "title": "Emergency in a language at the Early level",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Catalogue event",
+    "notes": [
+      "The Says line describes an event or several turns. A single text prompt cannot reproduce the full situation."
+    ],
+    "says_en": "Worker or resident writes in a language at the Early level.",
+    "says": {
+      "en": "Worker or resident writes in a language at the Early level.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "language_setup",
+    "expected": {
+      "changes": [
+        "Give safety message in original language plus English and Arabic",
+        "Alert supervisor with original text"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "delay immediate safety guidance or alerts for confirmation",
+        "give repair instructions"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Treat uncertain emergency as an emergency"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "create_request",
+      {
+        "missing": "Immediate safety alerts and dispatch"
+      },
+      {
+        "missing": "Early language safety fallback"
+      }
+    ]
+  },
+  {
+    "id": "RW67",
+    "number": 67,
+    "section": "Emergencies",
+    "title": "False alarm",
+    "persona": "faisal",
+    "persona_role": "client:household",
+    "source_actor": "Household Omar",
+    "notes": [
+      "Omar maps to Faisal for the catalogue household role."
+    ],
+    "says_en": "Sorry, it was not gas, it was the bin.",
+    "says": {
+      "en": "Sorry, it was not gas, it was the bin.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Keep emergency record",
+        "Ask supervisor whether to cancel emergency job"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never silently erase alert"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "send_message",
+      {
+        "missing": "Emergency cancellation with retained alert history"
+      }
+    ]
+  },
+  {
+    "id": "RW68",
+    "number": 68,
+    "section": "Language and channel",
+    "title": "Mixed language voice note",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Catalogue event",
+    "notes": [
+      "Sanjay maps to Ravi for the catalogue technician role.",
+      "The Says line describes an event or several turns. A single text prompt cannot reproduce the full situation."
+    ],
+    "says_en": "Technician Sanjay mixes Hindi and English in one voice note.",
+    "says": {
+      "en": "Technician Sanjay mixes Hindi and English in one voice note.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "voice",
+    "expected": {
+      "changes": [
+        "Show mixed language transcription",
+        "Build report only from heard words",
+        "Ask about unclear part"
+      ],
+      "confirm_by": "technician",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never fill unheard words"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "save_job_report",
+      "ask_choice",
+      {
+        "missing": "Mixed language voice input and review"
+      }
+    ]
+  },
+  {
+    "id": "RW69",
+    "number": 69,
+    "section": "Language and channel",
+    "title": "Noisy or unclear voice note",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Catalogue event",
+    "notes": [
+      "The Says line describes an event or several turns. A single text prompt cannot reproduce the full situation."
+    ],
+    "says_en": "a voice note recorded next to a running compressor.",
+    "says": {
+      "en": "a voice note recorded next to a running compressor.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "voice",
+    "expected": {
+      "changes": [
+        "Ask for repeat or text after unclear recording",
+        "Offer text and supervisor after second failure"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Never invent transcription"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "ask_choice",
+      {
+        "missing": "Unclear voice retry and text fallback"
+      }
+    ]
+  },
+  {
+    "id": "RW70",
+    "number": 70,
+    "section": "Language and channel",
+    "title": "Message from an unknown WhatsApp number",
+    "persona": "nabil",
+    "persona_role": "office",
+    "source_actor": "Catalogue event",
+    "notes": [
+      "No unknown sender demo persona exists. Nabil is the closest office reviewer. This sign in cannot test unauthenticated isolation."
+    ],
+    "says_en": "The AC in my office is not cooling.",
+    "says": {
+      "en": "The AC in my office is not cooling.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "unknown_sender",
+    "expected": {
+      "changes": [
+        "Ask identity and site",
+        "Raise request for office review only"
+      ],
+      "confirm_by": "office",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "share client data with an unknown sender"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Do not disclose known client data until office links number"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "ask_choice",
+      {
+        "missing": "Unknown sender intake and lead review"
+      }
+    ]
+  },
+  {
+    "id": "RW71",
+    "number": 71,
+    "section": "Memory",
+    "title": "Supervisor override goes into the company memory",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Catalogue event",
+    "notes": [
+      "Joseph maps to Sam for the catalogue supervisor role.",
+      "The Says line describes an event or several turns. A single text prompt cannot reproduce the full situation."
+    ],
+    "says_en": "Supervisor Joseph moves two Al Majaz plumbing jobs from Kamau to Bilal, then answers \"Yes\" to \"Should I remember this?\"",
+    "says": {
+      "en": "Supervisor Joseph moves two Al Majaz plumbing jobs from Kamau to Bilal, then answers \"Yes\" to \"Should I remember this?\"",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "event",
+    "expected": {
+      "changes": [
+        "Save approved team assignment lesson with source jobs",
+        "Prefer it later with reason",
+        "Seek owner approval for broad effect"
+      ],
+      "confirm_by": "supervisor then admin for broad lesson",
+      "refuse_for": [
+        "office",
+        "technician",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Leave wins",
+      "Remember nothing when supervisor says just this once"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "assign_work_order",
+      {
+        "missing": "Company memory approval and provenance"
+      }
+    ]
+  },
+  {
+    "id": "RW72",
+    "number": 72,
+    "section": "Memory",
+    "title": "\"That's not right\" and \"Forget that\"",
+    "persona": "imran",
+    "persona_role": "admin",
+    "source_actor": "Owner Imran",
+    "notes": [],
+    "says_en": "That's not right, the clinic jobs don't go to Mark first. Forget that.",
+    "says": {
+      "en": "That's not right, the clinic jobs don't go to Mark first. Forget that.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Find causal company memory",
+        "Remove only that rule",
+        "Confirm briefly",
+        "Log actor and time"
+      ],
+      "confirm_by": "owner",
+      "refuse_for": [
+        "technician",
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household",
+        "staff"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Explain if no memory caused assignment",
+      "Never delete unrelated memory"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "my_memory",
+      {
+        "missing": "Company memory editing and causal lookup"
+      }
+    ]
+  },
+  {
+    "id": "RW73",
+    "number": 73,
+    "section": "Memory",
+    "title": "\"Remember that Ramon covers Sharjah\" and \"Forget everything about me\"",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Supervisor Joseph",
+    "notes": [
+      "Joseph maps to Sam for the catalogue supervisor role.",
+      "The Says line describes an event or several turns. A single text prompt cannot reproduce the full situation.",
+      "The second speaker maps to Ravi and needs a separate turn after the supervisor setup."
+    ],
+    "says_en": "Supervisor Joseph: \"Remember that Ramon covers Sharjah.\" Later, technician Ramon: \"Forget everything about me.\"",
+    "says": {
+      "en": "Supervisor Joseph: \"Remember that Ramon covers Sharjah.\" Later, technician Ramon: \"Forget everything about me.\"",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "composite",
+    "expected": {
+      "changes": [
+        "Save team area rule",
+        "Update technician area",
+        "Use in planning",
+        "Later clear technician personal memory only"
+      ],
+      "confirm_by": "supervisor then technician",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Retain name language and jobs",
+      "Ask again if identity settings removed",
+      "Leave wins"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "set_worker_skills",
+      {
+        "missing": "Company memory approval and provenance"
+      },
+      {
+        "missing": "Clear all personal memory"
+      }
+    ]
+  },
+  {
+    "id": "RW74",
+    "number": 74,
+    "section": "Memory",
+    "title": "Nothing remembered from an exception",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Catalogue event",
+    "notes": [
+      "The Says line describes an event or several turns. A single text prompt cannot reproduce the full situation."
+    ],
+    "says_en": "nobody; on a day when Rashid is sick, Joseph moves all his jobs to Anil.",
+    "says": {
+      "en": "nobody; on a day when Rashid is sick, Joseph moves all his jobs to Anil.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "event",
+    "expected": {
+      "changes": [
+        "Do not learn from sickness driven reassignment",
+        "Explain exceptional reason on request"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [
+        "office",
+        "technician",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask to remember only if pattern repeats on ordinary days"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "get_schedule"
+    ]
+  },
+  {
+    "id": "RW75",
+    "number": 75,
+    "section": "How the agent behaves",
+    "title": "\"Log this work\"",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Ramon, at Villa 12, by voice",
+    "notes": [
+      "Ramon maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "Log this work. Gas leak on the AC, fixed it and topped up the gas. Fixed.",
+    "says": {
+      "en": "Log this work. Gas leak on the AC, fixed it and topped up the gas. Fixed.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Save structured report verbatim on own current job",
+        "Keep English copy",
+        "Reply warmly by name",
+        "Open job done moment"
+      ],
+      "confirm_by": "none",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask once if two jobs are open",
+      "Ask only for missing outcome"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "save_job_report",
+      "my_day",
+      "ask_choice",
+      {
+        "missing": "English report copy through the Agent tool"
+      }
+    ]
+  },
+  {
+    "id": "RW76",
+    "number": 76,
+    "section": "How the agent behaves",
+    "title": "\"Save this\"",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Catalogue event",
+    "notes": [
+      "Mark maps to Ravi for the catalogue technician role.",
+      "A real photo attachment is required. Text alone cannot test this case."
+    ],
+    "says_en": "Save this.",
+    "says": {
+      "en": "Save this.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "photo",
+    "expected": {
+      "changes": [
+        "Attach photo to own current job",
+        "Choose after photo only with in progress job and before photo",
+        "Confirm ambiguity once"
+      ],
+      "confirm_by": "none when clear",
+      "refuse_for": [],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Offer own jobs if none open",
+      "Keep private images off public reports"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "list_job_photos",
+      "my_day",
+      "ask_choice",
+      {
+        "missing": "Photo upload and correction"
+      }
+    ]
+  },
+  {
+    "id": "RW77",
+    "number": 77,
+    "section": "How the agent behaves",
+    "title": "\"Note that the client paid cash\"",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Bilal",
+    "notes": [
+      "Bilal maps to Ravi for the catalogue technician role.",
+      "120 AED is the sample washing machine tap repair amount in lib/fixture-dune-harbour.ts. It supplies a realistic test amount, not evidence of this payment."
+    ],
+    "says_en": "Note that the client paid cash, 120 AED.",
+    "says": {
+      "en": "Note that the client paid cash, 120 AED.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Record cash on own job awaiting owner check",
+        "Keep invoice unchanged",
+        "Reply briefly with owner review"
+      ],
+      "confirm_by": "technician",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask only for missing amount",
+      "Hide invoice prices"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "get_work_order",
+      {
+        "missing": "Technician cash receipt and owner handover"
+      }
+    ]
+  },
+  {
+    "id": "RW78",
+    "number": 78,
+    "section": "How the agent behaves",
+    "title": "\"Put this in memory\"",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Ramon",
+    "notes": [
+      "Ramon maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "Put this in memory: the gate code at Al Majaz is with the watchman.",
+    "says": {
+      "en": "Put this in memory: the gate code at Al Majaz is with the watchman.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Save site access note visible to visiting staff",
+        "Use personal memory only for personal facts",
+        "Ask supervisor before company rule changes"
+      ],
+      "confirm_by": "none for site note",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Ask which site once if unclear",
+      "Do not turn site note into assignment lesson"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "remember_about_me",
+      "ask_choice",
+      {
+        "missing": "Technician site note editing"
+      }
+    ]
+  },
+  {
+    "id": "RW79",
+    "number": 79,
+    "section": "How the agent behaves",
+    "title": "The agent must not overstep",
+    "persona": "ravi",
+    "persona_role": "technician",
+    "source_actor": "Technician Mark",
+    "notes": [
+      "Mark maps to Ravi for the catalogue technician role."
+    ],
+    "says_en": "Tell the client I am 20 minutes late.",
+    "says": {
+      "en": "Tell the client I am 20 minutes late.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "text",
+    "expected": {
+      "changes": [
+        "Update arrival window",
+        "Draft client language delay message for yes",
+        "Alert supervisor only if contract timing is at risk"
+      ],
+      "confirm_by": "technician",
+      "refuse_for": [
+        "office",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "expose invoices or prices",
+        "change another technician job",
+        "move jobs or message additional clients without approval"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Do not move other jobs",
+      "Ask before telling next client"
+    ],
+    "top_demo": false,
+    "tools_hint": [
+      "send_message",
+      "ask_choice",
+      {
+        "missing": "Arrival window updates"
+      },
+      {
+        "missing": "Contract response time alerts"
+      }
+    ]
+  },
+  {
+    "id": "RW80",
+    "number": 80,
+    "section": "How the agent behaves",
+    "title": "A proactive suggestion waits for a yes",
+    "persona": "sam",
+    "persona_role": "staff",
+    "source_actor": "Catalogue event",
+    "notes": [
+      "The Says line describes an event or several turns. A single text prompt cannot reproduce the full situation."
+    ],
+    "says_en": "nobody; the agent sees Ramon's job running late.",
+    "says": {
+      "en": "nobody; the agent sees Ramon's job running late.",
+      "ar-AE": null,
+      "ml": null,
+      "fil": null
+    },
+    "translation_status": {
+      "en": "ready",
+      "ar-AE": "to translate",
+      "ml": "to translate",
+      "fil": "to translate"
+    },
+    "needs_data": false,
+    "input_kind": "event",
+    "expected": {
+      "changes": [
+        "Notify supervisor about late job",
+        "Show proposed time and cover card",
+        "Wait before messages or moves"
+      ],
+      "confirm_by": "supervisor",
+      "refuse_for": [
+        "office",
+        "technician",
+        "client:manager",
+        "client:office",
+        "client:household"
+      ],
+      "refusal_scope": "Protected final changes require the stated role. Reports and requests may still be accepted. Own job and own site restrictions apply.",
+      "must_not": [
+        "invent a fault, part, amount or payment",
+        "change anything beyond what was asked",
+        "ask more than one short question",
+        "act before a yes",
+        "move jobs or message additional clients without approval"
+      ],
+      "one_question_max": true,
+      "reply": "Warm and brief, by name, in the chosen language",
+      "action_receipt": "Show why and Undo for actions unless the catalogue exception applies"
+    },
+    "edge_cases": [
+      "Not now changes nothing",
+      "Same rule under approve every action mode"
+    ],
+    "top_demo": true,
+    "tools_hint": [
+      "get_schedule",
+      "suggest_worker",
+      {
+        "missing": "Proactive late job suggestion cards"
+      }
+    ]
+  }
+]
