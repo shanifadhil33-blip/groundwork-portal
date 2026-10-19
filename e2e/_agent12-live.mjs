@@ -16,7 +16,7 @@ for (const who of ['imran', 'sam']) { await s.as(who); const b = await ask('How 
 await s.as('ravi'); { const b = await ask('How many jobs did I complete this month?'); res.count_ravi_self = { status: b.status, quick: b.quick, reply: b.reply }; check(b.quick === true && b.reply === `You finished ${want()}`, 'Ravi gets his own counts'); }
 { const b = await ask('How many jobs did Sam finish this month?'); res.count_ravi_sam = { status: b.status, quick: b.quick, reply: b.reply }; check(b.quick === true && b.reply === 'You can see your own count.', 'Ravi refused for Sam'); }
 for (const who of ['pranav', 'faisal']) { await s.as(who); const b = await ask('How many jobs has Ravi completed this month?'); res[`count_${who}`] = { status: b.status, quick: b.quick, reply: String(b.reply ?? '').slice(0, 200) };
- check(b.quick !== true && !/finished \d+ jobs? this month/.test(b.reply ?? ''), `${who} gets no count`); }
+ check(b.reply === 'Job counts are only for the company team. I can show your own requests instead.' && !/finished \d+ jobs? this month/.test(b.reply ?? ''), `${who} gets no count`); }
 const br = await chromium.launch();
 for (const [who, q, re] of [['imran', 'How many jobs has Ravi completed this month, and in total?', /Ravi finished \d+ jobs? this month and \d+ in total/], ['ravi', 'How many jobs did I complete this month?', /You finished \d+ jobs? this month and \d+ in total/]]) {
  await s.as(who);
