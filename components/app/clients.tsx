@@ -21,7 +21,7 @@ import { an, countryName, countryOptions } from '../../lib/countries/rules';
 import { Badge, Button, ConfirmDialog, Dialog, Dropdown, EmptyState, ErrorState, LocalTime, PageSkeleton, Skeleton, useToast } from '../ui';
 type Invite={id:string;client_id:string|null;email:string;role:string;status:string;expires_at:string};
 // tel and region follow the record's country: its phone plan, its region level and list.
-type Field={key:string;label:string;value?:string|null;type?:'text'|'email'|'tel'|'textarea'|'region'|'country';limit?:number;required?:boolean;hint?:string;section?:string;autoComplete?:string};
+type Field={key:string;label:string;value?:string|null;type?:'text'|'email'|'tel'|'textarea'|'region'|'country'|'number';limit?:number;required?:boolean;hint?:string;section?:string;autoComplete?:string};
 /** country: the workspace country. fixedCountry: a site's, which follows its client. */
 type Editor={title:string;noun:'client'|'site';url:string;method:'POST'|'PATCH';fields:Field[];country:string;fixedCountry?:string;extra?:Record<string,unknown>;done:()=>void};
 function fieldLabel(f:Field,cc:string){return f.type==='region'?regionField(cc).label:f.label;}
@@ -32,6 +32,7 @@ function fieldHint(f:Field,cc:string){
 function check(f:Field,value:string,cc:string){
   const v=value.trim();
   if(!v)return f.required?`Enter ${f.label.toLowerCase()}.`:'';
+  if(f.key==='contract_response_hours'&&(!Number.isInteger(Number(v))||Number(v)<1||Number(v)>168))return 'Enter hours from 1 to 168.';
   if(f.type==='email'&&!EMAIL_PATTERN.test(v))return 'Enter a valid email address.';
   if(f.type==='tel'&&!normalizePhone(v,cc))return `Enter a number like ${phoneHint(cc)}, or a number from another country with its + code.`;
   if(f.type==='region'&&!normalizeRegion(v,cc)){const r=regionField(cc);return `Choose ${an(r.label)} ${r.label.toLowerCase()} from the list.`;}
@@ -67,7 +68,7 @@ function RecordEditor({ editor, close }: { editor:Editor|null;close:()=>void }) 
       {f.type==='country'?<Dropdown id={id} label={label} width={300} value={values[f.key]??''} disabled={busy} describedBy={describedBy} options={[{value:'',label:`Same as workspace (${countryName(editor.country)})`},...countryOptions().map(o=>({...o,divider:o.divider}))]} onChange={v=>changeCountry(f.key,v)}/>
       :options?<Dropdown id={id} label={label} width={300} value={values[f.key]??''} disabled={busy} invalid={invalid} describedBy={describedBy} placeholder={`Choose ${an(label)} ${label.toLowerCase()}`} clearable options={options.map(o=>({value:o,label:o}))} onChange={pick}/>
       :f.type==='textarea'?<textarea id={id} rows={3} disabled={busy} value={values[f.key]??''} maxLength={f.limit??2000} aria-invalid={invalid} aria-describedby={describedBy} onBlur={blur} onChange={e=>change(f.key,e.target.value)}/>
-      :<input id={id} type={f.type==='region'?'text':f.type??'text'} inputMode={f.type==='tel'?'tel':undefined} autoComplete={f.autoComplete} placeholder={f.type==='tel'?phoneHint(cc):undefined} disabled={busy} value={values[f.key]??''} maxLength={f.limit??200} aria-required={f.required||undefined} aria-invalid={invalid} aria-describedby={describedBy} onBlur={blur} onChange={e=>change(f.key,e.target.value)}/>}
+      :<input id={id} type={f.type==='region'?'text':f.type??'text'} min={f.type==='number'?1:undefined} max={f.type==='number'?168:undefined} step={f.type==='number'?1:undefined} style={f.type==='number'?{minHeight:44,width:'100%',minWidth:0}:undefined} inputMode={f.type==='tel'?'tel':f.type==='number'?'numeric':undefined} autoComplete={f.autoComplete} placeholder={f.type==='tel'?phoneHint(cc):undefined} disabled={busy} value={values[f.key]??''} maxLength={f.limit??200} aria-required={f.required||undefined} aria-invalid={invalid} aria-describedby={describedBy} onBlur={blur} onChange={e=>change(f.key,e.target.value)}/>}
       {hintText&&!invalid&&<p className="small muted" id={hint}>{hintText}</p>}{invalid&&<p className="inline-error" role="alert" id={err}>{displayed[f.key]}</p>}</div>;};
   const sections=[...new Set(editor.fields.map(f=>f.section??''))];
   return <><Dialog open={!!editor} onClose={onClose} title={editor.title} busy={busy} footer={<><Button variant="secondary" disabled={busy} onClick={onClose}>Cancel</Button><Button busy={busy} busyLabel="Saving…" onClick={save}>Save {editor.noun}</Button></>}><form className="stack" noValidate onSubmit={e=>{e.preventDefault();void save();}}>{sections.map(section=>section?<fieldset key={section} className="stack form-section record-section"><legend>{section}</legend>{editor.fields.filter(f=>f.section===section).map(field)}</fieldset>:<div key="main" className="stack">{editor.fields.filter(f=>!f.section).map(field)}</div>)}{error&&<p className="inline-error" role="alert">{error}</p>}<button type="submit" hidden/></form></Dialog><Dialog open={discard} onClose={()=>setDiscard(false)} title="Discard unsaved changes?" footer={<><Button variant="secondary" onClick={()=>setDiscard(false)}>Keep editing</Button><Button variant="danger" onClick={()=>{setDiscard(false);close();}}>Discard</Button></>}><p>Your unsaved changes will be lost.</p></Dialog></>;
@@ -84,6 +85,7 @@ function clientFields(c?:Client):Field[]{return [
   {key:'billing_city',label:'City',value:c?.billing_city,limit:120,section:'Billing address'},
   {key:'billing_region',label:'Region',value:c?.billing_region,type:'region',limit:120,section:'Billing address'},
   {key:'contract_visits',label:'Visits in the contract',value:c?.contract_visits==null?null:String(c.contract_visits),limit:3,section:'Maintenance contract',hint:'How many visits the contract covers, like 12.'},
+  {key:'contract_response_hours',label:'Reach the site within (hours)',value:c?.contract_response_hours==null?null:String(c.contract_response_hours),type:'number',section:'Maintenance contract'},
   {key:'contract_ends_on',label:'Contract end date',value:c?.contract_ends_on?String(c.contract_ends_on).slice(0,10):null,limit:10,section:'Maintenance contract',hint:'Like 2027-03-31.'},
   {key:'notes',label:'Notes',value:c?.notes,type:'textarea',limit:2000,section:'Notes'},
 ];}

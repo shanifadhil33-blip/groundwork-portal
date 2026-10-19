@@ -38,6 +38,8 @@ export function detectIntent(question: string): { intent: Intent; number?: numbe
 /** Model replies that are really errors and must never reach the person. */
 export function brokenReply(text: string | undefined | null): boolean {
   if (!text || !text.trim()) return true;
+  // A reply that is only a JSON object or names a tool input is the model writing its tool call as text (Oct 19 live: Pranav saw {"workspace action": ...}).
+  const t = text.trim(); if (/^[{\[][\s\S]*[}\]]$/.test(t) || /"tool input"\s*:/i.test(t)) return true;
   return /limit for workspace actions|request is incomplete|incomplete request|rate limit|quota|too many requests|internal error|something went wrong|an error occurred|\b(?:429|500|502|503)\b|invalid tool arguments|tool limit reached|unknown tool/i.test(text);
 }
 
@@ -141,8 +143,10 @@ export async function dataAnswer(c: AgentContext, question: string): Promise<str
  * his own jobs and a client only his own requests. Returns null when the question is not a quick lookup or the role
  * can not use the tool (the AI then answers as before).
  */
-export type QuickLookup = 'parts' | 'late' | 'next' | 'today' | 'free_tomorrow' | 'client_requests' | 'client_visit';
+export type QuickLookup = 'attention' | 'contract_watch' | 'parts' | 'late' | 'next' | 'today' | 'free_tomorrow' | 'client_requests' | 'client_visit';
 const QUICK: [QuickLookup, RegExp][] = [
+  ['attention', /^what needs (?:my )?attention(?: today)?$|^(?:is there )?anything (?:that )?needs my attention$/],
+  ['contract_watch', /^(?:(?:show|list)(?: me)? )?contract response times$|^(?:any |are there any |which )?contract jobs (?:are )?(?:about to miss|close to|past)(?: the promised time)?$/],
   ['parts', /^(?:(?:show|list|which|what)(?: me)?(?: the)?(?: my)? )?(?:jobs|work orders)(?: that)?(?: are)? (?:waiting|on hold) (?:on|for) (?:a )?parts?$|^(?:waiting (?:on|for) parts|parts waiting)$/],
   ['late', /^(?:(?:which|what|show|list)(?: me)?(?: the)?(?: my)? )?(?:jobs|work orders)(?: are)? (?:late|overdue)$|^(?:show |list )?(?:my )?(?:late|overdue) (?:jobs|work orders)$|^(?:is )?anything (?:late|overdue)$/],
   ['next', /^(?:what(?:'s| is) )?my next (?:job|visit)$|^(?:what(?:'s| is) )?next job$/],
@@ -213,6 +217,13 @@ export async function quickAnswer(c: AgentContext, question: string, who: { role
   if ((k === 'client_requests' || k === 'client_visit') && !client) return null;
   if ((k === 'next' || k === 'today' || k === 'free_tomorrow') && client) return null;
   try {
+    if (k === 'attention') return await attention(c);
+    if (k === 'contract_watch') {
+      if(!['admin','staff'].includes(who.role))return null;
+      const items=await read(c,'contract_watch');
+      if(!items)return null;
+      return items.length?['Contract times',...items.map((j:any)=>`• [WO ${j.order_number}](/work-orders/${j.id})\n\n${j.why}`)].join('\n\n'):'No contract jobs need attention.';
+    }
     if (k === 'parts') return await parts(c, who.timezone);
     if (k === 'late') return await late(c, who.timezone);
     if (k === 'next') return await nextJob(c);

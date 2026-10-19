@@ -73,7 +73,10 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    const summit=n>60; const site=summit?7:((n-1)%5)+1;
    const ws=summit?ids.summit:ids.ridgeline; const company=summit?ids.summitClient:site<=3?ids.harbor:ids.northgate; const actor=summit?ids.summitAdmin:n%3===0?ids.sam:ids.imran;
    await client.query("SELECT set_config('app.user_id',$1,true)",[actor]);
-   const dates=fixtureDates(n,today,timezone), assigned=summit?ids.summitAdmin:[ids.sam,ids.imran,null,ids.ravi,ids.sam,ids.ravi,null][(n-1)%7];
+   const dates=fixtureDates(n,today,timezone);
+   // Existing Harbor jobs retain their people and titles; their response clock starts near build time.
+   if(n===1||n===7){dates.created=new Date(Date.now()-(n===1?3.5:5)*3600000);dates.updated=new Date(dates.created.getTime()+2*3600000);}
+   const assigned=summit?ids.summitAdmin:[ids.sam,ids.imran,null,ids.ravi,ids.sam,ids.ravi,null][(n-1)%7];
    const title=tasks[(n-1)%tasks.length];
    await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)',[orderId(n),ws,company,siteId(site),title,`Routine facilities request ${n}; coordinate access with the site manager.`,fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated]);
    const history: {kind:string;body:string;details:Record<string,unknown>}[]=[];
@@ -141,7 +144,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
  await client.query(`UPDATE work_orders SET report_outcome='needs_part', report_by=assignee_id, report_at=updated_at, report_problem='The motor is burnt.', report_work='Checked the wiring. The motor must be changed.' WHERE workspace_id=$1 AND status='waiting_on_parts' AND assignee_id IS NOT NULL`,[ids.ridgeline]);
  await client.query(`UPDATE work_orders SET report_outcome='cant_fix', report_by=assignee_id, report_at=updated_at, report_problem='The wall behind it is wet.', report_work='Looked at it. This needs a mason first.' WHERE id=(SELECT id FROM work_orders WHERE workspace_id=$1 AND status='in_progress' AND assignee_id=$2 ORDER BY order_number LIMIT 1)`,[ids.ridgeline,ids.ravi]);
  // Harbor & Pine has a maintenance contract: two finished jobs are covered by it, one was paid, the rest are to bill.
- await client.query("UPDATE clients SET contract_visits=12, contract_ends_on=$3 WHERE workspace_id=$1 AND id=$2",[ids.ridgeline,ids.harbor,dayOffset(today,170)]);
+ await client.query("UPDATE clients SET contract_visits=12, contract_response_hours=4, contract_ends_on=$3 WHERE workspace_id=$1 AND id=$2",[ids.ridgeline,ids.harbor,dayOffset(today,170)]);
  await client.query(`UPDATE work_orders SET payment_status=CASE WHEN r<=2 THEN 'contract' ELSE 'paid' END FROM (SELECT id, row_number() OVER (ORDER BY order_number) r FROM work_orders WHERE workspace_id=$1 AND client_id=$2 AND status='done') d WHERE work_orders.id=d.id AND d.r<=3`,[ids.ridgeline,ids.harbor]);
  // Recorded receipts and supplier costs support the overview with the same jobs and contract shown elsewhere.
  await client.query("UPDATE work_orders SET quote_amount=480,quote_status='approved',quote_note='Parts and labour for the completed repair.' WHERE workspace_id=$1 AND payment_status='paid' AND status='done'",[ids.ridgeline]);

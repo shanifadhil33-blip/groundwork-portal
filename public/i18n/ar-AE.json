@@ -777,5 +777,14 @@
  "Who is this for": "لمن هذه الكلمة",
  "Word added.": "تمت إضافة الكلمة.",
  "Word removed.": "تم حذف الكلمة.",
- "No words yet.": "لا توجد كلمات بعد."
+ "No words yet.": "لا توجد كلمات بعد.",
+ "Reach the site within (hours)": "الوصول إلى الموقع خلال (ساعات)",
+ "Contract times": "أوقات العقد",
+ "Promised time missed": "تم تجاوز الموعد الموعود",
+ "Close to promised time": "اقترب الموعد الموعود",
+ "Promised by": "الموعد الموعود",
+ "The promised time has passed and nobody is on the way yet.": "انتهى الموعد الموعود ولم ينطلق أحد إلى الموقع بعد.",
+ "The booked visit is after the promised time.": "موعد الزيارة المحجوزة بعد الموعد الموعود.",
+ "Most of the promised time has passed and nobody is on the way yet.": "مر معظم الوقت الموعود ولم ينطلق أحد إلى الموقع بعد.",
+ "No contract jobs need attention.": "لا توجد أعمال بعقود تحتاج إلى متابعة."
 }

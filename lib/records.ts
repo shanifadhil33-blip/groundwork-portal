@@ -5,7 +5,7 @@ export { formatPhone, normalizePhone, normalizeRegion, phoneHint, regionField } 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export type ClientRecord = {
-  contract_visits?: number | null; contract_ends_on?: string | null; contract_used?: number; archived_at?: string | null;
+  contract_response_hours?: number | null; contract_visits?: number | null; contract_ends_on?: string | null; contract_used?: number; archived_at?: string | null;
   id: string; name: string; country?: string | null; contact_name?: string | null; phone?: string | null; email?: string | null;
   billing_building?: string | null; billing_street?: string | null; billing_area?: string | null; billing_city?: string | null; billing_region?: string | null;
   notes?: string | null;

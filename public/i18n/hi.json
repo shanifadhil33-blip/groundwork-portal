@@ -706,5 +706,14 @@
 "Who is this for":"यह किसके लिए है",
 "Word added.":"शब्द जोड़ा गया।",
 "Word removed.":"शब्द हटाया गया।",
-"No words yet.":"अभी कोई शब्द नहीं।"
+"No words yet.":"अभी कोई शब्द नहीं।",
+"Reach the site within (hours)":"इतने घंटों में स्थल पर पहुँचें",
+"Contract times":"अनुबंध का समय",
+"Promised time missed":"वादा किया गया समय बीत गया",
+"Close to promised time":"वादा किया गया समय नज़दीक है",
+"Promised by":"पहुँचने का वादा",
+"The promised time has passed and nobody is on the way yet.":"वादा किया गया समय बीत गया है और अभी तक कोई रास्ते में नहीं है।",
+"The booked visit is after the promised time.":"तय की गई यात्रा वादा किए गए समय के बाद है।",
+"Most of the promised time has passed and nobody is on the way yet.":"वादा किए गए समय का अधिकांश हिस्सा बीत गया है और अभी तक कोई रास्ते में नहीं है।",
+"No contract jobs need attention.":"अनुबंध के किसी काम पर ध्यान देने की ज़रूरत नहीं है।"
 }
