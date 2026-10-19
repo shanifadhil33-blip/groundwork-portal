@@ -87,6 +87,8 @@ const niceDay=(d:string)=>new Intl.DateTimeFormat('en',{weekday:'long',day:'nume
 /** Plain words for time off, like "Day off, Thursday 15 October". */
 export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',leave:'On leave',sick:'Sick'} as Record<string,string>)[kind]??'Time off'}, ${!to||to===from?niceDay(from):`${niceDay(from)} to ${niceDay(to)}`}`;
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
+  if(tool==='cancel_visit')return `Cancel WO ${order?.order_number} ${order?.title}?`;
+  if(tool==='reschedule_visit')return `Move WO ${order?.order_number} ${order?.title} to ${formatDate(args.scheduled_for,order?.timezone)}?`;
   if(tool === 'fill_onboarding') return 'Save these setup answers?\n'+Object.entries(args.answers??{}).map(([k,v])=>`${readableLabel(k)}: ${typeof v==='object'?JSON.stringify(v):v}`).join('\n');
   if(tool === 'suggest_contact_name') return `Save ${target??'this contact'} as ${args.nickname}?`;
   if(tool === 'remember_about_me') return `Remember this about you?\n${args.note}`;
@@ -119,11 +121,13 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='add_worker')return `Add ${plainAssistantReply(args.name)} to the team as ${args.role==='staff'?'a supervisor':'a technician'}${args.phone?`\nPhone: ${plainAssistantReply(args.phone)}`:''}`;
   if(tool==='set_priority')return `Change priority for ${name}: ${readableLabel(order!.priority)} → ${readableLabel(args.priority)}`;
   if(tool==='update_work_order_dates')return `Change dates for ${name}:\n${['due_on','scheduled_for'].filter(key=>key in args).map(key=>`${key==='due_on'?'Due date':'Visit'}: ${order?.[key as 'due_on'|'scheduled_for']?formatDate(order[key as 'due_on'|'scheduled_for']!,order.timezone):'None'} → ${args[key]?formatDate(args[key],order?.timezone):'None'}`).join('\n')}`;
-  if(tool==='create_request')return `Create request “${plainAssistantReply(args.title)}” at ${plainAssistantReply(target??'the selected site')}\nPriority: ${readableLabel(args.priority??'normal')}${args.preferred_window?`\nBest time for the visit: ${plainAssistantReply(args.preferred_window)}`:''}${args.description?`\n\n${plainAssistantReply(args.description)}`:''}${args.due_on?`\nDue: ${formatDate(args.due_on,timezone)}`:''}${args.scheduled_for?`\nVisit: ${formatDate(args.scheduled_for,timezone)}`:''}`;
+  if(tool==='create_request')return `Create request “${plainAssistantReply(args.title)}” at ${plainAssistantReply(target??'the selected site')}\nPriority: ${readableLabel(args.priority??'normal')}${args.same_technician?'\nAsk for the same technician as last time.':''}${args.preferred_window?`\nBest time for the visit: ${plainAssistantReply(args.preferred_window)}`:''}${args.description?`\n\n${plainAssistantReply(args.description)}`:''}${args.due_on?`\nDue: ${formatDate(args.due_on,timezone)}`:''}${args.scheduled_for?`\nVisit: ${formatDate(args.scheduled_for,timezone)}`:''}`;
   if(tool==='approve_queue_row')return `Approve ${name}${args.edits?` with these corrections:\n${Object.entries(args.edits).map(([k,v])=>`${readableLabel(k)}: ${plainAssistantReply(String(v))}`).join('\n')}` : ''}`;
   return `Reject ${name}:\n\n${plainAssistantReply(args.reason??'')}`;
 }
 export function actionResult(tool: string, args: Record<string,any>, order?: Order | null, target?: string) {
+  if(tool==='cancel_visit')return 'Your job is cancelled. The technician and supervisors have been notified.';
+  if(tool==='reschedule_visit')return 'Your visit has moved. The technician and supervisors have been notified.';
   if(tool==='suggest_contact_name')return `Saved this contact as ${args.nickname} for you only.`;
   if(tool==='fill_onboarding')return 'Your setup answers are saved. Review them on the setup screen.';
   if(tool==='send_team_message')return 'Your message was sent in Team space.';

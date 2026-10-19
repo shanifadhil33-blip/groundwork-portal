@@ -45,8 +45,10 @@ export async function suggestWorkers(user: string, ws: string, workOrderId: stri
     // Nobody who is off on the job's day (or today, for an unscheduled job) is ever suggested first.
     const day = (await c.db.query('SELECT (coalesce($1::timestamptz, now()) AT TIME ZONE $2)::date::text AS d', [job.scheduled_for ?? null, tz])).rows[0].d;
     const reasons = await withSystem(async db => Promise.all(rows.map(r => offReason(db, ws, r.user_id, day))), user);
-    rows.forEach((r, i) => { r.off = reasons[i]; });
-    rows.sort((a, b) => Number(!!a.off) - Number(!!b.off) || Number(b.trade_match) - Number(a.trade_match) || Number(b.area_match) - Number(a.area_match) || (a.role === 'technician' || a.extra_roles?.includes('technician') ? 0 : 1) - (b.role === 'technician' || b.extra_roles?.includes('technician') ? 0 : 1) || a.today - b.today || String(a.name).localeCompare(String(b.name)));
-    return { trade: job.trade ?? null, area: site.area ?? null, workers: rows };
+    rows.forEach((r, i) => { r.off = reasons[i]; r.preferred = r.user_id === job.preferred_technician_id && r.trade_match && !r.off; });
+    const preferred = rows.find(r=>r.user_id===job.preferred_technician_id);
+    const preference_reason = !job.preferred_technician_id ? null : !preferred ? 'The previous technician is no longer on this team.' : preferred.off || (!preferred.trade_match ? `${preferred.name} does not cover this trade.` : `You asked for ${preferred.name} again.`);
+    rows.sort((a, b) => Number(!!a.off) - Number(!!b.off) || Number(b.preferred) - Number(a.preferred) || Number(b.trade_match) - Number(a.trade_match) || Number(b.area_match) - Number(a.area_match) || (a.role === 'technician' || a.extra_roles?.includes('technician') ? 0 : 1) - (b.role === 'technician' || b.extra_roles?.includes('technician') ? 0 : 1) || a.today - b.today || String(a.name).localeCompare(String(b.name)));
+    return { preference_reason, trade: job.trade ?? null, area: site.area ?? null, workers: rows };
   });
 }

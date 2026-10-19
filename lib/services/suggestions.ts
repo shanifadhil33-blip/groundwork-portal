@@ -1,10 +1,11 @@
+import { previousTechnician } from './client-visits';
 import { reportEmergency } from './emergencies';
 import { detectEmergency } from '../emergency';
 import { z } from 'zod';
 import { ApiError, invalid, missing } from '../http';
 import { withSystem } from '../db';
 import { allowTeam, inWorkspace, name, priority, replay, row, uuid } from './shared';
-export const suggestionInput=z.object({title:name,problem:z.string().trim().max(20000).default(''),client_id:uuid.nullable().optional(),site_id:uuid.nullable().optional(),from_work_order_id:uuid.nullable().optional(),priority:priority.default('normal'),preferred_window:z.string().trim().max(200).nullable().optional(),photo_ids:z.array(uuid).max(4).default([]),voice_note_text:z.string().trim().max(20000).nullable().optional()}).strict();
+export const suggestionInput=z.object({same_technician:z.boolean().optional(),title:name,problem:z.string().trim().max(20000).default(''),client_id:uuid.nullable().optional(),site_id:uuid.nullable().optional(),from_work_order_id:uuid.nullable().optional(),priority:priority.default('normal'),preferred_window:z.string().trim().max(200).nullable().optional(),photo_ids:z.array(uuid).max(4).default([]),voice_note_text:z.string().trim().max(20000).nullable().optional()}).strict();
 export type SuggestionSource='agent'|'client'|'household'|'technician'|'whatsapp';
 export async function createSuggestion(user:string,ws:string,body:unknown,source?:SuggestionSource,key?:string,intake?:{name:string;phone:string;sender_user_id?:string|null},emergencyHandled=false){
  const data=suggestionInput.parse(body);
@@ -26,7 +27,10 @@ export async function createSuggestion(user:string,ws:string,body:unknown,source
   if(data.from_work_order_id){const job=await row(c,'work_orders',data.from_work_order_id);if(job.site_id!==data.site_id||job.client_id!==data.client_id)throw invalid('Choose the same site as this job.','from_work_order_id');}
   const sender=intake?.sender_user_id??(intake?null:user),senderName=intake?.name??String((await c.db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'Team member');
   return replay(c.db,user,ws+'/suggestions',key,data,async()=>{
-   const fields={...data,photo_ids:JSON.stringify(data.photo_ids),workspace_id:ws,source:actualSource,sender_user_id:sender,sender_name:senderName,sender_phone:intake?.phone??null};const keys=Object.keys(fields);
+   const {same_technician,...savedData}=data;
+   const preference=same_technician?await previousTechnician(user,ws):null;
+   if(same_technician&&!preference)throw invalid('There is no finished visit to use for this preference.');
+   const fields={...savedData,preferred_technician_id:preference?.user_id??null,photo_ids:JSON.stringify(data.photo_ids),workspace_id:ws,source:actualSource,sender_user_id:sender,sender_name:senderName,sender_phone:intake?.phone??null};const keys=Object.keys(fields);
    if(data.photo_ids.length){const photos=(await c.db.query('SELECT id FROM shared_photos WHERE workspace_id=$1 AND uploaded_by=$2 AND suggestion_id IS NULL AND id=ANY($3::uuid[]) FOR UPDATE',[ws,user,data.photo_ids])).rows;if(photos.length!==new Set(data.photo_ids).size)throw invalid('Choose your own photos.','photo_ids');}
    const made=(await c.db.query(`INSERT INTO job_suggestions(${keys.join(',')}) VALUES(${keys.map((_,i)=>'$'+(i+1)).join(',')}) RETURNING *`,Object.values(fields))).rows[0];if(data.photo_ids.length)await c.db.query('UPDATE shared_photos SET suggestion_id=$3 WHERE workspace_id=$1 AND uploaded_by=$2 AND id=ANY($4::uuid[])',[ws,user,made.id,data.photo_ids]);delete made.sender_phone;return made;
   });
@@ -55,7 +59,7 @@ export async function decideSuggestion(user:string,ws:string,id:string,body:unkn
    // Preserve the original client as creator so household history and status notices remain private.
    const emergencyKind=detectEmergency(`${v.title} ${v.problem}`);
    const emergencyTrade=emergencyKind==='flood'?'plumbing':emergencyKind==='electric'?'electrical':emergencyKind==='gas'||emergencyKind==='fire'?'general':null;
-   jobId=(await c.db.query('INSERT INTO work_orders(workspace_id,client_id,site_id,title,description,priority,preferred_window,source,created_by,trade) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id',[ws,v.client_id,v.site_id,v.title,v.problem,v.priority,v.preferred_window??null,senderIsClient?'client':'manual',senderIsClient?s.sender_user_id:user,emergencyTrade])).rows[0].id;
+   jobId=(await c.db.query('INSERT INTO work_orders(workspace_id,client_id,site_id,title,description,priority,preferred_window,source,created_by,trade,preferred_technician_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id',[ws,v.client_id,v.site_id,v.title,v.problem,v.priority,v.preferred_window??null,senderIsClient?'client':'manual',senderIsClient?s.sender_user_id:user,emergencyTrade,s.preferred_technician_id??null])).rows[0].id;
   }
   if(jobId)await c.db.query("INSERT INTO job_photos(id,workspace_id,client_id,work_order_id,kind,mime,bytes,width,height,taken_by) SELECT id,workspace_id,$3,$4,'before',mime,bytes,width,height,uploaded_by FROM shared_photos WHERE workspace_id=$1 AND suggestion_id=$2",[ws,id,(d.decision==='approved'?d.overrides?.client_id:undefined)??s.client_id,jobId]);
   return (await c.db.query('UPDATE job_suggestions SET status=$3,decline_reason=$4,work_order_id=$5,decided_by=$6,decided_at=now() WHERE workspace_id=$1 AND id=$2 RETURNING id,status,decline_reason,work_order_id',[ws,id,d.decision,d.decision==='declined'?d.reason:null,jobId,user])).rows[0];

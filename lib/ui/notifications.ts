@@ -14,6 +14,8 @@ export function notificationMessage(r:Record<string,any>, client=false) {
  if(r.kind==='emergency'||r.kind==='emergency_review')return String(r.work_order_title);
  if(r.kind==='team_message')return `${actor} wrote in Team space.`;
  if(r.kind==='message_received')return `${actor} sent you a message.`;
+ if(r.kind==='client_callback')return `${actor} asked to cancel ${title} after the technician was on the way or started. Please call him.`;
+ if(r.kind==='job_cancelled')return `${actor} cancelled ${title}. You do not need to go.`;
  if(r.kind==='job_assigned')return `${actor} assigned ${title} to you.`;
  if(r.kind==='job_reported')return `${actor} saved a report on ${title}. Review it on the job.`;
  if(r.kind==='roles_changed')return `${actor} changed your roles. Your access now follows these roles.`;

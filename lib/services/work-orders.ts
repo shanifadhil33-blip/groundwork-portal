@@ -1,3 +1,4 @@
+import { assertNoVisitClash } from './client-visits';
 import { reportEmergency } from './emergencies';
 import { detectEmergency, isFalseAlarm } from '../emergency';
 import { createSuggestion } from './suggestions';
@@ -14,8 +15,8 @@ import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, 
 const timestamp=z.iso.datetime({offset:true});
 const mutable=z.object({trade:z.enum(TRADES).nullable(),title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable(),preferred_window:z.string().trim().max(200).nullable()});
 const createSchema=mutable.partial().extend({title:name,client_id:uuid.optional(),site_id:uuid}).strict();
-const patchSchema=mutable.partial().extend({updated_at:timestamp.optional(),reopen:z.literal(true).optional(),undo_status:z.literal(true).optional()}).strict();
-const clientSchema=z.object({title:name,description:z.string().max(20000).optional(),preferred_window:z.string().trim().max(200).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();
+const patchSchema=mutable.partial().extend({on_way:z.literal(true).optional(),updated_at:timestamp.optional(),reopen:z.literal(true).optional(),undo_status:z.literal(true).optional()}).strict();
+const clientSchema=z.object({same_technician:z.boolean().optional(),title:name,description:z.string().max(20000).optional(),preferred_window:z.string().trim().max(200).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();
 export const transitions:Record<string,string[]>={
  open:['scheduled','cancelled'],scheduled:['in_progress','open','cancelled'],
  in_progress:['waiting_on_parts','done','scheduled','cancelled'],waiting_on_parts:['in_progress','done','cancelled'],
@@ -99,9 +100,12 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
    data.scheduled_for=(await c.db.query("SELECT ($1::date + time '09:00') AT TIME ZONE timezone AS value FROM workspaces WHERE id=$2",[data.scheduled_for,ws])).rows[0].value.toISOString();
   }
   if(c.role!=='client')await assertWorking(c,(data as {assignee_id?:string|null}).assignee_id,(data as {scheduled_for?:string|null}).scheduled_for);
-  return replay(c.db,user,ws+'/work-orders',key,data,()=>insert(c,'work_orders',{
+  return replay(c.db,user,ws+'/work-orders',key,data,async()=>{
+   if('scheduled_for' in data && 'assignee_id' in data)await assertNoVisitClash(c,{id:null,assignee_id:data.assignee_id},data.scheduled_for);
+   return insert(c,'work_orders',{
    ...data,client_id,workspace_id:ws,created_by:user,source:c.role==='client'?'client':'manual',
-  }));
+   });
+  });
  });
  const emergency=!('emergency' in made)&&!('problem' in made)?await reportEmergency(user,ws,`${made.title} ${made.description??''}`,{work_order_id:made.id,prepareCard:false}):null;
  if(!('emergency' in made)&&!('problem' in made))await pushJobChange(user,null,made as never);
@@ -135,12 +139,13 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   const order=await row(c,'work_orders',id,true);before=order;
   const parsed=patchSchema.parse(body);
   // Technicians see only their own jobs (RLS) and change only the status, never to cancelled.
-  if(c.role==='technician'){const {updated_at:_u,reopen:_r,undo_status:_undo,...changes}=parsed;if(Object.keys(changes).some(k=>k!=='status')||_r)throw new ApiError(403,'forbidden','You can update the status of your own jobs. Ask a supervisor for other changes.');if(changes.status==='cancelled')throw new ApiError(403,'forbidden','Ask a supervisor to cancel a job.');}
+  if(c.role==='technician'){const {updated_at:_u,reopen:_r,undo_status:_undo,...changes}=parsed;if(Object.keys(changes).some(k=>!['status','on_way'].includes(k))||_r)throw new ApiError(403,'forbidden','You can update the status of your own jobs. Ask a supervisor for other changes.');if(changes.status==='cancelled')throw new ApiError(403,'forbidden','Ask a supervisor to cancel a job.');}
   const version=ifMatch?.replace(/^"|"$/g,'')??parsed.updated_at;
   if(!version)throw invalid('Refresh the work order before saving your changes.','updated_at');
   timestamp.parse(version);
   if(new Date(version).getTime()!==order.updated_at.getTime())throw new ApiError(409,'stale','This request changed since you opened it. Refresh it and try again.');
-  const {updated_at:_,reopen,undo_status,...data}=parsed;
+  const {updated_at:_,reopen,undo_status,on_way,...data}=parsed;
+  if(on_way){if(Object.keys(data).length||order.assignee_id!==user||order.status!=='scheduled'||order.on_way_at)throw invalid('This visit is not ready for travel.');return update(c,'work_orders',id,{on_way_at:new Date()});}
   if(!Object.keys(data).length)throw invalid('Provide at least one change.');
   // Audit A5: a booked job with nobody on it goes back to Open, so it shows up as needing a person.
   if('assignee_id' in data&&data.assignee_id===null&&order.status==='scheduled'&&!data.status)data.status='open';
@@ -160,7 +165,9 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   if(typeof data.scheduled_for==='string' && data.scheduled_for.length===10)data.scheduled_for=(await c.db.query("SELECT ($1::date + time '09:00') AT TIME ZONE timezone AS value FROM workspaces WHERE id=$2",[data.scheduled_for,ws])).rows[0].value.toISOString();
   // Office staff may book only the Best match for this job (ROLE08), the same person the Best match button shows.
   const changedTo=data.assignee_id===order.assignee_id?undefined:data.assignee_id;
+  if('assignee_id' in data||'scheduled_for' in data)await c.db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[ws+String(data.assignee_id??order.assignee_id)]);
   if('assignee_id' in data||'scheduled_for' in data)await assertWorking(c,'assignee_id' in data?data.assignee_id:order.assignee_id,'scheduled_for' in data?data.scheduled_for:order.scheduled_for);
+  if('assignee_id' in data||'scheduled_for' in data)await assertNoVisitClash(c,{...order,assignee_id:'assignee_id' in data?data.assignee_id:order.assignee_id},'scheduled_for' in data?data.scheduled_for:order.scheduled_for);
   await assignee(c,changedTo,isOfficeStaff(c)&&changedTo?await bestFor(c,id):null);
   return update(c,'work_orders',id,data);
  });
