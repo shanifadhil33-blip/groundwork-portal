@@ -1,3 +1,4 @@
+import { householdFields } from '../agent/household';
 import { previousTechnician } from './client-visits';
 import { reportEmergency } from './emergencies';
 import { detectEmergency } from '../emergency';
@@ -7,8 +8,9 @@ import { withSystem } from '../db';
 import { allowTeam, inWorkspace, name, priority, replay, row, uuid } from './shared';
 export const suggestionInput=z.object({same_technician:z.boolean().optional(),title:name,problem:z.string().trim().max(20000).default(''),client_id:uuid.nullable().optional(),site_id:uuid.nullable().optional(),from_work_order_id:uuid.nullable().optional(),priority:priority.default('normal'),preferred_window:z.string().trim().max(200).nullable().optional(),photo_ids:z.array(uuid).max(4).default([]),voice_note_text:z.string().trim().max(20000).nullable().optional()}).strict();
 export type SuggestionSource='agent'|'client'|'household'|'technician'|'whatsapp';
-export async function createSuggestion(user:string,ws:string,body:unknown,source?:SuggestionSource,key?:string,intake?:{name:string;phone:string;sender_user_id?:string|null},emergencyHandled=false){
+export async function createSuggestion(user:string,ws:string,body:unknown,source?:SuggestionSource,key?:string,intake?:{name:string;phone:string;sender_user_id?:string|null},emergencyHandled=false,household?:{words:string;where?:string;since?:string}){
  const data=suggestionInput.parse(body);
+ if(household)Object.assign(data,householdFields(household.words,household.where,household.since,data));
  const emergency=emergencyHandled?null:await reportEmergency(user,ws,`${data.title} ${data.problem}`,{site_id:data.site_id,work_order_id:data.from_work_order_id,title:data.title});
  if(emergency)return {...(emergency.request??emergency.job??{}),...emergency};
  if(detectEmergency(`${data.title} ${data.problem}`))(data as {priority?:string}).priority='urgent';
@@ -19,7 +21,7 @@ export async function createSuggestion(user:string,ws:string,body:unknown,source
    if(data.client_id&&data.client_id!==c.client_id)throw invalid('Choose one of your own sites.','client_id');
    data.client_id=c.client_id;
    if(!data.site_id)throw invalid('Choose a site.','site_id');
-   if(c.client_kind==='household'&&!data.preferred_window)throw invalid('Tell us what time suits you for the visit.','preferred_window');
+   if(c.client_kind==='household'&&!household&&!data.preferred_window)throw invalid('Tell us what time suits you for the visit.','preferred_window');
   }
   if(c.role==='technician'&&!data.site_id)throw invalid('Choose a site on one of your jobs.','site_id');
   if(data.site_id){const site=await row(c,'sites',data.site_id);if(data.client_id&&site.client_id!==data.client_id)throw invalid('Choose a site for this client.','site_id');data.client_id=site.client_id;

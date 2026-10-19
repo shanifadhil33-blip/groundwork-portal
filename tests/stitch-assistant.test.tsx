@@ -8,6 +8,7 @@ import { Assistant } from '../components/app/assistant';
 import { AppContext, type Membership } from '../components/app/context';
 import { designCopyFallbacks } from '../lib/ui/design-copy';
 import { LANGUAGES } from '../lib/languages';
+vi.mock('../components/app/job-photos',()=>({shrinkPhoto:async()=>({data:'photo',mime:'image/jpeg',width:1,height:1})}));
 const api=vi.hoisted(()=>({post:vi.fn(),preferences:{agent_name:null as string|null,voice_enabled:true,language:'en-IN'}}));
 vi.mock('../lib/ui/api',async original=>({...await original<typeof import('../lib/ui/api')>(),post:api.post}));
 vi.mock('../components/app/resource',()=>({useResource:()=>({data:api.preferences})}));
@@ -112,4 +113,45 @@ it('uses the existing language change path for a setting and its Undo',async()=>
   .mockResolvedValueOnce({available:true,reply:'Language restored to Default.',choices:[],setting_change:{setting:'language',value:null}});
  await mount('client');await click('Show jobs waiting on parts');
  expect(changeAppLanguage).toHaveBeenLastCalledWith('hi');await click('Undo');expect(changeAppLanguage).toHaveBeenLastCalledWith(LANGUAGES[0].code);
+});
+
+it('household photo offer is optional and confirmation keeps his original words',async()=>{
+ const words='المكيف لا يبرد';
+ api.post.mockResolvedValueOnce({available:true,reply:'You can add a photo or skip it.',choices:['Skip photo'],household_photo:true})
+  .mockResolvedValueOnce({available:true,pending_action:{id:'approval',household:true,words,summary:`Home maintenance request\n${words}\nWhere: Bedroom\nSince: Today\nPhoto: No`}})
+  .mockResolvedValueOnce({available:true,reply:'Your request was sent. The company will confirm a time.'});
+ await mount('client');await click('Report a problem');
+ expect(host.textContent).toContain('Add a photo');
+ expect(host.querySelector('input[type="file"]')).toBeTruthy();
+ await click('Skip photo');
+ const card=host.querySelector('.pending-reply');
+ expect(card?.textContent).toContain(words);
+ expect(card?.textContent).toContain('Photo: No');
+ expect(card?.querySelector('[data-no-translate]')).toBeTruthy();
+ expect(api.post.mock.calls.some(([,body])=>body.confirm_action_id)).toBe(false);
+ await click('Yes');
+ expect(api.post).toHaveBeenLastCalledWith('/api/workspaces/workspace/assistant',{messages:[],confirm_action_id:'approval'});
+ expect(host.textContent).toContain('The company will confirm a time.');
+});
+
+it('household Change restores his words rather than the last tap answer',async()=>{
+ api.post.mockResolvedValue({available:true,pending_action:{id:'approval',household:true,words:'water under the sink',summary:'Photo: No'}});
+ await mount('client');await click('Report a problem');await click('Change');
+ expect((host.querySelector('textarea') as HTMLTextAreaElement).value).toBe('water under the sink');
+ expect(api.post.mock.calls.some(([,body])=>body.confirm_action_id)).toBe(false);
+});
+
+it('household photo uploads through the shared job photo endpoint before preparing the card',async()=>{
+ api.post.mockResolvedValueOnce({available:true,reply:'You can add a photo or skip it.',choices:['Skip photo'],household_photo:true})
+  .mockResolvedValueOnce({id:'photo'})
+  .mockResolvedValueOnce({available:true,pending_action:{id:'approval',household:true,words:'water under the sink',summary:'water under the sink\nPhoto: Yes'}});
+ await mount('client');await click('Report a problem');
+ const field=host.querySelector('input[type="file"]') as HTMLInputElement;
+ Object.defineProperty(field,'files',{value:[new File(['image'],'photo.jpg',{type:'image/jpeg'})]});
+ await act(async()=>field.dispatchEvent(new Event('change',{bubbles:true})));
+ expect(api.post).toHaveBeenNthCalledWith(2,'/api/workspaces/workspace/photos',{data:'photo',mime:'image/jpeg',width:1,height:1});
+ await click('Continue with photo');
+ expect(api.post.mock.calls[2][1].household_photo_ids).toEqual(['photo']);
+ expect(host.querySelector('.pending-reply')?.textContent).toContain('Photo: Yes');
+ expect(api.post.mock.calls.some(([,body])=>body.confirm_action_id)).toBe(false);
 });

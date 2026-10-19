@@ -1,4 +1,5 @@
 'use client';
+import { SharedPhotoUpload } from './shared-photo-upload';
 import type { SettingChange } from '../../lib/agent/personalsettings';
 import { useTheme } from '../ui/theme';
 import { changeAppLanguage } from './translator';
@@ -20,8 +21,8 @@ import { AssistantMarkdown } from '../ui/assistant-markdown';
 import { post, RequestError } from '../../lib/ui/api';
 import { BottomSheet, Button, IconButton, ErrorState } from '../ui';
 type Message={role:'user'|'assistant';content:string;offers?:(RefusalOffer & {sent?:boolean})[]};
-type Pending={id:string;summary:string;why?:string};
-type Reply={setting_change?:SettingChange;offers?:RefusalOffer[];available:boolean;logged?:boolean;reply?:string;choices?:string[];message?:string;pending_action?:Pending;result?:{isError?:boolean}};
+type Pending={household?:boolean;words?:string;id:string;summary:string;why?:string};
+type Reply={household_photo?:boolean;setting_change?:SettingChange;offers?:RefusalOffer[];available:boolean;logged?:boolean;reply?:string;choices?:string[];message?:string;pending_action?:Pending;result?:{isError?:boolean}};
 export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boolean;onClose:()=>void;ask?:{text:string;n:number}|null;docked?:boolean}){
  const {member,me}=useApp();
  const {setTheme}=useTheme();
@@ -47,13 +48,14 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
  }
  const agentName=preferences.data?.agent_name||'Agent';
  const heading=<Link href="/settings/agent" className="agent-heading" onClick={close} data-no-translate={!!preferences.data?.agent_name}><AgentAvatar avatar={preferences.data?.agent_avatar}/>{agentName}</Link>;
- const [messages,setMessages]=useState<Message[]>([]),[inputDraft,setInputDraft]=useLocalDraft(`groundwork-agent-draft:${me.user.id}:${ws}`,{body:''}),[busy,setBusy]=useState(false),[pending,setPending]=useState<Pending|null>(null),[resting,setResting]=useState(false),[error,setError]=useState(''),[failed,setFailed]=useState<{messages:Message[];confirm_action_id?:string;readAloud?:boolean}|null>(null);
+ const [messages,setMessages]=useState<Message[]>([]),[inputDraft,setInputDraft]=useLocalDraft(`groundwork-agent-draft:${me.user.id}:${ws}`,{body:''}),[busy,setBusy]=useState(false),[pending,setPending]=useState<Pending|null>(null),[resting,setResting]=useState(false),[error,setError]=useState(''),[failed,setFailed]=useState<{messages:Message[];confirm_action_id?:string;readAloud?:boolean;household_photo_ids?:string[]}|null>(null);
  const input=inputDraft.body,setInput=(v:React.SetStateAction<string>)=>setInputDraft(d=>({body:typeof v==='function'?v(d.body):v}));
  const inputRef=useRef<HTMLTextAreaElement>(null);
  useEffect(()=>{const field=inputRef.current;if(!field)return;field.style.height='auto';field.style.height=`${Math.min(field.scrollHeight,156)}px`;field.style.overflowY=field.scrollHeight>156?'auto':'hidden';},[input,open]);
  // Keep chat across sheet closes and component remounts in this session.
  const chatKey=personalAgentChatKey(me.user.id,ws);
  const [restoredFor,setRestoredFor]=useState('');
+ const [householdPhoto,setHouseholdPhoto]=useState(false),[photoIds,setPhotoIds]=useState<string[]>([]);
  const [restored,setRestored]=useState(false),[choices,setChoices]=useState<string[]>([]);
  const newest=useRef<HTMLDivElement>(null),lock=useRef(false);
  useEffect(()=>{
@@ -62,12 +64,12 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
  },[ws,me.user.id]);
  useEffect(()=>{if(!restored||restoredFor!==chatKey)return;try{sessionStorage.setItem(personalAgentChatKey(me.user.id,ws),JSON.stringify(messages));}catch{ /* Keep in-memory chat when storage is unavailable. */ }},[messages,ws,me.user.id,restored,restoredFor,chatKey]);
  useEffect(()=>{if(open||docked)newest.current?.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});},[messages,pending,resting,busy,open,docked]);
- async function send(payload:{messages:Message[];confirm_action_id?:string;readAloud?:boolean}){
+ async function send(payload:{messages:Message[];confirm_action_id?:string;readAloud?:boolean;household_photo_ids?:string[]}){
   if(lock.current)return;
   stopReading();const run=speechRun.current;lock.current=true;
   setBusy(true);setError('');setResting(false);setFailed(payload);
   try{
-   const result=await post<Reply>(`/api/workspaces/${ws}/assistant`,{confirm_action_id:payload.confirm_action_id,messages:payload.messages.map(({role,content})=>({role,content}))});
+   const result=await post<Reply>(`/api/workspaces/${ws}/assistant`,{confirm_action_id:payload.confirm_action_id,...(payload.household_photo_ids?{household_photo_ids:payload.household_photo_ids}:{}),messages:payload.messages.map(({role,content})=>({role,content}))});
    if(result.setting_change){
     const {setting,value}=result.setting_change;
     if(setting==='theme'&&(value==='light'||value==='dark'||value==='system'))await setTheme(value);
@@ -91,6 +93,7 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
     setPending(result.pending_action??null);
     if(result.logged)window.dispatchEvent(new Event('groundworkAgentLog'));
     setChoices(result.choices??[]);
+    setHouseholdPhoto(result.household_photo===true);if(!result.household_photo)setPhotoIds([]);
    }
    if(payload.readAloud)readReply(replyText.join('\n'),run);
    setFailed(null);
@@ -107,13 +110,14 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
   // The log keeps that he said no. Nothing changes either way, so a failed save never blocks him.
   if(pending)void post(`/api/workspaces/${ws}/assistant/log/${pending.id}/decline`,{}).then(()=>window.dispatchEvent(new Event('groundworkAgentLog'))).catch(()=>undefined);
   setPending(null);setFailed(null);setError('');setChoices([]);
-  dictated.current=[];setInput([...messages].reverse().find(m=>m.role==='user')?.content??'');
+  setHouseholdPhoto(false);setPhotoIds([]);
+  dictated.current=[];setInput(pending?.household?pending.words??'':[...messages].reverse().find(m=>m.role==='user')?.content??'');
   setMessages(m=>[...m,{role:'assistant',content:'No change was made. Tell me what to change.'}]);
   requestAnimationFrame(()=>inputRef.current?.focus());
  }
  const rolePrompts=member?.role==='client'?['How are my requests going?','Report a problem','When is the technician coming?']:member?.role==='technician'?['What is my next job?','Job done, fixed it','I need a part']:member?.staff_kind==='office'?['Which jobs are late?','Create a new job','Add a note to a job']:['Which jobs are late?','Who is free tomorrow?','Create a new job'];
  const composer=<AssistantComposer ws={ws} language={preferences.data?.language??DEFAULT_LANGUAGE} voiceEnabled={voiceEnabled} rememberMode reading={reading} stopReading={stopReading} onMicrophone={stopReading} onTextChange={value=>{dictated.current=editDictatedRanges(input,value,dictated.current);}} onDictation={(words,start)=>{dictated.current.push({start,end:Math.min(20000,start+words.length)});}} input={input} setInput={setInput} inputRef={inputRef} busy={busy} blocked={!!pending||!!failed} active={open||docked} submit={submit}/>;
- const chat=<div className="stack assistant-chat" aria-live="polite" aria-busy={busy}>{!messages.length&&<div className="assistant-suggestions"><p>Ask about your workspace. You confirm changes before they happen.</p>{[...rolePrompts,"Show jobs waiting on parts"].map(prompt=><Button variant="secondary" key={prompt} disabled={busy||!!pending||!!failed} onClick={()=>submit(prompt)}>{prompt}</Button>)}</div>}{messages.map((m,i)=><article data-no-translate={m.role==='user'?true:undefined} className={`assistant-message ${m.role}`} key={i}>{m.role==='assistant'?<>{emergencyPrefix(m.content)&&<EmergencySafety line={emergencyPrefix(m.content)!} language={preferences.data?.language}/>}<AssistantMarkdown renderText={text=><ContactText text={text}/>} text={plainAssistantReply(emergencyPrefix(m.content)?m.content.slice(emergencyPrefix(m.content)!.length).trim():m.content,member?.role==='client')}/></>:<p className="preserve">{m.content}</p>}{m.role==='assistant'&&m.offers?.map((offer,j)=><RefusalOfferButton key={j} ws={ws} offer={offer} onSent={()=>setMessages(current=>current.map((msg,n)=>n===i?{...msg,offers:msg.offers?.map((o,k)=>k===j?{...o,sent:true}:o)}:msg))}/>)}{i===messages.length-1&&m.role==='assistant'&&choices.length>0&&!pending&&!busy&&<div className="agent-chips" role="group" aria-label="Quick answers">{choices.map(c=><Button key={c} variant="secondary" size="sm" disabled={!!failed} onClick={()=>submit(c)}>{c}</Button>)}</div>}</article>)}{pending&&<article className="assistant-message assistant pending-reply"><h3>Confirm this change</h3><p className="preserve">{plainAssistantReply(pending.summary,member?.role==='client')}</p>{pending.why&&<p className="small agent-why"><strong>Why: </strong>{plainAssistantReply(pending.why,member?.role==='client')}</p>}<div className="row"><Button variant="secondary" busy={busy} disabled={!!failed} onClick={()=>void send({messages:[],confirm_action_id:pending.id})}>Yes</Button><Button variant="secondary" disabled={busy} onClick={change}>Change</Button></div></article>}{resting&&<ErrorState message="The agent is unavailable right now. Everything else works as usual." retry={()=>{if(failed)void send(failed);}}/>}{error&&<ErrorState message={error} retry={()=>{if(failed)void send(failed);else setError('');}}/>}{busy&&<p className="small" role="status">{pending?'Applying your confirmed change…':'Thinking…'}</p>}<div ref={newest}/></div>;
+ const chat=<div className="stack assistant-chat" aria-live="polite" aria-busy={busy}>{!messages.length&&<div className="assistant-suggestions"><p>Ask about your workspace. You confirm changes before they happen.</p>{[...rolePrompts,"Show jobs waiting on parts"].map(prompt=><Button variant="secondary" key={prompt} disabled={busy||!!pending||!!failed} onClick={()=>submit(prompt)}>{prompt}</Button>)}</div>}{messages.map((m,i)=><article data-no-translate={m.role==='user'?true:undefined} className={`assistant-message ${m.role}`} key={i}>{m.role==='assistant'?<>{emergencyPrefix(m.content)&&<EmergencySafety line={emergencyPrefix(m.content)!} language={preferences.data?.language}/>}<AssistantMarkdown renderText={text=><ContactText text={text}/>} text={plainAssistantReply(emergencyPrefix(m.content)?m.content.slice(emergencyPrefix(m.content)!.length).trim():m.content,member?.role==='client')}/></>:<p className="preserve">{m.content}</p>}{m.role==='assistant'&&m.offers?.map((offer,j)=><RefusalOfferButton key={j} ws={ws} offer={offer} onSent={()=>setMessages(current=>current.map((msg,n)=>n===i?{...msg,offers:msg.offers?.map((o,k)=>k===j?{...o,sent:true}:o)}:msg))}/>)}{i===messages.length-1&&m.role==='assistant'&&choices.length>0&&!pending&&!busy&&<div className="agent-chips" role="group" aria-label="Quick answers">{choices.map(c=><Button key={c} variant="secondary" size="sm" disabled={!!failed} onClick={()=>submit(c)}>{c}</Button>)}</div>}</article>)}{householdPhoto&&!busy&&!pending&&<div><SharedPhotoUpload base={`/api/workspaces/${ws}`} ids={photoIds} onChange={setPhotoIds} label="Add a photo"/>{photoIds.length>0&&<Button variant="secondary" onClick={()=>void send({messages,household_photo_ids:photoIds})}>Continue with photo</Button>}</div>}{pending&&<article className="assistant-message assistant pending-reply"><h3>Confirm this change</h3><p className="preserve" data-no-translate={pending.household||undefined}>{pending.household?pending.summary:plainAssistantReply(pending.summary,member?.role==='client')}</p>{pending.why&&<p className="small agent-why"><strong>Why: </strong>{plainAssistantReply(pending.why,member?.role==='client')}</p>}<div className="row"><Button variant="secondary" busy={busy} disabled={!!failed} onClick={()=>void send({messages:[],confirm_action_id:pending.id})}>Yes</Button><Button variant="secondary" disabled={busy} onClick={change}>Change</Button></div></article>}{resting&&<ErrorState message="The agent is unavailable right now. Everything else works as usual." retry={()=>{if(failed)void send(failed);}}/>}{error&&<ErrorState message={error} retry={()=>{if(failed)void send(failed);else setError('');}}/>}{busy&&<p className="small" role="status">{pending?'Applying your confirmed change…':'Thinking…'}</p>}<div ref={newest}/></div>;
  if(docked)return <aside className="dashboard-assistant" aria-label={agentName}><header className="assistant-panel-header"><h2>{heading}</h2></header><div className="assistant-panel-body">{chat}</div><div className="assistant-panel-footer">{composer}</div></aside>;
  return <BottomSheet open={open} onCloseStart={stopReading} onClose={close} title={heading} presentation="assistant" busy={busy} footer={composer}>{chat}</BottomSheet>;
 }
