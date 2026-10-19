@@ -1,3 +1,5 @@
+import { detectEmergency } from '../emergency';
+import { visitChargeFor } from './visit-charge';
 import { householdFields, HOUSEHOLD_SINCE_CHOICES, HOUSEHOLD_WHERE_CHOICES } from '../agent/household';
 import { z } from 'zod';
 import { ApiError, invalid } from '../http';
@@ -5,6 +7,7 @@ import { inWorkspace, uuid, type Context } from './shared';
 import { createSuggestion } from './suggestions';
 
 const draftSchema = z.object({
+ visit_charge: z.object({amount:z.number().nullable(),currency:z.string(),sample:z.boolean()}).optional(),
  words: z.string().min(1).max(19000), site_id: uuid.optional(),
  where: z.string().max(300).optional(), since: z.string().max(300).optional(),
  asked: z.array(z.enum(['site', 'where', 'since'])).max(3),
@@ -44,6 +47,14 @@ export async function householdIntake(user: string, ws: string, messages: {role:
   if (c.role !== 'client' || c.client_kind !== 'household') return null;
   await c.db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [JSON.stringify([ws, user, 'household'])]);
   const a = (await c.db.query("SELECT * FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND tool='household_intake' AND consumed_at IS NULL AND declined_at IS NULL AND expires_at>now() ORDER BY created_at DESC LIMIT 1 FOR UPDATE", [ws, user])).rows[0];
+  const asksPrice = /\b(?:how much|cost|price|charge|fee)\b|كم|سعر|تكلفة|رسوم|എത്ര|ചാർജ്|വില/iu.test(words);
+  const asksStatus = /\b(?:status|is (?:it|my .+) fixed|technician coming|when (?:is|will|does)|(?:has|was|is) .+ paid|(?:where|show|find|check) .*(?:invoice|quote|request|job))\b|حالة|موعد|എപ്പോൾ/iu.test(words);
+  if (!force && asksPrice && !asksStatus && !detectEmergency(words)) {
+   const sites: Site[] = (await c.db.query('SELECT id,name FROM sites WHERE workspace_id=$1 AND client_id=$2 AND archived_at IS NULL ORDER BY name,id',[ws,c.client_id])).rows;
+   const site=sites.find(s=>words.toLocaleLowerCase().includes(s.name.toLocaleLowerCase()))?.id ?? a?.args?.site_id ?? (sites.length===1?sites[0].id:null);
+   const charge=await visitChargeFor(c,site);
+   return {available:true,reply:charge.amount==null ? "The office will confirm the price. I won't guess it." : `The visit charge is ${charge.currency} ${charge.amount.toFixed(2)}. The full price depends on what the technician finds. He will tell you before any extra work.`};
+  }
   if (!a && !force && (!report.test(words) || statusQuestion.test(words))) return null;
   // He moved on mid intake (asked something else): drop the draft quietly and answer normally.
   if (a && a.tool === 'household_intake' && !force && statusQuestion.test(words) && (a.args?.step === 'where' || a.args?.step === 'since' || a.args?.step === 'photo')) {
@@ -74,13 +85,14 @@ export async function householdIntake(user: string, ws: string, messages: {role:
   extract(d, words, sites);
   if (d.step !== 'confirm') next(d, sites);
   draftSchema.parse(d);
+  if(d.step==='confirm')d.visit_charge=await visitChargeFor(c,d.site_id??null);
   const fields = householdFields(d.words, d.where, d.since);
   const summary = `${fields.title}\n${d.words}\nHome: ${sites.find(s => s.id === d.site_id)?.name ?? 'Please tell the company'}\nWhere: ${d.where ?? 'Not given'}\nSince: ${d.since ?? 'Not given'}\nPhoto: ${d.photo_ids.length ? 'Yes' : 'No'}`;
   const tool = d.step === 'confirm' ? 'household_request' : 'household_intake';
   const id = a?.id ?? (await c.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,$3,$4,$5,$6) RETURNING id', [ws, user, tool, JSON.stringify(d), summary.slice(0,600), 'Your own words for the company.'])).rows[0].id;
   if (a) await c.db.query("UPDATE assistant_actions SET tool=$2,args=$3,summary=$4,expires_at=now()+interval '10 minutes' WHERE id=$1", [id, tool, JSON.stringify(d), summary.slice(0,600)]);
   // The card shows app labels in his language and his own words untouched, so it gets the parts, not only the summary.
-  const fieldsOut = { title: fields.title, words: d.words, home: sites.find(s => s.id === d.site_id)?.name ?? null, where: d.where ?? null, since: d.since ?? null, photos: d.photo_ids.length };
+  const fieldsOut = { title: fields.title, words: d.words, home: sites.find(s => s.id === d.site_id)?.name ?? null, where: d.where ?? null, since: d.since ?? null, photos: d.photo_ids.length, visit_charge: d.visit_charge };
   return d.step === 'confirm' ? { available: true, pending_action: { id, tool, summary, household: true, words: d.words, fields: fieldsOut, why: 'Nothing is sent until you tap Yes.' } } : { available: true, ...question(d, sites) };
  });
 }

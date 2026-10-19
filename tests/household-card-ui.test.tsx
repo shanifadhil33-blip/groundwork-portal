@@ -38,17 +38,17 @@ async function ask(label='Show jobs waiting on parts'){await act(async()=>button
 const card=()=>document.querySelector('.pending-reply') as HTMLElement;
 it('household card: heading New request, labels translatable, his words and typed answers kept as written, tapped choices translatable',async()=>{
  (api as any).role='client';
- api.post.mockResolvedValueOnce({available:true,pending_action:{id:'a1',tool:'household_request',household:true,words:'എസി തണുക്കുന്നില്ല',summary:'Home maintenance request\nഎസി',why:'Nothing is sent until you tap Yes.',fields:{title:'Home maintenance request',words:'എസി തണുക്കുന്നില്ല',home:'Villa 12',where:'Bedroom',since:'കഴിഞ്ഞ ആഴ്ച',photos:1}}});
+ api.post.mockResolvedValueOnce({available:true,pending_action:{id:'a1',tool:'household_request',household:true,words:'എസി തണുക്കുന്നില്ല',summary:'Home maintenance request\nഎസി',why:'Nothing is sent until you tap Yes.',fields:{title:'Home maintenance request',words:'എസി തണുക്കുന്നില്ല',home:'Villa 12',where:'Bedroom',since:'കഴിഞ്ഞ ആഴ്ച',photos:1,visit_charge:{amount:150,currency:'AED',sample:true}}}});
  await mount();await type('എസി തണുക്കുന്നില്ല');await act(async()=>button('Send')!.click());
  expect(card().querySelector('h3')!.textContent).toBe('New request');
  expect(card().closest('[data-no-translate]')).toBeNull();
- const dts=[...card().querySelectorAll('dt')];expect(dts.map(d=>d.textContent)).toEqual(['Your home','Where','Since','Photos']);
+ const dts=[...card().querySelectorAll('dt')];expect(dts.map(d=>d.textContent)).toEqual(['Your home','Where','Since','Photos','Visit charge']);
  for(const d of dts)expect(d.closest('[data-no-translate]')).toBeNull();
  const dd=[...card().querySelectorAll('dd')];
  expect(dd[0].textContent).toBe('Villa 12');expect(dd[0].hasAttribute('data-no-translate')).toBe(true);
  expect(dd[1].textContent).toBe('Bedroom');expect(dd[1].hasAttribute('data-no-translate')).toBe(false);
  expect(dd[2].textContent).toBe('കഴിഞ്ഞ ആഴ്ച');expect(dd[2].hasAttribute('data-no-translate')).toBe(true);
- expect(dd[3].textContent).toBe('1');
+ expect(dd[3].textContent).toBe('1');expect(dd[4].textContent).toBe('AED 150.00 (Sample price)');
  expect(card().querySelector('p.preserve[data-no-translate]')!.textContent).toBe('എസി തണുക്കുന്നില്ല');
  (api as any).role=undefined;
 });
@@ -66,6 +66,7 @@ it('a household card with nothing given says Not given in the app language',asyn
  api.post.mockResolvedValueOnce({available:true,pending_action:{id:'c1',tool:'household_request',household:true,words:'leak',summary:'x',fields:{title:'Home maintenance request',words:'leak',home:null,where:null,since:null,photos:0}}});
  await mount();await type('leak');await act(async()=>button('Send')!.click());
  const dd=[...card().querySelectorAll('dd')];
+ expect(dd[4].textContent).toBe('The office will confirm the price.');
  expect(dd.slice(0,3).map(d=>d.textContent)).toEqual(['Not given','Not given','Not given']);
  for(const d of dd)expect(d.hasAttribute('data-no-translate')).toBe(false);
  (api as any).role=undefined;
@@ -80,4 +81,11 @@ it('a quick answer he tapped can be translated in his bubble; what he typed stay
  expect(users[0].hasAttribute('data-no-translate')).toBe(true);
  expect(users[1].hasAttribute('data-no-translate')).toBe(false);
  (api as any).role=undefined;
+});
+
+it('household card shows the amount without a sample label for a real price',async()=>{
+ api.post.mockResolvedValueOnce({available:true,pending_action:{id:'price',tool:'household_request',household:true,summary:'x',fields:{words:'leak',home:null,where:null,since:null,photos:0,visit_charge:{amount:200,currency:'AED',sample:false}}}});
+ await mount();await type('leak');await act(async()=>button('Send')!.click());
+ expect([...card().querySelectorAll('dd')].at(-1)?.textContent).toBe('AED 200.00');
+ expect(card().textContent).not.toContain('Sample price');
 });

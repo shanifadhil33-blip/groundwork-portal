@@ -1,3 +1,4 @@
+import { visitChargeFor, type VisitCharge } from './visit-charge';
 import { householdFields } from '../agent/household';
 import { previousTechnician } from './client-visits';
 import { reportEmergency } from './emergencies';
@@ -8,7 +9,7 @@ import { withSystem } from '../db';
 import { allowTeam, inWorkspace, name, priority, replay, row, uuid } from './shared';
 export const suggestionInput=z.object({same_technician:z.boolean().optional(),title:name,problem:z.string().trim().max(20000).default(''),client_id:uuid.nullable().optional(),site_id:uuid.nullable().optional(),from_work_order_id:uuid.nullable().optional(),priority:priority.default('normal'),preferred_window:z.string().trim().max(200).nullable().optional(),photo_ids:z.array(uuid).max(4).default([]),voice_note_text:z.string().trim().max(20000).nullable().optional()}).strict();
 export type SuggestionSource='agent'|'client'|'household'|'technician'|'whatsapp';
-export async function createSuggestion(user:string,ws:string,body:unknown,source?:SuggestionSource,key?:string,intake?:{name:string;phone:string;sender_user_id?:string|null},emergencyHandled=false,household?:{words:string;where?:string;since?:string}){
+export async function createSuggestion(user:string,ws:string,body:unknown,source?:SuggestionSource,key?:string,intake?:{name:string;phone:string;sender_user_id?:string|null},emergencyHandled=false,household?:{words:string;where?:string;since?:string;visit_charge?:VisitCharge}){
  const data=suggestionInput.parse(body);
  if(household)Object.assign(data,householdFields(household.words,household.where,household.since,data));
  const emergency=emergencyHandled?null:await reportEmergency(user,ws,`${data.title} ${data.problem}`,{site_id:data.site_id,work_order_id:data.from_work_order_id,title:data.title});
@@ -32,14 +33,15 @@ export async function createSuggestion(user:string,ws:string,body:unknown,source
    const {same_technician,...savedData}=data;
    const preference=same_technician?await previousTechnician(user,ws):null;
    if(same_technician&&!preference)throw invalid('There is no finished visit to use for this preference.');
-   const fields={...savedData,preferred_technician_id:preference?.user_id??null,photo_ids:JSON.stringify(data.photo_ids),workspace_id:ws,source:actualSource,sender_user_id:sender,sender_name:senderName,sender_phone:intake?.phone??null};const keys=Object.keys(fields);
+   const charge=actualSource==='household'?(household?.visit_charge??await visitChargeFor(c,data.site_id??null)):null;
+   const fields={...savedData,visit_charge_shown:charge?.amount??null,preferred_technician_id:preference?.user_id??null,photo_ids:JSON.stringify(data.photo_ids),workspace_id:ws,source:actualSource,sender_user_id:sender,sender_name:senderName,sender_phone:intake?.phone??null};const keys=Object.keys(fields);
    if(data.photo_ids.length){const photos=(await c.db.query('SELECT id FROM shared_photos WHERE workspace_id=$1 AND uploaded_by=$2 AND suggestion_id IS NULL AND id=ANY($3::uuid[]) FOR UPDATE',[ws,user,data.photo_ids])).rows;if(photos.length!==new Set(data.photo_ids).size)throw invalid('Choose your own photos.','photo_ids');}
    const made=(await c.db.query(`INSERT INTO job_suggestions(${keys.join(',')}) VALUES(${keys.map((_,i)=>'$'+(i+1)).join(',')}) RETURNING *`,Object.values(fields))).rows[0];if(data.photo_ids.length)await c.db.query('UPDATE shared_photos SET suggestion_id=$3 WHERE workspace_id=$1 AND uploaded_by=$2 AND id=ANY($4::uuid[])',[ws,user,made.id,data.photo_ids]);delete made.sender_phone;return made;
   });
  });
 }
 export async function listSuggestions(user:string,ws:string){return inWorkspace(user,ws,async c=>{
- const data=(await c.db.query(`SELECT s.id,s.source,s.sender_user_id,s.sender_name,s.client_id,s.site_id,s.from_work_order_id,s.title,s.problem,s.priority,s.preferred_window,s.photo_ids,s.voice_note_text,s.status,s.decline_reason,s.work_order_id,s.created_at,s.decided_at,st.name AS site_name FROM job_suggestions s LEFT JOIN sites st ON st.workspace_id=s.workspace_id AND st.id=s.site_id WHERE s.workspace_id=$1 ORDER BY (s.status='pending') DESC,s.created_at DESC,s.id`,[ws])).rows;
+ const data=(await c.db.query(`SELECT s.id,s.source,s.visit_charge_shown,s.sender_user_id,s.sender_name,s.client_id,s.site_id,s.from_work_order_id,s.title,s.problem,s.priority,s.preferred_window,s.photo_ids,s.voice_note_text,s.status,s.decline_reason,s.work_order_id,s.created_at,s.decided_at,st.name AS site_name FROM job_suggestions s LEFT JOIN sites st ON st.workspace_id=s.workspace_id AND st.id=s.site_id WHERE s.workspace_id=$1 ORDER BY (s.status='pending') DESC,s.created_at DESC,s.id`,[ws])).rows;
  return {data,pending_count:data.filter(s=>s.status==='pending').length};
 });}
 export async function decideSuggestion(user:string,ws:string,id:string,body:unknown){

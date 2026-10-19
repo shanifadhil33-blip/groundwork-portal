@@ -2,6 +2,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { VisitChargeSettings } from '../components/app/visit-charge-settings';
 import { AgentSettings, OwnerSettings } from '../components/app/settings';
 import { AppContext, type Membership } from '../components/app/context';
 const state=vi.hoisted(()=>({data:{approval_mode:'important',role_names:{},owner_handover:[] as string[],name:'Ridgeline'},request:vi.fn(),reload:vi.fn(),toast:vi.fn()}));
@@ -51,4 +52,25 @@ it('shows approval controls to admins after handover, but keeps owner switches a
  expect(host.textContent).not.toContain('Only the owner can change this.');
  expect(host.querySelector('[role="switch"]')).toBeNull();
  expect(host.textContent).not.toContain('Close company account');
+});
+
+async function mountPrice(role:Membership['role'],owner=false){
+ Object.assign(state.data,{visit_charge:'150.00',visit_charge_regions:{Sharjah:200},visit_charge_sample:true,currency:'AED',country:'AE'});
+ const member:Membership={workspace_id:'company',workspace_name:'Ridgeline',role,is_owner:owner,client_id:null,client_name:null};
+ await act(async()=>root.render(<AppContext.Provider value={{member,workspace:null,me:{user:{id:'imran',name:'Imran',email:null,image:null},memberships:[member]},reload:state.reload,updateName:()=>{}}}><VisitChargeSettings base="/api/workspaces/company"/></AppContext.Provider>));
+}
+it.each([true,false])('owner and admin can save visit charge with Saved feedback: %s',async owner=>{
+ await mountPrice('admin',owner);
+ expect(host.textContent).toContain('Households see this before they send a request.');
+ const amounts=host.querySelectorAll<HTMLInputElement>('input[type="number"]');
+ expect(amounts[0].value).toBe('150.00');expect(amounts[1].value).toBe('200');
+ expect(amounts[0].style.minHeight).toBe('44px');
+ expect(host.querySelector<HTMLSelectElement>('select')!.value).toBe('Sharjah');
+ await act(async()=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(amounts[0],'175');amounts[0].dispatchEvent(new Event('input',{bubbles:true}));});
+ await act(async()=>host.querySelector('form')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+ expect(JSON.parse(state.request.mock.calls[0][1].body)).toEqual({visit_charge:175,visit_charge_regions:{Sharjah:200},visit_charge_sample:true});
+ expect(state.toast).toHaveBeenCalledWith('Saved');
+});
+it.each(['staff','technician','client'] as const)('visit charge controls hidden from %s',async role=>{
+ await mountPrice(role);expect(host.querySelector('form')).toBeNull();
 });

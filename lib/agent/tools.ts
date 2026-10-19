@@ -1,3 +1,4 @@
+import { visitChargeFor } from '../services/visit-charge';
 import { ownerToolPower, requireOwner } from '../services/owner';
 import { assetShape, createAsset, listAssets } from '../services/assets';
 import { setMySetting, settingInput } from '../services/personalsettings';
@@ -47,6 +48,7 @@ function query(a:Record<string,unknown>) {const p=new URLSearchParams();for(cons
 /** Audit A17: a model sometimes sends due_on:null when asked only to move the visit. A date is cleared only when clear_due_on or clear_visit says so. */
 export function datesAsked<T extends {due_on?:string|null;scheduled_for?:string|null;clear_due_on?:boolean;clear_visit?:boolean}>(a:T):T{const out={...a};if(out.due_on===null&&!out.clear_due_on)delete out.due_on;if(out.scheduled_for===null&&!out.clear_visit)delete out.scheduled_for;if(out.clear_due_on)out.due_on=null;if(out.clear_visit)out.scheduled_for=null;return out;}
 export const tools:Record<string,Tool>={
+ visit_charge:{description:'Read the company visit charge for a visible site. Never guess a price. The full price depends on what the technician finds.',write:false,schema:z.object({site_id:uuid}).strict(),run:(c,a)=>inWorkspace(c.user,c.ws,x=>visitChargeFor(x,a.site_id))},
  set_my_setting:{description:'Change only the caller own theme, language, voice_enabled, reply_length, agent_name, preferred_name or email_notifications. Supply setting and value. Language must be a supported code. Saves immediately with a receipt and Undo, without a card. Never use for addresses, phone numbers, roles, other people or company settings. Keep Agent and Groundwork unchanged.',write:true,schema:settingInput,run:(c,a)=>setMySetting(c.user,a)},
  free_visit_slots:{description:'Clients only: find up to three free one hour slots for your own scheduled job. Resolve Saturday morning to day and period morning. For an exact time supply day and time. If that time is free only that time is returned. Present the returned slots with ask_choice, then propose reschedule_visit for the selected slot. Never invent a slot.',write:false,schema:slotInput,run:(c,a)=>freeVisitSlots(c.user,c.ws,a)},
  previous_technician:{description:'Clients only: the technician on your own most recent finished job, or null. Use when he asks for the same technician as last time. Never list other clients or technicians.',write:false,schema:z.object({}).strict(),run:c=>previousTechnician(c.user,c.ws)},

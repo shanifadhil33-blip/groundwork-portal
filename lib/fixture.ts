@@ -64,6 +64,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   for (let n=1;n<=(demo?6:7);n++){const [building,address,area,access,contact,phone]=siteRecords[n-1],region=n===6?'Sharjah':n===7?'Abu Dhabi':'Dubai';await client.query('INSERT INTO sites(id,workspace_id,client_id,name,address,building,area,region,access_notes,contact_name,contact_phone) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[siteId(n),n===7?ids.summit:ids.ridgeline,n<=3?ids.harbor:n<=5?ids.northgate:n===6?ids.larkspur:ids.summitClient,names[n-1],address,building,area,region,access,contact,phone]);}
   const tasks=['Replace lobby light fixture','Service rooftop ventilation','Repair entry door closer','Inspect emergency lighting','Seal loading bay threshold','Replace washroom tap','Adjust meeting room cooling','Repair stairwell handrail','Clear courtyard drainage','Test access control reader','Replace corridor ceiling tile','Service water pump'];
   const priorities=['low','normal','high','urgent'];
+  await client.query("UPDATE workspaces SET visit_charge=150,visit_charge_regions='{\"Sharjah\":200}',visit_charge_sample=true WHERE id=$1",[ids.ridgeline]);
   const timezone=(await client.query('SELECT timezone FROM workspaces WHERE id=$1',[ids.ridgeline])).rows[0].timezone;
   const today=localDate(Date.now(),timezone);
   for(let n=1;n<=(demo?60:66);n++) {

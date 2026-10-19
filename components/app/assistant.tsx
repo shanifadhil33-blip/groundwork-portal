@@ -1,4 +1,6 @@
 'use client';
+import { visitChargeText } from '../../lib/visit-charge';
+import type { VisitCharge } from '../../lib/services/visit-charge';
 import { SharedPhotoUpload } from './shared-photo-upload';
 import type { SettingChange } from '../../lib/agent/personalsettings';
 import { useTheme } from '../ui/theme';
@@ -22,7 +24,7 @@ import { AssistantMarkdown } from '../ui/assistant-markdown';
 import { post, RequestError } from '../../lib/ui/api';
 import { BottomSheet, Button, IconButton, ErrorState } from '../ui';
 type Message={role:'user'|'assistant';content:string;offers?:(RefusalOffer & {sent?:boolean})[]};
-type HouseholdFields={words:string;home:string|null;where:string|null;since:string|null;photos:number};
+type HouseholdFields={visit_charge?:VisitCharge;words:string;home:string|null;where:string|null;since:string|null;photos:number};
 type Pending={household?:boolean;words?:string;id:string;tool?:string;summary:string;why?:string;fields?:HouseholdFields};
 /** A card that creates a request is not a change: say what it is. */
 const NEW_REQUEST_TOOLS=new Set(['create_request','household_request','suggest_job']);
@@ -30,7 +32,7 @@ const pendingHeading=(p:Pending)=>p.household||NEW_REQUEST_TOOLS.has(p.tool??'')
 /** App labels follow his language; his own words, his home's name and anything he typed stay exactly as written. */
 function HouseholdCard({f}:{f:HouseholdFields}){
  const value=(v:string|null)=>v==null?<dd>Not given</dd>:<dd data-no-translate={isHouseholdChoice(v)?undefined:true}>{v}</dd>;
- return <><p className="preserve" data-no-translate>{f.words}</p><dl className="household-card-fields"><dt>Your home</dt>{f.home==null?<dd>Not given</dd>:<dd data-no-translate>{f.home}</dd>}<dt>Where</dt>{value(f.where)}<dt>Since</dt>{value(f.since)}<dt>Photos</dt><dd>{f.photos}</dd></dl></>;
+ return <><p className="preserve" data-no-translate>{f.words}</p><dl className="household-card-fields"><dt>Your home</dt>{f.home==null?<dd>Not given</dd>:<dd data-no-translate>{f.home}</dd>}<dt>Where</dt>{value(f.where)}<dt>Since</dt>{value(f.since)}<dt>Photos</dt><dd>{f.photos}</dd><dt>Visit charge</dt><dd>{visitChargeText(f.visit_charge)}</dd></dl></>;
 }
 type Reply={household_photo?:boolean;setting_change?:SettingChange;offers?:RefusalOffer[];available:boolean;logged?:boolean;reply?:string;choices?:string[];message?:string;pending_action?:Pending;result?:{isError?:boolean}};
 export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boolean;onClose:()=>void;ask?:{text:string;n:number}|null;docked?:boolean}){
