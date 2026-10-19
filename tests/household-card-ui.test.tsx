@@ -42,7 +42,7 @@ it('household card: heading New request, labels translatable, his words and type
  await mount();await type('എസി തണുക്കുന്നില്ല');await act(async()=>button('Send')!.click());
  expect(card().querySelector('h3')!.textContent).toBe('New request');
  expect(card().closest('[data-no-translate]')).toBeNull();
- const dts=[...card().querySelectorAll('dt')];expect(dts.map(d=>d.textContent)).toEqual(['Home','Where','Since','Photos']);
+ const dts=[...card().querySelectorAll('dt')];expect(dts.map(d=>d.textContent)).toEqual(['Your home','Where','Since','Photos']);
  for(const d of dts)expect(d.closest('[data-no-translate]')).toBeNull();
  const dd=[...card().querySelectorAll('dd')];
  expect(dd[0].textContent).toBe('Villa 12');expect(dd[0].hasAttribute('data-no-translate')).toBe(true);
@@ -68,5 +68,16 @@ it('a household card with nothing given says Not given in the app language',asyn
  const dd=[...card().querySelectorAll('dd')];
  expect(dd.slice(0,3).map(d=>d.textContent)).toEqual(['Not given','Not given','Not given']);
  for(const d of dd)expect(d.hasAttribute('data-no-translate')).toBe(false);
+ (api as any).role=undefined;
+});
+it('a quick answer he tapped can be translated in his bubble; what he typed stays as written',async()=>{
+ (api as any).role='client';
+ api.post.mockResolvedValueOnce({available:true,reply:'Where in your home is the problem?',choices:['Kitchen','Bathroom']}).mockResolvedValueOnce({available:true,reply:'Since when has this been happening?',choices:['Today']});
+ await mount();await type('ماء تحت المغسلة');await act(async()=>button('Send')!.click());
+ await act(async()=>button('Kitchen')!.click());
+ const users=[...document.querySelectorAll('.assistant-message.user')] as HTMLElement[];
+ expect(users.map(u=>u.textContent)).toEqual(['ماء تحت المغسلة','Kitchen']);
+ expect(users[0].hasAttribute('data-no-translate')).toBe(true);
+ expect(users[1].hasAttribute('data-no-translate')).toBe(false);
  (api as any).role=undefined;
 });
