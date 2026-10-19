@@ -66,7 +66,7 @@ it('region override wins, zero is a price, and other regions use the default',as
  expect(await inWorkspace(user,ws,c=>visitChargeFor(c,siteId(4)))).toMatchObject({amount:150});
 });
 it.each(['How much will it cost to fix my water heater?','What is the price?','visit charge','Is there a fee?','كم سعر إصلاح السخان؟','എത്ര ചാർജ് വരും?'])('fixed price answer without AI or intake: %s',async words=>{
- expect((await send(words)).reply).toBe('The visit charge is AED 150.00. The full price depends on what the technician finds. He will tell you before any extra work.');
+ expect((await send(words)).reply).toBe('The visit charge is **AED 150.00**.\n\nThe full price depends on what the technician finds. He will tell you before any extra work.');
  expect(assistantTurn).not.toHaveBeenCalled();
  const idsNow=await withSystem(async db=>{await db.query("SELECT set_config('app.user_id',$1,true)",[user]);return (await db.query('SELECT id FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2',[ws,user])).rows.map(r=>r.id);});
  expect(idsNow).toEqual(actions);

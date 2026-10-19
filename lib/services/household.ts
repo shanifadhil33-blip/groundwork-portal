@@ -53,7 +53,7 @@ export async function householdIntake(user: string, ws: string, messages: {role:
    const sites: Site[] = (await c.db.query('SELECT id,name FROM sites WHERE workspace_id=$1 AND client_id=$2 AND archived_at IS NULL ORDER BY name,id',[ws,c.client_id])).rows;
    const site=sites.find(s=>words.toLocaleLowerCase().includes(s.name.toLocaleLowerCase()))?.id ?? a?.args?.site_id ?? (sites.length===1?sites[0].id:null);
    const charge=await visitChargeFor(c,site);
-   return {available:true,reply:charge.amount==null ? "The office will confirm the price. I won't guess it." : `The visit charge is ${charge.currency} ${charge.amount.toFixed(2)}. The full price depends on what the technician finds. He will tell you before any extra work.`};
+   return {available:true,reply:charge.amount==null ? "The office will confirm the price. I won't guess it." : `The visit charge is **${charge.currency} ${charge.amount.toFixed(2)}**.\n\nThe full price depends on what the technician finds. He will tell you before any extra work.`};
   }
   if (!a && !force && (!report.test(words) || statusQuestion.test(words))) return null;
   // He moved on mid intake (asked something else): drop the draft quietly and answer normally.

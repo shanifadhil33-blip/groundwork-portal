@@ -754,5 +754,7 @@
  "Prices by region": "الأسعار حسب المنطقة",
  "The office will confirm the price.": "سيؤكد المكتب السعر.",
  "Choose a region": "اختر منطقة",
- "Choose each region once and enter its amount.": "اختر كل منطقة مرة واحدة وأدخل مبلغها."
+ "Choose each region once and enter its amount.": "اختر كل منطقة مرة واحدة وأدخل مبلغها.",
+ "The full price depends on what the technician finds. He will tell you before any extra work.": "السعر الكامل يعتمد على ما يجده الفني. سيخبرك قبل أي عمل إضافي.",
+ "The office will confirm the price. I won't guess it.": "سيؤكد المكتب السعر. لن أخمّنه."
 }
