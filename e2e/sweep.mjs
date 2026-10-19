@@ -23,7 +23,7 @@ const check = () => {
   const w = document.createTreeWalker(document.querySelector('.app-main') ?? document.body, NodeFilter.SHOW_TEXT); let n; const small = new Set();
   while ((n = w.nextNode())) { const el = n.parentElement; if (!n.data.trim() || !el || !vis(el) || el.closest('kbd,svg,.count-dot,.sr-only')) continue; const fs = parseFloat(getComputedStyle(el).fontSize); if (fs < 14) small.add(n.data.trim().slice(0, 30) + ' ' + fs + 'px'); }
   for (const x of [...small].slice(0, 5)) out.push(['text under 14px', x]);
-  if (!/^en/.test(document.documentElement.lang)) for (const x of [...document.querySelectorAll('.app-main h1,.app-main h2,.app-main button,.bottom-tabs .tab-label')].filter(e => vis(e) && !e.closest('[data-no-translate]') && /^[A-Za-z][A-Za-z ]{3,}$/.test(e.innerText.trim()) && !/^(Agent|Groundwork)$/.test(e.innerText.trim())).map(e => e.innerText.trim()).slice(0, 5)) out.push(['English left', x]);
+  if (!/^en/.test(document.documentElement.lang)) for (const x of [...document.querySelectorAll('.app-main h1,.app-main h2,.app-main button,.bottom-tabs .tab-label')].filter(e => vis(e) && !e.closest('[data-no-translate]') && /^[A-Za-z][A-Za-z ]{3,}$/.test(e.innerText.trim()) && !/^(Agent|Groundwork|Igbo|Hausa|Yoruba|Kiswahili|Filipino|Twi|Luganda|Soomaali)$/.test(e.innerText.trim())).map(e => e.innerText.trim()).slice(0, 5)) out.push(['English left', x]);
   return out;
 };
 // Latin script languages (Filipino, Hausa, Swahili and others) look like English to the check; a word that is a saved translation is not English left.
