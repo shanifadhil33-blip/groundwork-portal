@@ -1176,3 +1176,7 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 .equipment-job { display: block; min-height: 44px; overflow-wrap: anywhere; }
 .site-row:has(.equipment) { flex-wrap: wrap; }
 .site-row:has(.equipment) > .stack { flex: 1 1 260px; min-width: 0; }
+
+/* Settings forms on phones: the row padding was made for the laptop's divided rows; with the dividers gone it doubled every gap (56px between fields). One 16px rhythm instead; the checkbox row lines up with the fields. */
+@media(max-width:640px){.settings-page form.stack{gap:var(--s4)}.settings-page form>.form-field{padding-block:0}.settings-page form>.queue-check{padding-block:0;padding-inline:0}.settings-page form>.button{margin-top:0}}
+.app-main .stack.visit-region{gap:var(--s3);padding-top:var(--s3);border-top:1px solid var(--border)}
