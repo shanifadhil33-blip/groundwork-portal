@@ -174,7 +174,7 @@ async function freeTomorrow(c: AgentContext, from: string) {
   const busy = techs.filter((p: any) => !away.has(p.user_id) && count(p.user_id)).map((p: any) => `${p.name} (${plural(count(p.user_id), 'job')})`);
   const off = techs.filter((p: any) => away.has(p.user_id)).map((p: any) => p.name);
   const day = new Date(from + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
-  return [free.length ? `Free tomorrow (${day}): ${free.join(', ')}.` : `Every technician has a job tomorrow (${day}).`, ...(busy.length ? [`Booked: ${busy.join(', ')}.`] : []), ...(off.length ? [`Away: ${off.join(', ')}.`] : [])].join('\n');
+  return [free.length ? `Technicians free tomorrow (${day}): ${free.join(', ')}.` : `Every technician has a job tomorrow (${day}).`, ...(busy.length ? [`Booked: ${busy.join(', ')}.`] : []), ...(off.length ? [`Away: ${off.join(', ')}.`] : [])].join('\n');
 }
 async function clientRequests(c: AgentContext) {
   const r = await read(c, 'list_work_orders', { status: ['open', 'scheduled', 'in_progress', 'waiting_on_parts'], sort: 'updated_at', dir: 'desc', pageSize: 6 });
