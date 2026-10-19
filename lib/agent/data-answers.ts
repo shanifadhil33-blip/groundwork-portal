@@ -127,3 +127,85 @@ export async function dataAnswer(c: AgentContext, question: string): Promise<str
   try { const t = await today(c); if (t) return t; } catch { /* ignore */ }
   return 'I can show today\'s jobs, late jobs, a job by its number, suggested jobs and messages. Which would you like?';
 }
+
+/**
+ * Quick lookups (Adhil, Oct 19): the common read questions, including the suggested prompts, answer straight from the
+ * database with no AI call, well under a second. Only a whole short question matches, so anything longer or with
+ * more detail still goes to the AI. Every read goes through the same role checked tools, so a technician sees only
+ * his own jobs and a client only his own requests. Returns null when the question is not a quick lookup or the role
+ * can not use the tool (the AI then answers as before).
+ */
+export type QuickLookup = 'parts' | 'late' | 'next' | 'today' | 'free_tomorrow' | 'client_requests' | 'client_visit';
+const QUICK: [QuickLookup, RegExp][] = [
+  ['parts', /^(?:(?:show|list|which|what)(?: me)?(?: the)?(?: my)? )?(?:jobs|work orders)(?: that)?(?: are)? (?:waiting|on hold) (?:on|for) (?:a )?parts?$|^(?:waiting (?:on|for) parts|parts waiting)$/],
+  ['late', /^(?:(?:which|what|show|list)(?: me)?(?: the)?(?: my)? )?(?:jobs|work orders)(?: are)? (?:late|overdue)$|^(?:show |list )?(?:my )?(?:late|overdue) (?:jobs|work orders)$|^(?:is )?anything (?:late|overdue)$/],
+  ['next', /^(?:what(?:'s| is) )?my next (?:job|visit)$|^(?:what(?:'s| is) )?next job$/],
+  ['today', /^(?:what (?:do i have|are my jobs|is on) today|(?:show )?my jobs today|(?:show )?today'?s jobs|what is my day)$/],
+  ['free_tomorrow', /^who(?:'s| is) free tomorrow$/],
+  ['client_requests', /^how are my requests (?:going|doing)$|^(?:show )?my requests$/],
+  ['client_visit', /^when is (?:the|my) technician coming$|^when is my (?:next )?visit$/],
+];
+export function quickLookup(question: string): QuickLookup | null {
+  const q = question.toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().replace(/[?.!\s]+$/, '');
+  if (!q || q.length > 60) return null;
+  for (const [k, re] of QUICK) if (re.test(q)) return k;
+  return null;
+}
+async function parts(c: AgentContext) {
+  const r = await read(c, 'list_work_orders', { status: ['waiting_on_parts'], sort: 'updated_at', dir: 'desc', pageSize: 8 });
+  if (!r) return null;
+  const n = r.total ?? r.data?.length ?? 0;
+  return n ? [`${plural(n, 'job is', 'jobs are')} waiting on parts.`, ...r.data.map((j: any) => line(j))].join('\n') : 'No jobs are waiting on parts.';
+}
+async function nextJob(c: AgentContext) {
+  const d = await read(c, 'my_day');
+  if (!d) return null;
+  const open = (d.today ?? []).find((j: any) => !['done', 'cancelled'].includes(j.status)) ?? (d.next ?? [])[0];
+  if (!open) return d.late?.length ? [`You have no more visits booked. Late: ${plural(d.late.length, 'job')}.`, ...d.late.slice(0, 3).map((j: any) => line(j, d.timezone))].join('\n') : 'You have no more jobs booked.';
+  return `Your next job:\n${line(open, d.timezone)}`;
+}
+async function freeTomorrow(c: AgentContext, from: string) {
+  const b = await read(c, 'get_schedule', { from, days: 1 });
+  if (!b) return null;
+  const techs = (b.people ?? []).filter((p: any) => p.role === 'technician');
+  const away = new Set((b.away ?? []).map((a: any) => a.user_id));
+  const count = (id: string) => (b.jobs ?? []).filter((j: any) => j.assignee_id === id).length;
+  const free = techs.filter((p: any) => !away.has(p.user_id) && !count(p.user_id)).map((p: any) => p.name);
+  const busy = techs.filter((p: any) => !away.has(p.user_id) && count(p.user_id)).map((p: any) => `${p.name} (${plural(count(p.user_id), 'job')})`);
+  const off = techs.filter((p: any) => away.has(p.user_id)).map((p: any) => p.name);
+  const day = new Date(from + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+  return [free.length ? `Free tomorrow (${day}): ${free.join(', ')}.` : `Every technician has a job tomorrow (${day}).`, ...(busy.length ? [`Booked: ${busy.join(', ')}.`] : []), ...(off.length ? [`Away: ${off.join(', ')}.`] : [])].join('\n');
+}
+async function clientRequests(c: AgentContext) {
+  const r = await read(c, 'list_work_orders', { status: ['open', 'scheduled', 'in_progress', 'waiting_on_parts'], sort: 'updated_at', dir: 'desc', pageSize: 6 });
+  if (!r) return null;
+  const s = await read(c, 'list_suggestions');
+  const waiting = (s?.data ?? []).filter((x: any) => x.status === 'pending').length;
+  const n = r.total ?? r.data?.length ?? 0;
+  return [n ? `You have ${plural(n, 'open request')}.` : 'You have no open requests.', ...(r.data ?? []).map((j: any) => line(j)), ...(waiting ? [`${plural(waiting, 'new request is', 'new requests are')} waiting for the company to accept.`] : [])].join('\n');
+}
+async function clientVisit(c: AgentContext) {
+  const r = await read(c, 'list_work_orders', { status: ['scheduled', 'in_progress'], sort: 'scheduled_for', dir: 'asc', pageSize: 10 });
+  if (!r) return null;
+  const soon = (r.data ?? []).filter((j: any) => j.scheduled_for && (j.status === 'in_progress' || new Date(j.scheduled_for).getTime() > Date.now() - 2 * 3600_000));
+  if (!soon.length) return 'No visit is booked yet. The company will confirm a time.';
+  return [soon.length === 1 ? 'Your next visit:' : `You have ${plural(soon.length, 'visit')} booked:`, ...soon.slice(0, 3).map((j: any) => line(j))].join('\n');
+}
+/** The quick answer, or null to let the AI answer. tomorrow is the workspace's next day as YYYY-MM-DD. */
+export async function quickAnswer(c: AgentContext, question: string, who: { role: string; tomorrow: string }): Promise<string | null> {
+  const k = quickLookup(question);
+  if (!k) return null;
+  const client = who.role === 'client';
+  // Client questions answer only for clients; my day questions only for the team. Parts and late work for everyone (role scoped).
+  if ((k === 'client_requests' || k === 'client_visit') && !client) return null;
+  if ((k === 'next' || k === 'today' || k === 'free_tomorrow') && client) return null;
+  try {
+    if (k === 'parts') return await parts(c);
+    if (k === 'late') return await late(c);
+    if (k === 'next') return await nextJob(c);
+    if (k === 'today') return await today(c);
+    if (k === 'free_tomorrow') return who.role === 'technician' || !who.tomorrow ? null : await freeTomorrow(c, who.tomorrow);
+    if (k === 'client_requests') return await clientRequests(c);
+    return await clientVisit(c);
+  } catch { return null; }
+}
