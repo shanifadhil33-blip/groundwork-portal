@@ -73,9 +73,11 @@ for (const who of PERSONAS) {
       run.pages.push({ href, navMs, longest, cls: m.cls, ...checks });
     }
     // Sheets, menus and dialogs: phone More sheet, Agent panel; their animation, frames, and nothing left disabled.
+    // A list page, so the laptop has the Agent launcher (the dashboard docks the Agent instead).
+    await p.goto(B + (links.find(h => /work-orders|requests/.test(h)) || links[0] || '/dashboard'), { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(800);
     const disabledBefore = await p.evaluate(() => [...document.querySelectorAll('button:disabled')].length);
     const opener = phone ? p.locator('.bottom-tabs button[aria-label="More"]') : p.locator('.assistant-launcher:visible');
-    for (const [name, open, sel] of [['more', phone ? p.locator('.bottom-tabs button[aria-label="More"]') : null, '[role=dialog]'], ['agent', phone ? p.locator('.phone-assistant') : p.locator('.assistant-launcher'), '[role=dialog]'], ['notifications', p.locator('.notification-trigger button'), '[role=dialog]']]) {
+    for (const [name, open, sel] of [['more', phone ? p.locator('.bottom-tabs button[aria-label="More"]') : null, '[role=dialog]'], ['agent', phone ? p.locator('.phone-assistant') : p.locator('.assistant-launcher:visible'), '[role=dialog]'], ['notifications', p.locator('button[aria-label^="Notifications"]:visible'), '[role=dialog]']]) {
       if (!open || !(await open.first().isVisible().catch(() => false))) continue;
       await p.evaluate(() => { window.__loaf = []; window.__cls = 0; }); const t0 = Date.now();
       if (phone) await open.first().tap(); else await open.first().click();

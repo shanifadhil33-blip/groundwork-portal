@@ -1157,3 +1157,10 @@ body:has(.app-shell) .assistant-composer .assistant-input-row .assistant-control
 [data-theme=dark] body:has(.app-shell) .assistant-composer .assistant-input-row .assistant-control.assistant-send:disabled{background:#1e1f1f;color:#8a8a8a}
 body:has(.app-shell) .assistant-chat .assistant-suggestions .button{background:transparent;border:1px solid var(--border)}
 [data-theme=dark] body:has(.app-shell) .assistant-chat .assistant-suggestions .button{border-color:#2e2f30}
+
+/* Interaction pass (Oct 19): every control answers hover (laptop) and press. Primary buttons kept the hover colour when pressed because a
+   stronger hover rule won, and the Agent suggestions and mic had a fixed transparent background. */
+body:has(.app-shell) .button.primary.primary:active:not(:disabled){background:color-mix(in srgb,var(--primary) 76%,black)}
+@media(min-width:1024px){body:has(.app-shell.with-dashboard-assistant) .app-main .button.primary.primary:active:not(:disabled){background:var(--pressed)}}
+@media(hover:hover) and (pointer:fine){body:has(.app-shell) .assistant-chat .assistant-suggestions .button:hover:not(:disabled),body:has(.app-shell) .assistant-input-row .assistant-control:not(.assistant-send):not(.assistant-stop):hover:not(:disabled){background:var(--hover)}}
+body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:active:not(:disabled),body:has(.app-shell) .assistant-input-row .assistant-control.assistant-control:not(.assistant-send):not(.assistant-stop):active:not(:disabled){background:var(--pressed)}
