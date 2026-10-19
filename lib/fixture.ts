@@ -65,6 +65,8 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   const tasks=['Replace lobby light fixture','Service rooftop ventilation','Repair entry door closer','Inspect emergency lighting','Seal loading bay threshold','Replace washroom tap','Adjust meeting room cooling','Repair stairwell handrail','Clear courtyard drainage','Test access control reader','Replace corridor ceiling tile','Service water pump'];
   const priorities=['low','normal','high','urgent'];
   await client.query("UPDATE workspaces SET visit_charge=150,visit_charge_regions='{\"Sharjah\":200}',visit_charge_sample=true WHERE id=$1",[ids.ridgeline]);
+  // Sample setup, not a user change: keep it out of History.
+  await client.query("DELETE FROM audit_log WHERE workspace_id=$1 AND entity='workspaces'",[ids.ridgeline]);
   const timezone=(await client.query('SELECT timezone FROM workspaces WHERE id=$1',[ids.ridgeline])).rows[0].timezone;
   const today=localDate(Date.now(),timezone);
   for(let n=1;n<=(demo?60:66);n++) {
