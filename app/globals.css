@@ -1097,3 +1097,5 @@ label:has(>input[type=checkbox]),label:has(>input[type=radio]){min-height:44px;d
 
 /* Laptop pass Oct 19: the sidebar More button kept the browser grey button fill; it looks like the other links until pressed. */
 button.nav-link:not([aria-current=page]):not(:active){background:transparent}
+/* Oct 19: Swahili, Yoruba, Farsi and Arabic short day names run to 8 letters and were cut off in the phone day strip; let the real word wrap inside its cell instead. */
+.sched-day span{max-width:100%;overflow-wrap:anywhere;line-height:1.15;text-align:center}
