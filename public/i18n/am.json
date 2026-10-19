@@ -652,5 +652,15 @@
  "Tenant name": "የተከራይ ስም",
  "Tenant phone": "የተከራይ ስልክ",
  "Tenant": "ተከራይ",
- "Only a building manager can add a tenant.": "ተከራይ ማከል የሚችለው የሕንፃ አስተዳዳሪ ብቻ ነው።"
+ "Only a building manager can add a tenant.": "ተከራይ ማከል የሚችለው የሕንፃ አስተዳዳሪ ብቻ ነው።",
+ "Words": "ቃላት",
+ "Word": "ቃል",
+ "Means": "ትርጉም",
+ "Company words": "የድርጅቱ ቃላት",
+ "Your words": "የእርስዎ ቃላት",
+ "Something else": "ሌላ ነገር",
+ "Add word": "ቃል ያክሉ",
+ "Remove this word?": "ይህን ቃል ያስወግዱ?",
+ "Only an admin can add company words.": "የድርጅቱን ቃላት ማከል የሚችለው አስተዳዳሪ ብቻ ነው።",
+ "You already use that word.": "ይህን ቃል አስቀድመው ይጠቀማሉ።"
 }

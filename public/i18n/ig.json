@@ -658,5 +658,15 @@
  "Tenant name": "Aha onye mgbazinye",
  "Tenant phone": "Ekwentị onye mgbazinye",
  "Tenant": "Onye mgbazinye",
- "Only a building manager can add a tenant.": "Naanị onye njikwa ụlọ nwere ike itinye onye mgbazinye."
+ "Only a building manager can add a tenant.": "Naanị onye njikwa ụlọ nwere ike itinye onye mgbazinye.",
+ "Words": "Okwu ndị a",
+ "Word": "Okwu",
+ "Means": "Ihe ọ pụtara",
+ "Company words": "Okwu ụlọ ọrụ",
+ "Your words": "Okwu gị",
+ "Something else": "Ihe ọzọ",
+ "Add word": "Tinye okwu",
+ "Remove this word?": "Wepụ okwu a?",
+ "Only an admin can add company words.": "Naanị onye nchịkwa nwere ike itinye okwu ụlọ ọrụ.",
+ "You already use that word.": "Ị na-eji okwu ahụ eme ihe ugbua."
 }

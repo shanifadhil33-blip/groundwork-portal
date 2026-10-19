@@ -708,5 +708,15 @@
  "Tenant name": "வாடகைதாரர் பெயர்",
  "Tenant phone": "வாடகைதாரர் தொலைபேசி",
  "Tenant": "வாடகைதாரர்",
- "Only a building manager can add a tenant.": "கட்டிட மேலாளர் மட்டுமே வாடகைதாரரைச் சேர்க்க முடியும்."
+ "Only a building manager can add a tenant.": "கட்டிட மேலாளர் மட்டுமே வாடகைதாரரைச் சேர்க்க முடியும்.",
+ "Words": "சொற்கள்",
+ "Word": "சொல்",
+ "Means": "பொருள்",
+ "Company words": "நிறுவனச் சொற்கள்",
+ "Your words": "உங்கள் சொற்கள்",
+ "Something else": "வேறு ஏதாவது",
+ "Add word": "சொல் சேர்",
+ "Remove this word?": "இந்தச் சொல்லை நீக்கவா?",
+ "Only an admin can add company words.": "நிர்வாகி மட்டுமே நிறுவனச் சொற்களைச் சேர்க்க முடியும்.",
+ "You already use that word.": "நீங்கள் ஏற்கனவே இந்தச் சொல்லைப் பயன்படுத்துகிறீர்கள்."
 }

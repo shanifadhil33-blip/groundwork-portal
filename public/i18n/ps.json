@@ -690,5 +690,15 @@
  "Tenant name": "د کرایه دار نوم",
  "Tenant phone": "د کرایه دار تلیفون",
  "Tenant": "کرایه دار",
- "Only a building manager can add a tenant.": "یوازې د ودانۍ مدیر کرایه دار زیاتولی شي."
+ "Only a building manager can add a tenant.": "یوازې د ودانۍ مدیر کرایه دار زیاتولی شي.",
+ "Words": "کلمې",
+ "Word": "کلمه",
+ "Means": "مانا",
+ "Company words": "د شرکت کلمې",
+ "Your words": "ستاسو کلمې",
+ "Something else": "بل څه",
+ "Add word": "کلمه زیاته کړئ",
+ "Remove this word?": "دا کلمه لرې کړئ؟",
+ "Only an admin can add company words.": "یوازې مدیر د شرکت کلمې زیاتولی شي.",
+ "You already use that word.": "تاسو دا کلمه له مخکې کاروئ."
 }

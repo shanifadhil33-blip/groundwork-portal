@@ -653,5 +653,15 @@
  "Tenant name": "Pangalan ng nangungupahan",
  "Tenant phone": "Telepono ng nangungupahan",
  "Tenant": "Nangungupahan",
- "Only a building manager can add a tenant.": "Tagapamahala lang ng gusali ang puwedeng magdagdag ng nangungupahan."
+ "Only a building manager can add a tenant.": "Tagapamahala lang ng gusali ang puwedeng magdagdag ng nangungupahan.",
+ "Words": "Mga salita",
+ "Word": "Salita",
+ "Means": "Kahulugan",
+ "Company words": "Mga salita ng kumpanya",
+ "Your words": "Mga salita mo",
+ "Something else": "Iba pa",
+ "Add word": "Magdagdag ng salita",
+ "Remove this word?": "Alisin ang salitang ito?",
+ "Only an admin can add company words.": "Admin lang ang puwedeng magdagdag ng mga salita ng kumpanya.",
+ "You already use that word.": "Ginagamit mo na ang salitang iyan."
 }

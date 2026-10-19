@@ -649,5 +649,15 @@
  "Tenant name": "Ɔdan gyefo din",
  "Tenant phone": "Ɔdan gyefo telefon",
  "Tenant": "Ɔdan gyefo",
- "Only a building manager can add a tenant.": "Ɔdan no sohwɛfo nko ara na obetumi de ɔdan gyefo aka ho."
+ "Only a building manager can add a tenant.": "Ɔdan no sohwɛfo nko ara na obetumi de ɔdan gyefo aka ho.",
+ "Words": "Nsɛmfua",
+ "Word": "Asɛmfua",
+ "Means": "Nkyerɛase",
+ "Company words": "Adwumakuw no nsɛmfua",
+ "Your words": "Wo nsɛmfua",
+ "Something else": "Biribi foforo",
+ "Add word": "Fa asɛmfua ka ho",
+ "Remove this word?": "Yi asɛmfua yi fi hɔ?",
+ "Only an admin can add company words.": "Ɔhwɛfo nkutoo na obetumi de adwumakuw no nsɛmfua aka ho.",
+ "You already use that word.": "Wode saa asɛmfua no di dwuma dedaw."
 }

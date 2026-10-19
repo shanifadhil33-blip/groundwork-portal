@@ -185,4 +185,10 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    const asset=(await client.query('INSERT INTO assets(workspace_id,site_id,name,kind,location,created_by) VALUES($1,$2,$3,$4,$5,$6) RETURNING id',[ids.ridgeline,siteId(site),name,kind,location,ids.imran])).rows[0];
    if(name==='Roof AC 1'||name==='Water pump')await client.query("UPDATE work_orders SET asset_id=$3 WHERE id=(SELECT id FROM work_orders WHERE workspace_id=$1 AND site_id=$2 AND status='done' ORDER BY order_number LIMIT 1)",[ids.ridgeline,siteId(site),asset.id]);
   }
+  await client.query(`INSERT INTO agent_words(workspace_id,user_id,phrase,means_kind,means_id,means_text,created_by)
+   SELECT $1::uuid,NULL::uuid,'the tower','site',id,name,$2::uuid FROM sites WHERE workspace_id=$1 AND name='Marina Exchange'
+   UNION ALL SELECT $1::uuid,NULL::uuid,'big chiller','asset',id,name,$2::uuid FROM assets WHERE workspace_id=$1 AND name='Roof AC 1'`,[ids.ridgeline,ids.imran]);
+  await client.query(`INSERT INTO agent_words(workspace_id,user_id,phrase,means_kind,means_id,means_text,created_by)
+   SELECT $1,$2,'the annex','site',id,name,$2 FROM sites WHERE workspace_id=$1 AND name='Harbor Annex'`,[ids.ridgeline,ids.ravi]);
+
 }

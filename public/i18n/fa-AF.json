@@ -669,5 +669,15 @@
  "Tenant name": "نام مستأجر",
  "Tenant phone": "تلفن مستأجر",
  "Tenant": "مستأجر",
- "Only a building manager can add a tenant.": "فقط مدیر ساختمان می‌تواند مستأجر اضافه کند."
+ "Only a building manager can add a tenant.": "فقط مدیر ساختمان می‌تواند مستأجر اضافه کند.",
+ "Words": "واژه‌ها",
+ "Word": "واژه",
+ "Means": "معنی",
+ "Company words": "واژه‌های شرکت",
+ "Your words": "واژه‌های شما",
+ "Something else": "چیز دیگر",
+ "Add word": "افزودن واژه",
+ "Remove this word?": "این واژه حذف شود؟",
+ "Only an admin can add company words.": "تنها مدیر می‌تواند واژه‌های شرکت را اضافه کند.",
+ "You already use that word.": "شما از قبل این واژه را استفاده می‌کنید."
 }

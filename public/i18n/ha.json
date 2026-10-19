@@ -663,5 +663,15 @@
  "Tenant name": "Sunan mai haya",
  "Tenant phone": "Wayar mai haya",
  "Tenant": "Mai haya",
- "Only a building manager can add a tenant.": "Manajan gini kaɗai zai iya ƙara mai haya."
+ "Only a building manager can add a tenant.": "Manajan gini kaɗai zai iya ƙara mai haya.",
+ "Words": "Kalmomi",
+ "Word": "Kalma",
+ "Means": "Ma’ana",
+ "Company words": "Kalmomin kamfani",
+ "Your words": "Kalmominka",
+ "Something else": "Wani abu dabam",
+ "Add word": "Ƙara kalma",
+ "Remove this word?": "Cire wannan kalmar?",
+ "Only an admin can add company words.": "Mai gudanarwa kaɗai zai iya ƙara kalmomin kamfani.",
+ "You already use that word.": "Kana amfani da wannan kalmar tuni."
 }

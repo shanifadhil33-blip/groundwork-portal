@@ -644,5 +644,15 @@
  "Tenant name": "Jina la mpangaji",
  "Tenant phone": "Simu ya mpangaji",
  "Tenant": "Mpangaji",
- "Only a building manager can add a tenant.": "Msimamizi wa jengo pekee anaweza kuongeza mpangaji."
+ "Only a building manager can add a tenant.": "Msimamizi wa jengo pekee anaweza kuongeza mpangaji.",
+ "Words": "Maneno",
+ "Word": "Neno",
+ "Means": "Maana",
+ "Company words": "Maneno ya kampuni",
+ "Your words": "Maneno yako",
+ "Something else": "Kitu kingine",
+ "Add word": "Ongeza neno",
+ "Remove this word?": "Ondoa neno hili?",
+ "Only an admin can add company words.": "Msimamizi pekee anaweza kuongeza maneno ya kampuni.",
+ "You already use that word.": "Tayari unatumia neno hilo."
 }

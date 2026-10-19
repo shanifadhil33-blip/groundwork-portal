@@ -643,5 +643,15 @@
  "Tenant name": "Erinnya ly’omupangisa",
  "Tenant phone": "Essimu y’omupangisa",
  "Tenant": "Omupangisa",
- "Only a building manager can add a tenant.": "Omuddukanya w’ekizimbe yekka y’asobola okwongerako omupangisa."
+ "Only a building manager can add a tenant.": "Omuddukanya w’ekizimbe yekka y’asobola okwongerako omupangisa.",
+ "Words": "Ebigambo",
+ "Word": "Ekigambo",
+ "Means": "Amakulu",
+ "Company words": "Ebigambo bya kkampuni",
+ "Your words": "Ebigambo byo",
+ "Something else": "Ekintu ekirala",
+ "Add word": "Yongerako ekigambo",
+ "Remove this word?": "Ggyawo ekigambo kino?",
+ "Only an admin can add company words.": "Omuddukanya yekka y’ayinza okwongerako ebigambo bya kkampuni.",
+ "You already use that word.": "Ekigambo ekyo okikozesa dda."
 }

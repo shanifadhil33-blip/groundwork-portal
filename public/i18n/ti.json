@@ -673,5 +673,15 @@
  "Tenant name": "ስም ተኻራዪ",
  "Tenant phone": "ተሌፎን ተኻራዪ",
  "Tenant": "ተኻራዪ",
- "Only a building manager can add a tenant.": "ኣመሓዳሪ ህንጻ ጥራይ ተኻራዪ ክውስኽ ይኽእል።"
+ "Only a building manager can add a tenant.": "ኣመሓዳሪ ህንጻ ጥራይ ተኻራዪ ክውስኽ ይኽእል።",
+ "Words": "ቃላት",
+ "Word": "ቃል",
+ "Means": "ትርጉም",
+ "Company words": "ናይ ትካል ቃላት",
+ "Your words": "ናትካ ቃላት",
+ "Something else": "ካልእ ነገር",
+ "Add word": "ቃል ወስኽ",
+ "Remove this word?": "ነዚ ቃል ተወግዶ?",
+ "Only an admin can add company words.": "ናይ ትካል ቃላት ክውስኽ ዝኽእል ኣመሓዳሪ ጥራይ እዩ።",
+ "You already use that word.": "ነዚ ቃል ድሮ ትጥቀመሉ ኣለኻ።"
 }

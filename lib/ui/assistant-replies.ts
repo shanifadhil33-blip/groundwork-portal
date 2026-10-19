@@ -95,6 +95,8 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='reschedule_visit')return `Move WO ${order?.order_number} ${order?.title} to ${formatDate(args.scheduled_for,order?.timezone)}?`;
   if(tool === 'fill_onboarding') return 'Save these setup answers?\n'+Object.entries(args.answers??{}).map(([k,v])=>`${readableLabel(k)}: ${typeof v==='object'?JSON.stringify(v):v}`).join('\n');
   if(tool === 'suggest_contact_name') return `Save ${target??'this contact'} as ${args.nickname}?`;
+  if(tool === 'remember_word') return `Remember this word?\n${args.phrase} means ${target??args.means_text??'the chosen '+args.means_kind}.\n${args.scope==='company'?'Company words':'Your words'}`;
+  if(tool === 'forget_word') return `Remove this word?${target?'\n'+target:''}`;
   if(tool === 'remember_about_me') return `Remember this about you?\n${args.note}`;
   if(tool === 'forget_about_me') return 'Forget this note about you?';
   if(tool === 'set_call_me') return `Call you ${args.name} from now on?`;
@@ -148,6 +150,8 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='add_worker')return plainAssistantReply(`Added ${args.name}. Open Team and tap New sign in to make a code.`);
   if(tool==='request_time_off')return `Sent your time off request: ${offSpan(args.kind??'off',args.starts_on,args.ends_on)}. I will tell you when your supervisor answers.`;
   if(tool==='decide_time_off')return args.decision==='approved'?'Approved. It shows on the schedule now.':'Declined. He gets a message.';
+  if(tool==='remember_word')return 'Word saved. You can see it on your Memory page.';
+  if(tool==='forget_word')return 'Word removed.';
   if(tool==='remember_about_me')return 'Saved. You can see it on your Memory page.';
   if(tool==='forget_about_me')return 'Forgotten. I will not use it again.';
   if(tool==='set_call_me')return 'I will call you that from now on.';

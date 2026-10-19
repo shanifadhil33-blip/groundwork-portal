@@ -689,5 +689,15 @@
  "Tenant name": "भाडावालाको नाम",
  "Tenant phone": "भाडावालाको फोन",
  "Tenant": "भाडावाला",
- "Only a building manager can add a tenant.": "भवन व्यवस्थापकले मात्र भाडावाला थप्न सक्छन्।"
+ "Only a building manager can add a tenant.": "भवन व्यवस्थापकले मात्र भाडावाला थप्न सक्छन्।",
+ "Words": "शब्दहरू",
+ "Word": "शब्द",
+ "Means": "अर्थ",
+ "Company words": "कम्पनीका शब्दहरू",
+ "Your words": "तपाईंका शब्दहरू",
+ "Something else": "अरू केही",
+ "Add word": "शब्द थप्नुहोस्",
+ "Remove this word?": "यो शब्द हटाउने?",
+ "Only an admin can add company words.": "प्रशासकले मात्र कम्पनीका शब्दहरू थप्न सक्छन्।",
+ "You already use that word.": "तपाईंले यो शब्द पहिल्यै प्रयोग गर्नुहुन्छ।"
 }

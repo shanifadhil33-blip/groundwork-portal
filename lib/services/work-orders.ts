@@ -45,6 +45,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   if(query.priority.length)add('priority=ANY(?::work_order_priority[])',query.priority);
   if(query.client_id)add('client_id=?',query.client_id);
   if(query.site_id)add('site_id=?',query.site_id);
+  for(const key of ['asset_id','id'] as const){if(query[key])add(key+'=?',query[key]);}
   if(query.assignee_id==='unassigned')clauses.push('assignee_id IS NULL');else if(query.assignee_id)add('assignee_id=?',query.assignee_id);
   if(query.overdue)clauses.push('('+overdueSql+')');
   if(query.today)clauses.push('('+todaySql+')');

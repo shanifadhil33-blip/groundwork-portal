@@ -649,5 +649,15 @@
  "Tenant name": "租户姓名",
  "Tenant phone": "租户电话",
  "Tenant": "租户",
- "Only a building manager can add a tenant.": "只有楼宇管理员可以添加租户。"
+ "Only a building manager can add a tenant.": "只有楼宇管理员可以添加租户。",
+ "Words": "用词",
+ "Word": "词语",
+ "Means": "含义",
+ "Company words": "公司用词",
+ "Your words": "你的用词",
+ "Something else": "其他内容",
+ "Add word": "添加词语",
+ "Remove this word?": "删除这个词语？",
+ "Only an admin can add company words.": "只有管理员可以添加公司用词。",
+ "You already use that word.": "你已经在使用这个词语。"
 }

@@ -693,5 +693,15 @@
  "Tenant name": "کرایہ دار کا نام",
  "Tenant phone": "کرایہ دار کا فون",
  "Tenant": "کرایہ دار",
- "Only a building manager can add a tenant.": "صرف عمارت کا مینیجر کرایہ دار شامل کر سکتا ہے۔"
+ "Only a building manager can add a tenant.": "صرف عمارت کا مینیجر کرایہ دار شامل کر سکتا ہے۔",
+ "Words": "الفاظ",
+ "Word": "لفظ",
+ "Means": "مطلب",
+ "Company words": "کمپنی کے الفاظ",
+ "Your words": "آپ کے الفاظ",
+ "Something else": "کچھ اور",
+ "Add word": "لفظ شامل کریں",
+ "Remove this word?": "یہ لفظ ہٹائیں؟",
+ "Only an admin can add company words.": "صرف منتظم کمپنی کے الفاظ شامل کر سکتا ہے۔",
+ "You already use that word.": "آپ یہ لفظ پہلے سے استعمال کرتے ہیں۔"
 }

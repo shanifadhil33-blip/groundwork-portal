@@ -676,5 +676,15 @@
  "Tenant name": "വാടകക്കാരന്റെ പേര്",
  "Tenant phone": "വാടകക്കാരന്റെ ഫോൺ",
  "Tenant": "വാടകക്കാരൻ",
- "Only a building manager can add a tenant.": "കെട്ടിട മാനേജർക്ക് മാത്രമേ വാടകക്കാരനെ ചേർക്കാൻ കഴിയൂ."
+ "Only a building manager can add a tenant.": "കെട്ടിട മാനേജർക്ക് മാത്രമേ വാടകക്കാരനെ ചേർക്കാൻ കഴിയൂ.",
+ "Words": "വാക്കുകൾ",
+ "Word": "വാക്ക്",
+ "Means": "അർത്ഥം",
+ "Company words": "കമ്പനിയുടെ വാക്കുകൾ",
+ "Your words": "നിങ്ങളുടെ വാക്കുകൾ",
+ "Something else": "മറ്റെന്തെങ്കിലും",
+ "Add word": "വാക്ക് ചേർക്കുക",
+ "Remove this word?": "ഈ വാക്ക് നീക്കണോ?",
+ "Only an admin can add company words.": "അഡ്മിന് മാത്രമേ കമ്പനിയുടെ വാക്കുകൾ ചേർക്കാനാകൂ.",
+ "You already use that word.": "നിങ്ങൾ ഈ വാക്ക് ഇതിനകം ഉപയോഗിക്കുന്നു."
 }

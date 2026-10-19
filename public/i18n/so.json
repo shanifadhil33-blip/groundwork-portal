@@ -664,5 +664,15 @@
  "Tenant name": "Magaca kiraystaha",
  "Tenant phone": "Telefoonka kiraystaha",
  "Tenant": "Kirayste",
- "Only a building manager can add a tenant.": "Maamulaha dhismaha oo keliya ayaa ku dari kara kirayste."
+ "Only a building manager can add a tenant.": "Maamulaha dhismaha oo keliya ayaa ku dari kara kirayste.",
+ "Words": "Erayo",
+ "Word": "Eray",
+ "Means": "Macnaha",
+ "Company words": "Erayada shirkadda",
+ "Your words": "Erayadaada",
+ "Something else": "Wax kale",
+ "Add word": "Ku dar eray",
+ "Remove this word?": "Ka saar eraygan?",
+ "Only an admin can add company words.": "Maamulaha oo keliya ayaa ku dari kara erayada shirkadda.",
+ "You already use that word.": "Eraygaas horay ayaad u isticmaashaa."
 }

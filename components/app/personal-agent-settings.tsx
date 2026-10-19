@@ -6,10 +6,11 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { LANGUAGES, DEFAULT_LANGUAGE, languageOptions as langOpts } from '../../lib/languages';
 import { request, RequestError } from '../../lib/ui/api';
-import { Button, Dropdown, ErrorState } from '../ui';
+import { Button, Dropdown, ErrorState, ConfirmDialog } from '../ui';
 import { useApp } from './context';
 import { useResource } from './resource';
 import { changeAppLanguage } from './translator';
+import type { Words,AgentWord } from '../../lib/services/agent-words';
 import { AgentLog } from './dashboard';
 export type AgentPreferences={agent_avatar?:string|null;agent_name:string|null;voice_enabled:boolean;reply_length?:ReplyLength;language:string|null};
 export function PersonalAgentSettings(){
@@ -51,10 +52,33 @@ export function PersonalAgentLog(){
  return <div className="page stack agent-settings memory-page"><Link href="/settings/agent">Back to Agent</Link><h1>Memory</h1>
  <p>What your Agent remembers about you. Only you see this. Tell your Agent to forget something, or change it here.</p>
  <ul className="action-list memory-summary"><li><div><strong>Calls you</strong><p data-no-translate>{prefs.data?.preferred_name||me.user.name||'Not set yet'}</p></div></li><li><div><strong>Language</strong><p data-no-translate>{lang?.native===lang?.name?lang?.name:`${lang?.name}, ${lang?.native}`}</p></div></li></ul>
+ <AgentWords/>
  <h2>About you</h2>
  {learning.error?<ErrorState retry={learning.reload}/>:!mine.length?<p>Nothing yet. Try telling your Agent: I start at 7 now.</p>:<ul className="action-list">{mine.map(n=><li key={n.id}>{editing?.id===n.id?<div className="stack compact memory-edit"><label className="form-field">Change this line<textarea value={editing.body} maxLength={2000} onChange={e=>setEditing({id:n.id,body:e.target.value})}/></label><div className="row"><Button busy={busy} disabled={!editing.body.trim()} onClick={()=>void saveEdit()}>Save</Button><Button variant="secondary" onClick={()=>setEditing(null)}>Cancel</Button></div></div>:<><div><p data-no-translate>{n.body}</p></div><div className="row memory-actions"><Button variant="secondary" disabled={busy} onClick={()=>setEditing({id:n.id,body:n.body})}>Edit</Button><Button variant="secondary" disabled={busy} onClick={()=>void remove(n.id)}>Delete</Button></div></>}</li>)}</ul>}
  {rules.length>0&&<><h2>Company rules</h2><ul className="action-list">{rules.map(n=><li key={n.id}><div><p data-no-translate>{n.body}</p></div></li>)}</ul></>}
  <label className="form-field">Remember this<textarea value={body} maxLength={2000} onChange={e=>setBody(e.target.value)}/></label>{member?.role==='admin'&&<label className="form-field">Who is this for<select value={scope} onChange={e=>setScope(e.target.value)}><option value="personal">Only me</option><option value="company_rule">Company rule</option></select></label>}<Button busy={busy} disabled={!body.trim()} onClick={()=>void save()}>Save</Button>
  {mine.length>0&&(confirmReset?<div className="stack compact" role="group" aria-label="Reset memory"><p>Forget everything your Agent knows about you? Company rules stay.</p><div className="row"><Button busy={busy} onClick={()=>void reset()}>Yes, forget all</Button><Button variant="secondary" onClick={()=>setConfirmReset(false)}>Keep</Button></div></div>:<Button variant="secondary" onClick={()=>setConfirmReset(true)}>Reset everything</Button>)}
  {error&&<p role="alert">{error}</p>}{base&&<div id="decision-log"><AgentLog base={base} full/></div>}</div>;
+}
+
+function AgentWords(){
+ const {member}=useApp(),base=member?`/api/workspaces/${member.workspace_id}`:null;
+ const words=useResource<Words>(base?`${base}/words`:null),sites=useResource<{id:string;name:string}[]>(base?`${base}/suggestion-sites`:null),assets=useResource<{id:string;name:string}[]>(base?`${base}/assets`:null);
+ const [phrase,setPhrase]=useState(''),[means,setMeans]=useState('other'),[text,setText]=useState(''),[scope,setScope]=useState('personal'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[removing,setRemoving]=useState<AgentWord|null>(null),[done,setDone]=useState('');
+ const admin=member?.role==='admin';
+ async function run(work:()=>Promise<unknown>,ok:string){setBusy(true);setError('');setDone('');try{await work();await words.reload();setDone(ok);}catch(e){setError(e instanceof Error?e.message:'Could not save. Try again.');}finally{setBusy(false);}}
+ async function save(){if(!base)return;await run(async()=>{const [kind,id]=means.split(':');await request(`${base}/words`,{method:'POST',body:JSON.stringify({phrase,scope,means_kind:kind,...(id?{means_id:id}:{means_text:text})})});setPhrase('');setText('');},'Word added.');}
+ const options=[...(sites.data??[]).map(s=>({value:`site:${s.id}`,label:s.name,noTranslate:true})),...(assets.data??[]).map(a=>({value:`asset:${a.id}`,label:a.name,noTranslate:true})),{value:'other',label:'Something else'}];
+ const group=(title:string,list:AgentWord[],canRemove:boolean)=><><h3>{title}</h3>{list.length===0?<p className="muted">No words yet.</p>:<ul className="action-list">{list.map(w=><li key={w.id}><div><strong data-no-translate>{w.phrase}</strong><p data-no-translate>{w.means_text}</p></div>{canRemove&&<Button variant="secondary" disabled={busy} onClick={()=>setRemoving(w)}>Delete</Button>}</li>)}</ul>}</>;
+ return <section className="stack"><h2>Words</h2>{words.loading?<p>Loading…</p>:words.error?<ErrorState retry={words.reload}/>:<>{group('Your words',words.data?.personal??[],true)}{member?.role!=='client'&&group('Company words',words.data?.company??[],admin)}</>}
+ <form className="stack compact" onSubmit={e=>{e.preventDefault();void save();}}>
+ <label className="form-field">Word<input value={phrase} maxLength={60} disabled={busy} onChange={e=>setPhrase(e.target.value)} style={{minHeight:44}}/></label>
+ <div className="form-field"><label htmlFor="word-means">Means</label><Dropdown id="word-means" label="Means" value={means} options={options} disabled={busy||sites.loading||assets.loading} onChange={setMeans}/></div>
+ {means==='other'&&<label className="form-field">Something else<input value={text} maxLength={200} disabled={busy} onChange={e=>setText(e.target.value)} style={{minHeight:44}}/></label>}
+ {admin&&<div className="form-field"><label htmlFor="word-scope">Who is this for</label><Dropdown id="word-scope" label="Who is this for" value={scope} options={[{value:'personal',label:'Your words'},{value:'company',label:'Company words'}]} disabled={busy} onChange={setScope}/></div>}
+ {sites.error&&<ErrorState retry={sites.reload}/>} {assets.error&&<ErrorState retry={assets.reload}/>}
+ <Button type="submit" busy={busy} disabled={!phrase.trim()||(means==='other'&&!text.trim())}>Add word</Button>
+ </form>{error&&!removing&&<p role="alert">{error}</p>}{done&&<p role="status">{done}</p>}
+ <ConfirmDialog open={!!removing} title="Remove this word?" confirmLabel="Delete" danger busy={busy} error={error} onClose={()=>{setRemoving(null);setError('');}} onConfirm={()=>void run(async()=>{await request(`${base}/words/${removing!.id}`,{method:'DELETE'});setRemoving(null);},'Word removed.')}><p data-no-translate>{removing?.phrase}</p></ConfirmDialog>
+ </section>;
 }

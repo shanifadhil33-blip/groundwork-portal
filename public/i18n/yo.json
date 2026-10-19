@@ -639,5 +639,15 @@
  "Tenant name": "Orúkọ ayálégbé",
  "Tenant phone": "Fóònù ayálégbé",
  "Tenant": "Ayálégbé",
- "Only a building manager can add a tenant.": "Alábòójútó ilé nìkan ló lè fi ayálégbé kún un."
+ "Only a building manager can add a tenant.": "Alábòójútó ilé nìkan ló lè fi ayálégbé kún un.",
+ "Words": "Àwọn ọ̀rọ̀",
+ "Word": "Ọ̀rọ̀",
+ "Means": "Ìtumọ̀",
+ "Company words": "Àwọn ọ̀rọ̀ ilé iṣẹ́",
+ "Your words": "Àwọn ọ̀rọ̀ rẹ",
+ "Something else": "Nǹkan mìíràn",
+ "Add word": "Fi ọ̀rọ̀ kún un",
+ "Remove this word?": "Yọ ọ̀rọ̀ yìí kúrò?",
+ "Only an admin can add company words.": "Alábòójútó nìkan ló lè fi àwọn ọ̀rọ̀ ilé iṣẹ́ kún un.",
+ "You already use that word.": "O ti ń lo ọ̀rọ̀ yẹn tẹ́lẹ̀."
 }

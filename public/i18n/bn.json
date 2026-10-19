@@ -713,5 +713,15 @@
  "Tenant name": "ভাড়াটিয়ার নাম",
  "Tenant phone": "ভাড়াটিয়ার ফোন",
  "Tenant": "ভাড়াটিয়া",
- "Only a building manager can add a tenant.": "শুধু ভবনের ব্যবস্থাপক ভাড়াটিয়া যোগ করতে পারেন।"
+ "Only a building manager can add a tenant.": "শুধু ভবনের ব্যবস্থাপক ভাড়াটিয়া যোগ করতে পারেন।",
+ "Words": "শব্দসমূহ",
+ "Word": "শব্দ",
+ "Means": "অর্থ",
+ "Company words": "কোম্পানির শব্দ",
+ "Your words": "আপনার শব্দ",
+ "Something else": "অন্য কিছু",
+ "Add word": "শব্দ যোগ করুন",
+ "Remove this word?": "এই শব্দ সরাবেন?",
+ "Only an admin can add company words.": "শুধু প্রশাসক কোম্পানির শব্দ যোগ করতে পারেন।",
+ "You already use that word.": "আপনি এই শব্দ আগে থেকেই ব্যবহার করছেন।"
 }

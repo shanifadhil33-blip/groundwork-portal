@@ -1,3 +1,6 @@
+import { listWords,resolveWords } from '../services/agent-words';
+import { inWorkspace } from '../services/shared';
+import { listWorkOrders } from '../services/work-orders';
 /**
  * Answers from the app's own data when every AI provider is busy or gives a broken reply.
  * The person never sees an error: common questions (today, late jobs, a job's status, what needs attention,
@@ -119,6 +122,9 @@ async function leave(c: AgentContext) {
 
 /** A real answer from app data, never null: the last resort is a short summary and what the person can ask. */
 export async function dataAnswer(c: AgentContext, question: string): Promise<string> {
+  question=resolveWords(question,await listWords(c.user,c.ws));
+  const scoped=await scopedQuickAnswer(c,question);
+  if(scoped!==undefined)return scoped;
   const { intent, number } = detectIntent(question);
   try {
     const answer = intent === 'job' ? await job(c, number!) : intent === 'late' ? await late(c) : intent === 'messages' ? await messages(c) : intent === 'suggestions' ? await suggestions(c) : intent === 'leave' ? await leave(c) : intent === 'today' ? await today(c) : await attention(c);
@@ -145,11 +151,14 @@ const QUICK: [QuickLookup, RegExp][] = [
   ['client_requests', /^how are my requests (?:going|doing)$|^(?:show )?my requests$/],
   ['client_visit', /^when is (?:the|my) technician coming$|^when is my (?:next )?visit$/],
 ];
-export function quickLookup(question: string): QuickLookup | null {
+function directQuick(question: string): QuickLookup | null {
   const q = question.toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().replace(/[?.!\s]+$/, '');
   if (!q || q.length > 60) return null;
   for (const [k, re] of QUICK) if (re.test(q)) return k;
   return null;
+}
+export function quickLookup(question:string):QuickLookup|null {
+ return directQuick(question)??directQuick(splitQuick(question)?.base??'');
 }
 async function parts(c: AgentContext, tz?: string) {
   const r = await read(c, 'list_work_orders', { status: ['waiting_on_parts'], sort: 'updated_at', dir: 'desc', pageSize: 8 });
@@ -193,6 +202,10 @@ async function clientVisit(c: AgentContext, tz?: string) {
 }
 /** The quick answer, or null to let the AI answer. tomorrow is the workspace's next day as YYYY-MM-DD. */
 export async function quickAnswer(c: AgentContext, question: string, who: { role: string; tomorrow: string; timezone?: string }): Promise<string | null> {
+  question=resolveWords(question,await listWords(c.user,c.ws));
+  const scoped=await scopedQuickAnswer(c,question,who.timezone);
+  if(scoped!==undefined)return scoped;
+  if(splitQuick(question))return null;
   const k = quickLookup(question);
   if (!k) return null;
   const client = who.role === 'client';
@@ -208,4 +221,30 @@ export async function quickAnswer(c: AgentContext, question: string, who: { role
     if (k === 'client_requests') return await clientRequests(c, who.timezone);
     return await clientVisit(c, who.timezone);
   } catch { return null; }
+}
+
+/** A named place or unit narrows the database query before pagination. Unknown or ambiguous names go to the Agent. */
+function splitQuick(question:string){
+ const text=question.trim().replace(/[?.!]+$/,'');
+ const m=text.match(/^(.+?)\s+(?:at|about)\s+(.+)$/i)??text.match(/^(.+)\s+for\s+(.+)$/i);
+ if(!m||!directQuick(m[1])||/\b(?:and|then)\s+(?:tell|send|show|change|give|make|add)\b/i.test(m[2]))return null;
+ return {base:m[1],name:m[2].match(/\(([^()]*)\)$/)?.[1]??m[2]};
+}
+async function scopedQuickAnswer(c:AgentContext,question:string,tz?:string):Promise<string|undefined>{
+ const named=splitQuick(question);
+ if(!named)return undefined;
+ const k=quickLookup(named.base);
+ if(k!=='late'&&k!=='parts')return undefined;
+ const filters=await inWorkspace(c.user,c.ws,async x=>{
+  const matches=(await x.db.query(`SELECT id,'site' AS kind FROM sites WHERE workspace_id=$1 AND lower(name)=lower($2)
+   UNION ALL SELECT id,'asset' FROM assets WHERE workspace_id=$1 AND lower(name)=lower($2)
+   UNION ALL SELECT id,'job' FROM work_orders WHERE workspace_id=$1 AND lower(title)=lower($2)`,[c.ws,named.name])).rows;
+  return matches.length===1?matches[0]:null;
+ });
+ if(!filters)return undefined;
+ const params=new URLSearchParams({pageSize:'8',sort:'due_on',dir:'asc'});
+ params.set(filters.kind==='site'?'site_id':filters.kind==='asset'?'asset_id':'id',filters.id);
+ if(k==='late')params.set('overdue','true');else params.append('status','waiting_on_parts');
+ const r=await listWorkOrders(c.user,c.ws,params);
+ return r.data.length?[`${plural(r.total,'job is','jobs are')} ${k==='late'?'late':'waiting on parts'}.`,...r.data.map(j=>line(j,tz))].join('\n'):k==='late'?'Nothing is late. Every job is on time.':'No jobs are waiting on parts.';
 }
