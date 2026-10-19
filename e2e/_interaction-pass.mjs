@@ -31,7 +31,7 @@ const anims = (sel) => { const el = document.querySelector(sel); if (!el) return
 const report = { at: new Date().toISOString(), runs: [], findings: [] };
 const find = (f) => { report.findings.push(f); };
 const br = await chromium.launch(); const s = await sandbox('imran');
-for (const who of PERSONAS) {
+for (const who of (process.env.TAIL_ONLY ? [] : null) ?? PERSONAS) {
   await s.as(who);
   for (const { w, theme } of CONFIGS) {
     const phone = w < 1024, laptop = !phone; const tag = `${who}-${w}-${theme}`;
@@ -102,19 +102,20 @@ for (const who of PERSONAS) {
     report.runs.push(run); await ctx.close(); fs.writeFileSync(`${OUT}/report.json`, JSON.stringify(report, null, 1)); console.log(tag, 'findings so far', report.findings.length);
   }
 }
-// Reduced motion: no sheet or panel animation.
-{ await s.as('ravi'); const ctx = await br.newContext({ viewport: { width: 390, height: 800 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' }); await ctx.addCookies((await s.api.storageState()).cookies);
-  const p = await ctx.newPage(); await p.goto(B + '/today', { waitUntil: 'networkidle' }); await p.locator('.phone-assistant').tap(); await p.waitForTimeout(30); const a = await p.evaluate(anims, '[role=dialog]');
+// Reduced motion: no sheet or panel animation. (A failure here is logged with a screenshot and never loses the report above.)
+try { await s.as('ravi'); const ctx = await br.newContext({ viewport: { width: 390, height: 800 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' }); await ctx.addCookies((await s.api.storageState()).cookies);
+  const p = await ctx.newPage(); await p.goto(B + '/today', { waitUntil: 'networkidle' }); await p.waitForTimeout(1000); await p.locator('.phone-assistant').tap({ timeout: 15000 }).catch(async e => { await p.screenshot({ path: `${OUT}/shots/reduced-fail.png` }); throw e; }); await p.waitForTimeout(30); const a = await p.evaluate(anims, '[role=dialog]');
   await p.locator('[role=dialog] button[aria-label="Close dialog"]').tap(); await p.waitForTimeout(30); const gone = await p.locator('[role=dialog]').count() === 0;
   await p.locator('.bottom-tabs button[aria-label="More"]').tap(); await p.waitForTimeout(30); const b = await p.evaluate(anims, '[role=dialog]');
-  report.reducedMotion = { agentAnims: a, closedAtOnce: gone, moreAnims: b }; if (a?.length || b?.length) find({ tag: 'ravi-390-reduced', kind: 'motion-not-reduced', note: JSON.stringify([a, b]) }); await ctx.close(); }
+  report.reducedMotion = { agentAnims: a, closedAtOnce: gone, moreAnims: b }; if (a?.length || b?.length) find({ tag: 'ravi-390-reduced', kind: 'motion-not-reduced', note: JSON.stringify([a, b]) }); await ctx.close(); } catch (e) { console.log('reduced motion check failed', String(e).slice(0, 200)); find({ tag: 'ravi-390-reduced', kind: 'check-failed', note: String(e).slice(0, 120) }); }
+fs.writeFileSync(`${OUT}/report.json`, JSON.stringify(report, null, 1));
 // Short screen recording of the key transitions at 390.
-{ await s.as('ravi'); const ctx = await br.newContext({ viewport: { width: 390, height: 800 }, isMobile: true, hasTouch: true, recordVideo: { dir: OUT + '/video', size: { width: 390, height: 800 } } }); await ctx.addCookies((await s.api.storageState()).cookies);
+try { await s.as('ravi'); const ctx = await br.newContext({ viewport: { width: 390, height: 800 }, isMobile: true, hasTouch: true, recordVideo: { dir: OUT + '/video', size: { width: 390, height: 800 } } }); await ctx.addCookies((await s.api.storageState()).cookies);
   const p = await ctx.newPage(); await p.goto(B + '/today', { waitUntil: 'networkidle' }); await p.waitForTimeout(800);
   await p.locator('.phone-assistant').tap(); await p.waitForTimeout(900); await p.locator('[role=dialog] button[aria-label="Close dialog"]').tap(); await p.waitForTimeout(700);
   await p.locator('.bottom-tabs button[aria-label="More"]').tap(); await p.waitForTimeout(900); await p.locator('[role=dialog] button[aria-label="Close dialog"]').tap(); await p.waitForTimeout(700);
   for (const a of (await p.locator('.bottom-tabs a[href]').all()).slice(0, 3)) { await a.tap(); await p.waitForTimeout(1100); }
-  await ctx.close(); }
+  await ctx.close(); } catch (e) { console.log('recording failed', String(e).slice(0, 200)); }
 await s.as('imran'); await br.close();
 const byKind = {}; for (const f of report.findings) byKind[f.kind] = (byKind[f.kind] ?? 0) + 1; report.byKind = byKind;
 fs.writeFileSync(`${OUT}/report.json`, JSON.stringify(report, null, 1)); console.log(JSON.stringify(byKind));
