@@ -25,7 +25,7 @@ import { ApiError,missing } from '../http';
 import { inWorkspace,uuid } from './shared';
 import { getWorkOrder } from './work-orders';
 import { listAgentLearning } from './agent-learning';
-import { needsAttention } from './attention';
+import { needsAttention, attentionReply } from './attention';
 import { tools,callTool,type AgentContext } from '../agent/tools';
 import { allowedTool, ADMIN_ONLY } from '../agent/role-tools';
 import { jobSnapshot,logRefusal,recordSnapshot,REFUSAL_REASON,whyNote } from './agent-log';
@@ -128,7 +128,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   return {available:true,reply:'Your setting has since changed. Open your personal settings to choose it again.'};
  }
  const selected=await selectedVisitChoice(user,ws,question);if(selected)return selected;
- if(/^(?:what needs attention|what do I need to do|what is waiting|show unread messages)[?.!]*$/i.test(question)){const a=await needsAttention(user,ws);return {available:true,reply:[a.summary+'.',`You have ${a.unread_messages} unread messages.`,...a.messages.slice(0,5).map(m=>m.summary)].join('\n')};}
+ if(/^(?:what needs attention|what do I need to do|what is waiting|show unread messages)[?.!]*$/i.test(question)){const a=await needsAttention(user,ws);return {available:true,reply:attentionReply(a)};}
  // Quick lookups (Oct 19): common read questions answer from the database with no AI call, well under a second.
  if(quickLookup(question)){
   const who=await inWorkspace(user,ws,async x=>{const w=(await x.db.query("SELECT ((now() AT TIME ZONE timezone)::date+1)::text AS d,timezone FROM workspaces WHERE id=$1",[ws])).rows[0];return {role:x.role as string,tomorrow:String(w?.d??''),timezone:w?.timezone?String(w.timezone):undefined};});

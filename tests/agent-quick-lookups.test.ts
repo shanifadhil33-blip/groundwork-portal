@@ -36,3 +36,15 @@ it('who is free tomorrow answers for a supervisor; client questions answer only 
  const v=await ask('When is the technician coming?');expect(v.body.quick).toBe(true);
  const w=await ask('Show jobs waiting on parts');expect(w.body.quick).toBe(true);
 });
+
+it('what needs attention groups unread messages per job with a count, never repeating a line',async()=>{
+ const { groupUnread, attentionReply } = await import('../lib/services/attention');
+ const m=(wo:number|null,who:string,kind='job')=>({conversation_id:wo?null:'chat-'+who,work_order_id:wo?'job-'+wo:null,order_number:wo,sender_name:who,thread_kind:kind});
+ const groups=groupUnread([m(6,'Sam'),m(6,'Sam'),m(12,'Sam'),m(6,'Imran'),m(12,'Sam'),m(null,'Ravi','direct'),m(null,'Ravi','direct'),m(null,'Bilal','team')]);
+ expect(groups.map(g=>g.summary)).toEqual(['WO 6: 2 from Sam, 1 from Imran','WO 12: 2 from Sam','Direct chat: 2 from Ravi']);
+ const reply=attentionReply({summary:'You have 2 suggested jobs',message_groups:groups});
+ expect(reply).toBe('You have 2 suggested jobs.\nYou have 7 unread messages: 5 on 2 jobs and 2 in direct chats.\n• WO 6: 2 from Sam, 1 from Imran\n• WO 12: 2 from Sam\n• Direct chat: 2 from Ravi');
+ const lines=reply.split('\n');expect(new Set(lines).size).toBe(lines.length);
+ expect(attentionReply({summary:'You have 0 suggested jobs',message_groups:[]})).toBe('You have 0 suggested jobs.\nYou have no unread messages.');
+ const live=await ask('What needs attention?');const out=live.body.reply.split('\n');expect(new Set(out).size).toBe(out.length);expect(ai).not.toHaveBeenCalled();
+});
