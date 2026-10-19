@@ -1,4 +1,4 @@
-import { isStep, statusLine, type Step } from '../status-updates';
+import { isStep, statusLine, type Message } from '../status-updates';
 import webpush from 'web-push';
 import { z } from 'zod';
 import { withSystem, withUser } from '../db';
@@ -47,7 +47,7 @@ export async function sendPush(users: string[], msg: Msg) {
   } catch (e) { console.error('push error', (e as Error).message); return 0; }
 }
 
-type Job = { id: string; workspace_id: string; title: string; status: string; assignee_id: string | null; created_by: string | null; client_id: string };
+type Job = { id: string; workspace_id: string; title: string; status: string; assignee_id: string | null; created_by: string | null; client_id: string; order_number?: number; scheduled_for?: string | Date | null };
 export async function office(ws: string, client: string, creator: string | null) {
   return (await withSystem(db => db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND archived_at IS NULL AND (role IN ('admin','staff') OR (role='client' AND client_id=$2 AND user_id=$3))", [ws, client, creator]))).rows.map(r => r.user_id as string);
 }
@@ -61,12 +61,26 @@ export async function pushJobChange(actor: string, before: Partial<Job> | null, 
   if (!changed) return;
   const allowed = (await office(after.workspace_id, after.client_id, after.created_by)).filter(u => u !== actor);
   const asker = after.created_by && after.created_by !== actor && allowed.includes(after.created_by) ? after.created_by : null;
-  if (asker) {
-    const lang = (await withSystem(db => db.query('SELECT language FROM user_preferences WHERE user_id=$1', [asker]))).rows[0]?.language ?? null;
-    const m = statusLine(lang, after.status as Step, (after as { order_number?: number }).order_number ?? '', after.title);
-    await sendPush([asker], { title: m.title, body: m.body, url, tag: `status-${after.id}` });
-  }
+  if (asker) await pushRequester(asker, after, after.status as Message);
   if (after.status === 'done') await sendPush(allowed.filter(u => u !== asker), { title: 'Job done', body: `${after.title} is done.`, url, tag: `done-${after.id}` });
+}
+/** NOTIF08: travel uses exactly the existing requester push visibility rule. */
+export async function pushOnTheWay(actor: string, job: Job) {
+  const allowed = await office(job.workspace_id, job.client_id, job.created_by);
+  if (job.created_by && job.created_by !== actor && allowed.includes(job.created_by))
+    await pushRequester(job.created_by, job, 'on_way');
+}
+async function pushRequester(asker: string, job: Job, step: Message) {
+  const extra = await withSystem(async db => {
+    const lang = (await db.query('SELECT language FROM user_preferences WHERE user_id=$1', [asker])).rows[0]?.language ?? null;
+    const timezone = step === 'scheduled' && job.scheduled_for
+      ? (await db.query('SELECT timezone FROM workspaces WHERE id=$1', [job.workspace_id])).rows[0].timezone : undefined;
+    const afterPhotos = step === 'done'
+      ? (await db.query("SELECT count(*)::int n FROM job_photos WHERE workspace_id=$1 AND work_order_id=$2 AND kind='after'", [job.workspace_id, job.id])).rows[0].n : 0;
+    return { lang, timezone, afterPhotos };
+  });
+  const m = statusLine(extra.lang, step, job.order_number ?? '', job.title, { ...extra, scheduledFor: job.scheduled_for });
+  await sendPush([asker], { title: m.title, body: m.body, url: `/work-orders/${job.id}`, tag: `status-${job.id}` });
 }
 /** Daily: jobs that became late today (due yesterday, still not done). Tells the assignee and the office, once. */
 export async function pushLateJobs() {

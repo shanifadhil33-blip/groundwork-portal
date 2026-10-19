@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readdirSync } from 'node:fs';
-import { statusLine, STATUS_LANGS, type Step } from '../lib/status-updates';
+import { statusLine, STATUS_LANGS, isStep, type Step } from '../lib/status-updates';
 describe('CMP05 status updates in the requester language', () => {
   it('uses the requester language', () => { const m = statusLine('ar', 'in_progress', 12, 'AC leak'); expect(m.lang).toBe('ar'); expect(m.body).toContain('WO 12 AC leak'); });
   it('falls back to English', () => { expect(statusLine('xx', 'done', 3, 'Door').body).toBe('Your job is done. Please rate it. WO 3 Door'); expect(statusLine(null, 'scheduled', 1, 'A').lang).toBe('en'); });
@@ -67,5 +67,35 @@ describe('HOME06 status updates for every app language', () => {
       expect(message.body).not.toMatch(/[-\u2013\u2014]/);
       expect(message.body.endsWith(' WO 12 Leak')).toBe(true);
     }
+  });
+});
+
+describe('NOTIF08 travel, visit time and after photos', () => {
+  it('does not treat travel as a job status', () => expect(isStep('on_way')).toBe(false));
+  it.each(STATUS_LANGS)('%s has travel and photo phrases', code => {
+    const travel = statusLine(code, 'on_way', 12, 'Leak');
+    const done = statusLine(code, 'done', 12, 'Leak', { afterPhotos: 2 });
+    expect(travel.lang).toBe(code);
+    expect(travel.body.endsWith(' WO 12 Leak')).toBe(true);
+    expect(done.body.split('\n')).toHaveLength(2);
+    expect(done.body.split('\n')[0].endsWith(' WO 12 Leak')).toBe(true);
+    expect(done.body.split('\n')[1]).toContain('2');
+    for (const body of [travel.body, done.body]) expect(body).not.toMatch(/[-–—]/);
+    if (code !== 'en') {
+      expect(travel.body).not.toBe(statusLine('en', 'on_way', 12, 'Leak').body);
+      expect(done.body.split('\n')[1]).not.toBe(statusLine('en', 'done', 12, 'Leak', { afterPhotos: 2 }).body.split('\n')[1]);
+    }
+    if (['am','ar','bn','fa-af','fa-ir','hi','ml','ne','ps','ta','ti','ur','zh'].includes(code)) {
+      expect(travel.body.split(' WO')[0]).not.toMatch(/\p{Script=Latin}/u);
+      expect(done.body.split('\n')[1]).not.toMatch(/\p{Script=Latin}/u);
+    }
+    expect(statusLine(code, 'done', 12, 'Leak', { afterPhotos: 0 })).toEqual(statusLine(code, 'done', 12, 'Leak'));
+  });
+  it.each(['ar', 'hi', 'en', 'tw', 'xx', 'bad_locale'])('formats the visit in %s and workspace time', code => {
+    const scheduledFor = '2032-01-12T07:15:00Z', timezone = 'Asia/Dubai';
+    let locale = 'en';
+    try { if (Intl.DateTimeFormat.supportedLocalesOf([code]).length) locale = code; } catch {}
+    const date = new Intl.DateTimeFormat(locale, { timeZone: timezone, dateStyle: 'medium', timeStyle: 'short' }).format(new Date(scheduledFor));
+    expect(statusLine(code, 'scheduled', 12, 'Leak', { scheduledFor, timezone }).body).toBe(statusLine(code, 'scheduled', 12, 'Leak').body + '\n' + date);
   });
 });

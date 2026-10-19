@@ -36,9 +36,9 @@ describe('web push', () => {
     expect(sent).toEqual([]); // same assignee again: no repeat
   });
   it('a done job tells the office and the client who asked, not the person who finished it', async () => {
-    const base = { id: 'x', workspace_id: ids.ridgeline, title: 'Fix tap', assignee_id: ids.ravi, client_id: (await withSystem(db => db.query("SELECT client_id FROM members WHERE user_id=$1 AND workspace_id=$2", [ids.omar, ids.ridgeline]))).rows[0].client_id };
+    const base = { id: '00000000-0000-4000-8000-000000000001', workspace_id: ids.ridgeline, title: 'Fix tap', assignee_id: ids.ravi, client_id: (await withSystem(db => db.query("SELECT client_id FROM members WHERE user_id=$1 AND workspace_id=$2", [ids.omar, ids.ridgeline]))).rows[0].client_id };
     await pushJobChange(ids.ravi, { ...base, status: 'in_progress' }, { ...base, status: 'done', created_by: ids.omar });
-    expect(to()).toEqual([ids.imran, ids.omar, ids.sam].sort()); expect(sent.find(x => x.body.title === 'Job done')).toBeTruthy(); expect(sent.filter(x => x.body.tag === `status-x`).length).toBe(1); // the asker gets one update in their language, not two
+    expect(to()).toEqual([ids.imran, ids.omar, ids.sam].sort()); expect(sent.find(x => x.body.title === 'Job done')).toBeTruthy(); expect(sent.filter(x => x.body.tag === `status-${base.id}`).length).toBe(1); // the asker gets one update in their language, not two
     sent.length = 0; await pushJobChange(ids.ravi, { ...base, status: 'done' }, { ...base, status: 'done', created_by: ids.omar }); expect(sent).toEqual([]);
     sent.length = 0; await pushJobChange(ids.imran, { ...base, status: 'in_progress' }, { ...base, status: 'done', created_by: ids.pranav }); expect(to()).not.toContain(ids.pranav); // client of another company never hears
   });

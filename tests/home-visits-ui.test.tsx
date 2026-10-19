@@ -4,6 +4,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { WorkOrderForm } from '../components/app/work-order-form';
 import { createRoot } from 'react-dom/client';
 import { afterEach, expect, it, vi } from 'vitest';
+import { WorkOrderCard } from '../components/app/work-order-card';
+import type { WorkOrder } from '../lib/ui/work-orders';
 import { ClientVisitActions } from '../components/app/client-visit-actions';
 import { post, request } from '../lib/ui/api';
 import { notificationMessage } from '../lib/ui/notifications';
@@ -12,7 +14,7 @@ vi.mock('next/navigation',()=>({useRouter:()=>({push:vi.fn(),replace:vi.fn()})})
 vi.mock('../components/app/context',()=>({useApp:()=>({member:{role:'client',client_kind:'household',workspace_id:'demo',client_id:'client'},me:{user:{id:'faisal',name:'Faisal'}},workspace:{timezone:'Asia/Dubai'}})}));
 vi.mock('../components/app/resource',()=>({useResource:(url:string|null)=>({loading:false,error:null,data:url?.endsWith('/previous-technician')?state.previous:url?.endsWith('/request-sites')?[]:undefined,reload:vi.fn()})}));
 vi.mock('../lib/ui/api',async original=>({...await original<typeof import('../lib/ui/api')>(),post:vi.fn(),request:vi.fn()}));
-vi.mock('../components/ui',()=>({Button:({children,onClick,disabled}:any)=><button disabled={disabled} onClick={onClick}>{children}</button>,Card:({children}:any)=><div>{children}</div>,DatePicker:()=>null,Dropdown:()=>null,Skeleton:()=>null,PageSkeleton:()=>null,EmptyState:()=>null,ErrorState:()=>null,useToast:()=>vi.fn()}));
+vi.mock('../components/ui',()=>({Button:({children,onClick,disabled}:any)=><button disabled={disabled} onClick={onClick}>{children}</button>,Card:({children}:any)=><div>{children}</div>,Badge:({children}:any)=><span>{children}</span>,StatusBadge:({children}:any)=><span>{children}</span>,DatePicker:()=>null,Dropdown:()=>null,Skeleton:()=>null,PageSkeleton:()=>null,EmptyState:()=>null,ErrorState:()=>null,useToast:()=>vi.fn()}));
 (globalThis as any).React=React;(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;
 let root:ReturnType<typeof createRoot>;
 const slot=new Date(Date.UTC(2032,0,12,7)).toISOString(),version=new Date(Date.UTC(2032,0,1)).toISOString();
@@ -42,4 +44,12 @@ it('shows the repeat technician checkbox on the request form only after a finish
  expect(renderToStaticMarkup(<WorkOrderForm/>)).not.toContain('Ask for');
  state.previous={user_id:'ravi',name:'Ravi'};
  const html=renderToStaticMarkup(<WorkOrderForm/>);expect(html).toContain('type="checkbox"');expect(html).toContain('Ask for');expect(html).toContain('Ravi');expect(html).toContain('again');
+});
+
+const travelJob = { id:'job',order_number:1,title:'Repair tap',status:'scheduled',on_way_at:'2032-01-12T07:00:00Z',priority:'normal',due_on:null,assignee_id:null } as WorkOrder;
+it('client job cards show travel while staff cards keep Scheduled',()=>{
+ const props={order:travelJob,clientName:'Home',assigneeName:'Unassigned',onOpen:()=>{}};
+ expect(renderToStaticMarkup(<WorkOrderCard {...props} client/>)).toContain('On the way');
+ expect(renderToStaticMarkup(<WorkOrderCard {...props} client={false}/>)).toContain('Scheduled');
+ expect(renderToStaticMarkup(<WorkOrderCard {...props} order={{...travelJob,on_way_at:null}} client/>)).toContain('Visit Scheduled');
 });

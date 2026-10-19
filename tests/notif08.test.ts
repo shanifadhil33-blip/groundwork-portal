@@ -1,0 +1,86 @@
+import { randomUUID } from 'node:crypto';
+import { afterAll, beforeAll, expect, it, vi } from 'vitest';
+const sent: { endpoint: string; message: { title: string; body: string; tag: string; url: string } }[] = [];
+vi.mock('web-push', () => ({ default: { setVapidDetails: vi.fn(), sendNotification: async (s: { endpoint: string }, payload: string) => { sent.push({ endpoint: s.endpoint, message: JSON.parse(payload) }); } } }));
+import { closePools, withSystem } from '../lib/db';
+import { ids, siteId } from '../scripts/seed';
+import { getWorkOrder, listWorkOrders, patchWorkOrder } from '../lib/services/work-orders';
+import { pushJobChange, subscribePush } from '../lib/services/push';
+import { statusLine } from '../lib/status-updates';
+import { listNotifications } from '../lib/services/notifications';
+import { groupNotifications, notificationMessage, openNotificationTarget } from '../lib/ui/notifications';
+import { clientStatusLabel } from '../lib/ui/work-orders';
+const ws = ids.ridgeline;
+const manager = randomUUID(), office = randomUUID(), household = randomUUID(), archived = randomUUID();
+let client: string; let priorLang: string | null = null, priorTz = 'Asia/Dubai';
+const version = (job: any) => new Date(job.updated_at).toISOString();
+beforeAll(async () => {
+  process.env.VAPID_PUBLIC_KEY = 'pub'; process.env.VAPID_PRIVATE_KEY = 'priv';
+  await withSystem(async db => {
+    client = (await db.query('SELECT client_id FROM members WHERE workspace_id=$1 AND user_id=$2', [ws, ids.faisal])).rows[0].client_id;
+    for (const [user, kind] of [[manager, 'manager'], [office, 'office'], [household, 'household'], [archived, 'manager']]) {
+      await db.query('INSERT INTO users(id,name,email) VALUES($1,$2,$3)', [user, kind, `${user}@example.test`]);
+      await db.query("INSERT INTO members(workspace_id,user_id,role,client_id,client_kind,archived_at) VALUES($1,$2,'client',$3,$4,$5)", [ws, user, client, kind, user === archived ? new Date() : null]);
+    }
+    priorLang = (await db.query('SELECT language FROM user_preferences WHERE user_id=$1', [ids.faisal])).rows[0]?.language ?? null;
+    priorTz = (await db.query('SELECT timezone FROM workspaces WHERE id=$1', [ws])).rows[0].timezone;
+    await db.query("INSERT INTO user_preferences(user_id,language) VALUES($1,'ar') ON CONFLICT(user_id) DO UPDATE SET language='ar'", [ids.faisal]);
+  });
+  for (const user of [ids.faisal, manager, office, household, ids.imran, ids.sam, ids.ravi])
+    await subscribePush(user, { endpoint: `https://push.example/notif08/${user}`, keys: { p256dh: 'B'.repeat(40), auth: 'authauth' } });
+});
+afterAll(async () => {
+  // Leave the shared test workspace as it was: other files read Faisal's language and the workspace time zone.
+  await withSystem(async db => { await db.query('UPDATE user_preferences SET language=$2 WHERE user_id=$1', [ids.faisal, priorLang]); await db.query('UPDATE workspaces SET timezone=$2 WHERE id=$1', [ws, priorTz]); });
+  await closePools();
+});
+async function job(status = 'scheduled') {
+  return withSystem(async db => (await db.query(`INSERT INTO work_orders(workspace_id,client_id,site_id,title,status,assignee_id,created_by,scheduled_for)
+    VALUES($1,$2,$3,'Repair tap',$4,$5,$6,'2032-01-12T07:15:00Z') RETURNING *`, [ws, client, siteId(4), status, ids.ravi, ids.faisal])).rows[0]);
+}
+it('travel tells exactly the client side followers once, and pushes only the requester in his language', async () => {
+  const j = await job(); sent.length = 0;
+  const saved = await patchWorkOrder(ids.ravi, ws, j.id, { on_way: true, updated_at: version(j) });
+  const notices = () => withSystem(async db => (await db.query("SELECT * FROM notifications WHERE entity_id=$1 AND kind='on_the_way'", [j.id])).rows);
+  const rows = await notices();
+  expect(rows.map(r => r.user_id).sort()).toEqual([ids.faisal, ids.omar, manager, office].sort());
+  for (const row of rows) expect(row).toMatchObject({ workspace_id: ws, entity: 'work_orders', actor_id: ids.ravi, actor_name: 'Ravi', work_order_title: j.title });
+  expect(sent).toEqual([{ endpoint: `https://push.example/notif08/${ids.faisal}`, message: { title: statusLine('ar', 'on_way', j.order_number, j.title).title, body: statusLine('ar', 'on_way', j.order_number, j.title).body, tag: `status-${j.id}`, url: `/work-orders/${j.id}` } }]);
+  await expect(patchWorkOrder(ids.ravi, ws, j.id, { on_way: true, updated_at: version(saved) })).rejects.toMatchObject({ status: 422 });
+  expect(await notices()).toHaveLength(4); expect(sent).toHaveLength(1);
+  const detail = await getWorkOrder(ids.faisal, ws, j.id);
+  const list = await listWorkOrders(ids.faisal, ws, new URLSearchParams('pageSize=100'));
+  expect(detail.on_way_at).toBeTruthy(); expect(list.data.find(r => r.id === j.id)?.on_way_at).toBeTruthy();
+  expect(clientStatusLabel(detail)).toBe('On the way');
+  const item = (await listNotifications(ids.faisal, ws, new URLSearchParams('pageSize=100'))).data.find(r => r.kind === 'on_the_way' && r.entity_id === j.id)!;
+  expect(item.link_target).toEqual({ entity: 'work_orders', id: j.id });
+  expect(item.message).toBe('Ravi is on the way for Repair tap.');
+  const mark = vi.fn(), navigate = vi.fn();
+  expect(await openNotificationTarget(item, mark, navigate)).toBe(true); expect(navigate).toHaveBeenCalledWith(j.id);
+  const grouped = groupNotifications([item, { ...item, id: randomUUID() }]);
+  expect(grouped).toEqual([{ item, rest: [expect.objectContaining({ kind: 'on_the_way' })] }]);
+});
+it('scheduled requester push includes the visit in workspace time; done includes only after photos', async () => {
+  const j = await job('open'); sent.length = 0;
+  await withSystem(db => db.query("UPDATE workspaces SET timezone='Asia/Dubai' WHERE id=$1", [ws]));
+  await pushJobChange(ids.ravi, { ...j, status: 'open' }, { ...j, status: 'scheduled' });
+  expect(sent).toHaveLength(1);
+  expect(sent[0].message.body).toBe(statusLine('ar', 'scheduled', j.order_number, j.title, { scheduledFor: j.scheduled_for, timezone: 'Asia/Dubai' }).body);
+  await withSystem(async db => {
+    for (const kind of ['after', 'after', 'before']) await db.query("INSERT INTO job_photos(workspace_id,client_id,work_order_id,kind,mime,bytes,width,height,taken_by) VALUES($1,$2,$3,$4,'image/jpeg',$5,1,1,$6)", [ws, client, j.id, kind, Buffer.alloc(100, 1), ids.ravi]);
+  });
+  sent.length = 0;
+  await pushJobChange(ids.ravi, j, { ...j, status: 'done' });
+  const asker = sent.filter(s => s.endpoint.endsWith(ids.faisal));
+  expect(asker).toHaveLength(1);
+  expect(asker[0].message.body).toBe(statusLine('ar', 'done', j.order_number, j.title, { afterPhotos: 2 }).body);
+  const empty = await job('in_progress'); sent.length = 0;
+  await pushJobChange(ids.ravi, empty, { ...empty, status: 'done' });
+  expect(sent.find(s => s.endpoint.endsWith(ids.faisal))?.message.body).toBe(statusLine('ar', 'done', empty.order_number, empty.title).body);
+});
+it('words travel notifications and only changes the scheduled client label', () => {
+  expect(notificationMessage({ kind: 'on_the_way', actor_name: 'Ravi', work_order_title: 'Tap' })).toBe('Ravi is on the way for Tap.');
+  expect(clientStatusLabel({ status: 'scheduled' })).toBe('Visit Scheduled');
+  expect(clientStatusLabel({ status: 'scheduled', on_way_at: '2032-01-12' })).toBe('On the way');
+  expect(clientStatusLabel({ status: 'done', on_way_at: '2032-01-12' })).toBe('Completed');
+});

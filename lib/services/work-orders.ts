@@ -3,7 +3,7 @@ import { reportEmergency } from './emergencies';
 import { detectEmergency, isFalseAlarm } from '../emergency';
 import { createSuggestion } from './suggestions';
 import { assertWorking } from './time-off';
-import { pushJobChange, sendPush } from './push';
+import { pushJobChange, pushOnTheWay, sendPush } from './push';
 import { withSystem } from '../db';
 import { TRADES } from '../trades';
 import { publicClient } from './clients';
@@ -172,6 +172,15 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   await assignee(c,changedTo,isOfficeStaff(c)&&changedTo?await bestFor(c,id):null);
   return update(c,'work_orders',id,data);
  });
+ // The locked update and immutable on_way_at guard make this a single event.
+ if(before&&!(before as Record<string,unknown>).on_way_at&&saved.on_way_at){
+  await withSystem(db=>db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title)
+   SELECT DISTINCT m.user_id,$1::uuid,'on_the_way','work_orders',$2::uuid,$3::uuid,coalesce(u.name,'Your team'),$4::text
+   FROM members m LEFT JOIN users u ON u.id=$3
+   WHERE m.workspace_id=$1 AND m.archived_at IS NULL AND m.user_id<>$3 AND m.role='client' AND m.client_id=$5
+    AND (coalesce(m.client_kind,'manager')<>'household' OR m.user_id=$6)`,[ws,id,user,saved.title,saved.client_id,saved.created_by]),user);
+  await pushOnTheWay(user,saved as never);
+ }
  await pushJobChange(user,before,saved as never);
  await notifyMovedOrRescheduled(user,ws,before,saved as Record<string,unknown>);
  return saved;
