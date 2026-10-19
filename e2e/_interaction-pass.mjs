@@ -66,7 +66,8 @@ for (const who of PERSONAS) {
           const read = () => btn.evaluate(e => { const s = getComputedStyle(e); return s.backgroundColor + '|' + s.color + '|' + s.borderColor + '|' + s.textDecorationLine + '|' + s.boxShadow; });
           await p.mouse.move(2, 2); await p.waitForTimeout(200); const a0 = await read(); await p.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await p.waitForTimeout(250); const a1 = await read(); await p.mouse.down(); await p.waitForTimeout(80); const a2 = await read(); await p.mouse.up(); await p.mouse.move(2, 2);
           const lbl = sel.split(' ')[0] + ' "' + (await btn.innerText().catch(() => '')).slice(0, 30) + '"';
-          if (a0 === a1) find({ tag, href, kind: 'no-hover', note: lbl }); if (a0 === a2 && a1 === a2) find({ tag, href, kind: 'no-pressed', note: lbl });
+          // Real mouse hover here is only a hint (it flagged controls that do change, Oct 19); e2e/_hover-audit.mjs is the check.
+          if (a0 === a1) find({ tag, href, kind: 'hover-hint', note: lbl }); if (a0 === a2 && a1 === a2) find({ tag, href, kind: 'pressed-hint', note: lbl });
           if (p.url().replace(B, '').split('?')[0] !== href && !p.url().includes(href)) await p.goto(B + href).catch(() => {});
         }
       }
