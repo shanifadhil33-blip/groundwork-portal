@@ -135,7 +135,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
  const selected=await selectedVisitChoice(user,ws,question);if(selected)return selected;
  if(/^(?:what needs attention|what do I need to do|what is waiting|show unread messages)[?.!]*$/i.test(question)){const a=await needsAttention(user,ws);return {available:true,reply:attentionReply(a)};}
  // AGENT12: job counts and the client refusal answer from fixed words in his language, before any AI.
- if(quickLookup(resolvedQuestion)==='job_counts'||clientCountQuestion(resolvedQuestion)){
+ if(quickLookup(resolvedQuestion)==='my_fixes'||quickLookup(resolvedQuestion)==='job_counts'||clientCountQuestion(resolvedQuestion)){
   const role=await inWorkspace(user,ws,async x=>x.role as string);
   const count=await countAnswer({user,ws,scope:'read',kind:'assistant'},question,{role,language:(await getPreferences(user)).language});
   if(count)return {available:true,reply:count.text,quick:true,...(count.localized?{localized:true}:{})};

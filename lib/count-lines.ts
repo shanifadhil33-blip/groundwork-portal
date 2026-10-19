@@ -54,3 +54,31 @@ export function countLine(lang: string | null | undefined, kind: CountLine, v: {
   const lines = T[b] ?? T.en;
   return lines[kind].replace('{mj}', `${month} ${month === 1 ? 'job' : 'jobs'}`).replace('{m}', String(month)).replace('{t}', String(total)).replace('{name}', v.name ?? '').replace('{names}', v.names ?? '');
 }
+
+// Fixed personal progress summary. These translations await native review alongside the count lines above.
+const FIXES: Record<string, string> = {
+ en: '{mj} this month, {l} last month, {t} in total.',
+ hi: 'इस महीने {m} काम, पिछले महीने {l}, कुल {t}।',
+ ur: 'اس مہینے {m} کام، پچھلے مہینے {l}، کل {t}۔',
+ ml: 'ഈ മാസം {m} ജോലികൾ, കഴിഞ്ഞ മാസം {l}, ആകെ {t}.',
+ ta: 'இந்த மாதம் {m} வேலைகள், கடந்த மாதம் {l}, மொத்தம் {t}.',
+ bn: 'এই মাসে {m} কাজ, গত মাসে {l}, মোট {t}।',
+ ne: 'यो महिना {m} काम, गत महिना {l}, जम्मा {t}।',
+ ps: 'دا میاشت {m} کارونه، تېره میاشت {l}، ټول {t}.',
+ fa: 'این ماه {m} کار، ماه گذشته {l}، در مجموع {t}.',
+ fil: '{m} trabaho ngayong buwan, {l} noong nakaraang buwan, {t} sa kabuuan.',
+ zh: '本月 {m} 项工作，上月 {l} 项，共 {t} 项。',
+ sw: 'Kazi {m} mwezi huu, {l} mwezi uliopita, {t} kwa jumla.',
+ am: 'በዚህ ወር {m} ስራዎች፣ ባለፈው ወር {l}፣ በአጠቃላይ {t}።',
+ ti: 'ኣብዚ ወርሒ {m} ስራሕቲ፣ ዝሓለፈ ወርሒ {l}፣ ብድምር {t}።',
+ so: '{m} shaqo bishan, {l} bishii hore, {t} wadar ahaan.',
+ yo: 'Iṣẹ́ {m} ní oṣù yìí, {l} ní oṣù tó kọjá, {t} lápapọ̀.',
+ ha: 'Ayyuka {m} a wannan wata, {l} watan da ya gabata, jimilla {t}.',
+ ig: 'Ọrụ {m} n’ọnwa a, {l} n’ọnwa gara aga, {t} n’ozuzu.',
+ lg: 'Emirimu {m} omwezi guno, {l} omwezi oguwedde, {t} gyonna awamu.',
+ tw: 'Nnwuma {m} bosome yi, {l} bosome a etwaam, ne nyinaa {t}.',
+};
+export function fixesLine(lang: string | null | undefined, v: { month: number; last_month: number; total: number }): string {
+ if (base(lang) === 'ar') return `${arabicJobs(v.month)} هالشهر، و${arabicJobs(v.last_month)} الشهر اللي طاف، والمجموع ${arabicJobs(v.total)}.`;
+ return (FIXES[base(lang)] ?? FIXES.en).replace('{mj}', `${v.month} ${v.month === 1 ? 'job' : 'jobs'}`).replace('{m}', String(v.month)).replace('{l}', String(v.last_month)).replace('{t}', String(v.total));
+}

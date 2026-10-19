@@ -8,7 +8,7 @@ import { listWorkOrders } from '../services/work-orders';
  * Replies are plain English; the per user page translation shows them in the reader's language.
  */
 import { callTool, type AgentContext } from './tools';
-import { countLine, countLocalized } from '../count-lines';
+import { countLine, countLocalized, fixesLine } from '../count-lines';
 
 export type Intent = 'attention' | 'today' | 'late' | 'job' | 'messages' | 'suggestions' | 'leave' | 'summary';
 
@@ -147,7 +147,7 @@ export async function dataAnswer(c: AgentContext, question: string): Promise<str
  * his own jobs and a client only his own requests. Returns null when the question is not a quick lookup or the role
  * can not use the tool (the AI then answers as before).
  */
-export type QuickLookup = 'job_counts' | 'attention' | 'contract_watch' | 'parts' | 'late' | 'next' | 'today' | 'free_tomorrow' | 'client_requests' | 'client_visit';
+export type QuickLookup = 'my_fixes' | 'job_counts' | 'attention' | 'contract_watch' | 'parts' | 'late' | 'next' | 'today' | 'free_tomorrow' | 'client_requests' | 'client_visit';
 // Whole questions only: a second request must continue to the Agent.
 const COUNT_QUESTION = /^how many jobs (?:has|did) ([\p{L}][\p{L}' ]*?) (?:complete|completed|finish|finished|do|done)(?: this month)?(?:[?,]? and in total)?$|^([\p{L}][\p{L}' ]*?)'s job count$/u;
 function countPerson(question: string): string | null {
@@ -156,6 +156,7 @@ function countPerson(question: string): string | null {
 }
 const normalizeQuick = (question: string) => question.toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().replace(/[?.!\s]+$/, '');
 const QUICK: [QuickLookup, RegExp][] = [
+  ['my_fixes', /^(?:show )?my fixes(?: this month)?$|^what did i fix this month$/],
   ['job_counts', COUNT_QUESTION],
   ['attention', /^what needs (?:my )?attention(?: today)?$|^(?:is there )?anything (?:that )?needs my attention$/],
   ['contract_watch', /^(?:(?:show|list)(?: me)? )?contract response times$|^(?:any |are there any |which )?contract jobs (?:are )?(?:about to miss|close to|past)(?: the promised time)?$/],
@@ -225,6 +226,16 @@ export const clientCountQuestion = (question: string) => CLIENT_COUNT.test(norma
  */
 export async function countAnswer(c: AgentContext, question: string, who: { role: string; language?: string | null }): Promise<{ text: string; localized: boolean } | null> {
   question = resolveWords(question, await listWords(c.user, c.ws));
+  if (directQuick(question) === 'my_fixes') {
+    if (who.role === 'client') return { text: countLine(who.language, 'client'), localized: countLocalized(who.language) };
+    const r = await read(c, 'my_fixes', { month: 'this' });
+    if (!r) return null;
+    // Gulf Arabic by hand; other languages get the English lines and the page translation, like the other quick answers.
+    const ar = !!who.language?.startsWith('ar');
+    const outcome = (label: string) => ar ? ({ Fixed: 'تم التصليح', Done: 'خلص', 'Temporary fix': 'تصليح مؤقت', 'Needs a part': 'يحتاج قطعة', "Can't be fixed": 'ما ينصلح' } as Record<string, string>)[label] ?? label : label;
+    const lines = r.data.slice(0, 5).map((j: any) => [`WO ${j.order_number} ${j.title}`, j.site_name, outcome(j.outcome_label)].filter(Boolean).join(ar ? '، ' : ', '));
+    return { text: [fixesLine(ar ? who.language : 'en', r.summary), ...lines, ar ? 'شوف الكل في سجلي.' : 'See all in My record.'].join('\n'), localized: ar };
+  }
   const person = countPerson(question);
   const out = (text: string) => ({ text, localized: countLocalized(who.language) });
   if (who.role === 'client') return person !== null || clientCountQuestion(question) ? out(countLine(who.language, 'client')) : null;

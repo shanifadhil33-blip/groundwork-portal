@@ -37,7 +37,7 @@ import { setWorkerSkills, suggestWorkers } from '../services/assign';
 import { TRADES } from '../trades';
 import { addFieldWorker } from '../services/field-signin';
 import { name as recordName } from '../services/shared';
-import { OUTCOMES, saveJobReport, jobRecord } from '../services/job-report';
+import { OUTCOMES, saveJobReport, jobRecord, myFixes } from '../services/job-report';
 import { confirmVisit, decideQuote, sendQuote } from '../services/quotes';
 import { askSupervisor } from '../services/agent-questions';
 import { listAgentLearning, savePersonalLearning, deletePersonalLearning } from '../services/agent-learning';
@@ -110,6 +110,16 @@ export const tools:Record<string,Tool>={
   if(matches.length>1)throw new ApiError(422,'ambiguous',`Which person do you mean? ${matches.map(m=>m.name).join(', ')}.`);
   const member=matches[0];
   return {name:member.name,...await jobRecord(c.user,c.ws,member.user_id)};
+ }},
+ my_fixes:{description:'Read a team member\'s finished jobs with problem, fix, outcome, site and date, plus this month, last month, total and this month by trade (compared only to his own last month). month is this, last or all; q searches title, site, problem and fix. person is a name or first name; omit it for yourself. Office can ask about anyone on the team. Technicians can only ask about themselves. Clients cannot read it. If names match more than one person, ask which full name.',write:false,schema:z.object({person:z.string().trim().max(200).optional(),month:z.enum(['this','last','all']).optional(),q:z.string().trim().max(200).optional(),page:z.number().int().min(1).optional()}).strict(),run:async(c,a)=>{
+  const {role,members}=await jobCountMembers(c.user,c.ws);
+  const person=(a.person??'').toLowerCase();
+  const matches=person?members.filter(m=>m.name&&(m.name.toLowerCase()===person||m.name.toLowerCase().split(/\s+/)[0]===person)):members.filter(m=>m.user_id===c.user);
+  if(!matches.length)throw new ApiError(404,'not_found','I could not find that person on your team.');
+  if(role==='technician'&&!matches.some(m=>m.user_id===c.user))throw new ApiError(403,'own_record','You can see your own record.');
+  if(matches.length>1)throw new ApiError(422,'ambiguous',`Which person do you mean? ${matches.map(m=>m.name).join(', ')}.`);
+  const member=matches[0];
+  return {name:member.name,...await myFixes(c.user,c.ws,{of:member.user_id,month:a.month,q:a.q,page:a.page})};
  }},
  list_team:{description:'Admin or supervisor only: list the team (not clients) with role, phone, and each person\'s jobs today, late and open. signs_in_with is google or code. Use it to answer who is free or who is busy.',write:false,schema:z.object({}).strict(),run:c=>teamToday(c.user,c.ws)},
  add_worker:{description:'Admin or supervisor only: add a worker who has no email (name required, phone optional, role technician or staff; supervisors may add technicians only). It does not make a sign in code; tell the user to open Team and tap New sign in. The portal shows a confirmation card first.',write:true,schema:z.object({name:z.string().trim().min(1).max(120),phone:z.string().trim().max(30).optional(),role:z.enum(['technician','staff']).default('technician')}).strict(),run:(c,a)=>addFieldWorker(c.user,c.ws,a)},
