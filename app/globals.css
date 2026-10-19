@@ -1148,3 +1148,12 @@ body:has(.app-shell) .phone-assistant{gap:6px;border-radius:22px;min-height:40px
  body:has(.app-shell) .presentation-assistant .dialog-header .icon-button{border-radius:50%}
 }
 @media(prefers-reduced-motion:reduce){.presentation-assistant .dialog,.presentation-assistant.closing .dialog,body:has(.app-shell) .presentation-assistant .dialog,body:has(.app-shell) .presentation-assistant.closing .dialog{animation:none!important}.agent-dots i{animation:none!important;opacity:.6}}
+/* Polish after the first live look (Oct 19): replies are plain text, only cards keep a border; quiet focus ring; neutral empty send; outline chips. */
+body:has(.app-shell) .assistant-chat .assistant-message.assistant:not(.pending-reply){border:0;padding:2px 0;border-radius:0}
+body:has(.app-shell) .assistant-chat .assistant-message.user{border:0}
+body:has(.app-shell) .assistant-chat .pending-reply{border:1px solid var(--border);border-radius:16px;padding:16px}
+body:has(.app-shell) .assistant-composer textarea#assistant-input:focus,body:has(.app-shell) .assistant-composer textarea#assistant-input:focus-visible{outline:none;border-color:var(--text-muted);box-shadow:none}
+body:has(.app-shell) .assistant-composer .assistant-input-row .assistant-control.assistant-send:disabled{background:var(--surface-subtle);border-color:transparent;color:var(--text-muted);opacity:1}
+[data-theme=dark] body:has(.app-shell) .assistant-composer .assistant-input-row .assistant-control.assistant-send:disabled{background:#1e1f1f;color:#8a8a8a}
+body:has(.app-shell) .assistant-chat .assistant-suggestions .button{background:transparent;border:1px solid var(--border)}
+[data-theme=dark] body:has(.app-shell) .assistant-chat .assistant-suggestions .button{border-color:#2e2f30}

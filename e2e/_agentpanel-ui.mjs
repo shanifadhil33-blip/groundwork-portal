@@ -18,11 +18,12 @@ const panel = docked ? p.locator('.dashboard-assistant') : p.locator('[role="dia
 const input = p.locator('#assistant-input'); await input.fill(Q);
 const before = await panel.locator('.assistant-message.assistant').count();
 const t = Date.now(); await input.press('Enter');
+const firstP = panel.locator('.assistant-message.assistant').nth(before).waitFor({ timeout: 90000 }).then(() => Date.now() - t).catch(() => null);
 await p.waitForTimeout(500);
 const replied = await panel.locator('.assistant-message.assistant').count() > before;
 res.answeredWithin500ms = replied;
 const closeBtn = panel.getByRole('button', { name: /Close/ }).first();
-res.thinking = { closeDisabled: docked ? null : await closeBtn.isDisabled().catch(() => null), inputDisabled: await input.isDisabled(), indicator: await panel.locator('.agent-typing,[role=status]').first().innerText().catch(() => '') };
+res.thinking = { closeDisabled: docked ? null : await closeBtn.isDisabled().catch(() => null), inputDisabled: await input.isDisabled(), indicator: await panel.locator('.agent-typing,[role=status]').first().innerText({ timeout: 500 }).catch(() => '') };
 res.stopButton = await panel.getByRole('button', { name: /^Stop$/ }).count();
 await p.screenshot({ path: `${OUT}/${name}-2-thinking.png` });
 // Type the next message while it thinks.
@@ -31,8 +32,7 @@ res.typedWhileThinking = (await input.inputValue().catch(() => '')).includes('ne
 // Tap outside the panel (laptop: the page on the left; phone: the panel is full screen, so the header area is inside).
 if (!phone) { const hit = await p.evaluate(() => { const el = document.elementFromPoint(200, 300); return el ? (el.closest('[role=dialog],.dashboard-assistant') ? 'panel' : el.closest('.modal-layer') ? 'layer' : 'page') : 'none'; }); res.outsideHit = hit; }
 // Wait for the reply (first useful content), unless it already came.
-const got = await panel.locator('.assistant-message.assistant').nth(before).waitFor({ timeout: 90000 }).then(() => true).catch(() => false);
-res.firstContentMs = got ? Date.now() - t : null; res.reply = got ? (await panel.locator('.assistant-message.assistant').nth(before).innerText()).slice(0, 200) : '';
+res.firstContentMs = await firstP; const got = res.firstContentMs !== null; res.reply = got ? (await panel.locator('.assistant-message.assistant').nth(before).innerText()).slice(0, 200) : '';
 await p.screenshot({ path: `${OUT}/${name}-3-answer.png` });
 // Ask an AI question and close while it thinks.
 if (!docked) {
