@@ -9,7 +9,7 @@ import { reportEmergency } from './emergencies';
 import { noteTargets } from '../agent/note-target';
 import { fixJobTitles, jobsSeen } from '../agent/job-labels';
 import { safetyLine } from '../emergency';
-import { dataAnswer, brokenReply, detectIntent, quickLookup, quickAnswer } from '../agent/data-answers';
+import { dataAnswer, brokenReply, detectIntent, quickLookup, quickAnswer, countAnswer, clientCountQuestion } from '../agent/data-answers';
 /** Audit A10: when the AI is out, a request to do something must say nothing changed, not answer with an unrelated summary. */
 export const UNANSWERED='I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.';
 export function unansweredAsk(q:string){if(/\b(?:assign|cancel|withdraw|move|reschedule|approve|decline|delete|remove|change|mark|send|book|create|start|stop|reopen|confirm|accept|reject|pay)\w*\b/i.test(q))return true;return !!q.trim()&&detectIntent(q).intent==='summary'&&!/^\s*(?:hi|hello|hey|salam|good (?:morning|afternoon|evening)|what(?:'s| is) (?:new|up|waiting)|help|summary|thanks?|thank you|ok(?:ay)?)\b/i.test(q);}
@@ -134,6 +134,12 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
  }
  const selected=await selectedVisitChoice(user,ws,question);if(selected)return selected;
  if(/^(?:what needs attention|what do I need to do|what is waiting|show unread messages)[?.!]*$/i.test(question)){const a=await needsAttention(user,ws);return {available:true,reply:attentionReply(a)};}
+ // AGENT12: job counts and the client refusal answer from fixed words in his language, before any AI.
+ if(quickLookup(resolvedQuestion)==='job_counts'||clientCountQuestion(resolvedQuestion)){
+  const role=await inWorkspace(user,ws,async x=>x.role as string);
+  const count=await countAnswer({user,ws,scope:'read',kind:'assistant'},question,{role,language:(await getPreferences(user)).language});
+  if(count)return {available:true,reply:count.text,quick:true,...(count.localized?{localized:true}:{})};
+ }
  // Quick lookups (Oct 19): common read questions answer from the database with no AI call, well under a second.
  if(quickLookup(resolvedQuestion)){
   const who=await inWorkspace(user,ws,async x=>{const w=(await x.db.query("SELECT ((now() AT TIME ZONE timezone)::date+1)::text AS d,timezone FROM workspaces WHERE id=$1",[ws])).rows[0];return {role:x.role as string,tomorrow:String(w?.d??''),timezone:w?.timezone?String(w.timezone):undefined};});

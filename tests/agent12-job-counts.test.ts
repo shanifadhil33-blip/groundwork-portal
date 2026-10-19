@@ -4,7 +4,7 @@ import { assistantTurn } from '../lib/ai';
 import { assistant } from '../lib/services/assistant';
 import { jobRecord } from '../lib/services/job-report';
 import { callTool, type AgentContext } from '../lib/agent/tools';
-import { quickAnswer, quickLookup } from '../lib/agent/data-answers';
+import { countAnswer, quickAnswer, quickLookup } from '../lib/agent/data-answers';
 import { closePools, withSystem } from '../lib/db';
 import { ids, siteId } from '../lib/fixture';
 
@@ -57,7 +57,11 @@ it.each([ids.pranav, ids.faisal])('client %s cannot read anyone count', async us
     expect(result).toMatchObject({ isError: true, structuredContent: { error: { code: 'forbidden' } } });
     expect(result.structuredContent).not.toHaveProperty('result');
   }
-  expect(await quickAnswer(context(user), 'How many jobs has Ravi completed this month?', { ...who, role: 'client' })).toBeNull();
+  expect(await quickAnswer(context(user), 'How many jobs has Ravi completed this month?', { ...who, role: 'client' })).toBe('Job counts are only for the company team. I can show your own requests instead.');
+  expect(await countAnswer(context(user), 'How many jobs did your technicians finish this month?', { role: 'client', language: 'ar-AE' })).toEqual({ text: 'عدد الأعمال لفريق الشركة فقط. أقدر أعرض لك طلباتك.', localized: true });
+  const reply = await ask(user, 'How many jobs has Ravi completed this month?');
+  expect(reply).toMatchObject({ quick: true });
+  expect(reply.reply).not.toMatch(/\d/);
   expect(assistantTurn).not.toHaveBeenCalled();
 });
 it('unknown people and questions with actions continue to AI', async () => {
@@ -80,6 +84,13 @@ it('matches the requested short forms and returns Sam counts', async () => {
   expect(await quickAnswer(context(ids.imran), "Ravi’s job count", who)).toBe(sentence('Ravi', await jobRecord(ids.imran, ws, ids.ravi)));
   expect(await ask(ids.imran, 'How many jobs did Sam finish this month?')).toMatchObject({ quick: true, reply: sentence('Sam', await jobRecord(ids.imran, ws, ids.sam)) });
   expect(assistantTurn).not.toHaveBeenCalled();
+});
+it('Arabic reader gets his counts with Arabic number words', async () => {
+  const counts = await jobRecord(ids.imran, ws, ids.ravi);
+  const r = await countAnswer(context(ids.imran), 'How many jobs has Ravi completed this month, and in total?', { role: 'admin', language: 'ar-AE' });
+  expect(r?.localized).toBe(true);
+  expect(r?.text).toMatch(counts.month === 0 ? /^لم ينجز Ravi أي عمل/ : /^أنجز Ravi /);
+  expect(r?.text).toContain(`ومجموع أعماله ${counts.total}.`);
 });
 it('uses singular wording for one job', async () => {
   expect(await jobRecord(ids.imran, ws, ids.nabil)).toEqual({ month: 0, total: 0 });

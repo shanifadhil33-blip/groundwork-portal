@@ -8,6 +8,7 @@ import { listWorkOrders } from '../services/work-orders';
  * Replies are plain English; the per user page translation shows them in the reader's language.
  */
 import { callTool, type AgentContext } from './tools';
+import { countLine, countLocalized } from '../count-lines';
 
 export type Intent = 'attention' | 'today' | 'late' | 'job' | 'messages' | 'suggestions' | 'leave' | 'summary';
 
@@ -215,17 +216,37 @@ async function clientVisit(c: AgentContext, tz?: string) {
   if (!soon.length) return 'No visit is booked yet. The company will confirm a time.';
   return [soon.length === 1 ? 'Your next visit:' : `You have ${plural(soon.length, 'visit')} booked:`, ...soon.slice(0, 3).map((j: any) => line(j, tz))].join('\n');
 }
+// A client asking how many jobs a person or the team did, in any wording the office form would not catch.
+const CLIENT_COUNT = /\bhow many (?:jobs|work orders|visits)\b.*\b(?:has|have|did|does|do)\b.*\b(?:complete|completed|finish|finished|do|done|did)\b|\bjob counts?\b/;
+export const clientCountQuestion = (question: string) => CLIENT_COUNT.test(normalizeQuick(question)) && normalizeQuick(question).length <= 200;
+/**
+ * AGENT12 count answers, fixed words in the reader's language and no AI. Clients always get the same plain refusal.
+ * localized means the text is already in his language, so the page translation leaves it as it is.
+ */
+export async function countAnswer(c: AgentContext, question: string, who: { role: string; language?: string | null }): Promise<{ text: string; localized: boolean } | null> {
+  question = resolveWords(question, await listWords(c.user, c.ws));
+  const person = countPerson(question);
+  const out = (text: string) => ({ text, localized: countLocalized(who.language) });
+  if (who.role === 'client') return person !== null || clientCountQuestion(question) ? out(countLine(who.language, 'client')) : null;
+  if (person === null) return null;
+  const result = await callTool(c, 'job_counts', person === 'i' ? {} : { person });
+  const data = result.structuredContent as any;
+  if (result.isError) {
+    const code = data?.error?.code;
+    if (code === 'own_count') return out(countLine(who.language, 'own_only'));
+    if (code === 'ambiguous') return out(countLine(who.language, 'ambiguous', { names: String(data.error.message).replace(/^Which person do you mean\? /, '').replace(/\.$/, '') }));
+    return null;
+  }
+  const counts = data?.result;
+  return counts ? out(countLine(who.language, person === 'i' ? 'self' : 'other', { name: counts.name, month: counts.month, total: counts.total })) : null;
+}
+
 /** The quick answer, or null to let the AI answer. tomorrow is the workspace's next day as YYYY-MM-DD. */
 export async function quickAnswer(c: AgentContext, question: string, who: { role: string; tomorrow: string; timezone?: string }): Promise<string | null> {
   question=resolveWords(question,await listWords(c.user,c.ws));
-  const person=countPerson(question);
-  if(person!==null){
-    const result=await callTool(c,'job_counts',person==='i'?{}:{person});
-    const data=result.structuredContent as any;
-    if(result.isError)return ['own_count','ambiguous'].includes(data?.error?.code)?data.error.message:null;
-    const counts=data?.result;
-    return counts?`${person==='i'?'You':counts.name} finished ${plural(counts.month,'job')} this month and ${counts.total} in total.`:null;
-  }
+  const count=await countAnswer(c,question,{role:who.role});
+  if(count)return count.text;
+  if(countPerson(question)!==null)return null;
   const scoped=await scopedQuickAnswer(c,question,who.timezone);
   if(scoped!==undefined)return scoped;
   if(splitQuick(question))return null;
