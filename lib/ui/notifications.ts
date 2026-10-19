@@ -11,6 +11,7 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
 export function notificationMessage(r:Record<string,any>, client=false) {
  const labels=client?clientStatusLabels:statusLabels, status=(value:string)=>labels[value]??label(value);
  const title=r.work_order_title??r.current_title??'your job',actor=r.actor_name??'Your team';
+ if(r.kind==='emergency'||r.kind==='emergency_review')return String(r.work_order_title);
  if(r.kind==='team_message')return `${actor} wrote in Team space.`;
  if(r.kind==='message_received')return `${actor} sent you a message.`;
  if(r.kind==='job_assigned')return `${actor} assigned ${title} to you.`;
@@ -32,10 +33,10 @@ export function notificationMessage(r:Record<string,any>, client=false) {
 }
 
 /** CMP08: several updates on one job show as one row, newest first, with a count of the rest. */
-export function groupNotifications<T extends { id: string; read_at: string | null; link_target?: { entity: string; id: string } | null }>(items: T[]) {
+export function groupNotifications<T extends { id: string; read_at: string | null; link_target?: { entity: string; id: string } | null; kind?:string }>(items: T[]) {
   const out: { item: T; rest: T[] }[] = []; const at = new Map<string, number>();
   for (const n of items) {
-    const key = n.link_target && (n.link_target.entity === 'work_orders' || n.link_target.entity === 'work_order') ? `wo:${n.link_target.id}` : null;
+    const key = n.kind !== 'emergency' && n.kind !== 'emergency_review' && n.link_target && (n.link_target.entity === 'work_orders' || n.link_target.entity === 'work_order') ? `wo:${n.link_target.id}` : null;
     if (key && at.has(key)) { out[at.get(key)!].rest.push(n); continue; }
     if (key) at.set(key, out.length); out.push({ item: n, rest: [] });
   }

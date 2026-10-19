@@ -1,4 +1,5 @@
-import { detectEmergency } from '../emergency';
+import { reportEmergency } from './emergencies';
+import { detectEmergency, isFalseAlarm } from '../emergency';
 import { createSuggestion } from './suggestions';
 import { assertWorking } from './time-off';
 import { pushJobChange, sendPush } from './push';
@@ -72,6 +73,14 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
  });
 }
 export async function createWorkOrder(user:string,ws:string,body:unknown,key?:string) {
+ if(body&&typeof body==='object'){
+  const input=body as Record<string,unknown>;
+  const words=`${input.title??''} ${input.description??''}`;
+  if(detectEmergency(words)==='people'||isFalseAlarm(words)){
+   const result=await reportEmergency(user,ws,words);
+   if(result)return result;
+  }
+ }
  const made=await inWorkspace(user,ws,async c=>{
   if(c.role==='technician')throw new ApiError(403,'forbidden','Ask a supervisor to create the job.');
   // A client's agent may guess a trade; the office sets the trade, so drop it rather than fail the request.
@@ -94,8 +103,9 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
    ...data,client_id,workspace_id:ws,created_by:user,source:c.role==='client'?'client':'manual',
   }));
  });
- if(!('problem' in made))await pushJobChange(user,null,made as never);
- return made;
+ const emergency=!('emergency' in made)&&!('problem' in made)?await reportEmergency(user,ws,`${made.title} ${made.description??''}`,{work_order_id:made.id,prepareCard:false}):null;
+ if(!('emergency' in made)&&!('problem' in made))await pushJobChange(user,null,made as never);
+ return emergency?{...made,emergency:true,reply:emergency.reply}:made;
 }
 const CLIENT_HIDDEN_SITE=['access_notes','contact_name','contact_phone'],CLIENT_HIDDEN_CLIENT=['notes','contact_name','phone','email','billing_building','billing_street','billing_area','billing_city','billing_region','country'];
 export async function getWorkOrder(user:string,ws:string,id:string) {

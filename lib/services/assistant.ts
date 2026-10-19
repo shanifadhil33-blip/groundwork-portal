@@ -1,3 +1,4 @@
+import { reportEmergency } from './emergencies';
 import { noteTargets } from '../agent/note-target';
 import { fixJobTitles, jobsSeen } from '../agent/job-labels';
 import { safetyLine } from '../emergency';
@@ -49,6 +50,12 @@ async function recordTarget(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:a
 export const assistantUnavailable={available:false,message:'I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.'};
 const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant']),content:z.string().min(1).max(20000)}).strict()).max(30),confirm_action_id:uuid.optional()}).strict();
 export async function assistant(user:string,ws:string,body:unknown) {
+ const input=schema.parse(body);
+ if(!input.confirm_action_id){
+  const words=input.messages.filter(m=>m.role==='user').at(-1)?.content??'';
+  const emergency=await reportEmergency(user,ws,words);
+  if(emergency)return emergency;
+ }
  const offers:RefusalOffer[]=[];
  const result=await assistantInner(user,ws,body,offers);
  if(!offers.length)await refusedOnItsOwn(user,ws,body,result,offers).catch(()=>undefined);
