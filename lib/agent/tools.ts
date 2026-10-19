@@ -125,7 +125,8 @@ export async function callTool(c:AgentContext,name:string,args:unknown) {
   if(t.write&&c.scope==='read')throw new ApiError(403,'read_only','This token allows viewing only.');
   if(!allowedTool(role,name))throw new ApiError(403,'forbidden',role.startsWith('client')?'You can raise and follow your own requests here. Ask your service company for anything else.':role==='office'?'Office staff can not change the team, give jobs to people, decide leave or change payments. Ask an admin or supervisor.':role==='staff'?'Only an admin can make this change. Ask an admin.':'You can update your own jobs and add notes. Ask a supervisor for other changes.');
   const a=t.schema.parse(args);
-  if(['reschedule_visit','cancel_visit','suggest_contact_name','fill_onboarding'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the change in Groundwork and choose Yes or Change first.');
+  if(['suggest_contact_name','fill_onboarding'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the saved name in Groundwork and choose Yes or Change first.');
+  if(['reschedule_visit','cancel_visit'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the change in Groundwork and choose Yes or Change first.');
   // Approval mode covers Connect AI keys too: in Ask before every action, a key write waits for an admin.
   if(t.write&&c.kind==='agent'&&!c.approved){
    const queued=await withSystem(async db=>{const m=(await db.query('SELECT approval_mode FROM workspaces WHERE id=$1',[c.ws])).rows[0]?.approval_mode;if(m!=='every')return null;

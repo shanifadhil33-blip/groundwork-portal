@@ -38,7 +38,7 @@ it('Agent attention names unread senders and reads the same thread results',asyn
 });
 it('household and technician can message each other only through his assigned request',async()=>{
  const {createWorkOrder,getWorkOrder,patchWorkOrder}=await import('../lib/services/work-orders');const {decideSuggestion}=await import('../lib/services/suggestions');const {siteId}=await import('../scripts/seed');
- await withUser(ids.sam,db=>db.query('UPDATE work_orders SET assignee_id=NULL WHERE workspace_id=$1 AND created_by=$2 AND assignee_id=$3',[ids.ridgeline,ids.faisal,ids.ravi]));
+ await withUser(ids.sam,db=>db.query('UPDATE work_orders SET assignee_id=NULL WHERE workspace_id=$1 AND created_by=$2 AND assignee_id=$3 AND status<>\'done\'',[ids.ridgeline,ids.faisal,ids.ravi]));
  const request=await createWorkOrder(ids.faisal,ids.ridgeline,{title:'Tap leaks',site_id:siteId(4),preferred_window:'Saturday'});
  const accepted=await decideSuggestion(ids.sam,ids.ridgeline,request.id,{decision:'approved'});let job=await getWorkOrder(ids.sam,ids.ridgeline,accepted.work_order_id);
  job=await patchWorkOrder(ids.sam,ids.ridgeline,job.id,{assignee_id:ids.ravi,updated_at:job.updated_at.toISOString()});

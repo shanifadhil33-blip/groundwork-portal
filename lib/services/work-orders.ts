@@ -1,4 +1,3 @@
-import { assertNoVisitClash } from './client-visits';
 import { reportEmergency } from './emergencies';
 import { detectEmergency, isFalseAlarm } from '../emergency';
 import { createSuggestion } from './suggestions';
@@ -101,7 +100,6 @@ export async function createWorkOrder(user:string,ws:string,body:unknown,key?:st
   }
   if(c.role!=='client')await assertWorking(c,(data as {assignee_id?:string|null}).assignee_id,(data as {scheduled_for?:string|null}).scheduled_for);
   return replay(c.db,user,ws+'/work-orders',key,data,async()=>{
-   if('scheduled_for' in data && 'assignee_id' in data)await assertNoVisitClash(c,{id:null,assignee_id:data.assignee_id},data.scheduled_for);
    return insert(c,'work_orders',{
    ...data,client_id,workspace_id:ws,created_by:user,source:c.role==='client'?'client':'manual',
    });
@@ -167,7 +165,6 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   const changedTo=data.assignee_id===order.assignee_id?undefined:data.assignee_id;
   if('assignee_id' in data||'scheduled_for' in data)await c.db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[ws+String(data.assignee_id??order.assignee_id)]);
   if('assignee_id' in data||'scheduled_for' in data)await assertWorking(c,'assignee_id' in data?data.assignee_id:order.assignee_id,'scheduled_for' in data?data.scheduled_for:order.scheduled_for);
-  if('assignee_id' in data||'scheduled_for' in data)await assertNoVisitClash(c,{...order,assignee_id:'assignee_id' in data?data.assignee_id:order.assignee_id},'scheduled_for' in data?data.scheduled_for:order.scheduled_for);
   await assignee(c,changedTo,isOfficeStaff(c)&&changedTo?await bestFor(c,id):null);
   return update(c,'work_orders',id,data);
  });
