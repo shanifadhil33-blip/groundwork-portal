@@ -32,7 +32,7 @@ const pendingHeading=(p:Pending)=>p.household||NEW_REQUEST_TOOLS.has(p.tool??'')
 /** App labels follow his language; his own words, his home's name and anything he typed stay exactly as written. */
 function HouseholdCard({f}:{f:HouseholdFields}){
  const value=(v:string|null)=>v==null?<dd>Not given</dd>:<dd data-no-translate={isHouseholdChoice(v)?undefined:true}>{v}</dd>;
- return <><p className="preserve" data-no-translate>{f.words}</p><dl className="household-card-fields"><dt>Your home</dt>{f.home==null?<dd>Not given</dd>:<dd data-no-translate>{f.home}</dd>}<dt>Where</dt>{value(f.where)}<dt>Since</dt>{value(f.since)}<dt>Photos</dt><dd>{f.photos}</dd><dt>Visit charge</dt><dd>{visitChargeText(f.visit_charge)}</dd></dl></>;
+ return <><p className="preserve" data-no-translate>{f.words}</p><dl className="household-card-fields"><dt>Your home</dt>{f.home==null?<dd>Not given</dd>:<dd data-no-translate>{f.home}</dd>}<dt>Where</dt>{value(f.where)}<dt>Since</dt>{value(f.since)}<dt>Photos</dt><dd>{f.photos}</dd><dt>Visit charge</dt>{f.visit_charge?.amount==null?<dd>{visitChargeText(f.visit_charge)}</dd>:<dd><span data-no-translate>{f.visit_charge.currency} {f.visit_charge.amount.toFixed(2)}</span>{f.visit_charge.sample&&<> <span>(Sample price)</span></>}</dd>}</dl></>;
 }
 type Reply={household_photo?:boolean;setting_change?:SettingChange;offers?:RefusalOffer[];available:boolean;logged?:boolean;reply?:string;choices?:string[];message?:string;pending_action?:Pending;result?:{isError?:boolean}};
 export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boolean;onClose:()=>void;ask?:{text:string;n:number}|null;docked?:boolean}){

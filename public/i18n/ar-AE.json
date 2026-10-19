@@ -747,5 +747,12 @@
  "No visit charge is set.": "لم يتم تحديد رسوم زيارة.",
  "How much is a visit": "كم تبلغ الزيارة",
  "What does a visit cost": "ما تكلفة الزيارة",
- "Save visit charge": "احفظ رسوم الزيارة"
+ "Save visit charge": "احفظ رسوم الزيارة",
+ "Households see this before they send a request.": "تظهر هذه الرسوم للأسر قبل إرسال الطلب.",
+ "Sample price": "سعر نموذجي",
+ "(Sample price)": "(سعر نموذجي)",
+ "Prices by region": "الأسعار حسب المنطقة",
+ "The office will confirm the price.": "سيؤكد المكتب السعر.",
+ "Choose a region": "اختر منطقة",
+ "Choose each region once and enter its amount.": "اختر كل منطقة مرة واحدة وأدخل مبلغها."
 }
