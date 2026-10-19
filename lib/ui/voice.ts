@@ -4,7 +4,7 @@ export function speechLanguage(language:string|null|undefined){const code=langua
 export const MICROPHONE_BLOCKED='Microphone is blocked. Allow it in your browser settings to talk to your agent.';
 export const VOICE_UNSUPPORTED='Voice input is unavailable in this browser. You can type your message.';
 
-export const INPUT_MODE_KEY='gw-agent-input-mode';
+export const INPUT_MODE_KEY='gwAgentInputMode';
 export type InputMode='voice'|'text';
 export function rememberedInputMode():InputMode {
  try{return localStorage.getItem(INPUT_MODE_KEY)==='voice'?'voice':'text';}catch{return 'text';}
