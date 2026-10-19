@@ -6,16 +6,16 @@ import {createRoot,type Root} from 'react-dom/client';
 import {afterEach,beforeEach,expect,it,vi} from 'vitest';
 import {Assistant} from '../components/app/assistant';
 import {AppContext,type Membership} from '../components/app/context';
-const api=vi.hoisted(()=>({post:vi.fn(),wide:false}));
+const api=vi.hoisted(()=>({post:vi.fn(),wide:false,voice:false}));
 vi.mock('../lib/ui/api',async original=>({...await original<typeof import('../lib/ui/api')>(),post:api.post}));
-vi.mock('../components/app/resource',()=>({useResource:()=>({data:{agent_name:null,voice_enabled:false,language:'en-IN'}})}));
+vi.mock('../components/app/resource',()=>({useResource:()=>({data:{agent_name:null,voice_enabled:api.voice,language:'en-IN'}})}));
 vi.mock('../components/ui',async original=>({...await original<typeof import('../components/ui')>(),BottomSheet:(await import('../components/ui/dialog')).BottomSheet}));
 vi.mock('../components/app/translator',()=>({changeAppLanguage:vi.fn()}));
 let host:HTMLDivElement,root:Root,page:HTMLDivElement,signals:AbortSignal[];
 /** A question that never answers until it is cancelled, like a slow free model. */
 function hang(){api.post.mockImplementation((_url:string,_body:unknown,init?:{signal?:AbortSignal})=>new Promise((_,reject)=>{if(init?.signal){signals.push(init.signal);init.signal.addEventListener('abort',async()=>{const {RequestError}=await import('../lib/ui/api');reject(new RequestError(0,'Stopped.',undefined,'aborted'));});}}));}
 beforeEach(()=>{
- sessionStorage.clear();localStorage.clear();api.post.mockReset();api.wide=false;signals=[];
+ sessionStorage.clear();localStorage.clear();api.post.mockReset();api.wide=false;api.voice=false;signals=[];
  page=document.createElement('div');page.className='page-behind';document.body.append(page);
  host=document.createElement('div');document.body.append(host);root=createRoot(host);
  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true);
@@ -84,4 +84,29 @@ it('a new message while a card waits says no to that card and sends, instead of 
  await type('actually show late jobs');await act(async()=>button('Send')!.click());
  expect(api.post.mock.calls.some((c:any[])=>/\/assistant\/log\/card\/decline$/.test(c[0]))).toBe(true);
  expect(api.post.mock.calls.some((c:any[])=>c[1]?.confirm_action_id)).toBe(false);expect(document.body.textContent).toContain('Okay.');
+});
+
+it('voice: a tap keeps listening, works while the Agent thinks, Stop keeps the words, Cancel drops them, hold is push to talk',async()=>{
+ const speech={lang:'',interimResults:false,continuous:false,onresult:null as null|((e:any)=>void),onerror:null as null|((e:any)=>void),onend:null as null|(()=>void),start:vi.fn(),stop:vi.fn(),abort:vi.fn()};
+ Object.defineProperty(window,'SpeechRecognition',{configurable:true,value:class{constructor(){return speech;}}});
+ (Element.prototype as any).setPointerCapture=vi.fn();
+ const press=async(ms:number)=>{const mic=button('Use microphone')??button('Stop recording');await act(async()=>{mic!.dispatchEvent(new MouseEvent('pointerdown',{bubbles:true,button:0}));});if(ms)await act(async()=>new Promise(r=>setTimeout(r,ms)));await act(async()=>{mic!.dispatchEvent(new MouseEvent('pointerup',{bubbles:true,button:0}));});};
+ try{
+  api.voice=true;hang();await mount();await ask();
+  const mic=button('Use microphone')!;expect(mic.disabled).toBe(false);expect(mic.getAttribute('aria-label')).toBe('Use microphone');
+  await press(0);expect(speech.start).toHaveBeenCalledOnce();expect(speech.stop).not.toHaveBeenCalled();
+  expect(document.body.textContent).toContain('Listening');expect(button('Stop recording')).toBeTruthy();expect(button('Cancel')).toBeTruthy();
+  await act(async()=>speech.onresult?.({results:[[{transcript:'part is late'}]]}));
+  await act(async()=>button('Stop')!.click());expect(speech.stop).toHaveBeenCalled();await act(async()=>speech.onend?.());
+  expect(field().value).toBe('part is late');expect(api.post).toHaveBeenCalledTimes(1);
+  // Cancel drops what was said.
+  speech.start.mockClear();await press(0);await act(async()=>button('Cancel')!.click());expect(speech.abort).toHaveBeenCalled();
+  expect(document.body.textContent).not.toContain('Listening');expect(field().value).toBe('part is late');
+  // Hold and release is push to talk.
+  speech.stop.mockClear();await press(500);expect(speech.stop).toHaveBeenCalled();
+  // A blocked microphone gets friendly words, and the panel still closes.
+  await act(async()=>speech.onerror?.({error:'not-allowed'}));
+  await press(0);await act(async()=>speech.onerror?.({error:'not-allowed'}));expect(document.body.textContent).toMatch(/microphone/i);expect(document.body.textContent).not.toContain('not-allowed');
+  expect(button('Close dialog')!.disabled).toBe(false);
+ }finally{Reflect.deleteProperty(window,'SpeechRecognition');}
 });
