@@ -16,8 +16,9 @@ it('splits roles into the highest main role plus extras, and labels them plainly
 });
 it('an admin can hold every role, is then suggested for jobs and has a day of his own; only admins change roles', async () => {
   await expect(setMemberRoles(ids.sam, ws, ids.imran, { roles: ['admin', 'technician'] })).rejects.toMatchObject({ status: 403 });
-  const saved = await setMemberRoles(ids.imran, ws, ids.imran, { roles: ['admin', 'staff', 'technician'] });
-  expect(saved).toMatchObject({ role: 'admin', extra_roles: ['staff', 'technician'] });
+  // ROLE07: Imran is the demo company's only owner, so his full list keeps owner (dropping it would remove the last owner).
+  const saved = await setMemberRoles(ids.imran, ws, ids.imran, { roles: ['owner', 'staff', 'technician'] });
+  expect(saved).toMatchObject({ role: 'admin', is_owner: true, extra_roles: ['staff', 'technician'] });
   const job = await withSystem(async db => (await db.query("SELECT id FROM work_orders WHERE workspace_id=$1 AND status IN ('open','scheduled') LIMIT 1", [ws])).rows[0]);
   const s = await suggestWorkers(ids.imran, ws, job.id);
   expect(s.workers.some((w: any) => w.user_id === ids.imran)).toBe(true);
