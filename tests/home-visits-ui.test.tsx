@@ -47,9 +47,11 @@ it('shows the repeat technician checkbox on the request form only after a finish
 });
 
 const travelJob = { id:'job',order_number:1,title:'Repair tap',status:'scheduled',on_way_at:'2032-01-12T07:00:00Z',priority:'normal',due_on:null,assignee_id:null } as WorkOrder;
-it('client job cards show travel while staff cards keep Scheduled',()=>{
+// NOTIF08 polish: the team also sees On the way once the technician has set off.
+it('client and staff job cards show travel once the technician set off',()=>{
  const props={order:travelJob,clientName:'Home',assigneeName:'Unassigned',onOpen:()=>{}};
  expect(renderToStaticMarkup(<WorkOrderCard {...props} client/>)).toContain('On the way');
- expect(renderToStaticMarkup(<WorkOrderCard {...props} client={false}/>)).toContain('Scheduled');
+ expect(renderToStaticMarkup(<WorkOrderCard {...props} client={false}/>)).toContain('On the way');
+ expect(renderToStaticMarkup(<WorkOrderCard {...props} order={{...travelJob,on_way_at:null}} client={false}/>)).toContain('Scheduled');
  expect(renderToStaticMarkup(<WorkOrderCard {...props} order={{...travelJob,on_way_at:null}} client/>)).toContain('Visit Scheduled');
 });
