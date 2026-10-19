@@ -14,13 +14,14 @@ export function groupUnread(items:Unread[]){
 }
 /** The no AI answer to what needs attention: counts first, then unread messages per job or chat, never the same line twice. */
 export function attentionReply(a:{summary:string;message_groups:ReturnType<typeof groupUnread>}){
+ const head=a.summary.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>/[.!?]$/.test(l)?l:`${l}.`).join('\n');
  const groups=a.message_groups,total=groups.reduce((n,g)=>n+g.total,0);
  if(!total)return `${a.summary}.
 You have no unread messages.`;
  const onJobs=groups.filter(g=>g.kind==='job').reduce((n,g)=>n+g.total,0),direct=total-onJobs;
  const split=[onJobs?`${onJobs} on ${groups.filter(g=>g.kind==='job').length===1?'1 job':`${groups.filter(g=>g.kind==='job').length} jobs`}`:'',direct?`${direct} in direct chats`:''].filter(Boolean).join(' and ');
  const lines=groups.slice(0,6).map(g=>`• ${g.summary}`),more=groups.length-lines.length;
- return [`${a.summary}.`,`You have ${total===1?'1 unread message':`${total} unread messages`}: ${split}.`,...lines,...(more>0?[`and ${more} more ${more===1?'conversation':'conversations'}.`]:[])].join('\n');
+ return [head,`You have ${total===1?'1 unread message':`${total} unread messages`}: ${split}.`,...lines,...(more>0?[`and ${more} more ${more===1?'conversation':'conversations'}.`]:[])].join('\n');
 }
 export async function needsAttention(user:string,ws:string){
  return inWorkspace(user,ws,async c=>{
