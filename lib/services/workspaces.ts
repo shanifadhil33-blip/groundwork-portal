@@ -1,3 +1,4 @@
+import { requireOwner } from './owner';
 import { companyOptions,sizeRoles } from '../company';
 import { ApiError } from '../http';
 import { assertRealUser } from './demo';
@@ -48,18 +49,21 @@ export const roleNames=z.object({admin:z.string().trim().max(40).optional(),staf
  .transform(v=>Object.fromEntries(Object.entries(v).filter(([,x])=>x)));
 export async function patchWorkspace(user:string,ws:string,body:unknown) {
  return inWorkspace(user,ws,async c=>{allow(c,['admin']);const current=await row(c,'workspaces',ws);
-  const data=z.object({name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional(),country:country.optional(),region:placeFields.region,currency:placeFields.currency,approval_mode:z.enum(['important','every']).optional(),role_names:roleNames.optional(),...companyOptions}).strict()
+  const data=z.object({name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional(),country:country.optional(),region:placeFields.region,currency:placeFields.currency,approval_mode:z.enum(['important','every']).optional(),owner_handover:z.array(z.enum(['approval_mode','payments'])).max(2).optional(),role_names:roleNames.optional(),...companyOptions}).strict()
    .transform((d,ctx)=>{
     // A new country without a region clears the old one (it belonged to the old country's list).
     if(d.country&&d.country!==current.country&&d.region===undefined)d.region=null;
     return place({...d,country:d.country??current.country},ctx);
    }).parse(body);
+  // Only a real change needs the owner: a form that sends the current value back must still save the rest.
+  if(data.approval_mode!==undefined&&data.approval_mode!==(current.approval_mode??'important'))await requireOwner(c,'approval_mode');
+  if(data.owner_handover!==undefined&&JSON.stringify([...data.owner_handover].sort())!==JSON.stringify([...(current.owner_handover??[])].sort()))await requireOwner(c,'handover');
   if(data.country===current.country&&!('country' in (body as object)))delete (data as {country?:string}).country;if(!Object.keys(data).length)throw invalid('Provide at least one change.');if(data.company_size){await row(c,'workspaces',ws,true);const owners=(await c.db.query('SELECT user_id,extra_roles,size_added_roles FROM members WHERE workspace_id=$1 AND is_owner',[ws])).rows;for(const owner of owners){const roles=sizeRoles(owner.extra_roles,owner.size_added_roles,data.company_size);await c.db.query('UPDATE members SET extra_roles=$3,size_added_roles=$4 WHERE workspace_id=$1 AND user_id=$2',[ws,owner.user_id,roles.extra_roles,roles.size_added_roles]);}}return update(c,'workspaces',ws,data);});
 }
 export async function deleteWorkspace(user:string,ws:string,body:unknown) {
  await assertRealUser(user);
  return inWorkspace(user,ws,async c=>{
-  allow(c,['admin']);const data=z.object({confirm_name:z.string()}).strict().parse(body);
+  allow(c,['admin']);await requireOwner(c,'close');const data=z.object({confirm_name:z.string()}).strict().parse(body);
   const w=await row(c,'workspaces',ws,true);
   if(data.confirm_name!==w.name)throw invalid('Type the workspace name exactly.','confirm_name');
   await c.db.query('SELECT delete_workspace($1)',[ws]);return {deleted:true};

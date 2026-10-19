@@ -1,3 +1,4 @@
+import { requireOwner } from './owner';
 import { sizeRoles } from '../company';
 import { assertRealUser } from './demo';
 import { z } from 'zod';
@@ -18,6 +19,7 @@ export async function changeMember(user:string,ws:string,id:string,body?:unknown
   await row(c,'workspaces',ws,true);
   const member=await row(c,'members',id,true);
   const data=body===undefined?undefined:membershipSchema.parse(body);
+  if(member.is_owner&&data?.role!=='admin')await requireOwner(c,'owners');
   if(member.is_owner&&data?.role!=='admin'){const n=(await c.db.query('SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND is_owner AND archived_at IS NULL',[ws])).rows[0].n;if(n<=1)throw new ApiError(409,'last_owner','Keep at least one owner.');}
   if(member.role==='admin' && data?.role!=='admin') {
    const count=(await c.db.query("SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND role='admin' AND archived_at IS NULL",[ws])).rows[0].n;
@@ -58,6 +60,7 @@ export async function setMemberRoles(user:string,ws:string,id:string,body:unknow
  return withSystem(async db=>{
   await db.query('SELECT id FROM workspaces WHERE id=$1 FOR UPDATE',[ws]);
   const cur=(await db.query('SELECT role,is_owner FROM members WHERE workspace_id=$1 AND user_id=$2 FOR UPDATE',[ws,id])).rows[0];
+  if(cur.is_owner!==is_owner)await requireOwner({db,user,ws,role:'admin',client_id:null},'owners');
   if(cur.is_owner&&!is_owner&&Number((await db.query('SELECT count(*) n FROM members WHERE workspace_id=$1 AND is_owner AND archived_at IS NULL',[ws])).rows[0].n)<=1)throw new ApiError(409,'last_owner','Keep at least one owner.');
   if(cur.role==='admin'&&next.role!=='admin'){const n=(await db.query("SELECT count(*)::int AS n FROM members WHERE workspace_id=$1 AND role='admin' AND archived_at IS NULL",[ws])).rows[0].n;if(n<=1)throw new ApiError(409,'last_admin','Keep at least one admin.');}
   let automatic:string[]=[];if(is_owner){const w=(await db.query('SELECT company_size FROM workspaces WHERE id=$1',[ws])).rows[0];if(w.company_size==='small'){const combined=sizeRoles(next.extra_roles,[],'small');next.extra_roles=combined.extra_roles as typeof next.extra_roles;automatic=combined.size_added_roles;}}
@@ -91,6 +94,7 @@ export async function archiveMember(user:string,ws:string,id:string){
   await db.query('SELECT id FROM workspaces WHERE id=$1 FOR UPDATE',[ws]);
   const m=(await db.query('SELECT role,is_owner,archived_at FROM members WHERE workspace_id=$1 AND user_id=$2 FOR UPDATE',[ws,id])).rows[0];
   if(!m)throw new ApiError(404,'not_found','This person is not on your team.');
+  if(m.is_owner)await requireOwner({db,user,ws,role:'admin',client_id:null},'owners');
   if(m.is_owner&&Number((await db.query('SELECT count(*) n FROM members WHERE workspace_id=$1 AND is_owner AND archived_at IS NULL',[ws])).rows[0].n)<=1)throw new ApiError(409,'last_owner','Keep at least one owner.');
   if(m.archived_at)throw new ApiError(409,'archived','This person is already archived.');
   if(m.role==='admin'&&Number((await db.query("SELECT count(*) n FROM members WHERE workspace_id=$1 AND role='admin' AND archived_at IS NULL",[ws])).rows[0].n)<=1)throw new ApiError(409,'last_admin','Keep at least one admin.');

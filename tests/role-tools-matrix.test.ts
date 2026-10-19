@@ -2,7 +2,7 @@ import { afterAll, describe, expect, it, vi } from 'vitest';
 import { Client } from 'pg';
 import { callTool, tools, type AgentContext } from '../lib/agent/tools';
 import { allowedTool } from '../lib/agent/role-tools';
-import { closePools } from '../lib/db';
+import { closePools, withSystem } from '../lib/db';
 import { inWorkspace } from '../lib/services/shared';
 import { ids } from '../scripts/seed';
 
@@ -59,4 +59,18 @@ for (const actor of actors) describe(actor.role, () => {
    expect(sql.every(q => /^(?:BEGIN|COMMIT|ROLLBACK|SELECT)\b/i.test(q.trim())), sql.join('\n')).toBe(true);
   } finally { queries.mockRestore(); run.mockRestore(); parse.mockRestore(); }
  });
+});
+
+// Owners and plain admins share the tool inventory. Owner powers are checked with live membership after validation.
+it.each([true,false])('admin tool path checks owner status %s before saving approval mode',async owner=>{
+ const prior=await inWorkspace(ids.imran,ids.ridgeline,async c=>(await c.db.query('SELECT is_owner FROM members WHERE workspace_id=$1 AND user_id=$2',[c.ws,c.user])).rows[0].is_owner);
+ try{
+  await withSystem(db=>db.query('UPDATE members SET is_owner=$3 WHERE workspace_id=$1 AND user_id=$2',[ids.ridgeline,ids.imran,owner]));
+  const run=vi.spyOn(tools.set_approval_mode,'run').mockResolvedValue({});
+  try{
+   const result=await callTool({user:ids.imran,ws:ids.ridgeline,scope:'write',kind:'assistant'},'set_approval_mode',{approval_mode:'important'});
+   if(owner){expect(result.isError).toBeUndefined();expect(run).toHaveBeenCalledOnce();}
+   else{expect(result).toMatchObject({isError:true,structuredContent:{error:{code:'forbidden',message:'Only the owner can change when the agent asks first.'}}});expect(run).not.toHaveBeenCalled();}
+  }finally{run.mockRestore();}
+ }finally{await withSystem(db=>db.query('UPDATE members SET is_owner=$3 WHERE workspace_id=$1 AND user_id=$2',[ids.ridgeline,ids.imran,prior]));}
 });

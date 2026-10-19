@@ -1,3 +1,4 @@
+import { requireOwner } from './owner';
 import { z } from 'zod';
 import { ApiError } from '../http';
 import { withSystem } from '../db';
@@ -37,6 +38,7 @@ export async function setJobPayment(user: string, ws: string, id: string, body: 
     const seen = await row(c, 'work_orders', id);
     if (c.role !== 'admin') throw new ApiError(403, 'forbidden', 'Only an admin can change how a job is paid. Ask your admin.');
     const { payment_status } = schema.parse(body);
+    if(payment_status==='paid')await requireOwner(c,'payments');
     // No row lock for a finished job: the owner connection below must be able to write it.
     const order = seen.status === 'done' ? seen : await row(c, 'work_orders', id, true);
     if (order.status === 'cancelled') throw new ApiError(422, 'invalid', 'This job was cancelled, so there is nothing to pay.');

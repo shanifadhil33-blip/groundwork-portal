@@ -1,3 +1,4 @@
+import { ownerToolPower, ownerCan, OWNER_REFUSAL } from './owner';
 import { householdIntake, confirmHousehold } from './household';
 import { replyLengthPrompt } from '../agent/replylength';
 import { detectPersonalSetting, settingUndo, settingRestored, isSettingReceipt, settingRefusal } from '../agent/personalsettings';
@@ -218,7 +219,8 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
     if(call.name==='create_request'&&kind==='household'&&!(args as any).preferred_window){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Ask what time suits them for the visit (for example Saturday after 4 PM), then raise the request again with preferred_window.'}]},id:call.id});continue;}
     // Refuse before any card what this role may not do: the Agent gets its wording, and the decision log keeps what was asked and why it did not happen.
     // Technicians change only the status of their own jobs and add notes. Record writes are admin only.
-    const refusal:[string,string]|null=role==='technician'&&!['update_work_order_status','save_job_report','add_comment','request_time_off','suggest_job','send_message','send_team_message','suggest_contact_name','fill_onboarding','ask_supervisor','remember_about_me','forget_about_me','set_call_me'].includes(call.name)?['Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.',REFUSAL_REASON.technician]
+    const ownerPower=role==='admin'?await inWorkspace(user,ws,async x=>{const p=await ownerToolPower(x,call.name,args as Record<string,any>);return p&&!await ownerCan(x,p)?p:null;}):null;
+    const refusal:[string,string]|null=ownerPower?[OWNER_REFUSAL[ownerPower],REFUSAL_REASON.admin]:role==='technician'&&!['update_work_order_status','save_job_report','add_comment','request_time_off','suggest_job','send_message','send_team_message','suggest_contact_name','fill_onboarding','ask_supervisor','remember_about_me','forget_about_me','set_call_me'].includes(call.name)?['Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.',REFUSAL_REASON.technician]
      :teamTools.includes(call.name)&&(!['admin','staff'].includes(role)||(office&&call.name!=='assign_work_order'))?['Only admins and supervisors can assign jobs or change the team.',REFUSAL_REASON.team]
      :ADMIN_ONLY.includes(call.name)&&role!=='admin'?[call.name==='set_job_payment'?'Only an admin can change how a job is paid. Tell the person to ask the admin, and add a note on the job if they want.':'Only an admin can change this. Tell the person to ask the admin.',REFUSAL_REASON.admin]
      :recordTools.includes(call.name)&&role!=='admin'&&!(call.name==='add_asset'&&role==='staff'&&!office)?['Only workspace admins can add or change clients and sites.',REFUSAL_REASON.records]:null;
@@ -228,12 +230,12 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
       let what='';try{what=recordTools.includes(call.name)?recordSummary(call.name,args as Record<string,any>,await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args))):audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');}catch{what='';}
       const summary=what||'A change the Agent was not allowed to make';
       let offer:RefusalOffer|undefined;
-      if(['technician','staff'].includes(role)){
+      if(ownerPower||['technician','staff'].includes(role)){
        const admin=ADMIN_ONLY.includes(call.name)||recordTools.includes(call.name);
        const contacts=await listContactNames(user,ws);
        // Membership selection is scoped here because technicians cannot read the full members table.
        const people=(await withSystem(db=>db.query(`SELECT user_id FROM members WHERE workspace_id=$1 AND user_id<>$2 AND archived_at IS NULL
-        AND ${admin?"role='admin'":"(role='staff' AND coalesce(staff_kind,'')<>'office' OR role='admin' AND is_owner)"}
+        AND ${ownerPower?"role='admin' AND is_owner":admin?"role='admin'":"(role='staff' AND coalesce(staff_kind,'')<>'office' OR role='admin' AND is_owner)"}
         ORDER BY ${admin?'is_owner DESC':"(role='staff') DESC"},created_at,user_id`,[ws,user]))).rows;
        const person=people.map(p=>contacts.find(c=>c.user_id===p.user_id)).find(p=>p?.name.trim());
        if(person){
