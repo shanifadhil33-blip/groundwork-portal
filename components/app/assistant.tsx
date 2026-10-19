@@ -33,7 +33,8 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
  const speechSettings=useRef({enabled:voiceEnabled,active:open||docked,language:preferences.data?.language,client:member?.role==='client'});
  speechSettings.current={enabled:voiceEnabled,active:open||docked,language:preferences.data?.language,client:member?.role==='client'};
  function stopReading(){speechRun.current++;if(typeof window!=='undefined')window.speechSynthesis?.cancel();utterance.current=null;setReading(false);}
- function close(){stopReading();onClose();}
+ // Close always works, even while the Agent is thinking (Adhil, Oct 19): a pending question is cancelled; a confirmed change is left to finish.
+ function close(){stopReading();if(lock.current&&!confirming.current)stop(true);onClose();}
  useEffect(()=>{if(!voiceEnabled||!(open||docked))stopReading();},[voiceEnabled,open,docked]);
  useEffect(()=>()=>{speechRun.current++;window.speechSynthesis?.cancel();},[ws,me.user.id]);
  function readReply(text:string,run:number){
@@ -47,6 +48,8 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
   try{setReading(true);window.speechSynthesis.speak(speech);}catch{finish();}
  }
  const agentName=preferences.data?.agent_name||'Agent';
+ const wide=useWide();
+ useKeyboardHeight(open&&!docked);
  const heading=<Link href="/settings/agent" className="agent-heading" onClick={close} data-no-translate={!!preferences.data?.agent_name}><AgentAvatar avatar={preferences.data?.agent_avatar}/>{agentName}</Link>;
  const [messages,setMessages]=useState<Message[]>([]),[inputDraft,setInputDraft]=useLocalDraft(`groundwork-agent-draft:${me.user.id}:${ws}`,{body:''}),[busy,setBusy]=useState(false),[pending,setPending]=useState<Pending|null>(null),[resting,setResting]=useState(false),[error,setError]=useState(''),[failed,setFailed]=useState<{messages:Message[];confirm_action_id?:string;readAloud?:boolean;household_photo_ids?:string[]}|null>(null);
  const input=inputDraft.body,setInput=(v:React.SetStateAction<string>)=>setInputDraft(d=>({body:typeof v==='function'?v(d.body):v}));
@@ -58,6 +61,11 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
  const [householdPhoto,setHouseholdPhoto]=useState(false),[photoIds,setPhotoIds]=useState<string[]>([]);
  const [restored,setRestored]=useState(false),[choices,setChoices]=useState<string[]>([]);
  const newest=useRef<HTMLDivElement>(null),lock=useRef(false);
+ const controller=useRef<AbortController|null>(null),confirming=useRef(false),stopped=useRef<'user'|'timeout'|null>(null),[stoppedNote,setStoppedNote]=useState(''),[slow,setSlow]=useState(false);
+ useEffect(()=>{if(!busy){setSlow(false);return;}const t=setTimeout(()=>setSlow(true),8000);return()=>clearTimeout(t);},[busy]);
+ useEffect(()=>()=>controller.current?.abort(),[]);
+ /** Stop waiting for the answer. The request is cancelled; the typed draft stays. */
+ function stop(quiet=false){if(!controller.current)return;stopped.current='user';controller.current.abort();if(!quiet)requestAnimationFrame(()=>inputRef.current?.focus());}
  useEffect(()=>{
   try{sessionStorage.removeItem(`groundwork-assistant:${ws}`);const saved=JSON.parse(sessionStorage.getItem(personalAgentChatKey(me.user.id,ws))??'null');setMessages(Array.isArray(saved)&&saved.every(m=>m&&(m.role==='user'||m.role==='assistant')&&typeof m.content==='string')?saved:[]);}catch{ /* Storage may be unavailable. */ }
   setRestoredFor(chatKey);setRestored(true);
@@ -67,9 +75,12 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
  async function send(payload:{messages:Message[];confirm_action_id?:string;readAloud?:boolean;household_photo_ids?:string[]}){
   if(lock.current)return;
   stopReading();const run=speechRun.current;lock.current=true;
-  setBusy(true);setError('');setResting(false);setFailed(payload);
+  const abort=new AbortController();controller.current=abort;stopped.current=null;confirming.current=!!payload.confirm_action_id;
+  // The server answers within 40 s (from app data if the AI is slow); the phone never waits longer than 48 s.
+  const timer=setTimeout(()=>{stopped.current='timeout';abort.abort();},48_000);
+  setBusy(true);setError('');setResting(false);setFailed(payload);setStoppedNote('');
   try{
-   const result=await post<Reply>(`/api/workspaces/${ws}/assistant`,{confirm_action_id:payload.confirm_action_id,...(payload.household_photo_ids?{household_photo_ids:payload.household_photo_ids}:{}),messages:payload.messages.map(({role,content})=>({role,content}))});
+   const result=await post<Reply>(`/api/workspaces/${ws}/assistant`,{confirm_action_id:payload.confirm_action_id,...(payload.household_photo_ids?{household_photo_ids:payload.household_photo_ids}:{}),messages:payload.messages.map(({role,content})=>({role,content}))},{signal:abort.signal});
    if(result.setting_change){
     const {setting,value}=result.setting_change;
     if(setting==='theme'&&(value==='light'||value==='dark'||value==='system'))await setTheme(value);
@@ -98,14 +109,23 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
    if(payload.readAloud)readReply(replyText.join('\n'),run);
    setFailed(null);
   }catch(e){
+   if(e instanceof RequestError&&e.code==='aborted'){
+    // Stopped by him or by the time limit: never an error page, the draft and the chat stay.
+    if(stopped.current==='timeout')setError('This is taking too long, so I stopped waiting. Please try again.');
+    else{setFailed(null);setStoppedNote(payload.confirm_action_id?'Stopped waiting. If the change went through, it shows on the page.':'Stopped. Ask again when you are ready.');}
+    return;
+   }
    setError(e instanceof RequestError?e.message:'We couldn’t reach the agent. Please try again.');
    if(e instanceof RequestError&&[404,409].includes(e.status)){setPending(null);setFailed(null);}
-  }finally{lock.current=false;setBusy(false);}
+  }finally{clearTimeout(timer);if(controller.current===abort)controller.current=null;confirming.current=false;lock.current=false;setBusy(false);}
  }
 
  const asked=useRef(0);
  useEffect(()=>{if(!restored||!ask||ask.n===asked.current)return;asked.current=ask.n;submit(ask.text);});
- function submit(value?:string){const draft=value===undefined,text=(value??input).trim();if(!text||busy||pending||failed)return;const readAloud=draft&&dictated.current.some(r=>input.slice(r.start,r.end).trim());rememberInputMode(readAloud?'voice':'text');dictated.current=[];setChoices([]);const next=[...messages,{role:'user' as const,content:text}];setMessages(next);setInput('');void send({messages:next.slice(-30),readAloud:!!readAloud});}
+ function submit(value?:string){const draft=value===undefined,text=(value??input).trim();if(!text||busy||lock.current)return;
+  // A new message while a card waits means no to that card (logged, nothing changes); a failed question is replaced.
+  if(pending){void post(`/api/workspaces/${ws}/assistant/log/${pending.id}/decline`,{}).then(()=>window.dispatchEvent(new Event('groundworkAgentLog'))).catch(()=>undefined);setPending(null);}
+  setFailed(null);setError('');setResting(false);const readAloud=draft&&dictated.current.some(r=>input.slice(r.start,r.end).trim());rememberInputMode(readAloud?'voice':'text');dictated.current=[];setChoices([]);const next=[...messages,{role:'user' as const,content:text}];setMessages(next);setInput('');void send({messages:next.slice(-30),readAloud:!!readAloud});}
  function change(){
   // The log keeps that he said no. Nothing changes either way, so a failed save never blocks him.
   if(pending)void post(`/api/workspaces/${ws}/assistant/log/${pending.id}/decline`,{}).then(()=>window.dispatchEvent(new Event('groundworkAgentLog'))).catch(()=>undefined);
@@ -116,10 +136,10 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
   requestAnimationFrame(()=>inputRef.current?.focus());
  }
  const rolePrompts=member?.role==='client'?['How are my requests going?','Report a problem','When is the technician coming?']:member?.role==='technician'?['What is my next job?','Job done, fixed it','I need a part']:member?.staff_kind==='office'?['Which jobs are late?','Create a new job','Add a note to a job']:['Which jobs are late?','Who is free tomorrow?','Create a new job'];
- const composer=<AssistantComposer ws={ws} language={preferences.data?.language??DEFAULT_LANGUAGE} voiceEnabled={voiceEnabled} rememberMode reading={reading} stopReading={stopReading} onMicrophone={stopReading} onTextChange={value=>{dictated.current=editDictatedRanges(input,value,dictated.current);}} onDictation={(words,start)=>{dictated.current.push({start,end:Math.min(20000,start+words.length)});}} input={input} setInput={setInput} inputRef={inputRef} busy={busy} blocked={!!pending||!!failed} active={open||docked} submit={submit}/>;
- const chat=<div className="stack assistant-chat" aria-live="polite" aria-busy={busy}>{!messages.length&&<div className="assistant-suggestions"><p>Ask about your workspace. You confirm changes before they happen.</p>{[...rolePrompts,"Show jobs waiting on parts"].map(prompt=><Button variant="secondary" key={prompt} disabled={busy||!!pending||!!failed} onClick={()=>submit(prompt)}>{prompt}</Button>)}</div>}{messages.map((m,i)=><article data-no-translate={m.role==='user'?true:undefined} className={`assistant-message ${m.role}`} key={i}>{m.role==='assistant'?<>{emergencyPrefix(m.content)&&<EmergencySafety line={emergencyPrefix(m.content)!} language={preferences.data?.language}/>}<AssistantMarkdown renderText={text=><ContactText text={text}/>} text={plainAssistantReply(emergencyPrefix(m.content)?m.content.slice(emergencyPrefix(m.content)!.length).trim():m.content,member?.role==='client')}/></>:<p className="preserve">{m.content}</p>}{m.role==='assistant'&&m.offers?.map((offer,j)=><RefusalOfferButton key={j} ws={ws} offer={offer} onSent={()=>setMessages(current=>current.map((msg,n)=>n===i?{...msg,offers:msg.offers?.map((o,k)=>k===j?{...o,sent:true}:o)}:msg))}/>)}{i===messages.length-1&&m.role==='assistant'&&choices.length>0&&!pending&&!busy&&<div className="agent-chips" role="group" aria-label="Quick answers">{choices.map(c=><Button key={c} variant="secondary" size="sm" disabled={!!failed} onClick={()=>submit(c)}>{c}</Button>)}</div>}</article>)}{householdPhoto&&!busy&&!pending&&<div><SharedPhotoUpload base={`/api/workspaces/${ws}`} ids={photoIds} onChange={setPhotoIds} label="Add a photo"/>{photoIds.length>0&&<Button variant="secondary" onClick={()=>void send({messages,household_photo_ids:photoIds})}>Continue with photo</Button>}</div>}{pending&&<article className="assistant-message assistant pending-reply"><h3>Confirm this change</h3><p className="preserve" data-no-translate={pending.household||undefined}>{pending.household?pending.summary:plainAssistantReply(pending.summary,member?.role==='client')}</p>{pending.why&&<p className="small agent-why"><strong>Why: </strong>{plainAssistantReply(pending.why,member?.role==='client')}</p>}<div className="row"><Button variant="secondary" busy={busy} disabled={!!failed} onClick={()=>void send({messages:[],confirm_action_id:pending.id})}>Yes</Button><Button variant="secondary" disabled={busy} onClick={change}>Change</Button></div></article>}{resting&&<ErrorState message="The agent is unavailable right now. Everything else works as usual." retry={()=>{if(failed)void send(failed);}}/>}{error&&<ErrorState message={error} retry={()=>{if(failed)void send(failed);else setError('');}}/>}{busy&&<p className="small" role="status">{pending?'Applying your confirmed change…':'Thinking…'}</p>}<div ref={newest}/></div>;
+ const composer=<AssistantComposer ws={ws} language={preferences.data?.language??DEFAULT_LANGUAGE} voiceEnabled={voiceEnabled} rememberMode reading={reading} stopReading={stopReading} onMicrophone={stopReading} onTextChange={value=>{dictated.current=editDictatedRanges(input,value,dictated.current);}} onDictation={(words,start)=>{dictated.current.push({start,end:Math.min(20000,start+words.length)});}} input={input} setInput={setInput} inputRef={inputRef} busy={busy} blocked={false} onStop={()=>stop()} active={open||docked} submit={submit}/>;
+ const chat=<div className="stack assistant-chat" aria-live="polite" aria-busy={busy}>{!messages.length&&<div className="assistant-suggestions"><p>Ask about your workspace. You confirm changes before they happen.</p>{[...rolePrompts,"Show jobs waiting on parts"].map(prompt=><Button variant="secondary" key={prompt} disabled={busy} onClick={()=>submit(prompt)}>{prompt}</Button>)}</div>}{messages.map((m,i)=><article data-no-translate={m.role==='user'?true:undefined} className={`assistant-message ${m.role}`} key={i}>{m.role==='assistant'?<>{emergencyPrefix(m.content)&&<EmergencySafety line={emergencyPrefix(m.content)!} language={preferences.data?.language}/>}<AssistantMarkdown renderText={text=><ContactText text={text}/>} text={plainAssistantReply(emergencyPrefix(m.content)?m.content.slice(emergencyPrefix(m.content)!.length).trim():m.content,member?.role==='client')}/></>:<p className="preserve">{m.content}</p>}{m.role==='assistant'&&m.offers?.map((offer,j)=><RefusalOfferButton key={j} ws={ws} offer={offer} onSent={()=>setMessages(current=>current.map((msg,n)=>n===i?{...msg,offers:msg.offers?.map((o,k)=>k===j?{...o,sent:true}:o)}:msg))}/>)}{i===messages.length-1&&m.role==='assistant'&&choices.length>0&&!pending&&!busy&&<div className="agent-chips" role="group" aria-label="Quick answers">{choices.map(c=><Button key={c} variant="secondary" size="sm" disabled={!!failed} onClick={()=>submit(c)}>{c}</Button>)}</div>}</article>)}{householdPhoto&&!busy&&!pending&&<div><SharedPhotoUpload base={`/api/workspaces/${ws}`} ids={photoIds} onChange={setPhotoIds} label="Add a photo"/>{photoIds.length>0&&<Button variant="secondary" onClick={()=>void send({messages,household_photo_ids:photoIds})}>Continue with photo</Button>}</div>}{pending&&<article className="assistant-message assistant pending-reply"><h3>Confirm this change</h3><p className="preserve" data-no-translate={pending.household||undefined}>{pending.household?pending.summary:plainAssistantReply(pending.summary,member?.role==='client')}</p>{pending.why&&<p className="small agent-why"><strong>Why: </strong>{plainAssistantReply(pending.why,member?.role==='client')}</p>}<div className="row"><Button variant="secondary" busy={busy} disabled={!!failed} onClick={()=>void send({messages:[],confirm_action_id:pending.id})}>Yes</Button><Button variant="secondary" disabled={busy} onClick={change}>Change</Button></div></article>}{resting&&<ErrorState message="The agent is unavailable right now. Everything else works as usual." retry={()=>{if(failed)void send(failed);}}/>}{error&&<ErrorState message={error} retry={()=>{if(failed)void send(failed);else setError('');}}/>}{stoppedNote&&!busy&&<p className="small agent-stopped" role="status">{stoppedNote}</p>}{busy&&<div className="agent-typing" role="status"><span className="agent-dots" aria-hidden="true"><i/><i/><i/></span><span>{pending?'Applying your confirmed change…':slow?'Still working on it…':'Thinking…'}</span></div>}<div ref={newest}/></div>;
  if(docked)return <aside className="dashboard-assistant" aria-label={agentName}><header className="assistant-panel-header"><h2>{heading}</h2></header><div className="assistant-panel-body">{chat}</div><div className="assistant-panel-footer">{composer}</div></aside>;
- return <BottomSheet open={open} onCloseStart={stopReading} onClose={close} title={heading} presentation="assistant" busy={busy} footer={composer}>{chat}</BottomSheet>;
+ return <BottomSheet open={open} onCloseStart={stopReading} onClose={close} title={heading} presentation="assistant" nonModal={wide} footer={composer}>{chat}</BottomSheet>;
 }
 
 /** Each offer has its own lock so repeated taps send only one question. */
@@ -137,7 +157,7 @@ function RefusalOfferButton({ws,offer,onSent}:{ws:string;offer:RefusalOffer & {s
 type Recognition={lang:string;continuous:boolean;interimResults:boolean;onresult:((event:{resultIndex?:number;results:ArrayLike<ArrayLike<{transcript:string}>&{isFinal?:boolean}>})=>void)|null;onerror:((event:{error:string})=>void)|null;onend:(()=>void)|null;start:()=>void;stop:()=>void;abort:()=>void};
 type SpeechWindow=Window & {SpeechRecognition?:new()=>Recognition;webkitSpeechRecognition?:new()=>Recognition};
 /** Voice fills a draft. Only a deliberate Send submits it. */
-export function AssistantComposer({input,setInput,inputRef,busy,blocked,active,submit,ws,language,voiceEnabled=true,inputLabel='Ask Agent',placeholder='Ask Agent or speak',onDictation,onTextChange,onMicrophone,reading=false,stopReading,rememberMode=false}:{input:string;setInput:React.Dispatch<React.SetStateAction<string>>;inputRef:React.RefObject<HTMLTextAreaElement|null>;busy:boolean;blocked:boolean;active:boolean;submit:()=>void;ws:string;language:string;voiceEnabled?:boolean;inputLabel?:string;placeholder?:string;onDictation?:(words:string,start:number)=>void;onTextChange?:(value:string)=>void;onMicrophone?:()=>void;reading?:boolean;stopReading?:()=>void;rememberMode?:boolean}){
+export function AssistantComposer({input,setInput,inputRef,busy,blocked,active,submit,ws,language,voiceEnabled=true,inputLabel='Ask Agent',placeholder='Ask Agent or speak',onDictation,onTextChange,onMicrophone,reading=false,stopReading,rememberMode=false,onStop}:{onStop?:()=>void;input:string;setInput:React.Dispatch<React.SetStateAction<string>>;inputRef:React.RefObject<HTMLTextAreaElement|null>;busy:boolean;blocked:boolean;active:boolean;submit:()=>void;ws:string;language:string;voiceEnabled?:boolean;inputLabel?:string;placeholder?:string;onDictation?:(words:string,start:number)=>void;onTextChange?:(value:string)=>void;onMicrophone?:()=>void;reading?:boolean;stopReading?:()=>void;rememberMode?:boolean}){
  const [inputMode,setInputMode]=useState<'voice'|'text'>('text');
  useEffect(()=>{if(active&&rememberMode)setInputMode(rememberedInputMode());},[active,rememberMode]);
  const currentDraft=useRef(input),dictationCallback=useRef(onDictation);currentDraft.current=input;dictationCallback.current=onDictation;
@@ -147,13 +167,15 @@ export function AssistantComposer({input,setInput,inputRef,busy,blocked,active,s
  function clearClock(){if(stopTimer.current)clearTimeout(stopTimer.current);if(interval.current)clearInterval(interval.current);stopTimer.current=null;interval.current=null;}
  function releaseStream(){stream.current?.getTracks().forEach(track=>track.stop());stream.current=null;}
  function cancel(){generation.current++;live.current=false;clearClock();if(recognition.current){recognition.current.onresult=null;recognition.current.onend=null;recognition.current.onerror=null;recognition.current.abort();recognition.current=null;}if(recorder.current){recorder.current.onstop=null;recorder.current.ondataavailable=null;recorder.current.onerror=null;if(recorder.current.state!=='inactive')recorder.current.stop();recorder.current=null;}releaseStream();upload.current?.abort();upload.current=null;}
- useEffect(()=>{if(!active||busy||blocked||!voiceEnabled){cancel();setListening(false);setConverting(false);}},[active,busy,blocked,voiceEnabled]);
+ // With onStop (the Agent) he keeps typing and dictating while it thinks; other composers pause while saving.
+ const paused=busy&&!onStop;
+ useEffect(()=>{if(!active||paused||blocked||!voiceEnabled){cancel();setListening(false);setConverting(false);}},[active,paused,blocked,voiceEnabled]);
  useEffect(()=>()=>cancel(),[]);
  function append(words:string){if(!words.trim())return;if(rememberMode){setInputMode('voice');rememberInputMode('voice');}const before=currentDraft.current.trimEnd(),start=before.length+(before?1:0);dictationCallback.current?.(words.trim(),start);const next=[before,words.trim()].filter(Boolean).join(' ').slice(0,20000);currentDraft.current=next;setInput(next);inputRef.current?.focus();}
  function stop(){released.current=true;if(!live.current)return;live.current=false;clearClock();recognition.current?.stop();if(recorder.current?.state==='recording')recorder.current.stop();releaseStream();setListening(false);}
  function clock(){started.current=Date.now();setElapsed(0);setListening(true);interval.current=setInterval(()=>setElapsed(Math.floor((Date.now()-started.current)/1000)),250);stopTimer.current=setTimeout(stop,119_000);}
  async function dictate(){
-  if(live.current){stop();return;}if(converting||busy||blocked||!voiceEnabled)return;
+  if(live.current){stop();return;}if(converting||paused||blocked||!voiceEnabled)return;
   onMicrophone?.();released.current=false;live.current=true;const run=++generation.current;setVoiceError('');
   const Speech=(window as SpeechWindow).SpeechRecognition??(window as SpeechWindow).webkitSpeechRecognition;
   if(Speech){
@@ -189,7 +211,23 @@ export function AssistantComposer({input,setInput,inputRef,busy,blocked,active,s
  }
  return <form className="assistant-composer" onSubmit={e=>{e.preventDefault();if(!listening&&!converting)submit();}}>
  {listening&&<div className="voice-recording" role="status"><span className="recording-dot" aria-hidden="true"/><span>Listening</span><span>{Math.floor(elapsed/60)}:{String(elapsed%60).padStart(2,'0')}</span><Button type="button" variant="secondary" onClick={stop}>Stop</Button></div>}
- <div className="assistant-input-row">{reading&&<IconButton variant="secondary" className="assistant-control" label="Stop reading" onClick={stopReading}><Square size={18}/></IconButton>}{voiceEnabled&&<IconButton variant="secondary" className="assistant-control" label={listening?'Stop recording':'Use microphone'} aria-pressed={listening} disabled={busy||blocked||converting} onPointerDown={e=>{if(e.button!==0)return;e.currentTarget.setPointerCapture(e.pointerId);void dictate();}} onPointerUp={stop} onPointerCancel={stop} onClick={e=>{if(e.detail===0)void dictate();}}>{listening?<Square size={18}/>:<Mic size={18}/>}</IconButton>}
- <label htmlFor="assistant-input" className="sr-only">{inputLabel}</label><textarea ref={inputRef} id="assistant-input" value={input} maxLength={20000} rows={1} placeholder={voiceEnabled&&rememberMode&&inputMode==='voice'?'Tap the microphone and speak':placeholder} disabled={busy||blocked} onChange={e=>{if(rememberMode){setInputMode('text');rememberInputMode('text');}onTextChange?.(e.target.value);setInput(e.target.value);}} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();if(!listening&&!converting)submit();}}}/><IconButton variant="secondary" type="submit" className="assistant-control assistant-send" label="Send" aria-busy={busy} disabled={busy||!input.trim()||blocked||listening||converting}>{busy?<LoaderCircle className="spinner" size={18}/>:<ArrowUp size={18}/>}</IconButton></div>
+ <div className="assistant-input-row">{reading&&<IconButton variant="secondary" className="assistant-control" label="Stop reading" onClick={stopReading}><Square size={18}/></IconButton>}{voiceEnabled&&<IconButton variant="secondary" className="assistant-control" label={listening?'Stop recording':'Use microphone'} aria-pressed={listening} disabled={paused||blocked||converting} onPointerDown={e=>{if(e.button!==0)return;e.currentTarget.setPointerCapture(e.pointerId);void dictate();}} onPointerUp={stop} onPointerCancel={stop} onClick={e=>{if(e.detail===0)void dictate();}}>{listening?<Square size={18}/>:<Mic size={18}/>}</IconButton>}
+ <label htmlFor="assistant-input" className="sr-only">{inputLabel}</label><textarea ref={inputRef} id="assistant-input" value={input} maxLength={20000} rows={1} placeholder={voiceEnabled&&rememberMode&&inputMode==='voice'?'Tap the microphone and speak':placeholder} disabled={paused||blocked} onChange={e=>{if(rememberMode){setInputMode('text');rememberInputMode('text');}onTextChange?.(e.target.value);setInput(e.target.value);}} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();if(!listening&&!converting)submit();}}}/>{busy&&onStop?<IconButton variant="secondary" type="button" className="assistant-control assistant-send assistant-stop" label="Stop" onClick={onStop}><Square size={14} fill="currentColor" aria-hidden="true"/></IconButton>:<IconButton variant="secondary" type="submit" className="assistant-control assistant-send" label="Send" aria-busy={busy} disabled={busy||!input.trim()||blocked||listening||converting}>{busy?<LoaderCircle className="spinner" size={18}/>:<ArrowUp size={20} strokeWidth={2.25}/>}</IconButton>}</div>
  {converting?<span className="composer-hint">Writing your words…</span>:<span className="composer-hint composer-keys-hint">Enter to send, Shift+Enter for a new line</span>}{voiceError&&<p role="status">{voiceError}</p>}</form>;
+}
+
+/** Laptop width: the Agent sits beside the page and never covers it. */
+function useWide(){
+ const [wide,setWide]=useState(false);
+ useEffect(()=>{if(typeof matchMedia!=='function')return;const m=matchMedia('(min-width: 1024px)');const on=()=>setWide(!!m.matches);on();m.addEventListener?.('change',on);return()=>m.removeEventListener?.('change',on);},[]);
+ return wide;
+}
+/** The phone keyboard never hides the input: the full screen panel follows the visible height. */
+function useKeyboardHeight(active:boolean){
+ useEffect(()=>{
+  const v=typeof window!=='undefined'?window.visualViewport:null;if(!active||!v)return;
+  const root=document.documentElement;const set=()=>{root.style.setProperty('--agent-vh',`${Math.round(v.height)}px`);root.style.setProperty('--agent-top',`${Math.round(v.offsetTop)}px`);};
+  set();v.addEventListener('resize',set);v.addEventListener('scroll',set);
+  return()=>{v.removeEventListener('resize',set);v.removeEventListener('scroll',set);root.style.removeProperty('--agent-vh');root.style.removeProperty('--agent-top');};
+ },[active]);
 }

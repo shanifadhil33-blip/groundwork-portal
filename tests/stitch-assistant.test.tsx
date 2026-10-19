@@ -33,7 +33,7 @@ for(const role of ['admin','staff','technician','client'] as const){
   await mount(role);await click('Show jobs waiting on parts');
   const reply=host.querySelector('.pending-reply');expect(reply?.textContent).toContain('Save this job change?');expect(reply?.textContent).toContain('YesChange');
   expect(host.querySelectorAll('.assistant-control')).toHaveLength(2);
-  await click('Yes');expect(api.post).toHaveBeenLastCalledWith('/api/workspaces/workspace/assistant',{messages:[],confirm_action_id:'approval'});expect(host.textContent).toContain('Saved.');expect(host.querySelector('.pending-reply')).toBeNull();
+  await click('Yes');expect(api.post).toHaveBeenLastCalledWith('/api/workspaces/workspace/assistant',{messages:[],confirm_action_id:'approval'},{signal:expect.any(AbortSignal)});expect(host.textContent).toContain('Saved.');expect(host.querySelector('.pending-reply')).toBeNull();
  });
 }
 it('Change restores the request for editing without applying the pending action',async()=>{
@@ -130,7 +130,7 @@ it('household photo offer is optional and confirmation keeps his original words'
  expect(card?.querySelector('[data-no-translate]')).toBeTruthy();
  expect(api.post.mock.calls.some(([,body])=>body.confirm_action_id)).toBe(false);
  await click('Yes');
- expect(api.post).toHaveBeenLastCalledWith('/api/workspaces/workspace/assistant',{messages:[],confirm_action_id:'approval'});
+ expect(api.post).toHaveBeenLastCalledWith('/api/workspaces/workspace/assistant',{messages:[],confirm_action_id:'approval'},{signal:expect.any(AbortSignal)});
  expect(host.textContent).toContain('The company will confirm a time.');
 });
 

@@ -32,7 +32,7 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   if (data === null) throw new RequestError(502, 'We couldn’t read the response. Please try again.');
   return data as T;
 }
-export const post = <T,>(url: string, body?: unknown) => request<T>(url, { method: 'POST', ...(body ? { body: JSON.stringify(body) } : {}) });
+export const post = <T,>(url: string, body?: unknown, init?: Pick<RequestInit, 'signal'>) => request<T>(url, { method: 'POST', ...init, ...(body ? { body: JSON.stringify(body) } : {}) });
 const isAbort = (error: unknown) => error instanceof DOMException && error.name === 'AbortError';
 const pageHidden = () => typeof document !== 'undefined' && document.hidden;
 const pause = (ms: number) => new Promise(done => setTimeout(done, ms));
