@@ -35,7 +35,7 @@ for (const who of PERSONAS) {
   for (const lang of LANGS) {
     await setLang(lang);
     for (const w of WIDTHS) {
-      const ctx = await br.newContext({ viewport: { width: w, height: 800 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }); await ctx.addCookies((await s.api.storageState()).cookies); const p = await ctx.newPage();
+      const ctx = await br.newContext({ viewport: { width: w, height: 800 }, deviceScaleFactor: w >= 1000 ? 1 : 2, isMobile: w < 1000, hasTouch: w < 1000 }); await ctx.addCookies((await s.api.storageState()).cookies); const p = await ctx.newPage();
       // CACHED_ONLY=1: saved words only, never an AI translation call (the free AI allowance is shared); missing words stay English and are reported.
       if (process.env.CACHED_ONLY) await ctx.route('**/api/i18n/translate', r => { let b = {}; try { b = JSON.parse(r.request().postData() || '{}'); } catch {} return r.continue({ postData: JSON.stringify({ ...b, cached_only: true }) }); });
       for (const path of [HOME[who] ?? '/dashboard', '/work-orders', '/settings', ...(process.env.PATHS ?? '').split(',').filter(Boolean)]) {
