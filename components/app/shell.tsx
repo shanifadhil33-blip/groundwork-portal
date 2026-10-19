@@ -28,7 +28,10 @@ import { useResource } from './resource';
 import { NoAccess } from './no-access';
 import { Notifications } from './notifications';
 import { Translator } from './translator';
-const Assistant=dynamic(()=>import('./assistant').then(m=>m.Assistant),{ssr:false});
+const loadAssistant=()=>import('./assistant');
+const Assistant=dynamic(()=>loadAssistant().then(m=>m.Assistant),{ssr:false});
+// The Agent panel code loads when the browser is idle, so the first tap on Agent opens it at once (Oct 19: about 0.3 s on first open).
+if(typeof window!=='undefined'){const load=()=>{void loadAssistant().then(m=>m.Assistant).catch(()=>{});};const w=window as Window&{requestIdleCallback?:(cb:()=>void,o?:{timeout:number})=>number};if(w.requestIdleCallback)w.requestIdleCallback(load,{timeout:4000});else setTimeout(load,2000);}
 /** The language the Translator set on <html>; phone tab words come from a fixed table, never live translation. */
 function useHtmlLang(serverLanguage?:string) {
   const [lang, setLang] = useState(serverLanguage??'en');

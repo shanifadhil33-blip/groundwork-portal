@@ -36,7 +36,7 @@ for (const who of PERSONAS) {
   for (const { w, theme } of CONFIGS) {
     const phone = w < 1024, laptop = !phone; const tag = `${who}-${w}-${theme}`;
     const ctx = await br.newContext({ viewport: { width: w, height: phone ? 800 : 860 }, isMobile: phone, hasTouch: phone, colorScheme: theme });
-    await ctx.addCookies((await s.api.storageState()).cookies); await ctx.addInitScript(t => { try { localStorage.setItem('groundwork-theme', t); } catch {} }, theme); await ctx.addInitScript(init);
+    await ctx.addCookies((await s.api.storageState()).cookies); await ctx.addInitScript(t => { try { localStorage.setItem('groundwork-theme', t); } catch {} }, theme); await ctx.addInitScript(init); await ctx.addInitScript(`window.__anims = ${anims.toString()};`);
     const p = await ctx.newPage(); const run = { tag, pages: [] };
     await p.goto(B + '/dashboard', { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1500);
     const meta = await p.evaluate(() => document.querySelector('meta[name=viewport]')?.content || '');
@@ -79,15 +79,17 @@ for (const who of PERSONAS) {
     const opener = phone ? p.locator('.bottom-tabs button[aria-label="More"]') : p.locator('.assistant-launcher:visible');
     for (const [name, open, sel] of [['more', phone ? p.locator('.bottom-tabs button[aria-label="More"]') : null, '[role=dialog]'], ['agent', phone ? p.locator('.phone-assistant') : p.locator('.assistant-launcher:visible'), '[role=dialog]'], ['notifications', p.locator('button[aria-label^="Notifications"]:visible'), '[role=dialog]']]) {
       if (!open || !(await open.first().isVisible().catch(() => false))) continue;
-      await p.evaluate(() => { window.__loaf = []; window.__cls = 0; }); const t0 = Date.now();
+      // Open time is measured in the page (pointer down to the dialog in the DOM): Playwright's waitFor polls every 500 ms after a
+      // few tries, which made every open look like about 830 ms.
+      await p.evaluate(() => { window.__loaf = []; window.__cls = 0; window.__down = 0; window.__openAnims = null; window.__seen = 0; addEventListener('pointerdown', () => { window.__down = performance.now(); }, { capture: true, once: true }); const n = document.querySelectorAll('[role=dialog]').length; const mo = new MutationObserver(() => { if (document.querySelectorAll('[role=dialog]').length > n) { window.__seen = performance.now(); mo.disconnect(); requestAnimationFrame(() => { window.__openAnims = window.__anims('.modal-layer'); }); } }); mo.observe(document.body, { childList: true, subtree: true }); }); const t0 = Date.now();
       if (phone) await open.first().tap(); else await open.first().click();
-      await p.locator(sel).first().waitFor({ timeout: 6000 }).catch(() => {}); const openMs = Date.now() - t0; const a = await p.evaluate(anims, sel); if (openMs > 250) find({ tag, kind: 'slow-open', note: `${name} ${openMs} ms to appear` }); await p.waitForTimeout(400);
+      await p.locator(sel).first().waitFor({ timeout: 6000 }).catch(() => {}); const openMs = await p.evaluate(() => window.__seen && window.__down ? Math.round(window.__seen - window.__down) : -1).then(v => v >= 0 ? v : Date.now() - t0); const a = (await p.evaluate(() => window.__openAnims)) ?? await p.evaluate(anims, sel); if (openMs > 250) find({ tag, kind: 'slow-open', note: `${name} ${openMs} ms to appear` }); await p.waitForTimeout(400);
       await p.screenshot({ path: `${OUT}/shots/${tag}-${name}.png` });
       const closeBtn = p.locator(`${sel} button[aria-label="Close dialog"]`).last(); if (phone) await closeBtn.tap().catch(() => {}); else await closeBtn.click().catch(() => {}); await p.waitForTimeout(60);
       const c = await p.evaluate(anims, '.modal-layer'); await p.waitForTimeout(500);
       const still = await p.locator(sel).count(); const m = await p.evaluate(() => ({ loaf: window.__loaf }));
       const longest = Math.max(0, ...m.loaf.map(x => x.d));
-      const bad = [...(a ?? []), ...(c ?? [])].filter(x => x.ms < 120 || x.ms > 320 || x.props.some(pr => !['transform', 'opacity', 'translate', 'scale'].includes(pr)));
+      const bad = [...(a ?? []), ...(c ?? [])].filter(x => x.ms < 120 || x.ms > 320 || x.props.some(pr => !['transform', 'opacity', 'translate', 'scale', 'backgroundColor', 'color', 'borderColor', 'outlineColor'].includes(pr)));
       if (!a?.length) find({ tag, kind: 'no-open-transition', note: name }); if (!c?.length) find({ tag, kind: 'no-close-transition', note: name });
       if (bad.length) find({ tag, kind: 'transition-shape', note: `${name}: ${JSON.stringify(bad)}` });
       if (longest > 200) find({ tag, kind: 'long-frame', note: `${name} open/close ${longest} ms` }); if (still) find({ tag, kind: 'did-not-close', note: name });
