@@ -10,7 +10,7 @@ const team = await (await s.api.get(`${A}/team`)).json(); const people = team.da
 const ravi = people.find(p => /^Ravi\b/.test(p.name ?? '')); check(!!ravi, 'Ravi on the team');
 const rec = await (await s.api.get(`${A}/members/${ravi?.user_id}/record`)).json().catch(() => ({})); res.raviRecord = rec;
 check(Number.isInteger(rec.month) && Number.isInteger(rec.total), 'Ravi record has numbers');
-const want = n => `${n} ${rec.month === 1 ? 'job' : 'jobs'} this month and ${rec.total} in total.`;
+const want = () => `${rec.month} ${rec.month === 1 ? 'job' : 'jobs'} this month and ${rec.total} in total.`;
 for (const who of ['imran', 'sam']) { await s.as(who); const b = await ask('How many jobs has Ravi completed this month, and in total?'); res[`count_${who}`] = { status: b.status, quick: b.quick, reply: b.reply };
  check(b.status === 200 && b.quick === true && b.reply === `Ravi finished ${want()}`, `${who} gets Ravi counts from app data`); }
 await s.as('ravi'); { const b = await ask('How many jobs did I complete this month?'); res.count_ravi_self = { status: b.status, quick: b.quick, reply: b.reply }; check(b.quick === true && b.reply === `You finished ${want()}`, 'Ravi gets his own counts'); }
@@ -21,7 +21,7 @@ const br = await chromium.launch();
 for (const [who, q, re] of [['imran', 'How many jobs has Ravi completed this month, and in total?', /Ravi finished \d+ jobs? this month and \d+ in total/], ['ravi', 'How many jobs did I complete this month?', /You finished \d+ jobs? this month and \d+ in total/]]) {
  await s.as(who);
  for (const w of [360, 390]) { const ctx = await br.newContext({ viewport: { width: w, height: 800 }, isMobile: true, hasTouch: true }); await ctx.addCookies((await s.api.storageState()).cookies);
-  const p = await ctx.newPage(); await p.goto(`${B}/`, { waitUntil: 'networkidle', timeout: 60000 }); await p.waitForTimeout(1200);
+  const p = await ctx.newPage(); await p.goto(`${B}/work-orders`, { waitUntil: 'networkidle', timeout: 60000 }); await p.waitForTimeout(1200);
   const opener = p.locator('.phone-assistant'); if (!check(await opener.count() > 0, `${who} ${w} Agent button`)) { await ctx.close(); continue; }
   await opener.first().click(); const input = p.locator('#assistant-input'); await input.waitFor({ timeout: 10000 }); const panel = p.locator('[role="dialog"]').last();
   const before = await panel.locator('.assistant-message.assistant').count(); await input.fill(q); await p.locator('.assistant-send').first().click();
