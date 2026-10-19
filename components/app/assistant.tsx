@@ -1,4 +1,7 @@
 'use client';
+import type { SettingChange } from '../../lib/agent/personalsettings';
+import { useTheme } from '../ui/theme';
+import { changeAppLanguage } from './translator';
 import type { RefusalOffer } from '../../lib/ui/agent-offers';
 import { AgentAvatar } from './agent-avatar';
 import { useLocalDraft } from '../../lib/ui/drafts';
@@ -18,9 +21,10 @@ import { post, RequestError } from '../../lib/ui/api';
 import { BottomSheet, Button, IconButton, ErrorState } from '../ui';
 type Message={role:'user'|'assistant';content:string;offers?:(RefusalOffer & {sent?:boolean})[]};
 type Pending={id:string;summary:string;why?:string};
-type Reply={offers?:RefusalOffer[];available:boolean;logged?:boolean;reply?:string;choices?:string[];message?:string;pending_action?:Pending;result?:{isError?:boolean}};
+type Reply={setting_change?:SettingChange;offers?:RefusalOffer[];available:boolean;logged?:boolean;reply?:string;choices?:string[];message?:string;pending_action?:Pending;result?:{isError?:boolean}};
 export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boolean;onClose:()=>void;ask?:{text:string;n:number}|null;docked?:boolean}){
  const {member,me}=useApp();
+ const {setTheme}=useTheme();
  const preferences=useResource<{agent_avatar?:string|null;agent_name:string|null;voice_enabled:boolean;language:string|null}>('/api/me/preferences');
  const voiceEnabled=!!preferences.data&&preferences.data.voice_enabled!==false;
  const [reading,setReading]=useState(false);
@@ -64,6 +68,15 @@ export function Assistant({ws,open,onClose,ask,docked=false}:{ws:string;open:boo
   setBusy(true);setError('');setResting(false);setFailed(payload);
   try{
    const result=await post<Reply>(`/api/workspaces/${ws}/assistant`,{confirm_action_id:payload.confirm_action_id,messages:payload.messages.map(({role,content})=>({role,content}))});
+   if(result.setting_change){
+    const {setting,value}=result.setting_change;
+    if(setting==='theme'&&(value==='light'||value==='dark'||value==='system'))await setTheme(value);
+    if(setting==='language')changeAppLanguage(typeof value==='string'?value:DEFAULT_LANGUAGE);
+    preferences.setData?.(current=>current?{...current,[setting]:value}:current);
+    if(setting==='voice_enabled')speechSettings.current.enabled=value===true;
+    if(setting==='language')speechSettings.current.language=typeof value==='string'?value:null;
+    void preferences.reload?.();
+   }
    if(payload.confirm_action_id){setPending(null);window.dispatchEvent(new Event('groundwork-contact-names'));window.dispatchEvent(new Event('groundwork-onboarding'));}
    const replyText:string[]=[];
    if(!result.available){

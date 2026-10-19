@@ -2,6 +2,8 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { ThemeProvider } from '../components/ui/theme';
+import { changeAppLanguage } from '../components/app/translator';
 import { Assistant } from '../components/app/assistant';
 import { AppContext, type Membership } from '../components/app/context';
 import { designCopyFallbacks } from '../lib/ui/design-copy';
@@ -10,6 +12,7 @@ const api=vi.hoisted(()=>({post:vi.fn(),preferences:{agent_name:null as string|n
 vi.mock('../lib/ui/api',async original=>({...await original<typeof import('../lib/ui/api')>(),post:api.post}));
 vi.mock('../components/app/resource',()=>({useResource:()=>({data:api.preferences})}));
 vi.mock('../components/ui',async original=>({...await original<typeof import('../components/ui')>(),BottomSheet:({open,children,footer,title}:any)=>open?<section role="dialog"><h2>{title}</h2>{children}{footer}</section>:null}));
+vi.mock('../components/app/translator',()=>({changeAppLanguage:vi.fn()}));
 let host:HTMLDivElement,root:Root;
 beforeEach(()=>{
  sessionStorage.clear();api.post.mockReset();api.preferences.agent_name=null;api.preferences.voice_enabled=true;host=document.createElement('div');document.body.append(host);root=createRoot(host);
@@ -17,9 +20,10 @@ beforeEach(()=>{
  Element.prototype.scrollIntoView=vi.fn();
 });
 afterEach(async()=>{await act(async()=>root.unmount());host.remove();vi.unstubAllGlobals();});
-async function mount(role:Membership['role'],docked=true){
+async function mount(role:Membership['role'],docked=true,themed=false){
  const member:Membership={workspace_id:'workspace',workspace_name:'Company',role,client_id:role==='client'?'client':null,client_name:null};
- await act(async()=>root.render(<AppContext.Provider value={{member,workspace:null,me:{user:{id:'user',name:'Imran',email:null,image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}><Assistant ws="workspace" open={!docked} docked={docked} onClose={()=>{}}/></AppContext.Provider>));
+ const app=<AppContext.Provider value={{member,workspace:null,me:{user:{id:'user',name:'Imran',email:null,image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}><Assistant ws="workspace" open={!docked} docked={docked} onClose={()=>{}}/></AppContext.Provider>;
+ await act(async()=>root.render(themed?<ThemeProvider>{app}</ThemeProvider>:app));
 }
 async function click(label:string){const button=Array.from(host.querySelectorAll('button')).find(b=>b.textContent===label||b.getAttribute('aria-label')===label);expect(button).toBeTruthy();await act(async()=>button!.click());}
 for(const role of ['admin','staff','technician','client'] as const){
@@ -89,4 +93,23 @@ it('shows a plain retry line for a failed offer and supports another tap in a ri
  expect(host.textContent).toContain('Could not send. Tap Ask to try again.');expect(host.textContent).not.toContain('private database details');
  await click('Ask Sam');expect(host.textContent).toContain('Sent to Sam. Nothing changes until he answers.');
  expect(host.querySelector('bdi')?.textContent).toBe('Sam');
+});
+
+it('applies an Agent theme receipt and Undo in the page immediately',async()=>{
+ localStorage.clear();
+ vi.stubGlobal('matchMedia',()=>({matches:false,addEventListener:vi.fn(),removeEventListener:vi.fn()}));
+ api.post.mockResolvedValueOnce({available:true,reply:'Theme set to Dark (was Light).',choices:['Undo'],setting_change:{setting:'theme',value:'dark'}})
+  .mockResolvedValueOnce({available:true,reply:'Theme restored to Light.',choices:[],setting_change:{setting:'theme',value:'light'}});
+ await mount('technician',true,true);
+ await click('Show jobs waiting on parts');
+ expect(document.documentElement.dataset.theme).toBe('dark');expect(host.textContent).toContain('Theme set to Dark (was Light).');expect(host.querySelector('.pending-reply')).toBeNull();
+ await click('Undo');expect(document.documentElement.dataset.theme).toBe('light');expect(host.textContent).toContain('Theme restored to Light.');
+ localStorage.clear();
+});
+it('uses the existing language change path for a setting and its Undo',async()=>{
+ vi.mocked(changeAppLanguage).mockClear();
+ api.post.mockResolvedValueOnce({available:true,reply:'Language set to Hindi (was Default).',choices:['Undo'],setting_change:{setting:'language',value:'hi'}})
+  .mockResolvedValueOnce({available:true,reply:'Language restored to Default.',choices:[],setting_change:{setting:'language',value:null}});
+ await mount('client');await click('Show jobs waiting on parts');
+ expect(changeAppLanguage).toHaveBeenLastCalledWith('hi');await click('Undo');expect(changeAppLanguage).toHaveBeenLastCalledWith(LANGUAGES[0].code);
 });

@@ -1,3 +1,4 @@
+import { setMySetting, settingInput } from '../services/personalsettings';
 import { freeVisitSlots, slotInput, changeInput, changeClientVisit, previousTechnician } from '../services/client-visits';
 import { saveOnboarding,getOnboarding } from '../services/onboarding';
 import { onboardingAnswers } from '../onboarding';
@@ -44,6 +45,7 @@ function query(a:Record<string,unknown>) {const p=new URLSearchParams();for(cons
 /** Audit A17: a model sometimes sends due_on:null when asked only to move the visit. A date is cleared only when clear_due_on or clear_visit says so. */
 export function datesAsked<T extends {due_on?:string|null;scheduled_for?:string|null;clear_due_on?:boolean;clear_visit?:boolean}>(a:T):T{const out={...a};if(out.due_on===null&&!out.clear_due_on)delete out.due_on;if(out.scheduled_for===null&&!out.clear_visit)delete out.scheduled_for;if(out.clear_due_on)out.due_on=null;if(out.clear_visit)out.scheduled_for=null;return out;}
 export const tools:Record<string,Tool>={
+ set_my_setting:{description:'Change only the caller own theme, language, voice_enabled, reply_length, agent_name, preferred_name or email_notifications. Supply setting and value. Language must be a supported code. Saves immediately with a receipt and Undo, without a card. Never use for addresses, phone numbers, roles, other people or company settings. Keep Agent and Groundwork unchanged.',write:true,schema:settingInput,run:(c,a)=>setMySetting(c.user,a)},
  free_visit_slots:{description:'Clients only: find up to three free one hour slots for your own scheduled job. Resolve Saturday morning to day and period morning. For an exact time supply day and time. If that time is free only that time is returned. Present the returned slots with ask_choice, then propose reschedule_visit for the selected slot. Never invent a slot.',write:false,schema:slotInput,run:(c,a)=>freeVisitSlots(c.user,c.ws,a)},
  previous_technician:{description:'Clients only: the technician on your own most recent finished job, or null. Use when he asks for the same technician as last time. Never list other clients or technicians.',write:false,schema:z.object({}).strict(),run:c=>previousTechnician(c.user,c.ws)},
  reschedule_visit:{description:'Clients only: move your own scheduled visit to a free slot returned by free_visit_slots. Always show the confirmation card first. Supply updated_at from free_visit_slots.',write:true,schema:changeInput,run:(c,a)=>changeClientVisit(c.user,c.ws,'reschedule_visit',a)},
@@ -128,7 +130,7 @@ export async function callTool(c:AgentContext,name:string,args:unknown) {
   if(['suggest_contact_name','fill_onboarding'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the saved name in Groundwork and choose Yes or Change first.');
   if(['reschedule_visit','cancel_visit'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the change in Groundwork and choose Yes or Change first.');
   // Approval mode covers Connect AI keys too: in Ask before every action, a key write waits for an admin.
-  if(t.write&&c.kind==='agent'&&!c.approved){
+  if(t.write&&name!=='set_my_setting'&&c.kind==='agent'&&!c.approved){
    const queued=await withSystem(async db=>{const m=(await db.query('SELECT approval_mode FROM workspaces WHERE id=$1',[c.ws])).rows[0]?.approval_mode;if(m!=='every')return null;
     const jobId=(a as any).work_order_id??(name.includes('work_order')||name.startsWith('set_job')||name==='set_priority'?(a as any).id:undefined);const order=jobId?(await db.query('SELECT * FROM work_orders WHERE id=$1 AND workspace_id=$2',[jobId,c.ws])).rows[0]??null:null;
     const action=(await db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,source,token_id,expires_at) VALUES($1,$2,$3,$4,$5,$6,'key',$7,now()+interval '7 days') RETURNING id",[c.ws,c.user,name,JSON.stringify(a),actionSummary(name,a,order).slice(0,600),'Asked by a connected AI tool',c.tokenId??null])).rows[0].id as string;

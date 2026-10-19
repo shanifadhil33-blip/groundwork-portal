@@ -1,4 +1,6 @@
-import { detectReplyLength, replyLengthNotice, replyLengthPrompt, replyLengthUndo, replyLengthLabels } from '../agent/replylength';
+import { replyLengthPrompt } from '../agent/replylength';
+import { detectPersonalSetting, settingUndo, settingRestored, isSettingReceipt, settingRefusal } from '../agent/personalsettings';
+import { setMySetting } from './personalsettings';
 import { prepareClientVisit, visitSlotChoices, selectedVisitChoice } from './client-visits';
 import { reportEmergency } from './emergencies';
 import { noteTargets } from '../agent/note-target';
@@ -14,7 +16,7 @@ import { z } from 'zod';
 import { offSpan,actionSummary,actionResult,plainAssistantReply,withCurrency,audienceStatusReply,recordResult,recordSummary,recordTools } from '../ui/assistant-replies';
 import { asAgent,withSystem } from '../db';
 import type { RefusalOffer } from '../ui/agent-offers';
-import { getPreferences, patchPreferences } from './settings';
+import { getPreferences } from './settings';
 import { agentTradeWordsPrompt } from '../trade-words';
 import { LANGUAGES } from '../languages';
 import { assistantTurn,type AssistantMessage } from '../ai';
@@ -107,18 +109,19 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):plainNote&&order?savedNoteReply(noteName,order):record?done(recordResult(a.tool,a.args,record)):done(audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client')),result,logged:!result.isError};
  }));
  const question=d.messages.filter(m=>m.role==='user').at(-1)?.content.trim()??'';
- const requestedLength=detectReplyLength(question);
- const undoRequested=question==='Undo'&&d.messages.at(-2)?.role==='assistant'&&d.messages.at(-2)?.content.startsWith('Reply length set to ');
- if(requestedLength||undoRequested){
+ const requestedSetting=detectPersonalSetting(question);
+ const undoRequested=question==='Undo'&&d.messages.at(-2)?.role==='assistant'&&isSettingReceipt(d.messages.at(-2)!.content);
+ if(requestedSetting||undoRequested){
   await inWorkspace(user,ws,async()=>undefined);
-  const preferences=await getPreferences(user),previous=preferences.reply_length??'normal';
-  const restored=undoRequested?replyLengthUndo(d.messages,previous):null;
-  const next=requestedLength??restored;
+  const preferences=undoRequested?await getPreferences(user):null;
+  const restored=undoRequested?settingUndo(d.messages,{...preferences,reply_length:preferences.reply_length??'normal'}):null;
+  const next=requestedSetting??restored;
   if(next){
-   await patchPreferences(user,{reply_length:next});
-   return {available:true,reply:restored?`Reply length restored to ${replyLengthLabels[restored]}.`:replyLengthNotice(next,previous),choices:restored?[]:['Undo']};
+   const result=await setMySetting(user,next);
+   if(restored&&result.setting_change)return {available:true,...result,reply:settingRestored(restored.setting,result.setting_change.value),choices:[]};
+   return {available:true,...result};
   }
-  return {available:true,reply:'Your reply length has since changed. Choose Short, Normal or Detailed in Agent settings.'};
+  return {available:true,reply:'Your setting has since changed. Open your personal settings to choose it again.'};
  }
  const selected=await selectedVisitChoice(user,ws,question);if(selected)return selected;
  if(/^(?:what needs attention|what do I need to do|what is waiting|show unread messages)[?.!]*$/i.test(question)){const a=await needsAttention(user,ws);return {available:true,reply:[a.summary+'.',`You have ${a.unread_messages} unread messages.`,...a.messages.slice(0,5).map(m=>m.summary)].join('\n')};}
@@ -154,6 +157,11 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
    const t=Object.hasOwn(tools,call.name)&&(!office||allowedTool('office',call.name)||[...teamTools,...ADMIN_ONLY,...recordTools].includes(call.name))?tools[call.name]:undefined;
    if(index>=8){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Tool limit reached for this turn.'}]},id:call.id});continue;}
    const candidate=call.name==='add_comment'&&role==='client'?{...(call.args as Record<string,unknown>),visibility:'client'}:call.name==='add_comment'&&role!=='client'&&!explicitClientComment(d.messages.filter(m=>m.role==='user').at(-1)?.content??'')?{...(call.args as Record<string,unknown>),visibility:'internal'}:call.args;
+   if(call.name==='set_my_setting'){
+    const result=await callTool(c,call.name,candidate);
+    if(result.isError)return {available:true,reply:settingRefusal()};
+    return {available:true,...(result.structuredContent as {result:Awaited<ReturnType<typeof setMySetting>>}).result};
+   }
    const parsed=t?.schema.safeParse(candidate);
    if(!t||!parsed?.success){
     history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:!t?'Unknown tool.':'Invalid tool arguments. Please check the tool schema.'}]},id:call.id});
