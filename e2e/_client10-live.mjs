@@ -37,7 +37,7 @@ for (const who of ['imran', 'pranav', 'kevin']) { await s.as(who); const pref = 
 // Pranav sends one with the form at 390 (English), Imran approves, the job carries it.
 await s.as('pranav'); { const ctx = await ctxFor(390); const p = await ctx.newPage(); await p.goto(`${B}/work-orders/new`, { waitUntil: 'networkidle' }); await p.waitForTimeout(1200);
  await p.locator('#order-title').fill('Kitchen tap dripping, live tenant check'); await p.locator('#order-tenant_unit').fill('905'); await p.locator('#order-tenant_name').fill('Yusuf'); await p.locator('#order-tenant_phone').fill('+971 50 000 0905');
- const siteBox = p.locator('#order-site_id'); if (await siteBox.count()) { await siteBox.click(); await p.waitForTimeout(400); await p.getByRole('option').first().click().catch(() => {}); }
+ const siteBox = p.locator('#order-site_id'); if (await siteBox.count()) { await siteBox.scrollIntoViewIfNeeded(); await siteBox.click(); await p.waitForTimeout(600); await p.screenshot({ path: `${OUT}/pranav-390-sites.png` }); await siteBox.scrollIntoViewIfNeeded(); const item = p.getByText('Harbor Annex', { exact: true }).last(); check(await item.count() > 0, 'site list opens'); await item.click(); await p.waitForTimeout(300); }
  await p.screenshot({ path: `${OUT}/pranav-390-filled.png` }); await p.getByRole('button', { name: 'Submit request' }).first().click(); await p.waitForTimeout(3000);
  await p.screenshot({ path: `${OUT}/pranav-390-sent.png` }); await ctx.close(); }
 await s.as('imran'); const sug = await (await s.api.get(`${A}/suggestions`)).json(); const mine = (sug.data ?? sug ?? []).find?.(x => x.title?.includes('live tenant check') && x.status === 'pending');

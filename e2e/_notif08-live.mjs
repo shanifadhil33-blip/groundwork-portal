@@ -16,6 +16,8 @@ const ctxFor = async w => { const ctx = await br.newContext({ viewport: { width:
 { const ctx = await ctxFor(390); const p = await ctx.newPage(); await p.goto(`${B}/work-orders/${job.id}`, { waitUntil: 'networkidle' });
   const btn = p.getByRole('button', { name: 'On the way', exact: true }); check(await btn.count() === 1, 'Ravi sees On the way button');
   await p.screenshot({ path: `${OUT}/ravi-390-before.png` }); await btn.click(); await p.waitForTimeout(2500);
+  res.raviToast = (await p.locator('.toast-region').innerText().catch(() => '')).slice(0, 80); check(res.raviToast.includes('On the way'), 'Ravi toast says On the way');
+  res.raviBadge = await p.locator('.detail-title').innerText().catch(() => ''); check(res.raviBadge.includes('On the way'), 'Ravi badge shows On the way');
   res.raviButtonGone = await btn.count() === 0; check(res.raviButtonGone, 'button gone after tap');
   const box = await p.getByRole('button', { name: /start work/i }).boundingBox().catch(() => null); res.startWorkHeight = box?.height;
   await p.screenshot({ path: `${OUT}/ravi-390-after.png` }); await ctx.close(); }
