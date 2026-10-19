@@ -1099,3 +1099,52 @@ label:has(>input[type=checkbox]),label:has(>input[type=radio]){min-height:44px;d
 button.nav-link:not([aria-current=page]):not(:active){background:transparent}
 /* Oct 19: Swahili, Yoruba, Farsi and Arabic short day names run to 8 letters and were cut off in the phone day strip; let the real word wrap inside its cell instead. */
 .sched-day span{max-width:100%;overflow-wrap:anywhere;line-height:1.15;text-align:center}
+
+/* Agent panel, phone and laptop (Adhil, Oct 19). Studied: ChatGPT, Gemini and WhatsApp phone apps.
+   Pure white or black page, plain replies with no bubble, his own words in a soft bubble, a pill input,
+   a round send button that becomes a round stop button while the Agent thinks, three dot typing line,
+   smooth slide in and out (none with reduced motion), nothing on the page covered on a laptop. */
+body:has(.app-shell) .presentation-assistant .dialog,body:has(.app-shell) .dashboard-assistant{background:#fff}
+[data-theme=dark] body:has(.app-shell) .presentation-assistant .dialog,[data-theme=dark] body:has(.app-shell) .dashboard-assistant{background:#000}
+body:has(.app-shell) .presentation-assistant .dialog-footer,body:has(.app-shell) .dashboard-assistant .assistant-panel-footer{background:inherit}
+body:has(.app-shell) .presentation-assistant .assistant-message.assistant,body:has(.app-shell) .dashboard-assistant .assistant-message.assistant{background:transparent}
+body:has(.app-shell) .assistant-chat .assistant-message.user{background:#f1f2f1;color:var(--text);border-radius:18px 18px 6px 18px;padding:10px 14px;max-width:82%}
+[data-theme=dark] body:has(.app-shell) .assistant-chat .assistant-message.user{background:#1e1f1f}
+[dir=rtl] body:has(.app-shell) .assistant-chat .assistant-message.user{border-radius:18px 18px 18px 6px}
+body:has(.app-shell) .assistant-suggestions .button{border-radius:18px;min-height:44px}
+/* Composer: round mic, pill input, round send or stop, all 44px. */
+body:has(.app-shell) .assistant-input-row{align-items:flex-end;gap:8px}
+body:has(.app-shell) .assistant-composer textarea#assistant-input{border-radius:22px;min-height:44px;padding:10px 16px;line-height:22px;background:var(--surface-subtle);border:1px solid transparent}
+[data-theme=dark] body:has(.app-shell) .assistant-composer textarea#assistant-input{background:#161717}
+body:has(.app-shell) .assistant-composer textarea#assistant-input:focus{border-color:var(--border)}
+body:has(.app-shell) .assistant-input-row .assistant-control{border-radius:50%;width:44px;min-width:44px;height:44px;min-height:44px;flex:0 0 44px}
+body:has(.app-shell) .assistant-input-row .assistant-control:not(.assistant-send){border-color:transparent;background:transparent}
+body:has(.app-shell) .assistant-input-row .assistant-control.assistant-send:disabled{background:var(--surface-subtle);border-color:transparent;color:var(--text-muted)}
+body:has(.app-shell) .assistant-input-row .assistant-control.assistant-stop{background:var(--text);border-color:var(--text);color:var(--bg,#fff)}
+[data-theme=dark] body:has(.app-shell) .assistant-input-row .assistant-control.assistant-stop{background:#ededed;border-color:#ededed;color:#000}
+/* Typing line: three dots, then words. */
+.agent-typing{display:flex;align-items:center;gap:10px;min-height:28px;color:var(--text-muted);font-size:14px}
+.agent-dots{display:inline-flex;gap:4px}.agent-dots i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.35;animation:agent-dot 1.2s ease-in-out infinite}
+.agent-dots i:nth-child(2){animation-delay:.15s}.agent-dots i:nth-child(3){animation-delay:.3s}
+@keyframes agent-dot{0%,80%,100%{opacity:.25;transform:none}40%{opacity:.9;transform:translateY(-3px)}}
+.agent-stopped{color:var(--text-muted)}
+/* Phone launcher: icon and word, a calm pill. */
+body:has(.app-shell) .phone-assistant{gap:6px;border-radius:22px;min-height:40px;padding:0 14px 0 12px;font-weight:500}
+@media(pointer:coarse){body:has(.app-shell) .phone-assistant{min-height:44px}}
+/* Open and close: slide up on a phone, in from the side on a laptop. */
+@keyframes agent-up{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+@keyframes agent-down{from{transform:none;opacity:1}to{transform:translateY(28px);opacity:0}}
+@keyframes agent-in{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes agent-out{from{transform:none;opacity:1}to{transform:translateX(24px);opacity:0}}
+.presentation-assistant .dialog{animation:agent-in .22s cubic-bezier(.2,.8,.2,1) both;will-change:transform}
+.presentation-assistant.closing{opacity:1}
+.presentation-assistant.closing .dialog{animation:agent-out .18s cubic-bezier(.4,0,1,1) both}
+/* Laptop: the panel sits beside the page; the page stays visible and usable, no dark layer. */
+@media(min-width:1024px){.presentation-assistant.non-modal{background:transparent;pointer-events:none;inset:0 0 0 auto;width:min(412px,100vw)}.presentation-assistant.non-modal .dialog{pointer-events:auto;border:1px solid var(--border)}}
+@media(max-width:1023px){
+ body:has(.app-shell) .presentation-assistant{background:transparent;top:var(--agent-top,0px);bottom:auto;height:var(--agent-vh,100dvh)}
+ body:has(.app-shell) .presentation-assistant .dialog{height:var(--agent-vh,100dvh);max-height:var(--agent-vh,100dvh);animation:agent-up .24s cubic-bezier(.2,.8,.2,1) both}
+ body:has(.app-shell) .presentation-assistant.closing .dialog{animation:agent-down .18s cubic-bezier(.4,0,1,1) both}
+ body:has(.app-shell) .presentation-assistant .dialog-header .icon-button{border-radius:50%}
+}
+@media(prefers-reduced-motion:reduce){.presentation-assistant .dialog,.presentation-assistant.closing .dialog,body:has(.app-shell) .presentation-assistant .dialog,body:has(.app-shell) .presentation-assistant.closing .dialog{animation:none!important}.agent-dots i{animation:none!important;opacity:.6}}

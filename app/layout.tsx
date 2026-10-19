@@ -19,5 +19,5 @@ const ethiopic = Noto_Sans_Ethiopic({ weight: '400', display: 'swap', preload: f
 const notoLatin = Noto_Sans({ weight: '400', display: 'swap', preload: false, subsets: ['latin-ext'], variable: '--font-noto' });
 const fontVars = [geist, tamil, malayalam, devanagari, bengali, arabic, sinhala, chinese, ethiopic, notoLatin].map(f => f.variable).join(' ');
 export const metadata: Metadata = { title: { default: 'Groundwork: client portal and back office', template: '%s · Groundwork' }, description: 'A client portal and back office for service companies. Jobs, private client views, spreadsheet approval, supplier sync, and AI agent access through MCP.' };
-export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', interactiveWidget: 'resizes-content' };
 export default function Layout({ children }: { children: ReactNode }) { return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript + ';' + sessionHintScript + ';' + languageHintScript }} /></head><body className={fontVars}><ThemeProvider><ToastProvider><RequestRecovery />{children}</ToastProvider></ThemeProvider></body></html>; }
