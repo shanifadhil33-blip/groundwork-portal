@@ -26,10 +26,14 @@ const check = () => {
   if (!/^en/.test(document.documentElement.lang)) for (const x of [...document.querySelectorAll('.app-main h1,.app-main h2,.app-main button,.bottom-tabs .tab-label')].filter(e => vis(e) && !e.closest('[data-no-translate]') && /^[A-Za-z][A-Za-z ]{3,}$/.test(e.innerText.trim()) && !/^(Agent|Groundwork)$/.test(e.innerText.trim())).map(e => e.innerText.trim()).slice(0, 5)) out.push(['English left', x]);
   return out;
 };
+// Latin script languages (Filipino, Hausa, Swahili and others) look like English to the check; a word that is a saved translation is not English left.
+const wordCache = {}; const savedWords = lang => wordCache[lang] ??= (() => { try { return new Set(Object.values(JSON.parse(fs.readFileSync(new URL(`../public/i18n/${lang}.json`, import.meta.url)))).map(v => String(v).trim())); } catch { return new Set(); } })();
+// A slow PATCH must not end a long sweep: retry, then go on.
+const setLang = async lang => { for (let i = 0; i < 3; i++) { try { await s.api.patch('/api/me/preferences', { data: { language: lang }, timeout: 45000 }); return; } catch (e) { if (i === 2) issues.push({ issue: 'language not set', detail: lang + ' ' + e.message.slice(0, 60) }); } } };
 for (const who of PERSONAS) {
   await s.as(who);
   for (const lang of LANGS) {
-    await s.api.patch('/api/me/preferences', { data: { language: lang } });
+    await setLang(lang);
     for (const w of WIDTHS) {
       const ctx = await br.newContext({ viewport: { width: w, height: 800 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }); await ctx.addCookies((await s.api.storageState()).cookies); const p = await ctx.newPage();
       // CACHED_ONLY=1: saved words only, never an AI translation call (the free AI allowance is shared); missing words stay English and are reported.
@@ -39,7 +43,7 @@ for (const who of PERSONAS) {
           await p.goto(B + path, { waitUntil: 'load', timeout: 45000 }); await p.waitForTimeout(lang === 'en-IN' ? 1500 : 4000); pages++;
           const found = await p.evaluate(check); const tag = `${who}-${lang}-${w}${path.replace(/\//g, '_')}`;
           await p.screenshot({ path: `${OUT}/${tag}.png` });
-          for (const f of found) issues.push({ who, lang, w, path, issue: f[0], detail: f.slice(1).join(' ') });
+          for (const f of found.filter(f => !(f[0] === 'English left' && savedWords(lang).has(String(f[1]).trim())))) issues.push({ who, lang, w, path, issue: f[0], detail: f.slice(1).join(' ') });
           if (path === '/settings' && (w === 360 || w >= 1000)) { // rule 3: dropdown attached to its field
             const trig = p.locator('.dropdown-trigger').filter({ has: p.locator('[data-no-translate]') }).last();
             if (await trig.count()) { await trig.scrollIntoViewIfNeeded(); await trig.tap(); await p.waitForTimeout(400); const m = await p.locator('.dropdown-menu').boundingBox(), t = await trig.boundingBox();
@@ -51,8 +55,8 @@ for (const who of PERSONAS) {
       await ctx.close();
     }
   }
-  await s.api.patch('/api/me/preferences', { data: { language: 'en-IN' } });
-  console.log(who, 'issues so far', issues.length);
+  await setLang('en-IN');
+  console.log(who, 'issues so far', issues.length); fs.writeFileSync(`${OUT}/report.json`, JSON.stringify({ pages, partial: true, issues }, null, 1));
 }
 await br.close();
 const summary = {}; for (const i of issues) summary[i.issue] = (summary[i.issue] ?? 0) + 1;

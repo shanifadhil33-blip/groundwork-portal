@@ -7,8 +7,8 @@ for (const who of ['ravi', 'faisal']) {
   if (!j) { res[who] = { error: 'no job' }; continue; }
   const words = who === 'ravi' ? `log this work on WO ${j.order_number}: checked the wiring and cleaned the fitting` : `Add a note on WO ${j.order_number}: the gate code is 4411`;
   const a = await ask(words);
-  const comments = await (await s.api.get(`${A}/work-orders/${j.id}/comments`)).json().catch(() => null);
-  const list = comments?.data ?? comments ?? [];
+  const detail = await (await s.api.get(`${A}/work-orders/${j.id}`)).json().catch(() => null);
+  const list = detail?.comments ?? [];
   res[who] = { wo: j.order_number, st: a.st, ms: a.ms, reply: a.body.reply, choices: a.body.choices, pending: a.body.pending_action?.tool, provider: a.body.provider,
     saved: Array.isArray(list) ? list.filter(c => /wiring|gate code/i.test(c.body ?? '')).map(c => ({ body: c.body, visibility: c.visibility })) : 'unknown' };
 }
