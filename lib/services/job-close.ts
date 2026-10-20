@@ -1,7 +1,7 @@
 import type { PoolClient } from 'pg';
 import { withSystem } from '../db';
 import { ApiError } from '../http';
-import { CLOSE_REPLIES, canApproveDraft, canMarkNoPhotos, canSignOff, draftCost, draftLines, noPhotosRefusal, signOffRefusal, signOffReminder, type CloseActor, type CloseJob, type DraftLine } from '../job-close';
+import { CLOSE_REPLIES, canApproveDraft, canMarkNoPhotos, canSignOff, draftCost, draftLines, noPhotosRefusal, signOffRefusal, type CloseActor, type CloseJob, type DraftLine } from '../job-close';
 import { OUTCOME_LABELS } from './job-report';
 import { uuid } from './shared';
 
@@ -40,19 +40,11 @@ export async function applySignOff(db: PoolClient, user: string, ws: string, id:
   return CLOSE_REPLIES.signed;
 }
 
-async function remind(db: PoolClient, user: string, ws: string, job: { id: string; title: string }) {
-  const lang = (await db.query('SELECT language FROM user_preferences WHERE user_id=$1', [user])).rows[0]?.language as string | undefined;
-  await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,work_order_title,job_step_body)
-    SELECT $1,$2,'sign_off','work_orders',$3,$4,$5 WHERE NOT EXISTS (
-      SELECT 1 FROM notifications WHERE user_id=$1 AND entity_id=$3 AND kind='sign_off' AND created_at>now()-interval '1 day')`,
-  [user, ws, job.id, job.title, signOffReminder(lang)]);
-}
 
 export async function getJobClose(user: string, ws: string, id: string) {
   return withSystem(async db => {
     const { actor, job } = await context(db, user, ws, id, false);
     const photos = await photoCount(db, ws, id);
-    if (actor.role === 'client' && canSignOff(actor, job)) await remind(db, user, ws, job);
     const draftRow = (await db.query('SELECT lines,status FROM draft_invoices WHERE workspace_id=$1 AND work_order_id=$2', [ws, id])).rows[0] as { lines: DraftLine[]; status: string } | undefined;
     const lines = draftRow?.lines ?? [];
     const name = (await db.query('SELECT name FROM visible_assignee($1,$2)', [ws, id])).rows[0]?.name as string | undefined;
@@ -70,8 +62,9 @@ export async function getJobClose(user: string, ws: string, id: string) {
         outcome,
         technician: name ?? '',
         when: job.report_at ?? null,
-        cost: draftCost(lines),
-        waiting: lines.length > 0 && draftCost(lines) == null ? CLOSE_REPLIES.waitingOwner : null,
+        // The draft bill is unsent and owner only, so its sample amounts never reach the client or technician.
+        cost: actor.role === 'admin' ? draftCost(lines) : null,
+        waiting: actor.role === 'admin' && lines.length > 0 && draftCost(lines) == null ? CLOSE_REPLIES.waitingOwner : null,
         thanks: job.signed_off_at ? CLOSE_REPLIES.thanks : null,
       },
     };

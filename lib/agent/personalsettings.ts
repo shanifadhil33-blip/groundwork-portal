@@ -16,7 +16,7 @@ export function settingLabel(setting:PersonalSetting,value:SettingValue):string 
 export function settingNotice(setting:PersonalSetting,value:SettingValue,previous:SettingValue){return `${labels[setting]} set to ${settingLabel(setting,value)} (was ${settingLabel(setting,previous)}).`;}
 export function settingRestored(setting:PersonalSetting,value:SettingValue){return `${labels[setting]} restored to ${settingLabel(setting,value)}.`;}
 export function settingRefusal(setting?:string){
- if(setting?.includes('phone'))return 'Tell me the new number. I will send a code before anything is saved.';
+ if(setting?.includes('phone'))return 'Change your phone in Profile and complete the code check.';
  if(setting?.includes('address'))return 'I can not change an address this way. Open Profile, or ask the office to update it.';
  if(setting?.includes('role')||setting?.includes('company'))return 'Ask an admin to change roles or company settings.';
  return 'I can change only your own personal settings. Open Profile or ask an admin for other changes.';

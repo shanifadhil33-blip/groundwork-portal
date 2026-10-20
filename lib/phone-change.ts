@@ -11,6 +11,7 @@ export const PHONE_REPLIES = {
   locked: 'Too many tries. Ask again for a new code.',
   saved: 'Your phone number is saved.',
   same: 'That is already your number. Nothing was changed.',
+  noSender: 'Sending codes to phones is not switched on yet, so no code went out. Your number stays as it is. Ask the office to change it for you.',
 } as const;
 
 export type PhoneAsk =
@@ -34,6 +35,9 @@ export function readPhoneAsk(text: string): PhoneAsk {
   }
   return { kind: 'none' };
 }
+
+/** True only when a real sender delivers codes. None is connected, so the agent never says a code was sent. */
+export function codeSenderReady(env: Record<string, string | undefined> = process.env) { return env.PHONE_CODE_SENDER === 'whatsapp' && !!env.WHATSAPP_SEND_TOKEN; }
 
 export function hashPhoneCode(code: string, secret: string) {
   return createHmac('sha256', secret).update(`phonecode:${code}`).digest('hex');

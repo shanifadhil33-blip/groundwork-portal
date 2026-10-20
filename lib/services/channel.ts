@@ -32,7 +32,8 @@ export async function answerChannel(actor: string, ws: string, body: unknown) {
   const people = (await withSystem(db => db.query(`SELECT m.user_id,m.role,m.workspace_id,m.client_id FROM members m
     JOIN users u ON u.id=m.user_id WHERE m.workspace_id=$1 AND m.archived_at IS NULL
     AND regexp_replace(regexp_replace(coalesce(u.phone,''),'[^0-9]','','g'),'^00','')=$2`, [ws, phone]), actor)).rows as ChannelPerson[];
-  const route = routeChannel(ws, people, message);
+  // Until a signed WhatsApp webhook exists, this route only acts as the caller himself. Another person's number is raised for review, never run as him.
+  const route = routeChannel(ws, people.filter(person => person.user_id === actor), message);
   await withSystem(db => db.query(`INSERT INTO whatsapp_messages(workspace_id,user_id,phone_sealed,body_sealed,voice_sealed,direction,kind)
     VALUES($1,$2,$3,$4,$5,'in',$6)`, [
     ws, route.kind === 'review' ? null : route.person.user_id, seal(phone || message.from, secret),

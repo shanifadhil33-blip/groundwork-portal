@@ -4,7 +4,7 @@ import { requiredEnv } from '../env';
 import { ApiError, missing } from '../http';
 import { CLOSE_REPLIES, canSignOff, readSignOff, signOffRefusal, type CloseActor } from '../job-close';
 import { z } from 'zod';
-import { PHONE_REPLIES, codeMessage, hashPhoneCode, phoneCodeMatches, phoneLookup, readPhoneAsk } from '../phone-change';
+import { PHONE_REPLIES, codeSenderReady, codeMessage, hashPhoneCode, phoneCodeMatches, phoneLookup, readPhoneAsk } from '../phone-change';
 import { phoneKey } from '../phone-key';
 import { openSealed, seal } from '../secret-box';
 import { USUAL_REPLIES, readUsualAsk, usualValid } from '../usual-context';
@@ -36,6 +36,7 @@ async function card(user: string, ws: string, tool: string, args: unknown, summa
 async function queuePhone(user: string, ws: string, phone: string) {
   const current = phoneKey(String((await withSystem(db => db.query('SELECT phone FROM users WHERE id=$1', [user]), user)).rows[0]?.phone ?? ''));
   if (current && current === phone) return { available: true as const, reply: PHONE_REPLIES.same };
+  if (!codeSenderReady()) return { available: true as const, reply: PHONE_REPLIES.noSender };
   return card(user, ws, 'issue_phone_code', { phone_sealed: seal(phone, secret()), phone_lookup: phoneLookup(phone, secret()) }, PHONE_REPLIES.confirmSend);
 }
 
@@ -89,7 +90,7 @@ export async function planFromWords(user: string, ws: string, words: string) {
       const taken = await takeCode(user, phone.code);
       return taken ? { ...taken, reply: lead(taken.reply) } : null;
     }
-    if (phone.kind === 'ask_number') return { available: true as const, reply: lead(PHONE_REPLIES.askNumber) };
+    if (phone.kind === 'ask_number') return { available: true as const, reply: lead(codeSenderReady() ? PHONE_REPLIES.askNumber : PHONE_REPLIES.noSender) };
     if (phone.kind === 'number') {
       const queued = await queuePhone(user, ws, phone.phone);
       return { ...queued, reply: lead(queued.reply) };
@@ -120,6 +121,7 @@ export async function confirmPlanned(user: string, ws: string, actionId: string)
     if (new Date(a.expires_at) <= new Date()) throw new ApiError(409, 'expired', 'This action has expired. Ask Agent again.');
     let reply: string = PHONE_REPLIES.saved;
     if (a.tool === 'issue_phone_code') {
+      if (!codeSenderReady()) throw new ApiError(409, 'no_sender', PHONE_REPLIES.noSender);
       const phone = openSealed(String(a.args.phone_sealed ?? ''), secret());
       if (!phone) throw new ApiError(409, 'expired', PHONE_REPLIES.expired);
       const code = String(randomInt(0, 1_000_000)).padStart(6, '0');

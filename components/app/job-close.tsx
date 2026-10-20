@@ -43,7 +43,7 @@ export function JobCloseView({ state, currency, busy, error, onSign, onMark, onK
         {card.when ? <><dt>Reported</dt><dd><LocalTime value={card.when}/></dd></> : null}
         <dt>Before photos</dt><dd>{state.photos.before || 'No photos'}</dd>
         <dt>After photos</dt><dd>{state.photos.after || 'No photos'}</dd>
-        <dt>Cost</dt><dd data-no-translate={card.cost ? true : undefined}>{card.cost ? `${currency} ${card.cost}` : card.waiting || 'Not set yet'}</dd>
+        {card.cost || card.waiting ? <><dt>Cost</dt><dd data-no-translate={card.cost ? true : undefined}>{card.cost ? `${currency} ${card.cost}` : card.waiting}</dd></> : null}
       </dl>
       {card.thanks && <p role="status">{card.thanks}</p>}
       {state.signed_off && <p>Signed off. This stays on the job.</p>}

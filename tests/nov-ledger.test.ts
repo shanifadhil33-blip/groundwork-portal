@@ -138,3 +138,13 @@ describe('Gulf Arabic words', () => {
     expect(file[source]).not.toBe(source);
   });
 });
+
+describe('review fixes', () => {
+  it('never claims a code was sent while no sender is connected', async () => {
+    const { codeSenderReady, PHONE_REPLIES: P } = await import('../lib/phone-change');
+    expect(codeSenderReady({})).toBe(false);
+    expect(codeSenderReady({ PHONE_CODE_SENDER: 'whatsapp', WHATSAPP_SEND_TOKEN: 'x' })).toBe(true);
+    expect(P.noSender).toMatch(/no code went out/);
+    expect(P.noSender).not.toMatch(/[\u2013\u2014-]/);
+  });
+});
