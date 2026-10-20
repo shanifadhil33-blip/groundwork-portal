@@ -12,7 +12,6 @@ const j = await s.api.post('/api/join-requests', { data: { workspace_id: s.ws, k
 const l = await s.api.patch(A, { data: { listed: true } }); res.listing = l.status(); check(l.status() >= 400 && l.status() < 500, 'demo listing refused');
 const st = await (await s.api.get(`${A}/settings`)).json(); res.listed_now = st.listed ?? st.data?.listed; check(res.listed_now === false, 'demo company not listed');
 const r = await s.api.get(`${A}/join-requests`); res.imran_requests = r.status(); check(r.status() === 200, 'Imran reads requests');
-for (const who of ['sam', 'ravi', 'pranav']) { const o = await sandbox(who); const x = await o.api.get(`/api/workspaces/${o.ws}/join-requests`); res[`${who}_requests`] = x.status(); check(x.status() === 403, `${who} refused requests`); }
 const before = await (await s.api.get('/api/me/preferences')).json().catch(() => ({})); const was = before.language ?? before.data?.language ?? 'en-IN';
 const br = await chromium.launch();
 try { for (const lang of ['en-IN', 'ar-AE']) { await s.api.patch('/api/me/preferences', { data: { language: lang }, timeout: 45000 });
@@ -32,4 +31,6 @@ try { for (const lang of ['en-IN', 'ar-AE']) { await s.api.patch('/api/me/prefer
   check(await p.getByRole('link', { name: 'Add another company' }).count() === 0, `${lang} ${w} no Add another company in demo`);
   await p.screenshot({ path: `${OUT}/imran-${lang}-${w}-find.png`, fullPage: true }); await ctx.close(); } } }
 finally { await s.api.patch('/api/me/preferences', { data: { language: was } }).catch(() => {}); await br.close(); }
+// Other personas last: starting them can end Imran's browser sandbox session.
+for (const who of ['sam', 'ravi', 'pranav']) { const o = await sandbox(who); const x = await o.api.get(`/api/workspaces/${o.ws}/join-requests`); res[`${who}_requests`] = x.status(); check(x.status() === 403, `${who} refused requests`); }
 res.fail = fail; fs.writeFileSync(`${OUT}/report.json`, JSON.stringify(res, null, 1)); console.log(JSON.stringify(res, null, 1)); console.log(fail.length ? 'HOME02_FAIL' : 'HOME02_OK'); process.exit(fail.length ? 1 : 0);
