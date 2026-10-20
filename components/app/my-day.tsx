@@ -11,8 +11,7 @@ import { useUiLang } from './use-ui-lang';
 import type { ReactNode } from 'react';
 import { formatInLang } from '../../lib/date-lang';
 import { CheckCircle2, MapPin, Phone, Play } from 'lucide-react';
-import { PageHeader } from '../ui/layout';
-import { Badge, Button, Dialog, EmptyState, ErrorState, Skeleton, useToast } from '../ui';
+import { Button, Dialog, ErrorState, Skeleton, useToast } from '../ui';
 import { request, RequestError } from '../../lib/ui/api';
 import { statusLabels } from '../../lib/ui/work-orders';
 import { tradeLabels, type Trade } from '../../lib/trades';
@@ -87,7 +86,9 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
   </Dialog>;
 }
 
-function JobCard({ j:original, tz, base, onDone, onFinished, when, primary=false,selection }: { selection?:ReturnType<typeof useSelection>;primary?: boolean; j: Job; tz: string; base: string; onDone: () => void; onFinished: (o: Outcome, r: JobRecord, extra?: DoneExtra) => void; when: ReactNode }) {
+const PRIORITY: Record<string, string> = { low: 'Low', normal: 'Normal', high: 'High', urgent: 'Urgent' };
+/** Start or finish a job with an optimistic status and Undo; Done opens the job report. */
+function useJobStep(original: Job, base: string, onDone: () => void) {
   const [optimistic,setOptimistic]=useState<string|null>(null);const j=optimistic?{...original,status:optimistic}:original;
   useEffect(()=>setOptimistic(null),[original.updated_at]);
   const step = nextStep(j.status), [busy, setBusy] = useState(false), [confirm, setConfirm] = useState(false), toast = useToast();
@@ -97,17 +98,51 @@ function JobCard({ j:original, tz, base, onDone, onFinished, when, primary=false
     catch (e) { setOptimistic(null);toast(e instanceof RequestError && e.status === 409 ? 'This job changed. We loaded the new version.' : 'Could not start this job. Your change was undone. Try again.'); onDone(); }
     finally { setBusy(false); }
   }
-  return <li className="day-card" {...selection?.row(j.id)}>{selection?.mark(j.id)}
-    <div className="day-when"><strong>{when}</strong>{j.status !== 'scheduled' && <Badge>{statusLabels[j.status] ?? j.status}</Badge>}{j.priority === 'urgent' && <Badge tone="warning">Urgent</Badge>}</div>
-    <Link href={`/work-orders/${j.id}`} className="day-title"><strong data-no-translate>{j.title}</strong>{j.tenant_unit&&<span className="small muted"><span>Flat or unit</span>: <span data-no-translate>{j.tenant_unit}</span></span>}<span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}{j.trade ? ` · ${tradeLabels[j.trade as Trade] ?? j.trade}` : ''}</span></Link>
-    {j.access_notes && <p className="small day-note">{j.access_notes}</p>}
-    <div className="day-actions">
-      {step ? <Button variant={primary?'primary':'secondary'} busy={busy} onClick={() => step.to === 'done' ? setConfirm(true) : void go()}>{step.to === 'done' ? <CheckCircle2 size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}{step.label}</Button> : <span className="small muted">Waiting for a time</span>}
-      <a className="button secondary" href={mapUrl(j)} target="_blank" rel="noreferrer"><MapPin size={18} aria-hidden="true" />Map</a>
-      {j.contact_phone && <a className="button secondary" href={`tel:${j.contact_phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${j.contact_name ?? 'the site'}`}><Phone size={18} aria-hidden="true" />Call</a>}
-    </div>
-    {confirm && <DoneDialog j={j} base={base} onClose={() => setConfirm(false)} onSaved={(o, r) => { setConfirm(false); onFinished(o, r); onDone(); }} />}
-  </li>;
+  return { j, step, busy, confirm, setConfirm, go };
+}
+
+/** Desert Stone: the one dark panel on Home. Front is the next job and its main action; Details flips it to access, contact and address. */
+function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: { j: Job; tz: string; base: string; lang?: string; onDone: () => void; onFinished: (o: Outcome, r: JobRecord, extra?: DoneExtra) => void; when: ReactNode }) {
+  const { j, step, busy, confirm, setConfirm, go } = useJobStep(original, base, onDone);
+  const [flipped, setFlipped] = useState(false), frontBtn = useRef<HTMLButtonElement|null>(null), backBtn = useRef<HTMLButtonElement|null>(null), moved = useRef(false);
+  useEffect(() => { if (!moved.current) return; (flipped ? backBtn : frontBtn).current?.focus({ preventScroll: true }); }, [flipped]);
+  const flip = (v: boolean) => { moved.current = true; setFlipped(v); };
+  const place = [j.building, j.site_name, j.area].filter(Boolean).join(', ');
+  const tel = j.contact_phone ? `tel:${j.contact_phone.replace(/[^+0-9]/g, '')}` : null;
+  return <section className="next-job stack compact" aria-labelledby="next-job-label">
+    <p id="next-job-label" className="ds-label"><span>Next job</span> · {when}</p>
+    <div className="flip" data-flipped={flipped}><div className="flip-inner">
+      <div className="flip-face flip-front ds-hero next-job-face" inert={flipped} aria-hidden={flipped}>
+        <div className="next-job-top">{j.priority === 'urgent' ? <span className="ds-chip-urgent">Urgent</span> : j.status !== 'scheduled' ? <span className="ds-chip-hero">{statusLabels[j.status] ?? j.status}</span> : <span />}<span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>
+        <h2 className="next-job-title"><Link href={`/work-orders/${j.id}`} data-no-translate>{j.title}</Link></h2>
+        {place && <p className="next-job-place"><MapPin size={18} aria-hidden="true" /><span data-no-translate>{place}</span></p>}
+        {j.access_notes && <p className="ds-muted next-job-note">{j.access_notes}</p>}
+        <div className="next-job-actions">
+          {step ? <button type="button" className="ds-hero-btn" disabled={busy} aria-busy={busy} onClick={() => step.to === 'done' ? setConfirm(true) : void go()}>{step.to === 'done' ? <CheckCircle2 size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}{step.label}</button> : <span className="ds-muted">Waiting for a time</span>}
+          {tel ? <a className="ds-hero-icon" href={tel} aria-label={`Call ${j.contact_name ?? 'the site'}`}><Phone size={20} aria-hidden="true" /></a> : <a className="ds-hero-icon" href={mapUrl(j)} target="_blank" rel="noreferrer" aria-label="Map"><MapPin size={20} aria-hidden="true" /></a>}
+        </div>
+        <button type="button" ref={frontBtn} className="ds-flip-btn" aria-pressed={false} aria-controls="next-job-back" onClick={() => flip(true)}>Details</button>
+      </div>
+      <div id="next-job-back" className="flip-face flip-back ds-hero next-job-face" inert={!flipped} aria-hidden={!flipped}>
+        <div className="next-job-top"><strong>Job details</strong><span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>
+        <dl className="next-job-facts">
+          {j.access_notes && <div><dt>Access</dt><dd>{j.access_notes}</dd></div>}
+          {(j.contact_name || j.contact_phone) && <div><dt>Contact</dt><dd data-no-translate>{[j.contact_name, j.contact_phone].filter(Boolean).join(', ')}</dd></div>}
+          <div><dt>Address</dt><dd data-no-translate>{[j.building, j.address, j.area].filter(Boolean).join(', ') || j.site_name}</dd></div>
+          {j.trade && <div><dt>Trade</dt><dd>{tradeLabels[j.trade as Trade] ?? j.trade}</dd></div>}
+          {j.tenant_unit && <div><dt>Flat or unit</dt><dd data-no-translate>{j.tenant_unit}</dd></div>}
+        </dl>
+        <div className="next-job-actions"><a className="ds-hero-btn" href={mapUrl(j)} target="_blank" rel="noreferrer"><MapPin size={18} aria-hidden="true" />Map</a></div>
+        <button type="button" ref={backBtn} className="ds-flip-btn" aria-pressed={true} aria-controls="next-job-back" onClick={() => flip(false)}>Flip back</button>
+      </div>
+    </div></div>
+    {confirm && <DoneDialog j={j} base={base} onClose={() => setConfirm(false)} onSaved={(o, r, extra) => { setConfirm(false); onFinished(o, r, extra); onDone(); }} />}
+  </section>;
+}
+
+/** A job row: time, title and place, meta at the end. The whole row opens the job. */
+function JobRow({ j, when, meta, selection }: { j: Job; when: ReactNode; meta?: ReactNode; selection?: ReturnType<typeof useSelection> }) {
+  return <li {...selection?.row(j.id)}>{selection?.mark(j.id)}<Link className="ds-row" href={`/work-orders/${j.id}`}><span className="ds-time">{when}</span><span className="ds-main"><strong data-no-translate>{j.title}</strong><span className="ds-sub" data-no-translate>{[j.building ?? j.site_name, j.area].filter(Boolean).join(', ')}</span></span>{meta && <span className="ds-meta">{meta}</span>}</Link></li>;
 }
 
 /** TECH05: the full screen card after the report is saved. Counts stay under it. */
@@ -129,19 +164,28 @@ export function MyDay() {
   const data = d.data, tz = data?.timezone ?? 'Asia/Dubai', reload = () => { void d.reload(); void rec.reload(); };
   const primaryJob = [...(data?.today??[]),...(data?.late??[])].find(j=>j.status==='in_progress')??[...(data?.today??[]),...(data?.late??[])].find(j=>nextStep(j.status));
   const finished = (outcome: Outcome, record: JobRecord, extra?: DoneExtra) => setDone({ outcome, record, extra });
-  return <div className="page stack my-day">
-    {selection.bar}<Greeting tz={tz}/><PageHeader><div><h1>Today</h1><p data-no-translate suppressHydrationWarning>{formatInLang(new Date(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }, lang)}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div>{data&&!primaryJob&&<Link className="button primary" href="/work-orders">View jobs</Link>}</PageHeader>{member?.workspace_id&&<MyAgentQuestions base={base}/>}<Link className="button secondary" href="/suggestions/new">Suggest a job</Link>{member?.role==='technician'&&<Link className="button secondary" href="/my-record">My record</Link>}
-    {member?.role === 'technician' && <HabitCard base={base} />}
-    {member?.role === 'technician' && <AgentCard />}
-    {member && <div className="row"><RequestTimeOff base={`/api/workspaces/${member.workspace_id}`} /></div>}
-    {member && <LeaveRequests base={`/api/workspaces/${member.workspace_id}`} self={me.user.id} />}
+  const rest = (data?.today ?? []).filter(j => j.id !== primaryJob?.id), late = (data?.late ?? []).filter(j => j.id !== primaryJob?.id);
+  const meta = (j: Job) => j.priority === 'urgent' ? <span className="ds-meta-warn">Urgent</span> : j.status !== 'scheduled' ? statusLabels[j.status] ?? j.status : PRIORITY[j.priority] ?? null;
+  return <div className="page stack my-day ds-home">
+    {selection.bar}
+    <header className="ds-home-head"><p className="ds-date" data-no-translate suppressHydrationWarning>{formatInLang(new Date(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }, lang)}</p><Greeting tz={tz} mode="title"/></header>
     {done && <DoneMoment outcome={done.outcome} record={done.record} extra={done.extra} onClose={() => setDone(null)} />}
-    {d.loading ? <Skeleton className="skeleton-card" /> : d.error || !data ? <ErrorState retry={d.reload} /> : <>
-      {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<>Due <span data-no-translate>{day(j.due_on, tz, lang)}</span></>} />)}</ul></section>}
-      <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<span data-no-translate>{time(j.scheduled_for, tz, lang)}</span>} />)}</ul>
-        : <EmptyState title={data.done ? 'All done for today' : 'No jobs today'}>{data.next[0] ? `Next: ${data.next[0].title}, ${day(data.next[0].scheduled_for, tz, 'en')}.` : 'When the office gives you a job, it shows here.'}</EmptyState>}</section>
-      {data.next.length > 0 && <section className="stack compact"><h2>Next days</h2><ul className="day-list">{data.next.map(j => <li key={j.id} className="day-next" {...selection.row(j.id)}>{selection.mark(j.id)}<Link href={`/work-orders/${j.id}`}><strong data-no-translate>{day(j.scheduled_for, tz, lang)}</strong> <span data-no-translate>{time(j.scheduled_for, tz, lang)}</span> · {j.title}{j.tenant_unit&&<span data-no-translate>{` · ${j.tenant_unit}`}</span>}</Link></li>)}</ul></section>}
+    {d.loading ? <Skeleton className="skeleton-card ds-hero-skeleton" /> : d.error || !data ? <ErrorState retry={d.reload} /> : <>
+      {primaryJob ? <NextJobHero key={primaryJob.id} j={primaryJob} tz={tz} base={base} lang={lang} onDone={reload} onFinished={finished} when={primaryJob.scheduled_for ? <span data-no-translate className="num">{time(primaryJob.scheduled_for, tz, lang)}</span> : <><span>Due</span> <span data-no-translate>{day(primaryJob.due_on, tz, lang)}</span></>} />
+        : <section className="ds-hero ds-hero-empty stack compact"><h2>{data.done ? 'All done for today' : 'No jobs today'}</h2><p className="ds-muted">{data.next[0] ? `Next: ${data.next[0].title}, ${day(data.next[0].scheduled_for, tz, 'en')}.` : 'When the office gives you a job, it shows here.'}</p><Link className="ds-hero-btn" href="/work-orders">View jobs</Link></section>}
+      {late.length > 0 && <section id="late" className="stack compact ds-section"><div className="ds-section-head"><h2>Late</h2><span className="ds-count num">{late.length}</span></div><ul className="ds-rows">{late.map(j => <JobRow key={j.id} j={j} selection={selection} when={<span data-no-translate>{day(j.due_on, tz, lang)}</span>} meta={<span className="ds-meta-warn">Late</span>} />)}</ul></section>}
+      {rest.length > 0 && <section id="today" className="stack compact ds-section"><div className="ds-section-head"><h2>Later today</h2><span className="ds-count num">{rest.length} <span>jobs</span></span></div><ul className="ds-rows">{rest.map(j => <JobRow key={j.id} j={j} selection={selection} when={<span data-no-translate>{time(j.scheduled_for, tz, lang)}</span>} meta={meta(j)} />)}</ul></section>}
+      {data.next.length > 0 && <section className="stack compact ds-section"><div className="ds-section-head"><h2>Next days</h2></div><ul className="ds-rows">{data.next.map(j => <JobRow key={j.id} j={j} selection={selection} when={<span data-no-translate className="ds-when-2"><span>{day(j.scheduled_for, tz, lang)}</span><span>{time(j.scheduled_for, tz, lang)}</span></span>} meta={meta(j)} />)}</ul></section>}
       <p className="small"><Link href="/work-orders">All my jobs</Link></p>
     </>}
+    <section className="stack compact ds-section ds-more" aria-labelledby="ds-more-h"><div className="ds-section-head"><h2 id="ds-more-h">More</h2>{rec.data && <span className="ds-count job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</span>}</div>
+      <Greeting tz={tz} mode="ask"/>
+      {member?.workspace_id&&<MyAgentQuestions base={base}/>}
+      {member?.role === 'technician' && <HabitCard base={base} />}
+      {member?.role === 'technician' && <AgentCard />}
+      <div className="ds-more-links"><Link className="button secondary" href="/suggestions/new">Suggest a job</Link>{member?.role==='technician'&&<Link className="button secondary" href="/my-record">My record</Link>}</div>
+      {member && <div className="row"><RequestTimeOff base={`/api/workspaces/${member.workspace_id}`} /></div>}
+      {member && <LeaveRequests base={`/api/workspaces/${member.workspace_id}`} self={me.user.id} />}
+    </section>
   </div>;
 }

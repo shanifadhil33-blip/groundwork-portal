@@ -57,7 +57,6 @@ body:has(.app-shell) .demo-banner{background:var(--surface);border:0;border-radi
 
 /* Desktop sidebar: the dark hero column, 232 wide */
 @media(min-width:641px){
- body:has(.app-shell) .app-shell:not(.collapsed){grid-template-columns:232px minmax(0,1fr)}
  body:has(.app-shell) .sidebar{background:var(--hero);color:var(--on-hero);border-inline-end:0}
  body:has(.app-shell) .sidebar :is(.brand,.brand-label,.sidebar-brand .icon-button){color:var(--on-hero)}
  body:has(.app-shell) .sidebar .brand svg,body:has(.app-shell) .sidebar .mark{color:var(--gold)}
@@ -75,6 +74,16 @@ body:has(.app-shell) .demo-banner{background:var(--surface);border:0;border-radi
  body:has(.app-shell) .sidebar-bottom .dropdown-trigger:hover:not(:active),body:has(.app-shell) .sidebar-brand .icon-button:hover:not(:active){background:var(--hover-hero)}
 }
 body:has(.app-shell) .sidebar-brand .icon-button:active,body:has(.app-shell) .sidebar-bottom .dropdown-trigger:active{background:var(--pressed-hero)}
+/* Width: an icon rail from 641 to 1023, the full 232 column with words from 1024 (desktop-3 mockup) */
+@media(min-width:641px) and (max-width:1023px){body:has(.app-shell) .app-shell,body:has(.app-shell) .app-shell.collapsed{--sidebar-width:72px;grid-template-columns:72px minmax(0,1fr)}}
+@media(min-width:1024px){
+ body:has(.app-shell) .app-shell:not(.collapsed){--sidebar-width:232px;grid-template-columns:232px minmax(0,1fr)}
+ body:has(.app-shell) .app-shell:not(.collapsed) .sidebar :is(.nav-label,.brand-label,.account-copy){display:revert}
+ body:has(.app-shell) .app-shell:not(.collapsed) .sidebar .nav-link{justify-content:flex-start}
+ body:has(.app-shell) .app-shell:not(.collapsed) .sidebar-bottom .dropdown-trigger{justify-content:flex-start}
+}
+/* Header controls sit on the page: no boxes around the bell, Agent and Switch person */
+body:has(.app-shell) .app-header :is(.icon-button,.button.ghost,.assistant-launcher),body:has(.app-shell) .demo-banner .button{border-color:transparent;background:transparent}
 
 /* Phone tab bar: 4 tabs and the raised Agent mic in the middle */
 @media(max-width:640px){
@@ -127,3 +136,45 @@ html[data-theme=dark] body:has(.app-shell) .tab-mic-disc{background:#E0B97A;colo
  .flip .flip-back,.flip[data-flipped=true] .flip-front{opacity:0;pointer-events:none}
  .flip[data-flipped=true] .flip-back{opacity:1;pointer-events:auto}
 }
+
+/* Desert Stone 2: technician Home */
+.ds-home{gap:24px}
+.ds-home-head{display:grid;gap:2px;padding-top:4px}
+.ds-home-head .ds-date{margin:0;color:var(--text-muted);font-size:16px;line-height:24px}
+.ds-home-head .greeting-title{margin:0;font-size:28px;line-height:34px;font-weight:600;letter-spacing:-.015em}
+@media(max-width:380px){.ds-home-head .greeting-title{font-size:23px;line-height:30px}}
+html[lang^=ar] .ds-home-head .greeting-title{letter-spacing:0}
+.ds-label{margin:0;color:var(--text-muted);font-size:14px;font-weight:600;line-height:20px}
+.next-job{gap:10px}
+.next-job-face{display:flex;flex-direction:column;gap:10px;min-width:0}
+.next-job-top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px}
+.next-job-top .num{font-size:14px;font-weight:500}
+.ds-chip-hero{display:inline-flex;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;line-height:18px;background:rgba(224,185,122,.16);color:var(--gold-soft);white-space:nowrap}
+.next-job-title{margin:6px 0 0;font-size:24px;line-height:30px;font-weight:600;letter-spacing:-.015em}
+html[lang^=ar] .next-job-title{letter-spacing:0;line-height:1.5}
+.next-job-title a{color:var(--on-hero);text-decoration:none}
+.next-job-place{margin:0;display:flex;gap:8px;align-items:flex-start;color:var(--on-hero);opacity:.92;font-size:16px;line-height:24px}
+.next-job-place svg{flex:0 0 auto;margin-top:3px;color:var(--on-hero-muted)}
+.next-job-note{margin:0;font-size:16px;line-height:24px}
+.next-job-actions{display:flex;gap:10px;margin-top:8px}
+.next-job-actions .ds-hero-btn{flex:1;gap:8px}
+.ds-flip-btn{align-self:flex-start;min-height:44px;padding:0 4px;background:transparent;border:0;color:var(--gold-soft);font-weight:600;font-size:15px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;border-radius:10px;transition:background-color 120ms ease-out}
+.ds-flip-btn:active{background:var(--pressed-hero)}
+@media(hover:hover) and (pointer:fine){.ds-flip-btn:hover:not(:active){background:var(--hover-hero)}}
+.next-job-facts{margin:0;display:grid;gap:12px}
+.next-job-facts>div{display:grid;gap:2px;padding-bottom:10px;border-bottom:1px solid var(--hero-line)}
+.next-job-facts dt{color:var(--on-hero-muted);font-size:14px;font-weight:600}
+.next-job-facts dd{margin:0;color:var(--on-hero);font-size:16px;line-height:24px;overflow-wrap:anywhere}
+.ds-hero-empty h2{margin:0;font-size:24px}
+.ds-section{gap:10px}
+.ds-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.ds-section-head h2{margin:0;font-size:17px;line-height:24px;font-weight:600}
+.ds-count{color:var(--text-muted);font-size:14px;font-weight:500}
+.ds-rows{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ds-when-2{display:grid;font-size:14px;line-height:18px}
+.ds-meta-warn{color:var(--warn);font-weight:600}
+.ds-more{padding-top:8px}
+.ds-more .card{background:var(--surface)}
+.ds-more-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ds-more-links .button{width:100%}
+.ds-hero-skeleton{min-height:260px;border-radius:24px}
