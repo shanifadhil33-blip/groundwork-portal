@@ -1,0 +1,129 @@
+/* Desert Stone (Adhil, Oct 20 2026). Spec: championship/groundwork-desert-stone-spec.md. Loaded after globals.css so it wins.
+   Tonal surfaces, one dark hero per screen, gold only as accent. No shadows, no gradients. Hover tint only on fine pointers. */
+html body,html body:has(.app-shell){
+ --bg:#EFECE6;--canvas:#EFECE6;--surface:#FAF8F4;--surface-2:#FFFFFF;--surface-raised:#FFFFFF;--surface-subtle:#F4F1EB;
+ --hero:#2A2723;--hero-line:#4A443D;--on-hero:#F5F1EA;--on-hero-muted:#B8AFA3;
+ --text:#1F1D1A;--text-muted:#6F6962;--muted:#6F6962;--line:#E6E0D6;--border:#E6E0D6;
+ --gold:#B08A4E;--gold-soft:#E0B97A;--gold-text:#7E6131;
+ --brand:#2A2723;--primary:#2A2723;--primary-fg:#F5F1EA;--accent:#7E6131;
+ --ok:#4E7A5A;--warn:#A8552F;--success:#3F6B4B;--warning:#8E5A1C;--danger:#9A4A28;--info:#4F6475;--neutral:#6F6962;
+ --hover:rgba(31,29,26,.04);--pressed:rgba(31,29,26,.08);--hover-hero:rgba(255,255,255,.06);--pressed-hero:rgba(255,255,255,.12);
+ --nav-active:rgba(176,138,78,.14);--nav-hover:rgba(31,29,26,.04);--focus:#B08A4E;--shadow:none;
+ --radius-control:16px;--radius-container:16px;--r-sm:14px;--r-md:16px;--r-lg:24px;--r-hero:24px;
+ --ease-out:cubic-bezier(.2,.8,.2,1);--sidebar-width:232px;
+ background:var(--bg);color:var(--text);font-feature-settings:"tnum" 0;
+}
+html[data-theme=dark] body,html[data-theme=dark] body:has(.app-shell){
+ --bg:#1A1815;--canvas:#1A1815;--surface:#24211D;--surface-2:#2C2924;--surface-raised:#2C2924;--surface-subtle:#211E1A;
+ --hero:#0F0E0C;--hero-line:#3A352F;--text:#F2EEE7;--text-muted:#B8AFA3;--muted:#B8AFA3;--line:#38332D;--border:#38332D;
+ --brand:#E0B97A;--primary:#E0B97A;--primary-fg:#1F1D1A;--accent:#E0B97A;--gold-text:#E0B97A;
+ --success:#9CC3A6;--warning:#E8B57A;--danger:#F0A585;--info:#A9BCCB;--neutral:#B8AFA3;
+ --hover:rgba(255,255,255,.05);--pressed:rgba(255,255,255,.10);--nav-active:rgba(224,185,122,.14);--nav-hover:rgba(255,255,255,.05);
+}
+/* Type */
+body:has(.app-shell) :is(h1,h2,h3){letter-spacing:-.015em;font-weight:650}
+body:has(.app-shell) .app-main .page h1{font-size:28px;line-height:34px}
+@media(min-width:1024px){body:has(.app-shell) .app-main .page h1{font-size:32px;line-height:38px}}
+@media(max-width:380px){body:has(.app-shell) .app-main .page h1{font-size:23px;line-height:30px}}
+:lang(ar) body:has(.app-shell) :is(h1,h2,h3),html[lang^=ar] body :is(h1,h2,h3){letter-spacing:0}
+html[lang^=ar] body{line-height:1.6}
+body:has(.app-shell) :is(time,.num,.order-number,.tabular){font-variant-numeric:tabular-nums}
+
+/* Surfaces: cards and panels are tonal, no borders, no shadows */
+body:has(.app-shell) .app-main .card{background:var(--surface);border:0;border-radius:24px;box-shadow:none}
+body:has(.app-shell) .app-main{background:var(--bg)}
+body:has(.app-shell) .route-content{background:var(--bg)}
+
+/* Buttons: 16 radius, primary is the dark hero fill, secondary is an outline */
+body:has(.app-shell) .button,body:has(.app-shell) .link-button.button{border-radius:16px;font-weight:600;transition:background-color 120ms ease-out,transform 120ms ease-out,color 120ms ease-out,border-color 120ms ease-out}
+body:has(.app-shell) .button.primary,body:has(.app-shell) .primary{background:var(--primary);color:var(--primary-fg);border-color:transparent}
+body:has(.app-shell) .button.secondary,body:has(.app-shell) .button.ghost{border:1.5px solid var(--line);background:transparent;color:var(--text)}
+body:has(.app-shell) .button:active:not(:disabled){transform:scale(.97)}
+body:has(.app-shell) .button.primary:active:not(:disabled),body:has(.app-shell) .primary:active:not(:disabled){background:color-mix(in srgb,var(--primary) 82%,#fff)}
+body:has(.app-shell) .button.secondary:active:not(:disabled),body:has(.app-shell) .button.ghost:active:not(:disabled){background:var(--pressed)}
+@media(hover:hover) and (pointer:fine){
+ body:has(.app-shell) .button.primary:hover:not(:disabled):not(:active){background:color-mix(in srgb,var(--primary) 90%,#fff)}
+ body:has(.app-shell) .button.secondary:hover:not(:disabled):not(:active),body:has(.app-shell) .button.ghost:hover:not(:disabled):not(:active){background:var(--hover)}
+}
+body:has(.app-shell) :is(input:not([type=checkbox]):not([type=radio]),select,textarea){border-radius:14px;border:1px solid var(--line);background:var(--surface-2)}
+body:has(.app-shell) :focus-visible{outline:2px solid var(--focus)!important;outline-offset:2px}
+body:has(.app-shell) :disabled{opacity:.45;cursor:not-allowed}
+body:has(.app-shell) .badge{border-radius:999px;font-weight:600}
+
+/* Header: the page itself, no bar */
+body:has(.app-shell) .app-header{background:var(--bg);border-bottom:0;box-shadow:none}
+body:has(.app-shell) .demo-banner{background:var(--surface);border:0;border-radius:16px;margin:8px 18px 0}
+@media(min-width:641px){body:has(.app-shell) .demo-banner{margin:8px 34px 0}}
+
+/* Desktop sidebar: the dark hero column, 232 wide */
+@media(min-width:641px){
+ body:has(.app-shell) .app-shell:not(.collapsed){grid-template-columns:232px minmax(0,1fr)}
+ body:has(.app-shell) .sidebar{background:var(--hero);color:var(--on-hero);border-inline-end:0}
+ body:has(.app-shell) .sidebar :is(.brand,.brand-label,.sidebar-brand .icon-button){color:var(--on-hero)}
+ body:has(.app-shell) .sidebar .brand svg,body:has(.app-shell) .sidebar .mark{color:var(--gold)}
+ body:has(.app-shell) .sidebar .workspace-context,body:has(.app-shell) .sidebar .workspace-context :is(a,span,small){color:var(--on-hero-muted)}
+ body:has(.app-shell) .sidebar .nav-link{color:var(--on-hero-muted);border-radius:10px;min-height:40px;transition:background-color 120ms ease-out,color 120ms ease-out}
+ body:has(.app-shell) .sidebar .nav-link[aria-current=page]{background:rgba(255,255,255,.08);color:var(--on-hero);font-weight:600}
+ body:has(.app-shell) .sidebar .nav-link:active{background:var(--pressed-hero)}
+ body:has(.app-shell) .sidebar-bottom .dropdown-trigger{background:transparent;border:1px solid var(--hero-line);color:var(--on-hero)}
+ body:has(.app-shell) .sidebar-bottom .dropdown-trigger :is(small,span,svg){color:var(--on-hero-muted)}
+ body:has(.app-shell) .sidebar .badge{background:rgba(255,255,255,.1);color:var(--on-hero)}
+}
+@media(min-width:641px) and (hover:hover) and (pointer:fine){
+ body:has(.app-shell) .sidebar .nav-link:hover:not(:active){background:var(--hover-hero);color:var(--on-hero)}
+ body:has(.app-shell) .sidebar .nav-link[aria-current=page]:hover:not(:active){background:rgba(255,255,255,.1)}
+ body:has(.app-shell) .sidebar-bottom .dropdown-trigger:hover:not(:active),body:has(.app-shell) .sidebar-brand .icon-button:hover:not(:active){background:var(--hover-hero)}
+}
+body:has(.app-shell) .sidebar-brand .icon-button:active,body:has(.app-shell) .sidebar-bottom .dropdown-trigger:active{background:var(--pressed-hero)}
+
+/* Phone tab bar: 4 tabs and the raised Agent mic in the middle */
+@media(max-width:640px){
+ body:has(.app-shell) .app-main .page{padding-inline:18px}
+ body:has(.app-shell) .bottom-tabs{background:var(--surface);border-top:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:0;align-items:flex-end;overflow:visible}
+ body:has(.app-shell) .bottom-tabs>a,body:has(.app-shell) .bottom-tabs>button:not(.tab-mic){color:var(--text-muted);background:transparent;transition:color 120ms ease-out,background-color 120ms ease-out}
+ body:has(.app-shell) .bottom-tabs .tab-label{font-size:13px;font-weight:600;line-height:18px}
+ body:has(.app-shell) .bottom-tabs [aria-current=page]{background:transparent!important;color:var(--gold-text)}
+ body:has(.app-shell) .bottom-tabs [aria-current=page] svg{color:var(--gold);fill:color-mix(in srgb,var(--gold) 22%,transparent)}
+ body:has(.app-shell) .bottom-tabs>a:active,body:has(.app-shell) .bottom-tabs>button:not(.tab-mic):active{background:var(--pressed)!important;border-radius:14px}
+ body:has(.app-shell) .bottom-tabs>.tab-mic{flex:0 0 74px;min-width:74px;display:flex;justify-content:center;align-items:flex-start;background:transparent;padding:0;position:relative;align-self:stretch}
+ body:has(.app-shell) .tab-mic-disc{position:absolute;top:-30px;width:58px;height:58px;border-radius:50%;background:var(--hero);color:#fff;display:grid;place-items:center;box-shadow:0 0 0 6px var(--bg);transition:transform 120ms ease-out,background-color 120ms ease-out}
+ body:has(.app-shell) .tab-mic:active .tab-mic-disc{transform:scale(.94);background:#3A3631}
+ body:has(.app-shell) .app-main .page{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+}
+@media(max-width:380px){body:has(.app-shell) .app-main .page{padding-inline:16px}body:has(.app-shell) .demo-banner{margin-inline:16px}}
+html[data-theme=dark] body:has(.app-shell) .tab-mic-disc{background:#E0B97A;color:#1F1D1A}
+
+/* Shared Desert Stone pieces used by screens */
+.ds-hero{background:var(--hero);color:var(--on-hero);border-radius:24px;padding:22px}
+@media(max-width:380px){.ds-hero{padding:18px}}
+.ds-hero :is(h2,h3,strong){color:var(--on-hero)}
+.ds-hero .ds-muted{color:var(--on-hero-muted)}
+.ds-hero-btn{min-height:52px;border-radius:16px;border:1.5px solid var(--gold);background:transparent;color:var(--on-hero);font-weight:600;font-size:16px;display:inline-flex;align-items:center;justify-content:center;padding:0 20px;text-decoration:none;transition:background-color 120ms ease-out,transform 120ms ease-out;cursor:pointer}
+.ds-hero-btn:active{background:var(--pressed-hero);transform:scale(.97)}
+.ds-hero-icon{min-width:56px;width:56px;min-height:52px;border-radius:16px;border:1px solid var(--hero-line);background:transparent;color:var(--on-hero);display:inline-grid;place-items:center;transition:background-color 120ms ease-out,transform 120ms ease-out;cursor:pointer}
+.ds-hero-icon:active{background:var(--pressed-hero);transform:scale(.97)}
+@media(hover:hover) and (pointer:fine){.ds-hero-btn:hover:not(:active),.ds-hero-icon:hover:not(:active){background:var(--hover-hero)}}
+.ds-chip-urgent{display:inline-flex;align-items:center;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;line-height:18px;background:rgba(224,140,100,.18);color:#F0B08F;white-space:nowrap}
+.ds-row{display:flex;align-items:center;gap:16px;background:var(--surface);border-radius:16px;padding:16px;min-height:64px;color:var(--text);text-decoration:none;transition:background-color 120ms ease-out,transform 120ms ease-out}
+.ds-row:active{transform:scale(.98);background:color-mix(in srgb,var(--surface) 92%,#000)}
+@media(hover:hover) and (pointer:fine){.ds-row:hover:not(:active){background:color-mix(in srgb,var(--surface) 96%,#000)}}
+.ds-row .ds-time{font-weight:600;font-variant-numeric:tabular-nums;min-width:52px}
+.ds-row .ds-main{flex:1;min-width:0;display:grid}
+.ds-row .ds-main strong{font-weight:600}
+.ds-row .ds-sub{color:var(--text-muted);font-size:14px}
+.ds-row .ds-meta{color:var(--text-muted);font-size:14px;font-weight:500;white-space:nowrap}
+
+/* Card flip, one per screen (build-knowledge design/stitch-first-and-hover-feel.md) */
+.flip{perspective:1000px}
+.flip-inner{display:grid;transform-style:preserve-3d;transition:transform 450ms cubic-bezier(.45,0,.55,1)}
+.flip-face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.flip-back{transform:rotateY(180deg)}
+.flip[data-flipped=true] .flip-inner{transform:rotateY(180deg)}
+[dir=rtl] .flip-back{transform:rotateY(-180deg)}
+[dir=rtl] .flip[data-flipped=true] .flip-inner{transform:rotateY(-180deg)}
+@media(prefers-reduced-motion:reduce){
+ .flip-inner{transform:none!important;transition:none}
+ .flip-face{transform:none!important;transition:opacity 150ms ease!important}
+ .flip .flip-back,.flip[data-flipped=true] .flip-front{opacity:0;pointer-events:none}
+ .flip[data-flipped=true] .flip-back{opacity:1;pointer-events:auto}
+}
