@@ -689,5 +689,18 @@
 "After learning":"Ka dib barashada",
 "A new company with no finished jobs.":"Shirkad cusub oo aan lahayn shaqo dhammaatay.",
 "This company, from its own finished jobs.":"Shirkaddan, shaqooyinkeeda dhammaaday.",
-"No job has enough finished jobs behind it yet.":"Weli ma jirto shaqo ay ka dambeeyaan shaqooyin dhammaaday oo ku filan."
+"No job has enough finished jobs behind it yet.":"Weli ma jirto shaqo ay ka dambeeyaan shaqooyin dhammaaday oo ku filan.",
+"Lessons waiting for your yes":"Casharrada sugaya haadaada",
+"The agent uses these only after you say yes.":"Wakiilku wuxuu isticmaalaa kuwan kaliya markaad tiraahdo haa.",
+"For the whole company":"Shirkadda oo dhan",
+"About money":"Ku saabsan lacagta",
+"About safety":"Ku saabsan badbaadada",
+"About clients":"Ku saabsan macaamiisha",
+"Yes, use it":"Haa, isticmaal",
+"No":"Maya",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"Tani waxay beddeshaa sida shirkaddu u shaqeyso, sidaa darteed waxaan u diray maamulahaaga si uu haa u yiraahdo. Waan isticmaali doonaa marka uu haa yiraahdo.",
+"Saved. The agent will use this lesson.":"Waa la kaydiyay. Wakiilku wuxuu isticmaali doonaa casharkan.",
+"Declined. Nothing was saved.":"Waa la diiday. Waxba lama kaydin.",
+"We couldn’t save that. Please try again.":"Ma awoodin inaan kaydino. Fadlan isku day mar kale.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"Hadda su’aalo badan ayaa ku jira tijaabadan, sidaa darteed waxaan qaadanayaa nasasho gaaban si aan u badbaadiyo AI bilaashka ah. Fadlan mar kale weydii dhowr daqiiqo kadib. Wax kasta oo kale oo Groundwork ah si caadi ah ayay u shaqeynayaan."
 }

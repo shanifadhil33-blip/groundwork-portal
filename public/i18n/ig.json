@@ -683,5 +683,18 @@
 "After learning":"Mgbe mmụta",
 "A new company with no finished jobs.":"Ụlọ ọrụ ọhụrụ enweghị ọrụ emechara.",
 "This company, from its own finished jobs.":"Ụlọ ọrụ a, site na ọrụ ya emechara.",
-"No job has enough finished jobs behind it yet.":"Enweghị ọrụ nwere ọrụ emechara zuru ezu n’azụ ya ugbu a."
+"No job has enough finished jobs behind it yet.":"Enweghị ọrụ nwere ọrụ emechara zuru ezu n’azụ ya ugbu a.",
+"Lessons waiting for your yes":"Ihe mmụta na eche ee gị",
+"The agent uses these only after you say yes.":"Onye nnọchite anya na eji ha naanị mgbe ị kwuru ee.",
+"For the whole company":"Maka ụlọ ọrụ niile",
+"About money":"Banyere ego",
+"About safety":"Banyere nchekwa",
+"About clients":"Banyere ndị ahịa",
+"Yes, use it":"Ee, jiri ya",
+"No":"Mba",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"Nke a na agbanwe otu ụlọ ọrụ si arụ ọrụ, ya mere eziteere m ya onye nlekọta gị ka o kwuo ee. Aga m eji ya ozugbo o kwuru ee.",
+"Saved. The agent will use this lesson.":"Echekwara. Onye nnọchite anya ga eji ihe mmụta a.",
+"Declined. Nothing was saved.":"Ajụrụ. Ọ dịghị ihe echekwara.",
+"We couldn’t save that. Please try again.":"Anyị enweghị ike ichekwa ya. Biko nwaa ọzọ.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"Enwere ọtụtụ ajụjụ na ngosi a ugbu a, ya mere ana m ezumike ntakịrị iji chekwaa AI efu. Biko jụọ ọzọ mgbe nkeji ole na ole gachara. Ihe ndị ọzọ niile na Groundwork na arụ ọrụ dịka ọ dị na mbụ."
 }

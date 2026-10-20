@@ -694,5 +694,18 @@
 "After learning":"پس از یادگیری",
 "A new company with no finished jobs.":"یک شرکت نو بدون کار تمام شده.",
 "This company, from its own finished jobs.":"این شرکت، از کارهای تمام شده خودش.",
-"No job has enough finished jobs behind it yet.":"هنوز هیچ کاری کارهای تمام شده کافی پشت سر ندارد."
+"No job has enough finished jobs behind it yet.":"هنوز هیچ کاری کارهای تمام شده کافی پشت سر ندارد.",
+"Lessons waiting for your yes":"درس هایی که منتظر تایید شما هستند",
+"The agent uses these only after you say yes.":"دستیار اینها را فقط پس از تایید شما به کار می برد.",
+"For the whole company":"برای تمام شرکت",
+"About money":"درباره پول",
+"About safety":"درباره ایمنی",
+"About clients":"درباره مشتریان",
+"Yes, use it":"بلی، به کار ببر",
+"No":"نخیر",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"این روش کار شرکت را تغییر می دهد، پس آن را برای تایید به مدیر شما فرستادم. وقتی تایید کند آن را به کار می برم.",
+"Saved. The agent will use this lesson.":"ذخیره شد. دستیار این درس را به کار می برد.",
+"Declined. Nothing was saved.":"رد شد. چیزی ذخیره نشد.",
+"We couldn’t save that. Please try again.":"نتوانستیم ذخیره کنیم. لطفاً دوباره کوشش کنید.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"همین حالا در این نمایش سوال های زیادی آمده، پس برای صرفه جویی در AI رایگان کمی استراحت می کنم. لطفاً چند دقیقه بعد دوباره بپرسید. باقی چیزها در Groundwork مثل همیشه کار می کند."
 }

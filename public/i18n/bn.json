@@ -738,5 +738,18 @@
 "After learning":"শেখার পরে",
 "A new company with no finished jobs.":"শেষ হওয়া কাজ ছাড়া একটি নতুন কোম্পানি।",
 "This company, from its own finished jobs.":"এই কোম্পানি, তার নিজের শেষ হওয়া কাজ থেকে।",
-"No job has enough finished jobs behind it yet.":"এখনও কোনো কাজের পেছনে যথেষ্ট শেষ হওয়া কাজ নেই।"
+"No job has enough finished jobs behind it yet.":"এখনও কোনো কাজের পেছনে যথেষ্ট শেষ হওয়া কাজ নেই।",
+"Lessons waiting for your yes":"আপনার হ্যাঁ এর অপেক্ষায় থাকা শিক্ষা",
+"The agent uses these only after you say yes.":"আপনি হ্যাঁ বলার পরেই এজেন্ট এগুলো ব্যবহার করে।",
+"For the whole company":"পুরো কোম্পানির জন্য",
+"About money":"টাকা নিয়ে",
+"About safety":"নিরাপত্তা নিয়ে",
+"About clients":"ক্লায়েন্ট নিয়ে",
+"Yes, use it":"হ্যাঁ, ব্যবহার করুন",
+"No":"না",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"এটি কোম্পানির কাজের ধরন বদলায়, তাই আমি এটি আপনার অ্যাডমিনের কাছে হ্যাঁ এর জন্য পাঠিয়েছি। তারা হ্যাঁ বললেই আমি এটি ব্যবহার করব।",
+"Saved. The agent will use this lesson.":"সেভ হয়েছে। এজেন্ট এই শিক্ষা ব্যবহার করবে।",
+"Declined. Nothing was saved.":"বাতিল করা হয়েছে। কিছুই সেভ হয়নি।",
+"We couldn’t save that. Please try again.":"আমরা এটি সেভ করতে পারিনি। আবার চেষ্টা করুন।",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"এই ডেমোতে এখন অনেক প্রশ্ন, তাই ফ্রি AI বাঁচাতে আমি একটু বিরতি নিচ্ছি। কয়েক মিনিট পরে আবার জিজ্ঞেস করুন। Groundwork এর বাকি সব কিছু আগের মতোই চলছে।"
 }

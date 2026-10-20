@@ -715,5 +715,18 @@
 "After learning":"له زده کړې وروسته",
 "A new company with no finished jobs.":"یو نوی شرکت چې بشپړ شوی کار نلري.",
 "This company, from its own finished jobs.":"دا شرکت، د خپلو بشپړ شوو کارونو څخه.",
-"No job has enough finished jobs behind it yet.":"لا هیڅ کار تر شا کافي بشپړ شوي کارونه نلري."
+"No job has enough finished jobs behind it yet.":"لا هیڅ کار تر شا کافي بشپړ شوي کارونه نلري.",
+"Lessons waiting for your yes":"هغه درسونه چې ستاسو هو ته انتظار باسي",
+"The agent uses these only after you say yes.":"استازی دا یوازې ستاسو له هو وروسته کاروي.",
+"For the whole company":"د ټول شرکت لپاره",
+"About money":"د پیسو په اړه",
+"About safety":"د خوندیتوب په اړه",
+"About clients":"د پیرودونکو په اړه",
+"Yes, use it":"هو، ویې کاروه",
+"No":"نه",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"دا د شرکت د کار طریقه بدلوي، نو ما ستاسو مدیر ته د هو لپاره ولیږه. کله چې هو ووایي زه به یې وکاروم.",
+"Saved. The agent will use this lesson.":"خوندي شو. استازی به دا درس وکاروي.",
+"Declined. Nothing was saved.":"رد شو. هیڅ خوندي نه شول.",
+"We couldn’t save that. Please try again.":"مونږ ونه شو کړای چې خوندي یې کړو. مهرباني وکړئ بیا هڅه وکړئ.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"اوس په دې ښودنه کې ډیرې پوښتنې دي، نو د وړیا AI د سپمولو لپاره لږ دمه کوم. مهرباني وکړئ څو دقیقې وروسته بیا وپوښتئ. په Groundwork کې نور هر څه د پخوا په څیر کار کوي."
 }

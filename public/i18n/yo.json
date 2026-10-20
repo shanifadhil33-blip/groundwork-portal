@@ -664,5 +664,18 @@
 "After learning":"Lẹ́yìn tí ó kọ́",
 "A new company with no finished jobs.":"Ilé iṣẹ́ tuntun tí kò ní iṣẹ́ tí a ti parí.",
 "This company, from its own finished jobs.":"Ilé iṣẹ́ yìí, láti inú iṣẹ́ tí òun fúnra rẹ̀ ti parí.",
-"No job has enough finished jobs behind it yet.":"Kò tíì sí iṣẹ́ tí ó ní iṣẹ́ tí a ti parí tó lẹ́yìn rẹ̀."
+"No job has enough finished jobs behind it yet.":"Kò tíì sí iṣẹ́ tí ó ní iṣẹ́ tí a ti parí tó lẹ́yìn rẹ̀.",
+"Lessons waiting for your yes":"Àwọn ẹ̀kọ́ tí ń dúró de bẹ́ẹ̀ni rẹ",
+"The agent uses these only after you say yes.":"Aṣojú máa ń lò wọ́n lẹ́yìn tí o bá sọ bẹ́ẹ̀ni nìkan.",
+"For the whole company":"Fún gbogbo ilé iṣẹ́",
+"About money":"Nípa owó",
+"About safety":"Nípa ààbò",
+"About clients":"Nípa àwọn oníbàárà",
+"Yes, use it":"Bẹ́ẹ̀ni, lò ó",
+"No":"Rárá",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"Èyí yí ọ̀nà tí ilé iṣẹ́ ń gbà ṣiṣẹ́ padà, nítorí náà mo fi ránṣẹ́ sí alákòóso rẹ fún bẹ́ẹ̀ni. Màá lò ó tí wọ́n bá sọ bẹ́ẹ̀ni.",
+"Saved. The agent will use this lesson.":"A ti fi pamọ́. Aṣojú yóò lo ẹ̀kọ́ yìí.",
+"Declined. Nothing was saved.":"A kọ̀ ọ́. Kò sí ohun tí a fi pamọ́.",
+"We couldn’t save that. Please try again.":"A kò lè fi pamọ́. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"Ìbéèrè pọ̀ nínú àfihàn yìí báyìí, nítorí náà mo ń sinmi díẹ̀ láti fi AI ọ̀fẹ́ pamọ́. Jọ̀wọ́ tún béèrè lẹ́yìn ìṣẹ́jú díẹ̀. Gbogbo nǹkan mìíràn nínú Groundwork ń ṣiṣẹ́ bí ó ṣe máa ń ṣe."
 }

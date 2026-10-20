@@ -714,5 +714,18 @@
 "After learning":"सिकेपछि",
 "A new company with no finished jobs.":"कुनै काम नसकिएको नयाँ कम्पनी।",
 "This company, from its own finished jobs.":"यो कम्पनी, आफ्नै सकिएका कामबाट।",
-"No job has enough finished jobs behind it yet.":"अझै कुनै कामको पछाडि पर्याप्त सकिएका काम छैनन्।"
+"No job has enough finished jobs behind it yet.":"अझै कुनै कामको पछाडि पर्याप्त सकिएका काम छैनन्।",
+"Lessons waiting for your yes":"तपाईंको हो पर्खिरहेका पाठ",
+"The agent uses these only after you say yes.":"तपाईंले हो भनेपछि मात्र एजेन्टले यिनलाई प्रयोग गर्छ।",
+"For the whole company":"सम्पूर्ण कम्पनीको लागि",
+"About money":"पैसाको बारेमा",
+"About safety":"सुरक्षाको बारेमा",
+"About clients":"ग्राहकको बारेमा",
+"Yes, use it":"हो, प्रयोग गर्नुहोस्",
+"No":"होइन",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"यसले कम्पनीले काम गर्ने तरिका बदल्छ, त्यसैले मैले यसलाई तपाईंको एडमिनलाई हो भन्न पठाएँ। उहाँले हो भनेपछि म यसलाई प्रयोग गर्नेछु।",
+"Saved. The agent will use this lesson.":"सेभ भयो। एजेन्टले यो पाठ प्रयोग गर्नेछ।",
+"Declined. Nothing was saved.":"अस्वीकार गरियो। केही सेभ भएन।",
+"We couldn’t save that. Please try again.":"हामीले यसलाई सेभ गर्न सकेनौं। फेरि प्रयास गर्नुहोस्।",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"यो डेमोमा अहिले धेरै प्रश्न आएका छन्, त्यसैले निःशुल्क AI बचाउन म केही बेर आराम गर्दैछु। केही मिनेटपछि फेरि सोध्नुहोस्। Groundwork का बाँकी सबै कुरा सधैं जस्तै चल्छन्।"
 }

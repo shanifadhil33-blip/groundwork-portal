@@ -674,5 +674,18 @@
 "After learning":"学习后",
 "A new company with no finished jobs.":"一家没有已完成工作的新公司。",
 "This company, from its own finished jobs.":"本公司，依据自己的已完成工作。",
-"No job has enough finished jobs behind it yet.":"还没有工作背后有足够的已完成工作。"
+"No job has enough finished jobs behind it yet.":"还没有工作背后有足够的已完成工作。",
+"Lessons waiting for your yes":"等待你同意的经验",
+"The agent uses these only after you say yes.":"只有在你同意后，助手才会使用这些。",
+"For the whole company":"整个公司",
+"About money":"关于钱",
+"About safety":"关于安全",
+"About clients":"关于客户",
+"Yes, use it":"同意，使用它",
+"No":"不",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"这会改变公司的工作方式，所以我已发给你的管理员等待同意。他们同意后我才会使用。",
+"Saved. The agent will use this lesson.":"已保存。助手会使用这条经验。",
+"Declined. Nothing was saved.":"已拒绝。没有保存任何内容。",
+"We couldn’t save that. Please try again.":"无法保存。请重试。",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"这个演示刚才收到很多问题，所以我先休息一下，节省免费的 AI。请过几分钟再问。Groundwork 的其他功能照常使用。"
 }

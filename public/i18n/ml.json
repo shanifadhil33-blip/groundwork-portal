@@ -701,5 +701,18 @@
 "After learning":"പഠിച്ചതിന് ശേഷം",
 "A new company with no finished jobs.":"പൂർത്തിയായ ജോലികളില്ലാത്ത ഒരു പുതിയ കമ്പനി.",
 "This company, from its own finished jobs.":"ഈ കമ്പനി, സ്വന്തം പൂർത്തിയായ ജോലികളിൽ നിന്ന്.",
-"No job has enough finished jobs behind it yet.":"മതിയായ പൂർത്തിയായ ജോലികൾ പിന്നിലുള്ള ഒരു ജോലിയും ഇതുവരെ ഇല്ല."
+"No job has enough finished jobs behind it yet.":"മതിയായ പൂർത്തിയായ ജോലികൾ പിന്നിലുള്ള ഒരു ജോലിയും ഇതുവരെ ഇല്ല.",
+"Lessons waiting for your yes":"നിങ്ങളുടെ അതെ കാത്തിരിക്കുന്ന പാഠങ്ങൾ",
+"The agent uses these only after you say yes.":"നിങ്ങൾ അതെ എന്ന് പറഞ്ഞതിന് ശേഷം മാത്രമേ ഏജന്റ് ഇവ ഉപയോഗിക്കൂ.",
+"For the whole company":"കമ്പനിക്ക് മുഴുവൻ",
+"About money":"പണത്തെക്കുറിച്ച്",
+"About safety":"സുരക്ഷയെക്കുറിച്ച്",
+"About clients":"ക്ലയന്റുകളെക്കുറിച്ച്",
+"Yes, use it":"അതെ, ഉപയോഗിക്കുക",
+"No":"ഇല്ല",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"ഇത് കമ്പനിയുടെ പ്രവർത്തന രീതി മാറ്റുന്നു, അതിനാൽ ഞാൻ ഇത് നിങ്ങളുടെ അഡ്മിന് അതെ പറയാൻ അയച്ചു. അവർ അതെ പറഞ്ഞാൽ ഞാൻ ഇത് ഉപയോഗിക്കും.",
+"Saved. The agent will use this lesson.":"സേവ് ചെയ്തു. ഏജന്റ് ഈ പാഠം ഉപയോഗിക്കും.",
+"Declined. Nothing was saved.":"നിരസിച്ചു. ഒന്നും സേവ് ചെയ്തില്ല.",
+"We couldn’t save that. Please try again.":"ഞങ്ങൾക്ക് ഇത് സേവ് ചെയ്യാനായില്ല. വീണ്ടും ശ്രമിക്കുക.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"ഈ ഡെമോയിൽ ഇപ്പോൾ ധാരാളം ചോദ്യങ്ങളുണ്ട്, അതിനാൽ സൗജന്യ AI ലാഭിക്കാൻ ഞാൻ ചെറിയൊരു ഇടവേള എടുക്കുന്നു. കുറച്ച് മിനിറ്റിന് ശേഷം വീണ്ടും ചോദിക്കുക. Groundwork ലെ മറ്റെല്ലാം സാധാരണ പോലെ പ്രവർത്തിക്കുന്നു."
 }

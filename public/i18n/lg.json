@@ -668,5 +668,18 @@
 "After learning":"Ng’omaze okuyiga",
 "A new company with no finished jobs.":"Kampuni empya etalina mulimu gwaggwa.",
 "This company, from its own finished jobs.":"Kampuni eno, okuva mu mirimu gyayo egyaggwa.",
-"No job has enough finished jobs behind it yet.":"Tewali mulimu gulina mirimu egyaggwa egimala emabega waagwo."
+"No job has enough finished jobs behind it yet.":"Tewali mulimu gulina mirimu egyaggwa egimala emabega waagwo.",
+"Lessons waiting for your yes":"Ebyokuyiga ebirindiridde okukkiriza kwo",
+"The agent uses these only after you say yes.":"Omuyambi abikozesa nga omaze okugamba nti yee.",
+"For the whole company":"Ku kampuni yonna",
+"About money":"Ku ssente",
+"About safety":"Ku byokwerinda",
+"About clients":"Ku bakasitoma",
+"Yes, use it":"Yee, kikozese",
+"No":"Nedda",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"Kino kikyusa engeri kampuni gy’ekolamu, kale nkiweerezza omukulu wo akkirize. Nja kukikozesa nga akkirizza.",
+"Saved. The agent will use this lesson.":"Kiterekeddwa. Omuyambi ajja kukozesa ekyokuyiga kino.",
+"Declined. Nothing was saved.":"Kigaaniddwa. Tewali kiterekeddwa.",
+"We couldn’t save that. Please try again.":"Tetusobodde kukitereka. Gezaako nate.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"Waliwo ebibuuzo bingi mu kyokulaga kino kati, kale nwummudde katono okukekkereza AI ey’obwereere. Ddamu obuuze oluvannyuma lwa ddakiika ntono. Ebirala byonna mu Groundwork bikola nga bulijjo."
 }

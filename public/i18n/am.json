@@ -677,5 +677,18 @@
 "After learning":"ከመማር በኋላ",
 "A new company with no finished jobs.":"የተጠናቀቀ ስራ የሌለው አዲስ ኩባንያ።",
 "This company, from its own finished jobs.":"ይህ ኩባንያ፣ ከራሱ የተጠናቀቁ ስራዎች።",
-"No job has enough finished jobs behind it yet.":"በቂ የተጠናቀቁ ስራዎች ያሉት ስራ ገና የለም።"
+"No job has enough finished jobs behind it yet.":"በቂ የተጠናቀቁ ስራዎች ያሉት ስራ ገና የለም።",
+"Lessons waiting for your yes":"ፈቃድዎን የሚጠብቁ ትምህርቶች",
+"The agent uses these only after you say yes.":"ወኪሉ እነዚህን የሚጠቀመው እርስዎ አዎ ካሉ በኋላ ብቻ ነው።",
+"For the whole company":"ለመላው ኩባንያ",
+"About money":"ስለ ገንዘብ",
+"About safety":"ስለ ደህንነት",
+"About clients":"ስለ ደንበኞች",
+"Yes, use it":"አዎ፣ ተጠቀምበት",
+"No":"አይ",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"ይህ ኩባንያው የሚሰራበትን መንገድ ይቀይራል፣ ስለዚህ ለአስተዳዳሪዎ ፈቃድ ላክሁት። አዎ ሲሉ እጠቀምበታለሁ።",
+"Saved. The agent will use this lesson.":"ተቀምጧል። ወኪሉ ይህን ትምህርት ይጠቀማል።",
+"Declined. Nothing was saved.":"ውድቅ ተደርጓል። ምንም አልተቀመጠም።",
+"We couldn’t save that. Please try again.":"ማስቀመጥ አልቻልንም። እባክዎ እንደገና ይሞክሩ።",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"አሁን በዚህ ማሳያ ብዙ ጥያቄዎች አሉ፣ ስለዚህ ነፃውን AI ለመቆጠብ ትንሽ እረፍት እወስዳለሁ። እባክዎ ከጥቂት ደቂቃዎች በኋላ እንደገና ይጠይቁ። በGroundwork ውስጥ ሌላው ሁሉ እንደተለመደው ይሰራል።"
 }

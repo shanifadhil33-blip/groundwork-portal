@@ -669,5 +669,18 @@
 "After learning":"Baada ya kujifunza",
 "A new company with no finished jobs.":"Kampuni mpya isiyo na kazi iliyokamilika.",
 "This company, from its own finished jobs.":"Kampuni hii, kutoka kazi zake zilizokamilika.",
-"No job has enough finished jobs behind it yet.":"Bado hakuna kazi yenye kazi za kutosha zilizokamilika nyuma yake."
+"No job has enough finished jobs behind it yet.":"Bado hakuna kazi yenye kazi za kutosha zilizokamilika nyuma yake.",
+"Lessons waiting for your yes":"Mafunzo yanayosubiri ndiyo yako",
+"The agent uses these only after you say yes.":"Wakala huyatumia tu baada ya wewe kusema ndiyo.",
+"For the whole company":"Kwa kampuni nzima",
+"About money":"Kuhusu pesa",
+"About safety":"Kuhusu usalama",
+"About clients":"Kuhusu wateja",
+"Yes, use it":"Ndiyo, litumie",
+"No":"Hapana",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"Hili linabadilisha jinsi kampuni inavyofanya kazi, kwa hivyo nimelituma kwa msimamizi wako aseme ndiyo. Nitalitumia akisema ndiyo.",
+"Saved. The agent will use this lesson.":"Imehifadhiwa. Wakala atatumia funzo hili.",
+"Declined. Nothing was saved.":"Imekataliwa. Hakuna kilichohifadhiwa.",
+"We couldn’t save that. Please try again.":"Hatukuweza kuhifadhi. Tafadhali jaribu tena.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"Kuna maswali mengi katika onyesho hili sasa hivi, kwa hivyo ninapumzika kidogo ili kuokoa AI ya bure. Tafadhali uliza tena baada ya dakika chache. Kila kitu kingine katika Groundwork kinafanya kazi kama kawaida."
 }

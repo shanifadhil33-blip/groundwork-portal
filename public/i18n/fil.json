@@ -678,5 +678,18 @@
 "After learning":"Pagkatapos matuto",
 "A new company with no finished jobs.":"Bagong kompanya na wala pang natapos na trabaho.",
 "This company, from its own finished jobs.":"Ang kompanyang ito, mula sa sarili nitong natapos na trabaho.",
-"No job has enough finished jobs behind it yet.":"Wala pang trabahong may sapat na natapos na trabaho sa likod nito."
+"No job has enough finished jobs behind it yet.":"Wala pang trabahong may sapat na natapos na trabaho sa likod nito.",
+"Lessons waiting for your yes":"Mga aral na naghihintay ng iyong oo",
+"The agent uses these only after you say yes.":"Gagamitin lang ito ng agent pagkatapos mong sumagot ng oo.",
+"For the whole company":"Para sa buong kompanya",
+"About money":"Tungkol sa pera",
+"About safety":"Tungkol sa kaligtasan",
+"About clients":"Tungkol sa mga kliyente",
+"Yes, use it":"Oo, gamitin ito",
+"No":"Hindi",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"Binabago nito ang paraan ng trabaho ng kompanya, kaya ipinadala ko ito sa iyong admin para sa oo. Gagamitin ko ito kapag sumagot sila ng oo.",
+"Saved. The agent will use this lesson.":"Na save. Gagamitin ng agent ang aral na ito.",
+"Declined. Nothing was saved.":"Tinanggihan. Walang na save.",
+"We couldn’t save that. Please try again.":"Hindi namin ito na save. Pakisubukan ulit.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"Maraming tanong sa demo na ito ngayon, kaya magpapahinga muna ako sandali para makatipid sa libreng AI. Pakitanong ulit pagkalipas ng ilang minuto. Gumagana pa rin nang normal ang lahat ng iba pa sa Groundwork."
 }

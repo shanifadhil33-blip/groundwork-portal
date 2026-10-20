@@ -688,5 +688,18 @@
 "After learning":"Bayan koyo",
 "A new company with no finished jobs.":"Sabon kamfani ba tare da aikin da aka gama ba.",
 "This company, from its own finished jobs.":"Wannan kamfani, daga ayyukan da ya gama da kansa.",
-"No job has enough finished jobs behind it yet.":"Babu aikin da ke da isassun ayyukan da aka gama a bayansa tukuna."
+"No job has enough finished jobs behind it yet.":"Babu aikin da ke da isassun ayyukan da aka gama a bayansa tukuna.",
+"Lessons waiting for your yes":"Darussan da ke jiran amincewarka",
+"The agent uses these only after you say yes.":"Wakili yana amfani da su ne kawai bayan ka ce eh.",
+"For the whole company":"Don kamfanin gaba daya",
+"About money":"Game da kudi",
+"About safety":"Game da tsaro",
+"About clients":"Game da abokan ciniki",
+"Yes, use it":"Eh, yi amfani da shi",
+"No":"A'a",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"Wannan yana canza yadda kamfanin ke aiki, don haka na aika wa mai gudanarwarka don amincewa. Zan yi amfani da shi idan ya ce eh.",
+"Saved. The agent will use this lesson.":"An ajiye. Wakili zai yi amfani da wannan darasi.",
+"Declined. Nothing was saved.":"An ki. Ba a ajiye komai ba.",
+"We couldn’t save that. Please try again.":"Ba mu iya ajiyewa ba. Da fatan a sake gwadawa.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"Akwai tambayoyi da yawa a wannan gwaji yanzu, don haka zan dan huta don adana AI kyauta. Da fatan a sake tambaya bayan wasu mintuna. Komai a Groundwork yana aiki kamar yadda aka saba."
 }

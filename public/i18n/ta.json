@@ -733,5 +733,18 @@
 "After learning":"கற்ற பின்",
 "A new company with no finished jobs.":"முடிந்த வேலை இல்லாத ஒரு புதிய நிறுவனம்.",
 "This company, from its own finished jobs.":"இந்த நிறுவனம், அதன் சொந்த முடிந்த வேலைகளிலிருந்து.",
-"No job has enough finished jobs behind it yet.":"போதுமான முடிந்த வேலைகள் பின்னால் உள்ள எந்த வேலையும் இன்னும் இல்லை."
+"No job has enough finished jobs behind it yet.":"போதுமான முடிந்த வேலைகள் பின்னால் உள்ள எந்த வேலையும் இன்னும் இல்லை.",
+"Lessons waiting for your yes":"உங்கள் ஆம் என்பதற்காக காத்திருக்கும் பாடங்கள்",
+"The agent uses these only after you say yes.":"நீங்கள் ஆம் சொன்ன பிறகே முகவர் இவற்றைப் பயன்படுத்தும்.",
+"For the whole company":"முழு நிறுவனத்திற்கும்",
+"About money":"பணம் பற்றி",
+"About safety":"பாதுகாப்பு பற்றி",
+"About clients":"வாடிக்கையாளர்கள் பற்றி",
+"Yes, use it":"ஆம், பயன்படுத்து",
+"No":"இல்லை",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"இது நிறுவனம் வேலை செய்யும் முறையை மாற்றுகிறது, எனவே உங்கள் நிர்வாகியின் ஆம் என்பதற்காக அனுப்பினேன். அவர் ஆம் சொன்னதும் பயன்படுத்துவேன்.",
+"Saved. The agent will use this lesson.":"சேமிக்கப்பட்டது. முகவர் இந்தப் பாடத்தைப் பயன்படுத்தும்.",
+"Declined. Nothing was saved.":"மறுக்கப்பட்டது. எதுவும் சேமிக்கப்படவில்லை.",
+"We couldn’t save that. Please try again.":"எங்களால் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"இந்த டெமோவில் இப்போது நிறைய கேள்விகள் வந்துள்ளன, எனவே இலவச AI ஐ சேமிக்க நான் சிறிது ஓய்வு எடுக்கிறேன். சில நிமிடங்கள் கழித்து மீண்டும் கேளுங்கள். Groundwork இல் மற்ற அனைத்தும் வழக்கம் போல் இயங்குகின்றன."
 }

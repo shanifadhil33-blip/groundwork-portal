@@ -674,5 +674,18 @@
 "After learning":"Bere a wasua",
 "A new company with no finished jobs.":"Adwumakuo foforo a onni adwuma a wɔawie.",
 "This company, from its own finished jobs.":"Adwumakuo yi, firi n’ankasa nnwuma a wɔawie mu.",
-"No job has enough finished jobs behind it yet.":"Adwuma biara nni hɔ a nnwuma a wɔawie a ɛdɔɔso wɔ n’akyi."
+"No job has enough finished jobs behind it yet.":"Adwuma biara nni hɔ a nnwuma a wɔawie a ɛdɔɔso wɔ n’akyi.",
+"Lessons waiting for your yes":"Nsuasua a ɛretwɛn wo aane",
+"The agent uses these only after you say yes.":"Agent no de yi di dwuma bere a woaka aane akyi nko ara.",
+"For the whole company":"Ma adwumakuo no nyinaa",
+"About money":"Fa sika ho",
+"About safety":"Fa ahobammɔ ho",
+"About clients":"Fa adetɔfo ho",
+"Yes, use it":"Aane, fa di dwuma",
+"No":"Daabi",
+"This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.":"Yei sesa ɔkwan a adwumakuo no di dwuma, enti mede amena wo panin sɛ ɔnka aane. Sɛ ɔka aane a, mede bedi dwuma.",
+"Saved. The agent will use this lesson.":"Wɔakora so. Agent no de saa adesua yi bedi dwuma.",
+"Declined. Nothing was saved.":"Wɔapo. Wɔankora hwee so.",
+"We couldn’t save that. Please try again.":"Yɛantumi ankora so. Yɛsrɛ wo, san sɔ hwɛ.",
+"Lots of questions in this demo just now, so I am taking a short break to save the free AI. Please ask again in a few minutes. Everything else in Groundwork works as usual.":"Nsɛmmisa pii wɔ ho kyerɛ yi mu seesei, enti merego ahome kakra de akora AI a wontua ho ka so. Yɛsrɛ wo, bisa bio wɔ simma kakra akyi. Biribiara a aka wɔ Groundwork mu yɛ adwuma sɛnea ɛte daa."
 }
