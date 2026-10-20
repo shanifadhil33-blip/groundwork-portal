@@ -1,4 +1,3 @@
-import { heatOrder } from '../heat';
 import { overdueSql, todaySql } from '../dates';
 import { ApiError } from '../http';
 import { inWorkspace } from './shared';
@@ -20,6 +19,6 @@ export async function myDay(user: string, ws: string) {
     const next = await q(`w.status NOT IN ('done','cancelled') AND (w.scheduled_for AT TIME ZONE '${tz.replace(/'/g, "''")}')::date > (now() AT TIME ZONE '${tz.replace(/'/g, "''")}')::date`, 'w.scheduled_for', 5);
     // Done today = moved to Done today (from the job history), not merely edited today.
     const done = (await c.db.query(`SELECT count(*)::int n FROM work_orders w WHERE w.workspace_id=$1 AND w.assignee_id=$2 AND w.status='done' AND EXISTS (SELECT 1 FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id AND e.kind='status_changed' AND e.details->>'to_status'='done' AND (e.created_at AT TIME ZONE $3)::date=(now() AT TIME ZONE $3)::date)`, [ws, user, tz])).rows[0].n as number;
-    return { timezone: tz, today: heatOrder(today, tz, wsRow.country), late, next: heatOrder(next, tz, wsRow.country), done };
+    return { timezone: tz, today, late, next, done };
   });
 }

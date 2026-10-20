@@ -9,7 +9,6 @@ import { listClients } from '../../../lib/services/clients';
 import { listImports } from '../../../lib/services/imports';
 import { listMembers } from '../../../lib/services/members';
 import { listInvites } from '../../../lib/services/invites';
-import { listTokens } from '../../../lib/services/tokens';
 export default async function Page() {
   const app=await getAppPageData(),member=app?.me.memberships[0];
   if(member?.is_owner&&app?.workspace?.company_size==='big'&&app.workspace.enabled_dashboards?.includes('overview'))return <OwnerOverview/>;
@@ -26,7 +25,6 @@ export default async function Page() {
     ...(firstUse?[
       [`${base}/clients`,()=>listClients(app.user,ws)] as const,
       [`${base}/imports`,()=>listImports(app.user,ws)] as const,
-      [`${base}/tokens${admin?'?all=true':''}`,()=>listTokens(app.user,ws,new URLSearchParams(admin?'all=true':''))] as const,
       ...(admin?[[`${base}/members`,()=>listMembers(app.user,ws)] as const,[`${base}/invites`,()=>listInvites(app.user,ws)] as const]:[]),
     ]:[]),
   ]);

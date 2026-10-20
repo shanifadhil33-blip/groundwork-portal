@@ -2,7 +2,7 @@
 import { PageHeader } from '../ui/layout';
 /** What the Agent does and what a person does, step by step. Plain words, the same for every role. */
 const STEPS: { step: string; agent: string; person: string }[] = [
-  { step: 'A problem comes in', agent: 'Reads the message, photo or voice note from the app or WhatsApp and writes it up as a suggested job.', person: 'An admin or supervisor approves, edits or declines it.' },
+  { step: 'A problem comes in', agent: 'Reads the message, photo or voice note from the app and writes it up as a suggested job.', person: 'An admin or supervisor approves, edits or declines it.' },
   { step: 'Missing details', agent: 'Asks one short question at a time until the site, the problem and the best time are clear. It never sends a request with gaps.', person: 'The person answers, or taps one of the choices.' },
   { step: 'Emergencies', agent: 'Spots words like smoke, gas, flood or sparks, puts a safety line first and marks the job urgent.', person: 'The supervisor sends someone straight away.' },
   { step: 'Any change', agent: 'Reads the change back on a card with Yes and Change. Nothing is saved before you tap Yes.', person: 'You tap Yes, or Change to fix it.' },

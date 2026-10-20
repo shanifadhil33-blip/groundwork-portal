@@ -1,12 +1,8 @@
-import { randomInt } from 'node:crypto';
 import { asAgent, withSystem } from '../db';
-import { requiredEnv } from '../env';
 import { ApiError, missing } from '../http';
 import { CLOSE_REPLIES, canSignOff, readSignOff, signOffRefusal, type CloseActor } from '../job-close';
 import { z } from 'zod';
-import { PHONE_REPLIES, codeSenderReady, codeMessage, hashPhoneCode, phoneCodeMatches, phoneLookup, readPhoneAsk } from '../phone-change';
-import { phoneKey } from '../phone-key';
-import { openSealed, seal } from '../secret-box';
+import { PHONE_REPLIES, readPhoneAsk } from '../phone-change';
 import { USUAL_REPLIES, readUsualAsk, usualValid } from '../usual-context';
 import { warmLead } from '../warm-reply';
 import { DAY_REPLIES, readOnTheWay, readPlanApprove, readPlanAsk } from '../day-plan';
@@ -17,7 +13,6 @@ import { saveLearnedRule } from './habits';
 import { patchWorkOrder } from './work-orders';
 import { inWorkspace, uuid } from './shared';
 
-const secret = () => requiredEnv('AUTH_SECRET');
 const PLANNED = ['issue_phone_code', 'set_usual_context', 'sign_off', 'approve_day_plan', 'remember_rule'] as const;
 
 function calm(error: unknown) {
@@ -36,31 +31,6 @@ async function card(user: string, ws: string, tool: string, args: unknown, summa
     [ws, user, tool, JSON.stringify(args), summary, 'Nothing is saved until you say yes.'],
   )).rows[0].id as string, user);
   return { available: true as const, reply: summary, pending_action: { id, tool, summary, why: 'Nothing is saved until you say yes.' } };
-}
-
-async function queuePhone(user: string, ws: string, phone: string) {
-  const current = phoneKey(String((await withSystem(db => db.query('SELECT phone FROM users WHERE id=$1', [user]), user)).rows[0]?.phone ?? ''));
-  if (current && current === phone) return { available: true as const, reply: PHONE_REPLIES.same };
-  if (!codeSenderReady()) return { available: true as const, reply: PHONE_REPLIES.noSender };
-  return card(user, ws, 'issue_phone_code', { phone_sealed: seal(phone, secret()), phone_lookup: phoneLookup(phone, secret()) }, PHONE_REPLIES.confirmSend);
-}
-
-async function takeCode(user: string, code: string) {
-  return withSystem(async db => {
-    const row = (await db.query('SELECT * FROM phone_changes WHERE user_id=$1 AND confirmed_at IS NULL ORDER BY created_at DESC LIMIT 1 FOR UPDATE', [user])).rows[0];
-    if (!row) return null;
-    if (new Date(row.expires_at) <= new Date()) return { available: true as const, reply: PHONE_REPLIES.expired };
-    if (row.attempts >= 5) return { available: true as const, reply: PHONE_REPLIES.locked };
-    if (!phoneCodeMatches(code, row.code_hash, secret())) {
-      const next = (await db.query('UPDATE phone_changes SET attempts=attempts+1 WHERE id=$1 RETURNING attempts', [row.id])).rows[0].attempts as number;
-      return { available: true as const, reply: next >= 5 ? PHONE_REPLIES.locked : PHONE_REPLIES.mismatch };
-    }
-    const phone = openSealed(row.phone_sealed, secret());
-    if (!phone) return { available: true as const, reply: PHONE_REPLIES.expired };
-    await db.query('UPDATE users SET phone=$2 WHERE id=$1', [user, `+${phone}`]);
-    await db.query('UPDATE phone_changes SET confirmed_at=clock_timestamp() WHERE id=$1', [row.id]);
-    return { available: true as const, reply: PHONE_REPLIES.saved };
-  }, user);
 }
 
 async function queueUsual(user: string, ws: string, ask: { start?: string; areas?: string[] }) {
@@ -116,22 +86,14 @@ export async function planFromWords(user: string, ws: string, words: string) {
     if (planAsk || planYes) {
       const plan = await getDayPlan(user, ws);
       if (!plan.can_plan) return { available: true as const, reply: lead(DAY_REPLIES.onlyPlanner) };
-      if (planAsk === 'gate') return { available: true as const, reply: lead(plan.gates.length ? `${DAY_REPLIES.gateAsk}. ${DAY_REPLIES.seePlan}` : DAY_REPLIES.noGate) };
       if (!plan.lines.length) return { available: true as const, reply: lead(DAY_REPLIES.nothingToPlan) };
       if (planYes) return card(user, ws, 'approve_day_plan', { kind: 'morning', fingerprint: plan.fingerprint }, DAY_REPLIES.approve);
       return { available: true as const, reply: lead(`${DAY_REPLIES.planAsk}. ${DAY_REPLIES.seePlan}`) };
     }
     if (correction?.kind === 'once') return { available: true as const, reply: lead(LEARN_REPLIES.once) };
     if (correction?.kind === 'ask') return card(user, ws, 'remember_rule', { rule: correction.rule, company: correction.company }, LEARN_REPLIES.ask);
-    if (phone.kind === 'code') {
-      const taken = await takeCode(user, phone.code);
-      return taken ? { ...taken, reply: lead(taken.reply) } : null;
-    }
-    if (phone.kind === 'ask_number') return { available: true as const, reply: lead(codeSenderReady() ? PHONE_REPLIES.askNumber : PHONE_REPLIES.noSender) };
-    if (phone.kind === 'number') {
-      const queued = await queuePhone(user, ws, phone.phone);
-      return { ...queued, reply: lead(queued.reply) };
-    }
+    // SIGN10 hidden (scope cut Oct 20 2026): no free code sender, so the agent never offers a phone change by code.
+    if (phone.kind === 'ask_number' || phone.kind === 'number') return { available: true as const, reply: lead(PHONE_REPLIES.hidden) };
     const usual = readUsualAsk(words);
     if (usual) {
       const queued = await queueUsual(user, ws, usual);
@@ -158,18 +120,8 @@ export async function confirmPlanned(user: string, ws: string, actionId: string)
     if (new Date(a.expires_at) <= new Date()) throw new ApiError(409, 'expired', 'This action has expired. Ask Agent again.');
     if (a.tool === 'approve_day_plan') return { defer: { kind: String(a.args.kind ?? 'morning'), fingerprint: String(a.args.fingerprint ?? '') }, id: a.id as string };
     let reply: string = PHONE_REPLIES.saved;
-    if (a.tool === 'issue_phone_code') {
-      if (!codeSenderReady()) throw new ApiError(409, 'no_sender', PHONE_REPLIES.noSender);
-      const phone = openSealed(String(a.args.phone_sealed ?? ''), secret());
-      if (!phone) throw new ApiError(409, 'expired', PHONE_REPLIES.expired);
-      const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
-      await db.query('UPDATE phone_changes SET expires_at=now() WHERE user_id=$1 AND confirmed_at IS NULL', [user]);
-      await db.query(`INSERT INTO phone_changes(user_id,phone_lookup,phone_sealed,code_hash,expires_at)
-        VALUES($1,$2,$3,$4,now()+interval '10 minutes')`, [user, phoneLookup(phone, secret()), seal(phone, secret()), hashPhoneCode(code, secret())]);
-      await db.query(`INSERT INTO whatsapp_messages(workspace_id,user_id,phone_sealed,body_sealed,direction,kind)
-        VALUES($1,$2,$3,$4,'out','code')`, [ws, user, seal(phone, secret()), seal(codeMessage(code), secret())]);
-      reply = PHONE_REPLIES.askCode;
-    } else if (a.tool === 'set_usual_context') {
+    if (a.tool === 'issue_phone_code') throw new ApiError(410, 'removed', PHONE_REPLIES.hidden);
+    if (a.tool === 'set_usual_context') {
       const ask = { start: a.args.start ?? undefined, areas: a.args.areas ?? undefined };
       const bad = usualValid(ask);
       if (bad || (!ask.start && !ask.areas)) throw new ApiError(422, 'validation', bad ?? USUAL_REPLIES.badAreas);

@@ -15,4 +15,4 @@ export function toolsFor(role:string):string[]|null{return CLIENT_KIND_TOOLS[rol
 /** These checks also run before a connected key can queue a write for approval. */
 export const ADMIN_ONLY=['set_job_payment','set_approval_mode','set_member_roles','rename_role'];
 const ADMIN_RECORDS=['create_client','update_client','create_site','update_site'];
-export const allowedTool=(role:string,name:string)=>{if(name==='contract_watch')return ['admin','staff','office'].includes(role);if(CLIENT_VISIT_TOOLS.includes(name)&&!role.startsWith('client'))return false;if([...ADMIN_ONLY,...ADMIN_RECORDS].includes(name)&&role!=='admin')return false;if(role==='office')return !OFFICE_DENY.includes(name);const l=toolsFor(role);return !l||l.includes(name);};
+export const allowedTool=(role:string,name:string)=>{if(CLIENT_VISIT_TOOLS.includes(name)&&!role.startsWith('client'))return false;if([...ADMIN_ONLY,...ADMIN_RECORDS].includes(name)&&role!=='admin')return false;if(role==='office')return !OFFICE_DENY.includes(name);const l=toolsFor(role);return !l||l.includes(name);};

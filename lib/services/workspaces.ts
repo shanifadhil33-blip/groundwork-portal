@@ -1,4 +1,3 @@
-import { responseWatch } from './contract-response';
 import { requireOwner } from './owner';
 import { companyOptions,sizeRoles } from '../company';
 import { ApiError } from '../http';
@@ -92,7 +91,7 @@ export async function dashboard(user:string,ws:string) {
    FROM work_orders WHERE workspace_id=$1`,[ws])).rows[0];
   const by_status=Object.fromEntries(statuses.map(s=>[s,counts[s]]));
   const {timezone,overdue,today_jobs,pending_queue_rows,pending_suggestions,last_supplier_sync_at}=counts;
-  return {contract_watch:c.role==='admin'||c.role==='staff'?await responseWatch(user,ws):[],timezone,today:localDate(Date.now(),timezone),by_status,overdue,today_jobs,waiting_on_parts:by_status.waiting_on_parts,pending_queue_rows,pending_suggestions,last_supplier_sync_at};
+  return {contract_watch:[],timezone,today:localDate(Date.now(),timezone),by_status,overdue,today_jobs,waiting_on_parts:by_status.waiting_on_parts,pending_queue_rows,pending_suggestions,last_supplier_sync_at};
  });
 }
 

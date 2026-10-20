@@ -63,11 +63,10 @@ function DocForm({ base, doc, onClose, onSaved }: { base: string; doc: Doc | 'ne
 export function Documents() {
   const { member } = useApp(), base = member ? `/api/workspaces/${member.workspace_id}` : null, office = member?.role === 'admin' || member?.role === 'staff';
   const r = useResource<Doc[]>(base && office ? `${base}/documents` : null), list = Array.isArray(r.data) ? r.data : [];
-  const [edit, setEdit] = useState<Doc | 'new' | null>(null), [remove, setRemove] = useState<Doc | null>(null), [archive, setArchive] = useState<Doc | null>(null), [busy, setBusy] = useState(false), toast = useToast();
+  const [edit, setEdit] = useState<Doc | 'new' | null>(null), [remove, setRemove] = useState<Doc | null>(null), [busy, setBusy] = useState(false), toast = useToast();
   if (!member || !base) return <div className="page"><Skeleton className="skeleton-row" /></div>;
   if (!office) return <div className="page"><EmptyState title="Only admins and supervisors see documents" /></div>;
   async function doRemove() { if (!remove) return; setBusy(true); try { await request(`${base}/documents/${remove.id}`, { method: 'DELETE' }); toast('Document removed.'); setRemove(null); void r.reload(); } catch (e) { toast(e instanceof RequestError ? e.message : 'That did not work. Try again.'); } finally { setBusy(false); } }
-  async function doArchive() { if (!archive) return; setBusy(true); try { await request(`${base}/documents/${archive.id}`, { method: 'POST' }); toast('Archived. The file stays on the record.'); setArchive(null); void r.reload(); } catch (e) { toast(e instanceof RequestError ? e.message : 'That did not work. Try again.'); } finally { setBusy(false); } }
   return <div className="page stack documents-page">
     <div className="heading-row"><div><h1>Documents</h1></div>{list.length > 0 && <Button variant="primary" onClick={() => setEdit('new')}><Plus size={18} aria-hidden="true" />Add document</Button>}</div>
     {r.loading ? <Skeleton className="skeleton-card" /> : r.error ? <ErrorState message="We couldn’t load your documents." retry={r.reload} /> : !list.length ?
@@ -75,11 +74,10 @@ export function Documents() {
       <ul className="doc-list">{list.map(d => <li key={d.id} className="doc-item card">
         <div className="doc-main"><FileText size={20} aria-hidden="true" /><div className="stack compact"><strong>{d.title}</strong><span className="small muted">{DOC_TYPE_LABELS[d.doc_type] ?? 'Other'}</span></div>{expiryBadge(d)}</div>
         <dl className="doc-meta"><div><dt>Issued</dt><dd>{show(d.issued_on)}</dd></div><div><dt>Expires</dt><dd>{show(d.expires_on)}</dd></div><div><dt>Responsible</dt><dd>{d.responsible_name ?? 'Nobody yet'}</dd></div></dl>
-        <div className="row doc-actions"><a className="button secondary sm" href={`${base}/documents/${d.id}/file`} target="_blank" rel="noopener">Open file</a><Button variant="secondary" size="sm" onClick={() => setEdit(d)}>Edit</Button>{d.days_left != null && d.days_left < 0 && <Button variant="secondary" size="sm" onClick={() => setArchive(d)}>Archive</Button>}<Button variant="ghost" size="sm" onClick={() => setRemove(d)}>Remove</Button></div>
+        <div className="row doc-actions"><a className="button secondary sm" href={`${base}/documents/${d.id}/file`} target="_blank" rel="noopener">Open file</a><Button variant="secondary" size="sm" onClick={() => setEdit(d)}>Edit</Button><Button variant="ghost" size="sm" onClick={() => setRemove(d)}>Remove</Button></div>
       </li>)}</ul>}
     {edit && <DocForm base={base} doc={edit} onClose={() => setEdit(null)} onSaved={() => void r.reload()} />}
     <ConfirmDialog open={!!remove} onClose={() => setRemove(null)} title="Remove this document?" confirmLabel="Remove" busyLabel="Removing…" busy={busy} danger onConfirm={() => void doRemove()}>{remove?.title} and its file will be deleted for good.</ConfirmDialog>
-    <ConfirmDialog open={!!archive} onClose={() => setArchive(null)} title="Archive this document?" confirmLabel="Archive" busy={busy} onConfirm={() => void doArchive()}>Archived. The file stays on the record.</ConfirmDialog>
   </div>;
 }
 

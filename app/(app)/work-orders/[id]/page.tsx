@@ -3,7 +3,6 @@ import { InitialResourceProvider } from '../../../../components/app/initial-reso
 import { getAppPageData, initialResources } from '../../../../lib/server-page-data';
 import { getWorkOrder } from '../../../../lib/services/work-orders';
 import { listMembers } from '../../../../lib/services/members';
-import { listOrders } from '../../../../lib/services/supplier';
 import { isOffice } from '../../../../lib/roles';
 export default async function Page({params}:{params:Promise<{id:string}>}) {
   const {id}=await params,app=await getAppPageData(),member=app?.me.memberships[0];
@@ -12,7 +11,6 @@ export default async function Page({params}:{params:Promise<{id:string}>}) {
   const resources=await initialResources(app.user,[
     [`${base}/work-orders/${id}`,()=>getWorkOrder(app.user,member.workspace_id,id)],
     ...(isOffice(member?.role)?[[`${base}/members`,()=>listMembers(app.user,member.workspace_id)] as const]:[]),
-    ...(isOffice(member?.role)&&app.workspace?.is_demo?[[`${base}/supplier/orders`,()=>listOrders(app.user,member.workspace_id)] as const]:[]),
   ]);
   return <InitialResourceProvider resources={resources}><WorkOrderDetail id={id}/></InitialResourceProvider>;
 }

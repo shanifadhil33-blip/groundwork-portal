@@ -3,8 +3,8 @@ import { scheduledInstant } from '../dates';
 import { withSystem } from '../db';
 import { ApiError, missing } from '../http';
 import {
-  DAY_REPLIES, arrivalWindow, canConfirmGate, canPlanDay, morningPlan, needsGate, planFingerprint, planSavedReply,
-  sickMove, urgentReshuffle, watchLate, type PlanActor, type PlanJob, type PlanLine, type PlanPerson,
+  DAY_REPLIES, canPlanDay, morningPlan, planFingerprint, planSavedReply,
+  watchLate, type PlanActor, type PlanJob, type PlanLine, type PlanPerson,
 } from '../day-plan';
 import { offReason } from './time-off';
 import { sendPush } from './push';
@@ -58,7 +58,7 @@ function pack(lines: PlanLine[], summary: string) {
   return { lines, summary, fingerprint: planFingerprint(lines) };
 }
 
-/** Read the morning plan, tomorrow's gate list and late visits. Selects only. */
+/** Read the morning plan (who does which job) and late visits. Selects only. */
 export async function getDayPlan(user: string, ws: string) {
   return withSystem(async db => {
     const actor = await actorOf(db, user, ws);
@@ -67,8 +67,6 @@ export async function getDayPlan(user: string, ws: string) {
     const morning = planner || actor.role === 'staff' ? morningPlan(planJobs, people) : { lines: [] as PlanLine[], summary: DAY_REPLIES.nothingToPlan };
     const watch = (planner ? planJobs : []).map(job => watchLate(job, people)).filter((line): line is PlanLine => !!line)
       .map(line => ({ ...line, fingerprint: planFingerprint([line]) }));
-    const gates = jobs.filter(job => needsGate({ day: job.day, tomorrow: actor.tomorrow, access: job.access_notes, gate: job.gate_pass, status: job.status }) && canConfirmGate(actor, job))
-      .map(job => ({ id: job.id, order: job.order_number, title: job.title, window: job.hour == null ? null : arrivalWindow(job.hour, job.window_hours).label, hour: job.hour, span: job.window_hours }));
     const visits = planner ? jobs.filter(job => job.day === actor.today && job.status === 'scheduled').map(job => ({ id: job.id, order: job.order_number, title: job.title })) : [];
     return {
       can_plan: planner,
@@ -78,7 +76,6 @@ export async function getDayPlan(user: string, ws: string) {
       fingerprint: planFingerprint(morning.lines),
       lines: morning.lines,
       watch,
-      gates,
       visits,
       people: planner ? people.map(person => ({ id: person.id, name: person.name, away: person.away })) : [],
     };
@@ -93,7 +90,7 @@ const body = z.object({
   person_id: uuid.optional(),
 }).strict();
 
-function proposal(kind: string, planJobs: PlanJob[], people: PlanPerson[], jobId?: string, personId?: string) {
+function proposal(kind: string, planJobs: PlanJob[], people: PlanPerson[], jobId?: string) {
   if (kind === 'morning') return morningPlan(planJobs, people);
   if (kind === 'watch') {
     const job = planJobs.find(row => row.id === jobId);
@@ -101,17 +98,10 @@ function proposal(kind: string, planJobs: PlanJob[], people: PlanPerson[], jobId
     const lines = line ? [line] : [];
     return { lines, summary: lines.length ? lines[0].why : DAY_REPLIES.nothingToPlan };
   }
-  if (kind === 'urgent') {
-    const job = planJobs.find(row => row.id === jobId);
-    if (!job) return { lines: [] as PlanLine[], summary: DAY_REPLIES.nothingToPlan };
-    const moved = urgentReshuffle({ ...job, priority: 'urgent' }, planJobs, people);
-    return { lines: moved.lines, summary: DAY_REPLIES.approve };
-  }
-  const moved = sickMove(personId ?? '', planJobs, people);
-  return { lines: moved.lines, summary: moved.summary };
+  return { lines: [] as PlanLine[], summary: DAY_REPLIES.removed };
 }
 
-async function applyLines(db: { query: (q: string, v?: unknown[]) => Promise<{ rows: any[]; rowCount?: number | null }> }, ws: string, actor: Actor, kind: string, lines: PlanLine[], urgentId?: string) {
+async function applyLines(db: { query: (q: string, v?: unknown[]) => Promise<{ rows: any[]; rowCount?: number | null }> }, ws: string, actor: Actor, kind: string, lines: PlanLine[]) {
   const day = actor.today;
   for (const line of lines) {
     if (line.kind !== 'place' || !line.assignee_id || line.hour == null) continue;
@@ -119,31 +109,16 @@ async function applyLines(db: { query: (q: string, v?: unknown[]) => Promise<{ r
     if (!when) continue;
     await db.query(`UPDATE work_orders SET assignee_id=$3, scheduled_for=$4,
       status=CASE WHEN status='open' THEN 'scheduled' ELSE status END,
-      priority=CASE WHEN $5::bool THEN 'urgent' ELSE priority END,
-      running_late_at=CASE WHEN $6::bool THEN NULL ELSE running_late_at END
-      WHERE workspace_id=$1 AND id=$2 AND archived_at IS NULL`, [ws, line.job_id, line.assignee_id, when, kind === 'urgent' && line.job_id === urgentId, kind === 'watch']);
+      running_late_at=CASE WHEN $5::bool THEN NULL ELSE running_late_at END
+      WHERE workspace_id=$1 AND id=$2 AND archived_at IS NULL`, [ws, line.job_id, line.assignee_id, when, kind === 'watch']);
   }
 }
 
 /** Preview does not write. Approve writes only after the signed in planner says yes, then tells the other people. */
 export async function postDayPlan(user: string, ws: string, input: unknown) {
   const d = body.parse(input);
-  if (d.action === 'confirm_gate' || d.action === 'skip_gate') {
-    if (!d.job_id) throw new ApiError(422, 'validation', DAY_REPLIES.gateQuiet);
-    return withSystem(async db => {
-      const actor = await actorOf(db, user, ws);
-      const job = (await db.query(`SELECT w.id, w.client_id, w.created_by, w.status, w.gate_pass, s.access_notes,
-        (w.scheduled_for AT TIME ZONE $3)::date::text AS day
-        FROM work_orders w JOIN sites s ON s.workspace_id=w.workspace_id AND s.id=w.site_id
-        WHERE w.workspace_id=$1 AND w.id=$2 AND w.archived_at IS NULL`, [ws, d.job_id, actor.tz])).rows[0];
-      if (!job) throw missing();
-      if (!canConfirmGate(actor, job)) throw new ApiError(403, 'forbidden', DAY_REPLIES.onlyGate);
-      if (!needsGate({ day: job.day, tomorrow: actor.tomorrow, access: job.access_notes, gate: job.gate_pass, status: job.status })) throw new ApiError(409, 'closed', DAY_REPLIES.gateQuiet);
-      const gate = d.action === 'confirm_gate' ? 'confirmed' : 'not_needed';
-      await db.query('UPDATE work_orders SET gate_pass=$3, gate_pass_at=clock_timestamp(), gate_pass_by=$4 WHERE workspace_id=$1 AND id=$2', [ws, d.job_id, gate, user]);
-      return { reply: d.action === 'confirm_gate' ? DAY_REPLIES.gateConfirmed : DAY_REPLIES.gateSkipped };
-    }, user);
-  }
+  // Scope cut Oct 20 2026: gate pass list, urgent reshuffle and sick auto move are gone. The server refuses them; the data stays.
+  if (d.action === 'confirm_gate' || d.action === 'skip_gate' || d.kind === 'urgent' || d.kind === 'sick') throw new ApiError(410, 'removed', DAY_REPLIES.removed);
   if (d.action === 'mark_late') {
     if (!d.job_id) throw new ApiError(422, 'validation', DAY_REPLIES.notDemo);
     return withSystem(async db => {
@@ -159,12 +134,8 @@ export async function postDayPlan(user: string, ws: string, input: unknown) {
   const preview = await withSystem(async db => {
     const actor = await actorOf(db, user, ws);
     if (!canPlanDay(actor)) throw denied();
-    if (kind === 'sick' && d.person_id) {
-      const tech = (await db.query("SELECT 1 FROM members WHERE workspace_id=$1 AND user_id=$2 AND role='technician' AND archived_at IS NULL", [ws, d.person_id])).rows[0];
-      if (!tech) throw missing();
-    }
     const { people, planJobs } = await load(db, user, ws, actor);
-    const next = proposal(kind, planJobs, people, d.job_id, d.person_id);
+    const next = proposal(kind, planJobs, people, d.job_id);
     return { actor, next: pack(next.lines, next.summary) };
   }, user);
   if (d.action === 'preview') return { ...preview.next, reply: preview.next.summary };
@@ -175,23 +146,16 @@ export async function postDayPlan(user: string, ws: string, input: unknown) {
     const actor = await actorOf(db, user, ws);
     if (!canPlanDay(actor)) throw denied();
     const { people, planJobs } = await load(db, user, ws, actor);
-    const built = proposal(kind, planJobs, people, d.job_id, d.person_id);
+    const built = proposal(kind, planJobs, people, d.job_id);
     const again = pack(built.lines, built.summary);
     if (again.fingerprint !== d.fingerprint) throw new ApiError(409, 'conflict', DAY_REPLIES.dayChanged);
-    await applyLines(db, ws, actor, kind, again.lines, d.job_id);
-    if (kind === 'sick' && d.person_id) {
-      await db.query(`INSERT INTO time_off(workspace_id,user_id,kind,starts_on,ends_on,note,created_by)
-        SELECT $1,$2,'sick',$3::date,$3::date,'Off sick',$4
-        WHERE NOT EXISTS (SELECT 1 FROM time_off WHERE workspace_id=$1 AND user_id=$2 AND status='approved' AND starts_on<=$3::date AND ends_on>=$3::date)`,
-        [ws, d.person_id, actor.today, user]);
-    }
+    await applyLines(db, ws, actor, kind, again.lines);
     const notes: { who: string; body: string; job: string; title: string }[] = [];
-    const note = kind === 'morning' ? DAY_REPLIES.dayReady : DAY_REPLIES.windowChanged;
+    const note = kind === 'morning' ? DAY_REPLIES.dayReady : DAY_REPLIES.jobChanged;
     for (const line of again.lines) {
       if (line.kind !== 'place' || !line.assignee_id || line.assignee_id === user) continue;
       notes.push({ who: line.assignee_id, body: note, job: line.job_id, title: line.title });
     }
-    if (kind === 'sick' && d.person_id && d.person_id !== user) notes.push({ who: d.person_id, body: DAY_REPLIES.sickMoved, job: placed[0].job_id, title: placed[0].title });
     for (const note of notes) {
       await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,work_order_title,job_step_body)
         VALUES($1,$2,'day_plan','work_orders',$3,$4,$5,$6)`, [note.who, ws, note.job, user, note.title, note.body]);

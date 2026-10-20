@@ -61,7 +61,14 @@ export async function addTimeOff(user: string, ws: string, body: unknown) {
     // Jobs already booked on those days stay put but are listed so the office can move them.
     const clashes = (await c.db.query(`SELECT id, order_number, title FROM work_orders w WHERE workspace_id=$1 AND assignee_id=$2 AND status NOT IN ('done','cancelled')
       AND (scheduled_for AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=$1))::date BETWEEN $3 AND $4 ORDER BY scheduled_for`, [ws, data.user_id, data.starts_on, ends])).rows;
-    return { ...saved, clashes };
+    // Off sick: his booked visits on those days go back to Open with no one on them, so the office picks someone. No automatic move.
+    let reopened = 0;
+    if (data.kind === 'sick') {
+      const r = await c.db.query(`UPDATE work_orders SET assignee_id=NULL, status='open' WHERE workspace_id=$1 AND assignee_id=$2 AND status='scheduled' AND archived_at IS NULL
+        AND (scheduled_for AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=$1))::date BETWEEN $3 AND $4`, [ws, data.user_id, data.starts_on, ends]);
+      reopened = r.rowCount ?? 0;
+    }
+    return { ...saved, clashes, reopened };
   });
 }
 

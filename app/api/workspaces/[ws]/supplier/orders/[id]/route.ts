@@ -1,4 +1,2 @@
-import { endpoint } from '../../../../../../../lib/api';
-import { closeSupplierOrder } from '../../../../../../../lib/services/archives';
-
-export const POST = endpoint(({ user, params }) => closeSupplierOrder(user, params.ws, params.id));
+// JOB08 Cobalt parts simulator hidden (scope cut, Adhil Oct 20 2026). lib/services/supplier.ts and the data stay.
+export const POST = async () => Response.json({ error: { code: 'removed', message: 'That is not part of Groundwork. Nothing was changed.' } }, { status: 410 });

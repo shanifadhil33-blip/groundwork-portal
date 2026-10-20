@@ -1,4 +1,5 @@
-/** SCHED03 to SCHED09, NOTIF07. Pure rules. Nothing here writes or claims a message was sent. */
+/** SCHED04 (who does which job, owner says yes), SCHED06, SCHED09, NOTIF07. Pure rules. Nothing here writes or claims a message was sent.
+ * Scope cut, Adhil Oct 20 2026: no arrival windows (traffic makes them unpredictable), no urgent reshuffle, no sick auto move, no gate pass list. */
 
 export const DAY_START = 6;
 export const DAY_END = 20;
@@ -10,29 +11,22 @@ export const DAY_REPLIES = {
   markedLate: 'Marked late. No message was sent.',
   dayChanged: 'Look again. The day changed.',
   onlyPlanner: 'Only the owner or a supervisor can approve the day.',
-  onlyGate: 'Only the office, the client, or the facility manager can confirm a gate pass.',
   noVisit: 'You have no visit ready to start.',
   notYours: 'This visit is not yours.',
   openJob: 'Open the job and tap On the way.',
   onWay: 'On the way. The client can see it in the app.',
-  noGate: 'Every job for tomorrow has a gate pass, or none is needed.',
-  gateConfirmed: 'Gate pass confirmed. The team can see it on the job.',
-  gateSkipped: 'Marked. No gate pass is needed for this visit.',
-  gateQuiet: 'This visit does not need a gate pass.',
   seePlan: 'Open Home to see the plan. Nothing is saved until you say yes.',
-  gateAsk: 'Jobs with no gate pass tomorrow',
   planAsk: 'Today\'s plan',
   nothingToPlan: 'Nothing is waiting for a morning plan.',
   approve: 'Approve this plan? Nothing changes until you say yes.',
-  windowChanged: 'Your visit window changed. Open the job to see the new time.',
   dayReady: 'Your day is ready. Open Today.',
-  sickMoved: 'Your jobs were moved because you are off sick.',
   noBackup: 'No one else covers this trade.',
+  removed: 'That is not part of Groundwork. Nothing was changed.',
+  jobChanged: 'Your job changed. Open the job to see it.',
   notDemo: 'That practice control is only in the demo company.',
   visitCharge: 'Visit charge',
   agreed: 'Price you agreed',
   covered: 'Covered by contract',
-  arrival: 'Arrival window',
 } as const;
 
 export function planSavedReply(pushCount: number) {
@@ -45,44 +39,16 @@ export function clockLabel(hour: number) {
   return `${face} ${n < 12 ? 'AM' : 'PM'}`;
 }
 
-/** A visit is a window, never an exact minute. The office still stores the start hour. */
-export function arrivalWindow(hour: number, span = 2) {
-  const safe = Number.isFinite(hour) ? Math.trunc(hour) : DAY_START;
-  const start = Math.max(DAY_START, Math.min(DAY_END - 1, safe));
-  const end = Math.min(DAY_END, start + Math.max(1, Math.trunc(span) || 2));
-  return { start, end, label: `${clockLabel(start)} to ${clockLabel(end)}` };
-}
-
 export function hourInZone(iso: string, timeZone: string) {
   const hour = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', hourCycle: 'h23' }).format(new Date(iso));
   const n = Number(hour);
   return Number.isFinite(n) ? n : DAY_START;
 }
 
-export function arrivalLabel(iso: string, timeZone: string, span = 2) {
-  return arrivalWindow(hourInZone(iso, timeZone), span).label;
-}
-
 export type PlanActor = { role: string; staff_kind?: string | null; client_kind?: string | null; user: string; client_id?: string | null };
-export type GateJob = { client_id: string; created_by?: string | null };
 
 export function canPlanDay(actor: PlanActor) {
   return actor.role === 'admin' || (actor.role === 'staff' && actor.staff_kind !== 'office');
-}
-
-export function canConfirmGate(actor: PlanActor, job: GateJob) {
-  if (actor.role === 'admin' || actor.role === 'staff') return true;
-  if (actor.role !== 'client' || !actor.client_id || actor.client_id !== job.client_id) return false;
-  if ((actor.client_kind ?? 'manager') === 'household') return job.created_by === actor.user;
-  return true;
-}
-
-export function needsGate(input: { day: string | null; tomorrow: string; access: string | null; gate: string | null; status: string }) {
-  if (!input.day || input.day !== input.tomorrow) return false;
-  if (input.status === 'done' || input.status === 'cancelled') return false;
-  if (input.gate === 'confirmed' || input.gate === 'not_needed') return false;
-  if (input.gate === 'waiting') return true;
-  return !!input.access?.trim();
 }
 
 export type PlanPerson = { id: string; name: string; trades: string[]; areas: string[]; away: string | null; booked: number[] };
@@ -92,7 +58,7 @@ export type PlanJob = {
 };
 export type PlanLine = {
   job_id: string; order: number; title: string; assignee_id: string | null; assignee_name: string | null;
-  hour: number | null; window: string | null; why: string; kind: 'place' | 'flag';
+  hour: number | null; why: string; kind: 'place' | 'flag';
 };
 
 const RANK: Record<string, number> = { urgent: 0, high: 1, normal: 2, low: 3 };
@@ -118,12 +84,12 @@ function freeHour(taken: number[], from: number) {
 function place(job: PlanJob, person: PlanPerson, hour: number, why: string): PlanLine {
   return {
     job_id: job.id, order: job.order, title: job.title, assignee_id: person.id, assignee_name: person.name,
-    hour, window: arrivalWindow(hour).label, why, kind: 'place',
+    hour, why, kind: 'place',
   };
 }
 
 function flag(job: PlanJob, why: string): PlanLine {
-  return { job_id: job.id, order: job.order, title: job.title, assignee_id: null, assignee_name: null, hour: null, window: null, why, kind: 'flag' };
+  return { job_id: job.id, order: job.order, title: job.title, assignee_id: null, assignee_name: null, hour: null, why, kind: 'flag' };
 }
 
 export function awayReason(name: string, kind: string | null, weekly: boolean) {
@@ -148,7 +114,7 @@ export function morningPlan(jobs: PlanJob[], people: PlanPerson[], startHour = 8
     }
     const hour = freeHour(load.get(person.id) ?? [], startHour);
     if (hour == null) {
-      lines.push(flag(job, `${person.name} has no free window today.`));
+      lines.push(flag(job, `${person.name} has no room left today.`));
       continue;
     }
     load.get(person.id)?.push(hour);
@@ -160,60 +126,15 @@ export function morningPlan(jobs: PlanJob[], people: PlanPerson[], startHour = 8
   return { lines, summary };
 }
 
-/** A late job gets a later window and a free backup. Nothing is told to the client until yes. */
+/** A late job: suggest a free backup. No new time is promised. Nothing is told to the client until yes. */
 export function watchLate(job: PlanJob, people: PlanPerson[]): PlanLine | null {
   if (!job.running_late || job.hour == null) return null;
-  const next = arrivalWindow(Math.min(job.hour + 2, DAY_END - 1));
   const backup = people.find(person => person.id !== job.assignee_id && !person.away && covers(person, job) && person.booked.length === 0);
-  const current = people.find(person => person.id === job.assignee_id);
-  const who = backup ?? current;
-  if (!who) return flag(job, DAY_REPLIES.noBackup);
+  if (!backup) return flag(job, DAY_REPLIES.noBackup);
   return {
-    job_id: job.id, order: job.order, title: job.title, assignee_id: who.id, assignee_name: who.name,
-    hour: next.start, window: next.label,
-    why: backup ? `Offer ${next.label} and ${backup.name} as backup. Nothing is sent until you say yes.` : `Offer ${next.label}. No backup is free. Nothing is sent until you say yes.`,
-    kind: 'place',
+    job_id: job.id, order: job.order, title: job.title, assignee_id: backup.id, assignee_name: backup.name,
+    hour: job.hour, why: `${backup.name} is free to take it. Nothing is sent until you say yes.`, kind: 'place',
   };
-}
-
-/** The urgent job takes the earliest fitting visit. That visit moves two hours later. */
-export function urgentReshuffle(urgent: PlanJob, jobs: PlanJob[], people: PlanPerson[]) {
-  const candidates = jobs
-    .filter(job => job.id !== urgent.id && job.assignee_id && job.hour != null && job.status === 'scheduled' && job.priority !== 'urgent')
-    .sort((a, b) => (a.hour ?? 0) - (b.hour ?? 0));
-  const displaced = candidates.find(job => {
-    const person = people.find(candidate => candidate.id === job.assignee_id);
-    return person && !person.away && covers(person, urgent);
-  });
-  if (!displaced || displaced.hour == null || !displaced.assignee_id) return { lines: [flag(urgent, DAY_REPLIES.noBackup)] as PlanLine[] };
-  const person = people.find(candidate => candidate.id === displaced.assignee_id)!;
-  const movedHour = freeHour([displaced.hour, ...(person.booked.filter(hour => hour !== displaced.hour))], Math.min(displaced.hour + 2, DAY_END - 2));
-  const lines = [place(urgent, person, displaced.hour, `${person.name} takes the urgent call.`)];
-  if (movedHour == null) lines.push(flag(displaced, `${person.name} has no later window for the job that moves.`));
-  else lines.push(place(displaced, person, movedHour, `This visit moves so the urgent call can come first.`));
-  return { lines };
-}
-
-/** His remaining visits move to someone else. He is treated as away. */
-export function sickMove(personId: string, jobs: PlanJob[], people: PlanPerson[]) {
-  const his = jobs.filter(job => job.assignee_id === personId && (job.status === 'scheduled' || job.status === 'in_progress'));
-  const others = people.map(person => person.id === personId ? { ...person, away: person.away ?? 'Off sick today.' } : person);
-  const load = new Map(others.map(person => [person.id, [...person.booked]]));
-  if (!his.length) return { lines: [] as PlanLine[], summary: 'He has no visits left to move.' };
-  const lines = his.map(job => {
-    const person = rankPeople(job, others, load)[0];
-    if (!person) return flag(job, DAY_REPLIES.noBackup);
-    const hour = job.hour ?? freeHour(load.get(person.id) ?? [], 8) ?? 8;
-    if ((load.get(person.id) ?? []).includes(hour)) {
-      const later = freeHour(load.get(person.id) ?? [], hour);
-      if (later == null) return flag(job, `${person.name} has no free window today.`);
-      load.get(person.id)?.push(later);
-      return place(job, person, later, `${person.name} covers this visit.`);
-    }
-    load.get(person.id)?.push(hour);
-    return place(job, person, hour, `${person.name} covers this visit.`);
-  });
-  return { lines, summary: 'Nothing moves until you say yes.' };
 }
 
 export function planFingerprint(lines: PlanLine[]) {
@@ -241,9 +162,7 @@ export function readPlanApprove(text: string) {
 export function readPlanAsk(text: string) {
   const words = norm(text);
   if (/^(?:show |what is |what's )?(?:today's plan|the morning plan|plan the morning|morning plan)$/.test(words)) return 'morning' as const;
-  if (/^(?:which jobs (?:still )?have no gate pass(?: confirmed)?(?: for tomorrow)?|gate pass for tomorrow)$/.test(words)) return 'gate' as const;
   if (norm(text) === 'خطة اليوم' || norm(text) === 'رتب الصباح') return 'morning' as const;
-  if (norm(text) === 'أي شغل بدون تصريح بكرة' || norm(text) === 'اي شغل بدون تصريح بكرة') return 'gate' as const;
   return null;
 }
 

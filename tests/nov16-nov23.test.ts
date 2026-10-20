@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  DAY_REPLIES, arrivalWindow, canConfirmGate, canPlanDay, disclosedCost, morningPlan, planFingerprint, planSavedReply,
-  readOnTheWay, readPlanApprove, readPlanAsk, sickMove, urgentReshuffle, watchLate, type PlanJob, type PlanPerson,
+  DAY_REPLIES, canPlanDay, disclosedCost, morningPlan, planFingerprint, planSavedReply,
+  readOnTheWay, readPlanApprove, readPlanAsk, watchLate, type PlanJob, type PlanPerson,
 } from '../lib/day-plan';
 import { LEARN_REPLIES, classifyCorrection, habitSuggestions } from '../lib/learn-habits';
 import { ARCHIVE_REPLIES, contractChoice, documentChoice, supplierChoice } from '../lib/record-archive';
@@ -12,12 +12,17 @@ const ravi: PlanPerson = { id: 'ravi', name: 'Ravi', trades: ['plumbing'], areas
 const bilal: PlanPerson = { id: 'bilal', name: 'Bilal', trades: ['plumbing'], areas: [], away: 'Bilal is off sick that day.', booked: [8] };
 const job = (extra: Partial<PlanJob>): PlanJob => ({ id: 'j1', order: 12, title: 'Tap', trade: 'plumbing', area: 'Marina', priority: 'normal', status: 'open', assignee_id: null, hour: null, ...extra });
 
-describe('arrival windows', () => {
-  it('promises a two hour window and never an exact minute', () => {
-    expect(arrivalWindow(9)).toEqual({ start: 9, end: 11, label: '9 AM to 11 AM' });
-    expect(arrivalWindow(19).label).toBe('7 PM to 8 PM');
-    expect(arrivalWindow(3).label).toBe('6 AM to 8 AM');
-    expect(arrivalWindow(9).label).not.toMatch(/:/);
+describe('scope cut, Adhil Oct 20 2026', () => {
+  it('has no arrival window, urgent reshuffle, sick move or gate pass in the plan rules', async () => {
+    const mod = await import('../lib/day-plan') as Record<string, unknown>;
+    for (const gone of ['arrivalWindow', 'arrivalLabel', 'urgentReshuffle', 'sickMove', 'needsGate', 'canConfirmGate']) expect(mod[gone], gone).toBeUndefined();
+    const line = morningPlan([job({})], [ravi]).lines[0];
+    expect(line).not.toHaveProperty('window');
+    expect(JSON.stringify(morningPlan([job({})], [ravi]))).not.toMatch(/ to \d+ (AM|PM)|window/i);
+  });
+  it('the server refuses gate, urgent and sick actions', () => {
+    const day = readFileSync('lib/services/day-plan.ts', 'utf8');
+    expect(day).toMatch(/d\.action === 'confirm_gate' \|\| d\.action === 'skip_gate' \|\| d\.kind === 'urgent' \|\| d\.kind === 'sick'\) throw new ApiError\(410/);
   });
 });
 
@@ -29,23 +34,12 @@ describe('morning plan and the day', () => {
     expect(plan.summary).toMatch(/Nothing is saved until you say yes/);
     expect(plan.lines.map(line => line.assignee_id)).not.toContain('bilal');
   });
-  it('offers a later window and says nothing is sent', () => {
+  it('offers a free backup without promising a time, and says nothing is sent', () => {
     const line = watchLate(job({ status: 'scheduled', assignee_id: 'ravi', hour: 9, running_late: true }), [ravi, { ...bilal, away: null, booked: [] }]);
-    expect(line?.window).toBe('11 AM to 1 PM');
+    expect(line?.assignee_name).toBe('Bilal');
+    expect(line?.why).not.toMatch(/AM|PM/);
     expect(line?.why).toMatch(/Nothing is sent until you say yes/);
     expect(line?.why).not.toMatch(/sent a message|whatsapp|sms/i);
-  });
-  it('moves a visit so an urgent call can come first', () => {
-    const urgent = job({ id: 'u', status: 'open', priority: 'urgent' });
-    const held = job({ id: 'h', status: 'scheduled', assignee_id: 'ravi', hour: 8 });
-    const lines = urgentReshuffle(urgent, [urgent, held], [ravi]).lines;
-    expect(lines[0]).toMatchObject({ job_id: 'u', hour: 8, assignee_id: 'ravi' });
-    expect(lines[1].job_id).toBe('h');
-  });
-  it('moves a sick technician off his visits', () => {
-    const moved = sickMove('ravi', [job({ status: 'scheduled', assignee_id: 'ravi', hour: 10 })], [ravi, { ...bilal, away: null, booked: [] }]);
-    expect(moved.lines[0].assignee_id).toBe('bilal');
-    expect(moved.summary).toMatch(/Nothing moves until you say yes/);
   });
   it('changes the fingerprint when the day changes', () => {
     const first = morningPlan([job({})], [ravi]);
@@ -57,19 +51,13 @@ describe('morning plan and the day', () => {
   });
 });
 
-describe('who may plan, confirm a gate, or see a price', () => {
+describe('who may plan or see a price', () => {
   const actor = { user: 'sam', client_id: 'client' };
   it('lets the owner and a supervisor approve, and keeps office staff from approving', () => {
     expect(canPlanDay({ ...actor, role: 'admin' })).toBe(true);
     expect(canPlanDay({ ...actor, role: 'staff', staff_kind: null })).toBe(true);
     expect(canPlanDay({ ...actor, role: 'staff', staff_kind: 'office' })).toBe(false);
     expect(canPlanDay({ ...actor, role: 'technician' })).toBe(false);
-  });
-  it('lets a household confirm only his own visit', () => {
-    const visit = { client_id: 'client', created_by: 'home' };
-    expect(canConfirmGate({ ...actor, role: 'client', client_kind: 'household', user: 'home' }, visit)).toBe(true);
-    expect(canConfirmGate({ ...actor, role: 'client', client_kind: 'household', user: 'other' }, visit)).toBe(false);
-    expect(canConfirmGate({ ...actor, role: 'technician', user: 'ravi' }, visit)).toBe(false);
   });
   it('shows a price the client was already told, and never a draft or a technician price', () => {
     expect(disclosedCost('technician', { payment_status: 'contract', quote_status: 'approved', quote_amount: 80, visit_shown: 150 }, 'AED')).toBeNull();
@@ -104,7 +92,7 @@ describe('learning and archives', () => {
     expect(readOnTheWay("I'm on the way to 12")).toEqual({ order: 12 });
     expect(readOnTheWay('أنا على الطريق')).toEqual({ order: null });
     expect(readPlanAsk("today's plan")).toBe('morning');
-    expect(readPlanAsk('أي شغل بدون تصريح بكرة')).toBe('gate');
+    expect(readPlanAsk('أي شغل بدون تصريح بكرة')).toBeNull();
     expect(readPlanApprove('approve the morning plan')).toBe('morning');
     expect(readOnTheWay('send a whatsapp')).toBeNull();
   });
@@ -129,10 +117,8 @@ describe('Gulf Arabic for the new sentences', () => {
     ...Object.values(DAY_REPLIES), ...Object.values(LEARN_REPLIES), ...Object.values(ARCHIVE_REPLIES),
     planSavedReply(0), planSavedReply(1),
     'A short thank you', 'Send thanks', 'Pick a rating from one to five.', 'Only the client rates the job.',
-    'Confirm gate pass', 'Not needed', 'Show the move', 'Urgent call', 'Off sick', 'Nothing is waiting',
     'Mark this job late', 'This practice control marks the job late. No message is sent.',
-    'Finish the contract', 'Clear the contract', 'Close this order', 'Close a parts order', 'Archive',
-    'Archive this document?', 'Remember', 'Yes',
+    'Remember', 'Yes',
   ];
   it.each(sources)('%s is written by hand in Gulf Arabic', source => {
     expect(file[source], source).toBeTruthy();

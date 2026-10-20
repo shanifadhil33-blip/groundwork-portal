@@ -1,3 +1,2 @@
-import { endpoint } from '../../../../../../lib/api';
-import * as supplier from '../../../../../../lib/services/supplier';
-export const GET=endpoint(({user,params})=>supplier.syncRuns(user,params.ws));
+// JOB08 Cobalt parts simulator hidden (scope cut, Adhil Oct 20 2026). lib/services/supplier.ts and the data stay.
+export const GET = async () => Response.json({ error: { code: 'removed', message: 'That is not part of Groundwork. Nothing was changed.' } }, { status: 410 });

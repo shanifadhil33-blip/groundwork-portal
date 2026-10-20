@@ -32,9 +32,9 @@ export function LeaveCalendar({ base, people, readOnly }: { base: string; people
   async function add() {
     setBusy(true); setError('');
     try {
-      const r = await request<{ clashes?: { title: string }[] }>(`${base}/time-off`, { method: 'POST', body: JSON.stringify({ user_id: who || workers[0]?.user_id, kind, starts_on: from, ends_on: to < from ? from : to }) });
+      const r = await request<{ clashes?: { title: string }[]; reopened?: number }>(`${base}/time-off`, { method: 'POST', body: JSON.stringify({ user_id: who || workers[0]?.user_id, kind, starts_on: from, ends_on: to < from ? from : to }) });
       setOpen(false); void list.reload();
-      toast(r.clashes?.length ? `Saved. ${r.clashes.length} booked ${r.clashes.length === 1 ? 'job needs' : 'jobs need'} someone else.` : 'Saved.');
+      toast(r.reopened ? `Saved. ${r.reopened === 1 ? '1 job went' : `${r.reopened} jobs went`} back to Open.` : r.clashes?.length ? `Saved. ${r.clashes.length} booked ${r.clashes.length === 1 ? 'job needs' : 'jobs need'} someone else.` : 'Saved.');
     } catch (e) { setError(e instanceof RequestError ? e.message : 'We could not save. Try again.'); } finally { setBusy(false); }
   }
   async function remove(id: string) { try { await request(`${base}/time-off/${id}`, { method: 'DELETE' }); void list.reload(); toast('Removed.'); } catch { toast('That did not save. Try again.'); } }

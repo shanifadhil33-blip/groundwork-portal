@@ -15,8 +15,8 @@ const state = (): CloseState => ({
 
 const plan: DayPlanData = {
   can_plan: true, demo: true, summary: '1 of 1 open jobs can be placed. Nothing is saved until you say yes.', fingerprint: 'fp',
-  lines: [{ job_id: 'j', order: 4, title: 'Tap', assignee_id: 'ravi', assignee_name: 'Ravi', hour: 9, window: '9 AM to 11 AM', why: 'Ravi covers this trade.', kind: 'place' }],
-  watch: [], gates: [{ id: 'g', order: 5, title: 'Gate', window: '9 AM to 11 AM' }], visits: [{ id: 'v', order: 6, title: 'Late visit' }],
+  lines: [{ job_id: 'j', order: 4, title: 'Tap', assignee_id: 'ravi', assignee_name: 'Ravi', hour: 9, why: 'Ravi covers this trade.', kind: 'place' }],
+  watch: [], visits: [{ id: 'v', order: 6, title: 'Late visit' }],
   people: [{ id: 'ravi', name: 'Ravi', away: null }],
 };
 
@@ -34,12 +34,13 @@ it('lets the client sign off in one tap and hides the draft bill', async () => {
   root.unmount();
 });
 
-it('shows the day plan full width with a yes button', async () => {
+it('shows the day plan as who does which job, with no arrival window, gate, urgent or sick card', async () => {
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host);
   const clicks: string[] = [];
-  await act(async () => { root.render(<DayPlanView data={plan} busy="" error="" notice="" onApprove={kind => clicks.push(kind)} onGate={() => undefined} onLate={() => undefined} onPreview={() => undefined} />); });
+  await act(async () => { root.render(<DayPlanView data={plan} busy="" error="" notice="" onApprove={kind => clicks.push(kind)} onLate={() => undefined} />); });
   expect(host.querySelector('.day-plan')).toBeTruthy();
-  expect(host.textContent).toContain('9 AM to 11 AM');
+  expect(host.textContent).toContain('Ravi');
+  for (const gone of ['AM to', 'Arrival window', 'gate pass', 'Urgent call', 'Off sick', 'Show the move']) expect(host.textContent).not.toContain(gone);
   expect(host.textContent).toContain('No message is sent');
   const yes = [...host.querySelectorAll('button')].find(button => button.textContent?.includes('Approve the plan'));
   await act(async () => { yes?.dispatchEvent(new MouseEvent('click', { bubbles: true })); });

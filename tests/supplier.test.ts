@@ -91,12 +91,6 @@ describe('Cobalt source, check and idempotent repair',()=>{
   const {result}=await dropped();await Promise.all([supplier.repair(ids.imran,ws,{}),supplier.ingestWebhook(signedRequest(result.event))]);
   const count=await withUser(ids.imran,async db=>(await db.query('SELECT count(*)::int AS n FROM supplier_events WHERE event_id=$1',[result.event.event_id])).rows[0].n);expect(count).toBe(1);
  });
- it('outage is a plain retryable 503 and persists an error run without business writes',async()=>{
-  await supplier.setOutage(ids.imran,ws,{outage:true});const before=await snapshot();
-  const response=await call(check.POST,'POST');expect(response.status).toBe(503);expect(response.body.error).toEqual({code:'cobalt_unavailable',message:'Cobalt is unavailable right now. Try again.'});
-  expect(await snapshot()).toEqual(before);expect((await supplier.syncRuns(ids.imran,ws))[0]).toMatchObject({status:'error',error_message:'Cobalt is unavailable right now. Try again.'});
-  await supplier.setOutage(ids.imran,ws,{outage:false});expect((await call(check.POST,'POST')).status).toBe(200);
- });
  it('repairs projection drift even when all receipts are present',async()=>{
   await supplier.repair(ids.imran,ws,{});
   await withSystem(db=>db.query("UPDATE supplier_orders SET local_status='shipped' WHERE workspace_id=$1 AND cobalt_ref='COBALT-DEMO-4'",[ws]));
@@ -104,33 +98,13 @@ describe('Cobalt source, check and idempotent repair',()=>{
   expect((await supplier.repair(ids.imran,ws,{})).repaired).toBe(1);
   const before=await snapshot();expect((await supplier.repair(ids.imran,ws,{})).repaired).toBe(0);expect(await snapshot()).toEqual(before);
  });
- it('places orders separately and changes only an eligible work-order status',async()=>{
-  user=ids.sam;const placed=await call(orders.POST,'POST',{work_order_id:orderId(3)});expect(placed.status).toBe(201);expect(placed.body.cobalt_ref).toMatch(/^CB-/);expect(placed.body.supplier).toBe('simulated supplier, part of this repo');
-  expect(await withUser(ids.sam,async db=>(await db.query('SELECT status FROM work_orders WHERE id=$1',[orderId(3)])).rows[0].status)).toBe('waiting_on_parts');
-  expect((await call(orders.POST,'POST',{work_order_id:orderId(5)})).status).toBe(422);
-  expect((await call(orders.POST,'POST',{work_order_id:orderId(61)})).status).toBe(404);
- });
- it('advances through signed ingest; cancellation and invalid transitions are handled',async()=>{
-  const changed=await call(advance.POST,'POST',{cobalt_ref:'COBALT-DEMO-1',status:'shipped'});expect(changed.body.delivered).toBe(true);
-  expect((await supplier.listOrders(ids.imran,ws)).data.find(o=>o.cobalt_ref==='COBALT-DEMO-1').local_status).toBe('shipped');
-  expect((await call(advance.POST,'POST',{cobalt_ref:'COBALT-DEMO-1',status:'ordered'})).status).toBe(422);
-  expect((await call(advance.POST,'POST',{cobalt_ref:'COBALT-DEMO-1',status:'cancelled'})).body.delivered).toBe(true);
- });
 });
 describe('supplier route roles, RLS and cron',()=>{
  const routeCases:[Handler,string,unknown?][]=[[orders.GET,'GET'],[orders.POST,'POST',{work_order_id:orderId(3)}],[check.POST,'POST'],[repair.POST,'POST',{}],[runs.GET,'GET'],[advance.POST,'POST',{cobalt_ref:'COBALT-DEMO-1',status:'shipped'}],[outage.POST,'POST',{outage:true}],[events.GET,'GET']];
- it('admin can check/repair; staff can GET but cannot check/repair/simulate',async()=>{
-  expect((await call(check.POST,'POST')).status).toBe(200);expect((await call(repair.POST,'POST',{})).status).toBe(200);
-  user=ids.sam;for(const [handler,method,body] of routeCases.filter(([h])=>h!==orders.POST))expect((await call(handler,method,body)).status).toBe(method==='GET'?200:403);
+ it('JOB08 hidden (scope cut Oct 20 2026): every supplier route answers 410 for every role and changes nothing',async()=>{
+  for(const identity of [ids.imran,ids.sam,ids.pranav,ids.summitAdmin]){user=identity;const before=await snapshot();for(const [handler,method,body] of routeCases){const response=await call(handler,method,body);expect(response.status).toBe(410);expect(response.body.error.code).toBe('removed');}expect(await snapshot()).toEqual(before);}
  });
- it.each([ids.pranav,ids.summitAdmin])('all supplier routes are neutral 404 for hidden role/workspace %s',async identity=>{
-  user=identity;for(const [handler,method,body] of routeCases){const response=await call(handler,method,body);expect(response.status).toBe(404);expect(response.body.error.code).toBe('not_found');}
- });
- it('never includes either secret in supplier route or webhook responses',async()=>{
-  for(const [handler,method,body] of routeCases){
-   const response=await call(handler,method,body),text=JSON.stringify(response.body);
-   expect(text).not.toContain(process.env.COBALT_WEBHOOK_SECRET);expect(text).not.toContain(process.env.CRON_SECRET);
-  }
+ it('never includes either secret in webhook responses',async()=>{
   const response=await webhook.POST(signedRequest(event()));const text=await response.text();
   expect(text).not.toContain(process.env.COBALT_WEBHOOK_SECRET);expect(text).not.toContain(process.env.CRON_SECRET);
  });
