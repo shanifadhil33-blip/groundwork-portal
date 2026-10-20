@@ -65,7 +65,7 @@ export async function getJobClose(user: string, ws: string, id: string) {
         // The draft bill is unsent and owner only, so its sample amounts never reach the client or technician.
         cost: actor.role === 'admin' ? draftCost(lines) : null,
         waiting: actor.role === 'admin' && lines.length > 0 && draftCost(lines) == null ? CLOSE_REPLIES.waitingOwner : null,
-        thanks: job.signed_off_at ? CLOSE_REPLIES.thanks : null,
+        thanks: job.signed_off_at && actor.role === 'client' ? CLOSE_REPLIES.thanks : null,
       },
     };
   }, user);

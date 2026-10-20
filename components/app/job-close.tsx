@@ -52,7 +52,7 @@ export function JobCloseView({ state, currency, busy, error, onSign, onMark, onK
     {state.marked && <p role="status">Marked. This closed job has no photos.</p>}
     {state.can_mark && <Button variant="secondary" busy={busy} onClick={onMark}>Mark no photos</Button>}
     {state.draft && <Card className="stack"><h2>Draft bill</h2>
-      <ul className="stack compact" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{state.draft.lines.map(line => <li key={`${line.label}:${line.detail}`}><span>{line.label}</span> <span data-no-translate>{line.detail}</span> <span data-no-translate>{line.amount ? `${currency} ${line.amount}` : state.draft?.waiting}</span></li>)}</ul>
+      <ul className="draft-lines" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{state.draft.lines.map(line => <li key={`${line.label}:${line.detail}`}><div><span className="small muted">{line.label}</span><span data-no-translate>{line.detail}</span></div><span className="amount" data-no-translate={line.amount ? true : undefined}><bdi dir="ltr">{line.amount ? `${currency} ${line.amount}` : state.draft?.waiting}</bdi></span></li>)}</ul>
       <p>{state.draft.status === 'kept' ? 'The owner kept this draft. It is not sent.' : 'Waiting for the owner'}</p>
       {state.draft.can_keep && <Button busy={busy} onClick={onKeep}>Keep this draft</Button>}
     </Card>}
