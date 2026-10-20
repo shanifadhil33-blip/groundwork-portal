@@ -40,7 +40,7 @@ export async function saveOnboarding(user:string,body:unknown){
  });
 }
 export async function onboardingInvite(user:string,value:string){await assertRealUser(user);return withUser(user,async db=>{const result=(await db.query('SELECT onboarding_invite_info($1) AS result',[hash(inviteFromText(value))])).rows[0].result;if(result.error)throw invalid('This invite is no longer available. Ask for a new invite.');return result;});}
-export async function findCompany(user:string,value:string){await assertRealUser(user);const search=z.string().trim().min(3).max(80).parse(value);return withUser(user,async db=>(await db.query('SELECT * FROM onboarding_find_company($1)',[search])).rows);}
+export { searchCompanies as findCompany } from './company-listing';
 export async function onboardingAcceptInvite(user:string,body:unknown){
  await assertRealUser(user);const d=z.object({token:z.string().min(32).max(200),allow_different_email:z.boolean().default(false)}).strict().parse(body);
  return withUser(user,async db=>{

@@ -2,7 +2,7 @@ import { label, clientStatusLabels, statusLabels } from './work-orders';
 type WorkNotification = {id:string;read_at:string|null;link_target:{entity:string;id:string}|null};
 // Navigation waits for the read receipt so the bell stays in sync with the opened item.
 export async function openNotificationTarget(item:WorkNotification,markRead:(id:string)=>Promise<unknown>,navigate:(id:string)=>void) {
- if(!item.link_target||!['work_order','work_orders','job_suggestions','time_off','members','conversations','team_space'].includes(item.link_target.entity))return false;
+ if(!item.link_target||!['work_order','work_orders','job_suggestions','time_off','members','conversations','team_space','join_requests'].includes(item.link_target.entity))return false;
  if(!item.read_at)await markRead(item.id);
  navigate(item.link_target.id);
  return true;
@@ -11,6 +11,7 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
 export function notificationMessage(r:Record<string,any>, client=false) {
  const labels=client?clientStatusLabels:statusLabels, status=(value:string)=>labels[value]??label(value);
  const title=r.work_order_title??r.current_title??'your job',actor=r.actor_name??'Your team';
+ if(r.kind==='company_join_accepted')return 'Your request to join was accepted. Open Find your company to continue.';
  if(r.kind==='emergency'||r.kind==='emergency_review')return String(r.work_order_title);
  if(r.kind==='team_message')return `${actor} wrote in Team space.`;
  if(r.kind==='message_received')return `${actor} sent you a message.`;

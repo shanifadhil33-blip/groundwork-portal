@@ -24,7 +24,7 @@ function place<T extends {country?:string;region?:string|null;currency?:string}>
 const schema=z.object({name,timezone:timezone.default('Asia/Dubai'),...placeFields,company_size:z.enum(['small','big']).default('small'),country:country.default('AE')}).strict().transform((d,ctx)=>{const v=place(d,ctx);return {...v,currency:v.currency??currencyFor(v.country)};});
 export async function me(user: string) {
  return withUser(user,async db=>({
-  user:(await db.query('SELECT u.*,s.is_demo FROM visible_user($1) u JOIN users s ON s.id=u.id',[user])).rows[0],
+  user:(await db.query('SELECT u.*,s.phone,s.is_demo FROM visible_user($1) u JOIN users s ON s.id=u.id',[user])).rows[0],
   onboarding_started:Boolean((await db.query('SELECT 1 FROM onboarding_progress WHERE user_id=$1',[user])).rows[0]),
   memberships:(await db.query('SELECT m.workspace_id,m.role,m.extra_roles,m.staff_kind,m.client_kind,m.is_owner,m.is_manager,m.client_id,w.name AS workspace_name,c.name AS client_name FROM members m JOIN workspaces w ON w.id=m.workspace_id LEFT JOIN clients c ON c.id=m.client_id WHERE m.user_id=$1 AND m.archived_at IS NULL ORDER BY w.name',[user])).rows,
  }));
@@ -49,17 +49,22 @@ export async function getWorkspace(user:string,ws:string) { return inWorkspace(u
 export const roleNames=z.object({admin:z.string().trim().max(40).optional(),staff:z.string().trim().max(40).optional(),technician:z.string().trim().max(40).optional(),client:z.string().trim().max(40).optional()}).strict()
  .transform(v=>Object.fromEntries(Object.entries(v).filter(([,x])=>x)));
 export async function patchWorkspace(user:string,ws:string,body:unknown) {
+ const listingChange=body&&typeof body==='object'&&['listed','listing_area'].some(k=>Object.hasOwn(body,k));
+ if(listingChange)await assertRealUser(user);
  return inWorkspace(user,ws,async c=>{
   const visitChange=body&&typeof body==='object'&&['visit_charge','visit_charge_regions','visit_charge_sample'].some(k=>Object.hasOwn(body,k));
   const owner=(await c.db.query('SELECT is_owner,role FROM members WHERE workspace_id=$1 AND user_id=$2 AND archived_at IS NULL',[ws,user])).rows[0];
   if(visitChange&&!owner?.is_owner&&owner?.role!=='admin')throw new ApiError(403,'forbidden','Only the owner or an admin can set the visit charge.');
-  if(!visitChange||!owner?.is_owner||Object.keys(body as object).some(k=>!['visit_charge','visit_charge_regions','visit_charge_sample'].includes(k)))allow(c,['admin']);const current=await row(c,'workspaces',ws);
-  const data=z.object({visit_charge:z.number().min(0).max(100000).nullable().optional(),visit_charge_regions:z.record(z.string().trim().min(1).max(60),z.number().min(0).max(100000)).refine(v=>Object.keys(v).length<=30,'Use at most 30 regions.').optional(),visit_charge_sample:z.boolean().optional(),name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional(),country:country.optional(),region:placeFields.region,currency:placeFields.currency,approval_mode:z.enum(['important','every']).optional(),owner_handover:z.array(z.enum(['approval_mode','payments'])).max(2).optional(),role_names:roleNames.optional(),...companyOptions}).strict()
+  const ownerFields=['visit_charge','visit_charge_regions','visit_charge_sample','listed','listing_area'];
+  if(listingChange&&!owner?.is_owner&&owner?.role!=='admin')throw new ApiError(403,'forbidden','Only the owner or an admin can change the company listing.');
+  if((!visitChange&&!listingChange)||!owner?.is_owner||Object.keys(body as object).some(k=>!ownerFields.includes(k)))allow(c,['admin']);const current=await row(c,'workspaces',ws);
+  const data=z.object({listed:z.boolean().optional(),listing_area:z.string().trim().max(120).nullable().optional(),visit_charge:z.number().min(0).max(100000).nullable().optional(),visit_charge_regions:z.record(z.string().trim().min(1).max(60),z.number().min(0).max(100000)).refine(v=>Object.keys(v).length<=30,'Use at most 30 regions.').optional(),visit_charge_sample:z.boolean().optional(),name:z.string().trim().min(1).max(80).optional(),timezone:timezone.optional(),country:country.optional(),region:placeFields.region,currency:placeFields.currency,approval_mode:z.enum(['important','every']).optional(),owner_handover:z.array(z.enum(['approval_mode','payments'])).max(2).optional(),role_names:roleNames.optional(),...companyOptions}).strict()
    .transform((d,ctx)=>{
     // A new country without a region clears the old one (it belonged to the old country's list).
     if(d.country&&d.country!==current.country&&d.region===undefined)d.region=null;
     return place({...d,country:d.country??current.country},ctx);
    }).parse(body);
+  if(data.listed&&current.is_demo)throw new ApiError(403,'forbidden','Demo companies cannot be listed.');
   // Only a real change needs the owner: a form that sends the current value back must still save the rest.
   if(data.approval_mode!==undefined&&data.approval_mode!==(current.approval_mode??'important'))await requireOwner(c,'approval_mode');
   if(data.owner_handover!==undefined&&JSON.stringify([...data.owner_handover].sort())!==JSON.stringify([...(current.owner_handover??[])].sort()))await requireOwner(c,'handover');

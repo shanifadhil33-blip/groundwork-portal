@@ -43,7 +43,7 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON push_subscriptions TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON company_documents TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON time_off TO ${role}`);
-    await client.query(`GRANT SELECT(id,name,email,image,is_demo),UPDATE(name,phone) ON users TO ${role}`);
+    await client.query(`GRANT SELECT(id,name,email,image,phone,is_demo),UPDATE(name,phone) ON users TO ${role}`);
     await client.query(`GRANT SELECT,INSERT ON api_tokens TO ${role}`);
     await client.query(`GRANT UPDATE(revoked_at) ON api_tokens TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE ON assistant_actions TO ${role}`);
@@ -67,6 +67,8 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT SELECT,INSERT,UPDATE ON agent_questions TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE ON assets TO ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION visible_job_asset(uuid,uuid) TO ${role}`);
+    await client.query(`GRANT SELECT ON join_requests TO ${role}`);
+    await client.query(`GRANT EXECUTE ON FUNCTION read_company_replies(),search_listed_companies(text),request_company_join(uuid,text,text,text,text,text),decide_company_join(uuid,uuid,text),edit_household_address(uuid,uuid,text),my_company_requests() TO ${role}`);
     // TECH08 English copy columns are covered by existing work_orders grants.
     await client.query('COMMIT');
   } catch(error) { await client.query('ROLLBACK'); throw error; }
