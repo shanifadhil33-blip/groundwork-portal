@@ -7,6 +7,7 @@ import { requiredEnv } from '../env';
 import { populateFixture,ids as fixtureIds } from '../fixture';
 import { sessionCookie } from '../auth';
 import { DUNE_HARBOUR_NAME, DUNE_PERSONAS, populateDuneHarbour } from '../fixture-dune-harbour';
+import { overdueSql } from '../dates';
 const RIDGELINE_PERSONAS=['imran','sam','ravi','pranav','omar','nabil','kevin','faisal'] as const;
 const RIDGELINE_NAME='Ridgeline Facility Services';
 type Company='ridgeline'|'dune_harbour';
@@ -113,5 +114,18 @@ export async function isolationCheck(user:string){
  const crossQuery='SELECT id FROM work_orders WHERE workspace_id=$1';
  const database_role=(await db.query('SELECT current_user AS name')).rows[0].name;
  return {database_role,role:m.role,client,query,params,row_count,...(m.role==='client'?{}:{explanation:m.role==='technician'?'Technicians see only the clients and sites of jobs assigned to them.':'Supervisors and admins can see all clients in their sandbox.'}),cross_workspace:{query:crossQuery,params:[other],row_count:(await db.query(crossQuery,[other])).rowCount??0}};
+ });
+}
+/** DEMO12: labelled demo control. Moves one open job of today (or the next one) to due yesterday so the late flow can be shown live.
+ * Demo sandboxes only, office roles only; it changes one due date and nothing else. */
+export async function makeJobLate(user:string){
+ const m=await withSystem(db=>context(db,user));
+ if(!['admin','supervisor','staff'].includes(m.role))throw new ApiError(403,'forbidden','Only the office can use this demo control.');
+ return withUser(user,async db=>{
+  const pick=(await db.query(`SELECT id,title FROM work_orders WHERE workspace_id=$1 AND status IN ('open','scheduled','in_progress') AND NOT (${overdueSql})
+   ORDER BY (scheduled_for IS NULL), scheduled_for, order_number LIMIT 1`,[m.workspace_id])).rows[0];
+  if(!pick)throw new ApiError(409,'nothing_to_move','Every open job is already late.');
+  await db.query("UPDATE work_orders SET due_on=((CURRENT_TIMESTAMP AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=$2))::date-1), updated_at=now() WHERE id=$1 AND workspace_id=$2",[pick.id,m.workspace_id]);
+  return {work_order_id:pick.id as string,title:pick.title as string};
  });
 }
