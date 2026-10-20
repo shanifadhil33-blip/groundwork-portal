@@ -15,6 +15,8 @@ import { useApp } from './context';
 import { Greeting } from './greeting';
 import { AgentQuestions, MyAgentQuestions } from './agent-questions';
 import { formatInLang } from '../../lib/date-lang';
+import { DayPlan } from './day-plan-card';
+import { arrivalLabel } from '../../lib/day-plan';
 import { latePlan, nextSlot, type Worker } from '../../lib/late-plan';
 import { useResource } from './resource';
 import { BottomSheet, Button, Card, ConfirmDialog, EmptyState, ErrorState, LocalTime, StatusBadge, Skeleton, Badge } from '../ui';
@@ -90,13 +92,13 @@ export function ContractTimes({items}:{items:ResponseWatchItem[]}){
  </li>)}</ul></Card>;
 }
 export function Dashboard({firstUse=false}:{firstUse?:boolean}) {const {member,workspace,me}=useApp(),base=member?`/api/workspaces/${member.workspace_id}`:null,r=useResource<Data>(base?`${base}/dashboard`:null),total=r.data?Object.values(r.data.by_status).reduce((a,b)=>a+b,0):0;if(!base||!member)return <div className="page stack"><h1>Home</h1><p>Your setup answers stay saved while you look around.</p><Link className="button primary" href="/onboarding">Continue setup</Link><Link href="/settings">Open settings</Link></div>;const d=r.data;
- return <div className="page stack dashboard-page"><Greeting/><PageHeader><h1>{member.role==='staff'&&member.staff_kind!=='office'?'Plan the day':'Dashboard'}</h1><Link className="button primary" href="/work-orders/new"><Plus size={16} aria-hidden="true"/>New job</Link></PageHeader><ContractTimes items={d?.contract_watch??[]}/>{member.role==='staff'&&member.staff_kind!=='office'?<><AgentQuestions base={base}/><DashboardJobs base={base} count={d?.today_jobs??0}/><NeedsAction base={base}/></>:<><AgentQuestions base={base}/>{member.role==='staff'&&member.staff_kind==='office'&&<MyAgentQuestions base={base}/>}<NeedsAction base={base}/><DashboardJobs base={base} count={d?.today_jobs??0}/></>}{member.role==='staff'&&member.staff_kind!=='office'&&<TeamToday base={base}/>}{r.error&&<ErrorState message="We couldn’t load your jobs." retry={r.reload}/>}<SuggestedJobs summary/><LeaveRequests base={base} self={me.user.id}/><ExpiringDocuments base={base}/><AgentCard/>{d&&<FirstUse base={base} total={total} initial={firstUse||!!workspace?.is_demo}/>}</div>; }
+ return <div className="page stack dashboard-page"><Greeting/><PageHeader><h1>{member.role==='staff'&&member.staff_kind!=='office'?'Plan the day':'Dashboard'}</h1><Link className="button primary" href="/work-orders/new"><Plus size={16} aria-hidden="true"/>New job</Link></PageHeader><ContractTimes items={d?.contract_watch??[]}/>{base&&<DayPlan base={base}/>}{member.role==='staff'&&member.staff_kind!=='office'?<><AgentQuestions base={base}/><DashboardJobs base={base} count={d?.today_jobs??0}/><NeedsAction base={base}/></>:<><AgentQuestions base={base}/>{member.role==='staff'&&member.staff_kind==='office'&&<MyAgentQuestions base={base}/>}<NeedsAction base={base}/><DashboardJobs base={base} count={d?.today_jobs??0}/></>}{member.role==='staff'&&member.staff_kind!=='office'&&<TeamToday base={base}/>}{r.error&&<ErrorState message="We couldn’t load your jobs." retry={r.reload}/>}<SuggestedJobs summary/><LeaveRequests base={base} self={me.user.id}/><ExpiringDocuments base={base}/><AgentCard/>{d&&<FirstUse base={base} total={total} initial={firstUse||!!workspace?.is_demo}/>}</div>; }
 
 /** Top 10 moment 8: the Agent drafts a new time and a backup for a late job. It suggests, Sam decides. */
 function LatePlan({base,job,busy,onYes}:{base:string;job:WorkOrder;busy:boolean;onYes:(to:string,when:string)=>void}){
  const {workspace,me}=useApp(),r=useResource<{workers:Worker[]}>(`${base}/work-orders/${job.id}/suggest`);
  if(!r.data)return null;const plan=latePlan(r.data.workers,job.assignee_id??null,me.user.id);if(!plan)return null;
  const tz=workspace?.timezone??'Asia/Dubai',when=nextSlot(new Date(),tz,(workspace as {working_days?:number[]}|null)?.working_days);
- const label=new Intl.DateTimeFormat('en-GB',{timeZone:tz,weekday:'long',hour:'numeric',minute:'2-digit'}).format(new Date(when));
- return <div className="late-plan stack compact"><strong>Agent suggests</strong><p>Give it to <span data-no-translate>{plan.main.name}</span> on {label}{plan.backup?<>, with <span data-no-translate>{plan.backup.name}</span> as backup</>:null}.</p><p className="small muted">Why: {plan.why}. Nothing changes until you tap Yes.</p><Button busy={busy} onClick={()=>onYes(plan.main.user_id,when)}>Yes, do it</Button></div>;
+ const label=arrivalLabel(when, tz);
+ return <div className="late-plan stack compact"><strong>Agent suggests</strong><p>Give it to <span data-no-translate>{plan.main.name}</span>. <span>Arrival window</span> <bdi dir="ltr" data-no-translate>{label}</bdi>{plan.backup?<>, with <span data-no-translate>{plan.backup.name}</span> as backup</>:null}.</p><p className="small muted">Why: {plan.why}. Nothing changes until you tap Yes.</p><Button busy={busy} onClick={()=>onYes(plan.main.user_id,when)}>Yes, do it</Button></div>;
 }

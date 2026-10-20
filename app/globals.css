@@ -1208,3 +1208,13 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 .job-next-step .button,.job-next-step .button-sizer{white-space:normal;overflow-wrap:anywhere;min-width:0}
 .job-next-step .button{min-height:44px}
 .job-next-step img{display:block;max-width:100%}
+.day-plan,.habit-card,.parts-keep,.contract-finish,.job-done-card,.gate-list{width:100%;min-width:0;box-sizing:border-box}
+.day-plan .button,.habit-card .button,.parts-keep .button,.contract-finish .button,.job-done-card .button,.doc-actions .button,.day-plan select,.job-done-card .rating-pick button{min-height:44px;min-width:44px}
+.job-done-card .rating-pick{display:flex;flex-wrap:wrap;gap:8px}
+.job-done-card .rating-pick button{font-size:28px;line-height:1;background:none;border:1px solid var(--border);border-radius:8px;color:#8a8a8a;cursor:pointer}
+.job-done-card .rating-pick button.on{color:#b7791f;border-color:#b7791f}
+.day-plan select{width:100%}
+@media(max-width:390px){.day-plan,.habit-card,.parts-keep,.contract-finish,.job-done-card{width:100%}}
+@media(max-width:360px){.day-plan,.habit-card,.parts-keep,.contract-finish,.job-done-card{width:100%}}
+@media(hover:hover) and (pointer:fine){.day-plan .button.secondary:hover,.habit-card .button:hover,.parts-keep .button:hover,.contract-finish .button:hover,.job-done-card .rating-pick button:hover,.doc-actions .button:hover{background:var(--hover)}}
+.day-plan .button:active,.habit-card .button:active,.parts-keep .button:active,.contract-finish .button:active,.job-done-card .rating-pick button:active,.doc-actions .button:active{background:var(--pressed)}

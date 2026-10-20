@@ -2,6 +2,7 @@ import { requireOwner } from './owner';
 import { z } from 'zod';
 import { ApiError } from '../http';
 import { withSystem } from '../db';
+import { ARCHIVE_REPLIES } from '../record-archive';
 import { allow, inWorkspace, row, uuid, type Context } from './shared';
 
 export const PAYMENT_LABELS: Record<string, string> = { to_bill: 'To bill', contract: 'Covered by contract', paid: 'Paid' };
@@ -39,6 +40,10 @@ export async function setJobPayment(user: string, ws: string, id: string, body: 
     if (c.role !== 'admin') throw new ApiError(403, 'forbidden', 'Only an admin can change how a job is paid. Ask your admin.');
     const { payment_status } = schema.parse(body);
     if(payment_status==='paid')await requireOwner(c,'payments');
+    if (payment_status === 'contract') {
+      const closed = (await c.db.query('SELECT contract_archived_at FROM clients WHERE workspace_id=$1 AND id=$2', [ws, seen.client_id])).rows[0];
+      if (closed?.contract_archived_at) throw new ApiError(409, 'closed', ARCHIVE_REPLIES.contractClosed);
+    }
     // No row lock for a finished job: the owner connection below must be able to write it.
     const order = seen.status === 'done' ? seen : await row(c, 'work_orders', id, true);
     if (order.status === 'cancelled') throw new ApiError(422, 'invalid', 'This job was cancelled, so there is nothing to pay.');

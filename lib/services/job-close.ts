@@ -1,8 +1,10 @@
 import type { PoolClient } from 'pg';
 import { withSystem } from '../db';
 import { ApiError } from '../http';
-import { CLOSE_REPLIES, canApproveDraft, canMarkNoPhotos, canSignOff, draftCost, draftLines, noPhotosRefusal, signOffRefusal, type CloseActor, type CloseJob, type DraftLine } from '../job-close';
+import { CLOSE_REPLIES, canApproveDraft, canMarkNoPhotos, canSignOff, draftCost, draftLines, lowRatingRecipients, noPhotosRefusal, signOffRefusal, type CloseActor, type CloseJob, type DraftLine } from '../job-close';
+import { disclosedCost } from '../day-plan';
 import { OUTCOME_LABELS } from './job-report';
+import { sendPush } from './push';
 import { uuid } from './shared';
 
 const denied = () => new ApiError(403, 'forbidden', 'You cannot make this change on this job.');
@@ -49,6 +51,10 @@ export async function getJobClose(user: string, ws: string, id: string) {
     const lines = draftRow?.lines ?? [];
     const name = (await db.query('SELECT name FROM visible_assignee($1,$2)', [ws, id])).rows[0]?.name as string | undefined;
     const outcome = job.report_outcome && job.report_outcome in OUTCOME_LABELS ? OUTCOME_LABELS[job.report_outcome as keyof typeof OUTCOME_LABELS] : 'Done';
+    const money = (await db.query(`SELECT w.currency, o.payment_status, o.quote_status, o.quote_amount,
+      (SELECT s.visit_charge_shown FROM job_suggestions s WHERE s.workspace_id=o.workspace_id AND s.work_order_id=o.id AND s.visit_charge_shown IS NOT NULL ORDER BY s.decided_at DESC NULLS LAST LIMIT 1) AS visit_shown
+      FROM work_orders o JOIN workspaces w ON w.id=o.workspace_id WHERE o.workspace_id=$1 AND o.id=$2`, [ws, id])).rows[0];
+    const shown = money ? disclosedCost(actor.role, money, String(money.currency ?? '')) : null;
     return {
       can_sign_off: canSignOff(actor, job),
       signed_off: !!job.signed_off_at,
@@ -65,14 +71,59 @@ export async function getJobClose(user: string, ws: string, id: string) {
         // The draft bill is unsent and owner only, so its sample amounts never reach the client or technician.
         cost: actor.role === 'admin' ? draftCost(lines) : null,
         waiting: actor.role === 'admin' && lines.length > 0 && draftCost(lines) == null ? CLOSE_REPLIES.waitingOwner : null,
-        thanks: job.signed_off_at && actor.role === 'client' ? CLOSE_REPLIES.thanks : null,
+        thanks: job.signed_off_at && actor.role === 'client' && (await db.query('SELECT 1 FROM job_ratings WHERE work_order_id=$1', [id])).rows[0] ? CLOSE_REPLIES.thanks : null,
+        shown_label: shown?.label ?? null,
+        shown_amount: shown?.amount ?? null,
       },
     };
   }, user);
 }
 
-export async function signOffJob(user: string, ws: string, id: string) {
-  return withSystem(async db => ({ reply: await applySignOff(db, user, ws, id) }), user);
+const rateOnly = 'Only the client rates the job.';
+const pickStars = 'Pick a rating from 1 to 5.';
+
+async function writeRating(db: PoolClient, user: string, ws: string, id: string, clientId: string, stars: number, thanks: string) {
+  const saved = (await db.query(`INSERT INTO job_ratings(work_order_id,workspace_id,client_id,rated_by,stars,note)
+    VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT (work_order_id) DO NOTHING RETURNING stars`, [id, ws, clientId, user, stars, thanks])).rows[0];
+  if (!saved || stars > 2) return [] as string[];
+  const people = (await db.query("SELECT user_id,role,staff_kind FROM members WHERE workspace_id=$1 AND archived_at IS NULL AND role IN ('admin','staff')", [ws])).rows;
+  const job = (await db.query('SELECT assignee_id, title, order_number FROM work_orders WHERE workspace_id=$1 AND id=$2', [ws, id])).rows[0];
+  const to = lowRatingRecipients(people, job?.assignee_id ?? null).filter(id => id !== user);
+  if (to.length) await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,work_order_title,job_step_body)
+    SELECT unnest($1::uuid[]),$2,'low_rating','work_orders',$3,$4,$5`, [to, ws, id, job?.title ?? '', 'A client gave a low rating. Open the job.']);
+  return to;
+}
+
+/** The client signs off, rates and thanks in one step. The office signs off with no rating. A low rating is recorded for supervisors and the reply never says a message was sent. */
+export async function signOffJob(user: string, ws: string, id: string, input?: { stars?: number; thanks?: string }) {
+  const stars = input?.stars;
+  const thanks = (input?.thanks ?? '').trim();
+  const saved = await withSystem(async db => {
+    const { actor, job } = await context(db, user, ws, id);
+    if (actor.role !== 'client' && (stars || thanks)) throw new ApiError(422, 'validation', rateOnly);
+    if (actor.role === 'client' && (!stars || stars < 1 || stars > 5)) throw new ApiError(422, 'validation', pickStars);
+    const reply = await applySignOff(db, user, ws, id);
+    const to = actor.role === 'client' && stars ? await writeRating(db, user, ws, id, String(actor.client_id), stars, thanks) : [];
+    return { reply, to, title: job.title, order: job.order_number };
+  }, user);
+  if (saved.to.length) await sendPush(saved.to, { title: 'Low rating', body: `WO ${saved.order} ${saved.title}`, url: `/work-orders/${id}`, tag: `rating-${id}` });
+  return { reply: saved.reply };
+}
+
+export async function thankJob(user: string, ws: string, id: string, input?: { stars?: number; thanks?: string }) {
+  const stars = input?.stars;
+  const thanks = (input?.thanks ?? '').trim();
+  const saved = await withSystem(async db => {
+    const { actor, job } = await context(db, user, ws, id);
+    if (actor.role !== 'client') throw new ApiError(403, 'forbidden', rateOnly);
+    if (!job.signed_off_at) throw new ApiError(409, 'closed', CLOSE_REPLIES.notDone);
+    const existing = (await db.query('SELECT stars FROM job_ratings WHERE work_order_id=$1', [id])).rows[0];
+    if (!existing && (!stars || stars < 1 || stars > 5)) throw new ApiError(422, 'validation', pickStars);
+    const to = !existing && stars ? await writeRating(db, user, ws, id, String(actor.client_id), stars, thanks) : [];
+    return { reply: CLOSE_REPLIES.thanks, to, title: job.title, order: job.order_number };
+  }, user);
+  if (saved.to.length) await sendPush(saved.to, { title: 'Low rating', body: `WO ${saved.order} ${saved.title}`, url: `/work-orders/${id}`, tag: `rating-${id}` });
+  return { reply: saved.reply };
 }
 
 export async function markNoPhotos(user: string, ws: string, id: string) {
