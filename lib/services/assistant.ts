@@ -80,7 +80,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
   if(intake)return intake;
  }
  // DEMO14: a question that needs the AI in a demo sandbox counts toward the demo limit; over it, a friendly note.
- if(!input.confirm_action_id&&!(await demoAgentAllowed(ws))){const sl=safetyLine(input.messages.filter(m=>m.role==='user').at(-1)?.content);return {available:true,reply:sl?`${sl}\n\n${DEMO_REST}`:DEMO_REST,demo_rest:true};}
+ if(!input.confirm_action_id&&(await demoAgentAllowed(ws))===false){const sl=safetyLine(input.messages.filter(m=>m.role==='user').at(-1)?.content);return {available:true,reply:sl?`${sl}\n\n${DEMO_REST}`:DEMO_REST,demo_rest:true};}
  const offers:RefusalOffer[]=[];
  const result=await assistantInner(user,ws,body,offers);
  if(!offers.length)await refusedOnItsOwn(user,ws,body,result,offers).catch(()=>undefined);
