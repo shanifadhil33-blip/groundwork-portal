@@ -289,3 +289,40 @@ html[data-theme=dark] body:has(.app-shell) .assistant-composer .button.secondary
 .next-job-facts>div{padding-bottom:6px}
 .next-job-back-actions{align-items:center}
 .next-job-back-actions .ds-flip-btn{flex:0 0 auto}
+
+/* Desert Stone 6: Jobs list, Schedule and Requests. Tables sit in a light panel with hairlines; phone rows are tonal cards. */
+body:has(.app-shell) .app-main :is(.table-wrap,.responsive-table){background:var(--surface);border:0;border-radius:24px;overflow:hidden}
+body:has(.app-shell) .app-main .table-wrap th{background:transparent;color:var(--text-muted);font-weight:600;font-size:14px;border-bottom:0}
+body:has(.app-shell) .app-main .table-wrap td{border-top:1px solid var(--line);border-bottom:0}
+body:has(.app-shell) .app-main .table-wrap tr:first-child td{border-top:1px solid var(--line)}
+@media(max-width:640px){
+ body:has(.app-shell) .app-main .responsive-table{background:transparent;border-radius:0}
+ body:has(.app-shell) .app-main .responsive-table tbody tr{background:var(--surface);border:0;border-radius:16px;margin-bottom:8px}
+ body:has(.app-shell) .app-main .responsive-table td{border:0}
+}
+body:has(.app-shell) .app-main :is(.work-list-item,.queue-row,.attention-row,.day-next){background:var(--surface);border:0;border-radius:16px}
+body:has(.app-shell) .app-main .toolbar-controls :is(.search-control input,.dropdown-trigger){border-radius:999px;border:1px solid var(--line);background:var(--surface-2)}
+body:has(.app-shell) .app-main .tabs{background:transparent;border:0;gap:6px}
+body:has(.app-shell) .app-main .tabs button{border-radius:999px;border:1.5px solid var(--line);background:transparent}
+body:has(.app-shell) .app-main .tabs button[aria-selected=true],body:has(.app-shell) .app-main .tabs button[aria-pressed=true]{background:var(--hero);color:var(--on-hero);border-color:var(--hero)}
+body:has(.app-shell) .assistant-composer .assistant-input-row textarea{background:transparent!important}
+
+/* Desert Stone 6b: Schedule board on light panels with hairlines; the current person row tinted, not boxed */
+body:has(.app-shell) .schedule-page :is(.sched-week,.sched-tray,.sched-phone){background:var(--surface);border:0;border-radius:24px}
+body:has(.app-shell) .schedule-page .sched-row{border-top:1px solid var(--line);border-inline:0;border-bottom:0}
+body:has(.app-shell) .schedule-page .sched-head{color:var(--text-muted);font-weight:600}
+body:has(.app-shell) .schedule-page .sched-time{font-variant-numeric:tabular-nums;font-weight:600}
+body:has(.app-shell) .schedule-page .sched-nav .button{border-radius:999px}
+
+/* Desert Stone 7: Chats, Settings and sign in */
+body:has(.app-shell) .messages-page :is(.message-list,.message-thread){background:var(--surface);border:0;border-radius:24px}
+body:has(.app-shell) .messages-page .message-list>li+li{border-top:1px solid var(--line)}
+body:has(.app-shell) .app-main :is(.form-field,.field)>span:first-child,body:has(.app-shell) .app-main .field-label{font-size:14px;font-weight:600;color:var(--text)}
+body:has(.app-shell) .app-main :is(.form-field,.field) :is(input:not([type=checkbox]):not([type=radio]),select){min-height:52px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2)}
+body:has(.app-shell) .app-main :is(.form-field,.field) textarea{border-radius:14px;border:1px solid var(--line);background:var(--surface-2)}
+body:has(.app-shell) .app-main .inline-error{color:var(--danger)}
+.auth-page{background:#EFECE6}
+.auth-page .auth-card{background:#FAF8F4;border:0;border-radius:24px;box-shadow:none}
+.auth-page .auth-card .button.primary{background:#2A2723;color:#F5F1EA;border-radius:16px;min-height:52px}
+.auth-page .auth-card .button:not(.primary){border-radius:16px;min-height:52px;border:1.5px solid #E6E0D6;background:transparent}
+.auth-page .text-link{color:#7E6131}
