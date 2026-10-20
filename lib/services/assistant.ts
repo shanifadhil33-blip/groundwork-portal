@@ -1,3 +1,4 @@
+import { quickJobStep, confirmJobNextStep } from './job-next-step';
 import { listWords,resolveWords } from './agent-words';
 import { ownerToolPower, ownerCan, OWNER_REFUSAL } from './owner';
 import { householdIntake, confirmHousehold } from './household';
@@ -61,8 +62,13 @@ export const assistantUnavailable={available:false,message:'I can’t answer tha
 const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant']),content:z.string().min(1).max(20000)}).strict()).max(30),confirm_action_id:uuid.optional(),household_photo_ids:z.array(uuid).max(4).optional()}).strict();
 export async function assistant(user:string,ws:string,body:unknown) {
  const input=schema.parse(body);
+ if(input.confirm_action_id){
+  const own=await inWorkspace(user,ws,async c=>(await c.db.query("SELECT tool FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND id=$3",[ws,user,input.confirm_action_id])).rows[0]);
+  if(own?.tool==='job_next_step')return confirmJobNextStep(user,ws,input.confirm_action_id);
+ }
  if(!input.confirm_action_id){
   const words=input.messages.filter(m=>m.role==='user').at(-1)?.content??'';
+  const jobStep=await quickJobStep(user,ws,words);if(jobStep)return jobStep;
   const emergency=await reportEmergency(user,ws,words);
   if(emergency)return emergency;
   const intake=await householdIntake(user,ws,input.messages,input.household_photo_ids);

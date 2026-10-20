@@ -1,3 +1,4 @@
+import { approveReportFollowUp } from './job-next-step';
 import { tenantFields, tenantValues, normalizeTenant, checkTenantInput, visibleTenant } from './tenant';
 import { visitChargeFor, type VisitCharge } from './visit-charge';
 import { householdFields } from '../agent/household';
@@ -51,6 +52,11 @@ export async function decideSuggestion(user:string,ws:string,id:string,body:unkn
  uuid.parse(id);
  await inWorkspace(user,ws,async c=>checkTenantInput(c,(body as {overrides?:unknown})?.overrides));
  const d=z.discriminatedUnion('decision',[z.object({decision:z.literal('approved'),overrides:suggestionInput.partial().optional()}).strict(),z.object({decision:z.literal('declined'),reason:z.string().trim().min(1).max(2000)}).strict()]).parse(body);
+ const reportDraft=await inWorkspace(user,ws,async c=>{allowTeam(c);return (await c.db.query('SELECT report_follow_up_of FROM job_suggestions WHERE workspace_id=$1 AND id=$2',[ws,id])).rows[0]?.report_follow_up_of;});
+ if(reportDraft&&d.decision==='approved'){
+  if(d.overrides&&Object.keys(d.overrides).length)throw invalid('Review this follow up visit on the job.');
+  return approveReportFollowUp(user,ws,id);
+ }
  return inWorkspace(user,ws,async c=>{
   allowTeam(c);
   const s=(await c.db.query('SELECT * FROM job_suggestions WHERE workspace_id=$1 AND id=$2 FOR UPDATE',[ws,id])).rows[0];if(!s)throw missing();

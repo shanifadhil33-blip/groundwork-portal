@@ -9,6 +9,7 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
 }
 
 export function notificationMessage(r:Record<string,any>, client=false) {
+ if(r.job_step_body)return String(r.job_step_body);
  const labels=client?clientStatusLabels:statusLabels, status=(value:string)=>labels[value]??label(value);
  const title=r.work_order_title??r.current_title??'your job',actor=r.actor_name??'Your team';
  if(r.kind==='company_join_accepted')return 'Your request to join was accepted. Open Find your company to continue.';

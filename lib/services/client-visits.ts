@@ -55,11 +55,17 @@ export async function freeVisitSlots(user: string, ws: string, input: unknown) {
   if (job.status !== 'scheduled' || !canCancelVisit(job)) throw invalid('Ask the supervisor to change this visit.');
   return withSystem(async db => {
     const c: Context = { db, ws, user, role: 'client', client_id: job.client_id };
+    return slotsForJob(c, job, d);
+  }, user);
+}
+/** HOME07 slot engine shared by return visits. Call only after checking who can book this job. */
+export async function slotsForJob(c: Context, job: Record<string, any>, d: {day?:string;time?:string;period:string} = {period:'any'}) {
+    const db=c.db, ws=c.ws;
     const candidates = (await db.query(`WITH settings AS (SELECT *,coalesce($2::date,(now() AT TIME ZONE timezone)::date) AS day FROM workspaces WHERE id=$1),
       candidates AS (SELECT ((day + n + (working_hours->>'start')::time) AT TIME ZONE timezone) + minutes * interval '30 minutes' AS at, timezone FROM settings CROSS JOIN generate_series(0,13) n CROSS JOIN LATERAL generate_series(0,greatest(0,floor(extract(epoch FROM ((working_hours->>'end')::time - (working_hours->>'start')::time))/1800)::int - 2)) minutes
       UNION SELECT (day + $3::time) AT TIME ZONE timezone,timezone FROM settings WHERE $3::time IS NOT NULL)
       SELECT DISTINCT at FROM candidates WHERE at>now() AND ($4='any' OR ($4='morning' AND EXTRACT(HOUR FROM at AT TIME ZONE timezone)<12) OR ($4='afternoon' AND EXTRACT(HOUR FROM at AT TIME ZONE timezone)>=12))
-      ORDER BY at LIMIT 700`, [ws, d.day ?? null, d.time ?? null, d.period])).rows;
+      ORDER BY at LIMIT 700`, [c.ws, d.day ?? null, d.time ?? null, d.period])).rows;
     const exact = d.day && d.time ? (await db.query('SELECT ($1::date + $2::time) AT TIME ZONE timezone AS at FROM workspaces WHERE id=$3', [d.day, d.time, ws])).rows[0]?.at : null;
     const ordered = exact ? [{ at: exact }, ...candidates.filter(r => new Date(r.at).getTime() !== new Date(exact).getTime())] : candidates;
     const slots: string[] = [];
@@ -68,8 +74,7 @@ export async function freeVisitSlots(user: string, ws: string, input: unknown) {
       try { await assertFreeVisit(c, job, at); slots.push(at); if (slots.length === 3 || exact && at === new Date(exact).toISOString()) break; }
       catch (e) { if (!(e instanceof ApiError && e.status === 422)) throw e; }
     }
-    return { id: job.id, updated_at: new Date(job.updated_at).toISOString(), slots, timezone: (await db.query('SELECT timezone FROM workspaces WHERE id=$1', [ws])).rows[0].timezone };
-  }, user);
+    return { id: job.id, updated_at: new Date(job.updated_at).toISOString(), slots, timezone: (await db.query('SELECT timezone FROM workspaces WHERE id=$1', [c.ws])).rows[0].timezone };
 }
 async function notice(c: Context, job: Record<string, any>, kind: string, supervisorOnly = false) {
   await c.db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title)

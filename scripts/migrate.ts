@@ -69,6 +69,7 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT EXECUTE ON FUNCTION visible_job_asset(uuid,uuid) TO ${role}`);
     await client.query(`GRANT SELECT ON join_requests TO ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION read_company_replies(),search_listed_companies(text),request_company_join(uuid,text,text,text,text,text),decide_company_join(uuid,uuid,text),edit_household_address(uuid,uuid,text),my_company_requests() TO ${role}`);
+    await client.query(`GRANT SELECT ON job_visits TO ${role}`);
     // TECH08 English copy columns are covered by existing work_orders grants.
     await client.query('COMMIT');
   } catch(error) { await client.query('ROLLBACK'); throw error; }

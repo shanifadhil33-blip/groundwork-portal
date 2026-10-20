@@ -1201,3 +1201,9 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
  .app-header:has(.company-mode) .header-actions { margin-inline-start: auto; }
  .company-mode .button { padding-inline: var(--s2); }
 }
+
+/* Return visit cards keep long translated labels inside narrow phone columns. */
+.job-next-step,.job-next-step .stack{min-width:0;max-width:100%}
+.job-next-step .button,.job-next-step .button-sizer{white-space:normal;overflow-wrap:anywhere;min-width:0}
+.job-next-step .button{min-height:44px}
+.job-next-step img{display:block;max-width:100%}

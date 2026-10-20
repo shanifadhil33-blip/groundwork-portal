@@ -49,7 +49,7 @@ const OUTCOMES: { v: Outcome; label: string; hint: string }[] = [
 export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string; onClose: () => void; onSaved: (outcome: Outcome, record: JobRecord) => void }) {
   const photos = useResource<Photo[]>(`${base}/work-orders/${j.id}/photos`), after = (Array.isArray(photos.data) ? photos.data : []).filter(p => p.kind === 'after').length;
   const {me,member}=useApp();
-  const [draft,setDraft,clearDraft]=useLocalDraft(`groundwork-report:${me.user.id}:${member?.workspace_id}:${j.id}`,{problem:'',work:'',outcome:null as Outcome|null});
+  const [draft,setDraft,clearDraft]=useLocalDraft(`groundwork-report:${me.user.id}:${member?.workspace_id}:${j.id}`,{problem:'',work:'',part:'',outcome:null as Outcome|null});
   const {problem,work,outcome}=draft;const setProblem=(problem:string)=>setDraft(d=>({...d,problem})),setWork=(work:string)=>setDraft(d=>({...d,work})),setOutcome=(outcome:Outcome)=>setDraft(d=>({...d,outcome}));
   const [busy,setBusy]=useState(false),toast=useToast();
   // TECH08: say it in his own language; the Agent fills the fields only from his words. Nothing saves until Job done.
@@ -61,7 +61,7 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
   async function save() {
     if(!outcome)return;
     setBusy(true);
-    const payload=JSON.stringify({problem,work,outcome,...(english?{problem_en:english.problem_en,work_en:english.work_en,language:lang}:{}),updated_at:j.updated_at});const key=crypto.randomUUID();
+    const payload=JSON.stringify({problem,work,part:draft.part??'',outcome,...(english?{problem_en:english.problem_en,work_en:english.work_en,language:lang}:{}),updated_at:j.updated_at});const key=crypto.randomUUID();
     const queue=()=>{enqueue(me.user.id,member!.workspace_id,{id:key,url:`${base}/work-orders/${j.id}/report`,body:payload,label:`Job report for WO ${j.order_number}`});clearDraft();toast('Waiting to send');onClose();};
     try { if(navigator.onLine===false){queue();return;}const r = await request<{ record: JobRecord }>(`${base}/work-orders/${j.id}/report`, { method: 'POST', headers:{'Idempotency-Key':key},body:payload }); clearDraft();onSaved(outcome, r.record); }
     catch (e) { if(e instanceof RequestError&&e.status===0){try{queue();}catch{toast('Could not keep this report on your phone. Your draft is saved.');}return;}toast(e instanceof RequestError && e.status === 409 ? 'This job changed. We loaded the new version.' : 'That did not save. Try again.'); }
@@ -76,6 +76,7 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
       <fieldset className="outcome-pick"><legend>How did it end?</legend>
         <div className="outcome-grid">{OUTCOMES.map(o => <button key={o.v} type="button" className={`outcome ${outcome === o.v ? 'on' : ''}`} aria-pressed={outcome === o.v} onClick={() => setOutcome(o.v)}>{o.label}</button>)}</div>
         <p className="small muted">{pick?pick.hint:'Pick how it ended. Nothing is chosen for you.'}</p></fieldset>
+      {outcome==='needs_part'&&<label className="field"><span>Which part?</span><input maxLength={200} value={draft.part??''} onChange={e=>setDraft(d=>({...d,part:e.target.value}))}/></label>}
       {after ? <p className="small">After photos: {after}</p> : <p className="small">An after photo shows the client the work is done.</p>}
       <div><AddPhoto base={base} id={j.id} kind="after" primary={false} onAdded={() => void photos.reload()} /></div></div>
   </Dialog>;
