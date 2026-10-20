@@ -616,6 +616,7 @@ button.chip{cursor:pointer;min-height:44px}
 .outcome-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
 .outcome{min-height:48px;padding:var(--s2) var(--s3);border:1px solid var(--border);border-radius:8px;background:var(--surface);color:inherit;font:inherit;font-weight:600;cursor:pointer}
 .outcome.on{border-color:var(--accent);box-shadow:none;background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.done-screen{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;gap:var(--s4);padding:var(--s4);background:var(--bg);overflow-x:clip;overflow-y:auto;min-width:0}.done-screen h2{margin:0;overflow-wrap:anywhere}.done-screen dl{display:grid;grid-template-columns:minmax(0,42%) minmax(0,1fr);gap:var(--s3);margin:0}.done-screen dd,.done-screen dt{margin:0;overflow-wrap:anywhere}.done-screen .button,.job-close .button,.job-done-card .button,.memory-page .button,.memory-page input{min-height:44px}.done-count{padding:0 var(--s4)}
 .done-moment{display:flex;align-items:center;gap:var(--s3);padding:var(--s4);border-radius:var(--r-md,8px);border:1px solid var(--success);background:color-mix(in srgb,var(--success) 14%,var(--surface));animation:done-pop .35s ease-out}
 .done-moment>div{flex:1;min-width:0}.done-moment p{margin:var(--s1) 0 0}
 .done-moment svg{color:var(--success);flex:none}
