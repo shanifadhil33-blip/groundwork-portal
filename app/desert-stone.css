@@ -276,3 +276,16 @@ body:has(.app-shell) .assistant-control{border-radius:50%;background:var(--hero)
 body:has(.app-shell) .assistant-control:active:not(:disabled){transform:scale(.94);background:#3A3631}
 @media(hover:hover) and (pointer:fine){body:has(.app-shell) .assistant-control:hover:not(:disabled):not(:active){background:#3A3631}}
 body:has(.app-shell) .agent-chips :is(button,a){border-radius:999px;border:1.5px solid var(--line);background:transparent}
+/* ds6a: Agent sheet all on the page colour, round dark mic and send; Home panel faces closer in height */
+body:has(.app-shell) .presentation-assistant :is(.dialog,.dialog.sheet,.dialog-header,.dialog-body,.dialog-footer){background:var(--bg);border-color:transparent}
+body:has(.app-shell) .presentation-assistant .assistant-input-row{background:var(--surface-2);border:1px solid var(--line);border-radius:999px}
+body:has(.app-shell) .presentation-assistant .assistant-input-row textarea{background:transparent}
+body:has(.app-shell) .assistant-composer .button.secondary.assistant-control{background:var(--hero);color:var(--on-hero);border:0;border-radius:50%}
+body:has(.app-shell) .assistant-composer .button.secondary.assistant-control:active:not(:disabled){background:#3A3631;transform:scale(.94)}
+@media(hover:hover) and (pointer:fine){body:has(.app-shell) .assistant-composer .button.secondary.assistant-control:hover:not(:disabled):not(:active){background:#3A3631}}
+body:has(.app-shell) .assistant-composer .button.secondary.assistant-control:disabled{background:var(--hero);opacity:.45}
+html[data-theme=dark] body:has(.app-shell) .assistant-composer .button.secondary.assistant-control{background:var(--gold-soft);color:#1F1D1A}
+.next-job-facts{gap:6px}
+.next-job-facts>div{padding-bottom:6px}
+.next-job-back-actions{align-items:center}
+.next-job-back-actions .ds-flip-btn{flex:0 0 auto}

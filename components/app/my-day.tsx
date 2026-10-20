@@ -131,8 +131,7 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
           {j.trade && <div><dt>Trade</dt><dd>{tradeLabels[j.trade as Trade] ?? j.trade}</dd></div>}
           {j.tenant_unit && <div><dt>Flat or unit</dt><dd data-no-translate>{j.tenant_unit}</dd></div>}
         </dl>
-        <div className="next-job-actions"><a className="ds-hero-btn" href={mapUrl(j)} target="_blank" rel="noreferrer"><MapPin size={18} aria-hidden="true" />Map</a></div>
-        <button type="button" ref={backBtn} className="ds-flip-btn" aria-pressed={true} aria-controls="next-job-back" onClick={() => flip(false)}>Flip back</button>
+        <div className="next-job-actions next-job-back-actions"><a className="ds-hero-btn" href={mapUrl(j)} target="_blank" rel="noreferrer"><MapPin size={18} aria-hidden="true" />Map</a><button type="button" ref={backBtn} className="ds-flip-btn" aria-pressed={true} aria-controls="next-job-back" onClick={() => flip(false)}>Flip back</button></div>
       </div>
     </div></div>
     {confirm && <DoneDialog j={j} base={base} onClose={() => setConfirm(false)} onSaved={(o, r, extra) => { setConfirm(false); onFinished(o, r, extra); onDone(); }} />}

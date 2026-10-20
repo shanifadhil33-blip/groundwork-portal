@@ -27,7 +27,7 @@ try {
       await p.screenshot({ path: `${OUT}/${tag}-back.png` }); const back = p.locator('.flip-back .ds-flip-btn'); await clear(p, back, `${tag} Flip back`); await back.click(); await p.waitForTimeout(700);
       check(await p.locator('.flip').getAttribute('data-flipped') === 'false', `${tag} flipped back`);
     }
-    const mic = p.locator('.bottom-tabs .tab-mic'); check(await mic.count() === 1, `${tag} mic in the tab bar`); await mic.click(); await p.waitForTimeout(1200);
+    const mic = p.locator('.bottom-tabs .tab-mic'); if (!check(await mic.count() === 1, `${tag} mic in the tab bar`)) { await p.screenshot({ path: `${OUT}/${tag}-nomic.png` }); await ctx.close(); continue; } await mic.click(); await p.waitForTimeout(1200);
     check(await p.locator('#assistant-input').isVisible().catch(() => false), `${tag} mic opens the Agent`); await p.screenshot({ path: `${OUT}/${tag}-agent.png` }); await ctx.close(); }
   for (const lang of ['en-IN', 'ar-AE']) { const { ctx, p } = await page('imran', lang, '/dashboard', 1024); const tag = `imran-${lang}-1024`;
     check(await p.locator('.owner-summary').count() === 1, `${tag} summary hero`); check(await p.locator('.ds-hero').count() + await p.locator('.owner-summary').count() >= 1 && await p.locator('.ds-hero').count() === 1, `${tag} exactly one dark panel`);
