@@ -70,7 +70,7 @@ export function JobClose({ base, id, currency }: { base: string; id: string; cur
     catch (e) { setError(e instanceof RequestError ? e.message : 'That did not save. Try again.'); }
     finally { setBusy(false); }
   }
-  if (!state.data) return null;
+  if (!state.data?.card) return null;
   return <>
     <JobCloseView state={state.data} currency={currency} busy={busy} error={error} onSign={() => setAsk('sign_off')} onMark={() => setAsk('no_photos')} onKeep={() => setAsk('keep_draft')} />
     <ConfirmDialog open={!!ask} title={ask ? asks[ask] : ''} confirmLabel="Yes" busy={busy} error={error} onClose={() => setAsk(null)} onConfirm={() => { if (ask) void run(ask); }}><p>Nothing changes until you say yes.</p></ConfirmDialog>

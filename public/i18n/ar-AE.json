@@ -951,7 +951,6 @@
  "After photos": "صور بعد",
  "Job done": "الشغل خلص",
  "Cost": "التكلفة",
- "Thanks from clients: ": "شكر من العملاء: ",
  "Saved. Your Memory page shows it.": "انحفظ. صفحة الذاكرة تبينه.",
  "Not set yet": "ما تحدد بعد",
  "Close": "إغلاق",
@@ -993,5 +992,6 @@
  "Job done for now. The office will plan the return visit.": "الشغل خلص للحين. المكتب بيرتب زيارة الرجعة.",
  "Report saved. The job waits for the part.": "التقرير انحفظ. الشغل ينتظر القطعة.",
  "Report saved. Your supervisor will take it from here.": "التقرير انحفظ. المشرف بيكمل من هنا.",
- "Sending codes to phones is not switched on yet, so no code went out. Your number stays as it is. Ask the office to change it for you.": "إرسال الرموز للتلفونات مب مفعّل للحين، فما انرسل أي رمز. رقمك باقي مثل ما هو. اطلب من المكتب يغيره لك."
+ "Sending codes to phones is not switched on yet, so no code went out. Your number stays as it is. Ask the office to change it for you.": "إرسال الرموز للتلفونات مب مفعّل للحين، فما انرسل أي رمز. رقمك باقي مثل ما هو. اطلب من المكتب يغيره لك.",
+ "Thanks from clients:": "شكر من العملاء:"
 }
