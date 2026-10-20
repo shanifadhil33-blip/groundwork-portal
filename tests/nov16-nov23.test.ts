@@ -141,3 +141,14 @@ describe('Gulf Arabic for the new sentences', () => {
     expect(file[source]).not.toBe(source);
   });
 });
+
+describe('PR 2 review fixes', () => {
+  it('only a sentence that starts with standing words becomes a rule', async () => {
+    const { classifyCorrection } = await import('../lib/learn-habits');
+    expect(classifyCorrection('The AC always leaks in the tower')).toBeNull();
+    expect(classifyCorrection('Never mind, show my jobs')).toBeNull();
+    expect(classifyCorrection('I am off just today')).toBeNull();
+    expect(classifyCorrection('From now on put Marina jobs first')).toMatchObject({ kind: 'ask' });
+    expect(classifyCorrection('Just this once move WO 12')).toEqual({ kind: 'once' });
+  });
+});

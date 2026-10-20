@@ -62,7 +62,8 @@ export async function saveLearnedRule(db: { query: (q: string, v?: unknown[]) =>
   if (words.length > 300) return LEARN_REPLIES.tooLong;
   if ((company || kind.company) && actor.role !== 'admin') return LEARN_REPLIES.onlyAdmin;
   const scope = company || kind.company ? 'company' : 'personal';
-  await db.query(`INSERT INTO learned_rules(workspace_id,user_id,scope,body) VALUES($1,$2,$3,$4)
-    ON CONFLICT (workspace_id, user_id, body) DO NOTHING`, [ws, user, scope, words]);
+  // The same stores the agent prompt and the Memory page already read, so "I will use this next time" is true.
+  if (scope === 'company') await db.query('INSERT INTO company_rules(workspace_id,created_by,body) SELECT $1,$2,$3 WHERE NOT EXISTS (SELECT 1 FROM company_rules WHERE workspace_id=$1 AND body=$3)', [ws, user, words]);
+  else await db.query('INSERT INTO personal_agent_learning(workspace_id,user_id,body) SELECT $1,$2,$3 WHERE NOT EXISTS (SELECT 1 FROM personal_agent_learning WHERE workspace_id=$1 AND user_id=$2 AND body=$3)', [ws, user, words]);
   return scope === 'company' ? LEARN_REPLIES.companySaved : LEARN_REPLIES.saved;
 }

@@ -16,7 +16,8 @@ import { Greeting } from './greeting';
 import { AgentQuestions, MyAgentQuestions } from './agent-questions';
 import { formatInLang } from '../../lib/date-lang';
 import { DayPlan } from './day-plan-card';
-import { arrivalLabel } from '../../lib/day-plan';
+import { hourInZone } from '../../lib/day-plan';
+import { WindowText } from './window-text';
 import { latePlan, nextSlot, type Worker } from '../../lib/late-plan';
 import { useResource } from './resource';
 import { BottomSheet, Button, Card, ConfirmDialog, EmptyState, ErrorState, LocalTime, StatusBadge, Skeleton, Badge } from '../ui';
@@ -99,6 +100,5 @@ function LatePlan({base,job,busy,onYes}:{base:string;job:WorkOrder;busy:boolean;
  const {workspace,me}=useApp(),r=useResource<{workers:Worker[]}>(`${base}/work-orders/${job.id}/suggest`);
  if(!r.data)return null;const plan=latePlan(r.data.workers,job.assignee_id??null,me.user.id);if(!plan)return null;
  const tz=workspace?.timezone??'Asia/Dubai',when=nextSlot(new Date(),tz,(workspace as {working_days?:number[]}|null)?.working_days);
- const label=arrivalLabel(when, tz);
- return <div className="late-plan stack compact"><strong>Agent suggests</strong><p>Give it to <span data-no-translate>{plan.main.name}</span>. <span>Arrival window</span> <bdi dir="ltr" data-no-translate>{label}</bdi>{plan.backup?<>, with <span data-no-translate>{plan.backup.name}</span> as backup</>:null}.</p><p className="small muted">Why: {plan.why}. Nothing changes until you tap Yes.</p><Button busy={busy} onClick={()=>onYes(plan.main.user_id,when)}>Yes, do it</Button></div>;
+ return <div className="late-plan stack compact"><strong>Agent suggests</strong><p>Give it to <span data-no-translate>{plan.main.name}</span>. <span>Arrival window</span> <WindowText hour={hourInZone(when, tz)} />{plan.backup?<>, with <span data-no-translate>{plan.backup.name}</span> as backup</>:null}.</p><p className="small muted">Why: {plan.why}. Nothing changes until you tap Yes.</p><Button busy={busy} onClick={()=>onYes(plan.main.user_id,when)}>Yes, do it</Button></div>;
 }

@@ -4,6 +4,7 @@ import { Button, Card } from '../ui';
 import { post, RequestError } from '../../lib/ui/api';
 import { useResource } from './resource';
 import { DAY_REPLIES, type PlanLine } from '../../lib/day-plan';
+import { WindowText } from './window-text';
 
 export type DayPlanData = {
   can_plan: boolean;
@@ -12,7 +13,7 @@ export type DayPlanData = {
   fingerprint: string;
   lines: PlanLine[];
   watch: (PlanLine & { fingerprint: string })[];
-  gates: { id: string; order: number; title: string; window: string | null }[];
+  gates: { id: string; order: number; title: string; window: string | null; hour?: number | null; span?: number }[];
   visits: { id: string; order: number; title: string }[];
   people: { id: string; name: string; away: string | null }[];
 };
@@ -20,9 +21,9 @@ export type DayPlanData = {
 function Line({ line }: { line: PlanLine }) {
   return <li className="stack compact" style={{ minWidth: 0 }}>
     <strong data-no-translate>{line.title}</strong>
-    {line.window && <p><span>{DAY_REPLIES.arrival}</span>{' '}<bdi dir="ltr" data-no-translate>{line.window}</bdi></p>}
+    {line.hour != null && <p><span>{DAY_REPLIES.arrival}</span>{' '}<WindowText hour={line.hour} /></p>}
     {line.assignee_name && <p data-no-translate>{line.assignee_name}</p>}
-    <p className="small" data-no-translate>{line.why}</p>
+    <p className="small">{line.why}</p>
   </li>;
 }
 
@@ -44,15 +45,15 @@ export function DayPlanView({ data, busy, error, notice, onApprove, onGate, onLa
     {(data.can_plan || data.lines.length > 0) && <Card className="stack day-plan"><h2>{DAY_REPLIES.planAsk}</h2>
       <p>{data.lines.length ? data.summary : DAY_REPLIES.nothingToPlan}</p>
       {!!data.lines.length && <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{data.lines.map(line => <Line key={`${line.job_id}:${line.kind}`} line={line} />)}</ul>}
-      {data.can_plan && !!data.lines.some(line => line.kind === 'place') && <Button busy={busy === 'morning'} onClick={() => onApprove('morning', data.fingerprint)}>{DAY_REPLIES.approve}</Button>}
+      {data.can_plan && !!data.lines.some(line => line.kind === 'place') && <Button busy={busy === 'morning'} onClick={() => onApprove('morning', data.fingerprint)}>Approve the plan</Button>}
     </Card>}
-    {!!data.watch.length && <Card className="stack day-plan"><h2>{DAY_REPLIES.windowChanged}</h2>
+    {!!data.watch.length && <Card className="stack day-plan"><h2>Running late</h2>
       <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{data.watch.map(line => <li key={line.job_id}><Line line={line} />{data.can_plan && <Button busy={busy === line.job_id} onClick={() => onApprove('watch', line.fingerprint, line.job_id)}>Yes</Button>}</li>)}</ul>
     </Card>}
     {!!data.gates.length && <Card className="stack day-plan gate-list"><h2>{DAY_REPLIES.gateAsk}</h2>
       <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{data.gates.map(gate => <li key={gate.id} className="stack compact">
         <span data-no-translate>WO {gate.order} {gate.title}</span>
-        {gate.window && <span><bdi dir="ltr" data-no-translate>{gate.window}</bdi></span>}
+        {gate.hour != null && <span><span>{DAY_REPLIES.arrival}</span>{' '}<WindowText hour={gate.hour} span={gate.span ?? 2} /></span>}
         <div className="row"><Button busy={busy === gate.id} onClick={() => onGate(gate.id, 'confirm_gate')}>Confirm gate pass</Button><Button variant="secondary" busy={busy === `${gate.id}:skip`} onClick={() => onGate(gate.id, 'skip_gate')}>Not needed</Button></div>
       </li>)}</ul>
     </Card>}

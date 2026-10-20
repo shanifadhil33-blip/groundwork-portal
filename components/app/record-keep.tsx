@@ -1,21 +1,22 @@
 'use client';
 import { useState } from 'react';
-import { Button, Card } from '../ui';
+import { Button, Card, ConfirmDialog } from '../ui';
 import { post, RequestError } from '../../lib/ui/api';
 
 export function ContractFinish({ base, clientId, hasContract, finished, onDone }: { base: string; clientId: string; hasContract: boolean; finished: boolean; onDone: () => void }) {
-  const [busy, setBusy] = useState<'finish' | 'clear' | null>(null), [error, setError] = useState(''), [notice, setNotice] = useState('');
+  const [busy, setBusy] = useState<'finish' | 'clear' | null>(null), [error, setError] = useState(''), [notice, setNotice] = useState(''), [ask, setAsk] = useState<boolean | null>(null);
   if (!hasContract && !finished) return null;
   async function run(finish: boolean) {
     setBusy(finish ? 'finish' : 'clear'); setError('');
     try { const saved = await post<{ reply: string }>(`${base}/clients/${clientId}/contract`, { finish }); setNotice(saved.reply); onDone(); }
     catch (e) { setError(e instanceof RequestError ? e.message : 'That did not save. Try again.'); }
-    finally { setBusy(null); }
+    finally { setBusy(null); setAsk(null); }
   }
   return <Card className="stack contract-finish"><h2>Maintenance contract</h2>
-    {finished ? <p>The contract is finished. Past jobs stay covered by contract.</p> : <div className="row"><Button busy={busy === 'finish'} onClick={() => void run(true)}>Finish the contract</Button><Button variant="secondary" busy={busy === 'clear'} onClick={() => void run(false)}>Clear the contract</Button></div>}
+    {finished ? <p>The contract is finished. Past jobs stay covered by contract.</p> : <div className="row"><Button busy={busy === 'finish'} onClick={() => setAsk(true)}>Finish the contract</Button><Button variant="secondary" busy={busy === 'clear'} onClick={() => setAsk(false)}>Clear the contract</Button></div>}
     {notice && <p role="status">{notice}</p>}
     {error && <p role="alert">{error}</p>}
+    <ConfirmDialog open={ask !== null} title={ask ? 'Finish this contract?' : 'Clear the contract fields?'} confirmLabel="Yes" busy={!!busy} error={error} onClose={() => setAsk(null)} onConfirm={() => { if (ask !== null) void run(ask); }}><p>{ask ? 'New jobs will not be covered. Past jobs stay covered by contract.' : 'This works only when no job is covered by the contract.'}</p></ConfirmDialog>
   </Card>;
 }
 

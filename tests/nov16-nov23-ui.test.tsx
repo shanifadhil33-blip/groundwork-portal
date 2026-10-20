@@ -41,7 +41,7 @@ it('shows the day plan full width with a yes button', async () => {
   expect(host.querySelector('.day-plan')).toBeTruthy();
   expect(host.textContent).toContain('9 AM to 11 AM');
   expect(host.textContent).toContain('No message is sent');
-  const yes = [...host.querySelectorAll('button')].find(button => button.textContent?.includes('Approve this plan'));
+  const yes = [...host.querySelectorAll('button')].find(button => button.textContent?.includes('Approve the plan'));
   await act(async () => { yes?.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
   expect(clicks).toEqual(['morning']);
   root.unmount();

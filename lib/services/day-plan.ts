@@ -68,8 +68,8 @@ export async function getDayPlan(user: string, ws: string) {
     const watch = (planner ? planJobs : []).map(job => watchLate(job, people)).filter((line): line is PlanLine => !!line)
       .map(line => ({ ...line, fingerprint: planFingerprint([line]) }));
     const gates = jobs.filter(job => needsGate({ day: job.day, tomorrow: actor.tomorrow, access: job.access_notes, gate: job.gate_pass, status: job.status }) && canConfirmGate(actor, job))
-      .map(job => ({ id: job.id, order: job.order_number, title: job.title, window: job.hour == null ? null : arrivalWindow(job.hour, job.window_hours).label }));
-    const visits = actor.demo && planner ? jobs.filter(job => job.day === actor.today && job.status === 'scheduled').map(job => ({ id: job.id, order: job.order_number, title: job.title })) : [];
+      .map(job => ({ id: job.id, order: job.order_number, title: job.title, window: job.hour == null ? null : arrivalWindow(job.hour, job.window_hours).label, hour: job.hour, span: job.window_hours }));
+    const visits = planner ? jobs.filter(job => job.day === actor.today && job.status === 'scheduled').map(job => ({ id: job.id, order: job.order_number, title: job.title })) : [];
     return {
       can_plan: planner,
       demo: actor.demo && planner,

@@ -9,7 +9,7 @@ import { PageHeader } from '../ui/layout';
 import { Badge, Button, Dialog, Dropdown, EmptyState, ErrorState, Skeleton, useToast } from '../ui';
 import { DatePicker } from '../ui/lazy-date-picker';
 import { request, RequestError } from '../../lib/ui/api';
-import { arrivalWindow } from '../../lib/day-plan';
+import { WindowText } from './window-text';
 import { localDate, scheduledInstant } from '../../lib/dates';
 import { useApp } from './context';
 import { useResource } from './resource';
@@ -29,7 +29,7 @@ const HOURS = Array.from({ length: 15 }, (_, i) => i + 6);
 
 function Chip({ j, onOpen }: { j: Job; onOpen: (j: Job) => void }) {
   return <button type="button" className={`sched-job ${j.status === 'done' ? 'sched-done' : ''}`} onClick={() => onOpen(j)} aria-label={`Move ${j.title}`}>
-    {j.hour != null && <span className="sched-time"><span className="sr-only">Arrival window</span> <bdi dir="ltr" data-no-translate>{arrivalWindow(j.hour).label}</bdi></span>}<strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}</span>{j.heat_warning&&<span className="heat-note">Midday heat: move this</span>}
+    {j.hour != null && <span className="sched-time"><span className="sr-only">Arrival window</span> <WindowText hour={j.hour} /></span>}<strong data-no-translate>{j.title}</strong><span className="small muted">{[j.site_name, j.area].filter(Boolean).join(' · ')}</span>{j.heat_warning&&<span className="heat-note">Midday heat: move this</span>}
     {j.status === 'done' && <Badge>Done</Badge>}{j.priority === 'urgent' && <Badge tone="danger">Urgent</Badge>}</button>;
 }
 

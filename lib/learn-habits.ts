@@ -33,8 +33,9 @@ export function habitSuggestions(input: { usual_start: string | null; usual_area
   return out;
 }
 
-const ONCE = /\b(?:just this once|only this once|not this time|this time only|only this job|just today|one time only)\b/i;
-const RULE = /\b(?:always|from now on|never|every time|remember this|remember that)\b/i;
+// Only a sentence that starts with standing words is a rule. Ordinary questions ("the AC always leaks", "never mind", "I am off just today") never reach this.
+const ONCE = /^(?:just this once|only this once|this time only|one time only)\b/i;
+const RULE = /^(?:from now on|always|every time)\b|^never (?!mind\b)/i;
 const COMPANY = /\b(?:for the company|for everyone|company wide)\b/i;
 
 /** A single job move is not a rule. Standing words ask first. One time words are refused. */

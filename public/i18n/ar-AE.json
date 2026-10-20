@@ -1064,5 +1064,12 @@
  "Archive": "أرشفة",
  "Archive this document?": "أرشف هالمستند؟",
  "Remember": "تذكر",
- "Person": "الشخص"
+ "Person": "الشخص",
+ "Running late": "متأخر",
+ "Approve the plan": "اعتمد الخطة",
+ "Finish this contract?": "تختم هالعقد؟",
+ "Clear the contract fields?": "تمسح حقول العقد؟",
+ "New jobs will not be covered. Past jobs stay covered by contract.": "الشغل الجديد ما يغطيه العقد. الشغل السابق يبقى مغطى بالعقد.",
+ "This works only when no job is covered by the contract.": "هذا يصير بس إذا ما في شغل مغطى بالعقد.",
+ "Maintenance contract": "عقد الصيانة"
 }
