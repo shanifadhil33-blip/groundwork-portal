@@ -326,3 +326,4 @@ body:has(.app-shell) .app-main .inline-error{color:var(--danger)}
 .auth-page .auth-card .button.primary{background:#2A2723;color:#F5F1EA;border-radius:16px;min-height:52px}
 .auth-page .auth-card .button:not(.primary){border-radius:16px;min-height:52px;border:1.5px solid #E6E0D6;background:transparent}
 .auth-page .text-link{color:#7E6131}
+body:has(.app-shell) .app-main .tabs button{padding-inline:14px}
