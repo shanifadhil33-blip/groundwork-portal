@@ -257,3 +257,7 @@ body:has(.app-shell) .app-main .work-detail-page>.page-header svg{color:currentC
 @media(min-width:1280px){.owner-home-grid{grid-template-columns:minmax(0,1fr) 300px}}
 .ds-table td.num,.ds-table .ds-person{white-space:nowrap}
 @media(max-width:640px){.ds-hero-main{background:transparent;color:var(--on-hero);border:1.5px solid var(--gold)}.ds-hero-main:active{background:var(--pressed-hero)}}
+/* ds4 live fixes: the main job button is 52 tall everywhere; WO number in the app font */
+body:has(.app-shell) .app-main .work-detail-page>.page-header :is(.button.primary,.technician-primary){flex:1 1 auto;min-height:52px;height:auto;max-height:none}
+@media(max-width:640px){body:has(.app-shell) .app-main .work-detail-page>.page-header .detail-actions{flex-direction:column;align-items:stretch}body:has(.app-shell) .app-main .work-detail-page>.page-header .detail-actions>*{flex:0 0 auto;width:100%}}
+body:has(.app-shell) .app-main .work-detail-page>.page-header .order-number{font-family:inherit;letter-spacing:0}
