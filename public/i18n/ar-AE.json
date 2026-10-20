@@ -1081,5 +1081,14 @@
  "After learning": "بعد التعلّم",
  "A new company with no finished jobs.": "شركة جديدة ما عندها شغلات خالصة.",
  "This company, from its own finished jobs.": "هالشركة، من شغلاتها الخالصة.",
- "No job has enough finished jobs behind it yet.": "ما في شغلة وراها شغلات خالصة كافية للحين."
+ "No job has enough finished jobs behind it yet.": "ما في شغلة وراها شغلات خالصة كافية للحين.",
+ "Lessons waiting for your yes": "دروس تنتظر موافقتك",
+ "The agent uses these only after you say yes.": "الوكيل ما يستخدمها إلا بعد ما توافق.",
+ "For the whole company": "للشركة كلها",
+ "About money": "عن الفلوس",
+ "About safety": "عن السلامة",
+ "About clients": "عن العملاء",
+ "Yes, use it": "نعم، استخدمه",
+ "No": "لا",
+ "We couldn’t save that. Please try again.": "ما قدرنا نحفظه. حاول مرة ثانية."
 }

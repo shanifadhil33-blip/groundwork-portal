@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { withSystem } from '../db';
 import { ApiError, missing } from '../http';
-import { LEARN_REPLIES, classifyCorrection, habitSuggestions } from '../learn-habits';
+import { LEARN_REPLIES, classifyCorrection, habitSuggestions, lessonImpact } from '../learn-habits';
 import { hourInZone } from '../day-plan';
 import { uuid } from './shared';
 
@@ -60,8 +60,13 @@ export async function saveLearnedRule(db: { query: (q: string, v?: unknown[]) =>
   const kind = classifyCorrection(words);
   if (!kind || kind.kind === 'once') return LEARN_REPLIES.once;
   if (words.length > 300) return LEARN_REPLIES.tooLong;
-  if ((company || kind.company) && actor.role !== 'admin') return LEARN_REPLIES.onlyAdmin;
   const scope = company || kind.company ? 'company' : 'personal';
+  // LEARN12: high impact lessons from someone who is not an admin wait for an admin or owner yes.
+  const impact = lessonImpact(words, scope === 'company');
+  if (impact && actor.role !== 'admin') {
+    await db.query("INSERT INTO lesson_proposals(workspace_id,proposed_by,proposed_by_name,body,scope,reason) VALUES($1,$2,(SELECT name FROM users WHERE id=$2),$3,$4,$5) ON CONFLICT (workspace_id,proposed_by,body) WHERE status='waiting' DO NOTHING", [ws, user, words, scope, impact]);
+    return LEARN_REPLIES.waiting;
+  }
   // The same stores the agent prompt and the Memory page already read, so "I will use this next time" is true.
   if (scope === 'company') await db.query('INSERT INTO company_rules(workspace_id,created_by,body) SELECT $1,$2,$3 WHERE NOT EXISTS (SELECT 1 FROM company_rules WHERE workspace_id=$1 AND body=$3)', [ws, user, words]);
   else await db.query('INSERT INTO personal_agent_learning(workspace_id,user_id,body) SELECT $1,$2,$3 WHERE NOT EXISTS (SELECT 1 FROM personal_agent_learning WHERE workspace_id=$1 AND user_id=$2 AND body=$3)', [ws, user, words]);

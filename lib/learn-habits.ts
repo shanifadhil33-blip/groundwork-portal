@@ -6,6 +6,7 @@ export const LEARN_REPLIES = {
   saved: 'Saved. I will use this next time.',
   companySaved: 'Saved for the whole company.',
   onlyAdmin: 'Only an admin can save a rule for the whole company. Nothing was saved.',
+  waiting: 'This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.',
   usualStart: 'Your usual start is coming up.',
   usualAreas: 'You usually work in these areas.',
   rememberArea: 'Remember this area',
@@ -45,4 +46,17 @@ export function classifyCorrection(text: string): { kind: 'once' } | { kind: 'as
   if (ONCE.test(words)) return { kind: 'once' };
   if (!RULE.test(words)) return null;
   return { kind: 'ask', rule: words, company: COMPANY.test(words) };
+}
+
+// LEARN12: a lesson is high impact when it is for the whole company or touches money, safety or clients. Then a person who
+// is not an admin only proposes it, and an admin or owner says yes first.
+const MONEY = /\b(?:price|prices|pay|paid|payment|discount|refund|invoice|bill|charge|free of charge|aed)\b/i;
+const SAFETY = /\b(?:safety|safe|gas|isolate|isolation|live wire|shock|ladder|permit|breaker|mains)\b/i;
+const CLIENTS = /\b(?:client|clients|customer|customers|tenant|tenants|household|households)\b/i;
+export function lessonImpact(rule: string, company: boolean): 'company' | 'money' | 'safety' | 'clients' | null {
+  if (company) return 'company';
+  if (SAFETY.test(rule)) return 'safety';
+  if (MONEY.test(rule)) return 'money';
+  if (CLIENTS.test(rule)) return 'clients';
+  return null;
 }
