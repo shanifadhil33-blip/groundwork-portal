@@ -1090,5 +1090,8 @@
  "About clients": "عن العملاء",
  "Yes, use it": "نعم، استخدمه",
  "No": "لا",
- "We couldn’t save that. Please try again.": "ما قدرنا نحفظه. حاول مرة ثانية."
+ "We couldn’t save that. Please try again.": "ما قدرنا نحفظه. حاول مرة ثانية.",
+ "This changes how the company works, so I sent it to your admin for a yes. I will use it once they say yes.": "هذا يغيّر طريقة شغل الشركة، فأرسلته للمدير عشان يوافق. بستخدمه أول ما يوافق.",
+ "Saved. The agent will use this lesson.": "انحفظ. الوكيل بيستخدم هالدرس.",
+ "Declined. Nothing was saved.": "انرفض. ما انحفظ شي."
 }
