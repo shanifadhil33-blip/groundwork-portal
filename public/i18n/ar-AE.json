@@ -889,5 +889,8 @@
  "Accept": "اقبل",
  "Address": "العنوان",
  "Find your company": "دور شركتك",
- "Phone": "رقم التواصل"
+ "Phone": "رقم التواصل",
+ "Not in the demo": "مب متوفر في التجربة",
+ "Finding a company and asking to join works with a real account. In the demo you are already part of a sample company.": "البحث عن شركة وطلب الانضمام يشتغل مع حساب حقيقي. في التجربة إنت أصلاً ضمن شركة تجريبية.",
+ "Demo companies are never shown in Find your company.": "شركات التجربة ما تطلع أبداً في دوّر شركتك."
 }
