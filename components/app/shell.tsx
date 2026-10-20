@@ -94,8 +94,8 @@ export function AppShell({ children, initial, serverLanguage, languageSetup }: {
     return () => { active = false; window.removeEventListener('groundwork-queue-changed', refresh); window.removeEventListener('focus', refresh); };
   }, [member, path]);
   const [lateBusy, setLateBusy] = useState(false), [lateNote, setLateNote] = useState<string | null>(null);
-  async function showLearning() { if (lateBusy) return; setLateBusy(true); setLateNote(null); try { const r = await post<{ work_order_id: string }>('/api/demo/learning'); setDemoOptions(false); window.location.assign(`/work-orders/${r.work_order_id}?learning=1`); } catch { setLateNote('No job has enough finished jobs behind it yet.'); } finally { setLateBusy(false); } }
-  async function makeLate() { if (lateBusy) return; setLateBusy(true); setLateNote(null); try { const r = await post<{ work_order_id: string }>('/api/demo/late'); setDemoOptions(false); window.location.assign(`/work-orders/${r.work_order_id}`); } catch { setLateNote('We couldn’t make a job late. Please try again.'); } finally { setLateBusy(false); } }
+  async function showLearning() { if (lateBusy) return; setLateBusy(true); setLateNote(null); try { const r = await post<{ work_order_id: string }>('/api/demo/learning'); setDemoOptions(false); router.push(`/work-orders/${r.work_order_id}?learning=1`); } catch { setLateNote('No job has enough finished jobs behind it yet.'); } finally { setLateBusy(false); } }
+  async function makeLate() { if (lateBusy) return; setLateBusy(true); setLateNote(null); try { const r = await post<{ work_order_id: string }>('/api/demo/late'); setDemoOptions(false); router.push(`/work-orders/${r.work_order_id}`); } catch { setLateNote('We couldn’t make a job late. Please try again.'); } finally { setLateBusy(false); } }
   function openConfirm(action: typeof confirm) { guardedAction(() => { if(action==='switch')setPersona(personas.find(p=>p.key!==(me?.user.email??'').split('.')[0])?.key??'imran');setActionError(null); setConfirm(action); }); }
   async function execute() {
     if (busy) return; setBusy(true); setActionError(null);
