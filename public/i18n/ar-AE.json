@@ -1073,5 +1073,13 @@
  "finished jobs": "شغلات خلصت",
  "temporary fixes": "تصليحات مؤقتة",
  "Not enough finished jobs yet to say how long this takes.": "ما في شغلات خالصة كافية عشان نعرف كم ياخذ هالشغل.",
- "Same trade at this site, last six months": "نفس الشغل في هالموقع، آخر ست شهور"
+ "Same trade at this site, last six months": "نفس الشغل في هالموقع، آخر ست شهور",
+ "min": "دقيقة",
+ "hr": "ساعة",
+ "Demo: before and after learning": "تجربة: قبل التعلّم وبعده",
+ "Before learning": "قبل التعلّم",
+ "After learning": "بعد التعلّم",
+ "A new company with no finished jobs.": "شركة جديدة ما عندها شغلات خالصة.",
+ "This company, from its own finished jobs.": "هالشركة، من شغلاتها الخالصة.",
+ "No job has enough finished jobs behind it yet.": "ما في شغلة وراها شغلات خالصة كافية للحين."
 }

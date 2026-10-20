@@ -653,5 +653,20 @@
 "Switch persona":"Kyusa omuntu",
 "Reset demo":"Ddamu otandike ekyokulaga",
 "Demo: make a job late":"Ekyokulaga: kola omulimu gumu gulwe",
-"We couldn’t make a job late. Please try again.":"Tetusobodde kulwisa mulimu. Gezaako nate."
+"We couldn’t make a job late. Please try again.":"Tetusobodde kulwisa mulimu. Gezaako nate.",
+"From your company’s history":"Okuva mu byafaayo bya kampuni yo",
+"Usual time":"Obudde obwa bulijjo",
+"Based on":"Okusinziira ku",
+"finished jobs":"emirimu egyaggwa",
+"temporary fixes":"okuddaabiriza okw’akaseera",
+"Same trade at this site, last six months":"Omulimu gwe gumu mu kifo kino, emyezi mukaaga egiyise",
+"Not enough finished jobs yet to say how long this takes.":"Emirimu egyaggwa tegimala kugamba bbanga lino lye linaatwala.",
+"min":"ddakiika",
+"hr":"essaawa",
+"Demo: before and after learning":"Ekyokulaga: nga tonnayiga ne ng’omaze okuyiga",
+"Before learning":"Nga tonnayiga",
+"After learning":"Ng’omaze okuyiga",
+"A new company with no finished jobs.":"Kampuni empya etalina mulimu gwaggwa.",
+"This company, from its own finished jobs.":"Kampuni eno, okuva mu mirimu gyayo egyaggwa.",
+"No job has enough finished jobs behind it yet.":"Tewali mulimu gulina mirimu egyaggwa egimala emabega waagwo."
 }

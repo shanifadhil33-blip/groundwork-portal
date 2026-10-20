@@ -700,5 +700,20 @@
 "Switch persona":"کس بدل کړئ",
 "Reset demo":"ښودنه بیا پیل کړئ",
 "Demo: make a job late":"ښودنه: یو کار ناوخته کړئ",
-"We couldn’t make a job late. Please try again.":"مونږ کار ناوخته نه شو کړای. مهرباني وکړئ بیا هڅه وکړئ."
+"We couldn’t make a job late. Please try again.":"مونږ کار ناوخته نه شو کړای. مهرباني وکړئ بیا هڅه وکړئ.",
+"From your company’s history":"ستاسو د شرکت له تاریخ څخه",
+"Usual time":"معمول وخت",
+"Based on":"پر بنسټ",
+"finished jobs":"بشپړ شوي کارونه",
+"temporary fixes":"لنډمهاله ترمیمونه",
+"Same trade at this site, last six months":"په دې ځای کې هماغه کار، تیرې شپږ میاشتې",
+"Not enough finished jobs yet to say how long this takes.":"لا تر اوسه دومره بشپړ شوي کارونه نشته چې ووایو دا څومره وخت نیسي.",
+"min":"دقیقې",
+"hr":"ساعت",
+"Demo: before and after learning":"ښودنه: له زده کړې مخکې او وروسته",
+"Before learning":"له زده کړې مخکې",
+"After learning":"له زده کړې وروسته",
+"A new company with no finished jobs.":"یو نوی شرکت چې بشپړ شوی کار نلري.",
+"This company, from its own finished jobs.":"دا شرکت، د خپلو بشپړ شوو کارونو څخه.",
+"No job has enough finished jobs behind it yet.":"لا هیڅ کار تر شا کافي بشپړ شوي کارونه نلري."
 }

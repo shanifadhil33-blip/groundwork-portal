@@ -674,5 +674,20 @@
 "Switch persona":"Beddel qofka",
 "Reset demo":"Dib u bilow tijaabada",
 "Demo: make a job late":"Tijaabo: shaqo ka dhig mid daahday",
-"We couldn’t make a job late. Please try again.":"Ma awoodin inaan shaqada daahino. Fadlan isku day mar kale."
+"We couldn’t make a job late. Please try again.":"Ma awoodin inaan shaqada daahino. Fadlan isku day mar kale.",
+"From your company’s history":"Taariikhda shirkaddaada",
+"Usual time":"Waqtiga caadiga ah",
+"Based on":"Iyadoo lagu salaynayo",
+"finished jobs":"shaqooyin dhammaaday",
+"temporary fixes":"hagaajin ku meel gaar ah",
+"Same trade at this site, last six months":"Isla shaqadan goobtan, lixdii bilood ee la soo dhaafay",
+"Not enough finished jobs yet to say how long this takes.":"Weli ma jiraan shaqooyin dhammaaday oo ku filan si loo sheego inta ay qaadanayso.",
+"min":"daqiiqo",
+"hr":"saac",
+"Demo: before and after learning":"Tijaabo: ka hor iyo ka dib barashada",
+"Before learning":"Ka hor barashada",
+"After learning":"Ka dib barashada",
+"A new company with no finished jobs.":"Shirkad cusub oo aan lahayn shaqo dhammaatay.",
+"This company, from its own finished jobs.":"Shirkaddan, shaqooyinkeeda dhammaaday.",
+"No job has enough finished jobs behind it yet.":"Weli ma jirto shaqo ay ka dambeeyaan shaqooyin dhammaaday oo ku filan."
 }

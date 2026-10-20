@@ -663,5 +663,20 @@
 "Switch persona":"Magpalit ng tao",
 "Reset demo":"Simulan muli ang demo",
 "Demo: make a job late":"Demo: gawing huli ang isang trabaho",
-"We couldn’t make a job late. Please try again.":"Hindi namin nagawang huli ang trabaho. Pakisubukan ulit."
+"We couldn’t make a job late. Please try again.":"Hindi namin nagawang huli ang trabaho. Pakisubukan ulit.",
+"From your company’s history":"Mula sa kasaysayan ng inyong kompanya",
+"Usual time":"Karaniwang oras",
+"Based on":"Batay sa",
+"finished jobs":"natapos na trabaho",
+"temporary fixes":"pansamantalang ayos",
+"Same trade at this site, last six months":"Parehong trabaho sa lugar na ito, nakaraang anim na buwan",
+"Not enough finished jobs yet to say how long this takes.":"Kulang pa ang natapos na trabaho para masabi kung gaano ito katagal.",
+"min":"minuto",
+"hr":"oras",
+"Demo: before and after learning":"Demo: bago at pagkatapos matuto",
+"Before learning":"Bago matuto",
+"After learning":"Pagkatapos matuto",
+"A new company with no finished jobs.":"Bagong kompanya na wala pang natapos na trabaho.",
+"This company, from its own finished jobs.":"Ang kompanyang ito, mula sa sarili nitong natapos na trabaho.",
+"No job has enough finished jobs behind it yet.":"Wala pang trabahong may sapat na natapos na trabaho sa likod nito."
 }

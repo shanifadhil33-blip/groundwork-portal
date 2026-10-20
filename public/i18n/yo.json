@@ -649,5 +649,20 @@
 "Switch persona":"Yí ènìyàn padà",
 "Reset demo":"Tún àfihàn bẹ̀rẹ̀",
 "Demo: make a job late":"Àfihàn: mú kí iṣẹ́ kan pẹ́",
-"We couldn’t make a job late. Please try again.":"A kò lè mú kí iṣẹ́ náà pẹ́. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i."
+"We couldn’t make a job late. Please try again.":"A kò lè mú kí iṣẹ́ náà pẹ́. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.",
+"From your company’s history":"Láti inú ìtàn ilé iṣẹ́ rẹ",
+"Usual time":"Àkókò tí ó máa ń gbà",
+"Based on":"Ní ìbámu pẹ̀lú",
+"finished jobs":"iṣẹ́ tí a ti parí",
+"temporary fixes":"àtúnṣe fún ìgbà díẹ̀",
+"Same trade at this site, last six months":"Iṣẹ́ kan náà ní ibí yìí, oṣù mẹ́fà sẹ́yìn",
+"Not enough finished jobs yet to say how long this takes.":"Kò tíì sí iṣẹ́ tí a ti parí tó láti sọ bí èyí yóò ṣe pẹ́ tó.",
+"min":"ìṣẹ́jú",
+"hr":"wákàtí",
+"Demo: before and after learning":"Àfihàn: kí ó tó kọ́ àti lẹ́yìn tí ó kọ́",
+"Before learning":"Kí ó tó kọ́",
+"After learning":"Lẹ́yìn tí ó kọ́",
+"A new company with no finished jobs.":"Ilé iṣẹ́ tuntun tí kò ní iṣẹ́ tí a ti parí.",
+"This company, from its own finished jobs.":"Ilé iṣẹ́ yìí, láti inú iṣẹ́ tí òun fúnra rẹ̀ ti parí.",
+"No job has enough finished jobs behind it yet.":"Kò tíì sí iṣẹ́ tí ó ní iṣẹ́ tí a ti parí tó lẹ́yìn rẹ̀."
 }

@@ -8,6 +8,7 @@ import { populateFixture,ids as fixtureIds } from '../fixture';
 import { sessionCookie } from '../auth';
 import { DUNE_HARBOUR_NAME, DUNE_PERSONAS, populateDuneHarbour } from '../fixture-dune-harbour';
 import { overdueSql } from '../dates';
+import { companyHistory, type CompanyHistory } from './company-history';
 const RIDGELINE_PERSONAS=['imran','sam','ravi','pranav','omar','nabil','kevin','faisal'] as const;
 const RIDGELINE_NAME='Ridgeline Facility Services';
 type Company='ridgeline'|'dune_harbour';
@@ -128,4 +129,16 @@ export async function makeJobLate(user:string){
   await db.query("UPDATE work_orders SET due_on=((CURRENT_TIMESTAMP AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=$2))::date-1), updated_at=now() WHERE id=$1 AND workspace_id=$2",[pick.id,m.workspace_id]);
   return {work_order_id:pick.id as string,title:pick.title as string};
  });
+}
+/** DEMO12: labelled demo control "Demo: before and after learning". Demo sandboxes only, office only. Changes nothing:
+ * it finds the open job with the most finished jobs behind its usual time, so the job page can show a new company (no
+ * records, no estimate) next to this company's own history (LEARN10). */
+export async function learningJob(user:string){
+ const m=await withSystem(db=>context(db,user));
+ if(!['admin','supervisor','staff'].includes(m.role))throw new ApiError(403,'forbidden','Only the office can use this demo control.');
+ const open=await withUser(user,async db=>(await db.query("SELECT id FROM work_orders WHERE workspace_id=$1 AND status IN ('open','scheduled') AND trade IS NOT NULL ORDER BY order_number",[m.workspace_id])).rows as {id:string}[]);
+ let best:{work_order_id:string;after:CompanyHistory}|null=null;
+ for(const j of open){const h=await companyHistory(user,m.workspace_id,j.id);if(h.typical_minutes!==null&&(!best||h.based_on>best.after.based_on))best={work_order_id:j.id,after:h};}
+ if(!best)throw new ApiError(409,'nothing_learned','No open job has enough finished jobs behind it yet.');
+ return {...best,before:{based_on:0,typical_minutes:null}};
 }

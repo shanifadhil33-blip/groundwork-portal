@@ -718,5 +718,20 @@
 "Switch persona":"நபரை மாற்றவும்",
 "Reset demo":"டெமோவை மீண்டும் தொடங்கவும்",
 "Demo: make a job late":"டெமோ: ஒரு வேலையைத் தாமதமாக்கு",
-"We couldn’t make a job late. Please try again.":"வேலையைத் தாமதமாக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்."
+"We couldn’t make a job late. Please try again.":"வேலையைத் தாமதமாக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+"From your company’s history":"உங்கள் நிறுவன வரலாற்றிலிருந்து",
+"Usual time":"வழக்கமான நேரம்",
+"Based on":"அடிப்படை",
+"finished jobs":"முடிந்த வேலைகள்",
+"temporary fixes":"தற்காலிக சரிசெய்தல்கள்",
+"Same trade at this site, last six months":"இந்த இடத்தில் இதே வேலை, கடந்த ஆறு மாதங்கள்",
+"Not enough finished jobs yet to say how long this takes.":"இது எவ்வளவு நேரம் எடுக்கும் என்று சொல்ல இன்னும் போதுமான முடிந்த வேலைகள் இல்லை.",
+"min":"நிமிடம்",
+"hr":"மணி",
+"Demo: before and after learning":"டெமோ: கற்பதற்கு முன்னும் பின்னும்",
+"Before learning":"கற்பதற்கு முன்",
+"After learning":"கற்ற பின்",
+"A new company with no finished jobs.":"முடிந்த வேலை இல்லாத ஒரு புதிய நிறுவனம்.",
+"This company, from its own finished jobs.":"இந்த நிறுவனம், அதன் சொந்த முடிந்த வேலைகளிலிருந்து.",
+"No job has enough finished jobs behind it yet.":"போதுமான முடிந்த வேலைகள் பின்னால் உள்ள எந்த வேலையும் இன்னும் இல்லை."
 }

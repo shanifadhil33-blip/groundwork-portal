@@ -654,5 +654,20 @@
 "Switch persona":"Badilisha mtu",
 "Reset demo":"Anzisha onyesho upya",
 "Demo: make a job late":"Onyesho: fanya kazi moja ichelewe",
-"We couldn’t make a job late. Please try again.":"Hatukuweza kuifanya kazi ichelewe. Tafadhali jaribu tena."
+"We couldn’t make a job late. Please try again.":"Hatukuweza kuifanya kazi ichelewe. Tafadhali jaribu tena.",
+"From your company’s history":"Kutoka historia ya kampuni yako",
+"Usual time":"Muda wa kawaida",
+"Based on":"Kulingana na",
+"finished jobs":"kazi zilizokamilika",
+"temporary fixes":"marekebisho ya muda",
+"Same trade at this site, last six months":"Kazi hiyo hiyo mahali hapa, miezi sita iliyopita",
+"Not enough finished jobs yet to say how long this takes.":"Bado hakuna kazi za kutosha zilizokamilika kusema hii itachukua muda gani.",
+"min":"dakika",
+"hr":"saa",
+"Demo: before and after learning":"Onyesho: kabla na baada ya kujifunza",
+"Before learning":"Kabla ya kujifunza",
+"After learning":"Baada ya kujifunza",
+"A new company with no finished jobs.":"Kampuni mpya isiyo na kazi iliyokamilika.",
+"This company, from its own finished jobs.":"Kampuni hii, kutoka kazi zake zilizokamilika.",
+"No job has enough finished jobs behind it yet.":"Bado hakuna kazi yenye kazi za kutosha zilizokamilika nyuma yake."
 }

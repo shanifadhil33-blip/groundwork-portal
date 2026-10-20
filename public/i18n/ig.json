@@ -668,5 +668,20 @@
 "Switch persona":"Gbanwee onye",
 "Reset demo":"Malite ngosi ọzọ",
 "Demo: make a job late":"Ngosi: mee ka otu ọrụ bịa n’azụ",
-"We couldn’t make a job late. Please try again.":"Anyị enweghị ike ime ka ọrụ ahụ bịa n’azụ. Biko nwaa ọzọ."
+"We couldn’t make a job late. Please try again.":"Anyị enweghị ike ime ka ọrụ ahụ bịa n’azụ. Biko nwaa ọzọ.",
+"From your company’s history":"Site na akụkọ ụlọ ọrụ gị",
+"Usual time":"Oge ọ na ewekarị",
+"Based on":"Dabere na",
+"finished jobs":"ọrụ emechara",
+"temporary fixes":"mmezi nwa oge",
+"Same trade at this site, last six months":"Otu ọrụ ahụ n’ebe a, ọnwa isii gara aga",
+"Not enough finished jobs yet to say how long this takes.":"Ọrụ emechara ezubeghị iji kwuo ogologo oge nke a ga ewe.",
+"min":"nkeji",
+"hr":"awa",
+"Demo: before and after learning":"Ngosi: tupu na mgbe mmụta",
+"Before learning":"Tupu mmụta",
+"After learning":"Mgbe mmụta",
+"A new company with no finished jobs.":"Ụlọ ọrụ ọhụrụ enweghị ọrụ emechara.",
+"This company, from its own finished jobs.":"Ụlọ ọrụ a, site na ọrụ ya emechara.",
+"No job has enough finished jobs behind it yet.":"Enweghị ọrụ nwere ọrụ emechara zuru ezu n’azụ ya ugbu a."
 }

@@ -686,5 +686,20 @@
 "Switch persona":"വ്യക്തിയെ മാറ്റുക",
 "Reset demo":"ഡെമോ വീണ്ടും തുടങ്ങുക",
 "Demo: make a job late":"ഡെമോ: ഒരു ജോലി വൈകിപ്പിക്കുക",
-"We couldn’t make a job late. Please try again.":"ജോലി വൈകിപ്പിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക."
+"We couldn’t make a job late. Please try again.":"ജോലി വൈകിപ്പിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.",
+"From your company’s history":"നിങ്ങളുടെ കമ്പനിയുടെ ചരിത്രത്തിൽ നിന്ന്",
+"Usual time":"സാധാരണ സമയം",
+"Based on":"അടിസ്ഥാനം",
+"finished jobs":"പൂർത്തിയായ ജോലികൾ",
+"temporary fixes":"താൽക്കാലിക ശരിയാക്കലുകൾ",
+"Same trade at this site, last six months":"ഈ സ്ഥലത്ത് ഇതേ ജോലി, കഴിഞ്ഞ ആറ് മാസം",
+"Not enough finished jobs yet to say how long this takes.":"ഇതിന് എത്ര സമയം എടുക്കും എന്ന് പറയാൻ ആവശ്യമായ പൂർത്തിയായ ജോലികൾ ഇനിയും ഇല്ല.",
+"min":"മിനിറ്റ്",
+"hr":"മണിക്കൂർ",
+"Demo: before and after learning":"ഡെമോ: പഠിക്കുന്നതിന് മുൻപും ശേഷവും",
+"Before learning":"പഠിക്കുന്നതിന് മുൻപ്",
+"After learning":"പഠിച്ചതിന് ശേഷം",
+"A new company with no finished jobs.":"പൂർത്തിയായ ജോലികളില്ലാത്ത ഒരു പുതിയ കമ്പനി.",
+"This company, from its own finished jobs.":"ഈ കമ്പനി, സ്വന്തം പൂർത്തിയായ ജോലികളിൽ നിന്ന്.",
+"No job has enough finished jobs behind it yet.":"മതിയായ പൂർത്തിയായ ജോലികൾ പിന്നിലുള്ള ഒരു ജോലിയും ഇതുവരെ ഇല്ല."
 }

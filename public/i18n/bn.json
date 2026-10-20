@@ -723,5 +723,20 @@
 "Switch persona":"ব্যক্তি পরিবর্তন করুন",
 "Reset demo":"ডেমো আবার শুরু করুন",
 "Demo: make a job late":"ডেমো: একটি কাজ দেরি করান",
-"We couldn’t make a job late. Please try again.":"কাজটি দেরি করানো গেল না। আবার চেষ্টা করুন।"
+"We couldn’t make a job late. Please try again.":"কাজটি দেরি করানো গেল না। আবার চেষ্টা করুন।",
+"From your company’s history":"আপনার কোম্পানির ইতিহাস থেকে",
+"Usual time":"সাধারণ সময়",
+"Based on":"ভিত্তি",
+"finished jobs":"শেষ হওয়া কাজ",
+"temporary fixes":"অস্থায়ী মেরামত",
+"Same trade at this site, last six months":"এই সাইটে একই কাজ, গত ছয় মাস",
+"Not enough finished jobs yet to say how long this takes.":"এটি কত সময় নেবে বলার মতো যথেষ্ট শেষ হওয়া কাজ এখনও নেই।",
+"min":"মিনিট",
+"hr":"ঘণ্টা",
+"Demo: before and after learning":"ডেমো: শেখার আগে ও পরে",
+"Before learning":"শেখার আগে",
+"After learning":"শেখার পরে",
+"A new company with no finished jobs.":"শেষ হওয়া কাজ ছাড়া একটি নতুন কোম্পানি।",
+"This company, from its own finished jobs.":"এই কোম্পানি, তার নিজের শেষ হওয়া কাজ থেকে।",
+"No job has enough finished jobs behind it yet.":"এখনও কোনো কাজের পেছনে যথেষ্ট শেষ হওয়া কাজ নেই।"
 }

@@ -679,5 +679,20 @@
 "Switch persona":"تغییر شخص",
 "Reset demo":"شروع دوباره نمایش",
 "Demo: make a job late":"نمایش: یک کار را دیر کن",
-"We couldn’t make a job late. Please try again.":"نتوانستیم کار را دیر کنیم. لطفاً دوباره کوشش کنید."
+"We couldn’t make a job late. Please try again.":"نتوانستیم کار را دیر کنیم. لطفاً دوباره کوشش کنید.",
+"From your company’s history":"از سابقه شرکت شما",
+"Usual time":"وقت معمول",
+"Based on":"بر اساس",
+"finished jobs":"کارهای تمام شده",
+"temporary fixes":"ترمیم های موقت",
+"Same trade at this site, last six months":"همین رشته در این محل، شش ماه گذشته",
+"Not enough finished jobs yet to say how long this takes.":"هنوز کارهای تمام شده کافی نیست تا بگوییم این چقدر وقت می گیرد.",
+"min":"دقیقه",
+"hr":"ساعت",
+"Demo: before and after learning":"نمایش: پیش و پس از یادگیری",
+"Before learning":"پیش از یادگیری",
+"After learning":"پس از یادگیری",
+"A new company with no finished jobs.":"یک شرکت نو بدون کار تمام شده.",
+"This company, from its own finished jobs.":"این شرکت، از کارهای تمام شده خودش.",
+"No job has enough finished jobs behind it yet.":"هنوز هیچ کاری کارهای تمام شده کافی پشت سر ندارد."
 }

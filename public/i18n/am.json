@@ -662,5 +662,20 @@
 "Switch persona":"ሰውን ቀይር",
 "Reset demo":"ማሳያውን እንደገና አስጀምር",
 "Demo: make a job late":"ማሳያ: አንድ ስራ እንዲዘገይ አድርግ",
-"We couldn’t make a job late. Please try again.":"ስራውን ማዘግየት አልቻልንም። እባክዎ እንደገና ይሞክሩ።"
+"We couldn’t make a job late. Please try again.":"ስራውን ማዘግየት አልቻልንም። እባክዎ እንደገና ይሞክሩ።",
+"From your company’s history":"ከኩባንያዎ ታሪክ",
+"Usual time":"የተለመደው ጊዜ",
+"Based on":"በዚህ መሰረት",
+"finished jobs":"የተጠናቀቁ ስራዎች",
+"temporary fixes":"ጊዜያዊ ጥገናዎች",
+"Same trade at this site, last six months":"በዚህ ቦታ ተመሳሳይ ሙያ፣ ያለፉት ስድስት ወራት",
+"Not enough finished jobs yet to say how long this takes.":"ይህ ምን ያህል ጊዜ እንደሚወስድ ለመናገር በቂ የተጠናቀቁ ስራዎች ገና የሉም።",
+"min":"ደቂቃ",
+"hr":"ሰዓት",
+"Demo: before and after learning":"ማሳያ: ከመማር በፊትና በኋላ",
+"Before learning":"ከመማር በፊት",
+"After learning":"ከመማር በኋላ",
+"A new company with no finished jobs.":"የተጠናቀቀ ስራ የሌለው አዲስ ኩባንያ።",
+"This company, from its own finished jobs.":"ይህ ኩባንያ፣ ከራሱ የተጠናቀቁ ስራዎች።",
+"No job has enough finished jobs behind it yet.":"በቂ የተጠናቀቁ ስራዎች ያሉት ስራ ገና የለም።"
 }

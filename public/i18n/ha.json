@@ -673,5 +673,20 @@
 "Switch persona":"Canza mutum",
 "Reset demo":"Sake fara gwaji",
 "Demo: make a job late":"Gwaji: sa wani aiki ya makara",
-"We couldn’t make a job late. Please try again.":"Ba mu iya sa aikin ya makara ba. Da fatan a sake gwadawa."
+"We couldn’t make a job late. Please try again.":"Ba mu iya sa aikin ya makara ba. Da fatan a sake gwadawa.",
+"From your company’s history":"Daga tarihin kamfaninku",
+"Usual time":"Lokacin da aka saba",
+"Based on":"Bisa",
+"finished jobs":"ayyukan da aka gama",
+"temporary fixes":"gyaran wucin gadi",
+"Same trade at this site, last six months":"Aiki iri daya a wannan wuri, watanni shida da suka wuce",
+"Not enough finished jobs yet to say how long this takes.":"Babu isassun ayyukan da aka gama tukuna don a faɗi tsawon lokacin da wannan zai ɗauka.",
+"min":"minti",
+"hr":"awa",
+"Demo: before and after learning":"Gwaji: kafin da bayan koyo",
+"Before learning":"Kafin koyo",
+"After learning":"Bayan koyo",
+"A new company with no finished jobs.":"Sabon kamfani ba tare da aikin da aka gama ba.",
+"This company, from its own finished jobs.":"Wannan kamfani, daga ayyukan da ya gama da kansa.",
+"No job has enough finished jobs behind it yet.":"Babu aikin da ke da isassun ayyukan da aka gama a bayansa tukuna."
 }

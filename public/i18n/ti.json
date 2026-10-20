@@ -683,5 +683,20 @@
 "Switch persona":"ሰብ ለውጥ",
 "Reset demo":"ምርኢት ደጊምካ ጀምር",
 "Demo: make a job late":"ምርኢት: ሓደ ስራሕ ከም ዝድንጐ ግበር",
-"We couldn’t make a job late. Please try again.":"ነቲ ስራሕ ከድንጐ ኣይከኣልናን። በጃኹም እንደገና ፈትኑ።"
+"We couldn’t make a job late. Please try again.":"ነቲ ስራሕ ከድንጐ ኣይከኣልናን። በጃኹም እንደገና ፈትኑ።",
+"From your company’s history":"ካብ ታሪኽ ኩባንያኹም",
+"Usual time":"ልሙድ ግዜ",
+"Based on":"ብመሰረት",
+"finished jobs":"ዝተወድኡ ስራሓት",
+"temporary fixes":"ግዝያዊ ጽገናታት",
+"Same trade at this site, last six months":"ኣብዚ ቦታ ተመሳሳሊ ስራሕ፣ ዝሓለፉ ሽዱሽተ ኣዋርሕ",
+"Not enough finished jobs yet to say how long this takes.":"እዚ ክንደይ ግዜ ከም ዝወስድ ንምባል እኹል ዝተወድኡ ስራሓት ገና የለዉን።",
+"min":"ደቒቕ",
+"hr":"ሰዓት",
+"Demo: before and after learning":"ምርኢት: ቅድሚ ምምሃርን ድሕሪኡን",
+"Before learning":"ቅድሚ ምምሃር",
+"After learning":"ድሕሪ ምምሃር",
+"A new company with no finished jobs.":"ዝተወድአ ስራሕ ዘይብሉ ሓድሽ ኩባንያ።",
+"This company, from its own finished jobs.":"እዚ ኩባንያ፣ ካብ ናቱ ዝተወድኡ ስራሓት።",
+"No job has enough finished jobs behind it yet.":"ገና እኹል ዝተወድኡ ስራሓት ዘለዎ ስራሕ የለን።"
 }

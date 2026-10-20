@@ -719,5 +719,20 @@
 "Switch persona":"व्यक्ति बदलें",
 "Reset demo":"डेमो फिर से शुरू करें",
 "Demo: make a job late":"डेमो: एक काम को देर से करें",
-"We couldn’t make a job late. Please try again.":"हम काम को देर से नहीं कर सके। कृपया फिर से कोशिश करें।"
+"We couldn’t make a job late. Please try again.":"हम काम को देर से नहीं कर सके। कृपया फिर से कोशिश करें।",
+"From your company’s history":"आपकी कंपनी के इतिहास से",
+"Usual time":"आम समय",
+"Based on":"आधार",
+"finished jobs":"पूरे हुए काम",
+"temporary fixes":"अस्थायी मरम्मत",
+"Same trade at this site, last six months":"इस जगह पर यही काम, पिछले छह महीने",
+"Not enough finished jobs yet to say how long this takes.":"यह बताने के लिए अभी पूरे हुए काम काफी नहीं हैं कि इसमें कितना समय लगेगा।",
+"min":"मिनट",
+"hr":"घंटा",
+"Demo: before and after learning":"डेमो: सीखने से पहले और बाद",
+"Before learning":"सीखने से पहले",
+"After learning":"सीखने के बाद",
+"A new company with no finished jobs.":"एक नई कंपनी जिसका कोई काम पूरा नहीं हुआ।",
+"This company, from its own finished jobs.":"यह कंपनी, अपने पूरे हुए कामों से।",
+"No job has enough finished jobs behind it yet.":"अभी किसी काम के पीछे काफी पूरे हुए काम नहीं हैं।"
 }

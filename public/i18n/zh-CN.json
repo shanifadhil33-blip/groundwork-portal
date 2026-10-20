@@ -659,5 +659,20 @@
 "Switch persona":"切换人员",
 "Reset demo":"重置演示",
 "Demo: make a job late":"演示：让一个工作逾期",
-"We couldn’t make a job late. Please try again.":"无法让该工作逾期。请重试。"
+"We couldn’t make a job late. Please try again.":"无法让该工作逾期。请重试。",
+"From your company’s history":"来自贵公司的历史",
+"Usual time":"通常用时",
+"Based on":"依据",
+"finished jobs":"已完成的工作",
+"temporary fixes":"临时修复",
+"Same trade at this site, last six months":"此地点同类工作，过去六个月",
+"Not enough finished jobs yet to say how long this takes.":"已完成的工作还不够，无法估计需要多长时间。",
+"min":"分钟",
+"hr":"小时",
+"Demo: before and after learning":"演示：学习前后对比",
+"Before learning":"学习前",
+"After learning":"学习后",
+"A new company with no finished jobs.":"一家没有已完成工作的新公司。",
+"This company, from its own finished jobs.":"本公司，依据自己的已完成工作。",
+"No job has enough finished jobs behind it yet.":"还没有工作背后有足够的已完成工作。"
 }
