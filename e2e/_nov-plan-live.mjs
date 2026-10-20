@@ -22,8 +22,8 @@ await s.as('imran'); const ic = await s.api.post(C, { data: { action: 'sign_off'
 const plan = await (await s.api.get(`${A}/day-plan`)).json(); res.plan = { can_plan: plan.can_plan, lines: plan.lines?.length, gates: plan.gates?.length, visits: plan.visits?.length, people: plan.people?.length };
 check(plan.can_plan === true, 'Imran can plan'); check((plan.lines?.length ?? 0) + (plan.visits?.length ?? 0) > 0, 'plan has something');
 const pv = await (await s.api.post(`${A}/day-plan`, { data: { action: 'preview', kind: 'morning' } })).json(); check(typeof pv.fingerprint === 'string', 'morning preview');
-if (plan.visits?.length) { const u = await (await s.api.post(`${A}/day-plan`, { data: { action: 'preview', kind: 'urgent', job_id: plan.visits[0].id } })).json(); res.urgent = u.lines?.length; check(u.lines?.length > 0, 'urgent move preview'); }
-const ravi = plan.people?.find(p => /Ravi/.test(p.name)); if (check(ravi, 'Ravi in people')) { const sk = await (await s.api.post(`${A}/day-plan`, { data: { action: 'preview', kind: 'sick', person_id: ravi.id } })).json(); res.sick = sk.summary; check(typeof sk.summary === 'string', 'sick preview'); }
+if (plan.visits?.length) { const u = await s.api.post(`${A}/day-plan`, { data: { action: 'preview', kind: 'urgent', job_id: plan.visits[0].id } }); res.urgent = u.status(); check(u.status() === 410, 'urgent move removed (scope cut Oct 20)'); }
+const ravi = plan.people?.find(p => /Ravi/.test(p.name)); if (check(ravi, 'Ravi in people')) { const sk = await s.api.post(`${A}/day-plan`, { data: { action: 'preview', kind: 'sick', person_id: ravi.id } }); res.sick = sk.status(); check(sk.status() === 410, 'sick move removed (scope cut Oct 20)'); }
 const stale = await s.api.post(`${A}/day-plan`, { data: { action: 'approve', kind: 'morning', fingerprint: 'old' } }); check(stale.status() === 409, 'stale plan refused');
 await s.as('ravi'); const rp = await (await s.api.get(`${A}/day-plan`)).json(); check(rp.can_plan === false && !(rp.people ?? []).length, 'Ravi sees no plan controls');
 const rpost = await s.api.post(`${A}/day-plan`, { data: { action: 'preview', kind: 'morning' } }); check(rpost.status() === 403, 'Ravi cannot plan');
@@ -48,11 +48,11 @@ const shot = async (who, path, sel, lang, w, name) => { await s.as(who); await s
   if (lang !== 'en-IN' && sel === '.day-plan') check(!/can be placed|covers this|is free|Nothing is saved/.test(text), `${who} ar ${w} plan reasons in Arabic`);
   if (lang !== 'en-IN') check(/[\u0600-\u06FF]/.test(text) && !/\b(AM|PM)\b/.test(text), `${who} ar ${w} ${sel} Arabic, no AM PM`);
   check(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), `${who} ${lang} ${w} sideways`);
-  if (has) { const box = await el.boundingBox(); if (box && sel !== '.arrival-window') check(box.width >= w - 80, `${who} ${w} ${sel} full width (${Math.round(box.width)})`); await el.scrollIntoViewIfNeeded(); }
+  if (has) { const box = await el.boundingBox(); if (box && sel !== '.day-list') check(box.width >= w - 80, `${who} ${w} ${sel} full width (${Math.round(box.width)})`); await el.scrollIntoViewIfNeeded(); }
   await p.screenshot({ path: `${OUT}/${who}-${name}-${lang}-${w}.png` }); await ctx.close(); return text; };
 try { for (const lang of ['en-IN', 'ar-AE']) for (const w of [360, 390]) {
   await shot('faisal', `/work-orders/${job.id}`, '.job-done-card', lang, w, 'signoff');
   await shot('imran', '/overview', '.day-plan', lang, w, 'plan');
-  await shot('ravi', '/today', '.arrival-window', lang, w, 'window'); } }
+  await shot('ravi', '/today', '.day-list', lang, w, 'today'); } }
 finally { for (const who of ['imran', 'faisal', 'ravi']) { await s.as(who); await s.api.patch('/api/me/preferences', { data: { language: 'en-IN' } }).catch(() => {}); } await br.close(); }
 res.fail = fail; fs.writeFileSync(`${OUT}/report.json`, JSON.stringify(res, null, 1)); console.log(JSON.stringify(res, null, 1)); console.log(fail.length ? 'NOVPLAN_FAIL' : 'NOVPLAN_OK'); process.exit(fail.length ? 1 : 0);
