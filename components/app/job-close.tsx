@@ -70,7 +70,7 @@ export function JobClose({ base, id, currency, client = false }: { base: string;
   const [busy, setBusy] = useState<'sign' | 'mark' | 'keep' | null>(null), [error, setError] = useState(''), [ask, setAsk] = useState<keyof typeof asks | 'thanks' | null>(null);
   const [stars, setStars] = useState(0), [thanks, setThanks] = useState('');
   async function run(action: keyof typeof asks | 'thanks') {
-    if (client && (action === 'sign_off' || action === 'thanks') && stars < 1) { setError('Pick a rating from 1 to 5.'); return; }
+    if (client && (action === 'sign_off' || action === 'thanks') && stars < 1) { setError('Pick a rating from one to five.'); return; }
     setBusy(action === 'sign_off' || action === 'thanks' ? 'sign' : action === 'no_photos' ? 'mark' : 'keep'); setError('');
     try { await post(`${base}/work-orders/${id}/close`, { action, ...(client ? { stars, thanks } : {}) }); setAsk(null); await state.reload(); }
     catch (e) { setError(e instanceof RequestError ? e.message : 'That did not save. Try again.'); }

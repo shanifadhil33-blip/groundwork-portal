@@ -128,7 +128,7 @@ describe('Gulf Arabic for the new sentences', () => {
   const sources = [
     ...Object.values(DAY_REPLIES), ...Object.values(LEARN_REPLIES), ...Object.values(ARCHIVE_REPLIES),
     planSavedReply(0), planSavedReply(1),
-    'A short thank you', 'Send thanks', 'Pick a rating from 1 to 5.', 'Only the client rates the job.',
+    'A short thank you', 'Send thanks', 'Pick a rating from one to five.', 'Only the client rates the job.',
     'Confirm gate pass', 'Not needed', 'Show the move', 'Urgent call', 'Off sick', 'Nothing is waiting',
     'Mark this job late', 'This practice control marks the job late. No message is sent.',
     'Finish the contract', 'Clear the contract', 'Close this order', 'Close a parts order', 'Archive',

@@ -80,7 +80,7 @@ export async function getJobClose(user: string, ws: string, id: string) {
 }
 
 const rateOnly = 'Only the client rates the job.';
-const pickStars = 'Pick a rating from 1 to 5.';
+const pickStars = 'Pick a rating from one to five.';
 
 async function writeRating(db: PoolClient, user: string, ws: string, id: string, clientId: string, stars: number, thanks: string) {
   const saved = (await db.query(`INSERT INTO job_ratings(work_order_id,workspace_id,client_id,rated_by,stars,note)
