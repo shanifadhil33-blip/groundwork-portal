@@ -20,7 +20,7 @@ const ws=ids.ridgeline;
 let user:string|null=ids.imran;
 const priorWebhook=process.env.COBALT_WEBHOOK_SECRET,priorCron=process.env.CRON_SECRET;
 beforeEach(async()=>{
- process.env.COBALT_WEBHOOK_SECRET='supplier-test-signing-key';process.env.CRON_SECRET='supplier-test-cron-key';
+ process.env.COBALT_ENABLED='1';process.env.COBALT_WEBHOOK_SECRET='supplier-test-signing-key';process.env.CRON_SECRET='supplier-test-cron-key';
  user=ids.imran;setAuthResolverForTests(async()=>user);
  const db=await ownerPool.connect();try{await seed(db,true);}finally{db.release();}
 });
@@ -103,6 +103,12 @@ describe('supplier route roles, RLS and cron',()=>{
  const routeCases:[Handler,string,unknown?][]=[[orders.GET,'GET'],[orders.POST,'POST',{work_order_id:orderId(3)}],[check.POST,'POST'],[repair.POST,'POST',{}],[runs.GET,'GET'],[advance.POST,'POST',{cobalt_ref:'COBALT-DEMO-1',status:'shipped'}],[outage.POST,'POST',{outage:true}],[events.GET,'GET']];
  it('JOB08 hidden (scope cut Oct 20 2026): every supplier route answers 410 for every role and changes nothing',async()=>{
   for(const identity of [ids.imran,ids.sam,ids.pranav,ids.summitAdmin]){user=identity;const before=await snapshot();for(const [handler,method,body] of routeCases){const response=await call(handler,method,body);expect(response.status).toBe(410);expect(response.body.error.code).toBe('removed');}expect(await snapshot()).toEqual(before);}
+ });
+ it('Cobalt webhook and nightly sync are off unless COBALT_ENABLED=1',async()=>{
+  delete process.env.COBALT_ENABLED;
+  expect((await webhook.POST(signedRequest(event()))).status).toBe(503);
+  expect((await cron.GET(new Request('http://localhost',{headers:{Authorization:'Bearer '+process.env.CRON_SECRET}}))).status).toBe(503);
+  process.env.COBALT_ENABLED='1';
  });
  it('never includes either secret in webhook responses',async()=>{
   const response=await webhook.POST(signedRequest(event()));const text=await response.text();

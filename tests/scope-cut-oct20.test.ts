@@ -84,3 +84,24 @@ it('removed screens and rules are gone from the code', () => {
   for (const word of ['Arrival window', 'ArrivalWindow', 'WindowText', 'heat', 'gate pass', 'Urgent call', 'Off sick', 'PartsKeep', 'ContractFinish', "href: '/supplier'", 'Parts & supplier']) expect(ui, word).not.toContain(word);
   expect(readFileSync('app/(app)/supplier/page.tsx', 'utf8')).toContain("redirect('/work-orders')");
 });
+
+it('the name lead keeps a capital I and acronyms, and lowers only a normal first word', async () => {
+  const { warmLead } = await import('../lib/warm-reply');
+  expect(warmLead('Ravi', 'I cannot change your phone number here.')).toBe('Ravi, I cannot change your phone number here.');
+  expect(warmLead('Ravi', "I'm on it.")).toBe("Ravi, I'm on it.");
+  expect(warmLead('Ravi', 'WO 12 is done.')).toBe('Ravi, WO 12 is done.');
+  expect(warmLead('Ravi', 'The job is done.')).toBe('Ravi, the job is done.');
+});
+
+it('asked in Arabic, the phone answer is Gulf Arabic and marked localized', async () => {
+  const said = await planFromWords(ids.ravi, ws, 'غير رقمي') as { reply: string; localized?: boolean };
+  expect(said.reply).toMatch(/المكتب/);
+  expect(said.reply).not.toMatch(/cannot|office/);
+  expect(said.localized).toBe(true);
+});
+
+it('Simulate WhatsApp is hidden and the Cobalt nightly sync is off', () => {
+  expect(readFileSync('components/app/suggestions.tsx', 'utf8')).not.toContain('Simulate WhatsApp');
+  expect(readFileSync('app/api/workspaces/[ws]/suggestions/simulate/route.ts', 'utf8')).toContain('status: 410');
+  expect(readFileSync('vercel.json', 'utf8')).not.toContain('supplier-sync');
+});

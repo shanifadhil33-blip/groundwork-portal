@@ -62,9 +62,8 @@ test.describe('Suggested jobs', () => {
     await d.as('sam'); const s = list((await d.get('/suggestions')).body).find((x: any) => x.title === title);
     expect(s?.preferred_window).toContain('Saturday');
   });
-  test('WhatsApp demo message lands as a suggestion', async () => {
-    await d.as('imran'); const r = await d.post('/suggestions/simulate', {}); expect([200, 201]).toContain(r.status);
-    expect(list((await d.get('/suggestions')).body).some((x: any) => x.source === 'whatsapp')).toBeTruthy();
+  test('the Simulate WhatsApp demo is hidden (scope cut Oct 20)', async () => {
+    await d.as('imran'); const r = await d.post('/suggestions/simulate', {}); expect(r.status).toBe(410);
   });
 });
 

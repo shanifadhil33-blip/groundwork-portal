@@ -1,3 +1,2 @@
-import { endpoint } from '../../../../../../lib/api';
-import { simulateWhatsApp } from '../../../../../../lib/services/whatsapp';
-export const POST=endpoint(({user,params})=>simulateWhatsApp(user,params.ws),{status:201});
+// Simulate WhatsApp demo button hidden (scope cut follow up, Adhil Oct 20 2026). lib/services/whatsapp.ts stays.
+export const POST = async () => Response.json({ error: { code: 'removed', message: 'That is not part of Groundwork. Nothing was changed.' } }, { status: 410 });

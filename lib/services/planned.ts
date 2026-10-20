@@ -2,7 +2,8 @@ import { asAgent, withSystem } from '../db';
 import { ApiError, missing } from '../http';
 import { CLOSE_REPLIES, canSignOff, readSignOff, signOffRefusal, type CloseActor } from '../job-close';
 import { z } from 'zod';
-import { PHONE_REPLIES, readPhoneAsk } from '../phone-change';
+import { PHONE_REPLIES, PHONE_REPLIES_AR, readPhoneAsk } from '../phone-change';
+import { getPreferences } from './settings';
 import { USUAL_REPLIES, readUsualAsk, usualValid } from '../usual-context';
 import { warmLead } from '../warm-reply';
 import { DAY_REPLIES, readOnTheWay, readPlanApprove, readPlanAsk } from '../day-plan';
@@ -93,7 +94,12 @@ export async function planFromWords(user: string, ws: string, words: string) {
     if (correction?.kind === 'once') return { available: true as const, reply: lead(LEARN_REPLIES.once) };
     if (correction?.kind === 'ask') return card(user, ws, 'remember_rule', { rule: correction.rule, company: correction.company }, LEARN_REPLIES.ask);
     // SIGN10 hidden (scope cut Oct 20 2026): no free code sender, so the agent never offers a phone change by code.
-    if (phone.kind === 'ask_number' || phone.kind === 'number') return { available: true as const, reply: lead(PHONE_REPLIES.hidden) };
+    if (phone.kind === 'ask_number' || phone.kind === 'number') {
+      // Asked in Arabic, or his app is in Arabic: the fixed line in Gulf Arabic by hand, marked localized so the page leaves it.
+      const ar = /[\u0600-\u06FF]/.test(words) || !!(await getPreferences(user)).language?.startsWith('ar');
+      if (ar) return { available: true as const, reply: name ? `${name}، ${PHONE_REPLIES_AR.hidden}` : PHONE_REPLIES_AR.hidden, localized: true };
+      return { available: true as const, reply: lead(PHONE_REPLIES.hidden) };
+    }
     const usual = readUsualAsk(words);
     if (usual) {
       const queued = await queueUsual(user, ws, usual);

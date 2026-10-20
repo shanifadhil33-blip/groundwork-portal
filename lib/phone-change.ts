@@ -2,6 +2,8 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { phoneKey } from './phone-key';
 
 /** SIGN10: the agent never saves a phone number until the code for that number matches. */
+export const PHONE_REPLIES_AR = { hidden: 'ما أقدر أغيّر رقم تلفونك من هني. اطلب من المكتب يغيّره لك.' } as const;
+
 export const PHONE_REPLIES = {
   hidden: 'I cannot change your phone number here. Ask the office to change it for you.',
   askNumber: 'What is the new phone number?',
