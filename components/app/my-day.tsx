@@ -126,7 +126,6 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
       <div id="next-job-back" className="flip-face flip-back ds-hero next-job-face" inert={!flipped} aria-hidden={!flipped}>
         <div className="next-job-top"><strong>Job details</strong><span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>
         <dl className="next-job-facts">
-          {j.access_notes && <div><dt>Access</dt><dd>{j.access_notes}</dd></div>}
           {(j.contact_name || j.contact_phone) && <div><dt>Contact</dt><dd data-no-translate>{[j.contact_name, j.contact_phone].filter(Boolean).join(', ')}</dd></div>}
           <div><dt>Address</dt><dd data-no-translate>{[j.building, j.address, j.area].filter(Boolean).join(', ') || j.site_name}</dd></div>
           {j.trade && <div><dt>Trade</dt><dd>{tradeLabels[j.trade as Trade] ?? j.trade}</dd></div>}

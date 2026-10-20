@@ -161,7 +161,7 @@ html[lang^=ar] .next-job-title{letter-spacing:0;line-height:1.5}
 .ds-flip-btn{align-self:flex-start;min-height:44px;padding:0 4px;background:transparent;border:0;color:var(--gold-soft);font-weight:600;font-size:15px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;border-radius:10px;transition:background-color 120ms ease-out}
 .ds-flip-btn:active{background:var(--pressed-hero)}
 @media(hover:hover) and (pointer:fine){.ds-flip-btn:hover:not(:active){background:var(--hover-hero)}}
-.next-job-facts{margin:0;display:grid;gap:12px}
+.next-job-facts{margin:0;display:grid;gap:10px}
 .next-job-facts>div{display:grid;gap:2px;padding-bottom:10px;border-bottom:1px solid var(--hero-line)}
 .next-job-facts dt{color:var(--on-hero-muted);font-size:14px;font-weight:600}
 .next-job-facts dd{margin:0;color:var(--on-hero);font-size:16px;line-height:24px;overflow-wrap:anywhere}
@@ -178,3 +178,53 @@ html[lang^=ar] .next-job-title{letter-spacing:0;line-height:1.5}
 .ds-more-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ds-more-links .button{width:100%}
 .ds-hero-skeleton{min-height:260px;border-radius:24px}
+
+/* Desert Stone 3: owner home */
+.owner-home{gap:24px}
+.owner-home-grid{display:grid;gap:24px;min-width:0}
+.owner-home-main,.owner-home-aside{display:grid;gap:16px;align-content:start;min-width:0}
+@media(min-width:1024px){.owner-home-grid{grid-template-columns:minmax(0,1fr) 300px}}
+.owner-summary{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.owner-summary-copy{display:grid;gap:4px;min-width:0;flex:1 1 260px}
+.owner-summary-label{margin:0;font-size:14px;font-weight:500}
+.owner-summary-line{margin:0;font-size:20px;line-height:28px;font-weight:600;color:var(--on-hero)}
+.owner-gold{color:var(--gold-soft)}
+.ds-hero-main{background:var(--gold);color:#1F1D1A;border-color:var(--gold)}
+.ds-hero-main:active{background:color-mix(in srgb,var(--gold) 85%,#000)}
+@media(hover:hover) and (pointer:fine){.ds-hero-main:hover:not(:active){background:color-mix(in srgb,var(--gold) 92%,#fff)}}
+@media(max-width:640px){.owner-summary .ds-hero-main{flex:1 1 100%}}
+.ds-panel{background:var(--surface);border-radius:24px;padding:22px;min-width:0}
+@media(max-width:380px){.ds-panel{padding:18px}}
+.ds-panel h2{margin:0;font-size:17px;line-height:24px;font-weight:600}
+.ds-link{color:var(--text-muted);font-size:14px;font-weight:600;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;padding-inline:6px;border-radius:10px}
+.ds-link:active{background:var(--pressed)}
+@media(hover:hover) and (pointer:fine){.ds-link:hover:not(:active){background:var(--hover);color:var(--text)}}
+.ds-table{width:100%;border-collapse:collapse}
+.ds-table th{text-align:start;font-size:14px;font-weight:600;color:var(--text-muted);padding:8px 10px}
+.ds-table td{padding:10px;border-top:1px solid var(--line);height:52px;font-size:15px;vertical-align:middle}
+.ds-table td.num{font-weight:600}
+.ds-cell-link{color:var(--text);font-weight:600;text-decoration:none}
+@media(hover:hover) and (pointer:fine){.ds-cell-link:hover{text-decoration:underline}}
+.ds-person{display:inline-flex;align-items:center;gap:8px}
+.ds-avatar{width:28px;height:28px;border-radius:50%;background:rgba(176,138,78,.16);color:var(--gold-text);display:inline-grid;place-items:center;font-size:14px;font-weight:600}
+.ds-chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-size:14px;font-weight:600;line-height:20px;white-space:nowrap;color:var(--text-muted)}
+.ds-chip-in_progress,.ds-chip-scheduled.on-way{background:rgba(176,138,78,.16);color:var(--gold-text)}
+.ds-chip-late{background:rgba(168,85,47,.14);color:var(--danger)}
+.ds-chip-waiting_on_parts{background:rgba(168,85,47,.10);color:var(--danger)}
+.ds-chip-done{color:var(--success)}
+.ds-phone-rows{display:none}
+@media(max-width:720px){.today-jobs .ds-table{display:none}.today-jobs .ds-phone-rows{display:grid}.today-jobs.ds-panel{background:transparent;padding:0}}
+.ds-divided{list-style:none;margin:0;padding:0}
+.ds-divided>li+li{border-top:1px solid var(--line)}
+.ds-late-row{display:flex;align-items:center;gap:12px;padding:12px 0;min-height:56px;color:var(--text);text-decoration:none;border-radius:10px;transition:background-color 120ms ease-out}
+.ds-late-row:active{background:var(--pressed)}
+@media(hover:hover) and (pointer:fine){.ds-late-row:hover:not(:active){background:var(--hover)}}
+.ds-late-row .ds-main{flex:1;min-width:0;display:grid}
+.ds-late-row .ds-sub,.today-jobs .ds-sub{color:var(--text-muted);font-size:14px}
+.owner-home .lessons-waiting{background:var(--surface);border:0;border-radius:24px}
+.owner-home .day-plan.card{border-radius:24px}
+.owner-home .overview-grid .card{border-radius:16px}
+
+/* Account block at the bottom of the full sidebar */
+@media(min-width:1024px){body:has(.app-shell) .app-shell:not(.collapsed) .sidebar-bottom .dropdown-trigger{width:100%!important;min-height:56px}
+ body:has(.app-shell) .app-shell:not(.collapsed) .sidebar-bottom .account-copy{display:grid;text-align:start;min-width:0}}
