@@ -14,9 +14,9 @@ export async function companyHistory(user: string, ws: string, id: string): Prom
  return inWorkspace(user, ws, async c => {
   if (!isOffice(c.role)) throw new ApiError(403, 'forbidden', 'Company history is for the office.');
   const job = (await c.db.query('SELECT id,trade,site_id FROM work_orders WHERE workspace_id=$1 AND id=$2', [ws, id])).rows[0]; if (!job) throw missing();
-  const mins = (await c.db.query(`SELECT extract(epoch FROM report_at-scheduled_for)/60 AS m FROM work_orders
+  const mins = (await c.db.query(`SELECT extract(epoch FROM report_at - scheduled_for)/60 AS m FROM work_orders
    WHERE workspace_id=$1 AND id<>$2 AND status='done' AND trade IS NOT DISTINCT FROM $3 AND report_at IS NOT NULL AND scheduled_for IS NOT NULL
-   AND report_at>scheduled_for AND report_at-scheduled_for<interval '12 hours'`, [ws, id, job.trade])).rows.map(r => Number(r.m));
+   AND report_at>scheduled_for AND report_at - scheduled_for<interval '12 hours'`, [ws, id, job.trade])).rows.map(r => Number(r.m));
   const rep = (await c.db.query(`SELECT count(*)::int n, count(*) FILTER (WHERE report_outcome='temporary')::int t, min(coalesce(report_at,updated_at)) since FROM work_orders
    WHERE workspace_id=$1 AND id<>$2 AND site_id=$3 AND status='done' AND trade IS NOT DISTINCT FROM $4 AND coalesce(report_at,updated_at)>now()-interval '6 months'`, [ws, id, job.site_id, job.trade])).rows[0];
   return { trade: job.trade, based_on: mins.length, typical_minutes: mins.length >= MIN_JOBS ? Math.max(15, Math.round(median(mins) / 15) * 15) : null,

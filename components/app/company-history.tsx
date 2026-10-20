@@ -10,6 +10,6 @@ export function CompanyHistoryCard({ base, id }: { base: string; id: string }) {
  return <Card className="stack company-history"><h2>From your company’s history</h2>
   {h.typical_minutes != null ? <p><span>Usual time</span>: <strong data-no-translate>{hours(h.typical_minutes)}</strong>. <span>Based on</span> <strong data-no-translate>{h.based_on}</strong> <span>finished jobs</span>.</p>
    : <p>Not enough finished jobs yet to say how long this takes.</p>}
-  {h.site_repeat && <p><span>Same trade at this site, last 6 months</span>: <strong data-no-translate>{h.site_repeat.count}</strong> <span>finished jobs</span>{h.site_repeat.temporary > 0 && <>, <strong data-no-translate>{h.site_repeat.temporary}</strong> <span>temporary fixes</span></>}.</p>}
+  {h.site_repeat && <p><span>Same trade at this site, last six months</span>: <strong data-no-translate>{h.site_repeat.count}</strong> <span>finished jobs</span>{h.site_repeat.temporary > 0 && <>, <strong data-no-translate>{h.site_repeat.temporary}</strong> <span>temporary fixes</span></>}.</p>}
  </Card>;
 }
