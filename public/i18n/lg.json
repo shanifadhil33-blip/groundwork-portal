@@ -648,5 +648,10 @@
 "Add word":"Yongerako ekigambo",
 "Remove this word?":"Ggyawo ekigambo kino?",
 "Only an admin can add company words.":"Omuddukanya yekka y’ayinza okwongerako ebigambo bya kkampuni.",
-"You already use that word.":"Ekigambo ekyo okikozesa dda."
+"You already use that word.":"Ekigambo ekyo okikozesa dda.",
+"Isolation check":"Okukebera okwawula ebikwata ku kampuni",
+"Switch persona":"Kyusa omuntu",
+"Reset demo":"Ddamu otandike ekyokulaga",
+"Demo: make a job late":"Ekyokulaga: kola omulimu gumu gulwe",
+"We couldn’t make a job late. Please try again.":"Tetusobodde kulwisa mulimu. Gezaako nate."
 }

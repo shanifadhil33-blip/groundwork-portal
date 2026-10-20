@@ -698,5 +698,10 @@
 "Add word":"لفظ شامل کریں",
 "Remove this word?":"یہ لفظ ہٹائیں؟",
 "Only an admin can add company words.":"صرف منتظم کمپنی کے الفاظ شامل کر سکتا ہے۔",
-"You already use that word.":"آپ یہ لفظ پہلے سے استعمال کرتے ہیں۔"
+"You already use that word.":"آپ یہ لفظ پہلے سے استعمال کرتے ہیں۔",
+"Isolation check":"ڈیٹا الگ ہونے کی جانچ",
+"Switch persona":"شخص تبدیل کریں",
+"Reset demo":"ڈیمو دوبارہ شروع کریں",
+"Demo: make a job late":"ڈیمو: ایک کام کو لیٹ کریں",
+"We couldn’t make a job late. Please try again.":"ہم کام کو لیٹ نہیں کر سکے۔ براہ کرم دوبارہ کوشش کریں۔"
 }

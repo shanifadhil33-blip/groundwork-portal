@@ -654,5 +654,10 @@
 "Add word":"添加词语",
 "Remove this word?":"删除这个词语？",
 "Only an admin can add company words.":"只有管理员可以添加公司用词。",
-"You already use that word.":"你已经在使用这个词语。"
+"You already use that word.":"你已经在使用这个词语。",
+"Isolation check":"数据隔离检查",
+"Switch persona":"切换人员",
+"Reset demo":"重置演示",
+"Demo: make a job late":"演示：让一个工作逾期",
+"We couldn’t make a job late. Please try again.":"无法让该工作逾期。请重试。"
 }

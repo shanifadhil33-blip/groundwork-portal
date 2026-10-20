@@ -657,5 +657,10 @@
 "Add word":"ቃል ያክሉ",
 "Remove this word?":"ይህን ቃል ያስወግዱ?",
 "Only an admin can add company words.":"የድርጅቱን ቃላት ማከል የሚችለው አስተዳዳሪ ብቻ ነው።",
-"You already use that word.":"ይህን ቃል አስቀድመው ይጠቀማሉ።"
+"You already use that word.":"ይህን ቃል አስቀድመው ይጠቀማሉ።",
+"Isolation check":"የመረጃ መለያየት ፍተሻ",
+"Switch persona":"ሰውን ቀይር",
+"Reset demo":"ማሳያውን እንደገና አስጀምር",
+"Demo: make a job late":"ማሳያ: አንድ ስራ እንዲዘገይ አድርግ",
+"We couldn’t make a job late. Please try again.":"ስራውን ማዘግየት አልቻልንም። እባክዎ እንደገና ይሞክሩ።"
 }

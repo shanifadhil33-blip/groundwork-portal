@@ -658,5 +658,10 @@
 "Add word":"Magdagdag ng salita",
 "Remove this word?":"Alisin ang salitang ito?",
 "Only an admin can add company words.":"Admin lang ang puwedeng magdagdag ng mga salita ng kumpanya.",
-"You already use that word.":"Ginagamit mo na ang salitang iyan."
+"You already use that word.":"Ginagamit mo na ang salitang iyan.",
+"Isolation check":"Suriin ang paghihiwalay ng data",
+"Switch persona":"Magpalit ng tao",
+"Reset demo":"Simulan muli ang demo",
+"Demo: make a job late":"Demo: gawing huli ang isang trabaho",
+"We couldn’t make a job late. Please try again.":"Hindi namin nagawang huli ang trabaho. Pakisubukan ulit."
 }

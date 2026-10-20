@@ -681,5 +681,10 @@
 "Add word":"വാക്ക് ചേർക്കുക",
 "Remove this word?":"ഈ വാക്ക് നീക്കണോ?",
 "Only an admin can add company words.":"അഡ്മിന് മാത്രമേ കമ്പനിയുടെ വാക്കുകൾ ചേർക്കാനാകൂ.",
-"You already use that word.":"നിങ്ങൾ ഈ വാക്ക് ഇതിനകം ഉപയോഗിക്കുന്നു."
+"You already use that word.":"നിങ്ങൾ ഈ വാക്ക് ഇതിനകം ഉപയോഗിക്കുന്നു.",
+"Isolation check":"ഡാറ്റ വേർതിരിവ് പരിശോധന",
+"Switch persona":"വ്യക്തിയെ മാറ്റുക",
+"Reset demo":"ഡെമോ വീണ്ടും തുടങ്ങുക",
+"Demo: make a job late":"ഡെമോ: ഒരു ജോലി വൈകിപ്പിക്കുക",
+"We couldn’t make a job late. Please try again.":"ജോലി വൈകിപ്പിക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക."
 }

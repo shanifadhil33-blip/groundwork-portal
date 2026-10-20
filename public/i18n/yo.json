@@ -644,5 +644,10 @@
 "Add word":"Fi ọ̀rọ̀ kún un",
 "Remove this word?":"Yọ ọ̀rọ̀ yìí kúrò?",
 "Only an admin can add company words.":"Alábòójútó nìkan ló lè fi àwọn ọ̀rọ̀ ilé iṣẹ́ kún un.",
-"You already use that word.":"O ti ń lo ọ̀rọ̀ yẹn tẹ́lẹ̀."
+"You already use that word.":"O ti ń lo ọ̀rọ̀ yẹn tẹ́lẹ̀.",
+"Isolation check":"Àyẹ̀wò ìyàsọ́tọ̀ dátà",
+"Switch persona":"Yí ènìyàn padà",
+"Reset demo":"Tún àfihàn bẹ̀rẹ̀",
+"Demo: make a job late":"Àfihàn: mú kí iṣẹ́ kan pẹ́",
+"We couldn’t make a job late. Please try again.":"A kò lè mú kí iṣẹ́ náà pẹ́. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i."
 }

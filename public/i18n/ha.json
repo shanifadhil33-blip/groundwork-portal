@@ -668,5 +668,10 @@
 "Add word":"Ƙara kalma",
 "Remove this word?":"Cire wannan kalmar?",
 "Only an admin can add company words.":"Mai gudanarwa kaɗai zai iya ƙara kalmomin kamfani.",
-"You already use that word.":"Kana amfani da wannan kalmar tuni."
+"You already use that word.":"Kana amfani da wannan kalmar tuni.",
+"Isolation check":"Duba rabuwar bayanai",
+"Switch persona":"Canza mutum",
+"Reset demo":"Sake fara gwaji",
+"Demo: make a job late":"Gwaji: sa wani aiki ya makara",
+"We couldn’t make a job late. Please try again.":"Ba mu iya sa aikin ya makara ba. Da fatan a sake gwadawa."
 }

@@ -695,5 +695,10 @@
 "Add word":"کلمه زیاته کړئ",
 "Remove this word?":"دا کلمه لرې کړئ؟",
 "Only an admin can add company words.":"یوازې مدیر د شرکت کلمې زیاتولی شي.",
-"You already use that word.":"تاسو دا کلمه له مخکې کاروئ."
+"You already use that word.":"تاسو دا کلمه له مخکې کاروئ.",
+"Isolation check":"د معلوماتو د جلا والي کتنه",
+"Switch persona":"کس بدل کړئ",
+"Reset demo":"ښودنه بیا پیل کړئ",
+"Demo: make a job late":"ښودنه: یو کار ناوخته کړئ",
+"We couldn’t make a job late. Please try again.":"مونږ کار ناوخته نه شو کړای. مهرباني وکړئ بیا هڅه وکړئ."
 }

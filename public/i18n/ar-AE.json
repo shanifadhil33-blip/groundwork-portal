@@ -1063,5 +1063,15 @@
  "is free to take it. Nothing is sent until you say yes.": "فاضي ياخذه. ما ينرسل شي لين تقول نعم.",
  "has no room left today.": "ما عنده وقت باقي اليوم.",
  "Archived. The file stays on the record.": "انأرشف. الملف باقي في السجل.",
- "The contract is finished. Past jobs stay covered by contract.": "العقد خلص. الشغل السابق يبقى مغطى بالعقد."
+ "The contract is finished. Past jobs stay covered by contract.": "العقد خلص. الشغل السابق يبقى مغطى بالعقد.",
+ "Isolation check": "فحص فصل البيانات",
+ "Switch persona": "غيّر الشخص",
+ "Reset demo": "ابدأ التجربة من جديد",
+ "From your company’s history": "من سجل شركتك",
+ "Usual time": "الوقت المعتاد",
+ "Based on": "على أساس",
+ "finished jobs": "شغلات خلصت",
+ "temporary fixes": "تصليحات مؤقتة",
+ "Same trade at this site, last 6 months": "نفس الشغل في هالموقع، آخر ٦ شهور",
+ "Not enough finished jobs yet to say how long this takes.": "ما في شغلات خالصة كافية عشان نعرف كم ياخذ هالشغل."
 }

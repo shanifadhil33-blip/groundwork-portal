@@ -694,5 +694,10 @@
 "Add word":"शब्द थप्नुहोस्",
 "Remove this word?":"यो शब्द हटाउने?",
 "Only an admin can add company words.":"प्रशासकले मात्र कम्पनीका शब्दहरू थप्न सक्छन्।",
-"You already use that word.":"तपाईंले यो शब्द पहिल्यै प्रयोग गर्नुहुन्छ।"
+"You already use that word.":"तपाईंले यो शब्द पहिल्यै प्रयोग गर्नुहुन्छ।",
+"Isolation check":"डाटा छुट्याइएको जाँच",
+"Switch persona":"व्यक्ति बदल्नुहोस्",
+"Reset demo":"डेमो फेरि सुरु गर्नुहोस्",
+"Demo: make a job late":"डेमो: एउटा काम ढिलो बनाउनुहोस्",
+"We couldn’t make a job late. Please try again.":"काम ढिलो बनाउन सकिएन। फेरि प्रयास गर्नुहोस्।"
 }

@@ -669,5 +669,10 @@
 "Add word":"Ku dar eray",
 "Remove this word?":"Ka saar eraygan?",
 "Only an admin can add company words.":"Maamulaha oo keliya ayaa ku dari kara erayada shirkadda.",
-"You already use that word.":"Eraygaas horay ayaad u isticmaashaa."
+"You already use that word.":"Eraygaas horay ayaad u isticmaashaa.",
+"Isolation check":"Hubinta kala soocidda xogta",
+"Switch persona":"Beddel qofka",
+"Reset demo":"Dib u bilow tijaabada",
+"Demo: make a job late":"Tijaabo: shaqo ka dhig mid daahday",
+"We couldn’t make a job late. Please try again.":"Ma awoodin inaan shaqada daahino. Fadlan isku day mar kale."
 }

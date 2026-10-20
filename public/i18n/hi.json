@@ -714,5 +714,10 @@
 "{name} finished {month} jobs this month and {total} in total.":"{name} ने इस महीने {month} काम और कुल {total} काम पूरे किए।",
 "{name} finished {month} job this month and {total} in total.":"{name} ने इस महीने {month} काम और कुल {total} काम पूरे किए।",
 "You finished {month} jobs this month and {total} in total.":"आपने इस महीने {month} काम और कुल {total} काम पूरे किए।",
-"You finished {month} job this month and {total} in total.":"आपने इस महीने {month} काम और कुल {total} काम पूरे किए।"
+"You finished {month} job this month and {total} in total.":"आपने इस महीने {month} काम और कुल {total} काम पूरे किए।",
+"Isolation check":"डेटा अलग रहने की जांच",
+"Switch persona":"व्यक्ति बदलें",
+"Reset demo":"डेमो फिर से शुरू करें",
+"Demo: make a job late":"डेमो: एक काम को देर से करें",
+"We couldn’t make a job late. Please try again.":"हम काम को देर से नहीं कर सके। कृपया फिर से कोशिश करें।"
 }

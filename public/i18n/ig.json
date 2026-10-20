@@ -663,5 +663,10 @@
 "Add word":"Tinye okwu",
 "Remove this word?":"Wepụ okwu a?",
 "Only an admin can add company words.":"Naanị onye nchịkwa nwere ike itinye okwu ụlọ ọrụ.",
-"You already use that word.":"Ị na-eji okwu ahụ eme ihe ugbua."
+"You already use that word.":"Ị na-eji okwu ahụ eme ihe ugbua.",
+"Isolation check":"Nlele nkewa data",
+"Switch persona":"Gbanwee onye",
+"Reset demo":"Malite ngosi ọzọ",
+"Demo: make a job late":"Ngosi: mee ka otu ọrụ bịa n’azụ",
+"We couldn’t make a job late. Please try again.":"Anyị enweghị ike ime ka ọrụ ahụ bịa n’azụ. Biko nwaa ọzọ."
 }

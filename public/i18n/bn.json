@@ -718,5 +718,10 @@
 "Add word":"শব্দ যোগ করুন",
 "Remove this word?":"এই শব্দ সরাবেন?",
 "Only an admin can add company words.":"শুধু প্রশাসক কোম্পানির শব্দ যোগ করতে পারেন।",
-"You already use that word.":"আপনি এই শব্দ আগে থেকেই ব্যবহার করছেন।"
+"You already use that word.":"আপনি এই শব্দ আগে থেকেই ব্যবহার করছেন।",
+"Isolation check":"ডেটা আলাদা রাখার পরীক্ষা",
+"Switch persona":"ব্যক্তি পরিবর্তন করুন",
+"Reset demo":"ডেমো আবার শুরু করুন",
+"Demo: make a job late":"ডেমো: একটি কাজ দেরি করান",
+"We couldn’t make a job late. Please try again.":"কাজটি দেরি করানো গেল না। আবার চেষ্টা করুন।"
 }

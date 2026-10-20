@@ -654,5 +654,10 @@
 "Add word":"Fa asɛmfua ka ho",
 "Remove this word?":"Yi asɛmfua yi fi hɔ?",
 "Only an admin can add company words.":"Ɔhwɛfo nkutoo na obetumi de adwumakuw no nsɛmfua aka ho.",
-"You already use that word.":"Wode saa asɛmfua no di dwuma dedaw."
+"You already use that word.":"Wode saa asɛmfua no di dwuma dedaw.",
+"Isolation check":"Data mpaapaemu nhwehwɛmu",
+"Switch persona":"Sesɛ obi",
+"Reset demo":"Fi ho kyerɛ no ase bio",
+"Demo: make a job late":"Ho kyerɛ: ma adwuma baako nka akyi",
+"We couldn’t make a job late. Please try again.":"Yɛantumi amma adwuma no anka akyi. Yɛsrɛ wo, san sɔ hwɛ."
 }

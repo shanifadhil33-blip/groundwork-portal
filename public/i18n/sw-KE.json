@@ -649,5 +649,10 @@
 "Add word":"Ongeza neno",
 "Remove this word?":"Ondoa neno hili?",
 "Only an admin can add company words.":"Msimamizi pekee anaweza kuongeza maneno ya kampuni.",
-"You already use that word.":"Tayari unatumia neno hilo."
+"You already use that word.":"Tayari unatumia neno hilo.",
+"Isolation check":"Ukaguzi wa kutenganisha data",
+"Switch persona":"Badilisha mtu",
+"Reset demo":"Anzisha onyesho upya",
+"Demo: make a job late":"Onyesho: fanya kazi moja ichelewe",
+"We couldn’t make a job late. Please try again.":"Hatukuweza kuifanya kazi ichelewe. Tafadhali jaribu tena."
 }

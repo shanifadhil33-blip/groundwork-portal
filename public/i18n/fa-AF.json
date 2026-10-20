@@ -674,5 +674,10 @@
 "Add word":"افزودن واژه",
 "Remove this word?":"این واژه حذف شود؟",
 "Only an admin can add company words.":"تنها مدیر می‌تواند واژه‌های شرکت را اضافه کند.",
-"You already use that word.":"شما از قبل این واژه را استفاده می‌کنید."
+"You already use that word.":"شما از قبل این واژه را استفاده می‌کنید.",
+"Isolation check":"بررسی جدا بودن معلومات",
+"Switch persona":"تغییر شخص",
+"Reset demo":"شروع دوباره نمایش",
+"Demo: make a job late":"نمایش: یک کار را دیر کن",
+"We couldn’t make a job late. Please try again.":"نتوانستیم کار را دیر کنیم. لطفاً دوباره کوشش کنید."
 }

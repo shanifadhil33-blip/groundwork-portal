@@ -678,5 +678,10 @@
 "Add word":"ቃል ወስኽ",
 "Remove this word?":"ነዚ ቃል ተወግዶ?",
 "Only an admin can add company words.":"ናይ ትካል ቃላት ክውስኽ ዝኽእል ኣመሓዳሪ ጥራይ እዩ።",
-"You already use that word.":"ነዚ ቃል ድሮ ትጥቀመሉ ኣለኻ።"
+"You already use that word.":"ነዚ ቃል ድሮ ትጥቀመሉ ኣለኻ።",
+"Isolation check":"ምፍልላይ ሓበሬታ ምፍታሽ",
+"Switch persona":"ሰብ ለውጥ",
+"Reset demo":"ምርኢት ደጊምካ ጀምር",
+"Demo: make a job late":"ምርኢት: ሓደ ስራሕ ከም ዝድንጐ ግበር",
+"We couldn’t make a job late. Please try again.":"ነቲ ስራሕ ከድንጐ ኣይከኣልናን። በጃኹም እንደገና ፈትኑ።"
 }
