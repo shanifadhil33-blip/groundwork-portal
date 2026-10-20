@@ -34,7 +34,9 @@ export async function listDocuments(user: string, ws: string, params?: URLSearch
   const soon = params?.get('expiring') === 'true';
   return inWorkspace(user, ws, async c => {
     allow(c, ['admin', 'staff']);
+    const archived = params?.get('archived') === 'true';
     return (await c.db.query(`SELECT ${COLS} FROM company_documents d JOIN workspaces w ON w.id=d.workspace_id WHERE d.workspace_id=$1
+      AND d.archived_at IS ${archived ? 'NOT NULL' : 'NULL'}
       ${soon ? `AND d.expires_on IS NOT NULL AND d.expires_on <= (CURRENT_TIMESTAMP AT TIME ZONE w.timezone)::date + ${SOON_DAYS}` : ''}
       ORDER BY d.expires_on NULLS LAST, d.title`, [ws])).rows;
   });
@@ -94,7 +96,7 @@ export async function removeDocument(user: string, ws: string, id: string) {
 export async function pushExpiringDocuments() {
   const due = (await withSystem(db => db.query(`SELECT d.id, d.workspace_id, d.title, d.responsible_id, d.expires_on - (CURRENT_TIMESTAMP AT TIME ZONE w.timezone)::date AS left
     FROM company_documents d JOIN workspaces w ON w.id=d.workspace_id
-    WHERE w.demo_expires_at IS NULL AND d.expires_on - (CURRENT_TIMESTAMP AT TIME ZONE w.timezone)::date IN (30, 7, 0)`))).rows;
+    WHERE w.demo_expires_at IS NULL AND d.archived_at IS NULL AND d.expires_on - (CURRENT_TIMESTAMP AT TIME ZONE w.timezone)::date IN (30, 7, 0)`))).rows;
   let sent = 0;
   for (const d of due) {
     const office = (await withSystem(db => db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND archived_at IS NULL AND role IN ('admin','staff')", [d.workspace_id]))).rows.map(r => r.user_id as string);

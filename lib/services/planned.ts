@@ -9,11 +9,16 @@ import { phoneKey } from '../phone-key';
 import { openSealed, seal } from '../secret-box';
 import { USUAL_REPLIES, readUsualAsk, usualValid } from '../usual-context';
 import { warmLead } from '../warm-reply';
+import { DAY_REPLIES, readOnTheWay, readPlanApprove, readPlanAsk } from '../day-plan';
+import { LEARN_REPLIES, classifyCorrection } from '../learn-habits';
 import { applySignOff } from './job-close';
+import { getDayPlan, postDayPlan } from './day-plan';
+import { saveLearnedRule } from './habits';
+import { patchWorkOrder } from './work-orders';
 import { inWorkspace, uuid } from './shared';
 
 const secret = () => requiredEnv('AUTH_SECRET');
-const PLANNED = ['issue_phone_code', 'set_usual_context', 'sign_off'] as const;
+const PLANNED = ['issue_phone_code', 'set_usual_context', 'sign_off', 'approve_day_plan', 'remember_rule'] as const;
 
 function calm(error: unknown) {
   if (error instanceof ApiError && error.message && !/sql|stack|token|secret/i.test(error.message)) return error.message;
@@ -78,14 +83,46 @@ async function queueSignOff(user: string, ws: string, order: number | null) {
   });
 }
 
-/** Fixed phrases for the phone check, usual start and sign off. They never call the model. */
+async function sayOnTheWay(user: string, ws: string, order: number | null) {
+  const found = await inWorkspace(user, ws, async c => {
+    const rows = (await c.db.query(`SELECT id, updated_at FROM work_orders
+      WHERE workspace_id=$1 AND archived_at IS NULL AND assignee_id=$2 AND status='scheduled' AND on_way_at IS NULL
+      AND ($3::int IS NULL OR order_number=$3) ORDER BY scheduled_for NULLS LAST LIMIT 2`, [ws, user, order])).rows;
+    if (!rows.length) return { reply: order ? DAY_REPLIES.notYours : DAY_REPLIES.noVisit };
+    if (rows.length !== 1) return { reply: DAY_REPLIES.openJob };
+    return { id: rows[0].id as string, updated_at: new Date(rows[0].updated_at).toISOString() };
+  });
+  if (!('id' in found) || typeof found.id !== 'string' || typeof found.updated_at !== 'string') return { available: true as const, reply: 'reply' in found ? String(found.reply) : DAY_REPLIES.openJob };
+  await patchWorkOrder(user, ws, found.id, { on_way: true, updated_at: found.updated_at });
+  return { available: true as const, reply: DAY_REPLIES.onWay };
+}
+
+/** Fixed phrases for the day plan, a remembered rule, the phone check, usual start and sign off. They never call the model. */
 export async function planFromWords(user: string, ws: string, words: string) {
   const phone = readPhoneAsk(words);
-  if (phone.kind === 'none' && !readUsualAsk(words) && !readSignOff(words)) return null;
+  const onWay = readOnTheWay(words);
+  const planAsk = readPlanAsk(words);
+  const planYes = readPlanApprove(words);
+  const correction = classifyCorrection(words);
+  if (phone.kind === 'none' && !readUsualAsk(words) && !readSignOff(words) && !onWay && !planAsk && !planYes && !correction) return null;
   await inWorkspace(user, ws, async () => undefined);
   const name = await firstName(user);
   const lead = (reply: string) => warmLead(name, reply);
   try {
+    if (onWay) {
+      const said = await sayOnTheWay(user, ws, onWay.order);
+      return { ...said, reply: lead(said.reply) };
+    }
+    if (planAsk || planYes) {
+      const plan = await getDayPlan(user, ws);
+      if (!plan.can_plan) return { available: true as const, reply: lead(DAY_REPLIES.onlyPlanner) };
+      if (planAsk === 'gate') return { available: true as const, reply: lead(plan.gates.length ? `${DAY_REPLIES.gateAsk}. ${DAY_REPLIES.seePlan}` : DAY_REPLIES.noGate) };
+      if (!plan.lines.length) return { available: true as const, reply: lead(DAY_REPLIES.nothingToPlan) };
+      if (planYes) return card(user, ws, 'approve_day_plan', { kind: 'morning', fingerprint: plan.fingerprint }, DAY_REPLIES.approve);
+      return { available: true as const, reply: lead(`${DAY_REPLIES.planAsk}. ${DAY_REPLIES.seePlan}`) };
+    }
+    if (correction?.kind === 'once') return { available: true as const, reply: lead(LEARN_REPLIES.once) };
+    if (correction?.kind === 'ask') return card(user, ws, 'remember_rule', { rule: correction.rule, company: correction.company }, LEARN_REPLIES.ask);
     if (phone.kind === 'code') {
       const taken = await takeCode(user, phone.code);
       return taken ? { ...taken, reply: lead(taken.reply) } : null;
@@ -113,12 +150,13 @@ export async function planFromWords(user: string, ws: string, words: string) {
 
 export async function confirmPlanned(user: string, ws: string, actionId: string) {
   uuid.parse(actionId);
-  return asAgent({ kind: 'assistant' }, () => withSystem(async db => {
+  const held = await asAgent({ kind: 'assistant' }, () => withSystem(async db => {
     const a = (await db.query('SELECT * FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND id=$3 FOR UPDATE', [ws, user, actionId])).rows[0];
     if (!a || !PLANNED.includes(a.tool)) throw missing();
     if (a.consumed_at) throw new ApiError(409, 'consumed', 'This action has already been confirmed.');
     if (a.declined_at) throw new ApiError(409, 'declined', 'You said no to this one. Ask Agent again.');
     if (new Date(a.expires_at) <= new Date()) throw new ApiError(409, 'expired', 'This action has expired. Ask Agent again.');
+    if (a.tool === 'approve_day_plan') return { defer: { kind: String(a.args.kind ?? 'morning'), fingerprint: String(a.args.fingerprint ?? '') }, id: a.id as string };
     let reply: string = PHONE_REPLIES.saved;
     if (a.tool === 'issue_phone_code') {
       if (!codeSenderReady()) throw new ApiError(409, 'no_sender', PHONE_REPLIES.noSender);
@@ -138,12 +176,27 @@ export async function confirmPlanned(user: string, ws: string, actionId: string)
       await db.query('INSERT INTO user_preferences(user_id) VALUES($1) ON CONFLICT DO NOTHING', [user]);
       await db.query('UPDATE user_preferences SET usual_start=coalesce($2::time,usual_start), usual_areas=coalesce($3::text[],usual_areas), updated_at=clock_timestamp() WHERE user_id=$1', [user, ask.start ?? null, ask.areas ?? null]);
       reply = USUAL_REPLIES.saved;
+    } else if (a.tool === 'remember_rule') {
+      reply = await saveLearnedRule(db, user, ws, String(a.args.rule ?? ''), !!a.args.company);
     } else {
       reply = await applySignOff(db, user, ws, String(a.args.id));
     }
     await db.query("UPDATE assistant_actions SET consumed_at=now(), outcome='done' WHERE id=$1", [a.id]);
-    return { available: true, reply, logged: true };
+    return { available: true as const, reply, logged: true };
   }, user));
+  const pending = held && 'defer' in held ? held.defer : undefined;
+  if (pending) {
+    let reply: string = DAY_REPLIES.dayChanged;
+    try {
+      const saved = await postDayPlan(user, ws, { action: 'approve', kind: pending.kind, fingerprint: pending.fingerprint });
+      reply = String(saved.reply);
+    } catch (error) {
+      reply = calm(error);
+    }
+    await asAgent({ kind: 'assistant' }, () => withSystem(db => db.query("UPDATE assistant_actions SET consumed_at=now(), outcome='done' WHERE id=$1 AND user_id=$2 AND consumed_at IS NULL", [held.id, user]), user));
+    return { available: true, reply, logged: true };
+  }
+  return held;
 }
 
 const usualBody = z.object({ start: z.string().regex(/^([01]\d|2[0-3]):00$/).optional(), areas: z.array(z.string().trim().min(1).max(40)).max(8).optional() }).strict();

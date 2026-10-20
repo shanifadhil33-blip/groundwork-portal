@@ -21,6 +21,8 @@ import { useResource } from './resource';
 import { NoAccess } from './no-access';
 import { AddPhoto, type Photo } from './job-photos';
 import { AgentCard } from './dashboard';
+import { ArrivalWindow } from './arrival-window';
+import { HabitCard } from './habits';
 import { FullDoneCard } from './job-close';
 import { LeaveRequests, RequestTimeOff } from './time-off';
 
@@ -130,15 +132,16 @@ export function MyDay() {
   const finished = (outcome: Outcome, record: JobRecord, extra?: DoneExtra) => setDone({ outcome, record, extra });
   return <div className="page stack my-day">
     {selection.bar}<Greeting tz={tz}/><PageHeader><div><h1>Today</h1><p data-no-translate suppressHydrationWarning>{formatInLang(new Date(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }, lang)}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div>{data&&!primaryJob&&<Link className="button primary" href="/work-orders">View jobs</Link>}</PageHeader>{member?.workspace_id&&<MyAgentQuestions base={base}/>}<Link className="button secondary" href="/suggestions/new">Suggest a job</Link>{member?.role==='technician'&&<Link className="button secondary" href="/my-record">My record</Link>}
+    {member?.role === 'technician' && <HabitCard base={base} />}
     {member?.role === 'technician' && <AgentCard />}
     {member && <div className="row"><RequestTimeOff base={`/api/workspaces/${member.workspace_id}`} /></div>}
     {member && <LeaveRequests base={`/api/workspaces/${member.workspace_id}`} self={me.user.id} />}
     {done && <DoneMoment outcome={done.outcome} record={done.record} extra={done.extra} onClose={() => setDone(null)} />}
     {d.loading ? <Skeleton className="skeleton-card" /> : d.error || !data ? <ErrorState retry={d.reload} /> : <>
       {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<>Due <span data-no-translate>{day(j.due_on, tz, lang)}</span></>} />)}</ul></section>}
-      <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<span data-no-translate>{time(j.scheduled_for, tz, lang)}</span>} />)}</ul>
+      <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={j.scheduled_for ? <ArrivalWindow iso={j.scheduled_for} tz={tz} /> : <span data-no-translate>{time(j.scheduled_for, tz, lang)}</span>} />)}</ul>
         : <EmptyState title={data.done ? 'All done for today' : 'No jobs today'}>{data.next[0] ? `Next: ${data.next[0].title}, ${day(data.next[0].scheduled_for, tz, 'en')}.` : 'When the office gives you a job, it shows here.'}</EmptyState>}</section>
-      {data.next.length > 0 && <section className="stack compact"><h2>Next days</h2><ul className="day-list">{data.next.map(j => <li key={j.id} className="day-next" {...selection.row(j.id)}>{selection.mark(j.id)}<Link href={`/work-orders/${j.id}`}><strong data-no-translate>{day(j.scheduled_for, tz, lang)}</strong> <span data-no-translate>{time(j.scheduled_for, tz, lang)}</span> · {j.title}{j.tenant_unit&&<span data-no-translate>{` · ${j.tenant_unit}`}</span>}</Link></li>)}</ul></section>}
+      {data.next.length > 0 && <section className="stack compact"><h2>Next days</h2><ul className="day-list">{data.next.map(j => <li key={j.id} className="day-next" {...selection.row(j.id)}>{selection.mark(j.id)}<Link href={`/work-orders/${j.id}`}><strong data-no-translate>{day(j.scheduled_for, tz, lang)}</strong> {j.scheduled_for ? <ArrivalWindow iso={j.scheduled_for} tz={tz} /> : null} · {j.title}{j.tenant_unit&&<span data-no-translate>{` · ${j.tenant_unit}`}</span>}</Link></li>)}</ul></section>}
       <p className="small"><Link href="/work-orders">All my jobs</Link></p>
     </>}
   </div>;

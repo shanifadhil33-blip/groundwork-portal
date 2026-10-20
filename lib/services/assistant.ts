@@ -67,7 +67,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
  if(input.confirm_action_id){
   const own=await inWorkspace(user,ws,async c=>(await c.db.query("SELECT tool FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND id=$3",[ws,user,input.confirm_action_id])).rows[0]);
   if(own?.tool==='job_next_step')return confirmJobNextStep(user,ws,input.confirm_action_id);
-  if(own?.tool==='issue_phone_code'||own?.tool==='set_usual_context'||own?.tool==='sign_off')return confirmPlanned(user,ws,input.confirm_action_id);
+  if(own?.tool==='issue_phone_code'||own?.tool==='set_usual_context'||own?.tool==='sign_off'||own?.tool==='approve_day_plan'||own?.tool==='remember_rule')return confirmPlanned(user,ws,input.confirm_action_id);
  }
  if(!input.confirm_action_id){
   const words=input.messages.filter(m=>m.role==='user').at(-1)?.content??'';
