@@ -75,6 +75,8 @@ export async function myFixes(user: string, ws: string, options: { month?: 'this
     const current = `date_trunc('month', now() AT TIME ZONE w.timezone)`;
     const summary = (await c.db.query(`SELECT count(*) FILTER (WHERE ${month}=${current})::int AS month,
       count(*) FILTER (WHERE ${month}=${current} - interval '1 month')::int AS last_month, count(*)::int AS total ${base}`, [ws, of])).rows[0] as { month: number; last_month: number; total: number };
+    // High ratings only. The technician cannot read the rating rows, and a low rating stays with the supervisor.
+    const thanks = (await withSystem(db => db.query('SELECT count(*)::int AS n FROM job_ratings r JOIN work_orders j ON j.id=r.work_order_id WHERE j.workspace_id=$1 AND j.assignee_id=$2 AND r.stars>=4', [ws, of]), user)).rows[0].n as number;
     const trades = (await c.db.query(`SELECT coalesce(o.trade,'general') AS trade,count(*)::int AS count ${base} AND ${month}=${current} GROUP BY coalesce(o.trade,'general') ORDER BY count(*) DESC,trade`, [ws, of])).rows as { trade: string; count: number }[];
     const filter = `${base} AND ($3='all' OR ${month}=${current} - CASE WHEN $3='last' THEN interval '1 month' ELSE interval '0 month' END)
       AND ($4='' OR strpos(lower(concat_ws(' ',o.title,s.name,o.report_problem,o.report_work)),lower($4))>0)`;
@@ -84,6 +86,6 @@ export async function myFixes(user: string, ws: string, options: { month?: 'this
       (coalesce(o.report_at,o.updated_at) AT TIME ZONE w.timezone)::date::text AS done_date,
       o.report_problem AS problem,o.report_work AS fix,o.report_outcome,o.trade ${filter}
       ORDER BY coalesce(o.report_at,o.updated_at) DESC,o.id DESC LIMIT 20 OFFSET $5`, [...args, (d.page - 1) * 20])).rows.map(r => ({ ...r, outcome_label: r.report_outcome ? OUTCOME_LABELS[r.report_outcome as typeof OUTCOMES[number]] : 'Done' }));
-    return { summary: { ...summary, trades }, data, total, page: d.page, pageSize: 20 };
+    return { summary: { ...summary, thanks, trades }, data, total, page: d.page, pageSize: 20 };
   });
 }

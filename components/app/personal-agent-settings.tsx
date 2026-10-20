@@ -52,6 +52,7 @@ export function PersonalAgentLog(){
  return <div className="page stack agent-settings memory-page"><Link href="/settings/agent">Back to Agent</Link><h1>Memory</h1>
  <p>What your Agent remembers about you. Only you see this. Tell your Agent to forget something, or change it here.</p>
  <ul className="action-list memory-summary"><li><div><strong>Calls you</strong><p data-no-translate>{prefs.data?.preferred_name||me.user.name||'Not set yet'}</p></div></li><li><div><strong>Language</strong><p data-no-translate>{lang?.native===lang?.name?lang?.name:`${lang?.name}, ${lang?.native}`}</p></div></li></ul>
+ <UsualContext/>
  <AgentWords/>
  <h2>About you</h2>
  {learning.error?<ErrorState retry={learning.reload}/>:!mine.length?<p>Nothing yet. Try telling your Agent: I start at 7 now.</p>:<ul className="action-list">{mine.map(n=><li key={n.id}>{editing?.id===n.id?<div className="stack compact memory-edit"><label className="form-field">Change this line<textarea value={editing.body} maxLength={2000} onChange={e=>setEditing({id:n.id,body:e.target.value})}/></label><div className="row"><Button busy={busy} disabled={!editing.body.trim()} onClick={()=>void saveEdit()}>Save</Button><Button variant="secondary" onClick={()=>setEditing(null)}>Cancel</Button></div></div>:<><div><p data-no-translate>{n.body}</p></div><div className="row memory-actions"><Button variant="secondary" disabled={busy} onClick={()=>setEditing({id:n.id,body:n.body})}>Edit</Button><Button variant="secondary" disabled={busy} onClick={()=>void remove(n.id)}>Delete</Button></div></>}</li>)}</ul>}
@@ -61,6 +62,19 @@ export function PersonalAgentLog(){
  {error&&<p role="alert">{error}</p>}{base&&<div id="decision-log"><AgentLog base={base} full/></div>}</div>;
 }
 
+function UsualContext(){
+ const usual=useResource<{usual_start:string|null;usual_areas:string[]}>('/api/me/usual');
+ const [start,setStart]=useState(''),[areas,setAreas]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState('');
+ useEffect(()=>{if(!usual.data)return;setStart(usual.data.usual_start??'');setAreas((usual.data.usual_areas??[]).join(', '));},[usual.data]);
+ async function save(){setBusy(true);setError('');setSaved('');try{const list=areas.split(',').map(part=>part.trim()).filter(Boolean);await request('/api/me/usual',{method:'PUT',body:JSON.stringify({...(start?{start}:{}),...(list.length?{areas:list}:{})})});setSaved('Saved. Your Memory page shows it.');await usual.reload();}catch(e){setError(e instanceof Error?e.message:'Could not save. Try again.');}finally{setBusy(false);}}
+ const hours=Array.from({length:15},(_,i)=>{const hour=String(i+6).padStart(2,'0');return {value:`${hour}:00`,label:`${hour}:00`,noTranslate:true};});
+ return <section className="stack"><h2>Usual start</h2>
+  <div className="form-field"><label htmlFor="usual-start">Usual start</label><Dropdown id="usual-start" label="Usual start" value={start} options={[{value:'',label:'Not set yet'},...hours]} onChange={setStart}/></div>
+  <label className="form-field">Usual areas<input value={areas} maxLength={200} onChange={e=>setAreas(e.target.value)} style={{minHeight:44}}/></label>
+  <Button busy={busy} disabled={!start&&!areas.trim()} onClick={()=>void save()}>Save</Button>
+  {saved&&<p role="status">{saved}</p>}{error&&<p role="alert">{error}</p>}
+ </section>;
+}
 function AgentWords(){
  const {member}=useApp(),base=member?`/api/workspaces/${member.workspace_id}`:null;
  const words=useResource<Words>(base?`${base}/words`:null),sites=useResource<{id:string;name:string}[]>(base?`${base}/suggestion-sites`:null),assets=useResource<{id:string;name:string}[]>(base?`${base}/assets`:null);

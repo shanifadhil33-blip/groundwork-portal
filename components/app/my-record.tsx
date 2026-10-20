@@ -23,7 +23,7 @@ export function MyRecord() {
  if (!allowed) return <NoAccess />;
  return <div className="page stack my-record">
   <PageHeader><h1>My record</h1></PageHeader>
-  {result.data && <section className="stack compact" aria-live="polite"><p data-no-translate>{fixesLine(lang,result.data.summary)}</p><div className="row" style={{flexWrap:'wrap'}}>{result.data.summary.trades.map(t=><Badge key={t.trade}><span>{tradeLabels[t.trade as Trade] ?? t.trade}</span> {t.count}</Badge>)}</div></section>}
+  {result.data && <section className="stack compact" aria-live="polite"><p data-no-translate>{fixesLine(lang,result.data.summary)}</p><p>Thanks from clients: {result.data.summary.thanks ?? 0}</p><div className="row" style={{flexWrap:'wrap'}}>{result.data.summary.trades.map(t=><Badge key={t.trade}><span>{tradeLabels[t.trade as Trade] ?? t.trade}</span> {t.count}</Badge>)}</div></section>}
   <label className="form-field"><span>Search my fixes</span><input type="search" value={q} maxLength={200} onChange={e=>{setQ(e.target.value);setPage(1);}} /></label>
   <div className="form-field"><label htmlFor="my-record-month">Month</label><Dropdown id="my-record-month" label="Month" value={month} onChange={v=>{setMonth(v);setPage(1);}} options={[{value:'this',label:'This month'},{value:'last',label:'Last month'},{value:'all',label:'All'}]}/></div>
   {result.loading && !result.data ? <div role="status" aria-label="Loading"><Skeleton className="card" /><Skeleton className="card" /></div> : result.error ? <ErrorState retry={()=>void result.reload()} /> : result.data && <>

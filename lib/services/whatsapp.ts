@@ -1,10 +1,11 @@
 import { z } from 'zod';
 import { withSystem } from '../db';
+import { phoneKey } from '../phone-key';
 import { allowTeam, inWorkspace, uuid } from './shared';
 import { createSuggestion } from './suggestions';
 import { ApiError } from '../http';
 export const whatsappMessage=z.object({from:z.string().trim().min(5).max(30),name:z.string().trim().min(1).max(200),text:z.string().trim().min(1).max(20000),media:z.array(uuid).max(4).default([])}).strict();
-export const phoneKey=(value:string)=>value.replace(/\D/g,'').replace(/^00/,'');
+export { phoneKey };
 export function parseWhatsApp(body:unknown){const m=whatsappMessage.parse(body);return {...m,phone:phoneKey(m.from),title:m.text.split(/[\n.!?]/)[0].slice(0,200)||'WhatsApp request',problem:m.text,photo_ids:m.media};}
 export async function intakeWhatsApp(user:string,ws:string,body:unknown){
  const m=parseWhatsApp(body);await inWorkspace(user,ws,async c=>allowTeam(c));

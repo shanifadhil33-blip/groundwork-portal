@@ -21,6 +21,7 @@ import { useResource } from './resource';
 import { NoAccess } from './no-access';
 import { AddPhoto, type Photo } from './job-photos';
 import { AgentCard } from './dashboard';
+import { FullDoneCard } from './job-close';
 import { LeaveRequests, RequestTimeOff } from './time-off';
 
 type Job = { tenant_unit?:string|null; heat_warning?: string|null; outdoor?: boolean; id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; address: string | null; building: string | null; area: string | null; access_notes: string | null; contact_name: string | null; contact_phone: string | null };
@@ -38,6 +39,7 @@ const mapUrl = (j: Job) => `https://www.google.com/maps/search/?api=1&query=${en
 
 type Outcome = 'fixed' | 'temporary' | 'needs_part' | 'cant_fix';
 type JobRecord = { month: number; total: number };
+type DoneExtra = { problem: string; work: string; before: number; after: number; name: string };
 const OUTCOMES: { v: Outcome; label: string; hint: string }[] = [
   { v: 'fixed', label: 'Fixed', hint: 'The job is finished.' },
   { v: 'temporary', label: 'Temporary fix', hint: 'It works for now. The office will plan a return visit.' },
@@ -46,7 +48,7 @@ const OUTCOMES: { v: Outcome; label: string; hint: string }[] = [
 ];
 
 /** The job report: what was wrong, what you did, how it ended. Nothing here is required, and the after photo never blocks finishing. */
-export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string; onClose: () => void; onSaved: (outcome: Outcome, record: JobRecord) => void }) {
+export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string; onClose: () => void; onSaved: (outcome: Outcome, record: JobRecord, extra?: DoneExtra) => void }) {
   const photos = useResource<Photo[]>(`${base}/work-orders/${j.id}/photos`), after = (Array.isArray(photos.data) ? photos.data : []).filter(p => p.kind === 'after').length;
   const {me,member}=useApp();
   const [draft,setDraft,clearDraft]=useLocalDraft(`groundwork-report:${me.user.id}:${member?.workspace_id}:${j.id}`,{problem:'',work:'',part:'',outcome:null as Outcome|null});
@@ -63,7 +65,9 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
     setBusy(true);
     const payload=JSON.stringify({problem,work,part:draft.part??'',outcome,...(english?{problem_en:english.problem_en,work_en:english.work_en,language:lang}:{}),updated_at:j.updated_at});const key=crypto.randomUUID();
     const queue=()=>{enqueue(me.user.id,member!.workspace_id,{id:key,url:`${base}/work-orders/${j.id}/report`,body:payload,label:`Job report for WO ${j.order_number}`});clearDraft();toast('Waiting to send');onClose();};
-    try { if(navigator.onLine===false){queue();return;}const r = await request<{ record: JobRecord }>(`${base}/work-orders/${j.id}/report`, { method: 'POST', headers:{'Idempotency-Key':key},body:payload }); clearDraft();onSaved(outcome, r.record); }
+    try { if(navigator.onLine===false){queue();return;}const r = await request<{ record: JobRecord }>(`${base}/work-orders/${j.id}/report`, { method: 'POST', headers:{'Idempotency-Key':key},body:payload }); clearDraft();
+      const list = Array.isArray(photos.data) ? photos.data : [];
+      onSaved(outcome, r.record, { problem, work, before: list.filter(p => p.kind === 'before').length, after: list.filter(p => p.kind === 'after').length, name: me.user.name ?? '' }); }
     catch (e) { if(e instanceof RequestError&&e.status===0){try{queue();}catch{toast('Could not keep this report on your phone. Your draft is saved.');}return;}toast(e instanceof RequestError && e.status === 409 ? 'This job changed. We loaded the new version.' : 'That did not save. Try again.'); }
     finally { setBusy(false); }
   }
@@ -82,7 +86,7 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
   </Dialog>;
 }
 
-function JobCard({ j:original, tz, base, onDone, onFinished, when, primary=false,selection }: { selection?:ReturnType<typeof useSelection>;primary?: boolean; j: Job; tz: string; base: string; onDone: () => void; onFinished: (o: Outcome, r: JobRecord) => void; when: ReactNode }) {
+function JobCard({ j:original, tz, base, onDone, onFinished, when, primary=false,selection }: { selection?:ReturnType<typeof useSelection>;primary?: boolean; j: Job; tz: string; base: string; onDone: () => void; onFinished: (o: Outcome, r: JobRecord, extra?: DoneExtra) => void; when: ReactNode }) {
   const [optimistic,setOptimistic]=useState<string|null>(null);const j=optimistic?{...original,status:optimistic}:original;
   useEffect(()=>setOptimistic(null),[original.updated_at]);
   const step = nextStep(j.status), [busy, setBusy] = useState(false), [confirm, setConfirm] = useState(false), toast = useToast();
@@ -105,32 +109,31 @@ function JobCard({ j:original, tz, base, onDone, onFinished, when, primary=false
   </li>;
 }
 
-const moment: Record<Outcome, string> = { fixed: 'Job done. Great work!', temporary: 'Job done for now. The office will plan the return visit.', needs_part: 'Report saved. The job waits for the part.', cant_fix: 'Report saved. Your supervisor will take it from here.' };
-
-/** The "job done" moment: a short thank you and this month's count. */
-function DoneMoment({ outcome, record, onClose }: { outcome: Outcome; record: JobRecord; onClose: () => void }) {
-  return <div className="done-moment" role="status">
-    <div><strong>{moment[outcome]}</strong><p className="small">You finished {record.month} {record.month === 1 ? 'job' : 'jobs'} this month and {record.total} in total.</p></div>
-    <Button variant="secondary" onClick={onClose}>Close</Button></div>;
+/** TECH05: the full screen card after the report is saved. Counts stay under it. */
+function DoneMoment({ outcome, record, extra, onClose }: { outcome: Outcome; record: JobRecord; extra?: DoneExtra; onClose: () => void }) {
+  return <div className="stack">
+    <FullDoneCard outcome={outcome} name={extra?.name ?? ''} problem={extra?.problem ?? ''} work={extra?.work ?? ''} before={extra?.before ?? 0} after={extra?.after ?? 0} onClose={onClose} />
+    <p className="small done-count">You finished {record.month} {record.month === 1 ? 'job' : 'jobs'} this month and {record.total} in total.</p>
+  </div>;
 }
 
 export function MyDay() {
   const { member } = useApp(), base = `/api/workspaces/${member?.workspace_id}`, d = useResource<Day>(member && member.role !== 'client' ? `${base}/my-day` : null);
   const { me } = useApp();
   const rec = useResource<JobRecord>(member && member.role !== 'client' ? `${base}/members/${me.user.id}/record` : null);
-  const [done, setDone] = useState<{ outcome: Outcome; record: JobRecord } | null>(null);
+  const [done, setDone] = useState<{ outcome: Outcome; record: JobRecord; extra?: DoneExtra } | null>(null);
   const selection=useSelection([...(d.data?.today??[]),...(d.data?.late??[]),...(d.data?.next??[])].map(j=>j.id),[{label:'Open job',available:ids=>ids.length===1,run:ids=>{window.location.href=`/work-orders/${ids[0]}`;}}]);
   const lang = useUiLang();
   if (member?.role === 'client') return <NoAccess />;
   const data = d.data, tz = data?.timezone ?? 'Asia/Dubai', reload = () => { void d.reload(); void rec.reload(); };
   const primaryJob = [...(data?.today??[]),...(data?.late??[])].find(j=>j.status==='in_progress')??[...(data?.today??[]),...(data?.late??[])].find(j=>nextStep(j.status));
-  const finished = (outcome: Outcome, record: JobRecord) => setDone({ outcome, record });
+  const finished = (outcome: Outcome, record: JobRecord, extra?: DoneExtra) => setDone({ outcome, record, extra });
   return <div className="page stack my-day">
     {selection.bar}<Greeting tz={tz}/><PageHeader><div><h1>Today</h1><p data-no-translate suppressHydrationWarning>{formatInLang(new Date(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }, lang)}</p>{rec.data && <p className="small job-count">Jobs done: {rec.data.month} this month, {rec.data.total} in total</p>}</div>{data&&!primaryJob&&<Link className="button primary" href="/work-orders">View jobs</Link>}</PageHeader>{member?.workspace_id&&<MyAgentQuestions base={base}/>}<Link className="button secondary" href="/suggestions/new">Suggest a job</Link>{member?.role==='technician'&&<Link className="button secondary" href="/my-record">My record</Link>}
     {member?.role === 'technician' && <AgentCard />}
     {member && <div className="row"><RequestTimeOff base={`/api/workspaces/${member.workspace_id}`} /></div>}
     {member && <LeaveRequests base={`/api/workspaces/${member.workspace_id}`} self={me.user.id} />}
-    {done && <DoneMoment outcome={done.outcome} record={done.record} onClose={() => setDone(null)} />}
+    {done && <DoneMoment outcome={done.outcome} record={done.record} extra={done.extra} onClose={() => setDone(null)} />}
     {d.loading ? <Skeleton className="skeleton-card" /> : d.error || !data ? <ErrorState retry={d.reload} /> : <>
       {data.late.length > 0 && <section id="late" className="stack compact"><h2>Late</h2><ul className="day-list">{data.late.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<>Due <span data-no-translate>{day(j.due_on, tz, lang)}</span></>} />)}</ul></section>}
       <section id="today" className="stack compact"><h2>Today</h2>{data.today.length ? <ul className="day-list">{data.today.map(j => <JobCard key={j.id} selection={selection} j={j} primary={j.id===primaryJob?.id} tz={tz} base={base} onDone={reload} onFinished={finished} when={<span data-no-translate>{time(j.scheduled_for, tz, lang)}</span>} />)}</ul>
