@@ -1071,5 +1071,18 @@
  "Clear the contract fields?": "تمسح حقول العقد؟",
  "New jobs will not be covered. Past jobs stay covered by contract.": "الشغل الجديد ما يغطيه العقد. الشغل السابق يبقى مغطى بالعقد.",
  "This works only when no job is covered by the contract.": "هذا يصير بس إذا ما في شغل مغطى بالعقد.",
- "Maintenance contract": "عقد الصيانة"
+ "Maintenance contract": "عقد الصيانة",
+ "open jobs can be placed.": "من الشغل المفتوح ينقدر يترتب.",
+ "covers this trade.": "يغطي هالتخصص.",
+ "is free.": "فاضي.",
+ "takes the urgent call.": "ياخذ الاتصال المستعجل.",
+ "covers this visit.": "يغطي هالزيارة.",
+ "has no free window today.": "ما عنده وقت فاضي اليوم.",
+ "is on leave that day.": "في إجازة ذاك اليوم.",
+ "is off sick that day.": "مريض ذاك اليوم.",
+ "is off that day.": "عطلة ذاك اليوم.",
+ "has no later window for the job that moves.": "ما عنده وقت بعدين للشغل اللي ينتقل.",
+ "This visit moves so the urgent call can come first.": "هالزيارة تنتقل عشان الاتصال المستعجل يكون أول.",
+ "He has no visits left to move.": "ما عنده زيارات باقية تنتقل.",
+ "Nothing moves until you say yes.": "ما ينتقل شي لين تقول نعم."
 }

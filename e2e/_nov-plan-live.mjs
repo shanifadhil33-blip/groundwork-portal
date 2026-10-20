@@ -45,6 +45,7 @@ const shot = async (who, path, sel, lang, w, name) => { await s.as(who); await s
   await ctx.route('**/api/i18n/translate', r => { let b = {}; try { b = JSON.parse(r.request().postData() || '{}'); } catch {} return r.continue({ postData: JSON.stringify({ ...b, cached_only: true }) }); });
   const p = await ctx.newPage(); await p.goto(`${B}${path}`, { waitUntil: 'networkidle', timeout: 60000 }); await p.waitForTimeout(lang === 'en-IN' ? 1500 : 3000);
   const el = p.locator(sel).first(); const has = await el.count() > 0; check(has, `${who} ${lang} ${w} ${sel}`); const text = has ? await el.innerText() : '';
+  if (lang !== 'en-IN' && sel === '.day-plan') check(!/can be placed|covers this|is free|Nothing is saved/.test(text), `${who} ar ${w} plan reasons in Arabic`);
   if (lang !== 'en-IN') check(/[\u0600-\u06FF]/.test(text) && !/\b(AM|PM)\b/.test(text), `${who} ar ${w} ${sel} Arabic, no AM PM`);
   check(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)), `${who} ${lang} ${w} sideways`);
   if (has) { const box = await el.boundingBox(); if (box && sel !== '.arrival-window') check(box.width >= w - 80, `${who} ${w} ${sel} full width (${Math.round(box.width)})`); await el.scrollIntoViewIfNeeded(); }

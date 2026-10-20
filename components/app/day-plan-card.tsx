@@ -18,12 +18,19 @@ export type DayPlanData = {
   people: { id: string; name: string; away: string | null }[];
 };
 
-function Line({ line }: { line: PlanLine }) {
+/** The reason starts with a person's name: the name stays as written, the rest is interface text the language file translates. */
+function Why({ text, names }: { text: string; names: string[] }) {
+  const name = names.filter(Boolean).sort((a, b) => b.length - a.length).find(n => text.startsWith(`${n} `));
+  if (!name) return <p className="small">{text}</p>;
+  return <p className="small"><span data-no-translate>{name}</span> <span>{text.slice(name.length + 1)}</span></p>;
+}
+
+function Line({ line, names = [] }: { line: PlanLine; names?: string[] }) {
   return <li className="stack compact" style={{ minWidth: 0 }}>
-    <strong data-no-translate>{line.title}</strong>
+    <strong data-no-translate>WO {line.order} {line.title}</strong>
     {line.hour != null && <p><span>{DAY_REPLIES.arrival}</span>{' '}<WindowText hour={line.hour} /></p>}
     {line.assignee_name && <p data-no-translate>{line.assignee_name}</p>}
-    <p className="small">{line.why}</p>
+    <Why text={line.why} names={[line.assignee_name ?? '', ...names]} />
   </li>;
 }
 
@@ -43,8 +50,8 @@ export function DayPlanView({ data, busy, error, notice, onApprove, onGate, onLa
   const [person, setPerson] = useState(people[0]?.id ?? '');
   return <div className="stack day-plan">
     {(data.can_plan || data.lines.length > 0) && <Card className="stack day-plan"><h2>{DAY_REPLIES.planAsk}</h2>
-      <p>{data.lines.length ? data.summary : DAY_REPLIES.nothingToPlan}</p>
-      {!!data.lines.length && <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{data.lines.map(line => <Line key={`${line.job_id}:${line.kind}`} line={line} />)}</ul>}
+      {data.lines.length ? <p><bdi dir="ltr" data-no-translate>{data.lines.filter(l => l.kind === 'place').length}/{data.lines.length}</bdi> <span>open jobs can be placed.</span> <span>Nothing is saved until you say yes.</span></p> : <p>{DAY_REPLIES.nothingToPlan}</p>}
+      {!!data.lines.length && <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{data.lines.map(line => <Line key={`${line.job_id}:${line.kind}`} line={line} names={people.map(p => p.name)} />)}</ul>}
       {data.can_plan && !!data.lines.some(line => line.kind === 'place') && <Button busy={busy === 'morning'} onClick={() => onApprove('morning', data.fingerprint)}>Approve the plan</Button>}
     </Card>}
     {!!data.watch.length && <Card className="stack day-plan"><h2>Running late</h2>
