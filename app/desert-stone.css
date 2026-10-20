@@ -261,3 +261,18 @@ body:has(.app-shell) .app-main .work-detail-page>.page-header svg{color:currentC
 body:has(.app-shell) .app-main .work-detail-page>.page-header :is(.button.primary,.technician-primary){flex:1 1 auto;min-height:52px;height:auto;max-height:none}
 @media(max-width:640px){body:has(.app-shell) .app-main .work-detail-page>.page-header .detail-actions{flex-direction:column;align-items:stretch}body:has(.app-shell) .app-main .work-detail-page>.page-header .detail-actions>*{flex:0 0 auto;width:100%}}
 body:has(.app-shell) .app-main .work-detail-page>.page-header .order-number{font-family:inherit;letter-spacing:0}
+
+/* Desert Stone 5: the Agent. Agent text sits on the page, your words in a light bubble, a pill input with a round dark send and mic. */
+body:has(.app-shell) :is(.assistant-chat,.assistant-panel-body){background:var(--bg)}
+body:has(.app-shell) .assistant-panel-header{background:var(--bg);border-bottom:0}
+body:has(.app-shell) .assistant-panel-footer{background:var(--bg);border-top:0}
+body:has(.app-shell) .assistant-message.assistant{background:transparent;border:0;padding-inline:0;color:var(--text)}
+body:has(.app-shell) .assistant-message.user{background:var(--surface);border:0;border-radius:16px;color:var(--text)}
+body:has(.app-shell) .assistant-message .button.primary{background:var(--hero);color:var(--on-hero)}
+body:has(.app-shell) .assistant-message :is(.card,.agent-card){background:var(--surface);border:0;border-radius:16px}
+body:has(.app-shell) .assistant-composer .assistant-input-row{background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding-inline:6px}
+body:has(.app-shell) .assistant-composer :is(textarea,input){border:0;background:transparent}
+body:has(.app-shell) .assistant-control{border-radius:50%;background:var(--hero);color:var(--on-hero);border:0;transition:background-color 120ms ease-out,transform 120ms ease-out}
+body:has(.app-shell) .assistant-control:active:not(:disabled){transform:scale(.94);background:#3A3631}
+@media(hover:hover) and (pointer:fine){body:has(.app-shell) .assistant-control:hover:not(:disabled):not(:active){background:#3A3631}}
+body:has(.app-shell) .agent-chips :is(button,a){border-radius:999px;border:1.5px solid var(--line);background:transparent}
