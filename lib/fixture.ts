@@ -137,7 +137,9 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   for(const state of person===ids.faisal?['scheduled']:['scheduled','done'])await client.query(`UPDATE work_orders SET created_by=$3,assignee_id=$4 WHERE id=(SELECT id FROM work_orders WHERE workspace_id=$1 AND client_id=$2 AND status=$5::work_order_status ORDER BY order_number OFFSET $6 LIMIT 1)`,[ids.ridgeline,company,person,ids.ravi,state,offset]);
  }
  // Job reports on finished work, in the technician's own words, plus one waiting for a part and one the supervisor must decide on.
- await client.query(`UPDATE work_orders SET report_outcome=CASE WHEN order_number%5=0 THEN 'temporary' ELSE 'fixed' END, report_by=assignee_id, report_at=updated_at,
+ await client.query(`UPDATE work_orders SET report_outcome=CASE WHEN order_number%5=0 THEN 'temporary' ELSE 'fixed' END, report_by=assignee_id,
+   -- LEARN10: the report is written at the end of the visit (45 to 120 minutes after it starts), so the company history has real visit times.
+   report_at=CASE WHEN scheduled_for IS NOT NULL AND scheduled_for<now()-interval '3 hours' THEN scheduled_for+make_interval(mins=>45+(order_number%4)*25) ELSE updated_at END,
    report_problem=CASE WHEN title ~* 'light' THEN 'The light did not turn on.' WHEN title ~* '(tap|pump|drain)' THEN 'Water was leaking.' WHEN title ~* 'door' THEN 'The door did not close by itself.' WHEN title ~* '(cool|ventilation)' THEN 'The room was too warm.' ELSE 'It was broken.' END,
    report_work=CASE WHEN order_number%5=0 THEN 'Made it safe and working for now. A new unit is needed.' WHEN title ~* 'light' THEN 'Changed the driver and the bulb.' WHEN title ~* '(tap|pump|drain)' THEN 'Changed the seal and cleaned the pipe.' WHEN title ~* 'door' THEN 'Set the closer again and tightened the screws.' ELSE 'Fixed it and tested it.' END
    WHERE workspace_id=$1 AND status='done' AND assignee_id IS NOT NULL`,[ids.ridgeline]);

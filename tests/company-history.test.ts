@@ -48,3 +48,9 @@ it('office only: a technician and a client are refused',async()=>{
  await expect(companyHistory(ids.ravi,ws,job.id)).rejects.toMatchObject({status:403});
  await expect(companyHistory(ids.pranav,ws,job.id)).rejects.toMatchObject({status:403});
 });
+it('the Ridgeline demo has enough finished visits for at least one open job to show a usual time',async()=>{
+ const open=await q("SELECT id FROM work_orders WHERE workspace_id=$1 AND status IN ('open','scheduled') AND trade IS NOT NULL",[ws]);
+ const hs=await Promise.all(open.map(j=>companyHistory(ids.imran,ws,j.id)));
+ expect(hs.some(h=>h.typical_minutes!==null&&h.based_on>=3)).toBe(true);
+ for(const h of hs)if(h.typical_minutes!==null)expect(h.typical_minutes).toBeGreaterThanOrEqual(45);
+});
