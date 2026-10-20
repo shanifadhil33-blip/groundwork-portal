@@ -37,7 +37,8 @@ async function pending(name='create_request',args:unknown={description:'Water is
 async function confirm(id:string){return route(assistantRoute.POST,{messages:[],confirm_action_id:id});}
 const count=()=>withUser(ids.sam,async db=>(await db.query('SELECT count(*)::int AS n FROM work_orders WHERE workspace_id=$1',[ids.ridgeline])).rows[0].n);
 it('token creation returns plaintext once, hash-only DB storage, and safe own/admin lists',async()=>{
- const r=await route(tokenRoute.POST,{name:'Once only',scope:'write'});expect(r.status).toBe(201);expect(r.body.token).toMatch(/^gw_[\w-]{43}$/);expect(r.body.token_hash).toBeUndefined();
+ expect((await route(tokenRoute.POST,{name:'Supervisor key',scope:'read'})).status).toBe(403); // AGENT13: only an admin of a real company (scope cut Oct 20)
+ user=ids.imran;const r=await route(tokenRoute.POST,{name:'Once only',scope:'write'});expect(r.status).toBe(201);expect(r.body.token).toMatch(/^gw_[\w-]{43}$/);expect(r.body.token_hash).toBeUndefined();
  const stored=await withUser(user,async db=>(await db.query('SELECT * FROM api_tokens WHERE id=$1',[r.body.id])).rows[0]);expect(stored.token_hash).toBe(hash(r.body.token));expect(JSON.stringify(stored)).not.toContain(r.body.token);
  const own=await route(tokenRoute.GET,undefined,{},'GET');expect(JSON.stringify(own.body)).not.toMatch(/token_hash|gw_[\w-]{43}/);expect(own.body.every((t:any)=>t.user_id===user)).toBe(true);
  user=ids.pranav;expect((await route(tokenRoute.GET,undefined,{},'GET','?all=true')).body.some((t:any)=>t.id===r.body.id)).toBe(false);
@@ -131,7 +132,7 @@ it('pending action RLS hides other owners and cross-workspace actions',async()=>
  expect(await withUser(ids.summitAdmin,async db=>(await db.query('SELECT id FROM assistant_actions WHERE id=$1',[p.id])).rows)).toHaveLength(0);
 });
 it('token expiry/name/scope validation returns 422 without issuing capabilities',async()=>{
- for(const body of [{name:'',scope:'read'},{name:'x'.repeat(81),scope:'write'},{name:'Bad',scope:'admin'},{name:'Bad',scope:'write',expires_in_days:0}])expect((await route(tokenRoute.POST,body)).status).toBe(422);
+ user=ids.imran;for(const body of [{name:'',scope:'read'},{name:'x'.repeat(81),scope:'write'},{name:'Bad',scope:'admin'},{name:'Bad',scope:'write',expires_in_days:0}])expect((await route(tokenRoute.POST,body)).status).toBe(422);
 });
 it('authentication bookkeeping carries token attribution and restores caller transaction context',async()=>{
  const t=await mint();await withUser(ids.imran,async db=>{

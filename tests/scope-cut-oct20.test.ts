@@ -11,7 +11,7 @@ import { ownerOverview } from '../lib/services/owner-overview';
 import { patchClient } from '../lib/services/clients';
 import { callTool } from '../lib/agent/tools';
 import { addTimeOff } from '../lib/services/time-off';
-import { createToken } from '../lib/services/tokens';
+import { assertKeyMaker } from '../lib/services/tokens';
 import { planFromWords } from '../lib/services/planned';
 import * as channel from '../app/api/workspaces/[ws]/channel/route';
 import * as contract from '../app/api/workspaces/[ws]/clients/[id]/contract/route';
@@ -56,7 +56,9 @@ it('marking a technician sick puts his booked visits back to Open with no one on
 });
 
 it('Connect AI keys are only for an admin of a real company', async () => {
-  await expect(createToken(ids.sam, ws, { name: 'Scope cut', scope: 'read' })).rejects.toMatchObject({ status: 403 });
+  await expect(assertKeyMaker(ids.sam, ws)).rejects.toMatchObject({ status: 403 });
+  await expect(assertKeyMaker(ids.imran, ws)).resolves.toBeUndefined();
+  expect(readFileSync('app/api/workspaces/[ws]/tokens/route.ts', 'utf8')).toContain('await assertKeyMaker(user,params.ws)');
   const settings = readFileSync('components/app/settings.tsx', 'utf8');
   expect(settings).toContain("...(admin&&!workspace?.is_demo?[{value:'agent-access'");
   expect(readFileSync('components/app/dashboard.tsx', 'utf8')).not.toContain('Connect your AI agent');

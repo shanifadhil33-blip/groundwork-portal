@@ -4,13 +4,17 @@ import { withSystem } from '../db';
 import { ApiError, missing } from '../http';
 import { hash, inWorkspace, uuid } from './shared';
 const fields='id,workspace_id,user_id,name,token_prefix,scope,created_at,expires_at,last_used_at,revoked_at';
+/** AGENT13 hidden for normal users (scope cut, Adhil Oct 20 2026): the Connect AI route makes keys only for an admin of a real company. */
+export async function assertKeyMaker(user:string,ws:string){
+ return inWorkspace(user,ws,async c=>{
+  const demo=(await c.db.query('SELECT is_demo FROM workspaces WHERE id=$1',[ws])).rows[0]?.is_demo;
+  if(c.role!=='admin'||demo)throw new ApiError(403,'forbidden','Only an admin can connect an AI helper.');
+ });
+}
 export async function createToken(user:string,ws:string,body:unknown) {
  const d=z.object({name:z.string().trim().min(1).max(80),scope:z.enum(['read','write']),expires_in_days:z.number().int().min(1).max(365).optional()}).strict().parse(body);
  const token='gw_'+randomBytes(32).toString('base64url');
  return inWorkspace(user,ws,async c=>{
-  // AGENT13 hidden for normal users (scope cut, Adhil Oct 20 2026): only an admin of a real company makes keys.
-  const demo=(await c.db.query('SELECT is_demo FROM workspaces WHERE id=$1',[ws])).rows[0]?.is_demo;
-  if(c.role!=='admin'||demo)throw new ApiError(403,'forbidden','Only an admin can connect an AI helper.');
   const result=(await c.db.query(`INSERT INTO api_tokens(workspace_id,user_id,name,token_prefix,token_hash,scope,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING ${fields}`,[ws,user,d.name,token.slice(0,11),hash(token),d.scope,d.expires_in_days?new Date(Date.now()+d.expires_in_days*86400000):null])).rows[0];
   return {...result,token};
  });
