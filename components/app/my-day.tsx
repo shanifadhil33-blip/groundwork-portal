@@ -114,7 +114,7 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
     <div className="flip" data-flipped={flipped}><div className="flip-inner">
       <div className="flip-face flip-front ds-hero next-job-face" inert={flipped} aria-hidden={flipped}>
         <div className="next-job-top">{j.priority === 'urgent' ? <span className="ds-chip-urgent">Urgent</span> : j.status !== 'scheduled' ? <span className="ds-chip-hero">{statusLabels[j.status] ?? j.status}</span> : <span />}<span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>
-        <h2 className="next-job-title"><Link href={`/work-orders/${j.id}`} data-no-translate>{j.title}</Link></h2>
+        <h2 className="next-job-title" data-no-translate><Link href={`/work-orders/${j.id}`} data-no-translate>{j.title}</Link></h2>
         {place && <p className="next-job-place"><MapPin size={18} aria-hidden="true" /><span data-no-translate>{place}</span></p>}
         {j.access_notes && <p className="ds-muted next-job-note">{j.access_notes}</p>}
         <div className="next-job-actions">

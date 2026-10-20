@@ -183,7 +183,7 @@ html[lang^=ar] .next-job-title{letter-spacing:0;line-height:1.5}
 .owner-home{gap:24px}
 .owner-home-grid{display:grid;gap:24px;min-width:0}
 .owner-home-main,.owner-home-aside{display:grid;gap:16px;align-content:start;min-width:0}
-@media(min-width:1024px){.owner-home-grid{grid-template-columns:minmax(0,1fr) 300px}}
+
 .owner-summary{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
 .owner-summary-copy{display:grid;gap:4px;min-width:0;flex:1 1 260px}
 .owner-summary-label{margin:0;font-size:14px;font-weight:500}
@@ -228,3 +228,32 @@ html[lang^=ar] .next-job-title{letter-spacing:0;line-height:1.5}
 /* Account block at the bottom of the full sidebar */
 @media(min-width:1024px){body:has(.app-shell) .app-shell:not(.collapsed) .sidebar-bottom .dropdown-trigger{width:100%!important;min-height:56px}
  body:has(.app-shell) .app-shell:not(.collapsed) .sidebar-bottom .account-copy{display:grid;text-align:start;min-width:0}}
+
+/* Desert Stone 4: job page. The header is the one dark panel: number, title, status, the step bar and the main action. */
+body:has(.app-shell) .app-main .work-detail-page>.page-header{background:var(--hero);color:var(--on-hero);border-radius:24px;padding:22px;display:grid;gap:16px;margin:0}
+@media(max-width:380px){body:has(.app-shell) .app-main .work-detail-page>.page-header{padding:18px}}
+body:has(.app-shell) .app-main .work-detail-page>.page-header h1{color:var(--on-hero);font-size:24px;line-height:30px;font-weight:600;margin:0}
+html[lang^=ar] body:has(.app-shell) .app-main .work-detail-page>.page-header h1{line-height:1.5}
+body:has(.app-shell) .app-main .work-detail-page>.page-header .order-number{color:var(--on-hero-muted);font-size:14px;font-weight:500}
+body:has(.app-shell) .app-main .work-detail-page>.page-header :is(p,small,.small,.muted){color:var(--on-hero-muted)}
+body:has(.app-shell) .app-main .work-detail-page>.page-header .badge{background:rgba(224,185,122,.16);color:var(--gold-soft);border:0}
+body:has(.app-shell) .app-main .work-detail-page>.page-header .badge.danger,body:has(.app-shell) .app-main .work-detail-page>.page-header .badge[data-tone=danger]{background:rgba(224,140,100,.18);color:#F0B08F}
+body:has(.app-shell) .app-main .work-detail-page>.page-header .detail-actions{display:flex;flex-wrap:wrap;gap:10px}
+body:has(.app-shell) .app-main .work-detail-page>.page-header :is(.button,.dropdown-trigger,.link-button){background:transparent;color:var(--on-hero);border:1px solid var(--hero-line);min-height:52px;border-radius:16px}
+body:has(.app-shell) .app-main .work-detail-page>.page-header :is(.button.primary,.technician-primary){border:1.5px solid var(--gold);color:var(--on-hero);background:transparent;flex:1 1 200px}
+body:has(.app-shell) .app-main .work-detail-page>.page-header :is(.button,.dropdown-trigger):active:not(:disabled){background:var(--pressed-hero);transform:scale(.97)}
+@media(hover:hover) and (pointer:fine){body:has(.app-shell) .app-main .work-detail-page>.page-header :is(.button,.dropdown-trigger):hover:not(:disabled):not(:active){background:var(--hover-hero)}}
+body:has(.app-shell) .app-main .work-detail-page>.page-header svg{color:currentColor}
+.ds-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ds-steps li{display:grid;gap:6px;font-size:14px;font-weight:600;color:var(--on-hero-muted);min-width:0}
+.ds-steps li::before{content:"";height:4px;border-radius:999px;background:var(--hero-line);transition:background-color 160ms ease-out}
+.ds-steps li[data-on=true]{color:var(--on-hero)}
+.ds-steps li[data-on=true]::before{background:var(--gold)}
+.ds-steps li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-detail-page .card{border-radius:24px}
+@media(max-width:380px){body:has(.app-shell) .bottom-tabs>.tab-mic{flex-basis:62px;min-width:62px}body:has(.app-shell) .bottom-tabs{padding-inline:2px}}
+/* ds3 live fixes: side column only from 1280 (the table needs the room), nowrap times and names, gold fill only on desktop */
+@media(min-width:1024px) and (max-width:1279px){.owner-home-grid{grid-template-columns:minmax(0,1fr)}}
+@media(min-width:1280px){.owner-home-grid{grid-template-columns:minmax(0,1fr) 300px}}
+.ds-table td.num,.ds-table .ds-person{white-space:nowrap}
+@media(max-width:640px){.ds-hero-main{background:transparent;color:var(--on-hero);border:1.5px solid var(--gold)}.ds-hero-main:active{background:var(--pressed-hero)}}
