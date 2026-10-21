@@ -725,11 +725,11 @@
 "Remember this area":"ነዚ ከባቢ ዘክር",
 "Remember":"ዘክር",
 "Home address":"ናይ ገዛ ኣድራሻ",
-"Mark as read":"ከም ዝተነበ ምልክት ግበር",
-"Mark as unread":"ከም ዘይተነበ ምልክት ግበር",
-"Mark all as read":"ኩሉ ከም ዝተነበ ምልክት ግበር",
-"Marking as read…":"ምልክት ይግበር ኣሎ…",
+"Mark as read":"ከም ዝተነበበ ኣመልክት",
+"Mark as unread":"ከም ዘይተነበበ ኣመልክት",
+"Mark all as read":"ኩሉ ከም ዝተነበበ ኣመልክት",
+"Marking as read…":"ከም ዝተነበበ ይምልከት ኣሎ…",
 "You're all caught up":"ሓድሽ ነገር የለን",
-"Your job updates will appear here.":"ሓበሬታ ስራሕኩም ኣብዚ ክርአ እዩ።",
+"Your job updates will appear here.":"ሓበሬታ ስራሕካ ኣብዚ ክርአ እዩ።",
 "The link may be old, or this page needs you to sign in.":"እቲ ሊንክ ዝኣረገ ክኸውን ይኽእል፣ ወይ ነዚ ገጽ ክትኣትዉ የድሊ።"
 }
