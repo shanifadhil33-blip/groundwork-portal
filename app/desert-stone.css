@@ -426,3 +426,13 @@ body:has(.app-shell) .sidebar-bottom>.tooltip-wrap .icon-button{border-color:tra
  body:has(.app-shell) .home-header:not(:has(~.demo-banner))~.route-content>.page{padding-top:32px}
 }
 
+/* One field and a round mic at rest; Send appears when there are words to send. */
+@media(min-width:1024px){
+ body:has(.app-shell) .dashboard-assistant .assistant-input-row{align-items:center}
+ body:has(.app-shell) .dashboard-assistant .assistant-input-row textarea{order:0;min-width:0}
+ body:has(.app-shell) .dashboard-assistant .assistant-input-row>.tooltip-wrap{order:1}
+ body:has(.app-shell) .dashboard-assistant .assistant-input-row>.tooltip-wrap:has([aria-pressed]){order:2}
+ body:has(.app-shell) .dashboard-assistant .assistant-input-row .assistant-control[aria-pressed]{background:var(--hero);color:var(--on-hero);border-radius:50%}
+ body:has(.app-shell) .dashboard-assistant .assistant-input-row:has(textarea:placeholder-shown)>.tooltip-wrap:has(.assistant-send:disabled){display:none}
+}
+
