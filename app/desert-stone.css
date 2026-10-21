@@ -415,3 +415,14 @@ body:has(.app-shell) .sidebar-bottom .account-copy small{white-space:normal;over
 body:has(.app-shell) .sidebar-bottom>.tooltip-wrap{align-self:flex-end;}
 body:has(.app-shell) .sidebar-bottom>.tooltip-wrap .icon-button{border-color:transparent;color:var(--on-hero-muted)}
 
+/* Home starts with the date; the bell shares the slim practice line on desktop. */
+@media(min-width:1024px){
+ body:has(.app-shell) .app-main{position:relative}
+ body:has(.app-shell) .home-header{position:absolute;inset-block-start:4px;inset-inline-end:24px;min-height:44px;height:44px;padding:0;z-index:2}
+ body:has(.app-shell) .home-header .header-context:has(>.sr-only:only-child){display:none}
+ body:has(.app-shell) .home-header~.demo-banner{margin-inline-end:84px;min-height:44px;padding-block:0;background:transparent;border-radius:0}
+ body:has(.app-shell) .home-header~.route-content>.page{padding-top:24px}
+ body:has(.app-shell) .home-header~.demo-banner .phone-demo-options{padding-block:0}
+ body:has(.app-shell) .home-header:not(:has(~.demo-banner))~.route-content>.page{padding-top:32px}
+}
+
