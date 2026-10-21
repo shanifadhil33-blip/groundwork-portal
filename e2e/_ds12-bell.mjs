@@ -7,5 +7,5 @@ for (const [lang, w] of [['en-IN', 390], ['ar-AE', 390], ['en-IN', 1440], ['ar-A
   const en = await p.locator('.notification-read-toggle').first().innerText().catch(()=>''); console.log('toggle text', en);
   const n = await p.locator('.notification-item').count(), u = await p.locator('.notification-item.unread').count();
   const sw = await p.evaluate(() => document.documentElement.scrollWidth);
-  console.log(lang, w, 'items', n, 'unread', u, 'scroll', sw <= w ? 'ok' : sw); await p.screenshot({ path: `/workspace/qa/desert-stone-live/ds12/imran-notifications-${w}-${lang}.png` }); await ctx.close(); }
+  console.log(lang, w, 'items', n, 'unread', u, 'scroll', sw <= w ? 'ok' : sw); await p.screenshot({ path: `/workspace/qa/desert-stone-live/ds13/imran-notifications-${w}-${lang}.png` }); await ctx.close(); }
 await br.close();
