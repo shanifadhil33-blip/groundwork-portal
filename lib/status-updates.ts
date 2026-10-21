@@ -60,3 +60,17 @@ export function returnVisitLine(lang: string | null | undefined, kind: ReturnMes
  const time=at?new Intl.DateTimeFormat(locale,{dateStyle:'medium',timeStyle:'short',timeZone:timezone}).format(new Date(at)):'';
  return T[k][kind].replace('{time}',time);
 }
+
+/** Recover the template for notices saved before notification templates were stored. */
+export function savedReturnNotice(body: string): {kind: ReturnMessage | 'done'; values: Record<string,string>} | null {
+ for (const phrases of Object.values(T)) for (const kind of ['cant_fix','no_access','part_booked','done'] as const) {
+  const names: string[] = [];
+  const pattern = phrases[kind].split(/(\{[a-z]+\})/g).map(part => {
+   if (/^\{[a-z]+\}$/.test(part)) { names.push(part.slice(1,-1)); return '([\\s\\S]*?)'; }
+   return part.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  }).join('');
+  const match = body.match(new RegExp(`^${pattern}$`));
+  if (match) return {kind,values:Object.fromEntries(names.map((name,index)=>[name==='t'?'job':name,match[index+1]]))};
+ }
+ return null;
+}

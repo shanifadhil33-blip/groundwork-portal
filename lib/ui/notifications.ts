@@ -1,3 +1,4 @@
+import { savedReturnNotice } from '../status-updates';
 import { label, clientStatusLabels, statusLabels } from './work-orders';
 type WorkNotification = {id:string;read_at:string|null;link_target:{entity:string;id:string}|null};
 // Navigation waits for the read receipt so the bell stays in sync with the opened item.
@@ -8,33 +9,98 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
  return true;
 }
 
-export function notificationMessage(r:Record<string,any>, client=false) {
- if(r.job_step_body)return String(r.job_step_body);
- const labels=client?clientStatusLabels:statusLabels, status=(value:string)=>labels[value]??label(value);
- const title=r.work_order_title??r.current_title??'your job',actor=r.actor_name??'Your team';
- if(r.kind==='company_join_accepted')return 'Your request to join was accepted. Open Find your company to continue.';
- if(r.kind==='emergency'||r.kind==='emergency_review')return String(r.work_order_title);
- if(r.kind==='team_message')return `${actor} wrote in Team space.`;
- if(r.kind==='message_received')return `${actor} sent you a message.`;
- if(r.kind==='on_the_way')return `${actor} is on the way for ${title}.`;
- if(r.kind==='client_callback')return `${actor} asked to cancel ${title} after the technician was on the way or started. Please call him.`;
- if(r.kind==='job_cancelled')return `${actor} cancelled ${title}. You do not need to go.`;
- if(r.kind==='job_assigned')return `${actor} assigned ${title} to you.`;
- if(r.kind==='job_reported')return `${actor} saved a report on ${title}. Review it on the job.`;
- if(r.kind==='roles_changed')return `${actor} changed your roles. Your access now follows these roles.`;
- if(r.kind==='suggestion_received')return `${actor} suggested ${title}. Review it on Suggested.`;
- if(r.kind==='suggestion_decided')return `Your request ${title} was ${r.to_status==='approved'?'accepted':'not accepted'}. Open your requests for details.`;
- if(r.kind==='status_changed')return r.from_status&&r.to_status?`${actor} moved ${title} from ${status(r.from_status)} to ${status(r.to_status)}.`:r.to_status?`${actor} moved ${title} to ${status(r.to_status)}.`:`${actor} updated the status of ${title}.`;
- if(r.kind==='quote_sent')return `${actor} sent a price for ${title}. Approve or decline it on the job.`;
- if(r.kind==='quote_decided')return `${actor} ${r.to_status==='approved'?'approved':'declined'} the price for ${title}.`;
- if(r.kind==='visit_confirmed')return `${actor} confirmed the visit time for ${title}.`;
- if(r.kind==='leave_requested')return `${actor} asked for time off: ${r.work_order_title??'some days'}. Approve or decline it on Home.`;
- if(r.kind==='leave_decided')return `${actor} ${r.to_status==='approved'?'approved':'declined'} your time off: ${r.work_order_title??'your days'}.`;
- if(r.kind==='comment_added')return r.to_status==='internal'?`${actor} added an internal note on ${title}.`:`${actor} added a comment visible to the client to ${title}.`;
- if(r.kind==='job_unassigned')return `${actor} gave ${title} to someone else. You do not need to go.`;
- if(r.kind==='visit_changed')return `${actor} changed the visit time for ${title}. Open the job to see the new time.`;
- if(r.kind==='request_created')return `${actor} created ${title}.`;
- return `${actor} updated ${title}.`;
+/** English keys are also the offline fallback. Values never contain translated user data. */
+export const notificationTemplates = {
+ join: 'Your request to join was accepted. Open Find your company to continue.',
+ team: '{name} wrote in Team space.',
+ message: '{name} sent you a message.',
+ on_way: '{name} is on the way for {job}.',
+ callback: '{name} asked to cancel {job} after the technician was on the way or started. Please call him.',
+ cancelled: '{name} cancelled {job}. You do not need to go.',
+ assigned: '{name} assigned {job} to you.',
+ reported: '{name} saved a report on {job}. Review it on the job.',
+ roles: '{name} changed your roles. Your access now follows these roles.',
+ suggested: '{name} suggested {job}. Review it on Suggested.',
+ accepted: 'Your request {job} was accepted. Open your requests for details.',
+ rejected: 'Your request {job} was not accepted. Open your requests for details.',
+ moved: '{name} moved {job} from {from} to {to}.',
+ moved_to: '{name} moved {job} to {to}.',
+ status: '{name} updated the status of {job}.',
+ quote: '{name} sent a price for {job}. Approve or decline it on the job.',
+ quote_approved: '{name} approved the price for {job}.',
+ quote_declined: '{name} declined the price for {job}.',
+ visit: '{name} confirmed the visit time for {job}.',
+ leave: '{name} asked for time off: {job}. Approve or decline it on Home.',
+ leave_approved: '{name} approved your time off: {job}.',
+ leave_declined: '{name} declined your time off: {job}.',
+ internal: '{name} added an internal note on {job}.',
+ comment: '{name} added a comment visible to the client to {job}.',
+ unassigned: '{name} gave {job} to someone else. You do not need to go.',
+ visit_changed: '{name} changed the visit time for {job}. Open the job to see the new time.',
+ created: '{name} created {job}.',
+ updated: '{name} updated {job}.',
+ emergency: 'Emergency reported by {name}: {words}',
+ emergency_review: '{name} reported a false alarm. Should the emergency job be cancelled? He said: {words}',
+ low_rating: 'A client gave a low rating. Open the job.',
+ day_ready: 'Your day is ready. Open Today.',
+ day_changed: 'Your job changed. Open the job to see it.',
+ cant_fix: 'Our technician could not fix this today. The supervisor will call you.',
+ no_access: 'Our technician came at {time} but could not get in. Choose a new time.',
+ part_booked: 'The part has arrived. Your visit is booked for {time}.',
+ done: 'Your job is done. Please rate it. WO {n} {job}',
+ more_one: '{count} more update on this job',
+ more_many: '{count} more updates on this job',
+} as const;
+export type NotificationTemplate = { key: string; values: Record<string, string>; translatedValues?: string[] };
+
+export function notificationTemplate(r: Record<string, any>, client = false): NotificationTemplate {
+ if (r.message_template) return {...r.message_template,values:{...r.message_template.values,...(r.actor_name&&r.message_template.values.name?{name:r.actor_name}:{})}};
+ const values: Record<string, string> = {name:r.actor_name??'Your team',job:r.work_order_title??r.current_title??'your job'};
+ const translatedValues = [!r.actor_name||['Your team','Your admin','Your supervisor','System'].includes(r.actor_name)?'name':'',!r.work_order_title&&!r.current_title?'job':''].filter(Boolean);
+ const make = (id: keyof typeof notificationTemplates): NotificationTemplate => ({key:notificationTemplates[id],values,translatedValues});
+ // Older notices contain a localized body rather than a stored template. Recover known phrases too.
+ if(r.kind==='job_next_step'&&r.job_step_body){
+  const saved=savedReturnNotice(String(r.job_step_body));
+  return saved?{key:notificationTemplates[saved.kind],values:saved.values}:{key:'{body}',values:{body:String(r.job_step_body)}};
+ }
+ if(r.kind==='day_plan')return make(r.job_step_body===notificationTemplates.day_ready?'day_ready':'day_changed');
+ if(r.kind==='low_rating')return make('low_rating');
+ if(r.kind==='emergency'||r.kind==='emergency_review') {
+  const message=String(r.work_order_title??'');
+  const match=r.kind==='emergency'?message.match(/^Emergency reported by (.*?): ([\s\S]*)$/):message.match(/^(.*?) reported a false alarm\. Should the emergency job be cancelled\? He said: ([\s\S]*)$/);
+  if(!match)return {key:'{body}',values:{body:message}};
+  values.words=match[2];return make(r.kind);
+ }
+ if(r.kind==='status_changed') {
+  const labels=client?clientStatusLabels:statusLabels;
+  if(r.from_status){values.from=labels[r.from_status]??label(r.from_status);translatedValues.push('from');}
+  if(r.to_status){values.to=labels[r.to_status]??label(r.to_status);translatedValues.push('to');}
+  return make(r.from_status&&r.to_status?'moved':r.to_status?'moved_to':'status');
+ }
+ if(r.kind==='suggestion_decided')return make(r.to_status==='approved'?'accepted':'rejected');
+ if(r.kind==='quote_decided')return make(r.to_status==='approved'?'quote_approved':'quote_declined');
+ if(r.kind==='leave_requested'||r.kind==='leave_decided') {
+  if(!r.work_order_title){values.job=r.kind==='leave_requested'?'some days':'your days';translatedValues.push('job');}
+  return make(r.kind==='leave_requested'?'leave':r.to_status==='approved'?'leave_approved':'leave_declined');
+ }
+ if(r.kind==='comment_added')return make(r.to_status==='internal'?'internal':'comment');
+ const kinds:Record<string,keyof typeof notificationTemplates>={company_join_accepted:'join',team_message:'team',message_received:'message',on_the_way:'on_way',client_callback:'callback',job_cancelled:'cancelled',job_assigned:'assigned',job_reported:'reported',roles_changed:'roles',suggestion_received:'suggested',quote_sent:'quote',visit_confirmed:'visit',job_unassigned:'unassigned',visit_changed:'visit_changed',request_created:'created'};
+ return make(kinds[r.kind]??'updated');
+}
+
+export function notificationParts(message: NotificationTemplate, words: Record<string,string> = {}) {
+ const template=words[message.key]??message.key;
+ return template.split(/(\{[a-z_]+\})/g).filter(Boolean).map(part=>{
+  const name=part.match(/^\{([a-z_]+)\}$/)?.[1];
+  const value=name?message.values[name]:undefined;
+  return {text:value===undefined?part:message.translatedValues?.includes(name!)?(words[value]??value):value,parameter:name??null};
+ });
+}
+export function renderNotification(message: NotificationTemplate, words: Record<string,string> = {}) {
+ return notificationParts(message,words).map(part=>part.text).join('');
+}
+export function notificationMessage(r:Record<string,any>,client=false) {
+ return renderNotification(notificationTemplate(r,client));
 }
 
 /** CMP08: several updates on one job show as one row, newest first, with a count of the rest. */

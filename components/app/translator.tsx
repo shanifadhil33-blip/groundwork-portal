@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { DEFAULT_LANGUAGE, LANGUAGES, isRtl } from '../../lib/languages';
 import { isEnglish, languageFileUrl, mergeLanguageFile, readTranslationCache, replaceTranslation, translationPieces, translationSource, TRANSLATION_ATTRIBUTES, TRANSLATION_SKIP } from '../../lib/i18n';
 import { useResource } from './resource';
+import { setNotificationLanguage } from './notification-language';
 import { LANG_HINT_KEY } from '../../lib/head-scripts';
 
 const LANGUAGE_EVENT = 'groundwork-language-changed';
@@ -29,14 +30,17 @@ export function Translator() {
     window.addEventListener(LANGUAGE_EVENT, listener);
     return () => window.removeEventListener(LANGUAGE_EVENT, listener);
   }, []);
+  const languageReady = !!(preferences.data || chosen || preferences.error);
   useEffect(() => {
+    if (!languageReady) return;
+    setNotificationLanguage(language, isEnglish(language) ? {} : null);
     const root = document.documentElement;
     const previousLang = root.lang, previousDir = root.dir;
     root.lang = language;
     root.dir = isRtl(language) ? 'rtl' : 'ltr';
     const quiet = (on: boolean) => { if (on) root.dataset.translating = ''; else delete root.dataset.translating; };
     let quietTimer: ReturnType<typeof setTimeout> | undefined;
-    if (isEnglish(language)) { quiet(false); return () => { root.lang = previousLang; root.dir = previousDir; }; }
+    if (isEnglish(language)) { quiet(false); return () => { setNotificationLanguage('', null); root.lang = previousLang; root.dir = previousDir; }; }
 
     const key = `groundwork-ui-translations:v1:${language}`;
     let cache: Record<string, string> = Object.create(null);
@@ -151,17 +155,18 @@ export function Translator() {
     // LANG01: the language file comes first (one static file, no AI and no database), then saved words, then the AI queue.
     const fileReady: Promise<void> = fetch(languageFileUrl(language), { signal: abort.signal, mode: 'cors', credentials: 'same-origin' })
       .then(r => (r.ok ? r.text() : null))
-      .then(raw => { if (!stopped && mergeLanguageFile(cache, raw, language)) scan(); })
-      .catch(() => { /* No file yet or offline: saved words and the AI still fill the screen. */ });
+      .then(raw => { if (!stopped) { setNotificationLanguage(language, readTranslationCache(raw, language)); if (mergeLanguageFile(cache, raw, language)) scan(); } })
+      .catch(() => { if (!stopped) setNotificationLanguage(language, {}); /* Notification templates fall back to English offline. */ });
     scan();
     return () => {
+      setNotificationLanguage('', null);
       stopped = true; abort.abort(); observer.disconnect(); clearTimeout(timer); clearTimeout(quietTimer); quiet(false);
       for (const slot of [...textSlots.values(), ...[...attributeSlots.values()].flatMap(slots => [...slots.values()])]) {
         if (slot.node.isConnected && read(slot) === slot.applied) write(slot, slot.source);
       }
       root.lang = previousLang; root.dir = previousDir;
     };
-  }, [language]);
+  }, [language, languageReady]);
   // Remember the language for the pre-paint hint once it is known (never guess before preferences load).
   useEffect(() => { if (preferences.data || chosen) { try { localStorage.setItem(LANG_HINT_KEY, language); } catch { /* Storage may be disabled. */ } } }, [language, preferences.data, chosen]);
   return null;

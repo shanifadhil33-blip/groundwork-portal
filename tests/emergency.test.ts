@@ -1,3 +1,4 @@
+import { notificationTemplates } from '../lib/ui/notifications';
 import { sendPush } from '../lib/services/push';
 import { afterAll, expect, it, vi } from 'vitest';
 vi.mock('../lib/ai', () => ({ assistantTurn: vi.fn(() => { throw new Error('AI unavailable'); }) }));
@@ -37,6 +38,7 @@ for(const user of [ids.imran,ids.sam,ids.nabil,ids.ravi,ids.pranav,ids.faisal])i
  expect(rows.map(n=>n.user_id)).toEqual([ids.imran,ids.sam].sort());
  expect(sendPush).toHaveBeenLastCalledWith(expect.arrayContaining([ids.imran,ids.sam]),expect.objectContaining({title:'Emergency',urgent:true}));
  expect(rows.every(n=>n.workspace_id===ws&&n.work_order_title.includes('someone is hurt'))).toBe(true);
+ expect(rows.every(n=>n.message_template.key===notificationTemplates.emergency&&n.message_template.values.words==='someone is hurt')).toBe(true);
  expect(assistantTurn).not.toHaveBeenCalled();
 });
 it('concurrent repeats and changed wording of the same kind alert once for ten minutes',async()=>{
