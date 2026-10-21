@@ -395,3 +395,14 @@ body:has(.app-shell) .notification-item:active{background:var(--pressed)}
  body:has(.app-shell) .app-main .tabs button[aria-selected=true]:hover:not(:active){background:color-mix(in srgb,var(--hero) 88%,var(--gold));border-color:var(--hero)}}
 body:has(.app-shell) .app-main .tabs button:active{background:var(--pressed);transform:scale(.97)}
 body:has(.app-shell) .app-main .tabs button[aria-selected=true]:active{background:color-mix(in srgb,var(--hero) 80%,var(--gold))}
+/* ds14: not found screen for signed out visitors, one calm card on sand, footer at the bottom */
+.lost-page{min-height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
+.lost-main{flex:1;display:grid;place-items:center;padding:32px 20px}
+.lost-card{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:36px 28px;text-align:center}
+.lost-mark{display:inline-grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--surface-subtle);color:var(--gold-text);font-size:24px;font-weight:600;margin-bottom:18px}
+.lost-card h1{font-size:clamp(22px,5.5vw,28px);line-height:1.25;margin:0 0 10px}
+.lost-card p{color:var(--text-muted);font-size:16px;line-height:1.5;margin:0 0 26px}
+.lost-actions{display:flex;flex-direction:column;gap:10px}
+.lost-actions .button{min-height:48px;border-radius:999px;justify-content:center;width:100%}
+.lost-page .public-footer{background:transparent}
+@media(max-width:640px){body:has(.lost-page) .public-header nav{display:none}}
