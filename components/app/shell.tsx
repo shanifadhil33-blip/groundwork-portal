@@ -69,7 +69,7 @@ export function AppShell({ children, initial, serverLanguage, languageSetup }: {
   useEffect(()=>{if(!loading&&workspace?.is_demo&&sessionStorage.getItem('groundwork-demo-restored')){sessionStorage.removeItem('groundwork-demo-restored');toast('Demo data restored');}},[loading,workspace,toast]);
   const member = me?.memberships[0] ?? null;
   const home = member?.is_owner && workspace?.company_size==='big' && workspace?.enabled_dashboards?.includes('overview') ? '/overview' : member?.role === 'client' ? '/home' : member?.role === 'technician' ? '/today' : '/dashboard', office = isOffice(member?.role);
-  const dashboardAssistant=!!member&&path===home;
+  const dashboardAssistant=!!member&&(path===home||(path==='/dashboard'&&member.role!=='client'));
   const docked=dashboardAssistant&&desktop;
   useEffect(()=>{if(docked)setAssistantLoaded(true);},[docked]);
   const companyReplies=useResource<{company_replies:number}>('/api/notifications/unread-count');
