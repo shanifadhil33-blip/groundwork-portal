@@ -95,7 +95,7 @@ export const TAB_WORDS: Record<string, Record<string, string>> = {
   "suggested": "আইডিয়া",
   "overview": "সারসংক্ষেপ",
   "c_home": "হোম",
-  "c_requests": "অনুরোধগুলো",
+  "c_requests": "অনুরোধ",
   "c_chats": "চ্যাটগুলো",
   "c_more": "আরও"
  },
@@ -111,7 +111,7 @@ export const TAB_WORDS: Record<string, Record<string, string>> = {
   "suggested": "ആശയം",
   "overview": "ചുരുക്കം",
   "c_home": "ഹോം",
-  "c_requests": "ജോലികൾ",
+  "c_requests": "ജോലി",
   "c_chats": "ചാറ്റുകൾ",
   "c_more": "കൂടുതൽ"
  },
@@ -127,7 +127,7 @@ export const TAB_WORDS: Record<string, Record<string, string>> = {
   "suggested": "புதிய",
   "overview": "சுருக்கம்",
   "c_home": "முகப்பு",
-  "c_requests": "வேலைகள்",
+  "c_requests": "பணி",
   "c_chats": "அரட்டை",
   "c_more": "மேலும்"
  },
@@ -191,7 +191,7 @@ export const TAB_WORDS: Record<string, Record<string, string>> = {
   "suggested": "Mga ideya",
   "overview": "Buod",
   "c_home": "Tahanan",
-  "c_requests": "Mga trabaho",
+  "c_requests": "Trabaho",
   "c_chats": "Mga chat",
   "c_more": "Higit pa"
  },
@@ -271,7 +271,7 @@ export const TAB_WORDS: Record<string, Record<string, string>> = {
   "suggested": "Fikirrada",
   "overview": "Kooban",
   "c_home": "Guriga",
-  "c_requests": "Codsisyada",
+  "c_requests": "Codsi",
   "c_chats": "Sheeko",
   "c_more": "In ka badan"
  },
@@ -287,7 +287,7 @@ export const TAB_WORDS: Record<string, Record<string, string>> = {
   "suggested": "Àwọn èrò",
   "overview": "Àkótán",
   "c_home": "Ilé",
-  "c_requests": "Àwọn ìbéèrè",
+  "c_requests": "Ìbéèrè",
   "c_chats": "Àwọn ìjíròrò",
   "c_more": "Púpọ̀ sí i"
  },
