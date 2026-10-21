@@ -59,8 +59,8 @@ describe('notification templates',()=>{
   const html=renderToStaticMarkup(<NotificationMessage message={message} words={words('hi')}/>);
   expect(html).toContain('data-no-translate');expect(html).toContain('<bdi');expect(html).toContain('&lt;b&gt;test&lt;/b&gt;');
  });
- it('uses templates for every kind and decision, including missing statuses and unknown future kinds',()=>{
-  const kinds=['company_join_accepted','team_message','message_received','on_the_way','client_callback','job_cancelled','job_assigned','job_reported','roles_changed','suggestion_received','suggestion_decided','status_changed','quote_sent','quote_decided','visit_confirmed','leave_requested','leave_decided','comment_added','job_unassigned','visit_changed','request_created','day_plan','low_rating','future_kind'];
+ it('uses templates for known kinds and decisions, including missing statuses',()=>{
+  const kinds=['company_join_accepted','team_message','message_received','on_the_way','client_callback','job_cancelled','job_assigned','job_reported','roles_changed','suggestion_received','suggestion_decided','status_changed','quote_sent','quote_decided','visit_confirmed','leave_requested','leave_decided','comment_added','job_unassigned','visit_changed','request_created','low_rating'];
   const seen=new Set<string>();
   for(const kind of kinds)for(const to_status of [undefined,'internal','approved','declined','done'])for(const from_status of [undefined,'open']){
    const template=notificationTemplate({kind,to_status,from_status,actor_name:'Sam',work_order_title:'Replace tap'});
@@ -88,13 +88,31 @@ describe('notification templates',()=>{
   }
   for(const kind of ['cant_fix','no_access','part_booked','done'] as const){
    const saved={key:notificationTemplates[kind],values:{time:'10:00',n:'12',job:'Replace tap'}};
-   expect(notificationTemplate({kind:'job_next_step',message_template:saved})).toEqual(saved);
+   const body=kind==='done'?statusLine('en','done',12,'Replace tap').body:returnVisitLine('en',kind,'2026-10-22T10:00:00Z','Asia/Dubai');
+   expect(notificationTemplate({kind:'job_next_step',job_step_body:body}).key).toBe(saved.key);
    expect(renderNotification(saved,words('zh-CN'))).not.toContain(saved.key);
   }
   expect(renderNotification(notificationTemplate({kind:'job_next_step',job_step_body:'पहले से अनुवादित'}),words('hi'))).toBe('पहले से अनुवादित');
   expect(notificationTemplate({kind:'day_plan',job_step_body:notificationTemplates.day_ready}).key).toBe(notificationTemplates.day_ready);
   const parts=notificationParts(notificationTemplate({kind:'leave_requested'}),words('hi'));
   expect(parts.find(p=>p.parameter==='job')?.text).toBe(words('hi')['some days']);
+ });
+ it('leaves unknown bodies available to runtime translation while protecting names and titles',()=>{
+  for(const kind of ['job_next_step','day_plan','future_kind']){
+   const descriptor=notificationTemplate({kind,actor_name:'Sam (A)',work_order_title:'Tap [2]',job_step_body:'Sam (A) checked Tap [2] again.'});
+   expect(descriptor.runtime).toBe(true);
+   const container=document.createElement('div');
+   container.innerHTML=renderToStaticMarkup(<NotificationMessage message={descriptor} words={words('hi')}/>);
+   expect(container.textContent).toBe('Sam (A) checked Tap [2] again.');
+   expect(container.firstElementChild?.hasAttribute('data-no-translate')).toBe(false);
+   expect([...container.querySelectorAll('[data-no-translate]')].map(node=>node.textContent)).toEqual(['Sam (A)','Tap [2]']);
+  }
+  const unknownEmergency=notificationTemplate({kind:'emergency',actor_name:'Sam',work_order_title:'Sam raised an unfamiliar alert.'});
+  expect(unknownEmergency.runtime).toBe(true);
+  expect(unknownEmergency.values).not.toHaveProperty('job');
+  const emergency=notificationTemplate({kind:'emergency',work_order_title:'Emergency reported by Sam: Water leak'});
+  expect(emergency.values.name).toBe('Sam');
+  expect(emergency.translatedValues).not.toContain('name');
  });
  it.each(['hi','ur','zh-CN'])('%s first message paint uses the file and never asks the runtime translation service',async lang=>{
   state.language=lang;

@@ -1,4 +1,3 @@
-import { notificationTemplates } from '../ui/notifications';
 import { redactTenantContacts, checkTenantInput, normalizeTenant, tenantValues } from './tenant';
 import { sendPush } from './push';
 import { detectEmergency, isFalseAlarm, SAFETY } from '../emergency';
@@ -55,7 +54,7 @@ export async function reportEmergency(user: string, ws: string, words: string, i
   await db.query("SELECT set_config('app.user_id','',true)");
   const notificationIds:string[]=[];
   for (const recipient of recipients) {
-   const notice=await db.query('INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title,message_template) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb) RETURNING id', [recipient.user_id, ws, falseAlarm ? 'emergency_review' : 'emergency', job ? 'work_orders' : request ? 'job_suggestions' : 'emergencies', job?.id ?? request?.id ?? null, recipient.user_id === user ? null : user, who, message, JSON.stringify({key:notificationTemplates[falseAlarm?'emergency_review':'emergency'],values:{name:who,words:words.slice(0,140)}})]);
+   const notice=await db.query('INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id', [recipient.user_id, ws, falseAlarm ? 'emergency_review' : 'emergency', job ? 'work_orders' : request ? 'job_suggestions' : 'emergencies', job?.id ?? request?.id ?? null, recipient.user_id === user ? null : user, who, message]);
    notificationIds.push(notice.rows[0].id);
   }
   await db.query("SELECT set_config('app.user_id',$1,true)", [user]);

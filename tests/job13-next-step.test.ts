@@ -1,4 +1,4 @@
-import { notificationTemplates } from '../lib/ui/notifications';
+import { notificationTemplate, notificationTemplates } from '../lib/ui/notifications';
 import { afterAll, afterEach, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { ids, siteId } from '../scripts/seed';
@@ -48,9 +48,9 @@ it.each(OUTCOMES)('%s gives its fixed next step without creating any job before 
   const rows=await withSystem(async db=>(await db.query("SELECT kind FROM notifications WHERE entity_id=$1 AND user_id=$2 AND kind IN ('job_next_step','status_changed')",[o.id,ids.pranav])).rows);
   expect(rows.filter(r=>r.kind==='job_next_step')).toHaveLength(0);expect(rows.some(r=>r.kind==='status_changed')).toBe(true);
  }else{
-  const notices=await withSystem(async db=>(await db.query("SELECT user_id,job_step_body,message_template FROM notifications WHERE entity_id=$1 AND kind='job_next_step'",[o.id])).rows);
+  const notices=await withSystem(async db=>(await db.query("SELECT * FROM notifications WHERE entity_id=$1 AND kind='job_next_step'",[o.id])).rows);
   expect(notices.some(n=>n.user_id===ids.pranav)).toBe(true);
-  if(outcome==='cant_fix'){expect(notices.every(n=>n.message_template.key===notificationTemplates.cant_fix)).toBe(true);expect(notices.some(n=>n.user_id===ids.sam)).toBe(true);expect(notices.find(n=>n.user_id===ids.pranav).job_step_body).toContain('The supervisor will call you.');}
+  if(outcome==='cant_fix'){expect(notices.every(n=>notificationTemplate(n).key===notificationTemplates.cant_fix)).toBe(true);expect(notices.some(n=>n.user_id===ids.sam)).toBe(true);expect(notices.find(n=>n.user_id===ids.pranav).job_step_body).toContain('The supervisor will call you.');}
  }
 });
 it('the existing Suggested queue approves the same linked report draft',async()=>{
@@ -77,8 +77,8 @@ it('Part arrived needs Yes, reuses free slots, checks a clash again, and tells t
  await withSystem(db=>db.query('UPDATE work_orders SET scheduled_for=NULL WHERE id=$1',[clash.id]));
  await confirmJobNextStep(ids.ravi,ws,booked);await expect(confirmJobNextStep(ids.ravi,ws,booked)).rejects.toMatchObject({status:409});
  const saved=await get(follow.id);expect(saved.status).toBe('scheduled');expect(new Date(saved.scheduled_for).toISOString()).toBe(free.slots[0]);
- const notices=await withSystem(async db=>(await db.query("SELECT job_step_body,message_template FROM notifications WHERE entity_id=$1 AND user_id=$2 AND kind='job_next_step'",[follow.id,ids.pranav])).rows);
- expect(notices).toHaveLength(1);expect(notices[0].job_step_body).toContain('The part has arrived. Your visit is booked for');expect(notices[0].message_template).toMatchObject({key:notificationTemplates.part_booked,values:{time:expect.any(String)}});
+ const notices=await withSystem(async db=>(await db.query("SELECT * FROM notifications WHERE entity_id=$1 AND user_id=$2 AND kind='job_next_step'",[follow.id,ids.pranav])).rows);
+ expect(notices).toHaveLength(1);expect(notices[0].job_step_body).toContain('The part has arrived. Your visit is booked for');expect(notificationTemplate(notices[0])).toMatchObject({key:notificationTemplates.part_booked,values:{time:expect.any(String)}});
 });
 it.each(['scheduled','in_progress'])('no access logs time and photo, notifies client and supervisor, preserves %s until the client confirms rebooking',async status=>{
  const o=await job(status),bytes=Buffer.alloc(120);bytes[0]=255;bytes[1]=216;bytes[2]=255;
@@ -87,8 +87,8 @@ it.each(['scheduled','in_progress'])('no access logs time and photo, notifies cl
  expect((await jobNextStep(ids.pranav,ws,o.id)).visits).toHaveLength(0);
  await confirmJobNextStep(ids.ravi,ws,a);
  const state=await jobNextStep(ids.pranav,ws,o.id);expect(state.visits).toHaveLength(1);expect(state.visits[0].photo_id).toBe(photo.id);expect(new Date(state.visits[0].visited_at).getTime()).toBeGreaterThanOrEqual(before);expect((await get(o.id)).status).toBe(status);
- const notices=await withSystem(async db=>(await db.query("SELECT user_id,job_step_body,message_template FROM notifications WHERE entity_id=$1 AND kind='job_next_step'",[o.id])).rows);
- expect(notices.every(n=>n.message_template.key===notificationTemplates.no_access&&n.message_template.values.time)).toBe(true);expect(notices.map(n=>n.user_id)).toEqual(expect.arrayContaining([ids.sam,ids.pranav]));expect(notices.find(n=>n.user_id===ids.pranav).job_step_body).toContain('but could not get in. Choose a new time.');
+ const notices=await withSystem(async db=>(await db.query("SELECT * FROM notifications WHERE entity_id=$1 AND kind='job_next_step'",[o.id])).rows);
+ expect(notices.every(n=>notificationTemplate(n).key===notificationTemplates.no_access&&notificationTemplate(n).values.time)).toBe(true);expect(notices.map(n=>n.user_id)).toEqual(expect.arrayContaining([ids.sam,ids.pranav]));expect(notices.find(n=>n.user_id===ids.pranav).job_step_body).toContain('but could not get in. Choose a new time.');
  const slots=await returnSlots(ids.pranav,ws,o.id),b=await prepare(ids.pranav,o.id,'book',{scheduled_for:slots.slots[0]});expect((await get(o.id)).status).toBe(status);
  await confirmJobNextStep(ids.pranav,ws,b);expect((await get(o.id)).status).toBe('scheduled');expect((await jobNextStep(ids.pranav,ws,o.id)).can_book).toBe(false);
  const audit=await withSystem(async db=>(await db.query("SELECT actor_id FROM audit_log WHERE entity='job_visits' AND after->>'work_order_id'=$1",[o.id])).rows);expect(audit.map(r=>r.actor_id)).toContain(ids.ravi);

@@ -1,4 +1,3 @@
-import { notificationTemplates } from '../ui/notifications';
 import { z } from 'zod';
 import type { PoolClient } from 'pg';
 import { asAgent, withSystem } from '../db';
@@ -25,8 +24,8 @@ async function notify(db:PoolClient,ws:string,user:string,job:any,kind:ReturnMes
  (m.role='client' AND m.client_id=$2 AND (m.user_id=$3 OR coalesce(m.client_kind,'manager')='manager')))`,[ws,job.client_id,job.created_by,supervisors])).rows;
  for(const r of recipients){
   const body=kind==='done'?statusLine(r.language,'done',job.order_number,job.title).body:returnVisitLine(r.language,kind,at,r.timezone);
-  await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,work_order_title,job_step_body,message_template)
-  VALUES($1,$2,'job_next_step','work_orders',$3,$4,$5,$6,$7::jsonb)`,[r.user_id,ws,job.id,user,job.title,body,JSON.stringify({key:notificationTemplates[kind],values:kind==='done'?{n:String(job.order_number),job:job.title}:at?{time:new Intl.DateTimeFormat(r.language??'en',{dateStyle:'medium',timeStyle:'short',timeZone:r.timezone??'UTC',numberingSystem:'latn'}).format(new Date(at))}:{}})]);
+  await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,work_order_title,job_step_body)
+  VALUES($1,$2,'job_next_step','work_orders',$3,$4,$5,$6)`,[r.user_id,ws,job.id,user,job.title,body]);
  }
 }
 /** The elevated writes check live membership and the exact job together under a row lock. */

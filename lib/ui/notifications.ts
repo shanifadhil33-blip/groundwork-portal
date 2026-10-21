@@ -51,24 +51,29 @@ export const notificationTemplates = {
  more_one: '{count} more update on this job',
  more_many: '{count} more updates on this job',
 } as const;
-export type NotificationTemplate = { key: string; values: Record<string, string>; translatedValues?: string[] };
+export type NotificationTemplate = { key: string; values: Record<string, string>; translatedValues?: string[]; runtime?: boolean };
 
 export function notificationTemplate(r: Record<string, any>, client = false): NotificationTemplate {
- if (r.message_template) return {...r.message_template,values:{...r.message_template.values,...(r.actor_name&&r.message_template.values.name?{name:r.actor_name}:{})}};
  const values: Record<string, string> = {name:r.actor_name??'Your team',job:r.work_order_title??r.current_title??'your job'};
  const translatedValues = [!r.actor_name||['Your team','Your admin','Your supervisor','System'].includes(r.actor_name)?'name':'',!r.work_order_title&&!r.current_title?'job':''].filter(Boolean);
  const make = (id: keyof typeof notificationTemplates): NotificationTemplate => ({key:notificationTemplates[id],values,translatedValues});
- // Older notices contain a localized body rather than a stored template. Recover known phrases too.
+ // These columns predate templates. Recover saved bodies without any schema changes.
+ const fallback = (body: string): NotificationTemplate => ({key:'{body}',values:{body,...(r.actor_name?{name:r.actor_name}:{}),...(r.work_order_title&&!['emergency','emergency_review'].includes(r.kind)?{job:r.work_order_title}:{})},runtime:true});
  if(r.kind==='job_next_step'&&r.job_step_body){
   const saved=savedReturnNotice(String(r.job_step_body));
-  return saved?{key:notificationTemplates[saved.kind],values:saved.values}:{key:'{body}',values:{body:String(r.job_step_body)}};
+  return saved?{key:notificationTemplates[saved.kind],values:saved.values}:fallback(String(r.job_step_body));
  }
- if(r.kind==='day_plan')return make(r.job_step_body===notificationTemplates.day_ready?'day_ready':'day_changed');
+ if(r.kind==='day_plan'){
+  if(r.job_step_body===notificationTemplates.day_ready)return make('day_ready');
+  if(r.job_step_body===notificationTemplates.day_changed)return make('day_changed');
+  return fallback(String(r.job_step_body??r.message??''));
+ }
  if(r.kind==='low_rating')return make('low_rating');
  if(r.kind==='emergency'||r.kind==='emergency_review') {
   const message=String(r.work_order_title??'');
   const match=r.kind==='emergency'?message.match(/^Emergency reported by (.*?): ([\s\S]*)$/):message.match(/^(.*?) reported a false alarm\. Should the emergency job be cancelled\? He said: ([\s\S]*)$/);
-  if(!match)return {key:'{body}',values:{body:message}};
+  if(!match)return fallback(message);
+  if(!r.actor_name){values.name=match[1];translatedValues.splice(translatedValues.indexOf('name'),1);}
   values.words=match[2];return make(r.kind);
  }
  if(r.kind==='status_changed') {
@@ -85,7 +90,9 @@ export function notificationTemplate(r: Record<string, any>, client = false): No
  }
  if(r.kind==='comment_added')return make(r.to_status==='internal'?'internal':'comment');
  const kinds:Record<string,keyof typeof notificationTemplates>={company_join_accepted:'join',team_message:'team',message_received:'message',on_the_way:'on_way',client_callback:'callback',job_cancelled:'cancelled',job_assigned:'assigned',job_reported:'reported',roles_changed:'roles',suggestion_received:'suggested',quote_sent:'quote',visit_confirmed:'visit',job_unassigned:'unassigned',visit_changed:'visit_changed',request_created:'created'};
- return make(kinds[r.kind]??'updated');
+ if(kinds[r.kind])return make(kinds[r.kind]);
+ if(r.job_step_body||r.message)return fallback(String(r.job_step_body??r.message));
+ return make('updated');
 }
 
 export function notificationParts(message: NotificationTemplate, words: Record<string,string> = {}) {

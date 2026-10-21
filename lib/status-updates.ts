@@ -61,7 +61,7 @@ export function returnVisitLine(lang: string | null | undefined, kind: ReturnMes
  return T[k][kind].replace('{time}',time);
 }
 
-/** Recover the template for notices saved before notification templates were stored. */
+/** Recover templates from existing saved notices, including older localized bodies. */
 export function savedReturnNotice(body: string): {kind: ReturnMessage | 'done'; values: Record<string,string>} | null {
  for (const phrases of Object.values(T)) for (const kind of ['cant_fix','no_access','part_booked','done'] as const) {
   const names: string[] = [];
