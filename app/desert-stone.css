@@ -344,3 +344,20 @@ body:has(.app-shell) .app-main .tabs button{padding-inline:14px}
 /* Schedule board: horizontal hairlines only */
 body:has(.app-shell) .schedule-page :is(.sched-row>*,.sched-days>*,.sched-head>*){border-inline:0!important}
 body:has(.app-shell) .schedule-page :is(.sched-week,.sched-row){border-inline:0}
+
+/* Desert Stone 9: one line demo bar, Team, Notifications and error states */
+body:has(.app-shell) .demo-banner{display:flex!important;align-items:center;gap:12px;min-height:48px;padding:4px 8px 4px 16px;flex-wrap:nowrap}
+body:has(.app-shell) .demo-banner .demo-description{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-muted);font-size:14px}
+body:has(.app-shell) .demo-banner .demo-persona{flex:0 0 auto;font-weight:600;font-size:14px;white-space:nowrap}
+body:has(.app-shell) .demo-banner .phone-demo-options{flex:0 0 auto;white-space:nowrap;min-height:44px}
+@media(max-width:640px){body:has(.app-shell) .demo-banner .demo-description{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}body:has(.app-shell) .demo-banner .demo-persona{flex:1 1 auto}body:has(.app-shell) .demo-banner .demo-persona::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-inline-end:8px;vertical-align:middle}}
+body:has(.app-shell) .notification-list{list-style:none;padding:0;margin:0}
+body:has(.app-shell) .notification-list>li+li{border-top:1px solid var(--line)}
+body:has(.app-shell) .notification-list>li{background:transparent;border:0;border-radius:0}
+body:has(.app-shell) .skill-chips :is(span,button,.badge){border-radius:999px}
+body:has(.app-shell) .app-main .error-state{background:var(--surface);border:0;border-radius:24px;padding:22px}
+body:has(.app-shell) .app-main .error-state .button{border-radius:16px}
+body:has(.app-shell) .app-main .empty-state{background:var(--surface);border:0;border-radius:24px}
+/* ds8 live fixes: with the Agent docked the owner page keeps one column until 1600; the dock chat has no inner block */
+@media(min-width:1024px) and (max-width:1599px){body:has(.app-shell) .with-dashboard-assistant .owner-home-grid{grid-template-columns:minmax(0,1fr)}}
+body:has(.app-shell) .dashboard-assistant :is(.assistant-chat,.assistant-suggestions){background:transparent!important}
