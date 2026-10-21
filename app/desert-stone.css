@@ -409,3 +409,9 @@ body:has(.app-shell) .app-main .tabs button[aria-selected=true]:active{backgroun
 .lost-page[dir=rtl] h1{letter-spacing:0;line-height:1.5}
 .lost-actions .button.primary{background:var(--hero);color:var(--on-hero)}
 @media(max-width:640px){body:has(.lost-page) .public-header nav{display:none}}
+
+/* Keep company and setup in the person card, with a quiet brand above the menu. */
+body:has(.app-shell) .sidebar-bottom .account-copy small{white-space:normal;overflow-wrap:anywhere;font-size:14px;line-height:20px}
+body:has(.app-shell) .sidebar-bottom>.tooltip-wrap{align-self:flex-end;}
+body:has(.app-shell) .sidebar-bottom>.tooltip-wrap .icon-button{border-color:transparent;color:var(--on-hero-muted)}
+
