@@ -13,7 +13,7 @@ import { reportEmergency } from './emergencies';
 import { noteTargets } from '../agent/note-target';
 import { fixJobTitles, jobsSeen } from '../agent/job-labels';
 import { safetyLine } from '../emergency';
-import { dataAnswer, brokenReply, detectIntent, quickLookup, quickAnswer, countAnswer, clientCountQuestion } from '../agent/data-answers';
+import { dataAnswer, brokenReply, detectIntent, quickLookup, quickAnswer, countAnswer, clientCountQuestion, topClientsQuestion } from '../agent/data-answers';
 /** Audit A10: when the AI is out, a request to do something must say nothing changed, not answer with an unrelated summary. */
 export const UNANSWERED='I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.';
 export function unansweredAsk(q:string){if(/\b(?:assign|cancel|withdraw|move|reschedule|approve|decline|delete|remove|change|mark|send|book|create|start|stop|reopen|confirm|accept|reject|pay)\w*\b/i.test(q))return true;return !!q.trim()&&detectIntent(q).intent==='summary'&&!/^\s*(?:hi|hello|hey|salam|good (?:morning|afternoon|evening)|what(?:'s| is) (?:new|up|waiting)|help|summary|thanks?|thank you|ok(?:ay)?)\b/i.test(q);}
@@ -154,7 +154,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   if(count)return {available:true,reply:count.text,quick:true,...(count.localized?{localized:true}:{})};
  }
  // Quick lookups (Oct 19): common read questions answer from the database with no AI call, well under a second.
- if(quickLookup(resolvedQuestion)){
+ if(quickLookup(resolvedQuestion)||topClientsQuestion(resolvedQuestion)){
   const who=await inWorkspace(user,ws,async x=>{const w=(await x.db.query("SELECT ((now() AT TIME ZONE timezone)::date+1)::text AS d,timezone FROM workspaces WHERE id=$1",[ws])).rows[0];return {role:x.role as string,tomorrow:String(w?.d??''),timezone:w?.timezone?String(w.timezone):undefined};});
   const answer=await quickAnswer({user,ws,scope:'read',kind:'assistant'},question,who);
   if(answer)return {available:true,reply:answer,quick:true};

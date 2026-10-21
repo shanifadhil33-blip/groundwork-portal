@@ -32,6 +32,15 @@ it('the short window frees up after 10 minutes; the hour cap and the all demos c
  await q('TRUNCATE demo_agent_calls');const other=await demo('sam');await fill(other,DEMO_LIMITS.all.n,30);expect(await demoAgentAllowed(ws)).toBe(false);
  await q('TRUNCATE demo_agent_calls');await fill(ws,5,90);expect(await demoAgentAllowed(ws)).toBe(true);
 });
+it('DEMO17: the shared count survives a sandbox reset, and a daily total holds across all sandboxes',async()=>{
+ const ws=await demo();await fill(ws,DEMO_LIMITS.all.n,30);
+ await q('SELECT delete_demo_workspace($1)',[ws]);
+ expect((await q('SELECT count(*)::int n FROM demo_agent_calls WHERE workspace_id IS NULL'))[0].n).toBe(DEMO_LIMITS.all.n);
+ const fresh=await demo('sam');expect(await demoAgentAllowed(fresh)).toBe(false);
+ await q('TRUNCATE demo_agent_calls');await q('INSERT INTO demo_agent_calls(workspace_id,at) SELECT NULL,now()-make_interval(mins=>120) FROM generate_series(1,$1)',[DEMO_LIMITS.day.n]);
+ expect(await demoAgentAllowed(fresh)).toBe(false);
+ await q('TRUNCATE demo_agent_calls');expect(await demoAgentAllowed(fresh)).toBe(true);
+});
 it('over the limit: demo sign in still works, answers that need no AI still answer, and a safety line still comes first',async()=>{
  const ws=await demo();await fill(ws,DEMO_LIMITS.short.n);
  const again=await start.POST(new Request('http://localhost/api',{method:'POST',body:JSON.stringify({persona:'ravi'})}));expect(again.status).toBe(201);

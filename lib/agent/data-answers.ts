@@ -252,10 +252,27 @@ export async function countAnswer(c: AgentContext, question: string, who: { role
 }
 
 /** The quick answer, or null to let the AI answer. tomorrow is the workspace's next day as YYYY-MM-DD. */
+/** Which clients had the most jobs this month (office only). Counts come straight from the jobs table; the reasons are not
+ * guessed (Oct 21: this question went to the AI, used the full 40 seconds and fell back). */
+const TOP_CLIENTS = /^(?:which|what|who)(?: of our| are our| were our)? (?:clients?|customers?)(?: (?:had|have|has|got|gave us|sent))? (?:the )?most (?:jobs|work orders|requests|work)(?: (?:this|in this) month)?(?:,? and why(?: (?:might|could|would) that be| is that)?)?$|^(?:top|busiest) (?:clients?|customers?)(?: this month)?$/;
+export const topClientsQuestion = (question: string) => TOP_CLIENTS.test(normalizeQuick(question));
+export async function topClients(c: AgentContext, timezone = 'Asia/Dubai'): Promise<string> {
+  const rows = await inWorkspace(c.user, c.ws, async x => {
+    if (!['admin', 'staff'].includes(x.role)) return null;
+    return (await x.db.query(`SELECT cl.name, count(*)::int AS n FROM work_orders w JOIN clients cl ON cl.id = w.client_id
+      WHERE w.workspace_id = $1 AND w.created_at >= (date_trunc('month', now() AT TIME ZONE $2) AT TIME ZONE $2)
+      GROUP BY cl.name ORDER BY n DESC, cl.name LIMIT 5`, [c.ws, timezone])).rows as { name: string; n: number }[];
+  });
+  if (rows === null) return 'Only the office can see job counts for every client.';
+  if (!rows.length) return 'No client has a new job this month yet.';
+  return ['Clients with the most new jobs this month:', ...rows.map(r => `• ${r.name}: ${r.n} ${r.n === 1 ? 'job' : 'jobs'}`), '', 'I only count the jobs. Open a client to see what the jobs were about.'].join('\n');
+}
+
 export async function quickAnswer(c: AgentContext, question: string, who: { role: string; tomorrow: string; timezone?: string }): Promise<string | null> {
   question=resolveWords(question,await listWords(c.user,c.ws));
   const count=await countAnswer(c,question,{role:who.role});
   if(count)return count.text;
+  if(topClientsQuestion(question))return who.role === 'client' || who.role === 'technician' ? null : await topClients(c, who.timezone);
   if(countPerson(question)!==null)return null;
   const scoped=await scopedQuickAnswer(c,question,who.timezone);
   if(scoped!==undefined)return scoped;
