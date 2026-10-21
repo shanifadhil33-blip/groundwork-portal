@@ -700,5 +700,11 @@
 "Your home address":"你的家庭住址",
 "Remember this area":"记住这个区域",
 "Remember":"记住",
-"Home address":"家庭住址"
+"Home address":"家庭住址",
+"Mark as read":"标为已读",
+"Mark as unread":"标为未读",
+"Mark all as read":"全部标为已读",
+"Marking as read…":"正在标为已读…",
+"You're all caught up":"没有新消息",
+"Your job updates will appear here.":"你的工作动态会显示在这里。"
 }

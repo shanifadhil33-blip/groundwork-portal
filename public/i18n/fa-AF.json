@@ -720,5 +720,11 @@
 "Your home address":"آدرس خانه شما",
 "Remember this area":"این ساحه را به یاد داشته باشید",
 "Remember":"به یاد داشته باشید",
-"Home address":"آدرس خانه"
+"Home address":"آدرس خانه",
+"Mark as read":"خوانده شد",
+"Mark as unread":"خوانده نشده",
+"Mark all as read":"همه خوانده شد",
+"Marking as read…":"در حال علامت زدن…",
+"You're all caught up":"چیز تازه‌ای نیست",
+"Your job updates will appear here.":"خبرهای کار شما اینجا نشان داده می‌شود."
 }

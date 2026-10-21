@@ -741,5 +741,11 @@
 "Your home address":"ستاسو د کور پته",
 "Remember this area":"دا سیمه په یاد ولرئ",
 "Remember":"په یاد ولرئ",
-"Home address":"د کور پته"
+"Home address":"د کور پته",
+"Mark as read":"لوستل شوی",
+"Mark as unread":"نه لوستل شوی",
+"Mark all as read":"ټول لوستل شوي",
+"Marking as read…":"نښه کېږي…",
+"You're all caught up":"هیڅ نوی شی نشته",
+"Your job updates will appear here.":"ستاسو د کار خبرونه به دلته ښکاره شي."
 }

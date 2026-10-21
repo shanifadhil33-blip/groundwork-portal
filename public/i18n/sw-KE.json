@@ -695,5 +695,11 @@
 "Your home address":"Anwani yako ya nyumbani",
 "Remember this area":"Kumbuka eneo hili",
 "Remember":"Kumbuka",
-"Home address":"Anwani ya nyumbani"
+"Home address":"Anwani ya nyumbani",
+"Mark as read":"Weka kama imesomwa",
+"Mark as unread":"Weka kama haijasomwa",
+"Mark all as read":"Weka zote kama zimesomwa",
+"Marking as read…":"Inaweka kama imesomwa…",
+"You're all caught up":"Hakuna jipya",
+"Your job updates will appear here.":"Habari za kazi yako zitaonekana hapa."
 }

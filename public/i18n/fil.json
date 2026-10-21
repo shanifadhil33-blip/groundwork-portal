@@ -705,5 +705,11 @@
 "Remember this area":"Tandaan ang lugar na ito",
 "Remember":"Tandaan",
 "Profile":"Propayl",
-"Home address":"Address ng bahay"
+"Home address":"Address ng bahay",
+"Mark as read":"Markahan bilang nabasa",
+"Mark as unread":"Markahan bilang hindi pa nabasa",
+"Mark all as read":"Markahan lahat bilang nabasa",
+"Marking as read…":"Minamarkahan bilang nabasa…",
+"You're all caught up":"Wala nang bago",
+"Your job updates will appear here.":"Lalabas dito ang mga update sa trabaho mo."
 }

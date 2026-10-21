@@ -703,5 +703,11 @@
 "Your home address":"የቤትዎ አድራሻ",
 "Remember this area":"ይህን አካባቢ አስታውስ",
 "Remember":"አስታውስ",
-"Home address":"የቤት አድራሻ"
+"Home address":"የቤት አድራሻ",
+"Mark as read":"እንደተነበበ ምልክት አድርግ",
+"Mark as unread":"እንዳልተነበበ ምልክት አድርግ",
+"Mark all as read":"ሁሉንም እንደተነበበ ምልክት አድርግ",
+"Marking as read…":"ምልክት እየተደረገ ነው…",
+"You're all caught up":"አዲስ ነገር የለም",
+"Your job updates will appear here.":"የሥራዎ መረጃዎች እዚህ ይታያሉ።"
 }

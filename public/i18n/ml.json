@@ -727,5 +727,11 @@
 "Your home address":"നിങ്ങളുടെ വീട്ടുവിലാസം",
 "Remember this area":"ഈ പ്രദേശം ഓർമ്മിക്കുക",
 "Remember":"ഓർമ്മിക്കുക",
-"Home address":"വീട്ടുവിലാസം"
+"Home address":"വീട്ടുവിലാസം",
+"Mark as read":"വായിച്ചതായി അടയാളപ്പെടുത്തുക",
+"Mark as unread":"വായിക്കാത്തതായി അടയാളപ്പെടുത്തുക",
+"Mark all as read":"എല്ലാം വായിച്ചതായി അടയാളപ്പെടുത്തുക",
+"Marking as read…":"വായിച്ചതായി അടയാളപ്പെടുത്തുന്നു…",
+"You're all caught up":"പുതിയതായി ഒന്നുമില്ല",
+"Your job updates will appear here.":"നിങ്ങളുടെ ജോലി വിവരങ്ങൾ ഇവിടെ കാണാം."
 }

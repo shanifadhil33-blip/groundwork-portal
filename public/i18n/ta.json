@@ -759,5 +759,11 @@
 "Your home address":"உங்கள் வீட்டு முகவரி",
 "Remember this area":"இந்தப் பகுதியை நினைவில் கொள்",
 "Remember":"நினைவில் கொள்",
-"Home address":"வீட்டு முகவரி"
+"Home address":"வீட்டு முகவரி",
+"Mark as read":"படித்ததாகக் குறி",
+"Mark as unread":"படிக்காததாகக் குறி",
+"Mark all as read":"எல்லாம் படித்ததாகக் குறி",
+"Marking as read…":"படித்ததாகக் குறிக்கிறது…",
+"You're all caught up":"புதிதாக எதுவும் இல்லை",
+"Your job updates will appear here.":"உங்கள் வேலை செய்திகள் இங்கே தெரியும்."
 }

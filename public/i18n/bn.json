@@ -764,5 +764,11 @@
 "Your home address":"আপনার বাড়ির ঠিকানা",
 "Remember this area":"এই এলাকা মনে রাখুন",
 "Remember":"মনে রাখুন",
-"Home address":"বাড়ির ঠিকানা"
+"Home address":"বাড়ির ঠিকানা",
+"Mark as read":"পড়া হয়েছে করুন",
+"Mark as unread":"না পড়া করুন",
+"Mark all as read":"সব পড়া হয়েছে করুন",
+"Marking as read…":"পড়া হয়েছে করা হচ্ছে…",
+"You're all caught up":"নতুন কিছু নেই",
+"Your job updates will appear here.":"আপনার কাজের খবর এখানে দেখাবে।"
 }

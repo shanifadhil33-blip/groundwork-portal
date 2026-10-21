@@ -746,5 +746,11 @@
 "Your home address":"نشانی خانه شما",
 "Remember this area":"این محدوده را به خاطر بسپار",
 "Remember":"به خاطر بسپار",
-"Home address":"نشانی خانه"
+"Home address":"نشانی خانه",
+"Mark as read":"خوانده شد",
+"Mark as unread":"خوانده نشده",
+"Mark all as read":"همه خوانده شد",
+"Marking as read…":"در حال علامت زدن…",
+"You're all caught up":"چیز تازه‌ای نیست",
+"Your job updates will appear here.":"خبرهای کار شما اینجا نشان داده می‌شود."
 }

@@ -740,5 +740,11 @@
 "Your home address":"तपाईंको घरको ठेगाना",
 "Remember this area":"यो क्षेत्र सम्झनुहोस्",
 "Remember":"सम्झनुहोस्",
-"Home address":"घरको ठेगाना"
+"Home address":"घरको ठेगाना",
+"Mark as read":"पढिएको बनाउनुहोस्",
+"Mark as unread":"नपढिएको बनाउनुहोस्",
+"Mark all as read":"सबै पढिएको बनाउनुहोस्",
+"Marking as read…":"पढिएको बनाउँदै…",
+"You're all caught up":"नयाँ केही छैन",
+"Your job updates will appear here.":"तपाईंको कामका खबर यहाँ देखिनेछन्।"
 }
