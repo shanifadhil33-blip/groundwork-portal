@@ -1101,5 +1101,11 @@
  "Today's jobs": "شغل اليوم",
  "jobs today": "شغلات اليوم",
  "late": "متأخرة",
- "without a person": "بدون فني"
+ "without a person": "بدون فني",
+ "Mark as read": "تحديد كمقروء",
+ "Mark as unread": "تحديد كغير مقروء",
+ "Mark all as read": "حدد الكل كمقروء",
+ "Marking as read…": "قاعدين نحدده كمقروء…",
+ "You're all caught up": "ما عندك شي جديد",
+ "Your job updates will appear here.": "تحديثات شغلك بتطلع هني."
 }

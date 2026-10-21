@@ -132,7 +132,7 @@ html[data-theme=dark] body:has(.app-shell) .tab-mic-disc{background:#E0B97A;colo
 [dir=rtl] .flip[data-flipped=true] .flip-inner{transform:rotateY(-180deg)}
 @media(prefers-reduced-motion:reduce){
  .flip-inner{transform:none!important;transition:none}
- .flip-face{transform:none!important;transition:opacity 150ms ease!important}
+ .flip-face{transform:none!important;transition:none!important}
  .flip .flip-back,.flip[data-flipped=true] .flip-front{opacity:0;pointer-events:none}
  .flip[data-flipped=true] .flip-back{opacity:1;pointer-events:auto}
 }
@@ -390,7 +390,6 @@ body:has(.app-shell) .notification-item:active{background:var(--pressed)}
 .error-page .error-actions{flex-wrap:wrap}
 .error-page .error-actions>:is(a,button){flex:1 1 140px;min-width:0;white-space:normal;text-align:center;height:auto;min-height:44px;padding-block:10px}
 @media(max-width:640px){body:has(.error-page) .public-header nav{display:none}}
-@media(prefers-reduced-motion:reduce){.flip .flip-face{transition:none}}
 /* Hover and press on pill tabs (hover audit Oct 21: Settings tabs had no hover after the transparent pill rule) */
 @media(hover:hover) and (pointer:fine){body:has(.app-shell) .app-main .tabs button:hover:not(:active){background:var(--hover);border-color:var(--gold)}
  body:has(.app-shell) .app-main .tabs button[aria-selected=true]:hover:not(:active){background:color-mix(in srgb,var(--hero) 88%,var(--gold));border-color:var(--hero)}}
