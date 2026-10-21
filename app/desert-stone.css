@@ -454,3 +454,16 @@ html[lang^=ar] body:has(.app-shell) .app-main .next-job-title{line-height:1.5}
 /* Keep the bell count inside its 44px control in both reading directions. */
 body:has(.app-shell) .notification-trigger .count-dot,
 html[dir=rtl] body:has(.app-shell) .notification-trigger .count-dot{inset-block-start:0;inset-inline-end:0;transform:none;direction:ltr}
+
+@media(max-width:640px){
+ /* Reserve room for the title and close control; the read action can wrap. */
+ body:has(.app-shell) .dialog-header:has(.notification-read-all){display:grid;grid-template-columns:minmax(0,max-content) minmax(72px,1fr) 44px}
+ body:has(.app-shell) .dialog-header:has(.notification-read-all) h2{min-width:0;overflow-wrap:anywhere}
+ body:has(.app-shell) .notification-read-all{min-width:0;white-space:normal;overflow-wrap:anywhere}
+ body:has(.app-shell) .notification-read-all .button-sizer{min-width:0;max-width:100%}
+ /* Long translated status labels must not set the dashboard's minimum width. */
+ body:has(.app-shell) .ds-rows{grid-template-columns:minmax(0,1fr)}
+ body:has(.app-shell) .ds-row{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px 16px}
+ body:has(.app-shell) .ds-row .ds-main{overflow-wrap:anywhere}
+ body:has(.app-shell) .ds-row .ds-chip{grid-column:2;justify-self:start;min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+}
