@@ -46,13 +46,14 @@ export function TodayJobs({ base }: { base: string }) {
 }
 
 /** Late jobs, newest problem first, with how many days late. */
-export function LateJobs({ base }: { base: string }) {
+export function LateJobs({ base, limit = 5 }: { base: string; limit?: number }) {
   const { workspace } = useApp(), tz = workspace?.timezone ?? 'Asia/Dubai', lang = useUiLang();
   const r = useResource<Page<WorkOrder>>(`${base}/work-orders?overdue=true&sort=due_on&dir=asc&pageSize=5`);
   const rows = r.data?.data ?? [];
   if (!rows.length) return null;
   return <section className="ds-panel late-jobs stack compact" aria-labelledby="late-jobs-h">
     <h2 id="late-jobs-h">Late jobs</h2>
-    <ul className="ds-divided">{rows.map(j => { const d = lateBy(j.due_on, tz); return <li key={j.id}><Link href={`/work-orders/${j.id}`} className="ds-late-row"><span className="ds-main"><strong><span data-no-translate>WO {j.order_number} {j.title}</span></strong><span className="ds-sub" data-no-translate>{[j.assignee_name, j.site_name].filter(Boolean).join(', ')}</span></span>{d > 0 && j.due_on && <span className="ds-chip ds-chip-late" data-no-translate>{formatInLang(j.due_on + 'T12:00:00Z', { day: 'numeric', month: 'short', timeZone: 'UTC' }, lang)}</span>}</Link></li>; })}</ul>
+    <ul className="ds-divided">{rows.slice(0,limit).map(j => { const d = lateBy(j.due_on, tz); return <li key={j.id}><Link href={`/work-orders/${j.id}`} className="ds-late-row"><span className="ds-main"><strong><span data-no-translate>WO {j.order_number} {j.title}</span></strong><span className="ds-sub" data-no-translate>{[j.assignee_name, j.site_name].filter(Boolean).join(', ')}</span></span>{d > 0 && j.due_on && <span className="ds-chip ds-chip-late" data-no-translate>{formatInLang(j.due_on + 'T12:00:00Z', { day: 'numeric', month: 'short', timeZone: 'UTC' }, lang)}</span>}</Link></li>; })}</ul>
+    {rows.length>limit&&<Link className="ds-link" href="/work-orders?overdue=true">See all late jobs</Link>}
   </section>;
 }

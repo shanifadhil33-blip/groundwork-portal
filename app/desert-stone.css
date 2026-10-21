@@ -436,3 +436,12 @@ body:has(.app-shell) .sidebar-bottom>.tooltip-wrap .icon-button{border-color:tra
  body:has(.app-shell) .dashboard-assistant .assistant-input-row:has(textarea:placeholder-shown)>.tooltip-wrap:has(.assistant-send:disabled){display:none}
 }
 
+/* Owner attention stays above the Agent input, leaving the jobs table its full width. */
+body:has(.app-shell) .dashboard-assistant .owner-home-aside{gap:16px}
+body:has(.app-shell) .dashboard-assistant .owner-home-aside :is(.ds-panel,.lessons-waiting){background:var(--surface-2);border:0;border-radius:24px;padding:20px;min-width:0}
+body:has(.app-shell) .dashboard-assistant .owner-home-aside h2{font-size:17px;line-height:24px;font-weight:600}
+body:has(.app-shell) .dashboard-assistant .owner-home-aside .row{flex-wrap:wrap}
+body:has(.app-shell) .dashboard-assistant .owner-home-aside .ds-chip{white-space:normal}
+
+body:has(.app-shell) .owner-home-grid:has(>.owner-home-main:only-child){grid-template-columns:minmax(0,1fr)}
+
