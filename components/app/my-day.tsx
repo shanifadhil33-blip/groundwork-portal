@@ -23,7 +23,6 @@ import { AgentCard } from './dashboard';
 import { HabitCard } from './habits';
 import { FullDoneCard } from './job-close';
 import { LeaveRequests, RequestTimeOff } from './time-off';
-import { JobTitleTransition } from './job-transition';
 
 type Job = { tenant_unit?:string|null; id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; address: string | null; building: string | null; area: string | null; access_notes: string | null; contact_name: string | null; contact_phone: string | null };
 type Day = { timezone: string; today: Job[]; late: Job[]; next: Job[]; done: number };
@@ -102,7 +101,7 @@ function useJobStep(original: Job, base: string, onDone: () => void) {
   return { j, step, busy, confirm, setConfirm, go };
 }
 
-/** Desert Stone: the one dark panel on Home. Front is the next job and its main action; Details flips it to access, contact and address. */
+/** The title opens job details; the panel ends with the main action and call. */
 function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: { j: Job; tz: string; base: string; lang?: string; onDone: () => void; onFinished: (o: Outcome, r: JobRecord, extra?: DoneExtra) => void; when: ReactNode }) {
   const { j, step, busy, confirm, setConfirm, go } = useJobStep(original, base, onDone);
   const [flipped, setFlipped] = useState(false), frontBtn = useRef<HTMLButtonElement|null>(null), backBtn = useRef<HTMLButtonElement|null>(null), moved = useRef(false);
@@ -115,14 +114,13 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
     <div className="flip" data-flipped={flipped}><div className="flip-inner">
       <div className="flip-face flip-front ds-hero next-job-face" inert={flipped} aria-hidden={flipped}>
         <div className="next-job-top">{j.priority === 'urgent' ? <span className="ds-chip-urgent">Urgent</span> : j.status !== 'scheduled' ? <span className="ds-chip-hero">{statusLabels[j.status] ?? j.status}</span> : <span />}<span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>
-        <JobTitleTransition id={j.id}><h2 className="next-job-title" data-no-translate><Link href={`/work-orders/${j.id}`} data-no-translate>{j.title}</Link></h2></JobTitleTransition>
+        <h2 className="next-job-title" data-no-translate><button type="button" ref={frontBtn} aria-pressed={false} aria-controls="next-job-back" onClick={() => flip(true)}>{j.title}</button></h2>
         {place && <p className="next-job-place"><MapPin size={18} aria-hidden="true" /><span data-no-translate>{place}</span></p>}
         {j.access_notes && <p className="ds-muted next-job-note">{j.access_notes}</p>}
         <div className="next-job-actions">
           {step ? <button type="button" className="ds-hero-btn" disabled={busy} aria-busy={busy} onClick={() => step.to === 'done' ? setConfirm(true) : void go()}>{step.to === 'done' ? <CheckCircle2 size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}{step.label}</button> : <span className="ds-muted">Waiting for a time</span>}
           {tel ? <a className="ds-hero-icon" href={tel} aria-label={`Call ${j.contact_name ?? 'the site'}`}><Phone size={20} aria-hidden="true" /></a> : <a className="ds-hero-icon" href={mapUrl(j)} target="_blank" rel="noreferrer" aria-label="Map"><MapPin size={20} aria-hidden="true" /></a>}
         </div>
-        <button type="button" ref={frontBtn} className="ds-flip-btn" aria-pressed={false} aria-controls="next-job-back" onClick={() => flip(true)}>Details</button>
       </div>
       <div id="next-job-back" className="flip-face flip-back ds-hero next-job-face" inert={!flipped} aria-hidden={!flipped}>
         <div className="next-job-top"><strong>Job details</strong><span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>

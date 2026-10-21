@@ -445,3 +445,9 @@ body:has(.app-shell) .dashboard-assistant .owner-home-aside .ds-chip{white-space
 
 body:has(.app-shell) .owner-home-grid:has(>.owner-home-main:only-child){grid-template-columns:minmax(0,1fr)}
 
+/* Match the phone hero title while keeping the action row last. */
+body:has(.app-shell) .app-main .next-job-title{font-size:26px;line-height:32px;font-weight:600}
+body:has(.app-shell) .next-job-title button{display:block;width:100%;padding:0;border:0;background:transparent;color:var(--on-hero);font:inherit;letter-spacing:inherit;text-align:start;cursor:pointer}
+body:has(.app-shell) .app-main .ds-home-head .greeting-title{font-weight:600}
+html[lang^=ar] body:has(.app-shell) .app-main .next-job-title{line-height:1.5}
+
