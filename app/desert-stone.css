@@ -397,12 +397,15 @@ body:has(.app-shell) .app-main .tabs button:active{background:var(--pressed);tra
 body:has(.app-shell) .app-main .tabs button[aria-selected=true]:active{background:color-mix(in srgb,var(--hero) 80%,var(--gold))}
 /* ds14: not found screen for signed out visitors, one calm card on sand, footer at the bottom */
 .lost-page{min-height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
-.lost-main{flex:1;display:grid;place-items:center;padding:32px 20px}
-.lost-card{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:36px 28px;text-align:center}
+.lost-main{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:32px 20px}
+.lost-card{width:100%;min-width:0;max-width:440px;overflow-wrap:anywhere;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:36px 28px;text-align:center}
 .lost-mark{display:inline-grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--surface-subtle);color:var(--gold-text);font-size:24px;font-weight:600;margin-bottom:18px}
-.lost-card h1{font-size:clamp(22px,5.5vw,28px);line-height:1.25;margin:0 0 10px}
+.lost-card h1{font-weight:600;font-size:clamp(22px,5.5vw,28px);line-height:1.25;margin:0 0 10px}
 .lost-card p{color:var(--text-muted);font-size:16px;line-height:1.5;margin:0 0 26px}
 .lost-actions{display:flex;flex-direction:column;gap:10px}
-.lost-actions .button{min-height:48px;border-radius:999px;justify-content:center;width:100%}
-.lost-page .public-footer{background:transparent}
+.lost-actions .button{min-width:0;white-space:normal;min-height:48px;border-radius:999px;justify-content:center;width:100%}
+.lost-page .public-header{width:100%;margin-block:0;flex-shrink:0}
+.lost-page .public-footer{width:100%;margin-top:0;flex-shrink:0;background:transparent}
+.lost-page[dir=rtl] h1{letter-spacing:0;line-height:1.5}
+.lost-actions .button.primary{background:var(--hero);color:var(--on-hero)}
 @media(max-width:640px){body:has(.lost-page) .public-header nav{display:none}}
