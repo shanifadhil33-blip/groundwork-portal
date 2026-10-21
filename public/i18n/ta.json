@@ -250,7 +250,7 @@
 "Job details":"வேலை விவரங்கள்",
 "Job report":"வேலை அறிக்கை",
 "Job sections":"வேலை பிரிவுகள்",
-"Jobs":"வேலைகள்",
+"Jobs":"பணிகள்",
 "Jobs done":"செய்து முடிக்கப்பட்ட பணிகள்",
 "Jobs done:":"முடிந்த வேலைகள்:",
 "Jumeirah Lake Towers":"ஜுமேரா லேக் டவர்ஸ்",
@@ -753,5 +753,11 @@
 "Today's jobs":"இன்றைய வேலைகள்",
 "jobs today":"வேலைகள் இன்று",
 "late":"தாமதம்",
-"without a person":"ஆள் இல்லை"
+"without a person":"ஆள் இல்லை",
+"Approve the plan":"திட்டத்தை ஒப்புக்கொள்",
+"Save home address":"வீட்டு முகவரியைச் சேமி",
+"Your home address":"உங்கள் வீட்டு முகவரி",
+"Remember this area":"இந்தப் பகுதியை நினைவில் கொள்",
+"Remember":"நினைவில் கொள்",
+"Home address":"வீட்டு முகவரி"
 }

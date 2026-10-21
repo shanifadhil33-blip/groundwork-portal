@@ -8,6 +8,7 @@ for (const who of WHO) { await s.as(who);
   const ctx = await br.newContext({ viewport: { width: 1280, height: 860 }, colorScheme: THEME }); await ctx.addCookies((await s.api.storageState()).cookies); await ctx.addInitScript(t => localStorage.setItem('groundwork-theme', t), THEME);
   const p = await ctx.newPage(); await p.goto(B + '/dashboard', { waitUntil: 'networkidle' }); await p.waitForTimeout(1500);
   const links = await p.evaluate(() => [...document.querySelectorAll('.sidebar a[href]')].map(a => a.getAttribute('href')).filter((h, i, l) => h?.startsWith('/') && l.indexOf(h) === i));
+  for (const x of (process.env.EXTRA || '').split(',').filter(Boolean)) if (!links.includes(x)) links.push(x); // EXTRA: more pages beyond the sidebar
   const cdp = await ctx.newCDPSession(p); await cdp.send('DOM.enable'); await cdp.send('CSS.enable');
   for (const href of links.slice(0, 8)) {
     await p.goto(B + href, { waitUntil: 'networkidle' }).catch(() => {}); await p.waitForTimeout(1200); await p.addStyleTag({ content: '*,*::before,*::after{transition:none!important}' }); if (!res.media) res.media = await p.evaluate(() => matchMedia('(hover:hover) and (pointer:fine)').matches);

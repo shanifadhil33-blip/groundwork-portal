@@ -232,7 +232,7 @@
 "Job details":"Mga detalye ng trabaho",
 "Job report":"Ulat ng trabaho",
 "Job sections":"Mga seksyon ng trabaho",
-"Jobs":"Mga trabaho",
+"Jobs":"Trabaho",
 "Jobs done":"Mga tapos na trabaho",
 "Jobs done:":"Mga tapos na trabaho:",
 "Keep at least one workspace admin.":"Panatilihin ang kahit isang workspace admin.",
@@ -698,5 +698,12 @@
 "Today's jobs":"Mga trabaho ngayon",
 "jobs today":"trabaho ngayon",
 "late":"huli",
-"without a person":"walang tao"
+"without a person":"walang tao",
+"Approve the plan":"Aprubahan ang plano",
+"Save home address":"Itabi ang address ng bahay",
+"Your home address":"Ang address ng bahay mo",
+"Remember this area":"Tandaan ang lugar na ito",
+"Remember":"Tandaan",
+"Profile":"Propayl",
+"Home address":"Address ng bahay"
 }

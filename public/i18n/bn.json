@@ -442,7 +442,7 @@
 "Request Received":"অনুরোধ গৃহীত হয়েছে",
 "Request details":"অনুরোধের বিবরণ",
 "Request time off":"ছুটির আবেদন করুন",
-"Requests":"অনুরোধগুলো",
+"Requests":"অনুরোধ",
 "Requests come in":"অনুরোধসমূহ আসে",
 "Responsible":"দায়িত্বপ্রাপ্ত",
 "Restore supplier":"সরবরাহকারী পুনরুদ্ধার করুন",
@@ -758,5 +758,11 @@
 "Today's jobs":"আজকের কাজ",
 "jobs today":"আজকের কাজ",
 "late":"দেরি",
-"without a person":"কেউ দেওয়া হয়নি"
+"without a person":"কেউ দেওয়া হয়নি",
+"Approve the plan":"পরিকল্পনা অনুমোদন করুন",
+"Save home address":"বাড়ির ঠিকানা সংরক্ষণ করুন",
+"Your home address":"আপনার বাড়ির ঠিকানা",
+"Remember this area":"এই এলাকা মনে রাখুন",
+"Remember":"মনে রাখুন",
+"Home address":"বাড়ির ঠিকানা"
 }

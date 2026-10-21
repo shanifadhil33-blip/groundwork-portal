@@ -241,7 +241,7 @@
 "Job details":"ജോലി വിശദാംശങ്ങൾ",
 "Job report":"ജോലി റിപ്പോർട്ട്",
 "Job sections":"ജോലി വിഭാഗങ്ങൾ",
-"Jobs":"ജോലികൾ",
+"Jobs":"ജോലി",
 "Jobs done":"പൂർത്തിയായ ജോലികൾ",
 "Jobs done:":"ചെയ്ത ജോലികൾ:",
 "Jumeirah Lake Towers":"ജുമൈറ ലേക്ക് ടവേഴ്സ്",
@@ -721,5 +721,11 @@
 "Today's jobs":"ഇന്നത്തെ ജോലികൾ",
 "jobs today":"ജോലികൾ ഇന്ന്",
 "late":"വൈകി",
-"without a person":"ആളില്ലാതെ"
+"without a person":"ആളില്ലാതെ",
+"Approve the plan":"പ്ലാൻ അംഗീകരിക്കുക",
+"Save home address":"വീട്ടുവിലാസം സേവ് ചെയ്യുക",
+"Your home address":"നിങ്ങളുടെ വീട്ടുവിലാസം",
+"Remember this area":"ഈ പ്രദേശം ഓർമ്മിക്കുക",
+"Remember":"ഓർമ്മിക്കുക",
+"Home address":"വീട്ടുവിലാസം"
 }

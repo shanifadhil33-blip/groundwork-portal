@@ -369,3 +369,30 @@ body:has(.app-shell) .dashboard-assistant :is(.assistant-chat,.assistant-suggest
 .ds-flip-light:active{background:var(--pressed)}
 @media(hover:hover) and (pointer:fine){.ds-flip-light:hover:not(:active){background:var(--hover)}}
 .company-history .flip-face{min-width:0}
+
+/* Desert Stone 12: Team and Notifications, deeper pass */
+body:has(.app-shell) .person-list{border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+body:has(.app-shell) .person-card{padding:18px 20px;gap:12px;border-bottom:1px solid var(--line)}
+body:has(.app-shell) .person-card:last-child{border-bottom:0}
+body:has(.app-shell) .person-card .heading-row strong,body:has(.app-shell) .person-card .heading-row a{font-size:16px;font-weight:600;color:var(--text)}
+body:has(.app-shell) .person-card .skill-chips :is(span,.badge){background:var(--bg);border:1px solid var(--line);padding:4px 12px;font-size:14px;color:var(--text)}
+body:has(.app-shell) .person-card .person-record{color:var(--muted)}
+body:has(.app-shell) .person-job-links{gap:20px;font-size:14px;font-weight:500}
+body:has(.app-shell) .person-job-links a{color:var(--gold-text)}
+body:has(.app-shell) .notification-item{padding:14px 16px;border-inline-start:3px solid transparent}
+body:has(.app-shell) .notification-item.unread{border-inline-start-color:var(--gold);background:color-mix(in srgb,var(--gold) 6%,transparent)}
+body:has(.app-shell) .notification-item .notification-text{color:var(--text);line-height:1.45}
+body:has(.app-shell) .notification-item .small.muted{color:var(--muted)}
+body:has(.app-shell) .notification-read-toggle{border-radius:999px}
+@media(hover:hover) and (pointer:fine){body:has(.app-shell) .notification-item:hover{background:var(--hover)}}
+body:has(.app-shell) .notification-item:active{background:var(--pressed)}
+/* Long labels on the could not open that page screen (Tamil at 360 scrolled sideways) */
+.error-page .error-actions{flex-wrap:wrap}
+.error-page .error-actions>:is(a,button){flex:1 1 140px;min-width:0;white-space:normal;text-align:center;height:auto;min-height:44px;padding-block:10px}
+@media(max-width:640px){body:has(.error-page) .public-header nav{display:none}}
+@media(prefers-reduced-motion:reduce){.flip .flip-face{transition:none}}
+/* Hover and press on pill tabs (hover audit Oct 21: Settings tabs had no hover after the transparent pill rule) */
+@media(hover:hover) and (pointer:fine){body:has(.app-shell) .app-main .tabs button:hover:not(:active){background:var(--hover);border-color:var(--gold)}
+ body:has(.app-shell) .app-main .tabs button[aria-selected=true]:hover:not(:active){background:color-mix(in srgb,var(--hero) 88%,var(--gold));border-color:var(--hero)}}
+body:has(.app-shell) .app-main .tabs button:active{background:var(--pressed);transform:scale(.97)}
+body:has(.app-shell) .app-main .tabs button[aria-selected=true]:active{background:color-mix(in srgb,var(--hero) 80%,var(--gold))}

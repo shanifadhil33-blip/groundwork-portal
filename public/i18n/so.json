@@ -408,7 +408,7 @@
 "Request Received":"Codsi La Helay",
 "Request details":"Faahfaahinta codsiga",
 "Request time off":"Codso fasax",
-"Requests":"Codsisyada",
+"Requests":"Codsiyo",
 "Requests come in":"Codsiyadu waa yimaadaan",
 "Responsible":"Mas'uul ka ah",
 "Restore supplier":"Soo celi alaabeeyaha",
@@ -709,5 +709,11 @@
 "Today's jobs":"Shaqooyinka maanta",
 "jobs today":"shaqo maanta",
 "late":"daahay",
-"without a person":"qof la'aan"
+"without a person":"qof la'aan",
+"Approve the plan":"Ansix qorshaha",
+"Save home address":"Kaydi cinwaanka guriga",
+"Your home address":"Cinwaanka gurigaaga",
+"Remember this area":"Xasuuso aaggan",
+"Remember":"Xasuuso",
+"Home address":"Cinwaanka guriga"
 }

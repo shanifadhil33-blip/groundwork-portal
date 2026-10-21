@@ -396,7 +396,7 @@
 "Request Received":"A gba ibeere naa",
 "Request details":"Awọn alaye ibeere",
 "Request time off":"B béèrè àkókò ìsinmi",
-"Requests":"Àwọn ìbéèrè",
+"Requests":"Ìbéèrè",
 "Requests come in":"Awọn ibeere n wọle",
 "Responsible":"Eniyan ti o ni Ẹru",
 "Restore supplier":"Mu olutaja pada",
@@ -684,5 +684,11 @@
 "Today's jobs":"Iṣẹ́ òní",
 "jobs today":"iṣẹ́ òní",
 "late":"ti pẹ́",
-"without a person":"kò ní ẹni"
+"without a person":"kò ní ẹni",
+"Approve the plan":"Fọwọ́ sí ètò náà",
+"Save home address":"Fi àdírẹ́sì ilé pamọ́",
+"Your home address":"Àdírẹ́sì ilé rẹ",
+"Remember this area":"Rántí agbègbè yìí",
+"Remember":"Rántí",
+"Home address":"Àdírẹ́sì ilé"
 }
