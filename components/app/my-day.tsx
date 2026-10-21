@@ -23,6 +23,7 @@ import { AgentCard } from './dashboard';
 import { HabitCard } from './habits';
 import { FullDoneCard } from './job-close';
 import { LeaveRequests, RequestTimeOff } from './time-off';
+import { JobTitleTransition } from './job-transition';
 
 type Job = { tenant_unit?:string|null; id: string; order_number: number; title: string; status: string; priority: string; trade: string | null; scheduled_for: string | null; due_on: string | null; updated_at: string; site_name: string; address: string | null; building: string | null; area: string | null; access_notes: string | null; contact_name: string | null; contact_phone: string | null };
 type Day = { timezone: string; today: Job[]; late: Job[]; next: Job[]; done: number };
@@ -114,7 +115,7 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
     <div className="flip" data-flipped={flipped}><div className="flip-inner">
       <div className="flip-face flip-front ds-hero next-job-face" inert={flipped} aria-hidden={flipped}>
         <div className="next-job-top">{j.priority === 'urgent' ? <span className="ds-chip-urgent">Urgent</span> : j.status !== 'scheduled' ? <span className="ds-chip-hero">{statusLabels[j.status] ?? j.status}</span> : <span />}<span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>
-        <h2 className="next-job-title" data-no-translate><Link href={`/work-orders/${j.id}`} data-no-translate>{j.title}</Link></h2>
+        <JobTitleTransition id={j.id}><h2 className="next-job-title" data-no-translate><Link href={`/work-orders/${j.id}`} data-no-translate>{j.title}</Link></h2></JobTitleTransition>
         {place && <p className="next-job-place"><MapPin size={18} aria-hidden="true" /><span data-no-translate>{place}</span></p>}
         {j.access_notes && <p className="ds-muted next-job-note">{j.access_notes}</p>}
         <div className="next-job-actions">

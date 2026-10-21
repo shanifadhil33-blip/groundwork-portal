@@ -361,3 +361,11 @@ body:has(.app-shell) .app-main .empty-state{background:var(--surface);border:0;b
 /* ds8 live fixes: with the Agent docked the owner page keeps one column until 1600; the dock chat has no inner block */
 @media(min-width:1024px) and (max-width:1599px){body:has(.app-shell) .with-dashboard-assistant .owner-home-grid{grid-template-columns:minmax(0,1fr)}}
 body:has(.app-shell) .dashboard-assistant :is(.assistant-chat,.assistant-suggestions){background:transparent!important}
+
+/* Desert Stone 10: the job title morphs into the job page header over 240 ms; reduced motion makes it instant */
+::view-transition-group(.dsmorph){animation-duration:240ms;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+@media(prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation-duration:0s!important;animation-delay:0s!important}}
+.ds-flip-light{color:var(--gold-text)}
+.ds-flip-light:active{background:var(--pressed)}
+@media(hover:hover) and (pointer:fine){.ds-flip-light:hover:not(:active){background:var(--hover)}}
+.company-history .flip-face{min-width:0}
