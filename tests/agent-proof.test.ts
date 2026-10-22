@@ -18,8 +18,9 @@ vi.mock('../lib/services/work-orders',()=>({getWorkOrder:async()=>order(),listWo
 vi.mock('../lib/services/contact-names',()=>({listContactNames:async()=>[{user_id:ravi,name:state.person}]}));
 vi.mock('../lib/services/client-visits',async original=>({...await original<typeof import('../lib/services/client-visits')>(),selectedVisitChoice:async()=>null}));
 vi.mock('../lib/agent/tools',async original=>({...await original<typeof import('../lib/agent/tools')>(),callTool:state.tool}));
-import { assistant } from '../lib/services/assistant';
-import { dataAnswer, quickAnswer } from '../lib/agent/data-answers';
+import { assistant, unansweredAsk } from '../lib/services/assistant';
+import { namesVisitDate } from '../lib/agent/assignment-request';
+import { detectIntent, quickLookup, dataAnswer, quickAnswer } from '../lib/agent/data-answers';
 import { plainAssistantReply } from '../lib/ui/assistant-replies';
 import { LANGUAGES } from '../lib/languages';
 import { choiceWords } from '../lib/agent/choices';
@@ -170,4 +171,54 @@ it.each([{due_on:'2026-10-24'},{scheduled_for:null},{clear_visit:true}])('preser
  const result=await ask('Change WO 3 dates');
  expect(result.pending_action.tool).toBe('update_work_order_dates');
  expect(state.query.mock.calls.some(([sql])=>sql.includes('AS weekly'))).toBe(false);
+});
+
+
+const gulfAssignments = ['عط WO 3 لـ Anil يوم السبت', 'عطي WO 3 لـ Anil السبت', 'خل WO 3 لـ Anil السبت', 'حوّل WO 3 لـ Anil السبت', 'سلّم WO 3 لـ Anil السبت', 'وزّع WO 3 لـ Anil السبت'];
+const hindiUrduAssignments = ['WO 3 Anil को दो शनिवार', 'WO 3 Anil को सौंपो शनिवार', 'WO 3 Anil کو دو ہفتہ', 'WO 3 Anil کو دے دو ہفتہ'];
+it.each([...gulfAssignments, ...hindiUrduAssignments])('explicit assignment reaches the same off day refusal without AI: %s', async question=>{
+ saturdayCase();state.language=question.includes('को')?'hi':question.includes('کو')?'ur':'ar-AE';state.weekly=true;
+ expect(detectIntent(question).intent).toBe('summary');expect(quickLookup(question)).toBeNull();expect(unansweredAsk(question)).toBe(true);
+ expect(await ask(question)).toEqual({available:true,reply:refusal(),localized:true});
+ expect(state.query).toHaveBeenCalledWith(expect.stringContaining('AS weekly'),[ws,ravi,'2026-10-24']);
+ expect(state.ai).not.toHaveBeenCalled();expect(state.pending).toBeNull();
+ expect(state.tool.mock.calls.some(([,name])=>name==='assign_work_order')).toBe(false);
+});
+it.each([...gulfAssignments, ...hindiUrduAssignments])('a working day gives a confirmation card without writing: %s', async question=>{
+ saturdayCase();const result=await ask(question);
+ expect(result.pending_action).toMatchObject({tool:'assign_work_order',args:{id,assignee_id:ravi,scheduled_for:'2026-10-24T12:00:00.000Z'}});
+ expect(state.ai).not.toHaveBeenCalled();expect(state.tool.mock.calls.some(([,name])=>name==='assign_work_order')).toBe(false);
+});
+it.each(['عط WO 3 لـ Anil يوم السبت', 'WO 3 لـ Anil يوم السبت', 'कृपया WO 3 Anil को सौंपो शनिवार', 'براہ کرم WO 3 Anil کو دے دو ہفتہ'])('model assignments use the same checks after resolving records: %s',async question=>{
+ saturdayCase();state.forceModel=true;state.weekly=true;state.language='ar-AE';
+ state.ai.mockReset();state.ai.mockResolvedValueOnce({calls:[{id:'read',name:'get_work_order_by_number',args:{number:3}},{id:'team',name:'list_team',args:{}}]}).mockResolvedValueOnce({calls:[{id:'assign',name:'assign_work_order',args:{id,assignee_id:ravi,scheduled_for:'2026-10-24T12:00:00Z',updated_at:'2026-10-22T08:00:00Z'}}]});
+ expect(await ask(question)).toEqual({available:true,reply:refusal(),localized:true});
+ expect(state.ai).toHaveBeenCalledTimes(2);expect(state.ai.mock.calls[0][2]).toContain('عط WO 3 لـ Anil يوم السبت');expect(state.pending).toBeNull();
+});
+it.each(['حوّل WO 3 يوم السبت', 'WO 3 शनिवार तय करो', 'WO 3 ہفتہ شیڈول کرو', 'WO 3 शनिवार शेड्यूल कर दो', 'WO 3 ہفتہ شیڈول کر دو'])('visit changes reach availability checks: %s',async question=>{
+ saturdayCase();state.weekly=true;state.language='ar-AE';
+ state.ai.mockResolvedValue({calls:[{id:'move',name:'update_work_order_dates',args:{id,scheduled_for:'2026-10-24T12:00:00Z',updated_at:'2026-10-22T08:00:00Z'}}]});
+ expect(unansweredAsk(question)).toBe(true);expect(await ask(question)).toEqual({available:true,reply:refusal(),localized:true});expect(state.pending).toBeNull();
+});
+it.each([['اليوم','2026-10-22'],['بكرة','2026-10-23'],['الأحد','2026-10-25'],['الاثنين','2026-10-26'],['الثلاثاء','2026-10-27'],['الأربعاء','2026-10-28'],['الخميس','2026-10-29'],['الجمعة','2026-10-23']])('keeps the requested Gulf day and existing visit time: %s',async(day,date)=>{
+ saturdayCase();const result=await ask(`عط WO 3 لـ Anil ${day}`);
+ expect(result.pending_action.args.scheduled_for).toBe(`${date}T12:00:00.000Z`);expect(state.ai).not.toHaveBeenCalled();
+});
+it.each(['عط WO 3 لـ Anil اليوم', 'WO 3 Anil को दो आज', 'WO 3 Anil کو دو کل'])('a model may not discard the requested date: %s',async question=>{
+ saturdayCase();state.forceModel=true;state.ai.mockResolvedValue({calls:[{id:'assign',name:'assign_work_order',args:{id,assignee_id:ravi,updated_at:'2026-10-22T08:00:00Z'}}]});
+ expect(namesVisitDate(question)).toBe(true);expect((await ask(question)).reply).toBe('What visit date and time should I use?');expect(state.pending).toBeNull();
+});
+it.each(['WO 3', 'اعرض WO 3', 'WO 3 दिखाओ', 'WO 3 دکھاؤ', 'معلومات حول WO 3', 'Give me details for WO 3'])('read requests still identify the job: %s',question=>{
+ expect(detectIntent(question)).toEqual({intent:'job',number:3});expect(unansweredAsk(question)).toBe(false);
+});
+it('keeps translated read questions on the no AI path',async()=>{
+ for(const language of ['ar-AE','hi','ur']){
+  state.language=language;const result=await ask(choiceWords(language)('Show my jobs today'));
+  expect(result.quick).toBe(true);
+ }
+ expect(state.ai).not.toHaveBeenCalled();
+});
+
+it.each(['السبت؟','بكرة.','आज।','کل؟'])('recognizes a requested date beside punctuation: %s',day=>{
+ expect(namesVisitDate(`WO 3 Anil ${day}`)).toBe(true);
 });

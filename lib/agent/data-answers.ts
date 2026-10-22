@@ -1,3 +1,4 @@
+import { assignmentIntent } from './assignment-intent';
 import { LANGUAGES } from '../languages';
 import { choiceWords } from './choices';
 import { localizedDataAnswer } from './localized-data-answers';
@@ -33,6 +34,7 @@ function digits(s: string) {
 }
 
 export function detectIntent(question: string): { intent: Intent; number?: number } {
+  if (assignmentIntent(question)) return { intent: 'summary' };
   const q = digits(question.toLowerCase());
   const job = q.match(/(?:wo|job|work order|#|رقم|نمبر|नंबर|নম্বর)\s*-?\s*(\d{1,7})\b/) ?? q.match(/^\D*(\d{1,7})\D*$/);
   if (job) return { intent: 'job', number: Number(job[1]) };
@@ -187,6 +189,7 @@ function directQuick(question: string): QuickLookup | null {
   return null;
 }
 export function quickLookup(question:string):QuickLookup|null {
+ if(assignmentIntent(question))return null;
  return directQuick(question)??directQuick(splitQuick(question)?.base??'');
 }
 async function parts(c: AgentContext, tz?: string) {
