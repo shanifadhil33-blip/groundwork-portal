@@ -834,5 +834,13 @@
   "Demo late job: {job}. Nothing was sent.": "டெமோவில் தாமதமான வேலை: {job}. எதுவும் அனுப்பப்படவில்லை.",
   "Demo stalled job: {job}. Nothing was sent.": "டெமோவில் நின்ற வேலை: {job}. எதுவும் அனுப்பப்படவில்லை.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "டெமோ ஆவணம் {days} நாட்களில் காலாவதியாகும்: {job}. எதுவும் அனுப்பப்படவில்லை.",
- "In practice, team members and clients stay separate.": "பயிற்சியில் குழு உறுப்பினர்களும் வாடிக்கையாளர்களும் தனித்தனியாக இருப்பார்கள்."
+ "In practice, team members and clients stay separate.": "பயிற்சியில் குழு உறுப்பினர்களும் வாடிக்கையாளர்களும் தனித்தனியாக இருப்பார்கள்.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "பயிற்சி முன்னோட்டம். யாரும் சேர்க்கப்படவோ உள்நுழையவோ இல்லை. எதுவும் அனுப்பப்படாது.",
+"Use a fictional email ending in .example.": ".example என முடியும் கற்பனை மின்னஞ்சலைப் பயன்படுத்தவும்.",
+"Sharing preview": "பகிர்வு முன்னோட்டம்",
+"Sign in preview": "உள்நுழைவு முன்னோட்டம்",
+"Practice invite created. It cannot grant access.": "பயிற்சி அழைப்பு உருவாக்கப்பட்டது. இது அணுகலை வழங்காது.",
+"Practice sign in complete. You are still using the same account.": "உள்நுழைவு பயிற்சி முடிந்தது. நீங்கள் இன்னும் அதே கணக்கைப் பயன்படுத்துகிறீர்கள்.",
+"Revoked": "ரத்து செய்யப்பட்டது",
+"Pending": "நிலுவையில்"
 }

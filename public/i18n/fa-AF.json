@@ -795,5 +795,13 @@
   "Demo late job: {job}. Nothing was sent.": "کار ناوقت آزمایشی: {job}. چیزی فرستاده نشد.",
   "Demo stalled job: {job}. Nothing was sent.": "کار متوقف آزمایشی: {job}. چیزی فرستاده نشد.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "سند آزمایشی پس از {days} روز منقضی می‌شود: {job}. چیزی فرستاده نشد.",
- "In practice, team members and clients stay separate.": "در تمرین، اعضای تیم و مشتریان جدا می‌مانند."
+ "In practice, team members and clients stay separate.": "در تمرین، اعضای تیم و مشتریان جدا می‌مانند.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "پیش نمایش تمرینی. کسی اضافه یا وارد نمی‌شود. چیزی فرستاده نمی‌شود.",
+"Use a fictional email ending in .example.": "از ایمیل خیالی با پایان .example استفاده کنید.",
+"Sharing preview": "پیش نمایش شریک ساختن",
+"Sign in preview": "پیش نمایش ورود",
+"Practice invite created. It cannot grant access.": "دعوت تمرینی ساخته شد. اجازه دسترسی نمی‌دهد.",
+"Practice sign in complete. You are still using the same account.": "ورود تمرینی تکمیل شد. هنوز از همان حساب استفاده می‌کنید.",
+"Revoked": "لغو شده",
+"Pending": "در انتظار"
 }

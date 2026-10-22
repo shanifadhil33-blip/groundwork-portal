@@ -775,5 +775,13 @@
   "Demo late job: {job}. Nothing was sent.": "演示中延迟的工作：{job}。未发送任何内容。",
   "Demo stalled job: {job}. Nothing was sent.": "演示中停滞的工作：{job}。未发送任何内容。",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "演示文档将在{days}天后到期：{job}。未发送任何内容。",
- "In practice, team members and clients stay separate.": "在练习中，团队成员和客户保持分开。"
+ "In practice, team members and clients stay separate.": "在练习中，团队成员和客户保持分开。",
+"Practice preview. No one is added or signed in. Nothing is sent.": "练习预览。不会添加任何人或让任何人登录。不会发送任何内容。",
+"Use a fictional email ending in .example.": "请使用以 .example 结尾的虚构电子邮箱。",
+"Sharing preview": "分享预览",
+"Sign in preview": "登录预览",
+"Practice invite created. It cannot grant access.": "练习邀请已创建。此邀请无法授予访问权限。",
+"Practice sign in complete. You are still using the same account.": "登录练习已完成。您仍在使用同一账户。",
+"Revoked": "已撤销",
+"Pending": "待处理"
 }

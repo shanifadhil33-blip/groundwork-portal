@@ -784,5 +784,13 @@
   "Demo late job: {job}. Nothing was sent.": "Ọrụ nnwale dara azụ: {job}. E zigaghị ihe ọ bụla.",
   "Demo stalled job: {job}. Nothing was sent.": "Ọrụ nnwale kwụsịrị: {job}. E zigaghị ihe ọ bụla.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "Akwụkwọ nnwale ga agwụ n’ime ụbọchị {days}: {job}. E zigaghị ihe ọ bụla.",
- "In practice, team members and clients stay separate.": "N’ọzụzụ, ndị otu na ndị ahịa na anọ iche."
+ "In practice, team members and clients stay separate.": "N’ọzụzụ, ndị otu na ndị ahịa na anọ iche.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "Nlele omume. A naghị etinye onye ọ bụla ma ọ bụ mee ka ọ banye. A naghị ezipu ihe ọ bụla.",
+"Use a fictional email ending in .example.": "Jiri ozi ịntanetị e chepụtara nke na-agwụ na .example.",
+"Sharing preview": "Nlele ikekọrịta",
+"Sign in preview": "Nlele ịbanye",
+"Practice invite created. It cannot grant access.": "Emepụtara ọkpụkpọ òkù omume. Ọ nweghị ike inye ohere ịbanye.",
+"Practice sign in complete. You are still using the same account.": "Omume ịbanye agwụla. Ị ka na-eji otu akaụntụ ahụ.",
+"Revoked": "Akagbuola",
+"Pending": "Na-eche"
 }

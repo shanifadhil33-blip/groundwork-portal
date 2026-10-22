@@ -799,5 +799,13 @@
   "Demo late job: {job}. Nothing was sent.": "ዝደንጎየ ናይ ፈተነ ስራሕ፦ {job}። ዝተላእከ የለን።",
   "Demo stalled job: {job}. Nothing was sent.": "ዝተዓገተ ናይ ፈተነ ስራሕ፦ {job}። ዝተላእከ የለን።",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "ናይ ፈተነ ሰነድ ድሕሪ {days} መዓልታት ይውዳእ፦ {job}። ዝተላእከ የለን።",
- "In practice, team members and clients stay separate.": "ኣብ ልምምድ፡ ኣባላት ጉጅለን ዓማዊልን ተፈልዮም ይቕጽሉ።"
+ "In practice, team members and clients stay separate.": "ኣብ ልምምድ፡ ኣባላት ጉጅለን ዓማዊልን ተፈልዮም ይቕጽሉ።",
+"Practice preview. No one is added or signed in. Nothing is sent.": "ቅድመ ርእይቶ ልምምድ። ማንም ኣይውሰኽን ወይ ኣይኣቱን። ዋላ ሓንቲ ኣይለኣኽን።",
+"Use a fictional email ending in .example.": "ብ .example ዝውዳእ ሓሳባዊ ኢመይል ተጠቐሙ።",
+"Sharing preview": "ቅድመ ርእይቶ ምክፋል",
+"Sign in preview": "ቅድመ ርእይቶ መእተዊ",
+"Practice invite created. It cannot grant access.": "ናይ ልምምድ ዕድመ ተፈጢሩ። መእተዊ ፍቓድ ክህብ ኣይክእልን።",
+"Practice sign in complete. You are still using the same account.": "ልምምድ መእተዊ ተዛዚሙ። ገና ነቲ ሓደ መለያ ትጥቀሙ ኣለኹም።",
+"Revoked": "ተሰሪዙ",
+"Pending": "ኣብ ትጽቢት"
 }

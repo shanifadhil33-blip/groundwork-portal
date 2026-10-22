@@ -778,5 +778,13 @@
   "Demo late job: {job}. Nothing was sent.": "የዘገየ የሙከራ ሥራ፦ {job}። ምንም አልተላከም።",
   "Demo stalled job: {job}. Nothing was sent.": "የቆመ የሙከራ ሥራ፦ {job}። ምንም አልተላከም።",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "የሙከራ ሰነዱ በ {days} ቀናት ያበቃል፦ {job}። ምንም አልተላከም።",
- "In practice, team members and clients stay separate.": "በልምምድ ውስጥ የቡድን አባላት እና ደንበኞች ተለይተው ይቆያሉ።"
+ "In practice, team members and clients stay separate.": "በልምምድ ውስጥ የቡድን አባላት እና ደንበኞች ተለይተው ይቆያሉ።",
+"Practice preview. No one is added or signed in. Nothing is sent.": "የልምምድ ቅድመ እይታ። ማንም አይጨመርም ወይም አይገባም። ምንም አይላክም።",
+"Use a fictional email ending in .example.": "በ .example የሚያበቃ ምናባዊ ኢሜይል ይጠቀሙ።",
+"Sharing preview": "የማጋራት ቅድመ እይታ",
+"Sign in preview": "የመግባት ቅድመ እይታ",
+"Practice invite created. It cannot grant access.": "የልምምድ ግብዣ ተፈጥሯል። መዳረሻ መስጠት አይችልም።",
+"Practice sign in complete. You are still using the same account.": "የመግባት ልምምድ ተጠናቋል። አሁንም ተመሳሳይ መለያ እየተጠቀሙ ነው።",
+"Revoked": "ተሰርዟል",
+"Pending": "በመጠባበቅ ላይ"
 }

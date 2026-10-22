@@ -819,5 +819,13 @@
   "Demo late job: {job}. Nothing was sent.": "ڈیمو میں تاخیر والا کام: {job}۔ کچھ نہیں بھیجا گیا۔",
   "Demo stalled job: {job}. Nothing was sent.": "ڈیمو میں رکا ہوا کام: {job}۔ کچھ نہیں بھیجا گیا۔",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "ڈیمو دستاویز {days} دن میں ختم ہوگی: {job}۔ کچھ نہیں بھیجا گیا۔",
- "In practice, team members and clients stay separate.": "مشق میں ٹیم کے ارکان اور گاہک الگ رہتے ہیں۔"
+ "In practice, team members and clients stay separate.": "مشق میں ٹیم کے ارکان اور گاہک الگ رہتے ہیں۔",
+"Practice preview. No one is added or signed in. Nothing is sent.": "مشق کا پیش منظر۔ کوئی شامل یا سائن ان نہیں ہوتا۔ کچھ بھیجا نہیں جاتا۔",
+"Use a fictional email ending in .example.": "فرضی ای میل استعمال کریں جس کے آخر میں .example ہو۔",
+"Sharing preview": "اشتراک کا پیش منظر",
+"Sign in preview": "سائن ان کا پیش منظر",
+"Practice invite created. It cannot grant access.": "مشق کی دعوت بن گئی۔ اس سے رسائی نہیں مل سکتی۔",
+"Practice sign in complete. You are still using the same account.": "سائن ان کی مشق مکمل ہوئی۔ آپ اب بھی وہی اکاؤنٹ استعمال کر رہے ہیں۔",
+"Revoked": "منسوخ",
+"Pending": "زیر انتظار"
 }

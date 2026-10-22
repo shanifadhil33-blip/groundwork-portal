@@ -765,5 +765,13 @@
   "Demo late job: {job}. Nothing was sent.": "Iṣẹ́ ìdánwò tó pẹ́: {job}. A kò fi ohunkóhun ránṣẹ́.",
   "Demo stalled job: {job}. Nothing was sent.": "Iṣẹ́ ìdánwò tó dúró: {job}. A kò fi ohunkóhun ránṣẹ́.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "Ìwé ìdánwò yóò parí láàárín ọjọ́ {days}: {job}. A kò fi ohunkóhun ránṣẹ́.",
- "In practice, team members and clients stay separate.": "Nínú ìdánwò, àwọn ọmọ ẹgbẹ́ àti àwọn oníbàárà wà lọ́tọ̀."
+ "In practice, team members and clients stay separate.": "Nínú ìdánwò, àwọn ọmọ ẹgbẹ́ àti àwọn oníbàárà wà lọ́tọ̀.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "Àwòkọ́ṣe ìdánwò. A kò fi ẹnikẹ́ni kún tàbí mú un wọlé. A kò fi ohunkóhun ránṣẹ́.",
+"Use a fictional email ending in .example.": "Lo ímeèlì àròsọ tí ó parí pẹ̀lú .example.",
+"Sharing preview": "Àwòkọ́ṣe pínpín",
+"Sign in preview": "Àwòkọ́ṣe wíwọlé",
+"Practice invite created. It cannot grant access.": "A ti dá ìkésíni ìdánwò sílẹ̀. Kò lè fúnni ní àṣẹ wíwọlé.",
+"Practice sign in complete. You are still using the same account.": "Ìdánwò wíwọlé ti parí. O ṣì ń lo àkọọ́lẹ̀ kan náà.",
+"Revoked": "A ti fagilé",
+"Pending": "Ó ń dúró"
 }

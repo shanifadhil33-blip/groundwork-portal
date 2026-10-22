@@ -1,4 +1,5 @@
 'use client';
+import { PRACTICE_NOTICE } from '../../lib/identity-rehearsal';
 import { ContactName } from './contact-name';
 import Link from 'next/link';
 import { CalendarCheck, AlarmClock, ClipboardList, Phone } from 'lucide-react';
@@ -52,6 +53,7 @@ export function RolesButton({ p, base, onDone }: { p: { user_id: string; name: s
 /** One person: name, role, and three big numbers that open their jobs. */
 function PersonCard({ p, base, canLink, canEdit, canRoles, areas, onDone, self }: { p: TeamPerson; base: string; canLink: boolean; canEdit: boolean; canRoles: boolean; areas: string[]; onDone: () => void; self?: boolean }) {
   const roleLabels = labelsFor(useApp().workspace?.role_names);
+  const demo = !!useApp().workspace?.is_demo;
   const worker = p.role !== 'admin' || doesJobs(p);
   const jobs = (q: string) => `/work-orders?assignee_id=${p.user_id}${q}`;
   const nums = [
@@ -66,7 +68,7 @@ function PersonCard({ p, base, canLink, canEdit, canRoles, areas, onDone, self }
     <nav className="person-job-links" aria-label="Worker jobs">{nums.map(n => <Link key={n.label} href={n.href} aria-label={`${n.value} ${n.label} for ${p.name ?? 'them'}`}>{n.label} {n.value}</Link>)}</nav>
     {(p.trades.length > 0 || p.areas.length > 0) && <div className="skill-chips">{p.trades.map(t => <span key={t} className="chip">{tradeLabels[t as Trade] ?? t}</span>)}{p.areas.map(a => <span key={a} className="chip chip-area">{a}</span>)}</div>}
     {worker && <p className="small muted person-record">Jobs done: {p.done_month} this month, {p.done_total} in total{p.off_days?.length ? ` · Off every ${p.off_days.map(d => DAYS[d]).join(', ')}` : ''}</p>}
-    {(canEdit || canLink || canRoles) && <div className="row">{canRoles && <RolesButton p={p} base={base} onDone={onDone} />}{canEdit && worker && <><SkillsButton p={p} base={base} areas={areas} onDone={onDone} /><OffDaysButton p={p} base={base} onDone={onDone} /></>}{canLink && p.signs_in_with === 'code' && <NewLinkButton base={base} userId={p.user_id} name={p.name ?? 'them'} phone={p.phone} />}</div>}
+    {(canEdit || canLink || canRoles) && <div className="row">{canRoles && <RolesButton p={p} base={base} onDone={onDone} />}{canEdit && worker && <><SkillsButton p={p} base={base} areas={areas} onDone={onDone} /><OffDaysButton p={p} base={base} onDone={onDone} /></>}{canLink && (demo || p.signs_in_with === 'code') && <NewLinkButton base={base} userId={p.user_id} name={p.name ?? 'them'} phone={p.phone} />}</div>}
   </li>;
 }
 
@@ -77,13 +79,13 @@ export function Team() {
   const others = (team.data ?? []).filter(p => p.user_id !== me.user.id), demo = !!workspace?.is_demo;
   return <div className="page stack team-page">
     <PageHeader><div><h1>Team</h1></div>
-      {!demo && <AddFieldWorker base={base} admin={member?.role === 'admin'} demo={demo} onDone={() => void team.reload()} />}</PageHeader>
-    {demo && <p className="small muted">In the demo you cannot add new people. Everything else works.</p>}
+      {(!demo || member?.staff_kind!=='office') && <AddFieldWorker key={`${me.user.id}:${base}`} base={base} admin={member?.role === 'admin'} demo={demo} onDone={() => void team.reload()} />}</PageHeader>
+    {demo && <p className="small muted">{PRACTICE_NOTICE}</p>}
     {team.loading ? <Skeleton className="skeleton-card" /> : team.error ? <ErrorState retry={team.reload} /> :
-      others.length ? <ul className="person-list">{(team.data ?? []).map(p => <PersonCard key={p.user_id} p={p} base={base} canLink={!demo&&member?.staff_kind!=='office'} canEdit={office&&member?.staff_kind!=='office'} canRoles={member?.role === 'admin'} areas={areas.data ?? []} self={p.user_id === me.user.id} onDone={() => { void team.reload(); if (p.user_id === me.user.id) reload(); }} />)}</ul> :
+      others.length ? <ul className="person-list">{(team.data ?? []).map(p => <PersonCard key={p.user_id} p={p} base={base} canLink={member?.staff_kind!=='office' && (!demo || p.role==='technician' || member?.role==='admin' && p.role==='staff')} canEdit={office&&member?.staff_kind!=='office'} canRoles={member?.role === 'admin'} areas={areas.data ?? []} self={p.user_id === me.user.id} onDone={() => { void team.reload(); if (p.user_id === me.user.id) reload(); }} />)}</ul> :
       <EmptyState title="Add your first worker">Add a name and phone. We give you a code to send on WhatsApp. They sign in with it. No email needed.</EmptyState>}
     {office && others.length > 0 && <LeaveCalendar base={base} people={team.data ?? []} readOnly={member?.staff_kind==='office'} />}
     {member?.role === 'admin' && <ArchivedMembers key={(team.data ?? []).length} base={base} onChanged={() => void team.reload()} />}
-    {member?.role === 'admin' && !demo && <p className="small"><Link href="/settings?tab=members">Change roles or invite by email</Link></p>}
+    {member?.role === 'admin' && <p className="small"><Link href="/settings?tab=members">Change roles or invite by email</Link></p>}
   </div>;
 }

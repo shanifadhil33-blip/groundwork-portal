@@ -780,5 +780,13 @@
   "Demo late job: {job}. Nothing was sent.": "Nahuling trabaho sa demo: {job}. Walang ipinadala.",
   "Demo stalled job: {job}. Nothing was sent.": "Natigil na trabaho sa demo: {job}. Walang ipinadala.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "Mawawalan ng bisa ang demo na dokumento sa loob ng {days} araw: {job}. Walang ipinadala.",
- "In practice, team members and clients stay separate.": "Sa pagsasanay, magkahiwalay ang mga kasapi ng pangkat at mga kliyente."
+ "In practice, team members and clients stay separate.": "Sa pagsasanay, magkahiwalay ang mga kasapi ng pangkat at mga kliyente.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "Preview ng pagsasanay. Walang idinadagdag o pinapapasok na tao. Walang ipinapadala.",
+"Use a fictional email ending in .example.": "Gumamit ng kathang email na nagtatapos sa .example.",
+"Sharing preview": "Preview ng pagbabahagi",
+"Sign in preview": "Preview ng pagpasok",
+"Practice invite created. It cannot grant access.": "Nagawa ang imbitasyon sa pagsasanay. Hindi ito makapagbibigay ng access.",
+"Practice sign in complete. You are still using the same account.": "Tapos na ang pagsasanay sa pagpasok. Gamit mo pa rin ang parehong account.",
+"Revoked": "Binawi",
+"Pending": "Naghihintay"
 }

@@ -790,5 +790,13 @@
   "Demo late job: {job}. Nothing was sent.": "Shaqo tijaabo ah oo daahday: {job}. Waxba lama dirin.",
   "Demo stalled job: {job}. Nothing was sent.": "Shaqo tijaabo ah oo hakad gashay: {job}. Waxba lama dirin.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "Dukumentiga tijaabadu wuxuu dhacayaa {days} maalmood gudahood: {job}. Waxba lama dirin.",
- "In practice, team members and clients stay separate.": "Tababarka dhexdiisa, xubnaha kooxda iyo macaamiishu way kala gaar yihiin."
+ "In practice, team members and clients stay separate.": "Tababarka dhexdiisa, xubnaha kooxda iyo macaamiishu way kala gaar yihiin.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "Hordhaca tababarka. Qofna laguma daro ama looma geliyo. Waxba lama diro.",
+"Use a fictional email ending in .example.": "Isticmaal iimayl mala awaal ah oo ku dhammaada .example.",
+"Sharing preview": "Hordhaca wadaagista",
+"Sign in preview": "Hordhaca gelitaanka",
+"Practice invite created. It cannot grant access.": "Martiqaadka tababarka waa la sameeyay. Ma bixin karo oggolaansho gelitaan.",
+"Practice sign in complete. You are still using the same account.": "Tababarka gelitaanka wuu dhammaaday. Weli waxaad isticmaalaysaa isla akoonkii.",
+"Revoked": "La buriyay",
+"Pending": "Sugaya"
 }

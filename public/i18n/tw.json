@@ -775,5 +775,13 @@
   "Demo late job: {job}. Nothing was sent.": "Sɔhwɛ adwuma a aka akyi: {job}. Wɔamfa biribiara ankɔ.",
   "Demo stalled job: {job}. Nothing was sent.": "Sɔhwɛ adwuma a agyina: {job}. Wɔamfa biribiara ankɔ.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "Sɔhwɛ krataa no bere bɛso wɔ nna {days} mu: {job}. Wɔamfa biribiara ankɔ.",
- "In practice, team members and clients stay separate.": "Wɔ sɔhwɛ mu no, kuw no mufo ne adetɔfo da so ara yɛ nnipa akuw ahorow."
+ "In practice, team members and clients stay separate.": "Wɔ sɔhwɛ mu no, kuw no mufo ne adetɔfo da so ara yɛ nnipa akuw ahorow.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "Nhwɛsoɔ a wɔde sua. Wɔmfa obiara nka ho anaa mma ɔnkɔ mu. Wɔnsoma biribiara.",
+"Use a fictional email ending in .example.": "Fa email a wɔabɔ no wɔ adwenem a ɛde .example na ɛba awieeɛ.",
+"Sharing preview": "Nkyɛmu nhwɛsoɔ",
+"Sign in preview": "Mu kɔ nhwɛsoɔ",
+"Practice invite created. It cannot grant access.": "Wɔayɛ nsa frɛ a wɔde sua. Ɛrentumi mma obi kwan nkɔ mu.",
+"Practice sign in complete. You are still using the same account.": "Mu kɔ sua no awie. Wokɔ so de akonta korɔ no ara na ɛreyɛ adwuma.",
+"Revoked": "Wɔatwe asan",
+"Pending": "Ɛretwɛn"
 }

@@ -816,5 +816,13 @@
   "Demo late job: {job}. Nothing was sent.": "ازمایښتي ناوخته کار: {job}. څه نه دي لېږل شوي.",
   "Demo stalled job: {job}. Nothing was sent.": "ازمایښتي درېدلی کار: {job}. څه نه دي لېږل شوي.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "ازمایښتي سند په {days} ورځو کې پای ته رسېږي: {job}. څه نه دي لېږل شوي.",
- "In practice, team members and clients stay separate.": "په تمرین کې، د ډلې غړي او پېرودونکي جلا پاتې کېږي."
+ "In practice, team members and clients stay separate.": "په تمرین کې، د ډلې غړي او پېرودونکي جلا پاتې کېږي.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "د تمرین مخکتنه. څوک نه ورزیاتېږي او نه ننوځي. هېڅ نه لېږل کېږي.",
+"Use a fictional email ending in .example.": "داسې خیالي برېښنالیک وکاروئ چې په .example پای ته رسېږي.",
+"Sharing preview": "د شریکولو مخکتنه",
+"Sign in preview": "د ننوتلو مخکتنه",
+"Practice invite created. It cannot grant access.": "تمریني بلنه جوړه شوه. لاسرسی نه شي ورکولی.",
+"Practice sign in complete. You are still using the same account.": "د ننوتلو تمرین بشپړ شو. تاسو لا هم هماغه حساب کاروئ.",
+"Revoked": "لغوه شوی",
+"Pending": "په تمه"
 }

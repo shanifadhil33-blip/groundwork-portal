@@ -839,5 +839,13 @@
   "Demo late job: {job}. Nothing was sent.": "ডেমোতে দেরি হওয়া কাজ: {job}। কিছু পাঠানো হয়নি।",
   "Demo stalled job: {job}. Nothing was sent.": "ডেমোতে থেমে থাকা কাজ: {job}। কিছু পাঠানো হয়নি।",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "ডেমো নথির মেয়াদ {days} দিনে শেষ হবে: {job}। কিছু পাঠানো হয়নি।",
- "In practice, team members and clients stay separate.": "অনুশীলনে দলের সদস্য এবং গ্রাহকেরা আলাদা থাকেন।"
+ "In practice, team members and clients stay separate.": "অনুশীলনে দলের সদস্য এবং গ্রাহকেরা আলাদা থাকেন।",
+"Practice preview. No one is added or signed in. Nothing is sent.": "অনুশীলনের পূর্বরূপ। কাউকে যোগ বা সাইন ইন করা হয় না। কিছু পাঠানো হয় না।",
+"Use a fictional email ending in .example.": ".example দিয়ে শেষ হওয়া কাল্পনিক ইমেইল ব্যবহার করুন।",
+"Sharing preview": "শেয়ার করার পূর্বরূপ",
+"Sign in preview": "সাইন ইনের পূর্বরূপ",
+"Practice invite created. It cannot grant access.": "অনুশীলনের আমন্ত্রণ তৈরি হয়েছে। এটি প্রবেশের অনুমতি দিতে পারে না।",
+"Practice sign in complete. You are still using the same account.": "সাইন ইনের অনুশীলন শেষ। আপনি এখনও একই অ্যাকাউন্ট ব্যবহার করছেন।",
+"Revoked": "বাতিল করা হয়েছে",
+"Pending": "অপেক্ষমাণ"
 }

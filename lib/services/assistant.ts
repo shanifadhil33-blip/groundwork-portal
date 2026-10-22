@@ -1,3 +1,4 @@
+import { PRACTICE_NOTICE, PRACTICE_CODE, practiceJoinUrl } from '../identity-rehearsal';
 import { WARM_TONE } from '../warm-reply';
 import { demoAgentAllowed, DEMO_REST } from './demo-agent-limit';
 import { confirmPlanned, planFromWords } from './planned';
@@ -126,6 +127,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   const plainNote=a.tool==='add_comment'&&(x.role==='technician'||x.role==='client'||x.role==='staff'&&x.staff_kind==='office');
   const noteName=plainNote?(await getPreferences(user)).preferred_name||first:first;
   const done=(t:string)=>result.isError?t:`Done${first?`, ${first}`:''}. ${t.replace(/^Done[.,!]?\s*/i,'')}`;
+  if(a.tool==='add_worker'&&!result.isError&&value.result?.simulated)return {available:true,reply:`${PRACTICE_NOTICE}\n\n${PRACTICE_CODE}\n\n[Sign in preview](${practiceJoinUrl})`,result,logged:true};
   return {available:true,reply:result.isError?plainAssistantReply(result.content[0].text,x.role==='client'):plainNote&&order?savedNoteReply(noteName,order):record?done(recordResult(a.tool,a.args,record)):done(audienceStatusReply(actionResult(a.tool,a.args,order,person??(queueTarget?`row ${queueTarget.row_number}: ${queueTarget.data.title}`:undefined)),x.role==='client')),result,logged:!result.isError};
  }));
  const question=d.messages.filter(m=>m.role==='user').at(-1)?.content.trim()??'';

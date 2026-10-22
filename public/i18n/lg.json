@@ -769,5 +769,13 @@
   "Demo late job: {job}. Nothing was sent.": "Omulimu ogw’okugezesa oguludde: {job}. Tewali kiweerezeddwa.",
   "Demo stalled job: {job}. Nothing was sent.": "Omulimu ogw’okugezesa oguyimiridde: {job}. Tewali kiweerezeddwa.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "Ekiwandiiko eky’okugezesa kiggwaako mu nnaku {days}: {job}. Tewali kiweerezeddwa.",
- "In practice, team members and clients stay separate.": "Mu kwegezaamu, bannakibiina ne bakasitoma basigala nga baawukanye."
+ "In practice, team members and clients stay separate.": "Mu kwegezaamu, bannakibiina ne bakasitoma basigala nga baawukanye.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "Okulaba okwokwegezaamu. Tewali muntu ayongerwako oba ayingizibwa. Tewali kisindikibwa.",
+"Use a fictional email ending in .example.": "Kozesa emeyiro etali ya ddala ekoma ku .example.",
+"Sharing preview": "Okulaba okugabana",
+"Sign in preview": "Okulaba okuyingira",
+"Practice invite created. It cannot grant access.": "Okuyita okwokwegezaamu kutondeddwa. Tekusobola kuwa lukusa kuyingira.",
+"Practice sign in complete. You are still using the same account.": "Okwegezaamu okuyingira kuwedde. Okyakozesa akawunti yemu.",
+"Revoked": "Kisaziddwamu",
+"Pending": "Kilindiriddwa"
 }

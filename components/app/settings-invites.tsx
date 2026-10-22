@@ -1,4 +1,5 @@
 'use client';
+import { PracticeInvites } from './identity-rehearsal';
 import { useApp } from './context';
 import { ResponsiveTable } from '../ui/layout';
 import { readableLabel } from '../../lib/ui/polish';
@@ -11,6 +12,10 @@ import { Badge, Button, ConfirmDialog, Dropdown, EmptyState, ErrorState, LocalTi
 import { ROLES, roleHints, labelsFor, type Role } from '../../lib/roles';
 type Invite={id:string;email:string;role:string;status:string;expires_at:string;client_id:string|null;client_name:string|null};
 export function SettingsInvites({base,demo}:{base:string;demo:boolean}){
+ if(demo)return <PracticeInvites base={base}/>;
+ return <RealSettingsInvites base={base} demo={demo}/>;
+}
+function RealSettingsInvites({base,demo}:{base:string;demo:boolean}){
  const roleLabels = labelsFor(useApp().workspace?.role_names);
  const invites=useResource<Invite[]>(`${base}/invites`),clients=useResource<Client[]>(`${base}/clients`),[email,setEmail]=useState(''),[role,setRole]=useState('staff'),[client,setClient]=useState(''),[link,setLink]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[revoke,setRevoke]=useState<Invite|null>(null),lock=useRef(false),toast=useToast(),[emailError,setEmailError]=useState('');
  async function create(){if(lock.current)return;if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){setEmailError('Enter a valid email address.');document.getElementById('settings-invite-email')?.focus();return;}setEmailError('');lock.current=true;setBusy(true);setError('');setLink('');try{const result=await request<{token:string}>(`${base}/invites`,{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({email,role,...(role==='client'?{client_id:client}:{})})});setLink(`${location.origin}/invites/accept?token=${encodeURIComponent(result.token)}`);setEmail('');toast('Invite link created.');await invites.reload();}catch(e){setError(e instanceof RequestError?e.message:'We couldn’t create this invite. Please try again.');}finally{lock.current=false;setBusy(false);}}

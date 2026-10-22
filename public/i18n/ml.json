@@ -802,5 +802,13 @@
   "Demo late job: {job}. Nothing was sent.": "ഡെമോയിൽ വൈകിയ ജോലി: {job}. ഒന്നും അയച്ചിട്ടില്ല.",
   "Demo stalled job: {job}. Nothing was sent.": "ഡെമോയിൽ മുടങ്ങിയ ജോലി: {job}. ഒന്നും അയച്ചിട്ടില്ല.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "ഡെമോ രേഖയുടെ കാലാവധി {days} ദിവസത്തിൽ തീരും: {job}. ഒന്നും അയച്ചിട്ടില്ല.",
- "In practice, team members and clients stay separate.": "പരിശീലനത്തിൽ ടീം അംഗങ്ങളും ഉപഭോക്താക്കളും വേറിട്ടു തുടരും."
+ "In practice, team members and clients stay separate.": "പരിശീലനത്തിൽ ടീം അംഗങ്ങളും ഉപഭോക്താക്കളും വേറിട്ടു തുടരും.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "പരിശീലന പ്രിവ്യൂ. ആരെയും ചേർക്കുകയോ സൈൻ ഇൻ ചെയ്യുകയോ ചെയ്യുന്നില്ല. ഒന്നും അയയ്ക്കുന്നില്ല.",
+"Use a fictional email ending in .example.": ".example ൽ അവസാനിക്കുന്ന സാങ്കൽപ്പിക ഇമെയിൽ ഉപയോഗിക്കുക.",
+"Sharing preview": "പങ്കിടൽ പ്രിവ്യൂ",
+"Sign in preview": "സൈൻ ഇൻ പ്രിവ്യൂ",
+"Practice invite created. It cannot grant access.": "പരിശീലന ക്ഷണം സൃഷ്ടിച്ചു. ഇതിലൂടെ പ്രവേശനം ലഭിക്കില്ല.",
+"Practice sign in complete. You are still using the same account.": "സൈൻ ഇൻ പരിശീലനം പൂർത്തിയായി. നിങ്ങൾ ഇപ്പോഴും അതേ അക്കൗണ്ടാണ് ഉപയോഗിക്കുന്നത്.",
+"Revoked": "റദ്ദാക്കി",
+"Pending": "തീർപ്പാകാത്തത്"
 }

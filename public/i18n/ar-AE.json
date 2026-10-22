@@ -1169,5 +1169,13 @@
   "Demo late job: {job}. Nothing was sent.": "مهمة تجريبية متأخرة: {job}. ما انرسل أي شيء.",
   "Demo stalled job: {job}. Nothing was sent.": "مهمة تجريبية متوقفة: {job}. ما انرسل أي شيء.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "المستند التجريبي تنتهي صلاحيته خلال {days} أيام: {job}. ما انرسل أي شيء.",
- "In practice, team members and clients stay separate.": "في التجربة، أعضاء الفريق والعملاء يظلون منفصلين."
+ "In practice, team members and clients stay separate.": "في التجربة، أعضاء الفريق والعملاء يظلون منفصلين.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "معاينة للتجربة. ما نضيف أي شخص ولا نسجل دخوله. ما نرسل أي شيء.",
+"Use a fictional email ending in .example.": "استخدم بريد إلكتروني وهمي ينتهي بـ .example.",
+"Sharing preview": "معاينة المشاركة",
+"Sign in preview": "معاينة تسجيل الدخول",
+"Practice invite created. It cannot grant access.": "تم إنشاء دعوة للتجربة. ما تمنح أي صلاحية دخول.",
+"Practice sign in complete. You are still using the same account.": "اكتملت تجربة تسجيل الدخول. أنت تستخدم نفس الحساب.",
+"Revoked": "ملغاة",
+"Pending": "قيد الانتظار"
 }

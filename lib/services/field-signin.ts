@@ -6,6 +6,8 @@ import { ApiError, forbidden } from '../http';
 import { sessionCookie } from '../auth';
 import { requiredEnv } from '../env';
 import { assertRealUser } from './demo';
+import { practiceWorkspace } from './identity-rehearsal';
+import { PRACTICE_TOKEN, PRACTICE_CODE, PRACTICE_NOTICE } from '../identity-rehearsal';
 import { allow, hash, inWorkspace, uuid , allowTeam } from './shared';
 
 /** Field staff sign in with a link or a 6 digit code. Nothing is emailed or texted: the admin shares it (WhatsApp, in person). $0. */
@@ -31,8 +33,14 @@ async function makeLink(db: PoolClient, ws: string, userId: string, by: string) 
 function mayLink(asker: string, target: string) { return target === 'technician' ? ['admin', 'staff'].includes(asker) : target === 'staff' && asker === 'admin'; }
 
 export async function addFieldWorker(user: string, ws: string, body: unknown) {
-  await assertRealUser(user);
   const data = addWorkerSchema.parse(body);
+  const practice = await inWorkspace(user, ws, async c => {
+    allowTeam(c); if (!mayLink(c.role, data.role)) throw forbidden();
+    const w = await practiceWorkspace(c);
+    return w ? { simulated: true as const, name: data.name, role: data.role, token: PRACTICE_TOKEN, code: PRACTICE_CODE, notice: PRACTICE_NOTICE, ...w } : null;
+  });
+  if (practice) return practice;
+  await assertRealUser(user);
   await inWorkspace(user, ws, async c => { allowTeam(c); if (!mayLink(c.role, data.role)) throw forbidden(); });
   return withSystem(async db => {
     const userId = (await db.query('INSERT INTO users(name,phone) VALUES($1,$2) RETURNING id', [data.name, data.phone || null])).rows[0].id as string;
@@ -41,7 +49,18 @@ export async function addFieldWorker(user: string, ws: string, body: unknown) {
   }, user);
 }
 export async function newFieldLink(user: string, ws: string, target: string) {
-  await assertRealUser(user); uuid.parse(target);
+  uuid.parse(target);
+  const practice = await inWorkspace(user, ws, async c => {
+    allowTeam(c);
+    const w = await practiceWorkspace(c);
+    if (!w) return null;
+    const m = (await c.db.query('SELECT m.role,u.name FROM members m LEFT JOIN LATERAL visible_user(m.user_id) u ON true WHERE m.workspace_id=$1 AND m.user_id=$2 AND m.archived_at IS NULL', [ws, target])).rows[0];
+    if (!m) throw new ApiError(404, 'not_found', 'We couldn’t find that person.');
+    if (!mayLink(c.role, m.role)) throw forbidden();
+    return { simulated: true as const, user_id: target, name: m.name, role: m.role, token: PRACTICE_TOKEN, code: PRACTICE_CODE, notice: PRACTICE_NOTICE, ...w };
+  });
+  if (practice) return practice;
+  await assertRealUser(user);
   const asker = await inWorkspace(user, ws, async c => { allowTeam(c); return c.role; });
   return withSystem(async db => {
     const m = (await db.query('SELECT m.role, u.name, EXISTS(SELECT 1 FROM accounts a WHERE a."userId"=u.id) AS google FROM members m JOIN users u ON u.id=m.user_id WHERE m.workspace_id=$1 AND m.user_id=$2 AND m.archived_at IS NULL', [ws, target])).rows[0];

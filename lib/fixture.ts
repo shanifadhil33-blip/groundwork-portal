@@ -1,3 +1,4 @@
+import { populateIdentityFixture } from './fixture-identity';
 import { localDate, scheduledInstant } from './dates';
 import type { PoolClient } from 'pg';
 import { populateNotificationFixture } from './fixture-notifications';
@@ -205,5 +206,6 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
     await populateFollowUpFixture(client,ids,siteId,today,timezone);
     await populateDecisionFixture(client,ids,today);
     await populateNotificationFixture(client,ids);
+    await populateIdentityFixture(client,ids);
   }
 }

@@ -770,5 +770,13 @@
   "Demo late job: {job}. Nothing was sent.": "Kazi iliyochelewa ya mfano: {job}. Hakuna kilichotumwa.",
   "Demo stalled job: {job}. Nothing was sent.": "Kazi iliyokwama ya mfano: {job}. Hakuna kilichotumwa.",
   "Demo document expires in {days} days: {job}. Nothing was sent.": "Hati ya mfano itaisha baada ya siku {days}: {job}. Hakuna kilichotumwa.",
- "In practice, team members and clients stay separate.": "Katika mazoezi, wanatimu na wateja hubaki tofauti."
+ "In practice, team members and clients stay separate.": "Katika mazoezi, wanatimu na wateja hubaki tofauti.",
+"Practice preview. No one is added or signed in. Nothing is sent.": "Onyesho la mazoezi. Hakuna anayeongezwa au kuingia. Hakuna kinachotumwa.",
+"Use a fictional email ending in .example.": "Tumia barua pepe ya kubuni inayoishia kwa .example.",
+"Sharing preview": "Onyesho la kushiriki",
+"Sign in preview": "Onyesho la kuingia",
+"Practice invite created. It cannot grant access.": "Mwaliko wa mazoezi umeundwa. Hauwezi kutoa ruhusa ya kuingia.",
+"Practice sign in complete. You are still using the same account.": "Mazoezi ya kuingia yamekamilika. Bado unatumia akaunti ileile.",
+"Revoked": "Imebatilishwa",
+"Pending": "Inasubiri"
 }
