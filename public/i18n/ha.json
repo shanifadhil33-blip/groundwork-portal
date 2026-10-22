@@ -906,5 +906,11 @@
  "Unread updates": "Sabbin bayanan da ba a karanta ba",
  "No matching job was found.": "Ba a sami aikin da ya dace ba.",
  "What visit date and time should I use?": "Wace rana da lokaci zan sa wa ziyarar?",
- "Temporary fix": "Gyaran ɗan lokaci"
+ "Temporary fix": "Gyaran ɗan lokaci",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "Ban iya yin hakan yanzu ba, don haka babu abin da ya canza. Sake gwadawa bayan minti ɗaya ko ka yi amfani da maɓallan shafin.",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "Ba zan iya amsawa yanzu ba. Ka sake gwadawa bayan minti ɗaya. Sauran abubuwa a Groundwork suna aiki kamar yadda aka saba.",
+ "I could not finish answering. Please check the page before trying again.": "Ban iya gama amsawa ba. Ka duba shafin kafin ka sake gwadawa.",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "Na yi abin da zan iya a amsa ɗaya. Ka nemi abu ɗaya a kowane lokaci.",
+ "Stopped. Ask again when you are ready.": "An tsaya. Ka sake tambaya idan ka shirya.",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Ba a yi wani canji ba. Ka nemi in yi canjin domin ka duba ka tabbatar."
 }

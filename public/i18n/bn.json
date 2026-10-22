@@ -955,5 +955,11 @@
  "Unread updates": "না পড়া আপডেট",
  "No matching job was found.": "কোনো মিলে যাওয়া কাজ পাওয়া যায়নি।",
  "What visit date and time should I use?": "পরিদর্শনের কোন তারিখ ও সময় রাখব?",
- "Temporary fix": "সাময়িক মেরামত"
+ "Temporary fix": "সাময়িক মেরামত",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "আমি এখন এটি করতে পারিনি, তাই কিছু বদলায়নি। এক মিনিট পরে আবার চেষ্টা করুন অথবা পাতার বোতাম ব্যবহার করুন।",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "আমি এখন উত্তর দিতে পারছি না। এক মিনিট পরে আবার চেষ্টা করুন। Groundwork এর বাকি সব আগের মতো কাজ করছে।",
+ "I could not finish answering. Please check the page before trying again.": "আমি উত্তর শেষ করতে পারিনি। আবার চেষ্টা করার আগে পাতাটি দেখুন।",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "একটি উত্তরে যতটা পারি করেছি। অনুগ্রহ করে একবারে একটি কাজ বলুন।",
+ "Stopped. Ask again when you are ready.": "থেমেছে। প্রস্তুত হলে আবার জিজ্ঞাসা করুন।",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "কোনো পরিবর্তন করা হয়নি। আমাকে পরিবর্তন করতে বলুন যাতে আপনি দেখে নিশ্চিত করতে পারেন।"
 }

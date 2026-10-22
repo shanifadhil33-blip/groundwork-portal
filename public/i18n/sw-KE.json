@@ -887,5 +887,11 @@
  "Unread updates": "Taarifa ambazo hazijasomwa",
  "No matching job was found.": "Hakuna kazi inayolingana iliyopatikana.",
  "What visit date and time should I use?": "Niweke tarehe na saa gani ya ziara?",
- "Temporary fix": "Matengenezo ya muda"
+ "Temporary fix": "Matengenezo ya muda",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "Sikuweza kufanya hivyo sasa, kwa hiyo hakuna kilichobadilika. Jaribu tena baada ya dakika moja au tumia vitufe kwenye ukurasa.",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "Siwezi kujibu sasa. Tafadhali jaribu tena baada ya dakika moja. Mambo mengine yote katika Groundwork yanafanya kazi kama kawaida.",
+ "I could not finish answering. Please check the page before trying again.": "Sikuweza kumaliza kujibu. Tafadhali angalia ukurasa kabla ya kujaribu tena.",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "Nimefanya ninachoweza katika jibu moja. Tafadhali omba jambo moja kwa wakati.",
+ "Stopped. Ask again when you are ready.": "Imesimama. Uliza tena ukiwa tayari.",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Hakuna mabadiliko yaliyofanywa. Niombe nifanye mabadiliko ili uweze kuyakagua na kuthibitisha."
 }

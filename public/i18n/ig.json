@@ -901,5 +901,11 @@
  "Unread updates": "Ozi a na agụbeghị",
  "No matching job was found.": "Achọtaghị ọrụ dabara adaba.",
  "What visit date and time should I use?": "Kedu ụbọchị na oge m ga eji maka nleta ahụ?",
- "Temporary fix": "Ndozi nwa oge"
+ "Temporary fix": "Ndozi nwa oge",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "Enweghị m ike ime nke ahụ ugbu a, ya mere ọ dịghị ihe gbanwere. Nwaa ọzọ mgbe otu nkeji gachara ma ọ bụ jiri bọtịnụ ndị dị na ibe ahụ.",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "Enweghị m ike ịza ugbu a. Biko nwaa ọzọ mgbe otu nkeji gachara. Ihe ndị ọzọ na Groundwork ka na arụ ọrụ dịka ha si eme.",
+ "I could not finish answering. Please check the page before trying again.": "Enweghị m ike ịza ya ruo n’isi. Biko lelee ibe ahụ tupu ị nwaa ọzọ.",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "Emeela m ihe m nwere ike ime n’otu azịza. Biko rịọ otu ihe n’otu oge.",
+ "Stopped. Ask again when you are ready.": "Akwụsịla. Jụọ ọzọ mgbe ị dị njikere.",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Ọ dịghị ihe agbanwere. Rịọ m ka m mee mgbanwe ahụ ka ị nwee ike ilele ya ma kwado ya."
 }

@@ -937,5 +937,11 @@
  "Unread updates": "خبرهای خوانده نشده",
  "No matching job was found.": "کار مطابق پیدا نشد.",
  "What visit date and time should I use?": "کدام تاریخ و ساعت را برای بازدید بگذارم؟",
- "Temporary fix": "تعمیر موقت"
+ "Temporary fix": "تعمیر موقت",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "الان نتوانستم این کار را انجام دهم، پس چیزی تغییر نکرد. یک دقیقه دیگر دوباره تلاش کنید یا از دکمه‌های صفحه استفاده کنید.",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "الان نمی‌توانم پاسخ بدهم. یک دقیقه دیگر دوباره تلاش کنید. بقیه بخش‌های Groundwork مثل همیشه کار می‌کنند.",
+ "I could not finish answering. Please check the page before trying again.": "نتوانستم پاسخ را کامل کنم. پیش از تلاش دوباره صفحه را بررسی کنید.",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "در یک پاسخ هر کاری که توانستم انجام دادم. لطفاً هر بار یک کار بخواهید.",
+ "Stopped. Ask again when you are ready.": "متوقف شد. هر وقت آماده بودید دوباره بپرسید.",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "هیچ تغییری انجام نشده است. از من بخواهید تغییر را آماده کنم تا آن را بررسی و تأیید کنید."
 }

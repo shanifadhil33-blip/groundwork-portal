@@ -915,5 +915,11 @@
  "Unread updates": "ዘይተነበቡ ሓበሬታታት",
  "No matching job was found.": "ዝሰማማዕ ስራሕ ኣይተረኽበን።",
  "What visit date and time should I use?": "ንምብጻሕ ኣየናይ ዕለትን ሰዓትን ልጠቐም?",
- "Temporary fix": "ግዝያዊ ጽገና"
+ "Temporary fix": "ግዝያዊ ጽገና",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "ሕጂ ነዚ ክገብሮ ኣይከኣልኩን፣ ስለዚ ዝተቐየረ የለን። ድሕሪ ሓደ ደቒቕ እንደገና ፈትን ወይ ኣብቲ ገጽ ዘለዉ መጠወቒታት ተጠቐም።",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "ሕጂ ክምልስ ኣይክእልን። በጃኻ ድሕሪ ሓደ ደቒቕ እንደገና ፈትን። ካልእ ኩሉ ኣብ Groundwork ከምቲ ልሙድ ይሰርሕ ኣሎ።",
+ "I could not finish answering. Please check the page before trying again.": "መልሲ ክውድእ ኣይከኣልኩን። እንደገና ቅድሚ ምፍታንካ ነቲ ገጽ ርአ።",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "ኣብ ሓደ መልሲ ዝከኣለኒ ገይረ ኣለኹ። በጃኻ ኣብ ሓደ ግዜ ሓደ ነገር ሕተት።",
+ "Stopped. Ask again when you are ready.": "ደው ኢሉ። ድሉው ምስ ኮንካ እንደገና ሕተት።",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "ዝተገብረ ለውጢ የለን። ክትርእዮን ከተረጋግጾን ምእንቲ ክትክእል ነቲ ለውጢ ከዳሉ ሕተተኒ።"
 }

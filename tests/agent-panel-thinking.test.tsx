@@ -4,18 +4,19 @@
 import React,{act} from 'react';
 import {createRoot,type Root} from 'react-dom/client';
 import {afterEach,beforeEach,expect,it,vi} from 'vitest';
+import { failureWords, INCOMPLETE, UNAVAILABLE, UNANSWERED } from '../lib/agent/failure-words';
 import {Assistant} from '../components/app/assistant';
 import {AppContext,type Membership} from '../components/app/context';
-const api=vi.hoisted(()=>({post:vi.fn(),wide:false,voice:false}));
+const api=vi.hoisted(()=>({post:vi.fn(),wide:false,voice:false,language:'en-IN'}));
 vi.mock('../lib/ui/api',async original=>({...await original<typeof import('../lib/ui/api')>(),post:api.post}));
-vi.mock('../components/app/resource',()=>({useResource:()=>({data:{agent_name:null,voice_enabled:api.voice,language:'en-IN'}})}));
+vi.mock('../components/app/resource',()=>({useResource:()=>({data:{agent_name:null,voice_enabled:api.voice,language:api.language}})}));
 vi.mock('../components/ui',async original=>({...await original<typeof import('../components/ui')>(),BottomSheet:(await import('../components/ui/dialog')).BottomSheet}));
 vi.mock('../components/app/translator',()=>({changeAppLanguage:vi.fn()}));
 let host:HTMLDivElement,root:Root,page:HTMLDivElement,signals:AbortSignal[];
 /** A question that never answers until it is cancelled, like a slow free model. */
 function hang(){api.post.mockImplementation((_url:string,_body:unknown,init?:{signal?:AbortSignal})=>new Promise((_,reject)=>{if(init?.signal){signals.push(init.signal);init.signal.addEventListener('abort',async()=>{const {RequestError}=await import('../lib/ui/api');reject(new RequestError(0,'Stopped.',undefined,'aborted'));});}}));}
 beforeEach(()=>{
- sessionStorage.clear();localStorage.clear();api.post.mockReset();api.wide=false;api.voice=false;signals=[];
+ sessionStorage.clear();localStorage.clear();api.post.mockReset();api.wide=false;api.voice=false;api.language='en-IN';signals=[];
  page=document.createElement('div');page.className='page-behind';document.body.append(page);
  host=document.createElement('div');document.body.append(host);root=createRoot(host);
  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true);
@@ -63,7 +64,7 @@ it('a slow answer shows progress, then stops at 48 seconds with a friendly line 
  vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});hang();await mount();await ask();
  await act(async()=>{vi.advanceTimersByTime(8100);});expect(document.querySelector('.agent-typing')?.textContent).toContain('Still working on it');
  await act(async()=>{vi.advanceTimersByTime(40_000);});await act(async()=>Promise.resolve());
- expect(signals[0].aborted).toBe(true);expect(document.body.textContent).toContain('This is taking too long, so I stopped waiting. Please try again.');
+ expect(signals[0].aborted).toBe(true);expect(document.body.textContent).toContain(INCOMPLETE);
  expect(document.querySelector('.agent-typing')).toBeNull();expect(field().disabled).toBe(false);
 });
 it('on a phone the panel is full screen and modal, yet close still works while thinking',async()=>{
@@ -109,4 +110,31 @@ it('voice: a tap keeps listening, works while the Agent thinks, Stop keeps the w
   await press(0);await act(async()=>speech.onerror?.({error:'not-allowed'}));expect(document.body.textContent).toMatch(/microphone/i);expect(document.body.textContent).not.toContain('not-allowed');
   expect(button('Close dialog')!.disabled).toBe(false);
  }finally{Reflect.deleteProperty(window,'SpeechRecognition');}
+});
+
+it('Arabic timeouts show shipped words with no translation request',async()=>{
+ api.language='ar-AE';vi.useFakeTimers({toFake:['setTimeout','clearTimeout']});hang();await mount();await ask();
+ await act(async()=>vi.advanceTimersByTime(48_000));await act(async()=>Promise.resolve());
+ expect(document.body.textContent).toContain(failureWords('ar-AE',INCOMPLETE));
+ expect(document.body.textContent).not.toContain(INCOMPLETE);
+ expect(api.post).toHaveBeenCalledTimes(1);
+});
+it.each([false,true])('Arabic unavailable replies respect the localized flag %s',async(localized)=>{
+ api.language='ar-AE';api.post.mockResolvedValue({available:false,message:localized?failureWords('ar-AE',UNAVAILABLE):UNAVAILABLE,localized});
+ await mount();await ask();
+ expect(document.body.textContent).toContain(failureWords('ar-AE',UNAVAILABLE));
+ expect(document.body.textContent).not.toContain(UNAVAILABLE);
+ expect(document.querySelector('.assistant-message.assistant')?.hasAttribute('data-no-translate')).toBe(true);
+});
+it('Arabic network errors show safe shipped text',async()=>{
+ api.language='ar-AE';api.post.mockRejectedValue(new Error('private exception'));
+ await mount();await ask();
+ expect(document.body.textContent).toContain(failureWords('ar-AE',INCOMPLETE));
+ expect(document.body.textContent).not.toContain('private exception');
+});
+it('Arabic fallback replies keep their server translation',async()=>{
+ api.language='ar-AE';api.post.mockResolvedValue({available:true,reply:failureWords('ar-AE',UNANSWERED),localized:true});
+ await mount();await ask();
+ expect(document.body.textContent).toContain(failureWords('ar-AE',UNANSWERED));
+ expect(document.querySelector('.assistant-message.assistant')?.hasAttribute('data-no-translate')).toBe(true);
 });

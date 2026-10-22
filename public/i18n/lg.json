@@ -886,5 +886,11 @@
  "Unread updates": "Amawulire agatannasomebwa",
  "No matching job was found.": "Tewali mulimu gukwatagana guzuuliddwa.",
  "What visit date and time should I use?": "Nteekewo lunaku ki n’essaawa ki ez’okukyalira?",
- "Temporary fix": "Okuddaabiriza okw’ekiseera"
+ "Temporary fix": "Okuddaabiriza okw’ekiseera",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "Sisobodde kukikola kati, kale tewali kikyuse. Ddamu ogezeko oluvannyuma lw’eddakiika emu oba kozesa amapeesa agali ku lupapula.",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "Sisobola kuddamu kati. Ddamu ogezeko oluvannyuma lw’eddakiika emu. Ebirala byonna mu Groundwork bikola nga bulijjo.",
+ "I could not finish answering. Please check the page before trying again.": "Sisobodde kumaliriza kuddamu. Kebera olupapula nga tonnaddamu kugezaako.",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "Nkoze kye nsobola mu kuddamu kumu. Nsaba osabe ekintu kimu buli mulundi.",
+ "Stopped. Ask again when you are ready.": "Kiyimiridde. Ddamu obuuze ng’oli mwetegefu.",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Tewali kikyusiddwa. Nsaba nkole enkyukakyuka osobole okugikebera n’okugikakasa."
 }

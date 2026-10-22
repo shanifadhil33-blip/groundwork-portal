@@ -4,6 +4,9 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({test:{
  environment:'node',server:{deps:{inline:['next-auth']}},pool:'forks',maxWorkers:1,fileParallelism:false,testTimeout:10000,
  include:[
+  'tests/assistant-fallback-language.test.ts','tests/assistant-provider-failure.test.ts',
+  'tests/agent-panel-thinking.test.tsx','tests/agent-unanswered.test.ts',
+  'tests/i18n.test.ts','tests/i18n-digits.test.ts',
   'tests/agent-reply-grounding.test.ts','tests/qa-assistant.test.ts',
   'tests/agent-job-labels.test.ts','tests/agent-reply-guards.test.ts','tests/agent-choices.test.ts',
   'tests/language-files.test.ts','tests/languages.test.ts','tests/i18n-word-hyphens.test.ts','tests/assistant-no-dash.test.ts',

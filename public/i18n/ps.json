@@ -932,5 +932,11 @@
  "Unread updates": "نا لوستل شوي خبرونه",
  "No matching job was found.": "برابر کار ونه موندل شو.",
  "What visit date and time should I use?": "د لیدنې کومه نېټه او وخت وټاکم؟",
- "Temporary fix": "لنډمهاله ترمیم"
+ "Temporary fix": "لنډمهاله ترمیم",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "اوس مې دا کار ونه شو کړای، نو هېڅ بدل نه شول. یوه دقیقه وروسته بیا هڅه وکړئ یا د پاڼې تڼۍ وکاروئ.",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "اوس ځواب نه شم درکولای. یوه دقیقه وروسته بیا هڅه وکړئ. په Groundwork کې نور هر څه د پخوا په څېر کار کوي.",
+ "I could not finish answering. Please check the page before trying again.": "ځواب مې بشپړ نه شو کړای. بیا هڅه کولو مخکې پاڼه وګورئ.",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "په یوه ځواب کې مې د خپلې وسې کار وکړ. مهرباني وکړئ هر ځل یو کار وغواړئ.",
+ "Stopped. Ask again when you are ready.": "ودرېد. کله چې چمتو یاست بیا پوښتنه وکړئ.",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "هېڅ بدلون نه دی شوی. له ما د بدلون غوښتنه وکړئ څو یې وګورئ او تایید یې کړئ."
 }

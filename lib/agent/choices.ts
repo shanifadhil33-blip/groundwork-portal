@@ -46,3 +46,8 @@ export function localizedChoice(q:{question:string;options:string[]},language?:s
  if(localized&&(!rightScript(reply,language??undefined)||(questionScripts[language??'']&&!questionScripts[language??''].test(reply))||/^(?:what|which|where|when|who|how|shall|should|would|could|can|do|did|are|is|save)\b/i.test(reply)))reply=word(FALLBACK);
  return {reply,choices:q.options.map(word),...(localized?{localized:true}:{})};
 }
+
+/** Match only shipped error text; arbitrary server text is never trusted as visible copy. */
+export function isLanguageFileWord(language: string | null | undefined, text: string) {
+ return Object.values(files[language ?? ''] ?? {}).includes(text);
+}

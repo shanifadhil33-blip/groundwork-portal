@@ -918,5 +918,11 @@
  "Unread updates": "വായിക്കാത്ത അറിയിപ്പുകൾ",
  "No matching job was found.": "പൊരുത്തമുള്ള ജോലി കണ്ടെത്തിയില്ല.",
  "What visit date and time should I use?": "സന്ദർശനത്തിന് ഏത് തീയതിയും സമയവും വേണം?",
- "Temporary fix": "താൽക്കാലിക അറ്റകുറ്റപ്പണി"
+ "Temporary fix": "താൽക്കാലിക അറ്റകുറ്റപ്പണി",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "ഇപ്പോൾ ഇത് ചെയ്യാൻ കഴിഞ്ഞില്ല, അതിനാൽ ഒന്നും മാറിയിട്ടില്ല. ഒരു മിനിറ്റ് കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക അല്ലെങ്കിൽ പേജിലെ ബട്ടണുകൾ ഉപയോഗിക്കുക.",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "ഇപ്പോൾ മറുപടി നൽകാൻ കഴിയുന്നില്ല. ഒരു മിനിറ്റ് കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക. Groundwork ലെ മറ്റെല്ലാം പതിവുപോലെ പ്രവർത്തിക്കുന്നു.",
+ "I could not finish answering. Please check the page before trying again.": "മറുപടി പൂർത്തിയാക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുന്നതിന് മുമ്പ് പേജ് പരിശോധിക്കുക.",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "ഒരു മറുപടിയിൽ കഴിയുന്നത്ര ചെയ്തു. ദയവായി ഒരേസമയം ഒരു കാര്യം ചോദിക്കുക.",
+ "Stopped. Ask again when you are ready.": "നിർത്തി. തയ്യാറാകുമ്പോൾ വീണ്ടും ചോദിക്കുക.",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "മാറ്റങ്ങളൊന്നും വരുത്തിയിട്ടില്ല. മാറ്റം വരുത്താൻ എന്നോട് പറയുക, അപ്പോൾ നിങ്ങൾക്ക് പരിശോധിച്ച് സ്ഥിരീകരിക്കാം."
 }

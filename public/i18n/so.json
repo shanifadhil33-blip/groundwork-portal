@@ -906,5 +906,11 @@
  "Unread updates": "Wararka aan la akhrin",
  "No matching job was found.": "Lama helin shaqo ku habboon.",
  "What visit date and time should I use?": "Taariikhdee iyo saacaddee ayaan booqashada u dhigaa?",
- "Temporary fix": "Dayactir ku meel gaar ah"
+ "Temporary fix": "Dayactir ku meel gaar ah",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "Hadda taas ma samayn karin, sidaas darteed waxba isma beddelin. Isku day mar kale daqiiqad ka dib ama isticmaal badhamada bogga.",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "Hadda kama jawaabi karo. Fadlan isku day mar kale daqiiqad ka dib. Wax kasta oo kale ee Groundwork sidii caadiga ahayd ayay u shaqaynayaan.",
+ "I could not finish answering. Please check the page before trying again.": "Ma dhammayn karin jawaabta. Fadlan bogga eeg ka hor intaadan mar kale isku dayin.",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "Waxaan sameeyay intii aan awooday hal jawaab. Fadlan hal shay mar kasta codso.",
+ "Stopped. Ask again when you are ready.": "Waa la joojiyay. Mar kale weydii markaad diyaar tahay.",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Wax isbeddel ah lama samayn. Iga codso isbeddelka si aad u eegto oo u xaqiijiso."
 }

@@ -931,5 +931,11 @@
  "Unread updates": "नपढिएका जानकारी",
  "No matching job was found.": "मिल्दो काम भेटिएन।",
  "What visit date and time should I use?": "भ्रमणको कुन मिति र समय राखूँ?",
- "Temporary fix": "अस्थायी मर्मत"
+ "Temporary fix": "अस्थायी मर्मत",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "मैले अहिले यो गर्न सकिनँ, त्यसैले केही बदलिएको छैन। एक मिनेटपछि फेरि प्रयास गर्नुहोस् वा पृष्ठका बटन प्रयोग गर्नुहोस्।",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "म अहिले जवाफ दिन सक्दिनँ। एक मिनेटपछि फेरि प्रयास गर्नुहोस्। Groundwork मा अरू सबै सधैँझैँ चलिरहेको छ।",
+ "I could not finish answering. Please check the page before trying again.": "मैले जवाफ पूरा गर्न सकिनँ। फेरि प्रयास गर्नुअघि पृष्ठ हेर्नुहोस्।",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "एउटा जवाफमा सकेजति गरेँ। कृपया एक पटकमा एउटा काम भन्नुहोस्।",
+ "Stopped. Ask again when you are ready.": "रोकियो। तयार भएपछि फेरि सोध्नुहोस्।",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "कुनै परिवर्तन गरिएको छैन। मलाई परिवर्तन गर्न भन्नुहोस् ताकि तपाईंले हेरेर पुष्टि गर्न सक्नुहोस्।"
 }

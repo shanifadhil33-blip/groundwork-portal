@@ -935,5 +935,11 @@
  "Unread updates": "بغیر پڑھی تازہ معلومات",
  "No matching job was found.": "کوئی ملتا ہوا کام نہیں ملا۔",
  "What visit date and time should I use?": "دورے کی کون سی تاریخ اور وقت رکھوں؟",
- "Temporary fix": "عارضی مرمت"
+ "Temporary fix": "عارضی مرمت",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "میں ابھی یہ نہیں کر سکا، اس لیے کچھ نہیں بدلا۔ ایک منٹ بعد دوبارہ کوشش کریں یا صفحے پر موجود بٹن استعمال کریں۔",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "میں ابھی جواب نہیں دے سکتا۔ ایک منٹ بعد دوبارہ کوشش کریں۔ Groundwork میں باقی سب معمول کے مطابق کام کر رہا ہے۔",
+ "I could not finish answering. Please check the page before trying again.": "میں جواب مکمل نہیں کر سکا۔ دوبارہ کوشش کرنے سے پہلے صفحہ دیکھ لیں۔",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "میں ایک جواب میں جتنا کر سکتا تھا کر چکا ہوں۔ براہ کرم ایک وقت میں ایک کام کہیں۔",
+ "Stopped. Ask again when you are ready.": "رک گیا۔ جب تیار ہوں تو دوبارہ پوچھیں۔",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "کوئی تبدیلی نہیں کی گئی۔ مجھ سے تبدیلی کرنے کو کہیں تاکہ آپ اسے دیکھ کر تصدیق کر سکیں۔"
 }

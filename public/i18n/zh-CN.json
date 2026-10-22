@@ -891,5 +891,11 @@
  "Unread updates": "未读更新",
  "No matching job was found.": "没有找到匹配的工作。",
  "What visit date and time should I use?": "上门安排在哪天几点？",
- "Temporary fix": "临时修复"
+ "Temporary fix": "临时修复",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "我现在无法完成，所以没有做任何更改。请稍后再试，或使用页面上的按钮。",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "我现在无法回答。请稍后再试。Groundwork 的其他功能照常运行。",
+ "I could not finish answering. Please check the page before trying again.": "我未能完成回答。请先查看页面，再重试。",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "这次回答中我已经尽力处理。请每次只提出一件事。",
+ "Stopped. Ask again when you are ready.": "已停止。准备好后请再问。",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "尚未做任何更改。请告诉我要做什么更改，以便您查看并确认。"
 }

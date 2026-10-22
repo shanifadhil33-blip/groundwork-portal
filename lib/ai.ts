@@ -38,18 +38,18 @@ export function providers(env:Record<string,string|undefined>=process.env):Provi
 // Warm instances remember models that just hit a limit, so the next request skips straight to one that works.
 const cooldown=new Map<string,number>();
 export const resetCooldowns=()=>{cooldown.clear();exhausted.clear();};
-class Skip extends Error{constructor(readonly retry:boolean,readonly status=0,readonly cool=0){super('provider failed');}}
+class Skip extends Error{constructor(readonly retry:boolean,readonly status=0,readonly cool=0,readonly reason='provider_error'){super('provider failed');}}
 /** A model out of its daily allowance (or asking for payment) is skipped in both sweeps until it can work again. */
 const exhausted=new Map<string,number>();
 const DAILY=/per.?day|daily|neurons|free-models-per-day|insufficient balance|payment method|resource package/i;
 async function post(p:Provider,body:unknown,timeout:number){
  let r:Response;
  try{r=await fetch(p.url,{method:'POST',headers:{'Content-Type':'application/json',...p.headers},body:JSON.stringify(body),signal:AbortSignal.timeout(timeout)});}
- catch{throw new Skip(true);}
+ catch(error){throw new Skip(true,0,0,error instanceof Error&&['TimeoutError','AbortError'].includes(error.name)?'timeout':'network');}
  if(r.status===429||r.status===402||r.status===403){const body=await r.text().catch(()=>'');const cool=r.status===402?6*3_600_000:DAILY.test(body)?3_600_000:60_000;if(cool>=3_600_000)exhausted.set(p.name,Date.now()+cool);cooldown.set(p.name,Date.now()+cool);throw new Skip(false,r.status,cool);}
  if(r.status>=500)throw new Skip(true,r.status);
- if(!r.ok){if(r.status===400)console.warn('[ai] bad request',{provider:p.name,reason:(await r.text().catch(()=>'')).replace(/key[^\s"]*/gi,'').slice(0,400)});throw new Skip(false,r.status);}
- try{return await r.json();}catch{throw new Skip(true,r.status);}
+ if(!r.ok)throw new Skip(false,r.status);
+ try{return await r.json();}catch{throw new Skip(true,r.status,0,'invalid_response');}
 }
 /** Per provider timeout. Gemini free often hangs, so it gets a short leash and the chain moves on. */
 const TIMEOUTS:Record<string,number>={gemini:9000,openrouter:15000,sambanova:12000,cloudflare:15000,kilo:18000,ovh:18000,zai:15000,nvidia:15000,requesty:12000,groq:10000};
@@ -80,14 +80,15 @@ export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,p
    if(dead.has(p.name))continue;
    if(sweep===0&&(cooldown.get(p.name)??0)>Date.now())continue;
    if((exhausted.get(p.name)??0)>Date.now())continue;
-   const left=until-Date.now();if(left<1500)return null;
+   const left=until-Date.now();if(left<1500){console.warn('[ai] fallback',{reason:'deadline'});return null;}
    const t=Math.min(TIMEOUTS[p.name.split('/')[0]]??timeout,timeout,left);
-   try{const out=parse(p,await post(p,build(p),t));if(out!==null){await recordUsage(label,p.name,true);return out;}console.warn(`[${label}] empty answer`,{provider:p.name});}
-   catch(e){const status=e instanceof Skip?e.status:0;console.warn(`[${label}] provider failed`,{provider:p.name,status,sweep});
+   try{const out=parse(p,await post(p,build(p),t));if(out!==null){await recordUsage(label,p.name,true);return out;}console.warn('[ai] empty answer',{provider:p.name.split('/')[0]});}
+   catch(e){const status=e instanceof Skip?e.status:0;console.warn('[ai] provider failed',{provider:CHAIN.some(v=>v.id===p.name.split('/')[0])?p.name.split('/')[0]:'custom',status,sweep,reason:status===429||status===402?'quota':e instanceof Skip?e.reason:'invalid_response'});
     if(status===404||status===400||status===401)dead.add(p.name);
     cooldown.set(p.name,Date.now()+((e instanceof Skip&&e.cool)||(status===404?3_600_000:status===429?60_000:20_000)));await recordUsage(label,p.name,false);}
   }
  }
+ console.warn('[ai] fallback',{reason:order.length?'providers_exhausted':'no_provider'});
  return null;
 }
 export const textOf=(p:Provider,data:any):string|null=>{const t=p.kind==='openai'?data?.choices?.[0]?.message?.content:data?.candidates?.[0]?.content?.parts?.map((v:any)=>v.text??'').join('');return typeof t==='string'&&t.trim()?t:null;};

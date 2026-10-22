@@ -950,5 +950,11 @@
  "Unread updates": "படிக்காத தகவல்கள்",
  "No matching job was found.": "பொருத்தமான வேலை கிடைக்கவில்லை.",
  "What visit date and time should I use?": "வருகைக்கு எந்த தேதியும் நேரமும் வேண்டும்?",
- "Temporary fix": "தற்காலிக பழுது நீக்கம்"
+ "Temporary fix": "தற்காலிக பழுது நீக்கம்",
+ "I could not do that right now, so nothing was changed. Try again in a minute, or use the buttons on the page.": "இப்போது இதைச் செய்ய முடியவில்லை, அதனால் எதுவும் மாறவில்லை. ஒரு நிமிடம் கழித்து மீண்டும் முயலவும் அல்லது பக்கத்தில் உள்ள பொத்தான்களைப் பயன்படுத்தவும்.",
+ "I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.": "இப்போது பதிலளிக்க முடியவில்லை. ஒரு நிமிடம் கழித்து மீண்டும் முயலவும். Groundwork இல் மற்ற அனைத்தும் வழக்கம்போல் இயங்குகின்றன.",
+ "I could not finish answering. Please check the page before trying again.": "பதிலை முடிக்க முடியவில்லை. மீண்டும் முயல்வதற்கு முன் பக்கத்தைப் பார்க்கவும்.",
+ "I have done as much as I can in one reply. Please ask for one thing at a time.": "ஒரு பதிலில் என்னால் முடிந்ததைச் செய்தேன். தயவுசெய்து ஒரு நேரத்தில் ஒரு செயலைக் கேட்கவும்.",
+ "Stopped. Ask again when you are ready.": "நிறுத்தப்பட்டது. தயாரானதும் மீண்டும் கேட்கவும்.",
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "மாற்றங்கள் எதுவும் செய்யப்படவில்லை. மாற்றத்தைச் செய்ய என்னிடம் கேளுங்கள், நீங்கள் பார்த்து உறுதிப்படுத்தலாம்."
 }

@@ -1,3 +1,5 @@
+import { failureWords, UNANSWERED } from '../agent/failure-words';
+import { logAssistantFailure } from '../agent/failure-log';
 import { asAgent, withSystem } from '../db';
 import { ApiError, missing } from '../http';
 import { CLOSE_REPLIES, canSignOff, readSignOff, signOffRefusal, type CloseActor } from '../job-close';
@@ -16,9 +18,11 @@ import { inWorkspace, uuid } from './shared';
 
 const PLANNED = ['issue_phone_code', 'set_usual_context', 'sign_off', 'approve_day_plan', 'remember_rule'] as const;
 
-function calm(error: unknown) {
-  if (error instanceof ApiError && error.message && !/sql|stack|token|secret/i.test(error.message)) return error.message;
-  return 'I could not do that right now, so nothing was changed. Try again in a minute.';
+async function calm(user: string, error: unknown) {
+  logAssistantFailure('planned', error);
+  const language = (await getPreferences(user)).language;
+  const source = error instanceof ApiError ? error.message : UNANSWERED;
+  return failureWords(language, source);
 }
 
 async function firstName(user: string) {
@@ -112,7 +116,7 @@ export async function planFromWords(user: string, ws: string, words: string) {
     }
     return null;
   } catch (error) {
-    return { available: true as const, reply: calm(error) };
+    return { available: true as const, reply: await calm(user, error), localized: true };
   }
 }
 
@@ -145,14 +149,16 @@ export async function confirmPlanned(user: string, ws: string, actionId: string)
   const pending = held && 'defer' in held ? held.defer : undefined;
   if (pending) {
     let reply: string = DAY_REPLIES.dayChanged;
+    let localized = false;
     try {
       const saved = await postDayPlan(user, ws, { action: 'approve', kind: pending.kind, fingerprint: pending.fingerprint });
       reply = String(saved.reply);
     } catch (error) {
-      reply = calm(error);
+      reply = await calm(user, error);
+      localized = true;
     }
     await asAgent({ kind: 'assistant' }, () => withSystem(db => db.query("UPDATE assistant_actions SET consumed_at=now(), outcome='done' WHERE id=$1 AND user_id=$2 AND consumed_at IS NULL", [held.id, user]), user));
-    return { available: true, reply, logged: true };
+    return { available: true, reply, logged: true, ...(localized ? { localized: true } : {}) };
   }
   return held;
 }
