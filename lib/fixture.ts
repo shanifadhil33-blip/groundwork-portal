@@ -2,6 +2,7 @@ import { localDate, scheduledInstant } from './dates';
 import type { PoolClient } from 'pg';
 import { populateProofFixture } from './fixture-proof';
 import { populateDecisionFixture } from './fixture-decisions';
+import { populateFollowUpFixture } from './fixture-follow-ups';
 export const ids = {
   imran: '10000000-0000-4000-8000-000000000001', sam: '10000000-0000-4000-8000-000000000002',
   pranav: '10000000-0000-4000-8000-000000000003', omar: '10000000-0000-4000-8000-000000000004',
@@ -200,6 +201,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
 
   if(demo) {
     await populateProofFixture(client,ids,siteId,orderId,today,timezone);
+    await populateFollowUpFixture(client,ids,siteId,today,timezone);
     await populateDecisionFixture(client,ids,today);
   }
 }

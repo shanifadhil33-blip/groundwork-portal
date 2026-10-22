@@ -31,7 +31,7 @@ it('start creates the shared fixture in one sandbox and an Auth.js database cook
  const r=await sandbox('pranav'),ws=r.body.workspace_id,user=await identity(r.cookie);
  expect(r.cookie).toContain(sessionCookie.name+'=');expect(r.cookie).toContain('HttpOnly');expect(r.cookie).toContain('SameSite=Lax');expect(r.cookie).toContain('Path=/');
  const token=r.cookie.split(';')[0].split('=')[1];const lookup=await authAdapter.getSessionAndUser!(token);expect(lookup?.user.name).toBe('Pranav');expect(lookup?.user.id).toBe(user);expect(new Date(lookup!.session.expires).getTime()).toBeLessThanOrEqual(new Date(r.body.expires_at).getTime());
- for(const [table,n] of [['clients',3],['sites',6],['work_orders',61],['comments',37],['members',10],['supplier_orders',4],['cobalt_orders',4],['import_rows',1]] as const)expect(await count(table,ws)).toBe(n);
+ for(const [table,n] of [['clients',3],['sites',6],['work_orders',66],['comments',37],['members',10],['supplier_orders',4],['cobalt_orders',4],['import_rows',1]] as const)expect(await count(table,ws)).toBe(n);
  expect(await count('notifications',ws)).toBeGreaterThanOrEqual(3);
  expect(await withSystem(async db=>(await db.query('SELECT count(*)::int AS n FROM accounts a JOIN users u ON u.id=a."userId" WHERE u.demo_workspace_id=$1',[ws])).rows[0].n)).toBe(0);
  expect((await call(workspaces.GET,undefined,r.cookie)).body).toHaveLength(1);
@@ -52,15 +52,15 @@ it('reset requires confirm, replaces fixture mutations, keeps persona and extend
  const a=await sandbox('sam');const user=await identity(a.cookie);await withUser(user,db=>db.query("UPDATE users SET name='Changed profile' WHERE id=$1",[user]));expect((await call(reset.POST,{},a.cookie)).status).toBe(422);
  await withUser(await identity(a.cookie),db=>db.query("UPDATE work_orders SET title='Changed' WHERE workspace_id=$1 AND status<>'done'",[a.body.workspace_id]));
  await withSystem(db=>db.query("UPDATE workspaces SET demo_expires_at=now()+interval '10 minutes' WHERE id=$1",[a.body.workspace_id]));
- const result=await call(reset.POST,{confirm:true},a.cookie);expect(result.status).toBe(200);expect(result.body.persona).toBe('sam');expect(result.body.workspace_id).not.toBe(a.body.workspace_id);expect(await count('work_orders',a.body.workspace_id)).toBe(0);expect(await count('work_orders',result.body.workspace_id)).toBe(61);
+ const result=await call(reset.POST,{confirm:true},a.cookie);expect(result.status).toBe(200);expect(result.body.persona).toBe('sam');expect(result.body.workspace_id).not.toBe(a.body.workspace_id);expect(await count('work_orders',a.body.workspace_id)).toBe(0);expect(await count('work_orders',result.body.workspace_id)).toBe(66);
  expect(new Date(result.body.expires_at).getTime()-Date.now()).toBeGreaterThan(5*3600000);expect((await call(isolation.GET,undefined,result.cookie)).body.role).toBe('staff');
 });
 it('Pranav isolation evidence uses real app role and Northgate exists; staff see all clients but zero cross-workspace rows',async()=>{
  const a=await sandbox('pranav');const result=await call(isolation.GET,undefined,a.cookie);expect(result.status).toBe(200);expect(result.body.database_role).toEqual(expect.any(String));expect(result.body.database_role).not.toBe('postgres');expect(result.body).toMatchObject({role:'client',client:'Harbor & Pine Coworking',row_count:0,cross_workspace:{row_count:0}});
  expect(result.body.query).toContain('$2');expect(result.body.params).toHaveLength(2);
- expect(await withSystem(async db=>(await db.query(result.body.query,result.body.params)).rowCount)).toBe(25);
+ expect(await withSystem(async db=>(await db.query(result.body.query,result.body.params)).rowCount)).toBe(26);
  expect(await withUser(await identity(a.cookie),async db=>(await db.query('SELECT current_user AS role')).rows[0].role)).toBe(process.env.APP_DB_ROLE??'portal_app');
- const staff=await call(switchRoute.POST,{persona:'sam'},a.cookie);const check=await call(isolation.GET,undefined,staff.cookie);expect(check.body.row_count).toBe(25);expect(check.body.explanation).toContain('all clients');expect(check.body.cross_workspace.row_count).toBe(0);
+ const staff=await call(switchRoute.POST,{persona:'sam'},a.cookie);const check=await call(isolation.GET,undefined,staff.cookie);expect(check.body.row_count).toBe(26);expect(check.body.explanation).toContain('all clients');expect(check.body.cross_workspace.row_count).toBe(0);
 });
 it('demo fixture dropped supplier delivery can be detected and repaired idempotently',async()=>{
  const a=await sandbox();const result=await repair(await identity(a.cookie),a.body.workspace_id,{});expect(result.repaired).toBe(1);expect((await repair(await identity(a.cookie),a.body.workspace_id,{})).repaired).toBe(0);
@@ -68,7 +68,7 @@ it('demo fixture dropped supplier delivery can be detected and repaired idempote
 it('cleanup removes expired sandboxes and all demo users/sessions only, and is idempotent',async()=>{
  const a=await sandbox(),b=await sandbox();await withSystem(db=>db.query("UPDATE workspaces SET demo_expires_at=now()-interval '1 second' WHERE id=$1",[a.body.workspace_id]));
  expect(await getSessionUserId(new Request('http://localhost',{headers:{cookie:a.cookie}}))).toBeNull();
- expect(await cleanupDemo()).toMatchObject({workspaces:1,users:10,sessions:1});expect(await cleanupDemo()).toMatchObject({workspaces:0,users:0,sessions:0});expect(await count('work_orders',b.body.workspace_id)).toBe(61);expect(await count('work_orders',ids.ridgeline)).toBe(60);
+ expect(await cleanupDemo()).toMatchObject({workspaces:1,users:10,sessions:1});expect(await cleanupDemo()).toMatchObject({workspaces:0,users:0,sessions:0});expect(await count('work_orders',b.body.workspace_id)).toBe(66);expect(await count('work_orders',ids.ridgeline)).toBe(60);
  expect(await withSystem(async db=>(await db.query('SELECT id FROM users WHERE demo_workspace_id=$1',[a.body.workspace_id])).rows)).toEqual([]);expect(await count('audit_log',a.body.workspace_id)).toBe(0);
 });
 it('demo users cannot accept real invites, create/delete workspaces or manage members; database rejects mixed memberships and Google accounts',async()=>{

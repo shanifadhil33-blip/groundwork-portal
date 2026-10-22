@@ -6,4 +6,6 @@ export const DEMO_PROOF_COPY = new Set([
   'Replaced the seal and tested the tap.',
   'Thank you for fixing the tap.',
   'Please check this repair again.',
+  'Follow up: Sample tap repair',
+  'Seal',
 ]);
