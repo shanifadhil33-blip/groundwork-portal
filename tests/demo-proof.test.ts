@@ -105,11 +105,11 @@ it('D1 demo and real photo operations keep the same permissions; household sign 
   await signOffJob(s.users.faisal, s.ws, s.home.id, { stars: 5, thanks: 'Thank you for fixing the tap.' });
   expect((await getJobClose(s.users.faisal, s.ws, s.home.id)).signed_off).toBe(true);
   await expect(signOffJob(s.users.faisal, s.ws, s.home.id, { stars: 5 })).rejects.toThrow();
-  // Real accounts retain their existing rating reads and record counts.
+  // Real technicians also read thanks on their own jobs.
   await signOffJob(ids.pranav, ids.ridgeline, orderId(18), { stars: 5 });
   expect((await getRating(ids.pranav, ids.ridgeline, orderId(18))).rating?.stars).toBe(5);
-  expect((await getRating(ids.ravi, ids.ridgeline, orderId(18))).rating).toBeNull();
-  expect((await myFixes(ids.ravi, ids.ridgeline)).summary.thanks).toBe(0);
+  expect((await getRating(ids.ravi, ids.ridgeline, orderId(18))).rating?.stars).toBe(5);
+  expect((await myFixes(ids.ravi, ids.ridgeline)).summary.thanks).toBe(1);
 });
 
 it('D1 reset removes edited evidence and restores just the initial sample rows', async () => {

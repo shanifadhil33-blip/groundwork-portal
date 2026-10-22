@@ -5,7 +5,7 @@ import { pushJobChange } from './push';
 import { withSystem } from '../db';
 import { allow, inWorkspace, replay } from './shared';
 import type { PoolClient } from 'pg';
-import { useDemoRatingReader } from './demo-rating-reader';
+import { technicianThanks } from './technician-ratings';
 
 export const OUTCOMES = ['fixed', 'temporary', 'needs_part', 'cant_fix'] as const;
 export const OUTCOME_LABELS: Record<(typeof OUTCOMES)[number], string> = { fixed: 'Fixed', temporary: 'Temporary fix', needs_part: 'Needs a part', cant_fix: "Can't be fixed" };
@@ -63,7 +63,7 @@ export async function voiceDraft(user:string,ws:string,id:string,body:unknown){
 }
 
 const fixesSchema = z.object({ month: z.enum(['this', 'last', 'all']).default('this'), q: z.string().trim().max(200).default(''), page: z.coerce.number().int().min(1).max(100000).default(1), of: z.uuid().optional() }).strict();
-/** Personal completed work, with calendar months in the workspace time zone. All reads retain RLS. */
+/** Personal completed work, with calendar months in the workspace time zone. Job reads retain RLS; technician thanks use an authorized owner read. */
 export async function myFixes(user: string, ws: string, options: { month?: 'this' | 'last' | 'all'; q?: string; page?: number; of?: string } = {}) {
   const d = fixesSchema.parse(options);
   return inWorkspace(user, ws, async c => {
@@ -76,12 +76,7 @@ export async function myFixes(user: string, ws: string, options: { month?: 'this
     const current = `date_trunc('month', now() AT TIME ZONE w.timezone)`;
     const summary = (await c.db.query(`SELECT count(*) FILTER (WHERE ${month}=${current})::int AS month,
       count(*) FILTER (WHERE ${month}=${current} - interval '1 month')::int AS last_month, count(*)::int AS total ${base}`, [ws, of])).rows[0] as { month: number; last_month: number; total: number };
-    // High ratings only. The technician cannot read the rating rows, and a low rating stays with the supervisor.
-    const thanks = await withSystem(async db => {
-      // FORCE RLS also applies to the seed owner. In a live sandbox, use its
-      // own admin to read this high-rating count after the viewer check above.
-      // No rating text or low-rating count leaves this transaction.
-      await useDemoRatingReader(db, ws, user);
+    const thanks = c.role === 'technician' ? await technicianThanks(user, ws) : await withSystem(async db => {
       return (await db.query('SELECT count(*)::int AS n FROM job_ratings r JOIN work_orders j ON j.id=r.work_order_id WHERE j.workspace_id=$1 AND j.assignee_id=$2 AND r.stars>=4', [ws, of])).rows[0].n as number;
     }, user);
     const trades = (await c.db.query(`SELECT coalesce(o.trade,'general') AS trade,count(*)::int AS count ${base} AND ${month}=${current} GROUP BY coalesce(o.trade,'general') ORDER BY count(*) DESC,trade`, [ws, of])).rows as { trade: string; count: number }[];
