@@ -69,9 +69,9 @@ it('empty model replies use the same localized fallback',async()=>{
  state.language='ar-AE';state.turn.mockResolvedValue({calls:[],text:''});
  expect(await ask()).toMatchObject({reply:choiceWords('ar-AE')(UNANSWERED),localized:true});
 });
-it('the action loop limit is localized without increasing its budget',async()=>{
+it('the action loop limit returns available read evidence without increasing its budget',async()=>{
  state.language='ar-AE';state.turn.mockResolvedValue({calls:[{id:'read',name:'list_work_orders',args:{}}]});
- expect(await ask()).toMatchObject({reply:choiceWords('ar-AE')(ACTION_LIMIT),localized:true});
+ expect(await ask()).toMatchObject({reply:expect.stringContaining('WO 58'),localized:true});
  expect(state.turn).toHaveBeenCalledTimes(10);
 });
 it('confirmation errors keep their status and use safe language file text',async()=>{
@@ -143,4 +143,13 @@ it('confirmation passes the preview date and fingerprint to the existing approva
  await confirmPlanned(user,ws,[...state.actions.keys()][0]);
  expect(state.postPlan).toHaveBeenCalledWith(user,ws,{action:'approve',kind:'morning',date:'2026-10-23',fingerprint:'2026-10-23|plan'});
  expect(state.turn).not.toHaveBeenCalled();
+});
+it('returns successful read evidence if the final model call fails, with time reserved for it',async()=>{
+ state.language='ar-AE';
+ state.turn.mockResolvedValueOnce({calls:[{id:'1',name:'list_work_orders',args:{}}]}).mockResolvedValueOnce(null);
+ const result=await ask();
+ expect(result).toMatchObject({reply:expect.stringContaining('WO 58'),localized:true});
+ expect(state.turn.mock.calls[0][3]).toBeLessThanOrEqual(20_000);
+ expect(state.turn.mock.calls[1][3]).toBeLessThanOrEqual(12_000);
+ expect(state.actions.size).toBe(0);
 });

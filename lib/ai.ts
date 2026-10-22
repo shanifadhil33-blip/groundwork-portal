@@ -6,7 +6,7 @@ const item=z.object({row_id:z.uuid(),summary:z.string().max(140),priority:z.enum
 /**
  * Free provider fallback chain. Order: Gemini, OpenRouter free models, Cloudflare Workers AI, Kilo and OVH (no key), Z.AI, NVIDIA and Requesty free models when keyed (best for simple replies), then Groq, Cerebras and Mistral when their keys exist.
  * A provider is used only when its key is set in Vercel env. Models can be changed without code via AI_<PROVIDER>_MODELS (comma list).
- * Every attempt has a timeout; at most two attempts per provider, using the next model on upstream failure. Quota errors move on at once.
+ * Every attempt has a timeout; one attempt per provider for assistant requests. Quota errors cool down the entire provider.
  */
 type Kind='gemini'|'openai';
 export type Provider={name:string;kind:Kind;url:string;headers:Record<string,string>;model:string;format?:'cloudflare'};
@@ -37,7 +37,9 @@ export function providers(env:Record<string,string|undefined>=process.env):Provi
 }
 // Warm instances remember models that just hit a limit, so the next request skips straight to one that works.
 const cooldown=new Map<string,number>();
-export const resetCooldowns=()=>{cooldown.clear();exhausted.clear();};
+const providerCooldown=new Map<string,number>();
+const performance=new Map<string,{success:number;latency:number}>();
+export const resetCooldowns=()=>{cooldown.clear();providerCooldown.clear();performance.clear();exhausted.clear();};
 class Skip extends Error{constructor(readonly retry:boolean,readonly status=0,readonly cool=0,readonly reason='provider_error',readonly errorBody?:string){super('provider failed');}}
 /** A model out of its daily allowance (or asking for payment) is skipped in both sweeps until it can work again. */
 const exhausted=new Map<string,number>();
@@ -89,13 +91,17 @@ function safeErrorBody(body: string, p: Provider, request?:unknown) {
  return safe.slice(0, 200);
 }
 async function post(p:Provider,body:unknown,timeout:number,signal?:AbortSignal){
+ // Budget the exact adapted body that fetch will serialize, including tools and system instructions.
+ const wire=fitRequest(p,providerBody(p,body),true);
+ const system=wire.systemInstruction??wire.messages?.filter((m:any)=>m.role==='system')??[];
+ console.info('[ai] request sizes',{provider:CHAIN.some(v=>p.name.startsWith(v.id+'/'))?p.name.split('/')[0]:'custom',systemTokens:estimateTokens(system),toolTokens:estimateTokens(wire.tools??[]),inputTokens:estimateTokens(wire),outputTokens:wire.generationConfig?.maxOutputTokens??wire.max_tokens,contextWindow:contextWindow(p)});
  let r:Response;
- try{r=await fetch(p.url,{method:'POST',headers:{'Content-Type':'application/json',...p.headers},body:JSON.stringify(providerBody(p,body)),signal:signal?AbortSignal.any([signal,AbortSignal.timeout(timeout)]):AbortSignal.timeout(timeout)});}
+ try{r=await fetch(p.url,{method:'POST',headers:{'Content-Type':'application/json',...p.headers},body:JSON.stringify(wire),signal:signal?AbortSignal.any([signal,AbortSignal.timeout(timeout)]):AbortSignal.timeout(timeout)});}
  catch(error){throw new Skip(true,0,0,error instanceof Error&&['TimeoutError','AbortError'].includes(error.name)?'timeout':'network');}
  if(!r.ok){
   const errorBody=await r.text().catch(()=>'');
   const safe=safeErrorBody(errorBody,p,body);
-  if(r.status===429||r.status===402||r.status===403){const cool=r.status===402?6*3_600_000:DAILY.test(errorBody)?3_600_000:60_000;if(cool>=3_600_000)exhausted.set(p.name,Date.now()+cool);cooldown.set(p.name,Date.now()+cool);throw new Skip(false,r.status,cool,'provider_error',safe);}
+  if(r.status===429||r.status===402||r.status===403){const cool=r.status===402?6*3_600_000:DAILY.test(errorBody)?3_600_000:180_000;providerCooldown.set(p.name.split('/')[0],Date.now()+cool);if(cool>=3_600_000)exhausted.set(p.name,Date.now()+cool);cooldown.set(p.name,Date.now()+cool);throw new Skip(false,r.status,cool,'provider_error',safe);}
   throw new Skip(r.status>=500||/upstream[_ ](?:error|provider)/i.test(errorBody),r.status,0,/upstream[_ ](?:error|provider)/i.test(errorBody)?'upstream_error':'provider_error',safe);
  }
  try{
@@ -135,33 +141,37 @@ export function contextWindow(p:Provider):number {
  const id=p.name.split('/')[0];
  return ({gemini:128000,cloudflare:24000,openrouter:32000,kilo:32000,ovh:32000,zai:32000,nvidia:32000,requesty:32000,groq:32000,cerebras:32000,mistral:32000} as Record<string,number>)[id]??24000;
 }
-export const estimateTokens=(value:unknown)=>Math.ceil(JSON.stringify(value).length/3.5);
+export const estimateTokens=(value:unknown)=>Math.ceil(Buffer.byteLength(JSON.stringify(value)??'','utf8')/2)+32;
 /** Reduce output before rejecting an oversized immutable prompt; never send an over budget request. */
-export function fitRequest(p:Provider,body:any):any {
+export function fitRequest(p:Provider,body:any,adapted=false):any {
  const out=structuredClone(body);
  const config=p.kind==='gemini'?(out.generationConfig??={}):out;
  const key=p.kind==='gemini'?'maxOutputTokens':'max_tokens';
  const desired=config[key]??2000;delete config[key];
- const room=contextWindow(p)-estimateTokens(providerBody(p,out))-512;
+ const room=contextWindow(p)-estimateTokens(adapted?out:providerBody(p,out))-1024;
  if(room<256)throw new Skip(false,0,0,'context_budget');
  config[key]=Math.min(desired,room);
  return out;
 }
 /** Two different healthy providers start together for assistant turns. Losers are cancelled.
- * A provider gets at most one additional attempt, with its next configured model when available.
+ * Assistant requests spend at most one attempt on each provider to protect free quotas.
  */
 export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,parse:(p:Provider,data:any)=>T|null,{timeout=15000,deadline=40000}={},list=providers()):Promise<T|null>{
  const task:Task=BULK.has(label)?'bulk':'assistant';
  const until=Date.now()+Math.min(deadline,40000)-100;
- const order=interleave(route(task,list,turns[task]++));
+ const order=interleave(route(task,list,turns[task]++)).sort((a,b)=>{
+  const recent=(p:Provider)=>{const s=performance.get(p.name.split('/')[0]);return s&&Date.now()-s.success<600_000?s:undefined;};
+  const x=recent(a),y=recent(b);
+  return x&&y?x.latency-y.latency:x?-1:y?1:0;
+ });
  const attempts=new Map<string,number>(),blocked=new Set<string>(),tried=new Set<string>();
  const controller=new AbortController();
- const eligible=(p:Provider)=>!blocked.has(p.name.split('/')[0])&&(attempts.get(p.name.split('/')[0])??0)<2&&(tried.has(p.name)||(cooldown.get(p.name)??0)<=Date.now())&&(exhausted.get(p.name)??0)<=Date.now();
+ const eligible=(p:Provider)=>!blocked.has(p.name.split('/')[0])&&(providerCooldown.get(p.name.split('/')[0])??0)<=Date.now()&&(attempts.get(p.name.split('/')[0])??0)<(task==='assistant'?1:2)&&(tried.has(p.name)||(cooldown.get(p.name)??0)<=Date.now())&&(exhausted.get(p.name)??0)<=Date.now();
  const attempt=async(p:Provider):Promise<T|null>=>{
-  const id=p.name.split('/')[0],left=until-Date.now();
+  const started=Date.now(),id=p.name.split('/')[0],left=until-started;
   if(left<250||controller.signal.aborted)return null;
   let body:unknown;
-  try{body=fitRequest(p,build(p));}catch{blocked.add(id);return null;}
+  try{body=fitRequest(p,build(p));}catch{console.warn('[ai] provider skipped',{provider:CHAIN.some(v=>v.id===id)?id:'custom',reason:'context_budget'});blocked.add(id);return null;}
   const remaining=until-Date.now();if(remaining<250)return null;
   attempts.set(id,(attempts.get(id)??0)+1);tried.add(p.name);
   const t=Math.max(1,Math.min(TIMEOUTS[id]??timeout,timeout,task==='assistant'?7000:timeout,remaining));
@@ -175,6 +185,7 @@ export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,p
    if(controller.signal.aborted)return null;
    const out=parse(p,data);
    if(out===null)throw new Skip(true,200,0,'invalid_response');
+   const previous=performance.get(id);performance.set(id,{success:Date.now(),latency:previous?previous.latency*.5+(Date.now()-started)*.5:Date.now()-started});
    void recordUsage(label,p.name,true);return out;
   }catch(e){
    if(controller.signal.aborted)return null;
@@ -192,7 +203,7 @@ export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,p
  while(pending.size){const {index,out}=await Promise.race(pending.values());pending.delete(index);if(out!==null){controller.abort();return out;}}
  // Try other providers before spending a second call on any provider.
  for(const p of order){if(tried.has(p.name)||!eligible(p))continue;const out=await attempt(p);if(out!==null){controller.abort();return out;}if(Date.now()>=until)break;}
- for(const p of first.concat(order)){const id=p.name.split('/')[0];if(!eligible(p)||(attempts.get(id)??0)!==1)continue;const out=await attempt(p);if(out!==null){controller.abort();return out;}if(Date.now()>=until)break;}
+ for(const p of task==='bulk'?first.concat(order):[]){const id=p.name.split('/')[0];if(!eligible(p)||(attempts.get(id)??0)!==1)continue;const out=await attempt(p);if(out!==null){controller.abort();return out;}if(Date.now()>=until)break;}
  controller.abort();
  console.warn('[ai] fallback',{reason:Date.now()>=until?'deadline':order.length?'providers_exhausted':'no_provider'});
  return null;

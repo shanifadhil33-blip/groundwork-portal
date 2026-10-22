@@ -29,24 +29,24 @@ it('caps all timeouts to the remaining deadline including an unresponsive respon
  await vi.advanceTimersByTimeAsync(1200);
  expect(await result).toBeNull();expect(fetch).toHaveBeenCalledTimes(2);
 });
-it('uses the next configured model once on an upstream 400 and never loops over all models',async()=>{
+it('spends only one attempt per provider even on an upstream 400',async()=>{
  const first=p('kilo'),second={...first,name:'kilo/second',model:'second'},third={...first,name:'kilo/third',model:'third'};
  const fetcher=vi.fn().mockImplementation(async()=>new Response('upstream provider was unable to process the request',{status:400}));vi.stubGlobal('fetch',fetcher);
  expect(await withFallback('assistant',p=>({model:p.model}),()=>null,{},[first,second,third])).toBeNull();
- expect(fetcher.mock.calls.map(call=>JSON.parse(call[1].body).model)).toEqual(['first','second']);
+ expect(fetcher.mock.calls.map(call=>JSON.parse(call[1].body).model)).toEqual(['first']);
 });
 it('does not retry a quota error on another model of the same provider',async()=>{
  const first=p('requesty'),second={...first,name:'requesty/second'};
  vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response('quota',{status:429})));
  await withFallback('assistant',()=>({}),()=>null,{},[first,second]);expect(fetch).toHaveBeenCalledTimes(1);
 });
-it('allows one retry for a transient error with only one configured model',async()=>{
- vi.stubGlobal('fetch',vi.fn().mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce(answer('OK')));
- expect(await withFallback('assistant',()=>({}),(_p,data)=>data.choices[0].message.content,{},[p('groq')])).toBe('OK');expect(fetch).toHaveBeenCalledTimes(2);
+it('does not retry a transient error on assistant requests',async()=>{
+ vi.stubGlobal('fetch',vi.fn().mockRejectedValue(new Error('network')));
+ expect(await withFallback('assistant',()=>({}),()=>true,{},[p('groq')])).toBeNull();expect(fetch).toHaveBeenCalledTimes(1);
 });
 it('counts tool schemas in the context budget, reduces output, and skips a provider that cannot fit',async()=>{
  const cloud=p('cloudflare');
- const body={messages:[{role:'user',content:'x'.repeat(78000)}],max_tokens:2000};
+ const body={messages:[{role:'user',content:'x'.repeat(44000)}],max_tokens:2000};
  const fitted=fitRequest(cloud,body);
  expect(fitted.max_tokens).toBeLessThan(2000);expect(fitted.max_tokens).toBeGreaterThanOrEqual(256);
  const output=fitted.max_tokens;delete fitted.max_tokens;
@@ -67,7 +67,7 @@ it('trims old history only at user boundaries and retains tool call pairs',()=>{
 });
 async function openaiTurn(responses:Response[]){
  for(const key of ['GEMINI_API_KEY','OPENROUTER_API_KEY','CLOUDFLARE_AI_TOKEN','KILO_API_KEY','OVH_AI_TOKEN','ZAI_API_KEY','NVIDIA_API_KEY','REQUESTY_API_KEY','GROQ_API_KEY','CEREBRAS_API_KEY','MISTRAL_API_KEY'])vi.stubEnv(key,'');
- vi.stubEnv('AI_KEYLESS','');vi.stubEnv('OPENROUTER_API_KEY','fixture');vi.stubEnv('AI_OPENROUTER_MODELS','one:free,two:free,three:free');
+ vi.stubEnv('AI_KEYLESS','');vi.stubEnv('OPENROUTER_API_KEY','fixture');vi.stubEnv('AI_OPENROUTER_MODELS','one:free');if(responses.length>1)vi.stubEnv('GROQ_API_KEY','fixture');
  const fetcher=vi.fn();for(const response of responses)fetcher.mockResolvedValueOnce(response);vi.stubGlobal('fetch',fetcher);
  return assistantTurn([{role:'user',content:'Check this job'}],[]);
 }
@@ -103,4 +103,37 @@ it('redacts echoed prompt text and structured prompts from diagnostic bodies',as
 it('accepts a fenced JSON assistant envelope',async()=>{
  const turn=await openaiTurn([answer('```json\n{"text":"Ready","tool_calls":[{"id":"1","function":{"name":"check","arguments":{"id":"001"}}}]}\n```')]);
  expect(turn?.text).toBe('Ready');expect(turn?.calls).toEqual([{id:'1',name:'check',args:{id:'001'}}]);
+});
+it('429 cools down every model of the provider for three minutes across requests',async()=>{
+ vi.useFakeTimers();
+ const a=p('requesty'),b={...a,name:'requesty/second'};
+ const fetcher=vi.fn().mockResolvedValue(new Response('overloaded',{status:429}));vi.stubGlobal('fetch',fetcher);
+ await withFallback('assistant',()=>({}),()=>true,{},[a]);
+ await withFallback('assistant',()=>({}),()=>true,{},[b]);expect(fetcher).toHaveBeenCalledTimes(1);
+ await vi.advanceTimersByTimeAsync(179000);
+ await withFallback('assistant',()=>({}),()=>true,{},[b]);expect(fetcher).toHaveBeenCalledTimes(1);
+ await vi.advanceTimersByTimeAsync(2000);
+ fetcher.mockResolvedValue(answer('OK'));
+ expect(await withFallback('assistant',()=>({}),()=>true,{},[b])).toBe(true);
+});
+it('recent fast successes lead the next race',async()=>{
+ const a=p('groq'),b=p('kilo'),c=p('ovh');
+ vi.stubGlobal('fetch',vi.fn().mockResolvedValue(answer('OK')));
+ await withFallback('assistant',()=>({}),()=>true,{},[c]);
+ const fetcher=vi.fn().mockResolvedValue(answer('OK'));vi.stubGlobal('fetch',fetcher);
+ await withFallback('assistant',()=>({}),()=>true,{},[a,b,c]);
+ expect(fetcher.mock.calls.map(v=>v[0])).toEqual([c.url,a.url]);
+});
+it('budgets final native and Gemini requests including Unicode schemas and output',async()=>{
+ for(const provider of [providers({CLOUDFLARE_AI_TOKEN:'fixture',CLOUDFLARE_ACCOUNT_ID:'fixture'})[0],providers({GEMINI_API_KEY:'fixture'})[0]]){
+  const fetcher=vi.fn().mockImplementation(async(_url,options)=>{
+   const body=JSON.parse(options.body),output=body.max_tokens??body.generationConfig.maxOutputTokens;
+   if(body.generationConfig)delete body.generationConfig.maxOutputTokens;else delete body.max_tokens;
+   expect(estimateTokens(body)+output+1024).toBeLessThanOrEqual(contextWindow(provider));
+   return provider.kind==='gemini'?Response.json({candidates:[{content:{parts:[{text:'OK'}]}}]}):Response.json({success:true,result:{response:'OK'}});
+  });vi.stubGlobal('fetch',fetcher);
+  const make=(p:any)=>p.kind==='gemini'?{systemInstruction:{parts:[{text:'ع'.repeat(1000)}]},contents:[{parts:[{text:'hello'}]}],tools:[{functionDeclarations:[{name:'read',description:'م'.repeat(12000)}]}],generationConfig:{maxOutputTokens:2000}}:{messages:[{role:'system',content:'ع'.repeat(1000)}],tools:[{type:'function',function:{name:'read',description:'م'.repeat(12000)}}],max_tokens:2000};
+  expect(await withFallback('assistant',make,()=>true,{},[provider])).toBe(true);
+ }
+ expect(estimateTokens('ع'.repeat(100))).toBeGreaterThan(100);
 });

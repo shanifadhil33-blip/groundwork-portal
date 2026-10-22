@@ -1,6 +1,7 @@
-import { afterEach, expect, it, vi } from 'vitest';
-import { withFallback, type Provider } from '../lib/ai';
+import { beforeEach, afterEach, expect, it, vi } from 'vitest';
+import { withFallback, resetCooldowns, type Provider } from '../lib/ai';
 const provider:Provider={name:'gemini/test',kind:'gemini',url:'https://example.invalid',headers:{Authorization:'private test header'},model:'test'};
+beforeEach(()=>resetCooldowns());
 afterEach(()=>{vi.unstubAllGlobals();vi.restoreAllMocks();});
 it.each([
  ['quota',()=>Promise.resolve(new Response('Unsupported request: token=privateResponseToken',{status:429})),429],
