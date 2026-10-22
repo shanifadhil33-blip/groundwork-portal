@@ -3,6 +3,7 @@ type Declaration = {name:string;description:string;parameters:unknown};
 /** Select a small capability set after role filtering. Exact tool families keep unrelated schemas out. */
 export function selectAssistantTools(question:string, declarations:Declaration[]):Declaration[] {
  const groups:[RegExp,string[]][]=[
+  [/checklist|tick|filter|material|capacitor|used|خطوات|فلتر|مواد|استخدم/i,['get_job_checklist','tick_job_step','add_job_material']],
   [/\b(?:add|invite|hire) (?:a |an )?(?:worker|technician|person|member)\b/i,['add_worker','list_contacts']],
   [/cancel|reopen|start|status|mark|stop/i,['update_work_order_status','cancel_visit','withdraw_request']],
   [/\b(?:queue|import|rows?)\b/i,['list_approval_queue','approve_queue_row','reject_queue_row']],

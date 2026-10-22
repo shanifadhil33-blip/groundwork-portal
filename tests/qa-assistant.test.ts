@@ -15,6 +15,8 @@ vi.mock('../lib/services/shared',async(orig)=>{const {z}=await import('zod');ret
  return {rows:[]};
  }}})}});
 vi.mock('../lib/agent/tools',async()=>{const {z}=await import('zod');return {callTool:state.call,tools:{
+ tick_job_step:{write:true,description:'Checklist',schema:z.object({id:z.uuid(),step:z.string(),done:z.boolean()})},
+ add_job_material:{write:true,description:'Material',schema:z.object({id:z.uuid(),name:z.string(),quantity:z.number()})},
  update_work_order_status:{write:true,description:'Status',schema:z.object({id:z.uuid(),status:z.string(),updated_at:z.string()})},
  set_priority:{write:true,description:'Priority',schema:z.object({id:z.uuid(),priority:z.string(),updated_at:z.string()})},
  add_comment:{write:true,description:'Comment',schema:z.object({work_order_id:z.uuid(),body:z.string(),visibility:z.enum(['internal','client']).default('internal')})},
@@ -193,4 +195,20 @@ it('AGENT21 preserves a supported AI reply after a tool lookup',async()=>{
  state.call.mockResolvedValueOnce({structuredContent:{result:{data:[{...state.order,assignee_name:'Ravi',quote_amount:'150.00',scheduled_for:'2026-11-08'}],total:3}}});
  expect(await assistant(user,ws,{messages:[{role:'user',content:'Tell me about the repair'}]})).toMatchObject({available:true,reply:text});
  expect(state.turn).toHaveBeenCalledTimes(2);
+});
+
+it.each([
+ ['tick_job_step',{step:'Clean the filter',done:true},'tick filter cleaned on WO 58','Clean the filter'],
+ ['add_job_material',{name:'Capacitor',quantity:2},'used 2 capacitors on WO 58','Quantity: 2'],
+] as const)('technician %s shows the full confirmation and writes only after Yes',async(tool,args,words,detail)=>{
+ state.role='technician';
+ const proposal:any=await propose(tool,{id:state.order.id,...args},words);
+ expect(proposal.pending_action).toBeTruthy();
+ expect(proposal.pending_action.summary).toContain('WO 58');
+ expect(proposal.pending_action.summary).toContain(detail);
+ expect(state.call).not.toHaveBeenCalled();
+ const result:any=await assistant(user,ws,{messages:[],confirm_action_id:proposal.pending_action.id});
+ expect(state.call).toHaveBeenCalledWith(expect.objectContaining({approved:true,actionKey:proposal.pending_action.id}),tool,{id:state.order.id,...args});
+ expect(result.reply).toContain('Checklist and materials saved.');
+ await expect(assistant(user,ws,{messages:[],confirm_action_id:proposal.pending_action.id})).rejects.toMatchObject({status:409});
 });

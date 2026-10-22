@@ -70,3 +70,15 @@ it('every checklist label, default step and server message has every language ke
   for(const key of keys){expect(dictionary[key],file+': '+key).toBeTruthy();expect(typeof dictionary[key]).toBe('string');}
  }
 });
+
+it('agent requires confirmation, then enforces assignment again at save time',async()=>{
+ const {callTool}=await import('../lib/agent/tools');
+ const j=await job(),context={user:ids.ravi,ws,scope:'write' as const,kind:'assistant' as const};
+ const args={id:j.id,name:'Capacitor',quantity:2};
+ expect((await callTool(context,'add_job_material',args)).structuredContent).toMatchObject({error:{code:'confirmation_required'}});
+ const saved=await callTool({...context,approved:true},'add_job_material',args);
+ expect(saved.isError).toBeUndefined();
+ expect((await jobChecklist(ids.ravi,ws,j.id)).materials[0]).toMatchObject({name:'Capacitor',quantity:2});
+ await withSystem(db=>db.query('UPDATE work_orders SET assignee_id=$2 WHERE id=$1',[j.id,ids.imran]),ids.imran);
+ expect((await callTool({...context,approved:true},'add_job_material',args)).structuredContent).toMatchObject({error:{code:'forbidden'}});
+});

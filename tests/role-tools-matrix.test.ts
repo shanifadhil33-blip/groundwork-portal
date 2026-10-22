@@ -7,7 +7,7 @@ import { inWorkspace } from '../lib/services/shared';
 import { ids } from '../scripts/seed';
 
 // Independent policy inventory: adding a tool requires an explicit review of its roles.
-const common = `technician_workload set_my_setting get_onboarding fill_onboarding list_contacts suggest_contact_name list_messages send_message
+const common = `get_job_checklist technician_workload set_my_setting get_onboarding fill_onboarding list_contacts suggest_contact_name list_messages send_message
 list_suggestions needs_attention list_work_orders get_work_order_by_number get_work_order my_words remember_word forget_word my_memory
 remember_about_me forget_about_me set_call_me add_comment list_sites ask_choice list_job_photos notification_status whoami`.split(/\s+/);
 const clientOnly = ['free_visit_slots','previous_technician','reschedule_visit','cancel_visit'];
@@ -19,12 +19,13 @@ const office = `visit_charge update_work_order_dates set_priority list_approval_
 list_assets get_dashboard list_clients list_team suggest_worker assign_work_order set_job_trade send_quote update_document remove_document`.split(/\s+/);
 const supervisor = `add_asset approve_suggestion decline_suggestion add_worker set_worker_skills decide_time_off`.split(' ');
 const admin = `create_client update_client create_site update_site set_approval_mode set_member_roles rename_role set_job_payment`.split(' ');
-const inventory = [...common, ...clientOnly, ...client, ...clientAnswers, ...technician, ...office, ...supervisor, ...admin, 'fix_history'];
+const jobWrites = ['tick_job_step','add_job_material'];
+const inventory = [...jobWrites,...common, ...clientOnly, ...client, ...clientAnswers, ...technician, ...office, ...supervisor, ...admin, 'fix_history'];
 const actors = [
  { role: 'admin', user: ids.imran, grant: inventory.filter(n => !clientOnly.includes(n)) },
  { role: 'staff', user: ids.sam, grant: inventory.filter(n => !admin.includes(n) && !clientOnly.includes(n)) },
- { role: 'office', user: ids.nabil, grant: inventory.filter(n => !admin.includes(n) && !supervisor.includes(n) && !clientOnly.includes(n)) },
- { role: 'technician', user: ids.ravi, grant: [...common.filter(n => n !== 'list_sites'), ...technician, 'list_assets'] },
+ { role: 'office', user: ids.nabil, grant: inventory.filter(n => !admin.includes(n) && !supervisor.includes(n) && !jobWrites.includes(n) && !clientOnly.includes(n)) },
+ { role: 'technician', user: ids.ravi, grant: [...common.filter(n => n !== 'list_sites'), ...technician, ...jobWrites, 'list_assets'] },
  { role: 'client:manager', user: ids.pranav, grant: [...common, 'visit_charge', ...clientOnly, ...client, ...clientAnswers, 'list_assets', 'fix_history'] },
  { role: 'client:office', user: ids.kevin, grant: [...common, 'visit_charge', ...clientOnly, ...client] },
  { role: 'client:household', user: ids.faisal, grant: [...common, 'visit_charge', ...clientOnly, ...client, ...clientAnswers] },

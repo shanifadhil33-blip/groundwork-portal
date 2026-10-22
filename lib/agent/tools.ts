@@ -1,3 +1,5 @@
+import { materialInput } from '../job-checklists';
+import { jobChecklist, saveJobChecklist } from '../services/job-checklists';
 import { assistantWorkload } from '../services/assistant-reads';
 import { listWords,saveWord,deleteWord,wordInput } from '../services/agent-words';
 import { tenantFields, checkTenantInput } from '../services/tenant';
@@ -45,12 +47,15 @@ import { getPreferences, patchPreferences } from '../services/settings';
 import { decideTimeOff, leaveRequests, requestTimeOff } from '../services/time-off';
 import { labelJobs } from './job-labels';
 const currencyOf=(c:{user:string;ws:string})=>inWorkspace(c.user,c.ws,async x=>String((await x.db.query('SELECT currency FROM workspaces WHERE id=$1',[c.ws])).rows[0]?.currency??'AED'));
-export type AgentContext={user:string;ws:string;scope:'read'|'write';kind:'agent'|'assistant';tokenId?:string;approved?:boolean};
+export type AgentContext={user:string;ws:string;scope:'read'|'write';kind:'agent'|'assistant';tokenId?:string;approved?:boolean;actionKey?:string};
 type Tool={description:string;write:boolean;schema:z.ZodObject;run:(c:AgentContext,a:any)=>Promise<unknown>};
 function query(a:Record<string,unknown>) {const p=new URLSearchParams();for(const [k,v] of Object.entries(a))if(v!==undefined){if(Array.isArray(v))for(const value of v)p.append(k+'[]',String(value));else p.set(k,String(v));}return p;}
 /** Audit A17: a model sometimes sends due_on:null when asked only to move the visit. A date is cleared only when clear_due_on or clear_visit says so. */
 export function datesAsked<T extends {due_on?:string|null;scheduled_for?:string|null;clear_due_on?:boolean;clear_visit?:boolean}>(a:T):T{const out={...a};if(out.due_on===null&&!out.clear_due_on)delete out.due_on;if(out.scheduled_for===null&&!out.clear_visit)delete out.scheduled_for;if(out.clear_due_on)out.due_on=null;if(out.clear_visit)out.scheduled_for=null;return out;}
 export const tools:Record<string,Tool>={
+ get_job_checklist:{description:'Read the steps and materials used on a visible job. Use for what was used on WO 12. Resolve its number first. No prices.',write:false,schema:z.object({id:uuid}).strict(),run:(c,a)=>jobChecklist(c.user,c.ws,a.id)},
+ tick_job_step:{description:'Tick or untick an existing step on your assigned job. Read get_job_checklist first and use its exact step text. For tick filter cleaned use the existing filter step, never invent a step. Always show Yes and Change before saving.',write:true,schema:z.object({id:uuid,step:z.string().trim().min(1).max(80),done:z.boolean()}).strict(),run:(c,a)=>saveJobChecklist(c.user,c.ws,a.id,{action:'tick',step:a.step,done:a.done},c.actionKey)},
+ add_job_material:{description:'Record a material used on your assigned job. For used 2 capacitors record name capacitor and quantity 2. Only the name, quantity and optional note the user gave. Ask if quantity is missing. Always show Yes and Change before saving.',write:true,schema:z.object({id:uuid,...materialInput.shape}).strict(),run:(c,a)=>saveJobChecklist(c.user,c.ws,a.id,{action:'add_material',name:a.name,quantity:a.quantity,...(a.note?{note:a.note}:{})},c.actionKey)},
  visit_charge:{description:'Read the company visit charge for a visible site. Never guess a price. The full price depends on what the technician finds.',write:false,schema:z.object({site_id:uuid}).strict(),run:(c,a)=>inWorkspace(c.user,c.ws,x=>visitChargeFor(x,a.site_id))},
  set_my_setting:{description:'Change only the caller own theme, language, voice_enabled, reply_length, agent_name, preferred_name or email_notifications. Supply setting and value. Language must be a supported code. Saves immediately with a receipt and Undo, without a card. Never use for addresses, phone numbers, roles, other people or company settings. Keep Agent and Groundwork unchanged.',write:true,schema:settingInput,run:(c,a)=>setMySetting(c.user,a)},
  free_visit_slots:{description:'Clients only: find up to three free one hour slots for your own scheduled job. Resolve Saturday morning to day and period morning. For an exact time supply day and time. If that time is free only that time is returned. Present the returned slots with ask_choice, then propose reschedule_visit for the selected slot. Never invent a slot.',write:false,schema:slotInput,run:(c,a)=>freeVisitSlots(c.user,c.ws,a)},
@@ -163,7 +168,7 @@ export async function callTool(c:AgentContext,name:string,args:unknown) {
   const a=t.schema.parse(args);
   await inWorkspace(c.user,c.ws,async x=>{const power=await ownerToolPower(x,name,a);if(power)await requireOwner(x,power);});
   if(['suggest_contact_name','fill_onboarding'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the saved name in Groundwork and choose Yes or Change first.');
-  if(['remember_word','forget_word','reschedule_visit','cancel_visit'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the change in Groundwork and choose Yes or Change first.');
+  if(['remember_word','forget_word','reschedule_visit','cancel_visit','tick_job_step','add_job_material'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the change in Groundwork and choose Yes or Change first.');
   // Approval mode covers Connect AI keys too: in Ask before every action, a key write waits for an admin.
   if(t.write&&name!=='set_my_setting'&&c.kind==='agent'&&!c.approved){
    const assetSite=name==='add_asset'?await inWorkspace(c.user,c.ws,async x=>{const r=(await x.db.query('SELECT name FROM sites WHERE workspace_id=$1 AND id=$2',[c.ws,(a as any).site_id])).rows[0];if(!r)throw new ApiError(404,'not_found','Choose a site you can see.');return r.name as string;}):undefined;

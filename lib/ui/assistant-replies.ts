@@ -115,6 +115,8 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='confirm_visit')return `Confirm the visit time for ${name}${order?.scheduled_for?`: ${formatDate(order.scheduled_for,order.timezone)}`:''}`;
   if(tool==='request_time_off')return `Ask your supervisor for time off\n${offSpan(args.kind??'off',args.starts_on,args.ends_on)}\nIt waits until he says yes.`;
   if(tool==='decide_time_off')return `${args.decision==='approved'?'Approve':'Decline'} time off for ${plainAssistantReply(target??'this person')}`;
+  if(tool==='tick_job_step')return `Checklist: ${name}\n${plainAssistantReply(args.step)}: ${args.done?'Done':'Not done'}`;
+  if(tool==='add_job_material')return `Materials used: ${name}\nMaterial name: ${plainAssistantReply(args.name)}\nQuantity: ${args.quantity}${args.note?`\nNote (optional): ${plainAssistantReply(args.note)}`:''}`;
   if(tool==='save_job_report')return `Save the job report for ${name}\nHow it ended: ${OUTCOME_LABELS[args.outcome as keyof typeof OUTCOME_LABELS]}${args.problem?`\nProblem: ${plainAssistantReply(args.problem)}`:''}${args.work?`\nWhat you did: ${plainAssistantReply(args.work)}`:''}${args.outcome==='needs_part'?'\nThe job waits for the part.':args.outcome==='cant_fix'?'\nThe job stays open for your supervisor.':'\nThe job is marked done.'}`;
   if(tool==='add_comment')return `Add ${args.visibility==='internal'?'an internal note (team only)':'a comment visible to the client'} to ${name}:\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_status')return `Move ${name}: ${statusLabels[order!.status] ?? readableLabel(order!.status)} → ${statusLabels[args.status] ?? readableLabel(args.status)}`;
@@ -167,6 +169,7 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='send_quote')return `Sent the price for ${link}. I will tell you when the client answers.`;
   if(tool==='answer_quote')return args.decision==='approved'?`Approved the price for ${link}. The team can go ahead.`:`Declined the price for ${link}. The team will be in touch.`;
   if(tool==='confirm_visit')return `Confirmed the visit time for ${link}.`;
+  if(tool==='tick_job_step'||tool==='add_job_material')return `Checklist and materials saved. ${link}`;
   if(tool==='save_job_report')return args.outcome==='needs_part'?`Saved the report on ${link}. It now waits for the part.`:args.outcome==='cant_fix'?`Saved the report on ${link}. Your supervisor will see it.`:`Saved the report on ${link}. Job done, well done.`;
   if(tool==='add_comment')return `Added ${args.visibility==='internal'?'an internal note':'a comment visible to the client'} to ${link}.\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_dates')return `Updated dates for ${link}.\n${actionSummary(tool,args,order).split('\n').slice(1).join('\n')}`;

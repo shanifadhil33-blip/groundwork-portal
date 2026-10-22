@@ -137,7 +137,7 @@ export function offerReply(reply:string,offers:{to_name:string}[]):string{
  return !reply.trim()||/Ask button|Do not ask again|one short sentence|Nothing is sent yet|the app (?:shows|already)|\bI(?:'ll| will| have|'ve| am going to)? ?(?:ask(?:ed)?|sen[dt]|forward(?:ed)?) (?:it |this |the request )?(?:to )?(?:him|them|your|the|[A-Z])/.test(reply)?fixed:reply;
 }
 async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalOffer[],until:number) {
- const d=schema.parse(body),c:AgentContext={user,ws,scope:'write',kind:'assistant',approved:!!d.confirm_action_id};
+ const d=schema.parse(body),c:AgentContext={user,ws,scope:'write',kind:'assistant',approved:!!d.confirm_action_id,actionKey:d.confirm_action_id};
  if(d.confirm_action_id)return asAgent({kind:'assistant'},()=>inWorkspace(user,ws,async x=>{
   const a=(await x.db.query('SELECT * FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND id=$3 FOR UPDATE',[ws,user,d.confirm_action_id])).rows[0];
   if(!a)throw missing();
@@ -146,7 +146,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   if(new Date(a.expires_at)<=new Date())throw new ApiError(409,'expired','This action has expired. Ask Agent again.');
   if(a.tool==='household_request')return confirmHousehold(x,a);
   // Shared services reuse this same app-role transaction: write and consume commit together.
-  const previous=['reschedule_visit','cancel_visit','update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','add_comment','assign_work_order','set_job_trade','set_job_payment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
+  const previous=['tick_job_step','add_job_material','reschedule_visit','cancel_visit','update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','add_comment','assign_work_order','set_job_trade','set_job_payment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
   const unavailable=await availabilityRefusal(x,a.tool,a.args,previous);
   if(unavailable){
    await x.db.query("UPDATE assistant_actions SET consumed_at=now(),outcome='refused',reason=$2 WHERE id=$1",[a.id,unavailable]);
@@ -272,7 +272,7 @@ ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:
     if(role==='client'&&['reschedule_visit','cancel_visit'].includes(call.name))return prepareClientVisit(user,ws,call.name as 'reschedule_visit'|'cancel_visit',args);
     // A job or site the model named that does not exist (or this person can not see) goes back to the model, never a 404 page.
     let order:any=null;
-    try{order=['reschedule_visit','cancel_visit','update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','assign_work_order','set_job_trade','set_job_payment'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;}
+    try{order=['tick_job_step','add_job_material','reschedule_visit','cancel_visit','update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','assign_work_order','set_job_trade','set_job_payment'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;}
     catch(e){if(e instanceof ApiError&&[403,404,422].includes(e.status)){if(plainRole&&['add_comment','save_job_report'].includes(call.name))return {available:true,reply:failureWords((await getPreferences(user)).language,'You can save notes only on jobs you can see. Nothing was saved.'),localized:true};history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'That job was not found. Look it up first, or ask the person which job they mean with ask_choice.'}]},id:call.id});continue;}throw e;}
     if(plainRole&&['add_comment','save_job_report'].includes(call.name)){
      if(role==='client'&&order?.created_by!==user)return {available:true,reply:failureWords((await getPreferences(user)).language,'You can save a note only on a request you raised. Nothing was saved.'),localized:true};
@@ -314,7 +314,7 @@ ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:
     // Refuse before any card what this role may not do: the Agent gets its wording, and the decision log keeps what was asked and why it did not happen.
     // Technicians change only the status of their own jobs and add notes. Record writes are admin only.
     const ownerPower=role==='admin'?await inWorkspace(user,ws,async x=>{const p=await ownerToolPower(x,call.name,args as Record<string,any>);return p&&!await ownerCan(x,p)?p:null;}):null;
-    const refusal:[string,string]|null=ownerPower?[OWNER_REFUSAL[ownerPower],REFUSAL_REASON.admin]:role==='technician'&&!['update_work_order_status','save_job_report','add_comment','request_time_off','suggest_job','send_message','send_team_message','suggest_contact_name','fill_onboarding','ask_supervisor','remember_word','forget_word','remember_about_me','forget_about_me','set_call_me'].includes(call.name)?['Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.',REFUSAL_REASON.technician]
+    const refusal:[string,string]|null=ownerPower?[OWNER_REFUSAL[ownerPower],REFUSAL_REASON.admin]:role==='technician'&&!['tick_job_step','add_job_material','update_work_order_status','save_job_report','add_comment','request_time_off','suggest_job','send_message','send_team_message','suggest_contact_name','fill_onboarding','ask_supervisor','remember_word','forget_word','remember_about_me','forget_about_me','set_call_me'].includes(call.name)?['Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.',REFUSAL_REASON.technician]
      :teamTools.includes(call.name)&&(!['admin','staff'].includes(role)||(office&&call.name!=='assign_work_order'))?['Only admins and supervisors can assign jobs or change the team.',REFUSAL_REASON.team]
      :ADMIN_ONLY.includes(call.name)&&role!=='admin'?[call.name==='set_job_payment'?'Only an admin can change how a job is paid. Tell the person to ask the admin, and add a note on the job if they want.':'Only an admin can change this. Tell the person to ask the admin.',REFUSAL_REASON.admin]
      :recordTools.includes(call.name)&&role!=='admin'&&!(call.name==='add_asset'&&role==='staff'&&!office)?['Only workspace admins can add or change clients and sites.',REFUSAL_REASON.records]:null;
