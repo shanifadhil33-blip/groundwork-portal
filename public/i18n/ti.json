@@ -926,5 +926,11 @@
  "Nothing is saved until you say yes.": "እወ ክሳብ እትብል ዋላ ሓንቲ ኣይዕቀብን።",
  "Only the owner or a supervisor can approve the day.": "መደብ መዓልቲ ከጽድቕ ዝኽእል ዋና ወይ ተቖጻጻሪ ጥራይ እዩ።",
  "Nothing is waiting for a morning plan.": "ንመደብ ንግሆ ዝጽበ ስራሕ የለን።",
- "No one else covers this trade.": "ነዚ ሞያ ዝሰርሕ ካልእ ሰብ የለን።"
+ "No one else covers this trade.": "ነዚ ሞያ ዝሰርሕ ካልእ ሰብ የለን።",
+ "Confirm this change": "ነዚ ለውጢ ኣረጋግጽ",
+ "Your home": "ቤትካ",
+ "Visit charge": "ክፍሊት ምብጻሕ",
+ "(Sample price)": "(ናይ ኣብነት ዋጋ)",
+ "The office will confirm the price.": "ቤት ጽሕፈት ነቲ ዋጋ ከረጋግጾ እዩ።",
+ "Applying your confirmed change…": "ዘረጋገጽካዮ ለውጢ ይትግበር ኣሎ…"
 }

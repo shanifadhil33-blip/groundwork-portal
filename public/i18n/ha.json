@@ -917,5 +917,11 @@
  "Nothing is saved until you say yes.": "Ba a ajiye komai sai ka ce eh.",
  "Only the owner or a supervisor can approve the day.": "Mai kamfani ko mai kula ne kawai zai iya amincewa da shirin ranar.",
  "Nothing is waiting for a morning plan.": "Babu aikin da ke jiran shirin safe.",
- "No one else covers this trade.": "Babu wani da ke yin wannan sana’ar."
+ "No one else covers this trade.": "Babu wani da ke yin wannan sana’ar.",
+ "Confirm this change": "Tabbatar da wannan canjin",
+ "Your home": "Gidanka",
+ "Visit charge": "Kuɗin ziyara",
+ "(Sample price)": "(Farashin misali)",
+ "The office will confirm the price.": "Ofis zai tabbatar da farashin.",
+ "Applying your confirmed change…": "Ana aiwatar da canjin da ka tabbatar…"
 }

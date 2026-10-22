@@ -212,8 +212,8 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
  const plainRole=role==='technician'||office||role==='client';
  const doneName=plainRole?preferences.preferred_name||first:first;
  const learning=await listAgentLearning(user,ws);
- const personal=learning.data.filter(l=>l.scope==='personal').map(l=>l.body),companyRules=learning.data.filter(l=>l.scope==='company_rule').map(l=>l.body);
- const vocabulary=[...new Map([...words.company,...words.personal].map(w=>[w.phrase.toLowerCase(),`${w.phrase} means ${w.means_text}`])).values()];
+ const personal=learning.data.filter(l=>l.scope==='personal').slice(0,12).map(l=>l.body.slice(0,400)),companyRules=learning.data.filter(l=>l.scope==='company_rule').slice(0,20).map(l=>l.body.slice(0,600));
+ const vocabulary=[...new Map([...words.company,...words.personal].map(w=>[w.phrase.toLowerCase(),`${w.phrase} means ${w.means_text.slice(0,300)}`])).values()].slice(0,40);
  const history:AssistantMessage[]=d.messages.map(m=>m.role==='user'?{...m,content:resolveWords(m.content,words)}:m);
  if(!history.length)history.push({role:'user',content:'Help me with my workspace.'});
  let saved=false;

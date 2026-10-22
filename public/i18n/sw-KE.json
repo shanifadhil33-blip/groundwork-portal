@@ -898,5 +898,14 @@
  "Nothing is saved until you say yes.": "Hakuna kitakachohifadhiwa hadi useme ndiyo.",
  "Only the owner or a supervisor can approve the day.": "Mmiliki au msimamizi pekee ndiye anayeweza kuidhinisha mpango wa siku.",
  "Nothing is waiting for a morning plan.": "Hakuna kazi inayosubiri mpango wa asubuhi.",
- "No one else covers this trade.": "Hakuna mtu mwingine anayefanya kazi ya aina hii."
+ "No one else covers this trade.": "Hakuna mtu mwingine anayefanya kazi ya aina hii.",
+ "Confirm this change": "Thibitisha mabadiliko haya",
+ "Your home": "Nyumba yako",
+ "Visit charge": "Ada ya ziara",
+ "(Sample price)": "(Bei ya mfano)",
+ "The office will confirm the price.": "Ofisi itathibitisha bei.",
+ "Applying your confirmed change…": "Mabadiliko uliyothibitisha yanatekelezwa…",
+ "Not given": "Haijatolewa",
+ "Where": "Wapi",
+ "Since": "Tangu lini"
 }

@@ -929,5 +929,11 @@
  "Nothing is saved until you say yes.": "നിങ്ങൾ അതെ എന്നു പറയുന്നതുവരെ ഒന്നും സൂക്ഷിക്കില്ല.",
  "Only the owner or a supervisor can approve the day.": "ഉടമയ്ക്കോ മേൽനോട്ടക്കാരനോ മാത്രമേ ദിവസത്തെ പദ്ധതി അംഗീകരിക്കാനാകൂ.",
  "Nothing is waiting for a morning plan.": "രാവിലത്തെ പദ്ധതിക്കായി ജോലിയൊന്നും ബാക്കിയില്ല.",
- "No one else covers this trade.": "ഈ ജോലി ചെയ്യാൻ മറ്റാരുമില്ല."
+ "No one else covers this trade.": "ഈ ജോലി ചെയ്യാൻ മറ്റാരുമില്ല.",
+ "Confirm this change": "ഈ മാറ്റം സ്ഥിരീകരിക്കുക",
+ "Visit charge": "സന്ദർശന നിരക്ക്",
+ "(Sample price)": "(മാതൃകാ വില)",
+ "The office will confirm the price.": "ഓഫീസ് വില സ്ഥിരീകരിക്കും.",
+ "Applying your confirmed change…": "നിങ്ങൾ സ്ഥിരീകരിച്ച മാറ്റം നടപ്പാക്കുന്നു…",
+ "Not given": "നൽകിയിട്ടില്ല"
 }

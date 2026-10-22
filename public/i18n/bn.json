@@ -966,5 +966,11 @@
  "Nothing is saved until you say yes.": "আপনি হ্যাঁ না বলা পর্যন্ত কিছু সংরক্ষণ হবে না।",
  "Only the owner or a supervisor can approve the day.": "শুধু মালিক বা তত্ত্বাবধায়ক দিনের পরিকল্পনা অনুমোদন করতে পারেন।",
  "Nothing is waiting for a morning plan.": "সকালের পরিকল্পনার জন্য কোনো কাজ অপেক্ষায় নেই।",
- "No one else covers this trade.": "এই কাজের জন্য আর কেউ নেই।"
+ "No one else covers this trade.": "এই কাজের জন্য আর কেউ নেই।",
+ "Confirm this change": "এই পরিবর্তন নিশ্চিত করুন",
+ "Your home": "আপনার বাড়ি",
+ "Visit charge": "পরিদর্শন ফি",
+ "(Sample price)": "(নমুনা মূল্য)",
+ "The office will confirm the price.": "অফিস মূল্য নিশ্চিত করবে।",
+ "Applying your confirmed change…": "আপনার নিশ্চিত করা পরিবর্তন প্রয়োগ হচ্ছে…"
 }

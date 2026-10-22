@@ -905,5 +905,14 @@
  "Nothing is saved until you say yes.": "አዎ እስኪሉ ድረስ ምንም አይቀመጥም።",
  "Only the owner or a supervisor can approve the day.": "የቀኑን እቅድ ማጽደቅ የሚችለው ባለቤቱ ወይም ተቆጣጣሪው ብቻ ነው።",
  "Nothing is waiting for a morning plan.": "የጠዋት እቅድ የሚጠብቅ ስራ የለም።",
- "No one else covers this trade.": "ይህን ሙያ የሚሠራ ሌላ ሰው የለም።"
+ "No one else covers this trade.": "ይህን ሙያ የሚሠራ ሌላ ሰው የለም።",
+ "Confirm this change": "ይህን ለውጥ ያረጋግጡ",
+ "Your home": "የእርስዎ ቤት",
+ "Visit charge": "የጉብኝት ክፍያ",
+ "(Sample price)": "(የናሙና ዋጋ)",
+ "The office will confirm the price.": "ቢሮው ዋጋውን ያረጋግጣል።",
+ "Applying your confirmed change…": "ያረጋገጡት ለውጥ እየተተገበረ ነው…",
+ "Not given": "አልተሰጠም",
+ "Where": "የት",
+ "Since": "ከመቼ ጀምሮ"
 }

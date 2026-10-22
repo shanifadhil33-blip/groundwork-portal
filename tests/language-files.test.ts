@@ -72,3 +72,11 @@ describe('translator order', () => {
     expect(flush.indexOf('await fileReady')).toBeLessThan(flush.indexOf('ask(strings, true)'));
   });
 });
+
+// These card labels must be available offline without an AI translation request.
+it.each(others.map(l=>[l.code]))('%s translates every assistant confirmation card label',code=>{
+ const file=read(code);
+ for(const key of ['Confirm this change','New request','Not given','Your home','Where','Since','Photos','Visit charge','(Sample price)','The office will confirm the price.','Why:','Yes','Change','Applying your confirmed change…']){
+  expect(file[key],`${code}: ${key}`).toBeTruthy();expect(file[key]).not.toBe(key);expect(file[key]).not.toMatch(/\p{Pd}/u);
+ }
+});

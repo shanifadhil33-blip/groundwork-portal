@@ -942,5 +942,14 @@
  "Nothing is saved until you say yes.": "तपाईंले हुन्छ नभनेसम्म केही सुरक्षित हुँदैन।",
  "Only the owner or a supervisor can approve the day.": "मालिक वा सुपरिवेक्षकले मात्र दिनको योजना स्वीकृत गर्न सक्छन्।",
  "Nothing is waiting for a morning plan.": "बिहानको योजनाका लागि कुनै काम बाँकी छैन।",
- "No one else covers this trade.": "यो काम गर्ने अरू कोही छैन।"
+ "No one else covers this trade.": "यो काम गर्ने अरू कोही छैन।",
+ "Confirm this change": "यो परिवर्तन पुष्टि गर्नुहोस्",
+ "Your home": "तपाईंको घर",
+ "Visit charge": "भ्रमण शुल्क",
+ "(Sample price)": "(नमुना मूल्य)",
+ "The office will confirm the price.": "कार्यालयले मूल्य पुष्टि गर्नेछ।",
+ "Applying your confirmed change…": "तपाईंले पुष्टि गरेको परिवर्तन लागू हुँदैछ…",
+ "Not given": "दिइएको छैन",
+ "Where": "कहाँ",
+ "Since": "कहिलेदेखि"
 }

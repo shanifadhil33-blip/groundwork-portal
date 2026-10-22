@@ -943,5 +943,14 @@
  "Nothing is saved until you say yes.": "تر څو هو ونه وایئ هېڅ نه خوندي کېږي.",
  "Only the owner or a supervisor can approve the day.": "یوازې مالک یا څارونکی د ورځې پلان منظورولی شي.",
  "Nothing is waiting for a morning plan.": "د سهار پلان ته هېڅ کار نه دی پاتې.",
- "No one else covers this trade.": "بل څوک دا کار نه شي کولای."
+ "No one else covers this trade.": "بل څوک دا کار نه شي کولای.",
+ "Confirm this change": "دا بدلون تایید کړئ",
+ "Your home": "ستاسو کور",
+ "Visit charge": "د لیدنې فیس",
+ "(Sample price)": "(د بېلګې بیه)",
+ "The office will confirm the price.": "دفتر به بیه تایید کړي.",
+ "Applying your confirmed change…": "ستاسو تایید شوی بدلون پلي کېږي…",
+ "Not given": "نه دي ورکړل شوي",
+ "Where": "چېرته",
+ "Since": "له کله راهیسې"
 }

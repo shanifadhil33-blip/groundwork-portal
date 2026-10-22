@@ -948,5 +948,14 @@
  "Nothing is saved until you say yes.": "تا بله نگویید چیزی ذخیره نمی‌شود.",
  "Only the owner or a supervisor can approve the day.": "فقط مالک یا سرپرست می‌تواند برنامه روز را تأیید کند.",
  "Nothing is waiting for a morning plan.": "کاری برای برنامه صبح منتظر نیست.",
- "No one else covers this trade.": "شخص دیگری این تخصص را ندارد."
+ "No one else covers this trade.": "شخص دیگری این تخصص را ندارد.",
+ "Confirm this change": "این تغییر را تأیید کنید",
+ "Your home": "خانه شما",
+ "Visit charge": "هزینه بازدید",
+ "(Sample price)": "(قیمت نمونه)",
+ "The office will confirm the price.": "دفتر قیمت را تأیید خواهد کرد.",
+ "Applying your confirmed change…": "تغییر تأییدشده شما در حال اجراست…",
+ "Not given": "ارائه نشده",
+ "Where": "کجا",
+ "Since": "از چه زمانی"
 }

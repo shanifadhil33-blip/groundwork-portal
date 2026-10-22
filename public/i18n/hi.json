@@ -962,5 +962,14 @@
  "Nothing is saved until you say yes.": "आपके हाँ कहने तक कुछ नहीं सहेजा जाएगा।",
  "Only the owner or a supervisor can approve the day.": "केवल मालिक या पर्यवेक्षक दिन की योजना मंज़ूर कर सकते हैं।",
  "Nothing is waiting for a morning plan.": "सुबह की योजना के लिए कोई काम बाकी नहीं है।",
- "No one else covers this trade.": "यह काम करने वाला कोई और नहीं है।"
+ "No one else covers this trade.": "यह काम करने वाला कोई और नहीं है।",
+ "Confirm this change": "इस बदलाव की पुष्टि करें",
+ "Your home": "आपका घर",
+ "Visit charge": "आने का शुल्क",
+ "(Sample price)": "(नमूना कीमत)",
+ "The office will confirm the price.": "कार्यालय कीमत की पुष्टि करेगा।",
+ "Applying your confirmed change…": "आपका पुष्टि किया हुआ बदलाव लागू हो रहा है…",
+ "Not given": "नहीं दिया गया",
+ "Where": "कहाँ",
+ "Since": "कब से"
 }

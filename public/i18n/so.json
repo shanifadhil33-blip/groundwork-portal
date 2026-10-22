@@ -917,5 +917,11 @@
  "Nothing is saved until you say yes.": "Waxba lama kaydinayo ilaa aad haa tiraahdo.",
  "Only the owner or a supervisor can approve the day.": "Kaliya milkiilaha ama kormeeraha ayaa ansixin kara qorshaha maalinta.",
  "Nothing is waiting for a morning plan.": "Ma jiro shaqo sugaysa qorshaha subaxda.",
- "No one else covers this trade.": "Ma jiro qof kale oo qabta xirfaddan."
+ "No one else covers this trade.": "Ma jiro qof kale oo qabta xirfaddan.",
+ "Confirm this change": "Xaqiiji isbeddelkan",
+ "Your home": "Gurigaaga",
+ "Visit charge": "Kharashka booqashada",
+ "(Sample price)": "(Qiime tusaale ah)",
+ "The office will confirm the price.": "Xafiiska ayaa xaqiijin doona qiimaha.",
+ "Applying your confirmed change…": "Isbeddelkii aad xaqiijisay ayaa la fulinayaa…"
 }

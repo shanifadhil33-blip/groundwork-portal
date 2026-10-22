@@ -961,5 +961,11 @@
  "Nothing is saved until you say yes.": "நீங்கள் ஆம் சொல்லும் வரை எதுவும் சேமிக்கப்படாது.",
  "Only the owner or a supervisor can approve the day.": "உரிமையாளர் அல்லது மேற்பார்வையாளர் மட்டுமே நாளின் திட்டத்தை ஒப்புக்கொள்ள முடியும்.",
  "Nothing is waiting for a morning plan.": "காலைத் திட்டத்திற்காக எந்த வேலையும் காத்திருக்கவில்லை.",
- "No one else covers this trade.": "இந்த வேலையைச் செய்ய வேறு யாரும் இல்லை."
+ "No one else covers this trade.": "இந்த வேலையைச் செய்ய வேறு யாரும் இல்லை.",
+ "Confirm this change": "இந்த மாற்றத்தை உறுதிப்படுத்தவும்",
+ "Your home": "உங்கள் வீடு",
+ "Visit charge": "வருகைக் கட்டணம்",
+ "(Sample price)": "(மாதிரி விலை)",
+ "The office will confirm the price.": "அலுவலகம் விலையை உறுதிப்படுத்தும்.",
+ "Applying your confirmed change…": "நீங்கள் உறுதிப்படுத்திய மாற்றம் செயல்படுத்தப்படுகிறது…"
 }

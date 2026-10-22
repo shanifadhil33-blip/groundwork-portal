@@ -897,5 +897,14 @@
  "Nothing is saved until you say yes.": "Tewali kiterekebwa okutuusa lw’ogamba yee.",
  "Only the owner or a supervisor can approve the day.": "Nannyini kampuni oba omulabirizi yekka y’ayinza okukkiriza enteekateeka y’olunaku.",
  "Nothing is waiting for a morning plan.": "Tewali mulimu gulindirira enteekateeka y’oku makya.",
- "No one else covers this trade.": "Tewali mulala akola mulimu gwa kika kino."
+ "No one else covers this trade.": "Tewali mulala akola mulimu gwa kika kino.",
+ "Confirm this change": "Kakasa enkyukakyuka eno",
+ "Your home": "Amaka go",
+ "Visit charge": "Ssente z’okukyalira",
+ "(Sample price)": "(Omuwendo ogw’okulabirako)",
+ "The office will confirm the price.": "Ofiisi ejja kukakasa omuwendo.",
+ "Applying your confirmed change…": "Enkyukakyuka gy’okakasizza ekolebwa…",
+ "Not given": "Tekyaweereddwa",
+ "Where": "Wa",
+ "Since": "Okuva ddi"
 }

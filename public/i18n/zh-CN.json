@@ -902,5 +902,14 @@
  "Nothing is saved until you say yes.": "在你说同意之前，不会保存任何内容。",
  "Only the owner or a supervisor can approve the day.": "只有业主或主管可以批准当天的计划。",
  "Nothing is waiting for a morning plan.": "没有等待安排早晨计划的工作。",
- "No one else covers this trade.": "没有其他人负责这类工作。"
+ "No one else covers this trade.": "没有其他人负责这类工作。",
+ "Confirm this change": "确认此更改",
+ "Your home": "您的住所",
+ "Visit charge": "上门费用",
+ "(Sample price)": "（示例价格）",
+ "The office will confirm the price.": "办公室将确认价格。",
+ "Applying your confirmed change…": "正在应用您已确认的更改…",
+ "Not given": "未提供",
+ "Where": "位置",
+ "Since": "开始时间"
 }

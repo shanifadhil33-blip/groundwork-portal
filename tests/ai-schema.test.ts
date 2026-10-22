@@ -13,11 +13,22 @@ describe('Gemini assistant schemas',()=>{
    const source=z.toJSONSchema(tool.schema,{io:'input'}),before=JSON.stringify(source);
    const sanitized=JSON.stringify(toGeminiSchema(source));
    for(const key of ['$schema','additionalProperties','pattern'])expect(sanitized).not.toContain(`"${key}":`);
+   const check=(schema:any)=>{
+    expect(Array.isArray(schema?.type)).toBe(false);
+    if(schema?.type!==undefined)expect(typeof schema.type).toBe('string');
+    for(const key of ['anyOf','oneOf','const','default','$schema','additionalProperties'])expect(schema).not.toHaveProperty(key);
+    for(const property of Object.values(schema.properties??{}))check(property);
+    if(schema.items)check(schema.items);
+   };
+   check(JSON.parse(sanitized));
    expect(JSON.stringify(source)).toBe(before);
   }
  });
- it('inlines refs, converts constants and nullable branches, and strips unsupported constraints',()=>{
-  expect(toGeminiSchema({$id:'test',$defs:{value:{type:'string',const:'yes',pattern:'yes',default:'yes',format:'uuid'}},type:'object',additionalProperties:false,properties:{answer:{$ref:'#/$defs/value'},when:{anyOf:[{type:'string',format:'date-time'},{type:'null'}]},count:{type:'number',exclusiveMinimum:0,exclusiveMaximum:10}}})).toEqual({type:'object',properties:{answer:{type:'string',enum:['yes']},when:{type:'string',format:'date-time',nullable:true},count:{type:'number'}}});
+ it('inlines refs, converts nullable branches, and strips unsupported constraints and constants',()=>{
+  expect(toGeminiSchema({$id:'test',$defs:{value:{type:'string',const:'yes',pattern:'yes',default:'yes',format:'uuid'}},type:'object',additionalProperties:false,properties:{answer:{$ref:'#/$defs/value'},when:{anyOf:[{type:'string',format:'date-time'},{type:'null'}]},count:{type:'number',exclusiveMinimum:0,exclusiveMaximum:10}}})).toEqual({type:'object',properties:{answer:{type:'string'},when:{type:'string',format:'date-time',nullable:true},count:{type:'number'}}});
+ });
+ it('handles type arrays and unions even when a property name is a schema keyword',()=>{
+  expect(toGeminiSchema({type:'object',properties:{type:{type:['string','null']},default:{oneOf:[{type:'integer'},{type:'null'}]},anyOf:{type:['number','string']}}})).toEqual({type:'object',properties:{type:{type:'string',nullable:true},default:{type:'integer',nullable:true},anyOf:{type:'number'}}});
  });
  it('replays signed model parts unchanged and batches function responses',async()=>{
   vi.stubEnv('GEMINI_API_KEY','test');vi.stubEnv('GROQ_API_KEY','');

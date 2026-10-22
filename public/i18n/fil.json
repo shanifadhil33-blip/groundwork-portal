@@ -910,5 +910,14 @@
  "Nothing is saved until you say yes.": "Walang mase-save hangga’t hindi ka nagsasabi ng oo.",
  "Only the owner or a supervisor can approve the day.": "May ari o superbisor lang ang puwedeng mag apruba ng plano ng araw.",
  "Nothing is waiting for a morning plan.": "Walang trabahong naghihintay ng plano sa umaga.",
- "No one else covers this trade.": "Walang ibang gumagawa ng ganitong trabaho."
+ "No one else covers this trade.": "Walang ibang gumagawa ng ganitong trabaho.",
+ "Confirm this change": "Kumpirmahin ang pagbabagong ito",
+ "Your home": "Bahay mo",
+ "Visit charge": "Bayad sa pagbisita",
+ "(Sample price)": "(Halimbawang presyo)",
+ "The office will confirm the price.": "Kukumpirmahin ng opisina ang presyo.",
+ "Applying your confirmed change…": "Inilalapat ang pagbabagong kinumpirma mo…",
+ "Not given": "Walang ibinigay",
+ "Where": "Saan",
+ "Since": "Mula kailan"
 }
