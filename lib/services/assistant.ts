@@ -33,11 +33,12 @@ import { agentTradeWordsPrompt } from '../trade-words';
 import { LANGUAGES } from '../languages';
 import { assistantTurn,type AssistantMessage,type AssistantTurn } from '../ai';
 import { ApiError,missing } from '../http';
-import { inWorkspace,uuid } from './shared';
+import { inWorkspace,uuid,type Context } from './shared';
 import { getWorkOrder } from './work-orders';
+import { assertWorking } from './time-off';
 import { listAgentLearning } from './agent-learning';
 import { needsAttention, attentionReply } from './attention';
-import { tools,callTool,type AgentContext } from '../agent/tools';
+import { tools,callTool,datesAsked,type AgentContext } from '../agent/tools';
 import { allowedTool, ADMIN_ONLY } from '../agent/role-tools';
 import { jobSnapshot,logRefusal,recordSnapshot,REFUSAL_REASON,whyNote } from './agent-log';
 import { contractNote,contractUse } from './payments';
@@ -67,6 +68,19 @@ async function recordTarget(x:{db:{query:(q:string,v:unknown[])=>Promise<{rows:a
  const r=(await x.db.query('SELECT s.*,c.name AS client_name,c.country AS client_country FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,args.id])).rows[0];if(!r)throw missing();return {label:`${r.name} (${r.client_name})`,record:r,country:r.client_country||home};
 }
 export const assistantUnavailable={available:false,message:'I can’t answer that right now. Please try again in a minute. Everything else in Groundwork works as usual.'};
+/** Check the proposed values, including the existing visit or assignee when omitted. */
+async function availabilityRefusal(x:Context,tool:string,args:Record<string,any>,order:any){
+ if(!order||!['assign_work_order','update_work_order_dates'].includes(tool))return null;
+ const data=tool==='update_work_order_dates'?datesAsked(args):args;
+ if(!('assignee_id' in data)&&!('scheduled_for' in data))return null;
+ const assignee='assignee_id' in data?data.assignee_id:order.assignee_id;
+ let visit='scheduled_for' in data?data.scheduled_for:order.scheduled_for;
+ // Match the date only visit conversion used when saving the job.
+ if(typeof visit==='string'&&visit.length===10)visit=(await x.db.query("SELECT ($1::date + time '09:00') AT TIME ZONE timezone AS value FROM workspaces WHERE id=$2",[visit,x.ws])).rows[0].value;
+ try{await assertWorking(x,assignee,visit);}
+ catch(e){if(e instanceof ApiError&&e.status===422&&e.fields?.assignee_id)return e.message;throw e;}
+ return null;
+}
 const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant']),content:z.string().min(1).max(20000)}).strict()).max(30),confirm_action_id:uuid.optional(),household_photo_ids:z.array(uuid).max(4).optional()}).strict();
 export async function assistant(user:string,ws:string,body:unknown) {
  const input=schema.parse(body);
@@ -114,6 +128,11 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   if(a.tool==='household_request')return confirmHousehold(x,a);
   // Shared services reuse this same app-role transaction: write and consume commit together.
   const previous=['reschedule_visit','cancel_visit','update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','add_comment','assign_work_order','set_job_trade','set_job_payment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
+  const unavailable=await availabilityRefusal(x,a.tool,a.args,previous);
+  if(unavailable){
+   await x.db.query("UPDATE assistant_actions SET consumed_at=now(),outcome='refused',reason=$2 WHERE id=$1",[a.id,unavailable]);
+   return {available:true,reply:unavailable,localized:true};
+  }
   const queueTarget=['approve_queue_row','reject_queue_row'].includes(a.tool)?(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,a.args.row_id])).rows[0]:null;
   const record=recordTools.includes(a.tool)?await recordTarget(x,ws,a.tool,a.args):null;
   const person=a.tool==='decide_time_off'?undefined:teamTools.includes(a.tool)?await personLabel(x,ws,a.tool,a.args):undefined;
@@ -299,6 +318,8 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
      history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:refusal[0]+(offer?` Nothing is sent yet. Say ${offer.to_name} can make this change and he can tap Ask ${offer.to_name} below to send the request. Never say you will ask or have asked.`:'')}]},id:call.id});continue;
     }
     if(call.name==='assign_work_order'&&namesVisitDate(question)&&!(args as any).scheduled_for)return {available:true,reply:choiceWords(preferences.language)('What visit date and time should I use?'),localized:true};
+    const unavailable=['assign_work_order','update_work_order_dates'].includes(call.name)?await inWorkspace(user,ws,x=>availabilityRefusal(x,call.name,args as Record<string,any>,order)):null;
+    if(unavailable)return {available:true,reply:unavailable,localized:true};
     const record=recordTools.includes(call.name)?await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args)):null;
     const summary=record?recordSummary(call.name,args as Record<string,any>,record):audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');
     // Logging a team note is not consequential: do it straight away (still logged), no confirmation card.
