@@ -9,8 +9,14 @@ const keys = () => { const pub = process.env.VAPID_PUBLIC_KEY, priv = process.en
 export function pushPublicKey() { return { key: keys()?.pub ?? null }; }
 
 const sub = z.object({ endpoint: z.url().startsWith('https://').max(1000), keys: z.object({ p256dh: z.string().min(20).max(200), auth: z.string().min(8).max(100) }), device: z.string().max(120).optional() });
-export async function pushStatus(user: string) { return withUser(user, async db => ({ devices: (await db.query('SELECT count(*)::int n FROM push_subscriptions WHERE user_id=$1', [user])).rows[0].n as number, ready: !!keys() })); }
+export async function isDemoPushUser(user: string) {
+  return withUser(user, async db => !!(await db.query('SELECT is_demo FROM users WHERE id=$1', [user])).rows[0]?.is_demo);
+}
+export async function pushStatus(user: string): Promise<{devices: number; ready: boolean; simulated?: boolean}> {
+  if (await isDemoPushUser(user)) return { devices: 0, ready: true, simulated: true };
+  return withUser(user, async db => ({ devices: (await db.query('SELECT count(*)::int n FROM push_subscriptions WHERE user_id=$1', [user])).rows[0].n as number, ready: !!keys() })); }
 export async function subscribePush(user: string, body: unknown) {
+  if (await isDemoPushUser(user)) return { on: true, simulated: true };
   if (!keys()) throw new ApiError(503, 'push_off', 'Notifications are not set up yet. Try again later.');
   const s = sub.parse(body);
   // The same browser may come back under another person: the device now belongs to whoever turned it on last.
@@ -20,6 +26,7 @@ export async function subscribePush(user: string, body: unknown) {
   return { on: true };
 }
 export async function unsubscribePush(user: string, body: unknown) {
+  if (await isDemoPushUser(user)) return { on: false, simulated: true };
   const { endpoint } = z.object({ endpoint: z.string().max(1000) }).parse(body);
   await withUser(user, db => db.query('DELETE FROM push_subscriptions WHERE user_id=$1 AND endpoint=$2', [user, endpoint]));
   return { on: false };
@@ -31,12 +38,34 @@ export const BURST_LIMIT = 6;
 const SUMMARY: Msg = { title: 'More job updates', body: 'You have more updates. Open Groundwork to see them all.', url: '/home', tag: 'summary' };
 /** Send to every device of these people. Dead devices (404/410) are removed. Never throws. */
 export async function sendPush(users: string[], msg: Msg) {
-  const k = keys(); const list = [...new Set(users)].filter(Boolean); if (!k || !list.length) return 0;
+  const list = [...new Set(users)].filter(Boolean); if (!list.length) return 0;
   try {
+    // Classify recipients before touching subscriptions, even for urgent messages and old devices.
+    const real = await withSystem(async db => {
+      const recipients = (await db.query('SELECT id,is_demo,demo_workspace_id FROM users WHERE id=ANY($1::uuid[])', [list])).rows;
+      const job = msg.url.match(/^\/work-orders\/([0-9a-f-]{36})$/i)?.[1];
+      if (job) for (const u of recipients.filter(u => u.is_demo)) {
+        // Owner writes are limited to active sandbox members who can see this job.
+        // Do not impersonate another member to get around RLS.
+        await db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [JSON.stringify(['demo_push',u.id,job,msg.tag])]);
+        await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,work_order_title,job_step_body,to_status)
+          SELECT m.user_id,w.workspace_id,'demo_push','work_orders',w.id,w.title,$3,$5
+          FROM work_orders w JOIN members m ON m.workspace_id=w.workspace_id
+          JOIN workspaces s ON s.id=w.workspace_id
+          WHERE w.id=$1 AND m.user_id=$2 AND m.archived_at IS NULL
+            AND s.id=$4 AND s.is_demo AND s.demo_expires_at>now()
+            AND (m.role IN ('admin','staff') OR (m.role='technician' AND w.assignee_id=m.user_id)
+              OR (m.role='client' AND m.client_id=w.client_id AND (m.client_kind<>'household' OR w.created_by=m.user_id)))
+            AND NOT EXISTS (SELECT 1 FROM notifications n WHERE n.user_id=m.user_id AND n.workspace_id=w.workspace_id
+              AND n.entity_id=w.id AND n.kind='demo_push' AND n.to_status=$5)`, [job,u.id,'Demo notification for {job}. Nothing was sent.',u.demo_workspace_id,msg.tag]);
+      }
+      return recipients.filter(u => !u.is_demo).map(u => u.id as string);
+    });
+    const k = keys(); if (!k || !real.length) return 0;
     webpush.setVapidDetails('mailto:shanifadhil33@gmail.com', k.pub, k.priv);
     const fresh = "burst_start IS NULL OR burst_start < now() - interval '10 minutes'";
     const subs = (await withSystem(db => db.query(`UPDATE push_subscriptions SET burst_start=CASE WHEN ${fresh} THEN now() ELSE burst_start END, burst_count=CASE WHEN ${fresh} THEN 1 ELSE burst_count+1 END
-      WHERE user_id = ANY($1::uuid[]) RETURNING id,endpoint,p256dh,auth,burst_count`, [list]))).rows
+      WHERE user_id = ANY($1::uuid[]) AND EXISTS (SELECT 1 FROM users u WHERE u.id=user_id AND NOT u.is_demo) RETURNING id,endpoint,p256dh,auth,burst_count`, [real]))).rows
       .filter(s => msg.urgent || s.burst_count <= BURST_LIMIT + 1).map(s => ({ ...s, out: msg.urgent || s.burst_count <= BURST_LIMIT ? msg : SUMMARY }));
     let sent = 0;
     await Promise.all(subs.map(async s => {
@@ -93,4 +122,10 @@ export async function pushLateJobs() {
     WHERE w.status IN ('scheduled','in_progress') AND w.archived_at IS NULL AND w.updated_at < now() - interval '3 days' AND w.updated_at >= now() - interval '4 days' AND s.demo_expires_at IS NULL`))).rows;
   for (const j of stalled) sent += await sendPush(await office(j.workspace_id, j.client_id, null), { title: 'Job not moving', body: `WO ${j.order_number} ${j.title} has had no update for three days. Tap to reassign or check in.`, url: `/work-orders/${j.id}`, tag: `stalled-${j.id}` });
   return { late: late.length, stalled: stalled.length, sent };
+}
+
+/** A test receipt is local for demo users, independently of browser support or VAPID. */
+export async function testPush(user: string) {
+  if (await isDemoPushUser(user)) return { sent: 0, simulated: true };
+  return { sent: await sendPush([user], { title: 'Groundwork', body: 'Notifications are on for this device.', url: '/settings', tag: 'test' }) };
 }

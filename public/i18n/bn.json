@@ -830,5 +830,13 @@
  "Record the filter size.": "ফিল্টারের মাপ লিখুন।",
  "Always keep job notes short for the company.": "কোম্পানির কাজের নোট সবসময় সংক্ষিপ্ত রাখুন।",
   "Follow up: Sample tap repair": "পরবর্তী পরিদর্শন: নমুনা কল মেরামত",
-  "Seal": "সিল"
+  "Seal": "সিল",
+  "Demo preview. Nothing is sent to a device.": "ডেমো পূর্বরূপ। কোনো যন্ত্রে কিছু পাঠানো হয় না।",
+  "Demo test shown here. Nothing was sent.": "ডেমো পরীক্ষা এখানে দেখানো হয়েছে। কিছু পাঠানো হয়নি।",
+  "Demo notifications": "ডেমো বিজ্ঞপ্তি",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "পরিকল্পনা সংরক্ষিত হয়েছে। বিজ্ঞপ্তিগুলি অনুশীলনের জন্য। প্রত্যেকে অ্যাপে নিজের দিন দেখতে পারেন।",
+  "Demo notification for {job}. Nothing was sent.": "{job} এর ডেমো বিজ্ঞপ্তি। কিছু পাঠানো হয়নি।",
+  "Demo late job: {job}. Nothing was sent.": "ডেমোতে দেরি হওয়া কাজ: {job}। কিছু পাঠানো হয়নি।",
+  "Demo stalled job: {job}. Nothing was sent.": "ডেমোতে থেমে থাকা কাজ: {job}। কিছু পাঠানো হয়নি।",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "ডেমো নথির মেয়াদ {days} দিনে শেষ হবে: {job}। কিছু পাঠানো হয়নি।"
 }

@@ -810,5 +810,13 @@
  "Record the filter size.": "فلٹر کا سائز لکھیں۔",
  "Always keep job notes short for the company.": "کمپنی کے لیے کام کے نوٹ ہمیشہ مختصر رکھیں۔",
   "Follow up: Sample tap repair": "اگلا دورہ: نل کی نمونہ مرمت",
-  "Seal": "سیل"
+  "Seal": "سیل",
+  "Demo preview. Nothing is sent to a device.": "ڈیمو پیش منظر۔ کسی آلے پر کچھ نہیں بھیجا جاتا۔",
+  "Demo test shown here. Nothing was sent.": "ڈیمو آزمائش یہاں دکھائی گئی ہے۔ کچھ نہیں بھیجا گیا۔",
+  "Demo notifications": "ڈیمو اطلاعات",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "منصوبہ محفوظ ہو گیا۔ اطلاعات مشق کے لیے ہیں۔ ہر شخص ایپ میں اپنا دن دیکھ سکتا ہے۔",
+  "Demo notification for {job}. Nothing was sent.": "{job} کی ڈیمو اطلاع۔ کچھ نہیں بھیجا گیا۔",
+  "Demo late job: {job}. Nothing was sent.": "ڈیمو میں تاخیر والا کام: {job}۔ کچھ نہیں بھیجا گیا۔",
+  "Demo stalled job: {job}. Nothing was sent.": "ڈیمو میں رکا ہوا کام: {job}۔ کچھ نہیں بھیجا گیا۔",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "ڈیمو دستاویز {days} دن میں ختم ہوگی: {job}۔ کچھ نہیں بھیجا گیا۔"
 }

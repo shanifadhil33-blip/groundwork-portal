@@ -766,5 +766,13 @@
  "Record the filter size.": "Kyerɛw afiri a ɛsɔ nsu mu no kɛse.",
  "Always keep job notes short for the company.": "Ma adwuma no ho nsɛm a wokyerɛw ma adwumakuw no nyɛ tiaa bere nyinaa.",
   "Follow up: Sample tap repair": "Nsrahwɛ a edi hɔ: Nsuyiri adeɛ siesie ho nhwɛsoɔ",
-  "Seal": "Nsuo ano siw adeɛ"
+  "Seal": "Nsuo ano siw adeɛ",
+  "Demo preview. Nothing is sent to a device.": "Sɔhwɛ nhwɛso. Wɔmfa biribiara nkɔ afiri so.",
+  "Demo test shown here. Nothing was sent.": "Wɔakyerɛ sɔhwɛ no wɔ ha. Wɔamfa biribiara ankɔ.",
+  "Demo notifications": "Sɔhwɛ nkaebɔ",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "Wɔakora nhyehyɛe no so. Nkaebɔ no yɛ sɔhwɛ. Obiara betumi ahwɛ ne da wɔ app no mu.",
+  "Demo notification for {job}. Nothing was sent.": "Sɔhwɛ nkaebɔ fa {job} ho. Wɔamfa biribiara ankɔ.",
+  "Demo late job: {job}. Nothing was sent.": "Sɔhwɛ adwuma a aka akyi: {job}. Wɔamfa biribiara ankɔ.",
+  "Demo stalled job: {job}. Nothing was sent.": "Sɔhwɛ adwuma a agyina: {job}. Wɔamfa biribiara ankɔ.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Sɔhwɛ krataa no bere bɛso wɔ nna {days} mu: {job}. Wɔamfa biribiara ankɔ."
 }

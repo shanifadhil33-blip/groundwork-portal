@@ -781,5 +781,13 @@
  "Record the filter size.": "Qor cabbirka shaandhada.",
  "Always keep job notes short for the company.": "Had iyo jeer soo koob qoraallada shaqada ee shirkadda.",
   "Follow up: Sample tap repair": "Booqasho kale: Tusaalaha hagaajinta qasabadda",
-  "Seal": "Xiraha biyaha"
+  "Seal": "Xiraha biyaha",
+  "Demo preview. Nothing is sent to a device.": "Muuqaal tijaabo ah. Waxba looma dirayo qalab.",
+  "Demo test shown here. Nothing was sent.": "Tijaabada waxaa lagu muujiyey halkan. Waxba lama dirin.",
+  "Demo notifications": "Ogeysiisyada tijaabada",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "Qorshaha waa la kaydiyey. Ogeysiisyadu waa tijaabo. Qof kastaa maalintiisa ayuu ku arki karaa abka.",
+  "Demo notification for {job}. Nothing was sent.": "Ogeysiis tijaabo ah oo ku saabsan {job}. Waxba lama dirin.",
+  "Demo late job: {job}. Nothing was sent.": "Shaqo tijaabo ah oo daahday: {job}. Waxba lama dirin.",
+  "Demo stalled job: {job}. Nothing was sent.": "Shaqo tijaabo ah oo hakad gashay: {job}. Waxba lama dirin.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Dukumentiga tijaabadu wuxuu dhacayaa {days} maalmood gudahood: {job}. Waxba lama dirin."
 }

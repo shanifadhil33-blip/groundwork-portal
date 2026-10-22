@@ -3,7 +3,7 @@ import { label, clientStatusLabels, statusLabels } from './work-orders';
 type WorkNotification = {id:string;read_at:string|null;link_target:{entity:string;id:string}|null};
 // Navigation waits for the read receipt so the bell stays in sync with the opened item.
 export async function openNotificationTarget(item:WorkNotification,markRead:(id:string)=>Promise<unknown>,navigate:(id:string)=>void) {
- if(!item.link_target||!['work_order','work_orders','job_suggestions','time_off','members','conversations','team_space','join_requests'].includes(item.link_target.entity))return false;
+ if(!item.link_target||!['work_order','work_orders','job_suggestions','time_off','members','conversations','team_space','join_requests','documents'].includes(item.link_target.entity))return false;
  if(!item.read_at)await markRead(item.id);
  navigate(item.link_target.id);
  return true;
@@ -11,6 +11,10 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
 
 /** English keys are also the offline fallback. Values never contain translated user data. */
 export const notificationTemplates = {
+ demo_push: 'Demo notification for {job}. Nothing was sent.',
+ demo_late: 'Demo late job: {job}. Nothing was sent.',
+ demo_stalled: 'Demo stalled job: {job}. Nothing was sent.',
+ demo_document: 'Demo document expires in {days} days: {job}. Nothing was sent.',
  join: 'Your request to join was accepted. Open Find your company to continue.',
  team: '{name} wrote in Team space.',
  message: '{name} sent you a message.',
@@ -59,6 +63,10 @@ export function notificationTemplate(r: Record<string, any>, client = false): No
  const make = (id: keyof typeof notificationTemplates): NotificationTemplate => ({key:notificationTemplates[id],values,translatedValues});
  // These columns predate templates. Recover saved bodies without any schema changes.
  const fallback = (body: string): NotificationTemplate => ({key:'{body}',values:{body,...(r.actor_name?{name:r.actor_name}:{}),...(r.work_order_title&&!['emergency','emergency_review'].includes(r.kind)?{job:r.work_order_title}:{})},runtime:true});
+ if(['demo_push','demo_late','demo_stalled','demo_document'].includes(r.kind)) {
+  if(r.kind==='demo_document')values.days=String(r.to_status);
+  return make(r.kind as 'demo_push'|'demo_late'|'demo_stalled'|'demo_document');
+ }
  if(r.kind==='job_next_step'&&r.job_step_body){
   const saved=savedReturnNotice(String(r.job_step_body));
   return saved?{key:notificationTemplates[saved.kind],values:saved.values}:fallback(String(r.job_step_body));

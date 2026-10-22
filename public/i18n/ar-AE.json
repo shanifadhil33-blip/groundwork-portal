@@ -1160,5 +1160,13 @@
  "Record the filter size.": "سجل مقاس الفلتر.",
  "Always keep job notes short for the company.": "خل ملاحظات الشغل قصيرة دايماً للشركة.",
   "Follow up: Sample tap repair": "زيارة متابعة: إصلاح صنبور تجريبي",
-  "Seal": "حلقة إحكام"
+  "Seal": "حلقة إحكام",
+  "Demo preview. Nothing is sent to a device.": "معاينة تجريبية. ما نرسل أي شيء للجهاز.",
+  "Demo test shown here. Nothing was sent.": "الاختبار التجريبي ظاهر هنا. ما انرسل أي شيء.",
+  "Demo notifications": "إشعارات تجريبية",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "تم حفظ الخطة. الإشعارات تجريبية. كل شخص يقدر يشوف يومه في التطبيق.",
+  "Demo notification for {job}. Nothing was sent.": "إشعار تجريبي عن {job}. ما انرسل أي شيء.",
+  "Demo late job: {job}. Nothing was sent.": "مهمة تجريبية متأخرة: {job}. ما انرسل أي شيء.",
+  "Demo stalled job: {job}. Nothing was sent.": "مهمة تجريبية متوقفة: {job}. ما انرسل أي شيء.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "المستند التجريبي تنتهي صلاحيته خلال {days} أيام: {job}. ما انرسل أي شيء."
 }

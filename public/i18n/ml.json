@@ -793,5 +793,13 @@
  "Record the filter size.": "ഫിൽട്ടറിന്റെ വലുപ്പം രേഖപ്പെടുത്തുക.",
  "Always keep job notes short for the company.": "കമ്പനിക്കായി ജോലിക്കുറിപ്പുകൾ എപ്പോഴും ചുരുക്കി എഴുതുക.",
   "Follow up: Sample tap repair": "തുടർ സന്ദർശനം: മാതൃകാ ടാപ്പ് അറ്റകുറ്റപ്പണി",
-  "Seal": "സീൽ"
+  "Seal": "സീൽ",
+  "Demo preview. Nothing is sent to a device.": "ഡെമോ കാഴ്ച. ഒരു ഉപകരണത്തിലേക്കും ഒന്നും അയയ്ക്കുന്നില്ല.",
+  "Demo test shown here. Nothing was sent.": "ഡെമോ പരീക്ഷണം ഇവിടെ കാണിക്കുന്നു. ഒന്നും അയച്ചിട്ടില്ല.",
+  "Demo notifications": "ഡെമോ അറിയിപ്പുകൾ",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "പദ്ധതി സൂക്ഷിച്ചു. അറിയിപ്പുകൾ പരിശീലനത്തിനുള്ളതാണ്. ഓരോരുത്തർക്കും ആപ്പിൽ സ്വന്തം ദിവസം കാണാം.",
+  "Demo notification for {job}. Nothing was sent.": "{job} സംബന്ധിച്ച ഡെമോ അറിയിപ്പ്. ഒന്നും അയച്ചിട്ടില്ല.",
+  "Demo late job: {job}. Nothing was sent.": "ഡെമോയിൽ വൈകിയ ജോലി: {job}. ഒന്നും അയച്ചിട്ടില്ല.",
+  "Demo stalled job: {job}. Nothing was sent.": "ഡെമോയിൽ മുടങ്ങിയ ജോലി: {job}. ഒന്നും അയച്ചിട്ടില്ല.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "ഡെമോ രേഖയുടെ കാലാവധി {days} ദിവസത്തിൽ തീരും: {job}. ഒന്നും അയച്ചിട്ടില്ല."
 }

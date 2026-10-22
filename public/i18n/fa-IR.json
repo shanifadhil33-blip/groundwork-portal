@@ -812,5 +812,13 @@
  "Record the filter size.": "اندازه فیلتر را ثبت کنید.",
  "Always keep job notes short for the company.": "یادداشت های کار شرکت را همیشه کوتاه نگه دارید.",
   "Follow up: Sample tap repair": "بازدید بعدی: تعمیر شیر آب نمونه",
-  "Seal": "واشر آب بندی"
+  "Seal": "واشر آب بندی",
+  "Demo preview. Nothing is sent to a device.": "پیش‌نمایش آزمایشی. چیزی به دستگاه فرستاده نمی‌شود.",
+  "Demo test shown here. Nothing was sent.": "آزمون نمایشی اینجا نشان داده شده است. چیزی فرستاده نشد.",
+  "Demo notifications": "اعلان‌های آزمایشی",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "برنامه ذخیره شد. اعلان‌ها آزمایشی هستند. هر فرد می‌تواند روز خود را در برنامه ببیند.",
+  "Demo notification for {job}. Nothing was sent.": "اعلان آزمایشی برای {job}. چیزی فرستاده نشد.",
+  "Demo late job: {job}. Nothing was sent.": "کار دیرشده آزمایشی: {job}. چیزی فرستاده نشد.",
+  "Demo stalled job: {job}. Nothing was sent.": "کار متوقف آزمایشی: {job}. چیزی فرستاده نشد.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "سند آزمایشی تا {days} روز دیگر منقضی می‌شود: {job}. چیزی فرستاده نشد."
 }

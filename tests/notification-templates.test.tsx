@@ -14,7 +14,7 @@ import { setNotificationLanguage } from '../components/app/notification-language
 
 const state=vi.hoisted(()=>({language:'hi',items:[] as unknown[]}));
 vi.mock('../components/app/resource',()=>({useResource:()=>({data:{language:state.language}})}));
-vi.mock('../components/app/context',()=>({useApp:()=>({member:{role:'technician'},reload:vi.fn()})}));
+vi.mock('../components/app/context',async original=>({...await original<typeof import('../components/app/context')>(),useApp:()=>({member:{role:'technician'},me:{user:{is_demo:false}},reload:vi.fn()})}));
 vi.mock('../components/app/selection',()=>({useSelection:()=>({bar:null,row:()=>({}),mark:()=>null,close:()=>{}})}));
 vi.mock('next/navigation',()=>({useRouter:()=>({push:vi.fn()})}));
 vi.mock('../lib/ui/api',()=>({request:async()=>({data:state.items,total:state.items.length,unread_count:state.items.length}),post:vi.fn()}));

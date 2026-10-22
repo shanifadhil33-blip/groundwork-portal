@@ -1,5 +1,6 @@
 import { localDate, scheduledInstant } from './dates';
 import type { PoolClient } from 'pg';
+import { populateNotificationFixture } from './fixture-notifications';
 import { populateProofFixture } from './fixture-proof';
 import { populateDecisionFixture } from './fixture-decisions';
 import { populateFollowUpFixture } from './fixture-follow-ups';
@@ -118,7 +119,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
  // Sample company documents, stamped SAMPLE in the name and on the page: two expiring soon, one valid, one expired. Tiny one page PDFs.
  const pdf=(t:string)=>{const body=`BT /F1 18 Tf 72 720 Td (${t}) Tj ET`;const objs=['<</Type/Catalog/Pages 2 0 R>>','<</Type/Pages/Kids[3 0 R]/Count 1>>','<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>',`<</Length ${body.length}>>stream\n${body}\nendstream`,'<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>'];let out='%PDF-1.4\n';const at:number[]=[];objs.forEach((o,i)=>{at.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`;});const x=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n${at.map(a=>String(a).padStart(10,'0')+' 00000 n \n').join('')}trailer\n<</Size ${objs.length+1}/Root 1 0 R>>\nstartxref\n${x}\n%%EOF`;return Buffer.from(out,'latin1');};
  for(const [type,title,issued,expires,who] of [['trade_licence','SAMPLE Trade licence',-345,20,ids.imran],['certificate','SAMPLE Civil Defence certificate',-358,6,ids.imran],['insurance','SAMPLE Public liability insurance',-120,245,ids.sam],['permit','SAMPLE Hot work permit, Marina Exchange',-60,-3,ids.sam]] as const)
-  await client.query("INSERT INTO company_documents(workspace_id,doc_type,title,issued_on,expires_on,responsible_id,file_name,mime,bytes,added_by) VALUES($1,$2,$3,$4,$5,$6,$7,'application/pdf',$8,$9)",[ids.ridgeline,type,title,dayOffset(today,issued),dayOffset(today,expires),who,title.replace(/[^\w]+/g,'-').toLowerCase()+'.pdf',pdf(`${title}. Sample document, not a real licence.`),ids.imran]);
+  await client.query("INSERT INTO company_documents(workspace_id,doc_type,title,issued_on,expires_on,responsible_id,file_name,mime,bytes,added_by) VALUES($1,$2,$3,$4,$5,$6,$7,'application/pdf',$8,$9)",[ids.ridgeline,type,title,dayOffset(today,issued),dayOffset(today,demo && type==='certificate'?7:expires),who,title.replace(/[^\w]+/g,'-').toLowerCase()+'.pdf',pdf(`${title}. Sample document, not a real licence.`),ids.imran]);
  // Two more technicians (no sign in) so weekly days off and leave mean something in the demo.
  const extra:string[]=[];
  for(const [name,trades,off] of [['Bilal','{electrical,ac}',[0]],['Anil','{plumbing,general}',[6]]] as const){
@@ -203,5 +204,6 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
     await populateProofFixture(client,ids,siteId,orderId,today,timezone);
     await populateFollowUpFixture(client,ids,siteId,today,timezone);
     await populateDecisionFixture(client,ids,today);
+    await populateNotificationFixture(client,ids);
   }
 }

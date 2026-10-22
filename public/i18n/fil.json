@@ -771,5 +771,13 @@
  "Record the filter size.": "Itala ang sukat ng pansala.",
  "Always keep job notes short for the company.": "Palaging paikliin ang mga tala sa trabaho para sa kumpanya.",
   "Follow up: Sample tap repair": "Balik na pagbisita: Halimbawang pag ayos ng gripo",
-  "Seal": "Panselyo"
+  "Seal": "Panselyo",
+  "Demo preview. Nothing is sent to a device.": "Demo na preview. Walang ipinapadala sa device.",
+  "Demo test shown here. Nothing was sent.": "Ipinapakita rito ang demo na pagsubok. Walang ipinadala.",
+  "Demo notifications": "Mga demo na abiso",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "Naitala ang plano. Pagsasanay lang ang mga abiso. Makikita ng bawat tao ang kaniyang araw sa app.",
+  "Demo notification for {job}. Nothing was sent.": "Demo na abiso para sa {job}. Walang ipinadala.",
+  "Demo late job: {job}. Nothing was sent.": "Nahuling trabaho sa demo: {job}. Walang ipinadala.",
+  "Demo stalled job: {job}. Nothing was sent.": "Natigil na trabaho sa demo: {job}. Walang ipinadala.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Mawawalan ng bisa ang demo na dokumento sa loob ng {days} araw: {job}. Walang ipinadala."
 }

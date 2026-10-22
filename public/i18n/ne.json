@@ -806,5 +806,13 @@
  "Record the filter size.": "फिल्टरको आकार लेख्नुहोस्।",
  "Always keep job notes short for the company.": "कम्पनीका लागि कामका टिपोट सधैँ छोटा राख्नुहोस्।",
   "Follow up: Sample tap repair": "पछिल्लो भ्रमण: धाराको नमुना मर्मत",
-  "Seal": "सिल"
+  "Seal": "सिल",
+  "Demo preview. Nothing is sent to a device.": "डेमो झलक। कुनै उपकरणमा केही पठाइँदैन।",
+  "Demo test shown here. Nothing was sent.": "डेमो परीक्षण यहाँ देखाइएको छ। केही पठाइएन।",
+  "Demo notifications": "डेमो सूचनाहरू",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "योजना सुरक्षित भयो। सूचनाहरू अभ्यासका लागि हुन्। प्रत्येक व्यक्तिले एपमा आफ्नो दिन हेर्न सक्छ।",
+  "Demo notification for {job}. Nothing was sent.": "{job} को डेमो सूचना। केही पठाइएन।",
+  "Demo late job: {job}. Nothing was sent.": "डेमो ढिलो भएको काम: {job}। केही पठाइएन।",
+  "Demo stalled job: {job}. Nothing was sent.": "डेमो रोकिएको काम: {job}। केही पठाइएन।",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "डेमो कागजातको म्याद {days} दिनमा सकिन्छ: {job}। केही पठाइएन।"
 }

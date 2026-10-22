@@ -825,5 +825,13 @@
  "Record the filter size.": "வடிகட்டியின் அளவைப் பதிவு செய்யுங்கள்.",
  "Always keep job notes short for the company.": "நிறுவனத்திற்கான வேலைக் குறிப்புகளை எப்போதும் சுருக்கமாக வைத்திருங்கள்.",
   "Follow up: Sample tap repair": "தொடர் வருகை: மாதிரி குழாய் பழுது நீக்கம்",
-  "Seal": "நீர் கசிவுத் தடுப்பு வளையம்"
+  "Seal": "நீர் கசிவுத் தடுப்பு வளையம்",
+  "Demo preview. Nothing is sent to a device.": "டெமோ முன்னோட்டம். எந்தச் சாதனத்திற்கும் எதுவும் அனுப்பப்படாது.",
+  "Demo test shown here. Nothing was sent.": "டெமோ சோதனை இங்கே காட்டப்படுகிறது. எதுவும் அனுப்பப்படவில்லை.",
+  "Demo notifications": "டெமோ அறிவிப்புகள்",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "திட்டம் சேமிக்கப்பட்டது. அறிவிப்புகள் பயிற்சிக்கானவை. ஒவ்வொருவரும் செயலியில் தங்கள் நாளைக் காணலாம்.",
+  "Demo notification for {job}. Nothing was sent.": "{job} பற்றிய டெமோ அறிவிப்பு. எதுவும் அனுப்பப்படவில்லை.",
+  "Demo late job: {job}. Nothing was sent.": "டெமோவில் தாமதமான வேலை: {job}. எதுவும் அனுப்பப்படவில்லை.",
+  "Demo stalled job: {job}. Nothing was sent.": "டெமோவில் நின்ற வேலை: {job}. எதுவும் அனுப்பப்படவில்லை.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "டெமோ ஆவணம் {days} நாட்களில் காலாவதியாகும்: {job}. எதுவும் அனுப்பப்படவில்லை."
 }

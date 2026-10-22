@@ -780,5 +780,13 @@
  "Record the filter size.": "Rubuta girman matatar.",
  "Always keep job notes short for the company.": "Kullum a taƙaita bayanan aiki na kamfanin.",
   "Follow up: Sample tap repair": "Ziyarar komawa: Misalin gyaran famfo",
-  "Seal": "Abin hana zuba"
+  "Seal": "Abin hana zuba",
+  "Demo preview. Nothing is sent to a device.": "Duban gwaji. Ba a aika kome zuwa na’ura.",
+  "Demo test shown here. Nothing was sent.": "An nuna gwajin nan. Ba a aika kome ba.",
+  "Demo notifications": "Sanarwar gwaji",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "An adana shirin. Sanarwar gwaji ce. Kowa zai iya ganin ranarsa a manhajar.",
+  "Demo notification for {job}. Nothing was sent.": "Sanarwar gwaji don {job}. Ba a aika kome ba.",
+  "Demo late job: {job}. Nothing was sent.": "Aikin gwaji da ya makara: {job}. Ba a aika kome ba.",
+  "Demo stalled job: {job}. Nothing was sent.": "Aikin gwaji da ya tsaya: {job}. Ba a aika kome ba.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Takardar gwaji za ta ƙare cikin kwanaki {days}: {job}. Ba a aika kome ba."
 }

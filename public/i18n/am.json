@@ -769,5 +769,13 @@
  "Record the filter size.": "የማጣሪያውን መጠን መዝግብ።",
  "Always keep job notes short for the company.": "ለድርጅቱ ሁልጊዜ አጭር የሥራ ማስታወሻዎችን ጻፍ።",
   "Follow up: Sample tap repair": "የናሙና ቧንቧ ጥገና ቀጣይ ጉብኝት",
-  "Seal": "ማሸጊያ"
+  "Seal": "ማሸጊያ",
+  "Demo preview. Nothing is sent to a device.": "የሙከራ ቅድመ እይታ። ወደ መሣሪያ ምንም አይላክም።",
+  "Demo test shown here. Nothing was sent.": "የሙከራ ሙከራው እዚህ ታይቷል። ምንም አልተላከም።",
+  "Demo notifications": "የሙከራ ማሳወቂያዎች",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "ዕቅዱ ተቀምጧል። ማሳወቂያዎቹ የሙከራ ናቸው። እያንዳንዱ ሰው ቀኑን በመተግበሪያው ማየት ይችላል።",
+  "Demo notification for {job}. Nothing was sent.": "ለ {job} የሙከራ ማሳወቂያ። ምንም አልተላከም።",
+  "Demo late job: {job}. Nothing was sent.": "የዘገየ የሙከራ ሥራ፦ {job}። ምንም አልተላከም።",
+  "Demo stalled job: {job}. Nothing was sent.": "የቆመ የሙከራ ሥራ፦ {job}። ምንም አልተላከም።",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "የሙከራ ሰነዱ በ {days} ቀናት ያበቃል፦ {job}። ምንም አልተላከም።"
 }

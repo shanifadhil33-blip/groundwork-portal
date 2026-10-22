@@ -756,5 +756,13 @@
  "Record the filter size.": "Kọ ìwọ̀n àlẹ̀ sílẹ̀.",
  "Always keep job notes short for the company.": "Máa jẹ́ kí àkọsílẹ̀ iṣẹ́ fún ilé iṣẹ́ kúrú ní gbogbo ìgbà.",
   "Follow up: Sample tap repair": "Ìbẹ̀wò tó tẹ̀ lé: Àpẹẹrẹ àtúnṣe tẹ́ẹ́pù omi",
-  "Seal": "Ohun dí omi"
+  "Seal": "Ohun dí omi",
+  "Demo preview. Nothing is sent to a device.": "Àwòkọ́ṣe ìdánwò. A kò fi ohunkóhun ránṣẹ́ sí ẹ̀rọ.",
+  "Demo test shown here. Nothing was sent.": "Ìdánwò hàn níbí. A kò fi ohunkóhun ránṣẹ́.",
+  "Demo notifications": "Àwọn ìfitónilétí ìdánwò",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "A ti fi ètò pamọ́. Àwọn ìfitónilétí jẹ́ ìdánwò. Ẹnìkọ̀ọ̀kan lè wo ọjọ́ rẹ̀ nínú ápù.",
+  "Demo notification for {job}. Nothing was sent.": "Ìfitónilétí ìdánwò fún {job}. A kò fi ohunkóhun ránṣẹ́.",
+  "Demo late job: {job}. Nothing was sent.": "Iṣẹ́ ìdánwò tó pẹ́: {job}. A kò fi ohunkóhun ránṣẹ́.",
+  "Demo stalled job: {job}. Nothing was sent.": "Iṣẹ́ ìdánwò tó dúró: {job}. A kò fi ohunkóhun ránṣẹ́.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Ìwé ìdánwò yóò parí láàárín ọjọ́ {days}: {job}. A kò fi ohunkóhun ránṣẹ́."
 }

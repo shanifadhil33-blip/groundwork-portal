@@ -807,5 +807,13 @@
  "Record the filter size.": "د فلټر اندازه ولیکئ.",
  "Always keep job notes short for the company.": "د شرکت لپاره د کار یادښتونه تل لنډ وساتئ.",
   "Follow up: Sample tap repair": "بیا کتنه: د نل بېلګه ترمیم",
-  "Seal": "د اوبو بندولو کړۍ"
+  "Seal": "د اوبو بندولو کړۍ",
+  "Demo preview. Nothing is sent to a device.": "ازمایښتي کتنه. هېڅ وسیلې ته څه نه لېږل کېږي.",
+  "Demo test shown here. Nothing was sent.": "ازمایښتي ازموینه دلته ښودل شوې. څه نه دي لېږل شوي.",
+  "Demo notifications": "ازمایښتي خبرتیاوې",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "پلان خوندي شو. خبرتیاوې ازمایښتي دي. هر څوک په اپ کې خپله ورځ لیدلی شي.",
+  "Demo notification for {job}. Nothing was sent.": "د {job} لپاره ازمایښتي خبرتیا. څه نه دي لېږل شوي.",
+  "Demo late job: {job}. Nothing was sent.": "ازمایښتي ناوخته کار: {job}. څه نه دي لېږل شوي.",
+  "Demo stalled job: {job}. Nothing was sent.": "ازمایښتي درېدلی کار: {job}. څه نه دي لېږل شوي.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "ازمایښتي سند په {days} ورځو کې پای ته رسېږي: {job}. څه نه دي لېږل شوي."
 }

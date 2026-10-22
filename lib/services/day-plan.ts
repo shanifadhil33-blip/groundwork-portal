@@ -142,8 +142,10 @@ export async function postDayPlan(user: string, ws: string, input: unknown) {
   if (d.fingerprint !== preview.next.fingerprint) throw new ApiError(409, 'conflict', DAY_REPLIES.dayChanged);
   const placed = preview.next.lines.filter(line => line.kind === 'place' && line.assignee_id && line.hour != null);
   if (!placed.length) return { reply: DAY_REPLIES.nothingToPlan, lines: preview.next.lines };
+  let simulated = false;
   const told = await withSystem(async db => {
     const actor = await actorOf(db, user, ws);
+    simulated = actor.demo;
     if (!canPlanDay(actor)) throw denied();
     const { people, planJobs } = await load(db, user, ws, actor);
     const built = proposal(kind, planJobs, people, d.job_id);
@@ -163,5 +165,5 @@ export async function postDayPlan(user: string, ws: string, input: unknown) {
     return [...new Set(notes.map(note => note.who))];
   }, user);
   const pushCount = told.length ? await sendPush(told, { title: 'Your day', body: DAY_REPLIES.dayReady, url: '/today', tag: `dayplan-${ws}` }) : 0;
-  return { reply: planSavedReply(pushCount), saved: true };
+  return { reply: simulated ? 'The plan is saved. Notifications are simulated. Each person can see his day in the app.' : planSavedReply(pushCount), saved: true };
 }

@@ -790,5 +790,13 @@
  "Record the filter size.": "ዓቐን መጻረዪ መዝግብ።",
  "Always keep job notes short for the company.": "ናይ ትካል ስራሕ መዘኻኸሪታት ኩሉ ግዜ ሓጸርቲ ግበሮም።",
   "Follow up: Sample tap repair": "ተኸታታሊ ምብጻሕ፦ ናሙና ጽገና ቧንቧ",
-  "Seal": "መዕሸጊ"
+  "Seal": "መዕሸጊ",
+  "Demo preview. Nothing is sent to a device.": "ናይ ፈተነ ቅድመ ርእይቶ። ናብ መሳርሒ ዝለኣኽ የለን።",
+  "Demo test shown here. Nothing was sent.": "ናይ ፈተነ መርመራ ኣብዚ ተራእዩ። ዝተላእከ የለን።",
+  "Demo notifications": "ናይ ፈተነ ምልክታታት",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "መደቡ ተዓቂቡ። ምልክታታት ናይ ፈተነ እዮም። ነፍሲ ወከፍ ሰብ መዓልቱ ኣብ መተግበሪ ክርኢ ይኽእል።",
+  "Demo notification for {job}. Nothing was sent.": "ን {job} ናይ ፈተነ ምልክታ። ዝተላእከ የለን።",
+  "Demo late job: {job}. Nothing was sent.": "ዝደንጎየ ናይ ፈተነ ስራሕ፦ {job}። ዝተላእከ የለን።",
+  "Demo stalled job: {job}. Nothing was sent.": "ዝተዓገተ ናይ ፈተነ ስራሕ፦ {job}። ዝተላእከ የለን።",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "ናይ ፈተነ ሰነድ ድሕሪ {days} መዓልታት ይውዳእ፦ {job}። ዝተላእከ የለን።"
 }

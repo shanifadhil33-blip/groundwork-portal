@@ -761,5 +761,13 @@
  "Record the filter size.": "Rekodi ukubwa wa kichujio.",
  "Always keep job notes short for the company.": "Daima fupisha maelezo ya kazi kwa kampuni.",
   "Follow up: Sample tap repair": "Ziara ya kurudi: Mfano wa ukarabati wa bomba",
-  "Seal": "Kizibo"
+  "Seal": "Kizibo",
+  "Demo preview. Nothing is sent to a device.": "Onyesho la majaribio. Hakuna kinachotumwa kwa kifaa.",
+  "Demo test shown here. Nothing was sent.": "Jaribio la mfano linaonyeshwa hapa. Hakuna kilichotumwa.",
+  "Demo notifications": "Arifa za majaribio",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "Mpango umehifadhiwa. Arifa ni za majaribio. Kila mtu anaweza kuona siku yake kwenye programu.",
+  "Demo notification for {job}. Nothing was sent.": "Arifa ya mfano ya {job}. Hakuna kilichotumwa.",
+  "Demo late job: {job}. Nothing was sent.": "Kazi iliyochelewa ya mfano: {job}. Hakuna kilichotumwa.",
+  "Demo stalled job: {job}. Nothing was sent.": "Kazi iliyokwama ya mfano: {job}. Hakuna kilichotumwa.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Hati ya mfano itaisha baada ya siku {days}: {job}. Hakuna kilichotumwa."
 }

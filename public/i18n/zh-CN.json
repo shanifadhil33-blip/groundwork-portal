@@ -766,5 +766,13 @@
  "Record the filter size.": "记录滤芯尺寸。",
  "Always keep job notes short for the company.": "始终为公司保持简短的工作记录。",
   "Follow up: Sample tap repair": "后续上门：水龙头维修示例",
-  "Seal": "密封圈"
+  "Seal": "密封圈",
+  "Demo preview. Nothing is sent to a device.": "演示预览。不会向设备发送任何内容。",
+  "Demo test shown here. Nothing was sent.": "演示测试显示在这里。未发送任何内容。",
+  "Demo notifications": "演示通知",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "计划已保存。通知仅为模拟。每个人都可以在应用中查看自己当天的安排。",
+  "Demo notification for {job}. Nothing was sent.": "{job}的演示通知。未发送任何内容。",
+  "Demo late job: {job}. Nothing was sent.": "演示中延迟的工作：{job}。未发送任何内容。",
+  "Demo stalled job: {job}. Nothing was sent.": "演示中停滞的工作：{job}。未发送任何内容。",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "演示文档将在{days}天后到期：{job}。未发送任何内容。"
 }

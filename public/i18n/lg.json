@@ -760,5 +760,13 @@
  "Record the filter size.": "Wandiika obunene bwakasengejja.",
  "Always keep job notes short for the company.": "Bulijjo wandiika ebiwandiiko byomulimu ebimpi ku lwa kampuni.",
   "Follow up: Sample tap repair": "Okuddayo okukola: Ekyokulabirako ekyokuddaabiriza ttaapu",
-  "Seal": "Akasiba amazzi"
+  "Seal": "Akasiba amazzi",
+  "Demo preview. Nothing is sent to a device.": "Okulaga okw’okugezesa. Tewali kiweerezebwa ku kyuma.",
+  "Demo test shown here. Nothing was sent.": "Okugezesa kulagiddwa wano. Tewali kiweerezeddwa.",
+  "Demo notifications": "Obubaka bw’okugezesa",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "Enteekateeka eterekeddwa. Obubaka bwa kugezesa. Buli muntu asobola okulaba olunaku lwe mu pulogulaamu.",
+  "Demo notification for {job}. Nothing was sent.": "Obubaka bw’okugezesa ku {job}. Tewali kiweerezeddwa.",
+  "Demo late job: {job}. Nothing was sent.": "Omulimu ogw’okugezesa oguludde: {job}. Tewali kiweerezeddwa.",
+  "Demo stalled job: {job}. Nothing was sent.": "Omulimu ogw’okugezesa oguyimiridde: {job}. Tewali kiweerezeddwa.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Ekiwandiiko eky’okugezesa kiggwaako mu nnaku {days}: {job}. Tewali kiweerezeddwa."
 }

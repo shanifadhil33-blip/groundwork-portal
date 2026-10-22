@@ -775,5 +775,13 @@
  "Record the filter size.": "Dee nha nzacha.",
  "Always keep job notes short for the company.": "Na edebe ndetu ọrụ ụlọ ọrụ mkpụmkpụ mgbe niile.",
   "Follow up: Sample tap repair": "Nleta ọzọ: Ihe atụ nrụzi pọmpụ mmiri",
-  "Seal": "Ihe mkpuchi mmiri"
+  "Seal": "Ihe mkpuchi mmiri",
+  "Demo preview. Nothing is sent to a device.": "Nlele nnwale. A naghị eziga ihe ọ bụla na ngwaọrụ.",
+  "Demo test shown here. Nothing was sent.": "E gosiri nnwale ebe a. E zigaghị ihe ọ bụla.",
+  "Demo notifications": "Ọkwa nnwale",
+  "The plan is saved. Notifications are simulated. Each person can see his day in the app.": "E chekwara atụmatụ. Ọkwa ndị a bụ nnwale. Onye ọ bụla nwere ike ịhụ ụbọchị ya n’ime ngwa.",
+  "Demo notification for {job}. Nothing was sent.": "Ọkwa nnwale maka {job}. E zigaghị ihe ọ bụla.",
+  "Demo late job: {job}. Nothing was sent.": "Ọrụ nnwale dara azụ: {job}. E zigaghị ihe ọ bụla.",
+  "Demo stalled job: {job}. Nothing was sent.": "Ọrụ nnwale kwụsịrị: {job}. E zigaghị ihe ọ bụla.",
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Akwụkwọ nnwale ga agwụ n’ime ụbọchị {days}: {job}. E zigaghị ihe ọ bụla."
 }
