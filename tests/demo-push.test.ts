@@ -112,9 +112,13 @@ it('approved demo plans give a simulated summary and each technician gets only h
   expect(plan.lines.some(l=>l.kind==='place')).toBe(true);
   const r=await postDayPlan(u.sam,ws,{action:'approve',fingerprint:plan.fingerprint});
   expect(r.reply).toContain('Notifications are simulated.');
-  const own=(await notices(u.ravi,ws)).data.filter(n=>n.kind==='day_plan');
-  expect(own.length).toBeGreaterThan(0);
-  for (const n of own) expect((await rows('SELECT assignee_id FROM work_orders WHERE id=$1',[n.entity_id]))[0].assignee_id).toBe(u.ravi);
+  // The planner can choose any available technician with matching trade and area.
+  const placed=plan.lines.filter(l=>l.kind==='place');
+  for (const person of await rows("SELECT user_id FROM members WHERE workspace_id=$1 AND role='technician'",[ws])) {
+    const own=(await notices(person.user_id,ws)).data.filter(n=>n.kind==='day_plan');
+    expect(own.map(n=>n.entity_id).sort()).toEqual(placed.filter(l=>l.assignee_id===person.user_id).map(l=>l.job_id).sort());
+    for (const n of own) expect((await rows('SELECT assignee_id FROM work_orders WHERE id=$1',[n.entity_id]))[0].assignee_id).toBe(person.user_id);
+  }
   expect(transport.sendNotification).not.toHaveBeenCalled();
   await rows("UPDATE members SET off_days='{}' WHERE workspace_id=$1",[ids.ridgeline]);
   await rows('DELETE FROM time_off WHERE workspace_id=$1',[ids.ridgeline]);

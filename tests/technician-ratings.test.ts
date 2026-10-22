@@ -4,7 +4,7 @@ import { closePools, withSystem } from '../lib/db';
 import * as database from '../lib/db';
 import { ids } from '../lib/fixture';
 import { startDemo } from '../lib/services/demo';
-import { getRating } from '../lib/services/ratings';
+import { getRating, rateJob } from '../lib/services/ratings';
 import { myFixes } from '../lib/services/job-report';
 import { technicianRating, technicianThanks } from '../lib/services/technician-ratings';
 
@@ -29,7 +29,7 @@ describe.each(['real', 'demo'])('%s technician ratings', mode => {
       const job = (await rows(`INSERT INTO work_orders(workspace_id,client_id,site_id,title,status,assignee_id,created_by)
         VALUES($1,$2,$3,'Rating read test','done',$4,$5) RETURNING id`, [ws, site.client_id, site.id, assignee, people.sam]))[0];
       jobs.push(job.id);
-      await rows(`INSERT INTO job_ratings(workspace_id,client_id,work_order_id,rated_by,stars,note) VALUES($1,$2,$3,$4,$5,'Careful work')`, [ws, site.client_id, job.id, people.omar, stars]);
+      await rateJob(people.omar, ws, job.id, { stars, note: 'Careful work' });
     }
     const ownerRead = vi.spyOn(database, 'withSystem');
     try {

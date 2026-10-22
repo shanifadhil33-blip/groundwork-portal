@@ -1,6 +1,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { LANGUAGES } from '../lib/languages.ts';
-import { TRADES, tradeLabels } from '../lib/trades.ts';
+// These scripts also run directly on Node 20, which needs a TypeScript loader.
+import { register } from 'tsx/esm/api';
+register();
+const { LANGUAGES } = await import('../lib/languages.ts');
+const { TRADES, tradeLabels } = await import('../lib/trades.ts');
 
 // Exact source keys only. Keep missing words so LANG08 reviewers can fill the gaps.
 // Job terms come from the demo fixtures and the parts used in their reports and quotes.

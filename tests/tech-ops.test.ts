@@ -29,14 +29,14 @@ describe('days off and leave', () => {
     const d = dubaiDay(2);
     await addTimeOff(ids.sam, ws, { user_id: ids.ravi, kind: 'leave', starts_on: d });
     await expect(job({ assignee_id: ids.ravi, scheduled_for: nineAm(d) })).rejects.toMatchObject({ status: 422 });
-    await expect(job({ assignee_id: ids.ravi, scheduled_for: nineAm(d) })).rejects.toThrow(/on leave that day/);
+    await expect(job({ assignee_id: ids.ravi, scheduled_for: nineAm(d) })).rejects.toThrow(/Ravi cannot take a job that day\. His next free day is /);
     const ok = await job({ assignee_id: ids.ravi, scheduled_for: nineAm(dubaiDay(3)) });
     await expect(patchWorkOrder(ids.imran, ws, ok.id, { scheduled_for: nineAm(d), updated_at: ok.updated_at })).rejects.toMatchObject({ status: 422 });
   });
   it('weekly days off block that weekday and put the person last in suggestions', async () => {
     const d = dubaiDay(4), weekday = new Date(`${d}T00:00:00Z`).getUTCDay();
     await setOffDays(ids.imran, ws, ids.ravi, { off_days: [weekday] });
-    await expect(job({ assignee_id: ids.ravi, scheduled_for: nineAm(d) })).rejects.toThrow(/off that day/);
+    await expect(job({ assignee_id: ids.ravi, scheduled_for: nineAm(d) })).rejects.toThrow(/Ravi cannot take a job that day\. His next free day is /);
     const o = await job({ scheduled_for: nineAm(d) });
     const s = await suggestWorkers(ids.imran, ws, o.id) as { workers: { user_id: string; off?: string | null }[] };
     const ravi = s.workers.findIndex(w => w.user_id === ids.ravi);

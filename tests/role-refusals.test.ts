@@ -136,7 +136,7 @@ it.each(actors)('%s cannot book a worker on approved leave', async user => {
  const r = await callTool({ user, ws, scope: 'write', kind: 'agent', approved: true }, 'assign_work_order', { id: o.id, assignee_id: ids.ravi, updated_at: version(o) });
  expect(r.isError).toBe(true);
  if ([ids.imran, ids.sam, ids.nabil].includes(user as typeof ids.imran)) {
-  expect(r.structuredContent).toMatchObject({ error: { code: 'validation', message: 'Ravi is on leave that day. Choose someone else or another day.' } });
+  expect(r.structuredContent).toMatchObject({ error: { code: 'validation', message: 'Ravi cannot take a job that day. His next free day is Friday, 13 June 2031.' } });
  } else expect(r.structuredContent).toMatchObject({ error: { code: 'forbidden' } });
  expect(await snapshot(o.id)).toEqual(before);
 });
@@ -145,11 +145,11 @@ it('creation and rescheduling also refuse approved leave in the workspace day', 
  await addTimeOff(ids.imran, ws, { user_id: ids.ravi, kind: 'leave', starts_on: '2031-06-10', ends_on: '2031-06-12' });
  // Dubai midnight falls on the prior UTC date. Check both ends of the leave span.
  for (const scheduled_for of ['2031-06-09T20:30:00Z', '2031-06-12T19:30:00Z']) {
-  await expect(createWorkOrder(ids.imran, ws, { title: 'Check the tap', site_id: siteId(1), assignee_id: ids.ravi, scheduled_for })).rejects.toMatchObject({ status: 422, message: expect.stringContaining('on leave that day') });
+  await expect(createWorkOrder(ids.imran, ws, { title: 'Check the tap', site_id: siteId(1), assignee_id: ids.ravi, scheduled_for })).rejects.toMatchObject({ status: 422, message: expect.stringContaining('His next free day is Friday, 13 June 2031.') });
  }
  const o = await job(ids.imran, siteId(1), '2031-06-13T06:00:00Z');
  const before = await snapshot(o.id);
- await expect(patchWorkOrder(ids.sam, ws, o.id, { scheduled_for: '2031-06-10', updated_at: version(o) })).rejects.toMatchObject({ status: 422, message: expect.stringContaining('on leave that day') });
+ await expect(patchWorkOrder(ids.sam, ws, o.id, { scheduled_for: '2031-06-10', updated_at: version(o) })).rejects.toMatchObject({ status: 422, message: expect.stringContaining('His next free day is Friday, 13 June 2031.') });
  expect(await snapshot(o.id)).toEqual(before);
 });
 
