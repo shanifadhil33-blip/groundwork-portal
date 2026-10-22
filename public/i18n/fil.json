@@ -889,5 +889,15 @@
 "Give a WO number":"Ibigay ang numero ng trabaho",
 "Change my note":"Baguhin ang tala ko",
 "I could not find that in your records.":"Hindi ko iyon makita sa iyong mga tala.",
-  "{name} cannot take a job that day. His next free day is {day}.": "Hindi puwedeng tumanggap ng trabaho si {name} sa araw na iyon. Ang susunod niyang libreng araw ay {day}."
+  "{name} cannot take a job that day. His next free day is {day}.": "Hindi puwedeng tumanggap ng trabaho si {name} sa araw na iyon. Ang susunod niyang libreng araw ay {day}.",
+ "Waiting for parts": "Naghihintay ng piyesa",
+ "Assigned to": "Nakatakda kay",
+ "Away": "Wala",
+ "Time off requests": "Mga hiling na pahinga",
+ "Waiting for review": "Naghihintay ng pagsusuri",
+ "Unread updates": "Mga hindi pa nababasang balita",
+ "No matching job was found.": "Walang nakitang katugmang trabaho.",
+ "What visit date and time should I use?": "Anong petsa at oras ang ilalagay ko sa pagbisita?",
+ "Temporary fix": "Pansamantalang ayos",
+ "Site": "Lugar"
 }

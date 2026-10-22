@@ -884,5 +884,14 @@
 "Give a WO number":"Ma adwuma no nɔma",
 "Change my note":"Sesa me nsɛm",
 "I could not find that in your records.":"Manhu ɛno wɔ wo nkrataa mu.",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} ntumi nnye adwuma saa da no. Da a edi hɔ a ɔwɔ bere ne {day}."
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} ntumi nnye adwuma saa da no. Da a edi hɔ a ɔwɔ bere ne {day}.",
+ "Waiting for parts": "Ɛretwɛn nneɛma",
+ "Assigned to": "Wɔde ama",
+ "Away": "Onni hɔ",
+ "Time off requests": "Ɔhome ho abisade",
+ "Waiting for review": "Ɛretwɛn nhwehwɛmu",
+ "Unread updates": "Nsɛm a wɔnkenkanee",
+ "No matching job was found.": "Wɔanhu adwuma a ɛne no hyia.",
+ "What visit date and time should I use?": "Da bɛn ne bere bɛn na memfa mma nsrahwɛ no?",
+ "Temporary fix": "Bere tiaa mu nsiesie"
 }

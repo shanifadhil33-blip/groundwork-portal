@@ -923,5 +923,14 @@
 "Give a WO number":"د کار شمېره ورکړئ",
 "Change my note":"زما یادښت بدل کړئ",
 "I could not find that in your records.":"ما دا ستاسو په ریکارډونو کې ونه موندل.",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} په هغه ورځ کار نه شي اخیستلی. د هغه بله وزګاره ورځ {day} ده."
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} په هغه ورځ کار نه شي اخیستلی. د هغه بله وزګاره ورځ {day} ده.",
+ "Waiting for parts": "د پرزو په تمه",
+ "Assigned to": "سپارل شوی",
+ "Away": "غیر حاضر",
+ "Time off requests": "د رخصتۍ غوښتنې",
+ "Waiting for review": "د کتنې په تمه",
+ "Unread updates": "نا لوستل شوي خبرونه",
+ "No matching job was found.": "برابر کار ونه موندل شو.",
+ "What visit date and time should I use?": "د لیدنې کومه نېټه او وخت وټاکم؟",
+ "Temporary fix": "لنډمهاله ترمیم"
 }

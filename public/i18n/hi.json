@@ -942,5 +942,14 @@
 "Give a WO number":"काम का नंबर दें",
 "Change my note":"मेरा नोट बदलें",
 "I could not find that in your records.":"मुझे आपके रिकॉर्ड में वह नहीं मिला।",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} उस दिन काम नहीं ले सकते। उनका अगला खाली दिन {day} है।"
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} उस दिन काम नहीं ले सकते। उनका अगला खाली दिन {day} है।",
+ "Waiting for parts": "पुर्ज़ों का इंतज़ार",
+ "Assigned to": "इन्हें सौंपा गया",
+ "Away": "अनुपस्थित",
+ "Time off requests": "छुट्टी के अनुरोध",
+ "Waiting for review": "समीक्षा की प्रतीक्षा",
+ "Unread updates": "बिना पढ़े अपडेट",
+ "No matching job was found.": "कोई मिलता हुआ काम नहीं मिला।",
+ "What visit date and time should I use?": "दौरे के लिए कौन सी तारीख और समय रखूँ?",
+ "Temporary fix": "अस्थायी मरम्मत"
 }

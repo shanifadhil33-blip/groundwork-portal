@@ -26,6 +26,7 @@ export function audienceStatusReply(value:string, client=false) {
 const uuid = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
 /** Remove storage identifiers and translate machine words at the final reply boundary. */
 export function plainAssistantReply(value: string, client=false) {
+  value=value.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g,(_,a,b)=>a??b).replace(/(?<!\w)_([^_\n]+)_(?!\w)/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/^#{1,6}\s+/gm,'').replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g,'$1');
   const links: string[] = [];
   let text = value.replace(/\]\(\/work-orders\/[0-9a-f-]{36}\)/gi, link => { links.push(link);return `LINKPLACEHOLDER${links.length-1}END`; });
   // Job numbers read WO 1 everywhere, matching the app.
@@ -117,7 +118,7 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='save_job_report')return `Save the job report for ${name}\nHow it ended: ${OUTCOME_LABELS[args.outcome as keyof typeof OUTCOME_LABELS]}${args.problem?`\nProblem: ${plainAssistantReply(args.problem)}`:''}${args.work?`\nWhat you did: ${plainAssistantReply(args.work)}`:''}${args.outcome==='needs_part'?'\nThe job waits for the part.':args.outcome==='cant_fix'?'\nThe job stays open for your supervisor.':'\nThe job is marked done.'}`;
   if(tool==='add_comment')return `Add ${args.visibility==='internal'?'an internal note (team only)':'a comment visible to the client'} to ${name}:\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_status')return `Move ${name}: ${statusLabels[order!.status] ?? readableLabel(order!.status)} → ${statusLabels[args.status] ?? readableLabel(args.status)}`;
-  if(tool==='assign_work_order')return `Assign ${name} to ${plainAssistantReply(target??'nobody')}`;
+  if(tool==='assign_work_order')return `Assign ${name} to ${plainAssistantReply(target??'nobody')}${args.scheduled_for?`\nVisit: ${formatDate(args.scheduled_for,order?.timezone??timezone)} ${new Intl.DateTimeFormat('en-GB',{timeZone:order?.timezone??timezone??'Asia/Dubai',hour:'2-digit',minute:'2-digit'}).format(new Date(args.scheduled_for))}`:''}`;
   if(tool==='set_job_payment')return `Mark ${name} as ${({to_bill:'to bill',contract:'covered by the contract',paid:'paid'} as Record<string,string>)[args.payment_status]}${target?`\n${plainAssistantReply(target)}`:''}`;
   if(tool==='set_job_trade')return `Set the trade for ${name}: ${args.trade?tradeLabels[args.trade as Trade]:'Any'}`;
   if(tool==='set_worker_skills')return `Set what ${plainAssistantReply(target??'this person')} does:\nTrade: ${(args.trades??[]).map((t:Trade)=>tradeLabels[t]).join(', ')||'None'}\nArea: ${(args.areas??[]).map((a:string)=>plainAssistantReply(a)).join(', ')||'None'}`;

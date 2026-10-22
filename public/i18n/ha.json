@@ -897,5 +897,14 @@
 "Give a WO number":"Ba da lambar aiki",
 "Change my note":"Canza bayanina",
 "I could not find that in your records.":"Ban sami hakan a cikin bayananka ba.",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} ba zai iya karɓar aiki a wannan ranar ba. Ranar da zai samu dama ta gaba ita ce {day}."
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} ba zai iya karɓar aiki a wannan ranar ba. Ranar da zai samu dama ta gaba ita ce {day}.",
+ "Waiting for parts": "Ana jiran kayan gyara",
+ "Assigned to": "An ba wa",
+ "Away": "Ba ya nan",
+ "Time off requests": "Buƙatun hutu",
+ "Waiting for review": "Ana jiran dubawa",
+ "Unread updates": "Sabbin bayanan da ba a karanta ba",
+ "No matching job was found.": "Ba a sami aikin da ya dace ba.",
+ "What visit date and time should I use?": "Wace rana da lokaci zan sa wa ziyarar?",
+ "Temporary fix": "Gyaran ɗan lokaci"
 }

@@ -906,5 +906,14 @@
 "Give a WO number":"ቁጽሪ ስራሕ ሃብ",
 "Change my note":"መዘኻኸሪየ ቀይር",
 "I could not find that in your records.":"ነቲ ኣብ መዝገባትኩም ክረኽቦ ኣይከኣልኩን።",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} በታ መዓልቲ ስራሕ ክወስድ ኣይክእልን። ዝቕጽል ነጻ መዓልቱ {day} እዩ።"
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} በታ መዓልቲ ስራሕ ክወስድ ኣይክእልን። ዝቕጽል ነጻ መዓልቱ {day} እዩ።",
+ "Waiting for parts": "መለዋወጢ ኣቕሑ ይጽበ",
+ "Assigned to": "ዝተመደበሉ",
+ "Away": "የለን",
+ "Time off requests": "ሕቶታት ዕረፍቲ",
+ "Waiting for review": "ግምገማ ይጽበ",
+ "Unread updates": "ዘይተነበቡ ሓበሬታታት",
+ "No matching job was found.": "ዝሰማማዕ ስራሕ ኣይተረኽበን።",
+ "What visit date and time should I use?": "ንምብጻሕ ኣየናይ ዕለትን ሰዓትን ልጠቐም?",
+ "Temporary fix": "ግዝያዊ ጽገና"
 }

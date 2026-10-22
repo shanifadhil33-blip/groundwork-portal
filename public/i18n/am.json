@@ -885,5 +885,14 @@
 "Give a WO number":"የሥራውን ቁጥር ይስጡ",
 "Change my note":"ማስታወሻዬን ቀይር",
 "I could not find that in your records.":"ያንን በመዝገቦችዎ ውስጥ ማግኘት አልቻልኩም።",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} በዚያ ቀን ሥራ መውሰድ አይችልም። ቀጣዩ ነፃ ቀኑ {day} ነው።"
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} በዚያ ቀን ሥራ መውሰድ አይችልም። ቀጣዩ ነፃ ቀኑ {day} ነው።",
+ "Waiting for parts": "የመለዋወጫ እቃ በመጠባበቅ ላይ",
+ "Assigned to": "የተመደበለት",
+ "Away": "የለም",
+ "Time off requests": "የእረፍት ጥያቄዎች",
+ "Waiting for review": "ግምገማ በመጠባበቅ ላይ",
+ "Unread updates": "ያልተነበቡ ዜናዎች",
+ "No matching job was found.": "ተዛማጅ ስራ አልተገኘም።",
+ "What visit date and time should I use?": "ለጉብኝቱ የትኛውን ቀን እና ሰዓት ልጠቀም?",
+ "Temporary fix": "ጊዜያዊ ጥገና"
 }

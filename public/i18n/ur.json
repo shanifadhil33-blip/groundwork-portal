@@ -926,5 +926,14 @@
 "Give a WO number":"کام کا نمبر دیں",
 "Change my note":"میرا نوٹ تبدیل کریں",
 "I could not find that in your records.":"مجھے آپ کے ریکارڈ میں وہ نہیں ملا۔",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} اس دن کام نہیں لے سکتے۔ ان کا اگلا فارغ دن {day} ہے۔"
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} اس دن کام نہیں لے سکتے۔ ان کا اگلا فارغ دن {day} ہے۔",
+ "Waiting for parts": "پرزوں کا انتظار",
+ "Assigned to": "ذمہ دار",
+ "Away": "غیر حاضر",
+ "Time off requests": "چھٹی کی درخواستیں",
+ "Waiting for review": "جائزے کا انتظار",
+ "Unread updates": "بغیر پڑھی تازہ معلومات",
+ "No matching job was found.": "کوئی ملتا ہوا کام نہیں ملا۔",
+ "What visit date and time should I use?": "دورے کی کون سی تاریخ اور وقت رکھوں؟",
+ "Temporary fix": "عارضی مرمت"
 }

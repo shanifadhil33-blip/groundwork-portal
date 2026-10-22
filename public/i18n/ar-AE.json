@@ -1243,5 +1243,13 @@
 "Give a WO number":"أعط رقم العمل",
 "Change my note":"غيّر ملاحظتي",
 "I could not find that in your records.":"ما حصلت هالمعلومة في سجلاتك.",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} ما يقدر يستلم شغل في هذا اليوم. أول يوم متاح له هو {day}."
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} ما يقدر يستلم شغل في هذا اليوم. أول يوم متاح له هو {day}.",
+ "Waiting for parts": "بانتظار القطع",
+ "Assigned to": "مسند إلى",
+ "Away": "غائب",
+ "Time off requests": "طلبات الإجازة",
+ "Waiting for review": "بانتظار المراجعة",
+ "Unread updates": "تحديثات غير مقروءة",
+ "No matching job was found.": "ما لقيت شغل مطابق.",
+ "What visit date and time should I use?": "أي تاريخ ووقت أستخدم للزيارة؟"
 }

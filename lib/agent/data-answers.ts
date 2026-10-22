@@ -1,3 +1,7 @@
+import { LANGUAGES } from '../languages';
+import { choiceWords } from './choices';
+import { localizedDataAnswer } from './localized-data-answers';
+import { getPreferences } from '../services/settings';
 import { listWords,resolveWords } from '../services/agent-words';
 import { inWorkspace } from '../services/shared';
 import { listWorkOrders } from '../services/work-orders';
@@ -5,7 +9,7 @@ import { listWorkOrders } from '../services/work-orders';
  * Answers from the app's own data when every AI provider is busy or gives a broken reply.
  * The person never sees an error: common questions (today, late jobs, a job's status, what needs attention,
  * messages, suggested jobs, leave) get a real answer straight from the database, through the same role checked tools.
- * Replies are plain English; the per user page translation shows them in the reader's language.
+ * Replies use shipped language words and local dates, preserving job titles and site names as data.
  */
 import { callTool, type AgentContext } from './tools';
 import { countLine, countLocalized, fixesLine } from '../count-lines';
@@ -129,6 +133,9 @@ async function leave(c: AgentContext) {
 /** A real answer from app data, never null: the last resort is a short summary and what the person can ask. */
 export async function dataAnswer(c: AgentContext, question: string): Promise<string> {
   question=resolveWords(question,await listWords(c.user,c.ws));
+  const language=(await getPreferences(c.user)).language;
+  const localized=await localizedDataAnswer(c,question,{language});
+  if(localized!==undefined)return localized;
   const scoped=await scopedQuickAnswer(c,question);
   if(scoped!==undefined)return scoped;
   const { intent, number } = detectIntent(question);
@@ -151,14 +158,16 @@ export type QuickLookup = 'my_fixes' | 'job_counts' | 'attention' | 'parts' | 'l
 // Whole questions only: a second request must continue to the Agent.
 const COUNT_QUESTION = /^how many jobs (?:has|did) ([\p{L}][\p{L}' ]*?) (?:complete|completed|finish|finished|do|done)(?: this month)?(?:[?,]? and in total)?$|^([\p{L}][\p{L}' ]*?)'s job count$/u;
 function countPerson(question: string): string | null {
+  const arabic = question.trim().match(/^كم\s+(?:شغلة|شغل|عمل|مهمة)\s+(?:خلص|أنجز|انجز|أكمل)\s+([\p{L}][\p{L}' ]*?)\s+(?:هالشهر|هذا الشهر)[؟?!.]*$/u);
+  if(arabic)return arabic[1].trim();
   const match = normalizeQuick(question).match(COUNT_QUESTION);
   return match ? (match[1] ?? match[2]).trim() : null;
 }
-const normalizeQuick = (question: string) => question.toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().replace(/[?.!\s]+$/, '');
+const normalizeQuick = (question: string) => question.toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().replace(/[?.!؟।。\s]+$/, '');
 const QUICK: [QuickLookup, RegExp][] = [
   ['my_fixes', /^(?:show )?my fixes(?: this month)?$|^what did i fix this month$/],
   ['job_counts', COUNT_QUESTION],
-  ['attention', /^what needs (?:my )?attention(?: today)?$|^(?:is there )?anything (?:that )?needs my attention$/],
+  ['attention', /^(?:what do i need to do|what is waiting|show unread messages)$|^what needs (?:my )?attention(?: today)?$|^(?:is there )?anything (?:that )?needs my attention$/],
   ['parts', /^(?:(?:show|list|which|what)(?: me)?(?: the)?(?: my)? )?(?:jobs|work orders)(?: that)?(?: are)? (?:waiting|on hold) (?:on|for) (?:a )?parts?$|^(?:waiting (?:on|for) parts|parts waiting)$/],
   ['late', /^(?:(?:which|what|show|list)(?: me)?(?: the)?(?: my)? )?(?:jobs|work orders)(?: are)? (?:late|overdue)$|^(?:show |list )?(?:my )?(?:late|overdue) (?:jobs|work orders)$|^(?:is )?anything (?:late|overdue)$/],
   ['next', /^(?:what(?:'s| is) )?my next (?:job|visit)$|^(?:what(?:'s| is) )?next job$/],
@@ -168,9 +177,13 @@ const QUICK: [QuickLookup, RegExp][] = [
   ['client_visit', /^when is (?:the|my) technician coming$|^when is my (?:next )?visit$/],
 ];
 function directQuick(question: string): QuickLookup | null {
+  if(countPerson(question)!==null)return 'job_counts';
   const q = normalizeQuick(question);
+  if(/^(?:شو الشغل المتأخر اليوم[؟?]?|what(?:'s| is) late today)$/.test(q))return 'late';
   if (!q || q.length > (COUNT_QUESTION.test(q) ? 160 : 60)) return null;
   for (const [k, re] of QUICK) if (re.test(q)) return k;
+  const prompts: [QuickLookup,string][]=[['late','Which jobs are late?'],['parts','Show jobs waiting on parts'],['today','Show my jobs today'],['next','My next job'],['attention','What needs attention?'],['free_tomorrow','Who is free tomorrow?'],['client_requests','How are my requests going?'],['client_visit','When is the technician coming?'],['my_fixes','My fixes']];
+  for(const language of LANGUAGES)for(const [kind,prompt] of prompts)if(q===normalizeQuick(choiceWords(language.code)(prompt)))return kind;
   return null;
 }
 export function quickLookup(question:string):QuickLookup|null {
@@ -229,11 +242,11 @@ export async function countAnswer(c: AgentContext, question: string, who: { role
     if (who.role === 'client') return { text: countLine(who.language, 'client'), localized: countLocalized(who.language) };
     const r = await read(c, 'my_fixes', { month: 'this' });
     if (!r) return null;
-    // Gulf Arabic by hand; other languages get the English lines and the page translation, like the other quick answers.
+    const word=choiceWords(who.language);
+    const localized=countLocalized(who.language);
     const ar = !!who.language?.startsWith('ar');
-    const outcome = (label: string) => ar ? ({ Fixed: 'تم التصليح', Done: 'خلص', 'Temporary fix': 'تصليح مؤقت', 'Needs a part': 'يحتاج قطعة', "Can't be fixed": 'ما ينصلح' } as Record<string, string>)[label] ?? label : label;
-    const lines = r.data.slice(0, 5).map((j: any) => [`WO ${j.order_number} ${j.title}`, j.site_name, outcome(j.outcome_label)].filter(Boolean).join(ar ? '، ' : ', '));
-    return { text: [fixesLine(ar ? who.language : 'en', r.summary), ...lines, ar ? 'شوف الكل في سجلي.' : 'See all in My record.'].join('\n'), localized: ar };
+    const lines = r.data.slice(0, 5).map((j: any) => [`WO ${j.order_number} ${j.title}`, j.site_name, word(j.outcome_label)].filter(Boolean).join(ar ? '، ' : ', '));
+    return { text: [fixesLine(who.language, r.summary), ...lines, localized ? word('My record') : 'See all in My record.'].join('\n'), localized };
   }
   const person = countPerson(question);
   const out = (text: string) => ({ text, localized: countLocalized(who.language) });
@@ -268,10 +281,14 @@ export async function topClients(c: AgentContext, timezone = 'Asia/Dubai'): Prom
   return ['Clients with the most new jobs this month:', ...rows.map(r => `• ${r.name}: ${r.n} ${r.n === 1 ? 'job' : 'jobs'}`), '', 'I only count the jobs. Open a client to see what the jobs were about.'].join('\n');
 }
 
-export async function quickAnswer(c: AgentContext, question: string, who: { role: string; tomorrow: string; timezone?: string }): Promise<string | null> {
+export async function quickAnswer(c: AgentContext, question: string, who: { role: string; tomorrow: string; timezone?: string; language?: string | null }): Promise<string | null> {
   question=resolveWords(question,await listWords(c.user,c.ws));
-  const count=await countAnswer(c,question,{role:who.role});
+  const language=who.language??(await getPreferences(c.user)).language;
+  const count=await countAnswer(c,question,{role:who.role,language});
   if(count)return count.text;
+  if(countPerson(question)!==null)return null;
+  const localized=quickLookup(question)||topClientsQuestion(question)?await localizedDataAnswer(c,question,{...who,language}):undefined;
+  if(localized!==undefined)return localized;
   if(topClientsQuestion(question))return who.role === 'client' || who.role === 'technician' ? null : await topClients(c, who.timezone);
   if(countPerson(question)!==null)return null;
   const scoped=await scopedQuickAnswer(c,question,who.timezone);
@@ -296,7 +313,7 @@ export async function quickAnswer(c: AgentContext, question: string, who: { role
 }
 
 /** A named place or unit narrows the database query before pagination. Unknown or ambiguous names go to the Agent. */
-function splitQuick(question:string){
+export function splitQuick(question:string){
  if(countPerson(question)!==null)return null;
  const text=question.trim().replace(/[?.!]+$/,'');
  const m=text.match(/^(.+?)\s+(?:at|about)\s+(.+)$/i)??text.match(/^(.+)\s+for\s+(.+)$/i);

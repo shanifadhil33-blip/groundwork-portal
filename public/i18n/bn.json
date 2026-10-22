@@ -946,5 +946,14 @@
 "Give a WO number":"কাজের নম্বর দিন",
 "Change my note":"আমার নোট বদলান",
 "I could not find that in your records.":"আপনার রেকর্ডে সেটি খুঁজে পাইনি।",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} সেদিন কাজ নিতে পারবেন না। তাঁর পরের ফাঁকা দিন হলো {day}।"
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} সেদিন কাজ নিতে পারবেন না। তাঁর পরের ফাঁকা দিন হলো {day}।",
+ "Waiting for parts": "যন্ত্রাংশের অপেক্ষায়",
+ "Assigned to": "দায়িত্ব দেওয়া হয়েছে",
+ "Away": "অনুপস্থিত",
+ "Time off requests": "ছুটির অনুরোধ",
+ "Waiting for review": "পর্যালোচনার অপেক্ষায়",
+ "Unread updates": "না পড়া আপডেট",
+ "No matching job was found.": "কোনো মিলে যাওয়া কাজ পাওয়া যায়নি।",
+ "What visit date and time should I use?": "পরিদর্শনের কোন তারিখ ও সময় রাখব?",
+ "Temporary fix": "সাময়িক মেরামত"
 }

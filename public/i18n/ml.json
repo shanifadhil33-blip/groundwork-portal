@@ -909,5 +909,14 @@
 "Give a WO number":"ജോലിയുടെ നമ്പർ നൽകുക",
 "Change my note":"എന്റെ കുറിപ്പ് മാറ്റുക",
 "I could not find that in your records.":"നിങ്ങളുടെ രേഖകളിൽ അത് കണ്ടെത്താനായില്ല.",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} ആ ദിവസം ജോലി ഏറ്റെടുക്കാൻ കഴിയില്ല. അദ്ദേഹത്തിന് അടുത്ത ഒഴിവുള്ള ദിവസം {day} ആണ്."
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} ആ ദിവസം ജോലി ഏറ്റെടുക്കാൻ കഴിയില്ല. അദ്ദേഹത്തിന് അടുത്ത ഒഴിവുള്ള ദിവസം {day} ആണ്.",
+ "Waiting for parts": "ഭാഗങ്ങൾക്കായി കാത്തിരിക്കുന്നു",
+ "Assigned to": "ഏൽപ്പിച്ചത്",
+ "Away": "അവധിയിൽ",
+ "Time off requests": "അവധി അപേക്ഷകൾ",
+ "Waiting for review": "പരിശോധനയ്ക്കായി കാത്തിരിക്കുന്നു",
+ "Unread updates": "വായിക്കാത്ത അറിയിപ്പുകൾ",
+ "No matching job was found.": "പൊരുത്തമുള്ള ജോലി കണ്ടെത്തിയില്ല.",
+ "What visit date and time should I use?": "സന്ദർശനത്തിന് ഏത് തീയതിയും സമയവും വേണം?",
+ "Temporary fix": "താൽക്കാലിക അറ്റകുറ്റപ്പണി"
 }

@@ -882,5 +882,14 @@
 "Give a WO number":"提供工单号",
 "Change my note":"更改我的备注",
 "I could not find that in your records.":"我未能在您的记录中找到该信息。",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name}当天无法接工作。他下一个有空的日期是{day}。"
+  "{name} cannot take a job that day. His next free day is {day}.": "{name}当天无法接工作。他下一个有空的日期是{day}。",
+ "Waiting for parts": "等待零件",
+ "Assigned to": "负责人",
+ "Away": "请假中",
+ "Time off requests": "请假申请",
+ "Waiting for review": "等待审核",
+ "Unread updates": "未读更新",
+ "No matching job was found.": "没有找到匹配的工作。",
+ "What visit date and time should I use?": "上门安排在哪天几点？",
+ "Temporary fix": "临时修复"
 }

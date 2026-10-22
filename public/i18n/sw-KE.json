@@ -878,5 +878,14 @@
 "Give a WO number":"Toa nambari ya kazi",
 "Change my note":"Badilisha dokezo langu",
 "I could not find that in your records.":"Sikuweza kupata hilo kwenye rekodi zako.",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} hawezi kuchukua kazi siku hiyo. Siku yake inayofuata iliyo wazi ni {day}."
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} hawezi kuchukua kazi siku hiyo. Siku yake inayofuata iliyo wazi ni {day}.",
+ "Waiting for parts": "Inasubiri vipuri",
+ "Assigned to": "Amepewa",
+ "Away": "Hayupo",
+ "Time off requests": "Maombi ya likizo",
+ "Waiting for review": "Inasubiri ukaguzi",
+ "Unread updates": "Taarifa ambazo hazijasomwa",
+ "No matching job was found.": "Hakuna kazi inayolingana iliyopatikana.",
+ "What visit date and time should I use?": "Niweke tarehe na saa gani ya ziara?",
+ "Temporary fix": "Matengenezo ya muda"
 }

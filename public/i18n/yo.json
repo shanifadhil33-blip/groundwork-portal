@@ -874,5 +874,14 @@
 "Give a WO number":"Fún wa ní nọ́mbà iṣẹ́",
 "Change my note":"Yí àkọsílẹ̀ mi padà",
 "I could not find that in your records.":"Mi ò rí ìyẹn nínú àkọsílẹ̀ rẹ.",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} kò lè gba iṣẹ́ ní ọjọ́ yẹn. Ọjọ́ tí ó tún máa ráyè ni {day}."
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} kò lè gba iṣẹ́ ní ọjọ́ yẹn. Ọjọ́ tí ó tún máa ráyè ni {day}.",
+ "Waiting for parts": "Ń dúró de àwọn ẹ̀yà",
+ "Assigned to": "Ẹni tó ń ṣe é",
+ "Away": "Kò sí",
+ "Time off requests": "Àwọn ìbéèrè ìsinmi",
+ "Waiting for review": "Ń dúró de àyẹ̀wò",
+ "Unread updates": "Ìròyìn tí a kò tíì kà",
+ "No matching job was found.": "A kò rí iṣẹ́ tó bá a mu.",
+ "What visit date and time should I use?": "Ọjọ́ àti àkókò wo ni kí n fi sí ìbẹ̀wò náà?",
+ "Temporary fix": "Àtúnṣe fún ìgbà díẹ̀"
 }

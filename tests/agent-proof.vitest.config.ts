@@ -1,0 +1,3 @@
+import { defineConfig } from 'vitest/config';
+// Mocked AI and database only. No migrations, resets or live calls.
+export default defineConfig({test:{environment:'node',server:{deps:{inline:['next-auth']}},pool:'forks',maxWorkers:1,fileParallelism:false,include:['tests/agent-proof.test.ts','tests/language-files.test.ts','tests/languages.test.ts','tests/i18n-word-hyphens.test.ts','tests/rehearsal-language-files.test.ts','tests/assistant-markdown.test.tsx','tests/agent-reply-guards.test.ts','tests/agent-unanswered.test.ts','tests/assistant-replies.test.ts','tests/assistant-no-dash.test.ts','tests/agent12-count-lines.test.ts','tests/agent-off-days.test.ts']}});

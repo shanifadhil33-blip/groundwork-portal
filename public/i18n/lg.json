@@ -877,5 +877,14 @@
 "Give a WO number":"Waayo ennamba y’omulimu",
 "Change my note":"Kyusa ekiwandiiko kyange",
 "I could not find that in your records.":"Sikisobodde kuzuula ekyo mu biwandiiko byo.",
-  "{name} cannot take a job that day. His next free day is {day}.": "{name} tasobola kukola ku lunaku olwo. Olunaku oluddako lw’alina obudde ye {day}."
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} tasobola kukola ku lunaku olwo. Olunaku oluddako lw’alina obudde ye {day}.",
+ "Waiting for parts": "Girinda ebitundu",
+ "Assigned to": "Aweereddwa",
+ "Away": "Talipo",
+ "Time off requests": "Okusaba okuwummula",
+ "Waiting for review": "Girinda okwekebejjebwa",
+ "Unread updates": "Amawulire agatannasomebwa",
+ "No matching job was found.": "Tewali mulimu gukwatagana guzuuliddwa.",
+ "What visit date and time should I use?": "Nteekewo lunaku ki n’essaawa ki ez’okukyalira?",
+ "Temporary fix": "Okuddaabiriza okw’ekiseera"
 }
