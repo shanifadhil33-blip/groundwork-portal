@@ -21,3 +21,9 @@ Live role walkthrough, phone sweep and deployment are deferred to the reviewer b
 Endpoints: GET and PUT `/api/workspaces/{ws}/checklists`; GET and POST `/api/workspaces/{ws}/work-orders/{id}/checklist`. Template writes take trade and ordered steps. Progress writes take one action: tick, add_material or remove_material. POST accepts an Idempotency-Key. No prices are accepted.
 
 Agent reads page materials and retain all twelve exact step names within the provider context limits. Confirmed writes reuse the action id as the idempotency key. Failed screen saves keep inputs and reuse their request key when retried.
+
+## Local verification, October 22 2026
+
+Typecheck passed. Focused interface, permission, language, trade word and agent checks: 91 passed. Final full `npm test`: 3717 passed, 4 failed, 3721 total across 225 files. The only failures are the four existing D1 RLS failures in tests/demo-proof.test.ts and tests/technician-ratings.test.ts specified in the run request. Full run completed in 411 seconds. No new test failures remain.
+
+Local implementation commits: f68f3b1d (backend), a51fe9e6 (screens and demo), 7f48da9d (agent), 347d2b5f (save retries, complete agent reads and interface coverage). No migration, push, deployment or live verification was performed. Responsive and RTL code uses existing controls and logical CSS; the reviewer owns the live phone and desktop sweep.
