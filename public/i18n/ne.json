@@ -951,5 +951,13 @@
  "Applying your confirmed change…": "तपाईंले पुष्टि गरेको परिवर्तन लागू हुँदैछ…",
  "Not given": "दिइएको छैन",
  "Where": "कहाँ",
- "Since": "कहिलेदेखि"
+ "Since": "कहिलेदेखि",
+  "This week: {new} new jobs and {done} completed jobs.": "यो हप्ता: {new} नयाँ काम र {done} पूरा भएका काम।",
+  "Still open: {open}, including {late} overdue.": "अझै {open} काम बाँकी छन्, जसमध्ये {late} को म्याद नाघेको छ।",
+  "Chase first": "पहिले सम्पर्क गर्नुहोस्",
+  "Assign an owner first": "पहिले जिम्मेवार व्यक्ति तोक्नुहोस्",
+  "Highest priority first, then oldest deadline": "पहिले उच्च प्राथमिकता, त्यसपछि सबैभन्दा पुरानो म्याद",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "कुन कामको म्याद नाघेको छ र पहिले कसलाई सम्पर्क गरूँ? छोटकरीमा भन्नुहोस्।",
+  "What is the most important thing I need to do today?": "आज मैले गर्नुपर्ने सबैभन्दा महत्त्वपूर्ण काम के हो?",
+  "Summarize this week for my team in two sentences.": "मेरो टोलीका लागि यो हप्ताको सार दुई वाक्यमा दिनुहोस्।"
 }

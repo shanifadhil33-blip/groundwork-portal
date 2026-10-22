@@ -911,5 +911,13 @@
  "Applying your confirmed change…": "正在应用您已确认的更改…",
  "Not given": "未提供",
  "Where": "位置",
- "Since": "开始时间"
+ "Since": "开始时间",
+  "This week: {new} new jobs and {done} completed jobs.": "本周：{new} 项新工作，{done} 项已完成工作。",
+  "Still open: {open}, including {late} overdue.": "仍有 {open} 项未完成，其中 {late} 项已逾期。",
+  "Chase first": "优先联系",
+  "Assign an owner first": "先指定负责人",
+  "Highest priority first, then oldest deadline": "先按优先级，再按最早截止日期",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "哪些工单已逾期，我应该先联系谁？请简要说明。",
+  "What is the most important thing I need to do today?": "今天我最需要做什么？",
+  "Summarize this week for my team in two sentences.": "用两句话为我的团队总结本周情况。"
 }

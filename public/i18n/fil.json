@@ -919,5 +919,13 @@
  "Applying your confirmed change…": "Inilalapat ang pagbabagong kinumpirma mo…",
  "Not given": "Walang ibinigay",
  "Where": "Saan",
- "Since": "Mula kailan"
+ "Since": "Mula kailan",
+  "This week: {new} new jobs and {done} completed jobs.": "Ngayong linggo: {new} bagong trabaho at {done} natapos na trabaho.",
+  "Still open: {open}, including {late} overdue.": "May {open} pang bukas na trabaho, kasama ang {late} lampas sa takdang araw.",
+  "Chase first": "Unang kumustahin",
+  "Assign an owner first": "Magtalaga muna ng responsable",
+  "Highest priority first, then oldest deadline": "Unahin ang pinakamataas na priyoridad, saka ang pinakamatagal nang takdang araw",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "Aling mga trabaho ang lampas na sa takdang araw at sino ang una kong kukumustahin? Ipaliwanag nang maikli.",
+  "What is the most important thing I need to do today?": "Ano ang pinakamahalagang dapat kong gawin ngayon?",
+  "Summarize this week for my team in two sentences.": "Ibuod ang linggong ito para sa aking pangkat sa dalawang pangungusap."
 }

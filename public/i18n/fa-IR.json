@@ -957,5 +957,13 @@
  "Applying your confirmed change…": "تغییر تأییدشده شما در حال اجراست…",
  "Not given": "ارائه نشده",
  "Where": "کجا",
- "Since": "از چه زمانی"
+ "Since": "از چه زمانی",
+  "This week: {new} new jobs and {done} completed jobs.": "این هفته: {new} کار جدید و {done} کار تکمیل شده.",
+  "Still open: {open}, including {late} overdue.": "هنوز {open} کار باز است که {late} مورد آن از مهلت گذشته است.",
+  "Chase first": "اول پیگیری کنید با",
+  "Assign an owner first": "اول مسئول تعیین کنید",
+  "Highest priority first, then oldest deadline": "اول اولویت بالاتر، سپس قدیمی‌ترین مهلت",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "کدام کارها از مهلت گذشته و اول از چه کسی پیگیری کنم؟ کوتاه بگویید.",
+  "What is the most important thing I need to do today?": "مهم‌ترین کاری که امروز باید انجام بدهم چیست؟",
+  "Summarize this week for my team in two sentences.": "این هفته را برای تیم من در دو جمله خلاصه کنید."
 }

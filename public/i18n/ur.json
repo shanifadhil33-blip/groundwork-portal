@@ -955,5 +955,13 @@
  "Applying your confirmed change…": "آپ کی تصدیق شدہ تبدیلی لاگو ہو رہی ہے…",
  "Not given": "نہیں بتایا گیا",
  "Where": "کہاں",
- "Since": "کب سے"
+ "Since": "کب سے",
+  "This week: {new} new jobs and {done} completed jobs.": "اس ہفتے: {new} نئے کام اور {done} مکمل کام۔",
+  "Still open: {open}, including {late} overdue.": "ابھی {open} کام کھلے ہیں، جن میں {late} کی مدت گزر چکی ہے۔",
+  "Chase first": "پہلے ان سے رابطہ کریں",
+  "Assign an owner first": "پہلے ذمہ دار شخص مقرر کریں",
+  "Highest priority first, then oldest deadline": "پہلے سب سے اہم کام، پھر سب سے پرانی آخری تاریخ",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "کون سے کام تاخیر کا شکار ہیں اور پہلے کس سے رابطہ کروں؟ مختصر بتائیں۔",
+  "What is the most important thing I need to do today?": "آج مجھے سب سے اہم کیا کرنا چاہیے؟",
+  "Summarize this week for my team in two sentences.": "میری ٹیم کے لیے اس ہفتے کا خلاصہ دو جملوں میں دیں۔"
 }

@@ -967,5 +967,13 @@
  "Visit charge": "வருகைக் கட்டணம்",
  "(Sample price)": "(மாதிரி விலை)",
  "The office will confirm the price.": "அலுவலகம் விலையை உறுதிப்படுத்தும்.",
- "Applying your confirmed change…": "நீங்கள் உறுதிப்படுத்திய மாற்றம் செயல்படுத்தப்படுகிறது…"
+ "Applying your confirmed change…": "நீங்கள் உறுதிப்படுத்திய மாற்றம் செயல்படுத்தப்படுகிறது…",
+  "This week: {new} new jobs and {done} completed jobs.": "இந்த வாரம்: {new} புதிய வேலைகளும் {done} முடிந்த வேலைகளும்.",
+  "Still open: {open}, including {late} overdue.": "இன்னும் {open} வேலைகள் திறந்துள்ளன, அவற்றில் {late} காலக்கெடு கடந்தவை.",
+  "Chase first": "முதலில் தொடர்பு கொள்ளுங்கள்",
+  "Assign an owner first": "முதலில் பொறுப்பாளரை நியமிக்கவும்",
+  "Highest priority first, then oldest deadline": "முதலில் அதிக முன்னுரிமை, பின்னர் பழைய காலக்கெடு",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "எந்த வேலைகள் தாமதமாகின்றன, முதலில் யாரைத் தொடர்பு கொள்ள வேண்டும்? சுருக்கமாகச் சொல்லுங்கள்.",
+  "What is the most important thing I need to do today?": "இன்று நான் செய்ய வேண்டிய மிக முக்கியமானது என்ன?",
+  "Summarize this week for my team in two sentences.": "எனது குழுவிற்கு இந்த வாரச் சுருக்கத்தை இரண்டு வாக்கியங்களில் சொல்லுங்கள்."
 }

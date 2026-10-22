@@ -932,5 +932,13 @@
  "Visit charge": "ክፍሊት ምብጻሕ",
  "(Sample price)": "(ናይ ኣብነት ዋጋ)",
  "The office will confirm the price.": "ቤት ጽሕፈት ነቲ ዋጋ ከረጋግጾ እዩ።",
- "Applying your confirmed change…": "ዘረጋገጽካዮ ለውጢ ይትግበር ኣሎ…"
+ "Applying your confirmed change…": "ዘረጋገጽካዮ ለውጢ ይትግበር ኣሎ…",
+  "This week: {new} new jobs and {done} completed jobs.": "ኣብዚ ሰሙን፦ {new} ሓደስቲ ስራሓትን {done} ዝተዛዘሙ ስራሓትን።",
+  "Still open: {open}, including {late} overdue.": "ገና {open} ክፉታት ስራሓት ኣለዉ፣ {late} ካብኣቶም ግዜኦም ሓሊፉ።",
+  "Chase first": "ቅድም ተወከሱ",
+  "Assign an owner first": "ቅድም ሓላፊ መድቡ",
+  "Highest priority first, then oldest deadline": "ቅድም ዝለዓለ ቀዳምነት፣ ድሕሪኡ ዝቐደመ ዕለት",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "ኣየኖት ስራሓት ደንጒዮም ኣለዉ፣ ቅድም ንመን ክውከስ? ብሓጺሩ ግለጹ።",
+  "What is the most important thing I need to do today?": "ሎሚ ክገብሮ ዘለኒ ኣዝዩ ኣገዳሲ እንታይ እዩ?",
+  "Summarize this week for my team in two sentences.": "ነዚ ሰሙን ንጉጅለይ ብኽልተ ሓረጋት ጽመቑ።"
 }

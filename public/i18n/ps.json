@@ -952,5 +952,13 @@
  "Applying your confirmed change…": "ستاسو تایید شوی بدلون پلي کېږي…",
  "Not given": "نه دي ورکړل شوي",
  "Where": "چېرته",
- "Since": "له کله راهیسې"
+ "Since": "له کله راهیسې",
+  "This week: {new} new jobs and {done} completed jobs.": "دا اونۍ: {new} نوي کارونه او {done} بشپړ شوي کارونه.",
+  "Still open: {open}, including {late} overdue.": "لا هم {open} کارونه خلاص دي، چې {late} یې له نېټې تېر دي.",
+  "Chase first": "لومړی ورسره اړیکه ونیسئ",
+  "Assign an owner first": "لومړی مسئول وټاکئ",
+  "Highest priority first, then oldest deadline": "لومړی لوړ لومړیتوب، بیا تر ټولو پخوانۍ وروستۍ نېټه",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "کوم کارونه ځنډېدلي او لومړی له چا سره اړیکه ونیسم؟ لنډ یې ووایاست.",
+  "What is the most important thing I need to do today?": "نن باید تر ټولو مهم څه وکړم؟",
+  "Summarize this week for my team in two sentences.": "زما ډلې ته د دې اونۍ لنډیز په دوو جملو کې ورکړئ."
 }

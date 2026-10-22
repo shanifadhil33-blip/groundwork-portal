@@ -906,5 +906,13 @@
  "Applying your confirmed change…": "Enkyukakyuka gy’okakasizza ekolebwa…",
  "Not given": "Tekyaweereddwa",
  "Where": "Wa",
- "Since": "Okuva ddi"
+ "Since": "Okuva ddi",
+  "This week: {new} new jobs and {done} completed jobs.": "Wiiki eno: emirimu emipya {new} n’emirimu {done} egigguse.",
+  "Still open: {open}, including {late} overdue.": "Emirimu {open} gikyali miggule, nga {late} gyayitako ekiseera.",
+  "Chase first": "Sooka otuukirire",
+  "Assign an owner first": "Sooka olonde avunaanyizibwa",
+  "Highest priority first, then oldest deadline": "Ekisinga obukulu kisooke, olwo olunaku olwaggwa edda ennyo",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "Mirimu ki egiyiseeko ekiseera era ani gwe nsooka okutuukirira? Nnyonnyola mu bufunze.",
+  "What is the most important thing I need to do today?": "Kiki ekisinga obukulu kye nnina okukola leero?",
+  "Summarize this week for my team in two sentences.": "Funza wiiki eno eri ttiimu yange mu sentensi bbiri."
 }

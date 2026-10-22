@@ -903,5 +903,13 @@
  "Applying your confirmed change…": "À ń ṣe àyípadà tí o jẹ́rìí sí…",
  "Not given": "A kò sọ",
  "Where": "Níbo",
- "Since": "Láti ìgbà wo"
+ "Since": "Láti ìgbà wo",
+  "This week: {new} new jobs and {done} completed jobs.": "Ní ọ̀sẹ̀ yìí: iṣẹ́ tuntun {new} àti iṣẹ́ tí a parí {done}.",
+  "Still open: {open}, including {late} overdue.": "Iṣẹ́ {open} ṣì ṣí, pẹ̀lú {late} tí àkókò wọn ti kọjá.",
+  "Chase first": "Kọ́kọ́ kan sí",
+  "Assign an owner first": "Kọ́kọ́ yan ẹni tó máa bójú tó",
+  "Highest priority first, then oldest deadline": "Ohun tó ṣe pàtàkì jù lọ kọ́kọ́, lẹ́yìn náà ọjọ́ ìparí tó ti pẹ́ jù",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "Àwọn iṣẹ́ wo ló ti kọjá àkókò, ta ni kí n kọ́kọ́ kan sí? Ṣàlàyé ní ṣókí.",
+  "What is the most important thing I need to do today?": "Kí ni ohun tó ṣe pàtàkì jù lọ tí mo gbọ́dọ̀ ṣe lónìí?",
+  "Summarize this week for my team in two sentences.": "Ṣe àkótán ọ̀sẹ̀ yìí fún ẹgbẹ́ mi nínú gbólóhùn méjì."
 }

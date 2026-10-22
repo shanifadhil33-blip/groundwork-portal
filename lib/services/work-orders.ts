@@ -63,11 +63,11 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   }
   const data=(await c.db.query(`SELECT w.*,s.name AS site_name,cl.name AS client_name,a.name AS assignee_name
    FROM (SELECT work_orders.*,count(*) OVER()::int AS _total FROM work_orders WHERE ${where}
-    ORDER BY ${query.sort} ${query.dir} NULLS LAST,id ${query.dir} ${all?'':`LIMIT $${values.length+1} OFFSET $${values.length+2}`}) w
+    ORDER BY ${query.sort} ${query.dir} NULLS LAST,${query.overdue&&query.sort==='priority'?'due_on ASC,':''}id ${query.dir} ${all?'':`LIMIT $${values.length+1} OFFSET $${values.length+2}`}) w
    LEFT JOIN sites s ON s.id=w.site_id AND s.workspace_id=w.workspace_id
    LEFT JOIN clients cl ON cl.id=w.client_id AND cl.workspace_id=w.workspace_id
    LEFT JOIN LATERAL visible_assignee(w.workspace_id,w.id) a ON true
-   ORDER BY w.${query.sort} ${query.dir} NULLS LAST,w.id ${query.dir}`,all?values:[...values,query.pageSize,offset])).rows;
+   ORDER BY w.${query.sort} ${query.dir} NULLS LAST,${query.overdue&&query.sort==='priority'?'w.due_on ASC,':''}w.id ${query.dir}`,all?values:[...values,query.pageSize,offset])).rows;
   // Empty/out-of-range pages still return the full filtered count.
   const total=data[0]?data[0]._total:(await c.db.query('SELECT count(*)::int AS n FROM work_orders WHERE '+where,values)).rows[0].n;
   for(const order of data){delete order._total;visibleTenant(c,order);}

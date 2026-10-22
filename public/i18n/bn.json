@@ -972,5 +972,13 @@
  "Visit charge": "পরিদর্শন ফি",
  "(Sample price)": "(নমুনা মূল্য)",
  "The office will confirm the price.": "অফিস মূল্য নিশ্চিত করবে।",
- "Applying your confirmed change…": "আপনার নিশ্চিত করা পরিবর্তন প্রয়োগ হচ্ছে…"
+ "Applying your confirmed change…": "আপনার নিশ্চিত করা পরিবর্তন প্রয়োগ হচ্ছে…",
+  "This week: {new} new jobs and {done} completed jobs.": "এই সপ্তাহে: {new}টি নতুন কাজ এবং {done}টি সম্পন্ন কাজ।",
+  "Still open: {open}, including {late} overdue.": "এখনও {open}টি কাজ খোলা, যার মধ্যে {late}টির সময়সীমা পেরিয়েছে।",
+  "Chase first": "আগে যোগাযোগ করুন",
+  "Assign an owner first": "আগে দায়িত্ব দিন",
+  "Highest priority first, then oldest deadline": "আগে সর্বোচ্চ অগ্রাধিকার, তারপর সবচেয়ে পুরোনো সময়সীমা",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "কোন কাজগুলোর সময়সীমা পেরিয়েছে এবং আগে কার সঙ্গে যোগাযোগ করব? সংক্ষেপে বলুন।",
+  "What is the most important thing I need to do today?": "আজ আমার সবচেয়ে জরুরি কী করা উচিত?",
+  "Summarize this week for my team in two sentences.": "আমার দলের জন্য এই সপ্তাহের সারাংশ দুই বাক্যে বলুন।"
 }

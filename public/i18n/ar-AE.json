@@ -1259,5 +1259,13 @@
  "Stopped. Ask again when you are ready.": "وقفت. اسأل مرة ثانية يوم تكون جاهز.",
  "No changes have been made. Ask me to make the change so you can review and confirm it.": "ما تغير شي. اطلب مني التغيير عشان تراجعه وتأكد عليه.",
  "Confirm this change": "أكد هالتغيير",
- "Applying your confirmed change…": "جاري تنفيذ التغيير اللي أكدته…"
+ "Applying your confirmed change…": "جاري تنفيذ التغيير اللي أكدته…",
+  "This week: {new} new jobs and {done} completed jobs.": "هالأسبوع: {new} شغل جديد و{done} شغل خلص.",
+  "Still open: {open}, including {late} overdue.": "باقي {open} شغل مفتوح، منه {late} متأخر.",
+  "Chase first": "تابع أول شي مع",
+  "Assign an owner first": "عيّن مسؤول أول شي",
+  "Highest priority first, then oldest deadline": "الأولوية الأعلى أول، وبعدها أقدم موعد تسليم",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "وش الشغل المتأخر ومنو أتابع معاه أول؟ وضح باختصار.",
+  "What is the most important thing I need to do today?": "وش أهم شي لازم أسويه اليوم؟",
+  "Summarize this week for my team in two sentences.": "لخص هالأسبوع للفريق بجملتين."
 }

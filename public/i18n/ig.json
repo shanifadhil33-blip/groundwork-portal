@@ -918,5 +918,13 @@
  "Visit charge": "Ụgwọ nleta",
  "(Sample price)": "(Ọnụahịa ihe atụ)",
  "The office will confirm the price.": "Ọfịs ga ekwenye ọnụahịa ahụ.",
- "Applying your confirmed change…": "A na etinye mgbanwe ị kwadoro…"
+ "Applying your confirmed change…": "A na etinye mgbanwe ị kwadoro…",
+  "This week: {new} new jobs and {done} completed jobs.": "N’izu a: ọrụ ọhụrụ {new} na ọrụ {done} emechara.",
+  "Still open: {open}, including {late} overdue.": "Ọrụ {open} ka ghe oghe, gụnyere {late} gafere oge ha.",
+  "Chase first": "Buru ụzọ kpọtụrụ",
+  "Assign an owner first": "Buru ụzọ họpụta onye nlekọta",
+  "Highest priority first, then oldest deadline": "Ihe kacha mkpa mbụ, mesịa ụbọchị ikpeazụ kacha ochie",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "Kedu ọrụ gafere oge ha, onye ka m buru ụzọ kpọtụrụ? Kọwaa nkenke.",
+  "What is the most important thing I need to do today?": "Kedu ihe kacha mkpa m kwesịrị ime taa?",
+  "Summarize this week for my team in two sentences.": "Chịkọta izu a maka ndị otu m n’ahịrịokwu abụọ."
 }

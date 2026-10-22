@@ -923,5 +923,13 @@
  "Visit charge": "Kharashka booqashada",
  "(Sample price)": "(Qiime tusaale ah)",
  "The office will confirm the price.": "Xafiiska ayaa xaqiijin doona qiimaha.",
- "Applying your confirmed change…": "Isbeddelkii aad xaqiijisay ayaa la fulinayaa…"
+ "Applying your confirmed change…": "Isbeddelkii aad xaqiijisay ayaa la fulinayaa…",
+  "This week: {new} new jobs and {done} completed jobs.": "Toddobaadkan: {new} shaqo cusub iyo {done} shaqo la dhammeeyey.",
+  "Still open: {open}, including {late} overdue.": "Weli {open} shaqo ayaa furan, oo {late} ka mid ah waqtigoodii dhaafay.",
+  "Chase first": "Marka hore la xiriir",
+  "Assign an owner first": "Marka hore qof masuul ah u qoondee",
+  "Highest priority first, then oldest deadline": "Mudnaanta ugu sarreysa marka hore, dabadeed waqtiga ugu horreeyey",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "Shaqooyinkee waqtigoodii dhaafay, yaanse marka hore la xiriiraa? Si kooban u sharax.",
+  "What is the most important thing I need to do today?": "Waa maxay waxa ugu muhiimsan ee aan maanta sameeyo?",
+  "Summarize this week for my team in two sentences.": "Toddobaadkan kooxdayda ugu soo koob laba weedhood."
 }

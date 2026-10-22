@@ -910,5 +910,13 @@
  "Visit charge": "Nsrahwɛ ho ka",
  "(Sample price)": "(Nhwɛso bo)",
  "The office will confirm the price.": "Dwumadibea no bɛsi bo no so dua.",
- "Applying your confirmed change…": "Yɛreyɛ nsakrae a woasi so dua no…"
+ "Applying your confirmed change…": "Yɛreyɛ nsakrae a woasi so dua no…",
+  "This week: {new} new jobs and {done} completed jobs.": "Nnawɔtwe yi: adwuma foforo {new} ne adwuma {done} a wɔawie.",
+  "Still open: {open}, including {late} overdue.": "Adwuma {open} da so wɔ hɔ, na {late} atwam bere.",
+  "Chase first": "Di kan ne no nni nkitaho",
+  "Assign an owner first": "Di kan yi obi a ɔbɛhwɛ so",
+  "Highest priority first, then oldest deadline": "Nea ehia paa di kan, afei bere a atwam akyɛ paa",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "Adwuma bɛn na bere atwam, na hena na minni kan ne no nni nkitaho? Kyerɛ mu tiawa.",
+  "What is the most important thing I need to do today?": "Dɛn ne ade a ehia paa sɛ meyɛ nnɛ?",
+  "Summarize this week for my team in two sentences.": "Bɔ nnawɔtwe yi mua ma me kuw wɔ nsɛm abien mu."
 }

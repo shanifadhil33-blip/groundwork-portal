@@ -907,5 +907,13 @@
  "Applying your confirmed change…": "Mabadiliko uliyothibitisha yanatekelezwa…",
  "Not given": "Haijatolewa",
  "Where": "Wapi",
- "Since": "Tangu lini"
+ "Since": "Tangu lini",
+  "This week: {new} new jobs and {done} completed jobs.": "Wiki hii: kazi {new} mpya na kazi {done} zilizokamilika.",
+  "Still open: {open}, including {late} overdue.": "Kazi {open} bado ziko wazi, zikiwemo {late} zilizochelewa.",
+  "Chase first": "Wasiliana kwanza na",
+  "Assign an owner first": "Teua msimamizi kwanza",
+  "Highest priority first, then oldest deadline": "Kipaumbele cha juu kwanza, kisha tarehe ya mwisho ya zamani zaidi",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "Ni kazi zipi zimechelewa na niwasiliane na nani kwanza? Eleza kwa ufupi.",
+  "What is the most important thing I need to do today?": "Ni jambo gani muhimu zaidi nifanye leo?",
+  "Summarize this week for my team in two sentences.": "Fupisha wiki hii kwa timu yangu kwa sentensi mbili."
 }

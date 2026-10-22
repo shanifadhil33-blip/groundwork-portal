@@ -1,3 +1,4 @@
+import { operationalAnswer, operationalIntent } from '../agent/operational-answers';
 import { selectAssistantTools } from '../agent/prompt-tools';
 import { assignmentIntent, ASSIGNMENT_PROMPT } from '../agent/assignment-intent';
 import { assignmentRequest, namesVisitDate } from '../agent/assignment-request';
@@ -185,6 +186,8 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   }
   return {available:true,reply:failureWords((await getPreferences(user)).language,'Your setting has since changed. Open your personal settings to choose it again.'),localized:true};
  }
+ const readIntent=operationalIntent(resolvedQuestion);
+ if(readIntent){const reply=await operationalAnswer(user,ws,readIntent,(await getPreferences(user)).language);return {available:true,reply,quick:true,localized:true};}
  const selected=await selectedVisitChoice(user,ws,question);if(selected)return selected;
  if((await getPreferences(user)).language?.startsWith('en')&&/^(?:what needs attention|what do I need to do|what is waiting|show unread messages)[?.!]*$/i.test(question)){const a=await needsAttention(user,ws);return {available:true,reply:attentionReply(a)};}
  // AGENT12: job counts and the client refusal answer from fixed words in his language, before any AI.

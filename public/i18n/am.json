@@ -914,5 +914,13 @@
  "Applying your confirmed change…": "ያረጋገጡት ለውጥ እየተተገበረ ነው…",
  "Not given": "አልተሰጠም",
  "Where": "የት",
- "Since": "ከመቼ ጀምሮ"
+ "Since": "ከመቼ ጀምሮ",
+  "This week: {new} new jobs and {done} completed jobs.": "በዚህ ሳምንት፦ {new} አዲስ ሥራዎች እና {done} የተጠናቀቁ ሥራዎች።",
+  "Still open: {open}, including {late} overdue.": "አሁንም {open} ክፍት ሥራዎች አሉ፣ ከእነሱ {late} ጊዜያቸው አልፏል።",
+  "Chase first": "መጀመሪያ ያነጋግሩ",
+  "Assign an owner first": "መጀመሪያ ኃላፊ ይመድቡ",
+  "Highest priority first, then oldest deadline": "መጀመሪያ ከፍተኛ ቅድሚያ፣ ከዚያ በጣም የቆየ የመጨረሻ ቀን",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "የትኞቹ ሥራዎች ዘግይተዋል እና መጀመሪያ ማንን ላነጋግር? በአጭሩ ያብራሩ።",
+  "What is the most important thing I need to do today?": "ዛሬ ማድረግ ያለብኝ ዋናው ነገር ምንድነው?",
+  "Summarize this week for my team in two sentences.": "ይህን ሳምንት ለቡድኔ በሁለት ዓረፍተ ነገሮች ያጠቃልሉ።"
 }

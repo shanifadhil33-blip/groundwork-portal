@@ -923,5 +923,13 @@
  "Visit charge": "Kuɗin ziyara",
  "(Sample price)": "(Farashin misali)",
  "The office will confirm the price.": "Ofis zai tabbatar da farashin.",
- "Applying your confirmed change…": "Ana aiwatar da canjin da ka tabbatar…"
+ "Applying your confirmed change…": "Ana aiwatar da canjin da ka tabbatar…",
+  "This week: {new} new jobs and {done} completed jobs.": "A wannan makon: sabbin ayyuka {new} da ayyuka {done} da aka kammala.",
+  "Still open: {open}, including {late} overdue.": "Har yanzu ayyuka {open} suna buɗe, ciki har da {late} da suka makara.",
+  "Chase first": "Tuntuɓi wannan da farko",
+  "Assign an owner first": "Fara da naɗa mai kula",
+  "Highest priority first, then oldest deadline": "Mafi muhimmanci da farko, sannan mafi tsohon wa’adin ƙarshe",
+  "Which work orders are overdue and who should I chase first? Explain briefly.": "Waɗanne ayyuka ne suka makara kuma wa zan fara tuntuɓa? Yi bayani a taƙaice.",
+  "What is the most important thing I need to do today?": "Mene ne abu mafi muhimmanci da zan yi yau?",
+  "Summarize this week for my team in two sentences.": "Taƙaita wannan makon ga ƙungiyata cikin jimloli biyu."
 }
