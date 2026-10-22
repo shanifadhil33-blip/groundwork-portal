@@ -915,5 +915,10 @@
 "Paint": "रङ लगाउने काम",
 "Cleaning": "सरसफाइ",
 "Working…": "काम हुँदैछ…",
-"Enter your home address.": "आफ्नो घरको ठेगाना लेख्नुहोस्।"
+"Enter your home address.": "आफ्नो घरको ठेगाना लेख्नुहोस्।",
+"Yes":"हो",
+"Change":"बदल्नुहोस्",
+"Which option do you mean?":"तपाईंले कुन विकल्प भन्नुभएको हो?",
+"Give a WO number":"कामको नम्बर दिनुहोस्",
+"Change my note":"मेरो टिप्पणी बदल्नुहोस्"
 }

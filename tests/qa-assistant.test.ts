@@ -1,9 +1,9 @@
 import { beforeEach,expect,it,vi } from 'vitest';
 import { actionSummary,plainAssistantReply } from '../lib/ui/assistant-replies';
-const state=vi.hoisted(()=>({turn:vi.fn(),call:vi.fn(),actions:new Map<string,any>(),order:{id:'50000000-0000-4000-8000-000000000058',order_number:58,title:'Test access control reader',status:'scheduled',priority:'normal',timezone:'Asia/Dubai',due_on:'2026-11-10',scheduled_for:'2026-11-08T05:00:00Z'},role:'staff',kind:'manager',lengths:new Map<string,string>(),patch:vi.fn()}));
+const state=vi.hoisted(()=>({turn:vi.fn(),call:vi.fn(),actions:new Map<string,any>(),order:{id:'50000000-0000-4000-8000-000000000058',order_number:58,title:'Test access control reader',status:'scheduled',priority:'normal',timezone:'Asia/Dubai',due_on:'2026-11-10',scheduled_for:'2026-11-08T05:00:00Z'},role:'staff',kind:'manager',language:'en-IN',lengths:new Map<string,string>(),patch:vi.fn()}));
 vi.mock('../lib/db',()=>({withSystem:async(cb:(db:unknown)=>unknown)=>cb({query:async()=>({rows:[]})}),ownerPool:{query:async()=>({rows:[]})},appPool:{query:async()=>({rows:[]})},withUser:async(_u:unknown,cb:(db:unknown)=>unknown)=>cb({query:async()=>({rows:[]})}),asAgent:(_actor:unknown,callback:()=>unknown)=>callback()}));
 vi.mock('../lib/ai',()=>({assistantTurn:state.turn}));
-vi.mock('../lib/services/settings',async original=>({...await original<typeof import('../lib/services/settings')>(),getPreferences:async(user:string)=>({agent_name:null,approval_mode:'ask',reply_length:state.lengths.get(user)??'normal'}),patchPreferences:state.patch}));
+vi.mock('../lib/services/settings',async original=>({...await original<typeof import('../lib/services/settings')>(),getPreferences:async(user:string)=>({agent_name:null,language:state.language,approval_mode:'ask',reply_length:state.lengths.get(user)??'normal'}),patchPreferences:state.patch}));
 vi.mock('../lib/services/agent-learning',()=>({listAgentLearning:async()=>({data:[]})}));
 vi.mock('../lib/services/work-orders',()=>({getWorkOrder:async()=>state.order}));
 vi.mock('../lib/services/shared',async(orig)=>{const {z}=await import('zod');return {...(await orig<any>()),uuid:z.uuid(),inWorkspace:async(user:string,ws:string,callback:(c:unknown)=>unknown)=>callback({role:state.role,db:{query:async(sql:string,args:any[])=>{
@@ -24,7 +24,7 @@ vi.mock('../lib/agent/tools',async()=>{const {z}=await import('zod');return {cal
  }}});
 import { assistant } from '../lib/services/assistant';
 const user='10000000-0000-4000-8000-000000000002',ws='20000000-0000-4000-8000-000000000001';
-beforeEach(()=>{state.turn.mockReset();state.call.mockReset();state.actions.clear();state.lengths.clear();state.patch.mockReset();state.patch.mockImplementation(async(user:string,body:{reply_length:string})=>{state.lengths.set(user,body.reply_length);return body;});state.role='staff';state.kind='manager';state.call.mockResolvedValue({content:[{type:'text',text:'{}'}],structuredContent:{result:{...state.order}}});});
+beforeEach(()=>{state.turn.mockReset();state.call.mockReset();state.actions.clear();state.lengths.clear();state.patch.mockReset();state.patch.mockImplementation(async(user:string,body:{reply_length:string})=>{state.lengths.set(user,body.reply_length);return body;});state.role='staff';state.kind='manager';state.language='en-IN';state.call.mockResolvedValue({content:[{type:'text',text:'{}'}],structuredContent:{result:{...state.order}}});});
 async function propose(name:string,args:object,text='Change the work order'){state.turn.mockResolvedValue({calls:[{id:'1',name,args}],text:'Action completed.'});return assistant(user,ws,{messages:[{role:'user',content:text}]});}
 it('removes complete/truncated IDs and raw words, while retaining safe work-order destinations',()=>{
  const result=plainAssistantReply(`site ID e4ca7ce3…: in_progress; waiting_on_parts; list_sites. [WO 58](/work-orders/${state.order.id}) ${state.order.id}`);
@@ -124,4 +124,35 @@ it('keeps complete confirmation cards and refusal text for short replies',async(
  const refusal='I cannot assign this job. Only an admin can change it. Please ask him to review the current assignment.';
  state.role='admin';state.turn.mockResolvedValue({calls:[],text:refusal});
  const result:any=await assistant(user,ws,{messages:[{role:'user',content:'Who can assign this job?'}]});expect(result.reply).toBe(refusal);
+});
+
+// AGENT22: the provider is mocked; choosing an answer never performs a write.
+it.each([
+ ['ar-AE','هل تقصد هذا العمل؟','نعم','تغيير'],
+ ['hi','क्या आपका मतलब यह काम है?','हाँ','बदलें'],
+ ['ur','کیا آپ کا مطلب یہ کام ہے؟','ہاں','تبدیل کریں'],
+])('asks in %s and uses the shipped Yes and Change labels',async(language,question,yes,change)=>{
+ state.language=language;
+ state.turn.mockResolvedValue({calls:[{id:'1',name:'ask_choice',args:{question,options:['Yes','Change']}}]});
+ const result=await assistant(user,ws,{messages:[{role:'user',content:'save this'}]});
+ expect(result).toMatchObject({reply:question,choices:[yes,change],localized:true});
+ expect(state.turn).toHaveBeenCalledOnce();
+ expect(state.turn.mock.calls[0][2]).toContain(JSON.stringify([yes,change]));
+ expect(state.call).not.toHaveBeenCalled();expect(state.actions.size).toBe(0);
+});
+it.each([
+ ['ar-AE','أي خيار تقصد؟','نعم','تغيير'],
+ ['hi','आपका मतलब कौन सा विकल्प है?','हाँ','बदलें'],
+ ['ur','آپ کا مطلب کون سا انتخاب ہے؟','ہاں','تبدیل کریں'],
+])('falls back in %s when the provider returns an English question',async(language,reply,yes,change)=>{
+ state.language=language;
+ state.turn.mockResolvedValue({calls:[{id:'1',name:'ask_choice',args:{question:'Save this as the job report?',options:['Yes','Change']}}]});
+ expect(await assistant(user,ws,{messages:[{role:'user',content:'save this'}]})).toMatchObject({reply,choices:[yes,change]});
+ expect(state.turn).toHaveBeenCalledOnce();expect(state.call).not.toHaveBeenCalled();expect(state.actions.size).toBe(0);
+});
+it('preserves localized job choices with names and numbers',async()=>{
+ state.language='hi';
+ state.turn.mockResolvedValue({calls:[{id:'1',name:'ask_choice',args:{question:'कौन सा काम?',options:['WO 58 Ravi','WO 59 Imran','बदलें']}}]});
+ expect(await assistant(user,ws,{messages:[{role:'user',content:'save this'}]})).toMatchObject({reply:'कौन सा काम?',choices:['WO 58 Ravi','WO 59 Imran','बदलें']});
+ expect(state.call).not.toHaveBeenCalled();expect(state.actions.size).toBe(0);
 });
