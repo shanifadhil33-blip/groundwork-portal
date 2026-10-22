@@ -5,7 +5,7 @@ import { LANGUAGES } from '../lib/languages';
 import { choiceWords } from '../lib/agent/choices';
 import { readFileSync } from 'node:fs';
 import { ids } from '../scripts/seed';
-afterEach(()=>vi.unstubAllGlobals());
+afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs();});
 it.each([
  ['Which work orders are overdue and who should I chase first? Explain briefly.','overdue'],
  ['وش أهم شي لازم أسويه اليوم؟','attention'],
@@ -37,10 +37,31 @@ it('answers all three probes from local services without network calls',async()=
 });
 it('weekly counts respect client and technician visibility',async()=>{
  const {listWorkOrders}=await import('../lib/services/work-orders');
- for(const user of [ids.imran,ids.pranav,ids.omar]){
+ for(const user of [ids.imran,ids.ravi,ids.pranav]){
   const visible=await listWorkOrders(user,ids.ridgeline,new URLSearchParams({active:'true'}));
   const counts=await assistantWeek(user,ids.ridgeline);
   expect(counts.open).toBe(visible.total);
   expect(counts.late).toBeLessThanOrEqual(counts.open);
  }
+});
+it('counts completed jobs for every role without requiring access to team audit entries',async()=>{
+ const {withSystem}=await import('../lib/db');
+ await withSystem(db=>db.query("UPDATE work_orders SET report_at=now() WHERE workspace_id=$1 AND status='done'",[ids.ridgeline]),ids.imran);
+ const {listWorkOrders}=await import('../lib/services/work-orders');
+ for(const user of [ids.imran,ids.sam,ids.ravi,ids.pranav]){
+  const visible=await listWorkOrders(user,ids.ridgeline,new URLSearchParams({status:'done'}));
+  expect((await assistantWeek(user,ids.ridgeline)).done).toBe(visible.total);
+ }
+});
+it('keeps a real assistant first request below six thousand estimated input tokens',async()=>{
+ const {assistant}=await import('../lib/services/assistant');const {estimateTokens,resetCooldowns}=await import('../lib/ai');
+ resetCooldowns();
+ for(const key of ['GEMINI_API_KEY','CLOUDFLARE_AI_TOKEN','KILO_API_KEY','OVH_AI_TOKEN','ZAI_API_KEY','NVIDIA_API_KEY','REQUESTY_API_KEY','GROQ_API_KEY','CEREBRAS_API_KEY','MISTRAL_API_KEY'])vi.stubEnv(key,'');
+ vi.stubEnv('AI_KEYLESS','');vi.stubEnv('AI_USAGE_LOG','');vi.stubEnv('OPENROUTER_API_KEY','fixture');
+ const fetcher=vi.fn().mockResolvedValue(Response.json({choices:[{message:{content:'Ready.'}}]}));vi.stubGlobal('fetch',fetcher);
+ await assistant(ids.imran,ids.ridgeline,{messages:[{role:'user',content:'Explain priority and payment details for WO 12'}]});
+ expect(fetcher).toHaveBeenCalledTimes(1);
+ const body=JSON.parse(fetcher.mock.calls[0][1].body);
+ expect(estimateTokens(body)).toBeLessThan(6000);
+ expect(body.tools.length).toBeLessThan(12);
 });

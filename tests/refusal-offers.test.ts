@@ -93,13 +93,12 @@ it('admins get their normal card with no refusal offer',async()=>{
  await withSystem(db=>db.query('DELETE FROM assistant_actions WHERE id=$1',[r.pending_action.id]));
 });
 it('AGENT11: a technician and a supervisor are offered the changes they may not make, so the refusal and the offer can happen; a client is not',async()=>{
- const names=async(user:string)=>{vi.mocked(assistantTurn).mockReset();vi.mocked(assistantTurn).mockResolvedValueOnce({calls:[],text:'Okay.'} as any);await ask(user,'Hello');const [,decl,prompt]=vi.mocked(assistantTurn).mock.calls[0] as any;return {tools:(decl as {name:string}[]).map(d=>d.name),prompt:String(prompt)};};
- const tech=await names(ids.ravi);
- for(const t of ['assign_work_order','set_priority','set_job_payment','decide_time_off'])expect(tech.tools).toContain(t);
- expect(tech.prompt).toContain('call the tool for that change');
- const sup=await names(ids.sam);for(const t of ['set_job_payment','create_client'])expect(sup.tools).toContain(t);
+ const names=async(user:string,question:string)=>{vi.mocked(assistantTurn).mockReset();vi.mocked(assistantTurn).mockResolvedValueOnce({calls:[],text:'Okay.'} as any);await ask(user,question);const [,decl]=vi.mocked(assistantTurn).mock.calls[0] as any;return (decl as {name:string}[]).map(d=>d.name);};
+ for(const [question,tool] of [['Help with priority','set_priority'],['Help with payment','set_job_payment'],['Help with time off decisions','decide_time_off']])expect(await names(ids.ravi,question)).toContain(tool);
+ for(const [question,tool] of [['Help with payment','set_job_payment'],['Help with client settings','create_client']])expect(await names(ids.sam,question)).toContain(tool);
+ expect(await names(ids.ravi,'Hello')).not.toContain('set_job_payment');
  const client=await withSystem(async db=>(await db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND role='client' AND archived_at IS NULL LIMIT 1",[ws])).rows[0]?.user_id);
- if(client){const c=await names(client);for(const t of ['assign_work_order','set_priority','set_job_payment','create_client'])expect(c.tools).not.toContain(t);}
+ if(client)for(const [question,tool] of [['Help with assignment','assign_work_order'],['Help with priority','set_priority'],['Help with payment','set_job_payment'],['Help with client settings','create_client']])expect(await names(client,question)).not.toContain(tool);
 });
 it('AGENT11: when the model refuses in its own words without a tool call, a technician still gets an offer with his own words; a lookup miss or a client gets none',async()=>{
  const text=(t:string)=>{vi.mocked(assistantTurn).mockReset();vi.mocked(assistantTurn).mockResolvedValueOnce({calls:[],text:t} as any);};

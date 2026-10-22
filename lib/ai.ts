@@ -71,7 +71,7 @@ function safeErrorBody(body: string, p: Provider, request?:unknown) {
  const removePrompt=(value:any):void=>{
   if(!value||typeof value!=='object')return;
   for(const [key,item] of Object.entries(value)){
-   if((key==='content'||key==='text')&&typeof item==='string'&&item){
+   if((key==='content'||key==='text'||key==='description')&&typeof item==='string'&&item){
     safe=safe.split(item).join('[redacted prompt]');
     safe=safe.split(JSON.stringify(item).slice(1,-1)).join('[redacted prompt]');
    }else removePrompt(item);
@@ -114,7 +114,7 @@ async function post(p:Provider,body:unknown,timeout:number,signal?:AbortSignal){
    return {choices:[{message:{content:result.response,tool_calls:result.tool_calls?.map((call:any,i:number)=>({id:call.id??String(i),type:'function',function:{name:call.name,arguments:call.arguments??{}}}))}}]};
   }
   return data;
- }catch(e){if(e instanceof Skip)throw e;throw new Skip(true,r.status,0,'invalid_response');}
+ }catch(e){if(e instanceof Skip)throw e;if(p.name.startsWith('openrouter/'))console.warn('[ai] invalid response shape',{json:false});throw new Skip(true,r.status,0,'invalid_response');}
 }
 /** Per provider timeout. Gemini free often hangs, so it gets a short leash and the chain moves on. */
 const TIMEOUTS:Record<string,number>={gemini:9000,openrouter:15000,sambanova:12000,cloudflare:15000,kilo:18000,ovh:18000,zai:15000,nvidia:15000,requesty:12000,groq:10000};
@@ -197,13 +197,25 @@ export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,p
    void recordUsage(label,p.name,false);return null;
   }finally{if(timer)clearTimeout(timer);controller.signal.removeEventListener('abort',cancelled);local.abort();}
  };
- const healthy=order.filter(eligible);
- const first=task==='assistant'?healthy.filter((p,i)=>healthy.findIndex(q=>q.name.split('/')[0]===p.name.split('/')[0])===i).slice(0,2):healthy.slice(0,1);
+ const first:Provider[]=[];
  const pending=new Map<number,Promise<{index:number;out:T|null}>>();
- first.forEach((p,index)=>pending.set(index,attempt(p).then(out=>({index,out}))));
- while(pending.size){const {index,out}=await Promise.race(pending.values());pending.delete(index);if(out!==null){controller.abort();return out;}}
- // Try other providers before spending a second call on any provider.
- for(const p of order){if(tried.has(p.name)||!eligible(p))continue;const out=await attempt(p);if(out!==null){controller.abort();return out;}if(Date.now()>=until)break;}
+ let sequence=0;
+ // Replace a failed racer immediately, keeping at most two different providers in flight.
+ const fill=()=>{
+  while(pending.size<(task==='assistant'?2:1)){
+   const p=order.find(p=>!tried.has(p.name)&&eligible(p));if(!p)break;
+   first.push(p);const index=sequence++;
+   // A budget rejection does not spend quota but must not be selected again.
+   tried.add(p.name);
+   pending.set(index,attempt(p).then(out=>({index,out})));
+  }
+ };
+ fill();
+ while(pending.size){
+  const {index,out}=await Promise.race(pending.values());pending.delete(index);
+  if(out!==null){controller.abort();return out;}
+  if(Date.now()<until)fill();
+ }
  for(const p of task==='bulk'?first.concat(order):[]){const id=p.name.split('/')[0];if(!eligible(p)||(attempts.get(id)??0)!==1)continue;const out=await attempt(p);if(out!==null){controller.abort();return out;}if(Date.now()>=until)break;}
  controller.abort();
  console.warn('[ai] fallback',{reason:Date.now()>=until?'deadline':order.length?'providers_exhausted':'no_provider'});
@@ -332,7 +344,7 @@ function compactValue(value:any,depth=0):any {
  if(Array.isArray(value))return value.length>6?{items:value.slice(0,6).map(v=>compactValue(v,depth+1)),truncated:true,total:value.length}:value.map(v=>compactValue(v,depth+1));
  if(value&&typeof value==='object'){
   if(value.structuredContent)return compactValue({isError:value.isError,...value.structuredContent},depth+1);
-  return Object.fromEntries(Object.entries(value).filter(([k])=>!['description','body','raw','metadata','attachments'].includes(k)).slice(0,24).map(([k,v])=>[k,compactValue(v,depth+1)]));
+  return Object.fromEntries(Object.entries(value).filter(([k])=>!['raw','metadata','attachments'].includes(k)).slice(0,24).map(([k,v])=>[k,compactValue(v,depth+1)]));
  }
  return value;
 }
@@ -349,7 +361,17 @@ export function compactSnapshot(value:unknown):any {
 export function compactAssistantHistory(history:AssistantMessage[]):AssistantMessage[]{
  const users=history.flatMap((m,i)=>m.role==='user'?[i]:[]);
  const start=users.at(-2)??0;
- return history.slice(start).map(m=>m.role==='result'?{...m,result:compactSnapshot(m.result)}:m);
+ const recent=history.slice(start).map(m=>m.role==='result'?{...m,result:compactSnapshot(m.result)}:m);
+ const omitted={truncated:true};const placeholderBytes=Buffer.byteLength(JSON.stringify(omitted));
+ let remaining=Math.max(0,6000-recent.filter(m=>m.role==='result').length*placeholderBytes);
+ // Keep call/result pairs intact while bounding aggregate read data across all exchanges.
+ for(let i=recent.length-1;i>=0;i--){
+  const m=recent[i];if(m.role!=='result')continue;
+  const bytes=Buffer.byteLength(JSON.stringify(m.result)??'');
+  if(bytes-placeholderBytes<=remaining)remaining-=Math.max(0,bytes-placeholderBytes);
+  else recent[i]={...m,result:omitted};
+ }
+ return recent;
 }
 /** Model chatter about its own tools is never an answer; treat it as empty so the next provider answers. */
 const META=/function definitions|(?:tools?|functions?) (?:do not|don't|does not) (?:fully )?cover|as an ai language model/i;

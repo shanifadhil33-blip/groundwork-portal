@@ -120,7 +120,7 @@ it('recent fast successes lead the next race',async()=>{
  const a=p('groq'),b=p('kilo'),c=p('ovh');
  vi.stubGlobal('fetch',vi.fn().mockResolvedValue(answer('OK')));
  await withFallback('assistant',()=>({}),()=>true,{},[c]);
- const fetcher=vi.fn().mockResolvedValue(answer('OK'));vi.stubGlobal('fetch',fetcher);
+ const fetcher=vi.fn().mockImplementation(async()=>answer('OK'));vi.stubGlobal('fetch',fetcher);
  await withFallback('assistant',()=>({}),()=>true,{},[a,b,c]);
  expect(fetcher.mock.calls.map(v=>v[0])).toEqual([c.url,a.url]);
 });
@@ -136,4 +136,14 @@ it('budgets final native and Gemini requests including Unicode schemas and outpu
   expect(await withFallback('assistant',make,()=>true,{},[provider])).toBe(true);
  }
  expect(estimateTokens('ع'.repeat(100))).toBeGreaterThan(100);
+});
+it('replaces a failed racer while the other provider is still pending',async()=>{
+ let slowSignal:AbortSignal|undefined;
+ const fetcher=vi.fn().mockImplementation(async(url,options)=>{
+  if(url.includes('gemini')){slowSignal=options.signal;return new Promise(()=>{});}
+  if(url.includes('kilo'))return new Response('unavailable',{status:503});
+  return answer('Ready');
+ });vi.stubGlobal('fetch',fetcher);
+ expect(await withFallback('assistant',()=>({}),(_p,data)=>data.choices[0].message.content,{},[p('gemini'),p('kilo'),p('groq')])).toBe('Ready');
+ expect(fetcher).toHaveBeenCalledTimes(3);expect(slowSignal?.aborted).toBe(true);
 });

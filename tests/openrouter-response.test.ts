@@ -38,3 +38,11 @@ it('uses the normalizer in the assistant provider path',async()=>{
  vi.stubGlobal('fetch',vi.fn().mockResolvedValue(Response.json({choices:[{message:{content:null,tool_calls:[{name:'list_work_orders',arguments:'{"overdue":true}'}]}}]})));
  expect((await assistantTurn([{role:'user',content:'Check jobs'}],[]))?.calls[0]).toMatchObject({name:'list_work_orders',args:{overdue:true}});
 });
+it('reports malformed JSON as a shape failure without its body',async()=>{
+ const warn=vi.spyOn(console,'warn').mockImplementation(()=>undefined);
+ vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response('private malformed response')));
+ const provider=providers({OPENROUTER_API_KEY:'fixture'})[0];
+ expect(await withFallback('assistant',()=>({}),()=>null,{},[provider])).toBeNull();
+ expect(warn).toHaveBeenCalledWith('[ai] invalid response shape',{json:false});
+ expect(JSON.stringify(warn.mock.calls)).not.toMatch(/private|fixture/);
+});
