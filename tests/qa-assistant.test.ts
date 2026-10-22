@@ -18,6 +18,7 @@ vi.mock('../lib/agent/tools',async()=>{const {z}=await import('zod');return {cal
  update_work_order_status:{write:true,description:'Status',schema:z.object({id:z.uuid(),status:z.string(),updated_at:z.string()})},
  set_priority:{write:true,description:'Priority',schema:z.object({id:z.uuid(),priority:z.string(),updated_at:z.string()})},
  add_comment:{write:true,description:'Comment',schema:z.object({work_order_id:z.uuid(),body:z.string(),visibility:z.enum(['internal','client']).default('internal')})},
+ list_work_orders:{write:false,description:'Jobs',schema:z.object({})},
  ask_choice:{write:false,description:'Ask',schema:z.object({question:z.string(),options:z.array(z.string())})},
  set_job_payment:{write:true,description:'Pay',schema:z.object({id:z.uuid(),payment_status:z.string()})},
  create_request:{write:true,description:'Request',schema:z.object({site_id:z.uuid(),title:z.string(),description:z.string().optional(),preferred_window:z.string().optional()})},
@@ -155,4 +156,41 @@ it('preserves localized job choices with names and numbers',async()=>{
  state.turn.mockResolvedValue({calls:[{id:'1',name:'ask_choice',args:{question:'कौन सा काम?',options:['WO 58 Ravi','WO 59 Imran','बदलें']}}]});
  expect(await assistant(user,ws,{messages:[{role:'user',content:'save this'}]})).toMatchObject({reply:'कौन सा काम?',choices:['WO 58 Ravi','WO 59 Imran','बदलें']});
  expect(state.call).not.toHaveBeenCalled();expect(state.actions.size).toBe(0);
+});
+
+it.each([
+ 'WO 999 is open.',
+ 'Ramon has completed the repair.',
+ 'WO 58 costs AED 999.00.',
+ 'WO 58 is booked for 9 November 2026.',
+ 'Ravi has completed 99 jobs.',
+])('AGENT21 checks mocked AI facts against tool results: %s',async invented=>{
+ const warning=vi.spyOn(console,'warn').mockImplementation(()=>{});
+ try{
+  state.turn.mockResolvedValueOnce({calls:[{id:'read',name:'list_work_orders',args:{}}]})
+   .mockResolvedValueOnce({calls:[],text:`I can help. ${invented} Shall I check anything else?`});
+  state.call.mockResolvedValueOnce({structuredContent:{result:{data:[{...state.order,assignee_name:'Ravi',quote_amount:'150.00',scheduled_for:'2026-11-08'}],total:1}}});
+  const result:any=await assistant(user,ws,{messages:[{role:'user',content:'Tell me about the repair'}]});
+  expect(result.reply).toBe('I can help. I could not find that in your records. Shall I check anything else?');
+  expect(state.turn).toHaveBeenCalledTimes(2);
+  expect(state.call).toHaveBeenCalledTimes(1);
+  expect(warning).toHaveBeenCalled();
+ }finally{warning.mockRestore();}
+});
+it('AGENT21 does not trust invented facts from the user or previous assistant replies',async()=>{
+ const warning=vi.spyOn(console,'warn').mockImplementation(()=>{});
+ try{
+  state.turn.mockResolvedValue({calls:[],text:'WO 999 is open.'});
+  const result:any=await assistant(user,ws,{messages:[{role:'assistant',content:'WO 999 is open.'},{role:'user',content:'Tell me about WO 999'}]});
+  expect(result.reply).toBe('I could not find that in your records.');
+  expect(state.turn).toHaveBeenCalledTimes(1);
+ }finally{warning.mockRestore();}
+});
+
+it('AGENT21 preserves a supported AI reply after a tool lookup',async()=>{
+ const text='Ravi has completed 3 jobs. WO 58 costs AED 150.00. WO 58 is booked for 8 November 2026.';
+ state.turn.mockResolvedValueOnce({calls:[{id:'read',name:'list_work_orders',args:{}}]}).mockResolvedValueOnce({calls:[],text});
+ state.call.mockResolvedValueOnce({structuredContent:{result:{data:[{...state.order,assignee_name:'Ravi',quote_amount:'150.00',scheduled_for:'2026-11-08'}],total:3}}});
+ expect(await assistant(user,ws,{messages:[{role:'user',content:'Tell me about the repair'}]})).toMatchObject({available:true,reply:text});
+ expect(state.turn).toHaveBeenCalledTimes(2);
 });
