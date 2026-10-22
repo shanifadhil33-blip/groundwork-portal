@@ -777,5 +777,6 @@
   "Demo notification for {job}. Nothing was sent.": "ለ {job} የሙከራ ማሳወቂያ። ምንም አልተላከም።",
   "Demo late job: {job}. Nothing was sent.": "የዘገየ የሙከራ ሥራ፦ {job}። ምንም አልተላከም።",
   "Demo stalled job: {job}. Nothing was sent.": "የቆመ የሙከራ ሥራ፦ {job}። ምንም አልተላከም።",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "የሙከራ ሰነዱ በ {days} ቀናት ያበቃል፦ {job}። ምንም አልተላከም።"
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "የሙከራ ሰነዱ በ {days} ቀናት ያበቃል፦ {job}። ምንም አልተላከም።",
+ "In practice, team members and clients stay separate.": "በልምምድ ውስጥ የቡድን አባላት እና ደንበኞች ተለይተው ይቆያሉ።"
 }

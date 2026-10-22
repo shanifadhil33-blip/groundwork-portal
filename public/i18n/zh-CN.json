@@ -774,5 +774,6 @@
   "Demo notification for {job}. Nothing was sent.": "{job}的演示通知。未发送任何内容。",
   "Demo late job: {job}. Nothing was sent.": "演示中延迟的工作：{job}。未发送任何内容。",
   "Demo stalled job: {job}. Nothing was sent.": "演示中停滞的工作：{job}。未发送任何内容。",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "演示文档将在{days}天后到期：{job}。未发送任何内容。"
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "演示文档将在{days}天后到期：{job}。未发送任何内容。",
+ "In practice, team members and clients stay separate.": "在练习中，团队成员和客户保持分开。"
 }

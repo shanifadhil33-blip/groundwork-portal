@@ -774,5 +774,6 @@
   "Demo notification for {job}. Nothing was sent.": "Sɔhwɛ nkaebɔ fa {job} ho. Wɔamfa biribiara ankɔ.",
   "Demo late job: {job}. Nothing was sent.": "Sɔhwɛ adwuma a aka akyi: {job}. Wɔamfa biribiara ankɔ.",
   "Demo stalled job: {job}. Nothing was sent.": "Sɔhwɛ adwuma a agyina: {job}. Wɔamfa biribiara ankɔ.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "Sɔhwɛ krataa no bere bɛso wɔ nna {days} mu: {job}. Wɔamfa biribiara ankɔ."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Sɔhwɛ krataa no bere bɛso wɔ nna {days} mu: {job}. Wɔamfa biribiara ankɔ.",
+ "In practice, team members and clients stay separate.": "Wɔ sɔhwɛ mu no, kuw no mufo ne adetɔfo da so ara yɛ nnipa akuw ahorow."
 }

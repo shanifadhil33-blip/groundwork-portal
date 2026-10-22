@@ -789,5 +789,6 @@
   "Demo notification for {job}. Nothing was sent.": "Ogeysiis tijaabo ah oo ku saabsan {job}. Waxba lama dirin.",
   "Demo late job: {job}. Nothing was sent.": "Shaqo tijaabo ah oo daahday: {job}. Waxba lama dirin.",
   "Demo stalled job: {job}. Nothing was sent.": "Shaqo tijaabo ah oo hakad gashay: {job}. Waxba lama dirin.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "Dukumentiga tijaabadu wuxuu dhacayaa {days} maalmood gudahood: {job}. Waxba lama dirin."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Dukumentiga tijaabadu wuxuu dhacayaa {days} maalmood gudahood: {job}. Waxba lama dirin.",
+ "In practice, team members and clients stay separate.": "Tababarka dhexdiisa, xubnaha kooxda iyo macaamiishu way kala gaar yihiin."
 }

@@ -33,7 +33,7 @@ function SkillsButton({ p, base, areas, onDone }: { p: TeamPerson; base: string;
 type TeamPerson = { extra_roles?: string[]; staff_kind?: string | null; trades: string[]; areas: string[]; user_id: string; role: Role; name: string | null; email: string | null; phone: string | null; open: number; today: number; late: number; done_month: number; done_total: number; off_days: number[]; signs_in_with: 'google' | 'code' };
 
 /** Turn each role on or off. A person can hold several; they can do everything any of them allows. */
-function RolesButton({ p, base, onDone }: { p: TeamPerson; base: string; onDone: () => void }) {
+export function RolesButton({ p, base, onDone }: { p: { user_id: string; name: string | null; role: string; extra_roles?: string[]; staff_kind?: string | null; is_owner?: boolean; is_manager?: boolean }; base: string; onDone: () => void }) {
   const roleLabels = labelsFor(useApp().workspace?.role_names);
   const now = (p as any).is_owner ? ['owner',...(p.extra_roles??[])] : (p as any).is_manager ? ['manager',...(p.extra_roles??[])] : p.staff_kind === 'office' ? ['office', ...(p.extra_roles ?? [])] : [p.role, ...(p.extra_roles ?? [])], [open, setOpen] = useState(false), [on, setOn] = useState<string[]>(now), [busy, setBusy] = useState(false), [error, setError] = useState('');
   async function save() { setBusy(true); setError(''); try { await request(`${base}/members/${p.user_id}/roles`, { method: 'PUT', body: JSON.stringify({ roles: on }) }); setOpen(false); onDone(); } catch (e) { setError(e instanceof RequestError ? e.message : 'We could not save. Try again.'); } finally { setBusy(false); } }

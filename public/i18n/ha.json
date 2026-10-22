@@ -788,5 +788,6 @@
   "Demo notification for {job}. Nothing was sent.": "Sanarwar gwaji don {job}. Ba a aika kome ba.",
   "Demo late job: {job}. Nothing was sent.": "Aikin gwaji da ya makara: {job}. Ba a aika kome ba.",
   "Demo stalled job: {job}. Nothing was sent.": "Aikin gwaji da ya tsaya: {job}. Ba a aika kome ba.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "Takardar gwaji za ta ƙare cikin kwanaki {days}: {job}. Ba a aika kome ba."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Takardar gwaji za ta ƙare cikin kwanaki {days}: {job}. Ba a aika kome ba.",
+ "In practice, team members and clients stay separate.": "A gwaji, mambobin ƙungiya da abokan ciniki suna nan daban."
 }

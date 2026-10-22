@@ -838,5 +838,6 @@
   "Demo notification for {job}. Nothing was sent.": "{job} এর ডেমো বিজ্ঞপ্তি। কিছু পাঠানো হয়নি।",
   "Demo late job: {job}. Nothing was sent.": "ডেমোতে দেরি হওয়া কাজ: {job}। কিছু পাঠানো হয়নি।",
   "Demo stalled job: {job}. Nothing was sent.": "ডেমোতে থেমে থাকা কাজ: {job}। কিছু পাঠানো হয়নি।",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "ডেমো নথির মেয়াদ {days} দিনে শেষ হবে: {job}। কিছু পাঠানো হয়নি।"
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "ডেমো নথির মেয়াদ {days} দিনে শেষ হবে: {job}। কিছু পাঠানো হয়নি।",
+ "In practice, team members and clients stay separate.": "অনুশীলনে দলের সদস্য এবং গ্রাহকেরা আলাদা থাকেন।"
 }

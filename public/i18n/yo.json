@@ -764,5 +764,6 @@
   "Demo notification for {job}. Nothing was sent.": "Ìfitónilétí ìdánwò fún {job}. A kò fi ohunkóhun ránṣẹ́.",
   "Demo late job: {job}. Nothing was sent.": "Iṣẹ́ ìdánwò tó pẹ́: {job}. A kò fi ohunkóhun ránṣẹ́.",
   "Demo stalled job: {job}. Nothing was sent.": "Iṣẹ́ ìdánwò tó dúró: {job}. A kò fi ohunkóhun ránṣẹ́.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "Ìwé ìdánwò yóò parí láàárín ọjọ́ {days}: {job}. A kò fi ohunkóhun ránṣẹ́."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Ìwé ìdánwò yóò parí láàárín ọjọ́ {days}: {job}. A kò fi ohunkóhun ránṣẹ́.",
+ "In practice, team members and clients stay separate.": "Nínú ìdánwò, àwọn ọmọ ẹgbẹ́ àti àwọn oníbàárà wà lọ́tọ̀."
 }

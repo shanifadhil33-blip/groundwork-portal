@@ -779,5 +779,6 @@
   "Demo notification for {job}. Nothing was sent.": "Demo na abiso para sa {job}. Walang ipinadala.",
   "Demo late job: {job}. Nothing was sent.": "Nahuling trabaho sa demo: {job}. Walang ipinadala.",
   "Demo stalled job: {job}. Nothing was sent.": "Natigil na trabaho sa demo: {job}. Walang ipinadala.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "Mawawalan ng bisa ang demo na dokumento sa loob ng {days} araw: {job}. Walang ipinadala."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Mawawalan ng bisa ang demo na dokumento sa loob ng {days} araw: {job}. Walang ipinadala.",
+ "In practice, team members and clients stay separate.": "Sa pagsasanay, magkahiwalay ang mga kasapi ng pangkat at mga kliyente."
 }

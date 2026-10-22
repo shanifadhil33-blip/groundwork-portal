@@ -801,5 +801,6 @@
   "Demo notification for {job}. Nothing was sent.": "{job} സംബന്ധിച്ച ഡെമോ അറിയിപ്പ്. ഒന്നും അയച്ചിട്ടില്ല.",
   "Demo late job: {job}. Nothing was sent.": "ഡെമോയിൽ വൈകിയ ജോലി: {job}. ഒന്നും അയച്ചിട്ടില്ല.",
   "Demo stalled job: {job}. Nothing was sent.": "ഡെമോയിൽ മുടങ്ങിയ ജോലി: {job}. ഒന്നും അയച്ചിട്ടില്ല.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "ഡെമോ രേഖയുടെ കാലാവധി {days} ദിവസത്തിൽ തീരും: {job}. ഒന്നും അയച്ചിട്ടില്ല."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "ഡെമോ രേഖയുടെ കാലാവധി {days} ദിവസത്തിൽ തീരും: {job}. ഒന്നും അയച്ചിട്ടില്ല.",
+ "In practice, team members and clients stay separate.": "പരിശീലനത്തിൽ ടീം അംഗങ്ങളും ഉപഭോക്താക്കളും വേറിട്ടു തുടരും."
 }

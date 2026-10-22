@@ -1168,5 +1168,6 @@
   "Demo notification for {job}. Nothing was sent.": "إشعار تجريبي عن {job}. ما انرسل أي شيء.",
   "Demo late job: {job}. Nothing was sent.": "مهمة تجريبية متأخرة: {job}. ما انرسل أي شيء.",
   "Demo stalled job: {job}. Nothing was sent.": "مهمة تجريبية متوقفة: {job}. ما انرسل أي شيء.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "المستند التجريبي تنتهي صلاحيته خلال {days} أيام: {job}. ما انرسل أي شيء."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "المستند التجريبي تنتهي صلاحيته خلال {days} أيام: {job}. ما انرسل أي شيء.",
+ "In practice, team members and clients stay separate.": "في التجربة، أعضاء الفريق والعملاء يظلون منفصلين."
 }

@@ -814,5 +814,6 @@
   "Demo notification for {job}. Nothing was sent.": "{job} को डेमो सूचना। केही पठाइएन।",
   "Demo late job: {job}. Nothing was sent.": "डेमो ढिलो भएको काम: {job}। केही पठाइएन।",
   "Demo stalled job: {job}. Nothing was sent.": "डेमो रोकिएको काम: {job}। केही पठाइएन।",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "डेमो कागजातको म्याद {days} दिनमा सकिन्छ: {job}। केही पठाइएन।"
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "डेमो कागजातको म्याद {days} दिनमा सकिन्छ: {job}। केही पठाइएन।",
+ "In practice, team members and clients stay separate.": "अभ्यासमा टोलीका सदस्य र ग्राहकहरू अलग रहन्छन्।"
 }

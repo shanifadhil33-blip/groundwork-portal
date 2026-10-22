@@ -768,5 +768,6 @@
   "Demo notification for {job}. Nothing was sent.": "Obubaka bw’okugezesa ku {job}. Tewali kiweerezeddwa.",
   "Demo late job: {job}. Nothing was sent.": "Omulimu ogw’okugezesa oguludde: {job}. Tewali kiweerezeddwa.",
   "Demo stalled job: {job}. Nothing was sent.": "Omulimu ogw’okugezesa oguyimiridde: {job}. Tewali kiweerezeddwa.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "Ekiwandiiko eky’okugezesa kiggwaako mu nnaku {days}: {job}. Tewali kiweerezeddwa."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Ekiwandiiko eky’okugezesa kiggwaako mu nnaku {days}: {job}. Tewali kiweerezeddwa.",
+ "In practice, team members and clients stay separate.": "Mu kwegezaamu, bannakibiina ne bakasitoma basigala nga baawukanye."
 }

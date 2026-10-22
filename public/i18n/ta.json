@@ -833,5 +833,6 @@
   "Demo notification for {job}. Nothing was sent.": "{job} பற்றிய டெமோ அறிவிப்பு. எதுவும் அனுப்பப்படவில்லை.",
   "Demo late job: {job}. Nothing was sent.": "டெமோவில் தாமதமான வேலை: {job}. எதுவும் அனுப்பப்படவில்லை.",
   "Demo stalled job: {job}. Nothing was sent.": "டெமோவில் நின்ற வேலை: {job}. எதுவும் அனுப்பப்படவில்லை.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "டெமோ ஆவணம் {days} நாட்களில் காலாவதியாகும்: {job}. எதுவும் அனுப்பப்படவில்லை."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "டெமோ ஆவணம் {days} நாட்களில் காலாவதியாகும்: {job}. எதுவும் அனுப்பப்படவில்லை.",
+ "In practice, team members and clients stay separate.": "பயிற்சியில் குழு உறுப்பினர்களும் வாடிக்கையாளர்களும் தனித்தனியாக இருப்பார்கள்."
 }

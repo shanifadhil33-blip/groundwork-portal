@@ -794,5 +794,6 @@
   "Demo notification for {job}. Nothing was sent.": "اطلاعیه آزمایشی برای {job}. چیزی فرستاده نشد.",
   "Demo late job: {job}. Nothing was sent.": "کار ناوقت آزمایشی: {job}. چیزی فرستاده نشد.",
   "Demo stalled job: {job}. Nothing was sent.": "کار متوقف آزمایشی: {job}. چیزی فرستاده نشد.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "سند آزمایشی پس از {days} روز منقضی می‌شود: {job}. چیزی فرستاده نشد."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "سند آزمایشی پس از {days} روز منقضی می‌شود: {job}. چیزی فرستاده نشد.",
+ "In practice, team members and clients stay separate.": "در تمرین، اعضای تیم و مشتریان جدا می‌مانند."
 }

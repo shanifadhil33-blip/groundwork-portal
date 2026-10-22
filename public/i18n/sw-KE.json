@@ -769,5 +769,6 @@
   "Demo notification for {job}. Nothing was sent.": "Arifa ya mfano ya {job}. Hakuna kilichotumwa.",
   "Demo late job: {job}. Nothing was sent.": "Kazi iliyochelewa ya mfano: {job}. Hakuna kilichotumwa.",
   "Demo stalled job: {job}. Nothing was sent.": "Kazi iliyokwama ya mfano: {job}. Hakuna kilichotumwa.",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "Hati ya mfano itaisha baada ya siku {days}: {job}. Hakuna kilichotumwa."
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "Hati ya mfano itaisha baada ya siku {days}: {job}. Hakuna kilichotumwa.",
+ "In practice, team members and clients stay separate.": "Katika mazoezi, wanatimu na wateja hubaki tofauti."
 }

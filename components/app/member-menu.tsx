@@ -10,15 +10,17 @@ const n=(k:number,w:string)=>`${k} ${w}${k===1?'':'s'}`;
  * Three dot menu on a team card (universal rule 17), admin only: Archive a former team member, keeping every job and note
  * with their name, with Undo. Delete only for someone added by mistake with no history; otherwise Archive is offered.
  */
-export function MemberMenu({person,base,onChanged}:{person:{user_id:string;name:string|null};base:string;onChanged:()=>void}){
+export function MemberMenu({person,base,onChanged,archiveOnly=false,archived=false}:{person:{user_id:string;name:string|null};base:string;onChanged:()=>void;archiveOnly?:boolean;archived?:boolean}){
  const toast=useToast(),[impact,setImpact]=useState<Impact|null>(null),[mode,setMode]=useState<''|'archive'|'delete'>(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const url=`${base}/members/${person.user_id}`,who=person.name??'This person';
  async function check(m:'archive'|'delete'){setMode(m);setImpact(null);setError('');try{setImpact(await request<Impact>(`${url}/impact`));}catch(e){setError(e instanceof RequestError?e.message:'We could not check this. Try again.');}}
  async function archive(){setBusy(true);setError('');try{await request(`${url}/archive`,{method:'POST'});setMode('');onChanged();toast(`${who} is archived.`,{label:'Undo',onClick:async()=>{await request(`${url}/archive`,{method:'DELETE'});onChanged();toast(`${who} is back on the team.`);}});}catch(e){setError(e instanceof RequestError?e.message:'That did not work. Try again.');}finally{setBusy(false);}}
  async function remove(){setBusy(true);setError('');try{await request(url,{method:'DELETE'});setMode('');onChanged();toast(`${who} is deleted.`);}catch(e){setError(e instanceof RequestError?e.message:'That did not work. Try again.');}finally{setBusy(false);}}
+ async function restore(){setBusy(true);setError('');try{await request(`${url}/archive`,{method:'DELETE'});onChanged();toast('Saved');}catch(e){setError(e instanceof RequestError?e.message:'That did not work. Try again.');}finally{setBusy(false);}}
  const close=()=>setMode('');
+ if(archived)return <span className="stack compact"><Button variant="secondary" busy={busy} onClick={()=>void restore()}>Unarchive</Button>{error&&<span className="inline-error" role="alert">{error}</span>}</span>;
  return <span className="record-actions">
-  <Dropdown label={`More for ${who}`} icon={<MoreVertical size={18} aria-hidden="true"/>} menuWidth={200} options={[{value:'archive',label:'Archive'},{value:'delete',label:'Delete'}]} onChange={v=>void check(v as 'archive'|'delete')}/>
+  <Dropdown label={`More for ${who}`} icon={<MoreVertical size={18} aria-hidden="true"/>} menuWidth={200} options={archiveOnly?[{value:'archive',label:'Archive'}]:[{value:'archive',label:'Archive'},{value:'delete',label:'Delete'}]} onChange={v=>void check(v as 'archive'|'delete')}/>
   {mode&&!impact&&<Dialog open onClose={close} title={mode==='archive'?`Archive ${who}?`:`Delete ${who}?`} footer={<Button variant="secondary" onClick={close}>Close</Button>}>{error?<p role="alert" className="inline-error">{error}</p>:<p role="status">Checking their jobs…</p>}</Dialog>}
   {mode&&impact&&(mode==='delete'&&impact.can_delete
    ?<ConfirmDialog open danger onClose={close} title={`Delete ${who}?`} confirmLabel="Delete" busyLabel="Deleting…" busy={busy} error={error} onConfirm={()=>void remove()}>{who} has no jobs or notes, so they can be deleted. They lose access to this workspace. This can not be undone.</ConfirmDialog>

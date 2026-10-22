@@ -798,5 +798,6 @@
   "Demo notification for {job}. Nothing was sent.": "ን {job} ናይ ፈተነ ምልክታ። ዝተላእከ የለን።",
   "Demo late job: {job}. Nothing was sent.": "ዝደንጎየ ናይ ፈተነ ስራሕ፦ {job}። ዝተላእከ የለን።",
   "Demo stalled job: {job}. Nothing was sent.": "ዝተዓገተ ናይ ፈተነ ስራሕ፦ {job}። ዝተላእከ የለን።",
-  "Demo document expires in {days} days: {job}. Nothing was sent.": "ናይ ፈተነ ሰነድ ድሕሪ {days} መዓልታት ይውዳእ፦ {job}። ዝተላእከ የለን።"
+  "Demo document expires in {days} days: {job}. Nothing was sent.": "ናይ ፈተነ ሰነድ ድሕሪ {days} መዓልታት ይውዳእ፦ {job}። ዝተላእከ የለን።",
+ "In practice, team members and clients stay separate.": "ኣብ ልምምድ፡ ኣባላት ጉጅለን ዓማዊልን ተፈልዮም ይቕጽሉ።"
 }
