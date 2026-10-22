@@ -16,9 +16,24 @@ export const onboardingAnswers=z.object({
 export type OnboardingAnswers=z.infer<typeof onboardingAnswers>;
 export function stepsFor(identity?:string){return identity==='team'||identity==='customer'?STEPS.filter(s=>!['company','country','region','currency','size','trades','days','hours'].includes(s)):STEPS;}
 export function nextStep(step:OnboardingStep,identity?:string){const steps=stepsFor(identity);return steps[Math.min(steps.length-1,Math.max(0,steps.indexOf(step))+1)];}
+const fields:Partial<Record<OnboardingStep,(keyof OnboardingAnswers)[]>>={language:['language'],identity:['identity'],profile:['name','phone'],company:['company_name'],country:['country'],currency:['currency'],size:['company_size'],trades:['trades'],days:['working_days'],hours:['working_hours']};
 export function validateStep(step:OnboardingStep,a:OnboardingAnswers){
- const fields:Partial<Record<OnboardingStep,(keyof OnboardingAnswers)[]>>={language:['language'],identity:['identity'],profile:['name','phone'],company:['company_name'],country:['country'],currency:['currency'],size:['company_size'],trades:['trades'],days:['working_days'],hours:['working_hours']};
  for(const key of fields[step]??[])if(a[key]===undefined)throw new Error('Please answer this question before continuing.');
  onboardingAnswers.parse(a);
 }
 export const inviteFromText=(value:string)=>{try{const url=new URL(value);return url.searchParams.get('token')??value.trim();}catch{return value.trim();}};
+
+/** Practice keeps unfinished answers on the page. Validate the current question with the same
+ * schema as real setup; validate all applicable answers again before the sample summary. */
+export function validatePracticeStep(step:OnboardingStep,a:OnboardingAnswers){
+ if(step==='invite'||step==='done'){
+  const active=stepsFor(a.identity).filter(s=>!['invite','done'].includes(s));
+  const keys=active.flatMap(s=>s==='region'?['country','region'] as const:fields[s]??[]);
+  const applicable=Object.fromEntries(keys.filter(key=>a[key]!==undefined).map(key=>[key,a[key]]));
+  for(const s of active)validateStep(s,applicable);
+  return;
+ }
+ const keys=step==='region'?['country','region'] as const:fields[step]??[];
+ const current=Object.fromEntries(keys.filter(key=>a[key]!==undefined).map(key=>[key,a[key]]));
+ validateStep(step,current);
+}

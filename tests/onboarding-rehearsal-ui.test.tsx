@@ -32,17 +32,26 @@ it('rehearses shared steps, validates, retains Back values and completes without
  await tap('AC');await next();await next();await next();
  expect(el.textContent).toContain('Who will work with you?');expect(el.querySelector('a[href*="wa.me"]')).toBeNull();expect(el.textContent).not.toContain('Make invite link');
  await next();expect(el.textContent).toContain('Practice complete');
- for(const value of ['Yusuf','Sample repairs','India','Kerala','USD','العربية الخليجية'])expect(el.textContent).toContain(value);
+ for(const value of ['Yusuf','Sample repairs','الهند','Kerala','USD','العربية الخليجية'])expect(el.textContent).toContain(value);
  await tap('Back');expect(el.textContent).toContain('Who will work with you?');
  await act(async()=>window.dispatchEvent(new Event('groundwork-onboarding')));
  expect(state.request).not.toHaveBeenCalled();expect(state.reload).not.toHaveBeenCalled();expect(state.language).toHaveBeenCalledWith('ar-AE');
 });
-it('team and customer practice finish without inspecting or redeeming an invite',async()=>{
- await mount();await next();await tap('Join my company’s team');await next();await field('Your name','Yusuf');await field('Work WhatsApp number','+971000000000');await next();await next();
+it.each(['Join my company’s team','Customer of a maintenance company'])('%s practice finishes without inspecting or redeeming an invite',async label=>{
+ await mount();await next();await tap(label);await next();await field('Your name','Yusuf');await field('Work WhatsApp number','+971000000000');await next();await next();
  expect(el.textContent).toContain('Practice complete');expect(state.request).not.toHaveBeenCalled();
 });
 it('real setup still loads and saves using the real onboarding endpoint',async()=>{
  state.demo=false;state.request.mockResolvedValue({step:'language',answers:{language:'en-IN'},completed_at:null});await mount();
  expect(state.request).toHaveBeenCalledWith('/api/onboarding');expect(el.textContent).not.toContain('Practice setup');expect(el.textContent).toContain('Real setup helper');
  await next();expect(state.request).toHaveBeenCalledWith('/api/onboarding',expect.objectContaining({method:'PATCH'}));
+});
+it('Back retains unfinished later input without blocking an earlier question',async()=>{
+ await mount();await next();await tap('Start a new company');await next();
+ await field('Your name','');await tap('Back');expect(el.textContent).toContain('Who are you?');await next();
+ expect(el.textContent).toContain('How can your team reach you?');
+ await field('Your name','Yusuf');await field('Work WhatsApp number','bad');await tap('Back');await next();
+ expect((el.querySelector('input[type=tel]') as HTMLInputElement).value).toBe('bad');
+ await next();expect(el.querySelector('[role=alert]')?.textContent).toBe('Please check your answers.');
+ expect(state.request).not.toHaveBeenCalled();
 });
