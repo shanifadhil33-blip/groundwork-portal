@@ -1,3 +1,4 @@
+import { waitingPrices } from '../../../lib/services/price-changes';
 import { OwnerOverview } from '../../../components/app/owner-overview';
 import { listWorkOrders } from '../../../lib/services/work-orders';
 import { Dashboard } from '../../../components/app/dashboard';
@@ -20,6 +21,7 @@ export default async function Page() {
   const total=counts?Object.values(counts.by_status).reduce((a,b)=>a+b,0):0,state=(await cookies()).get(firstUseCookie(ws))?.value;
   const firstUse=state!=='dismissed'&&(state==='started'||!!app.workspace?.is_demo||(!!counts&&total===0));
   const resources=await initialResources(app.user,[
+    [`${base}/waiting-prices`,()=>waitingPrices(app.user,ws)] as const,
     ...['overdue=true&sort=due_on&dir=asc&pageSize=5','status=open&status=waiting_on_parts&sort=updated_at&dir=asc&pageSize=100'].map(query=>[`${base}/work-orders?${query}`,()=>listWorkOrders(app.user,ws,new URLSearchParams(query))] as const),
     ...((counts?.today_jobs??0)>0?[[`${base}/work-orders?today=true&sort=scheduled_for&dir=asc&pageSize=10`,()=>listWorkOrders(app.user,ws,new URLSearchParams('today=true&sort=scheduled_for&dir=asc&pageSize=10'))] as const]:[]),
     ...(firstUse?[

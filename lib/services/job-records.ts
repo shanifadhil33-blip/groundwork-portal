@@ -1,3 +1,4 @@
+import { priceChangeOn, assertPriceReleased } from './price-changes';
 import { withSystem } from '../db';
 import { ApiError, missing } from '../http';
 import { allow, inWorkspace, uuid } from './shared';
@@ -15,7 +16,15 @@ export async function restoreJob(user:string,ws:string,id:string,body:unknown){
  if(job.status!=='cancelled')throw new ApiError(409,'not_cancelled','This job is not cancelled.');
  let status=d.status??(job.scheduled_for?'scheduled':'open');
  if(status==='scheduled'&&!job.scheduled_for)status='open';
- return withSystem(async db=>(await db.query('UPDATE work_orders SET status=$3,updated_at=now() WHERE workspace_id=$1 AND id=$2 AND status=$4 RETURNING *',[ws,id,status,'cancelled'])).rows[0]??(()=>{throw new ApiError(409,'changed','This job changed. Refresh and try again.');})(),user);
+ return withSystem(async db=>{
+  const m=(await db.query('SELECT role FROM members WHERE workspace_id=$1 AND user_id=$2 AND archived_at IS NULL FOR SHARE',[ws,user])).rows[0];
+  if(!m||!['admin','staff'].includes(m.role))throw new ApiError(403,'forbidden','You cannot change this job.');
+  const current=(await db.query('SELECT status FROM work_orders WHERE workspace_id=$1 AND id=$2 FOR UPDATE',[ws,id])).rows[0];
+  if(current?.status!=='cancelled')throw new ApiError(409,'changed','This job changed. Refresh and try again.');
+  if((await priceChangeOn(db,ws,id))?.state==='refused')throw new ApiError(409,'client_refused','The client refused. Start a new linked request.');
+  if(status==='in_progress')await assertPriceReleased(db,ws,id);
+  return (await db.query('UPDATE work_orders SET status=$3,updated_at=now() WHERE workspace_id=$1 AND id=$2 RETURNING *',[ws,id,status])).rows[0];
+ },user);
 }
 /** What would stop a delete: anything beyond the job being created. */
 export async function jobImpact(user:string,ws:string,id:string){

@@ -42,7 +42,7 @@ it('unassigning reopens the job and a technician can stop for today', async () =
 it('a technician cannot start after the client declined the price', async () => {
   let o = await job('Audit declined');
   o = await patchWorkOrder(ids.sam, ws, o.id, { assignee_id: ids.ravi, scheduled_for: day(33), status: 'scheduled', updated_at: v(o) });
-  await sendQuote(ids.sam, ws, o.id, { amount: 90 });
+  await sendQuote(ids.imran, ws, o.id, { amount: 90 });
   await decideQuote(ids.pranav, ws, o.id, { decision: 'declined' });
   o = await getWorkOrder(ids.ravi, ws, o.id);
   expect(await bell(ids.ravi, o.id, 'quote_decided')).toBe(1);

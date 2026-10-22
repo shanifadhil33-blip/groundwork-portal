@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { MoreVertical } from 'lucide-react';
 import { request, RequestError } from '../../lib/ui/api';
 import { ConfirmDialog, Dialog, Button, Dropdown, useToast } from '../ui';
-type Job={id:string;order_number?:number|null;title?:string|null;status:string;updated_at:string};
+type Job={price_change?:{state:string}|null;id:string;order_number?:number|null;title?:string|null;status:string;updated_at:string};
 type Impact={notes:number;photos:number;parts:number;changes:number;can_delete:boolean};
 const n=(k:number,w:string)=>`${k} ${w}${k===1?'':'s'}`;
 /**
@@ -14,7 +14,7 @@ const n=(k:number,w:string)=>`${k} ${w}${k===1?'':'s'}`;
 export function JobMenu({job,base,open=true,onChanged,afterDelete,onOptimistic}:{job:Job;base:string;open?:boolean;onChanged:()=>void;afterDelete?:()=>void;onOptimistic?:(status:string)=>()=>void}){
  const router=useRouter(),toast=useToast(),[impact,setImpact]=useState<Impact|null>(null),[asking,setAsking]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const url=`${base}/work-orders/${job.id}`,label=job.order_number?`WO ${job.order_number}`:'This job',closed=job.status==='done'||job.status==='cancelled';
- const options=[...(open?[{value:'open',label:'Open'}]:[]),...(job.status==='cancelled'?[{value:'restore',label:'Restore job'}]:[]),...(!closed?[{value:'cancel',label:'Cancel job',divider:open}]:[]),{value:'delete',label:'Delete',divider:closed}];
+ const options=[...(open?[{value:'open',label:'Open'}]:[]),...(job.status==='cancelled'&&job.price_change?.state!=='refused'?[{value:'restore',label:'Restore job'}]:[]),...(!closed?[{value:'cancel',label:'Cancel job',divider:open}]:[]),{value:'delete',label:'Delete',divider:closed}];
  async function restore(status?:string){await request(`${url}/restore`,{method:'POST',body:JSON.stringify(status?{status}:{})});onChanged();}
  async function doCancel(){setBusy(true);setError('');const prev=job.status,rollback=onOptimistic?.('cancelled');try{await request(url,{method:'PATCH',body:JSON.stringify({status:'cancelled',updated_at:job.updated_at})});onChanged();toast(`${label} is cancelled.`,{label:'Undo',onClick:async()=>{const rollbackUndo=onOptimistic?.(prev);try{await restore(prev);}catch(e){rollbackUndo?.();throw e;}toast(`${label} is back.`);}});}catch(e){rollback?.();toast('Could not cancel this job. Your change was undone. Try again.');setError(e instanceof RequestError?e.message:'That did not work. Try again.');}finally{setBusy(false);}}
  async function ask(){setAsking(true);setImpact(null);setError('');try{setImpact(await request<Impact>(`${url}/impact`));}catch(e){setError(e instanceof RequestError?e.message:'We could not check this job. Try again.');}}

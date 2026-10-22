@@ -18,7 +18,7 @@ const timestamp=z.iso.datetime({offset:true});
 const mutable=z.object({...tenantFields,asset_id:uuid.nullable(),trade:z.enum(TRADES).nullable(),title:name,description:z.string().max(20000),priority,status,assignee_id:uuid.nullable(),scheduled_for:z.union([timestamp,z.iso.date()]).nullable(),due_on:z.iso.date().nullable(),preferred_window:z.string().trim().max(200).nullable()});
 const createSchema=mutable.partial().extend({title:name,client_id:uuid.optional(),site_id:uuid}).strict();
 const patchSchema=mutable.partial().extend({on_way:z.literal(true).optional(),updated_at:timestamp.optional(),reopen:z.literal(true).optional(),undo_status:z.literal(true).optional()}).strict();
-const clientSchema=z.object({...tenantFields,same_technician:z.boolean().optional(),title:name,description:z.string().max(20000).optional(),preferred_window:z.string().trim().max(200).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();
+const clientSchema=z.object({...tenantFields,from_work_order_id:uuid.optional(),same_technician:z.boolean().optional(),title:name,description:z.string().max(20000).optional(),preferred_window:z.string().trim().max(200).optional(),priority:priority.optional(),client_id:uuid.optional(),site_id:uuid}).strict();
 export const transitions:Record<string,string[]>={
  open:['scheduled','cancelled'],scheduled:['in_progress','open','cancelled'],
  in_progress:['waiting_on_parts','done','scheduled','cancelled'],waiting_on_parts:['in_progress','done','cancelled'],
@@ -62,7 +62,7 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
     offset=cursor.offset;
    }catch{throw invalid('This cursor does not match the list filters.','cursor');}
   }
-  const data=(await c.db.query(`SELECT w.*,s.name AS site_name,cl.name AS client_name,a.name AS assignee_name
+  const data=(await c.db.query(`SELECT w.*,(SELECT e.details FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id AND e.kind='price_change' ORDER BY e.created_at DESC,e.id DESC LIMIT 1) AS price_change,s.name AS site_name,cl.name AS client_name,a.name AS assignee_name
    FROM (SELECT work_orders.*,count(*) OVER()::int AS _total FROM work_orders WHERE ${where}
     ORDER BY ${query.sort} ${query.dir} NULLS LAST,${query.overdue&&query.sort==='priority'?'due_on ASC,':''}id ${query.dir} ${all?'':`LIMIT $${values.length+1} OFFSET $${values.length+2}`}) w
    LEFT JOIN sites s ON s.id=w.site_id AND s.workspace_id=w.workspace_id

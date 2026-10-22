@@ -5,13 +5,12 @@ import { ApiError } from '../http';
 import { inWorkspace, replay, row, uuid, type Context } from './shared';
 import { visitChargeFor } from './visit-charge';
 
-export type PriceChange = { state:'waiting_price'|'pending'|'approved'|'declined'|'refused'; words:string; technician_name:string; refusal_words?:string; visit_charge?:number|null; currency?:string };
-export const PRICE_HOLD = 'Work is on hold until the client approves the price.';
+import { PRICE_HOLD, priceHeld, type PriceChange } from '../price-change';
+export { PRICE_HOLD, priceHeld, type PriceChange } from '../price-change';
 export const priceChangeInput = z.object({words:z.string().trim().min(1).max(2000)}).strict();
 export async function priceChangeOn(db:PoolClient,ws:string,id:string):Promise<PriceChange|null> {
  return (await db.query("SELECT details FROM work_order_events WHERE workspace_id=$1 AND work_order_id=$2 AND kind='price_change' ORDER BY created_at DESC,id DESC LIMIT 1",[ws,id])).rows[0]?.details??null;
 }
-export const priceHeld = (change:PriceChange|null|undefined) => !!change && ['waiting_price','pending','declined'].includes(change.state);
 /** Call only after locking the job, so an approval and a work write cannot cross. */
 export async function assertPriceReleased(db:PoolClient,ws:string,id:string) {
  if(priceHeld(await priceChangeOn(db,ws,id)))throw new ApiError(409,'price_hold',PRICE_HOLD);
@@ -55,11 +54,12 @@ export async function reportClientRefused(user:string,ws:string,id:string,body:u
   const job=await assigned(db,user,ws,id);
   return replay(db,user,ws+'/work-orders/'+id+'/client-refused',key,data,async()=>{
    const prior=await priceChangeOn(db,ws,id);
-   if(['done','cancelled'].includes(job.status)||!prior||prior.state!=='declined')throw new ApiError(409,'price_hold','The client must say no to the price first.');
+   if(['done','cancelled'].includes(job.status)||!['pending','declined'].includes(job.quote_status))throw new ApiError(409,'price_hold','Send a price before recording a refusal.');
    const charge=await visitChargeFor({db,user,ws,role:'technician',client_id:null} as Context,job.site_id);
-   const details:PriceChange={...prior,state:'refused',refusal_words:data.words,visit_charge:charge.amount,currency:charge.currency};
+   const name=String((await db.query('SELECT name FROM visible_user($1)',[user])).rows[0]?.name??'Technician');
+   const details:PriceChange={...(prior??{words:data.words,technician_name:name}),state:'refused',refusal_words:data.words,visit_charge:charge.amount,currency:charge.currency};
    await db.query("SELECT set_config('app.close_job',$1,true)",[id]);
-   await db.query("UPDATE work_orders SET status='cancelled' WHERE workspace_id=$1 AND id=$2",[ws,id]);
+   await db.query("UPDATE work_orders SET status='cancelled',quote_status='declined' WHERE workspace_id=$1 AND id=$2",[ws,id]);
    await priceEvent(db,ws,job,user,details,'Client refused');
    // A short client visible summary; a charge is never turned into a bill automatically.
    await db.query("INSERT INTO comments(workspace_id,client_id,work_order_id,author_id,body,visibility) VALUES($1,$2,$3,$4,$5,'client')",[ws,job.client_id,id,user,'Client refused. The visit is closed. No further work will continue.']);

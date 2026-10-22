@@ -22,7 +22,7 @@ it('shows owner switches and close account, saves handover with Saved feedback',
  await mount(true);
  expect(host.querySelectorAll('[role="switch"]')).toHaveLength(2);
  expect(host.textContent).toContain('Admins can change when the agent asks first');
- expect(host.textContent).toContain('Admins can mark jobs as paid');
+ expect(host.textContent).toContain('Admins can set prices and mark jobs as paid');
  expect(host.textContent).toContain('Close company account');
  expect(host.querySelectorAll('[name="approval-mode"]')).toHaveLength(2);
  const switches=host.querySelectorAll<HTMLInputElement>('[role="switch"]');

@@ -49,7 +49,7 @@ it('leave reaches approver then technician and the schedule',async()=>{
  expect((await scheduleBoard(ids.sam,ws,new URLSearchParams(`from=${start}`))).away.some(t=>t.user_id===ids.ravi)).toBe(true);
 });
 it('quote reaches the manager and the answer returns to admin and Agent attention',async()=>{
- const job=await approved();await sendQuote(ids.sam,ws,job.id,{amount:125,note:'New valve'});
+ const job=await approved();await sendQuote(ids.imran,ws,job.id,{amount:125,note:'New valve'});
  expect((await notices(ids.pranav)).data.some(n=>n.kind==='quote_sent'&&n.entity_id===job.id)).toBe(true);
  expect((await needsAttention(ids.pranav,ws)).pending_quotes.some(q=>q.id===job.id)).toBe(true);
  await decideQuote(ids.pranav,ws,job.id,{decision:'approved'});

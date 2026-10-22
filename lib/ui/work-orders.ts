@@ -1,3 +1,4 @@
+import { priceHeld, priceChangeLabel, type PriceChange } from '../price-change';
 import { localDate, formatDate, scheduledInstant, workspaceTimezone } from '../dates';
 export { isOverdue } from '../dates';
 export const statusLabels: Record<string, string> = { open: 'Open', scheduled: 'Scheduled', in_progress: 'In Progress', waiting_on_parts: 'Waiting on Parts', done: 'Done', cancelled: 'Cancelled' };
@@ -10,7 +11,7 @@ export type Site = SiteRecord;
 export type Member = { user_id: string; role: string; client_id: string | null; name: string | null; email: string | null };
 type EventAttribution = { work_order_title?:string|null; actor_kind?:string; via_token_name?:string|null };
 export type Comment = EventAttribution & { id: string; body: string; visibility: 'client' | 'internal'; author_id: string; created_at: string };
-export type WorkOrder = { tenant_unit?:string|null; tenant_name?:string|null; tenant_phone?:string|null; on_way_at?: string | null; asset_id?:string|null; asset?:{id:string;name:string;kind:string|null}|null; trade?: string | null; site_name?: string; client_name?: string; assignee_name?: string | null; id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
+export type WorkOrder = { price_change?:PriceChange|null; tenant_unit?:string|null; tenant_name?:string|null; tenant_phone?:string|null; on_way_at?: string | null; asset_id?:string|null; asset?:{id:string;name:string;kind:string|null}|null; trade?: string | null; site_name?: string; client_name?: string; assignee_name?: string | null; id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
 export type Detail = WorkOrder & { report_problem?: string | null; report_work?: string | null; report_outcome?: string | null; report_at?: string | null; report_by?: string | null; client: Client; site: Site; assignee: { id: string; name?: string } | null; comments: Comment[]; timeline: (EventAttribution & { id: string; kind: string; actor_id: string | null; body?: string; details?: {to_status?:string;from_status?:string;scheduled_for?:string|null;due_on?:string|null;assignee_name?:string|null;priority?:string|null;title_changed?:boolean;description_changed?:boolean}; from_status?: string; to_status?: string; created_at: string })[] };
 export type Page<T> = { data: T[]; total: number; page: number; pageSize: number };
 export function sortOrders(orders: WorkOrder[], sort: string, dir: string) {
@@ -31,14 +32,17 @@ export function draftErrors(draft: Draft) { const errors: Record<string, string>
 export const clientStatusHints:Record<string,string> = {waiting_on_parts:"We've ordered what's needed."};
 export const clientStatusLabels:Record<string,string> = {open:'Request Received',scheduled:'Visit Scheduled',in_progress:'Work in Progress',waiting_on_parts:'Waiting on Parts',done:'Completed',cancelled:'Cancelled'};
 /** NOTIF08: the team sees On the way too once the technician has set off (the job is still Scheduled). */
-export function staffStatusLabel(job: { status: string; on_way_at?: string | null }) {
+export function staffStatusLabel(job: { status: string; on_way_at?: string | null; price_change?:PriceChange|null }) {
+ if(job.price_change&&(priceHeld(job.price_change)||job.price_change.state==='refused'))return priceChangeLabel(job.price_change);
  return job.status === 'scheduled' && job.on_way_at ? 'On the way' : statusLabels[job.status];
 }
-export function clientStatusLabel(job: { status: string; on_way_at?: string | null }) {
+export function clientStatusLabel(job: { status: string; on_way_at?: string | null; price_change?:PriceChange|null }) {
+ if(job.price_change&&(priceHeld(job.price_change)||job.price_change.state==='refused'))return priceChangeLabel(job.price_change);
  return job.status === 'scheduled' && job.on_way_at ? 'On the way' : clientStatusLabels[job.status];
 }
 export function visibleComments(comments:Comment[],client:boolean) { return client ? comments.filter(c=>c.visibility==='client') : comments; }
 export function clientEvent(event:Detail['timeline'][number],timezone=workspaceTimezone) {
+ if(event.kind==='price_change')return event.body??'Price changed';
  const details=event.details;
  const status=details?.to_status??event.to_status;
  if(status)return clientStatusLabels[status]??'Request updated';

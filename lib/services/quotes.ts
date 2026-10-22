@@ -2,21 +2,21 @@ import { z } from 'zod';
 import { ApiError, invalid } from '../http';
 import { withSystem } from '../db';
 import { allow, allowClientAnswer, inWorkspace, isOfficeStaff, uuid, type Context, replay } from './shared';
-import { ownerCan } from './owner';
-import { priceChangeOn, priceEvent, priceNotice } from './price-changes';
+import { ownerCan, OWNER_REFUSAL } from './owner';
+import { priceChangeOn, priceEvent } from './price-changes';
 import { getWorkOrder } from './work-orders';
 
 /** The office sends a price for a job. The client approves or declines it. Amounts only ever come from the office. */
 const quoteSchema = z.object({ amount: z.number().min(0).max(10000000).multipleOf(0.01), note: z.string().trim().max(1000).optional() }).strict();
-const decideSchema = z.object({ decision: z.enum(['approved', 'declined']), amount:z.number().min(0).max(10000000).multipleOf(0.01).optional() }).strict();
+const decideSchema = z.object({ updated_at:z.iso.datetime({offset:true}).optional(), decision: z.enum(['approved', 'declined']), amount:z.number().min(0).max(10000000).multipleOf(0.01).optional() }).strict();
 
-async function notifyOffice(db: { query: (q: string, v: unknown[]) => Promise<unknown> }, ws: string, id: string, actor: string, name: string, title: string, kind: string, to: string | null) {
+async function notifyOffice(db: { query: (q: string, v: unknown[]) => Promise<unknown> }, ws: string, id: string, actor: string, name: string, title: string, kind: string, to: string | null, assignee: string | null = null) {
   await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title,to_status)
-    SELECT m.user_id,$1,$5,'work_orders',$2,$3,$4,$6,$7 FROM members m WHERE m.workspace_id=$1 AND m.archived_at IS NULL AND m.role IN ('admin','staff') AND m.user_id<>$3`, [ws, id, actor, name, kind, title, to]);
+    SELECT m.user_id,$1,$5,'work_orders',$2,$3,$4,$6,$7 FROM members m WHERE m.workspace_id=$1 AND m.archived_at IS NULL AND (m.role IN ('admin','staff') OR m.user_id=$8::uuid) AND m.user_id<>$3`, [ws, id, actor, name, kind, title, to, assignee]);
 }
 const who = async (c: Context) => String((await c.db.query('SELECT name FROM visible_user($1)', [c.user])).rows[0]?.name ?? 'Someone');
 
-export const PRICE_PERMISSION = 'Only the owner or an admin allowed to handle money can set prices.';
+export const PRICE_PERMISSION = OWNER_REFUSAL.prices;
 async function quoteContext(db: import('pg').PoolClient,user:string,ws:string,id:string) {
   uuid.parse(ws);uuid.parse(id);
   const m=(await db.query('SELECT role,staff_kind,client_kind,client_id,is_owner FROM members WHERE workspace_id=$1 AND user_id=$2 AND archived_at IS NULL FOR SHARE',[ws,user])).rows[0];
@@ -55,13 +55,12 @@ export async function decideQuote(user: string, ws: string, id: string, body: un
     allowClientAnswer(c,o);
     return replay(db,user,ws+'/work-orders/'+id+'/quote/decision',key,data,async()=>{
       if (o.status==='done'||o.status==='cancelled'||o.quote_status !== 'pending') throw new ApiError(409, 'no_quote', o.quote_status ? 'This price was already answered.' : 'There is no price to approve on this job yet.');
+      if(data.updated_at&&new Date(data.updated_at).getTime()!==new Date(o.updated_at).getTime())throw new ApiError(409,'stale','The price changed. Open the job and review it again.');
       if(data.amount!==undefined&&Number(o.quote_amount)!==data.amount)throw new ApiError(409,'stale','The price changed. Open the job and review it again.');
-      const name=await who(c);
       const r = (await db.query("UPDATE work_orders SET quote_status=$3, quote_decided_by=$4, quote_decided_at=now() WHERE workspace_id=$1 AND id=$2 RETURNING id, quote_amount, quote_status", [ws, id, decision, user])).rows[0];
       const prior=await priceChangeOn(db,ws,id);
       if(prior)await priceEvent(db,ws,o,user,{...prior,state:decision},decision==='approved'?'Price approved':'Client said no');
-      await notifyOffice(db, ws, id, user, name, o.title, 'quote_decided', decision);
-      await priceNotice(db,ws,o,user,decision==='approved'?'Price approved. The team can go ahead.':'Client said no. Work stays on hold.');
+      await notifyOffice(db,ws,id,user,await who(c),o.title,'quote_decided',decision,o.assignee_id);
       return r;
     });
   }, user);
