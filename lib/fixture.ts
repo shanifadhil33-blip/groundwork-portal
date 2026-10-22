@@ -1,6 +1,7 @@
 import { localDate, scheduledInstant } from './dates';
 import type { PoolClient } from 'pg';
 import { populateProofFixture } from './fixture-proof';
+import { populateDecisionFixture } from './fixture-decisions';
 export const ids = {
   imran: '10000000-0000-4000-8000-000000000001', sam: '10000000-0000-4000-8000-000000000002',
   pranav: '10000000-0000-4000-8000-000000000003', omar: '10000000-0000-4000-8000-000000000004',
@@ -197,5 +198,8 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   await client.query(`INSERT INTO agent_words(workspace_id,user_id,phrase,means_kind,means_id,means_text,created_by)
    SELECT $1,$2,'the annex','site',id,name,$2 FROM sites WHERE workspace_id=$1 AND name='Harbor Annex'`,[ids.ridgeline,ids.ravi]);
 
-  if(demo) await populateProofFixture(client,ids,siteId,orderId,today,timezone);
+  if(demo) {
+    await populateProofFixture(client,ids,siteId,orderId,today,timezone);
+    await populateDecisionFixture(client,ids,today);
+  }
 }

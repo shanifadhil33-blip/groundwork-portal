@@ -66,7 +66,7 @@ it('LEARN13: another company never sees, decides or is changed by this company\'
  await expect(listLessons(oadmin,ws)).rejects.toMatchObject({status:404});
  await expect(decideLesson(oadmin,ws,p.id,{yes:true})).rejects.toMatchObject({status:404});
  await expect(decideLesson(oadmin,other,p.id,{yes:true})).rejects.toMatchObject({status:404});
- expect((await listLessons(oadmin,other)).data).toEqual([]);
+ expect((await listLessons(oadmin,other)).data.map((l: { body: string }) => l.body)).toEqual(['Always keep job notes short for the company.']);
  const job=(await q("SELECT id FROM work_orders WHERE workspace_id=$1 AND status IN ('open','scheduled') LIMIT 1",[ws]))[0].id;
  await expect(companyHistory(oadmin,ws,job)).rejects.toMatchObject({status:404});
  await expect(companyHistory(oadmin,other,job)).rejects.toMatchObject({status:404});

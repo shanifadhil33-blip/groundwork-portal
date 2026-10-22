@@ -1155,5 +1155,8 @@
   "The tap was leaking.": "كان الصنبور يسرب الماء.",
   "Replaced the seal and tested the tap.": "تم استبدال الحلقة المانعة للتسرب واختبار الصنبور.",
   "Thank you for fixing the tap.": "شكراً لك على إصلاح الصنبور.",
-  "Please check this repair again.": "يرجى فحص هذا الإصلاح مرة أخرى."
+  "Please check this repair again.": "يرجى فحص هذا الإصلاح مرة أخرى.",
+ "Sample question: Record the filter size?": "سؤال تجريبي: نسجل مقاس الفلتر؟",
+ "Record the filter size.": "سجل مقاس الفلتر.",
+ "Always keep job notes short for the company.": "خل ملاحظات الشغل قصيرة دايماً للشركة."
 }

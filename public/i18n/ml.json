@@ -788,5 +788,8 @@
   "The tap was leaking.": "ടാപ്പിൽ നിന്ന് വെള്ളം ചോർന്നിരുന്നു.",
   "Replaced the seal and tested the tap.": "വാഷർ മാറ്റി ടാപ്പ് പരിശോധിച്ചു.",
   "Thank you for fixing the tap.": "ടാപ്പ് നന്നാക്കിയതിന് നന്ദി.",
-  "Please check this repair again.": "ദയവായി ഈ അറ്റകുറ്റപ്പണി വീണ്ടും പരിശോധിക്കുക."
+  "Please check this repair again.": "ദയവായി ഈ അറ്റകുറ്റപ്പണി വീണ്ടും പരിശോധിക്കുക.",
+ "Sample question: Record the filter size?": "മാതൃകാ ചോദ്യം: ഫിൽട്ടറിന്റെ വലുപ്പം രേഖപ്പെടുത്തണോ?",
+ "Record the filter size.": "ഫിൽട്ടറിന്റെ വലുപ്പം രേഖപ്പെടുത്തുക.",
+ "Always keep job notes short for the company.": "കമ്പനിക്കായി ജോലിക്കുറിപ്പുകൾ എപ്പോഴും ചുരുക്കി എഴുതുക."
 }

@@ -802,5 +802,8 @@
   "The tap was leaking.": "له نل څخه اوبه څڅېدې.",
   "Replaced the seal and tested the tap.": "واشر بدل شو او نل وازمویل شو.",
   "Thank you for fixing the tap.": "د نل د جوړولو مننه.",
-  "Please check this repair again.": "مهرباني وکړئ دا ترمیم بیا وګورئ."
+  "Please check this repair again.": "مهرباني وکړئ دا ترمیم بیا وګورئ.",
+ "Sample question: Record the filter size?": "نمونه پوښتنه: د فلټر اندازه ولیکو؟",
+ "Record the filter size.": "د فلټر اندازه ولیکئ.",
+ "Always keep job notes short for the company.": "د شرکت لپاره د کار یادښتونه تل لنډ وساتئ."
 }

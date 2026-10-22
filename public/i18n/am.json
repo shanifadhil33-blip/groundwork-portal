@@ -764,5 +764,8 @@
   "The tap was leaking.": "ቧንቧው ውሃ ያፈስ ነበር።",
   "Replaced the seal and tested the tap.": "ማሸጊያውን ቀይሬ ቧንቧውን ፈተሽኩ።",
   "Thank you for fixing the tap.": "ቧንቧውን ስላስተካከልክ አመሰግናለሁ።",
-  "Please check this repair again.": "እባክህ ይህን ጥገና እንደገና ፈትሽ።"
+  "Please check this repair again.": "እባክህ ይህን ጥገና እንደገና ፈትሽ።",
+ "Sample question: Record the filter size?": "የሙከራ ጥያቄ፦ የማጣሪያውን መጠን እንመዝግብ?",
+ "Record the filter size.": "የማጣሪያውን መጠን መዝግብ።",
+ "Always keep job notes short for the company.": "ለድርጅቱ ሁልጊዜ አጭር የሥራ ማስታወሻዎችን ጻፍ።"
 }

@@ -801,5 +801,8 @@
   "The tap was leaking.": "धाराबाट पानी चुहिरहेको थियो।",
   "Replaced the seal and tested the tap.": "वासर फेरेर धारा जाँच गरियो।",
   "Thank you for fixing the tap.": "धारा ठीक गरिदिनुभएकोमा धन्यवाद।",
-  "Please check this repair again.": "कृपया यो मर्मत फेरि जाँच गर्नुहोस्।"
+  "Please check this repair again.": "कृपया यो मर्मत फेरि जाँच गर्नुहोस्।",
+ "Sample question: Record the filter size?": "नमुना प्रश्न: फिल्टरको आकार लेख्ने?",
+ "Record the filter size.": "फिल्टरको आकार लेख्नुहोस्।",
+ "Always keep job notes short for the company.": "कम्पनीका लागि कामका टिपोट सधैँ छोटा राख्नुहोस्।"
 }

@@ -807,5 +807,8 @@
   "The tap was leaking.": "شیر آب نشت داشت.",
   "Replaced the seal and tested the tap.": "واشر تعویض شد و شیر آب آزمایش شد.",
   "Thank you for fixing the tap.": "از تعمیر شیر آب متشکرم.",
-  "Please check this repair again.": "لطفاً این تعمیر را دوباره بررسی کنید."
+  "Please check this repair again.": "لطفاً این تعمیر را دوباره بررسی کنید.",
+ "Sample question: Record the filter size?": "پرسش نمونه: اندازه فیلتر را ثبت کنیم؟",
+ "Record the filter size.": "اندازه فیلتر را ثبت کنید.",
+ "Always keep job notes short for the company.": "یادداشت های کار شرکت را همیشه کوتاه نگه دارید."
 }

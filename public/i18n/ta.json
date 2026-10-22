@@ -820,5 +820,8 @@
   "The tap was leaking.": "குழாயில் தண்ணீர் கசிந்தது.",
   "Replaced the seal and tested the tap.": "வாஷரை மாற்றி குழாயை சோதித்தோம்.",
   "Thank you for fixing the tap.": "குழாயை சரிசெய்ததற்கு நன்றி.",
-  "Please check this repair again.": "இந்த பழுதுபார்ப்பை மீண்டும் சரிபார்க்கவும்."
+  "Please check this repair again.": "இந்த பழுதுபார்ப்பை மீண்டும் சரிபார்க்கவும்.",
+ "Sample question: Record the filter size?": "மாதிரிக் கேள்வி: வடிகட்டியின் அளவைப் பதிவு செய்யவா?",
+ "Record the filter size.": "வடிகட்டியின் அளவைப் பதிவு செய்யுங்கள்.",
+ "Always keep job notes short for the company.": "நிறுவனத்திற்கான வேலைக் குறிப்புகளை எப்போதும் சுருக்கமாக வைத்திருங்கள்."
 }

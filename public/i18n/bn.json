@@ -825,5 +825,8 @@
   "The tap was leaking.": "কল থেকে পানি ঝরছিল।",
   "Replaced the seal and tested the tap.": "ওয়াশার বদলে কল পরীক্ষা করা হয়েছে।",
   "Thank you for fixing the tap.": "কল ঠিক করার জন্য ধন্যবাদ।",
-  "Please check this repair again.": "অনুগ্রহ করে এই মেরামত আবার পরীক্ষা করুন।"
+  "Please check this repair again.": "অনুগ্রহ করে এই মেরামত আবার পরীক্ষা করুন।",
+ "Sample question: Record the filter size?": "নমুনা প্রশ্ন: ফিল্টারের মাপ লিখব?",
+ "Record the filter size.": "ফিল্টারের মাপ লিখুন।",
+ "Always keep job notes short for the company.": "কোম্পানির কাজের নোট সবসময় সংক্ষিপ্ত রাখুন।"
 }
