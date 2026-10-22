@@ -846,5 +846,10 @@
 "Pending": "लंबित",
 "Sample household. This preview does not add a membership or show client requests.": "नमूना परिवार। यह झलक सदस्यता नहीं जोड़ती और ग्राहकों के अनुरोध नहीं दिखाती।",
 "Sample contact. Calls are unavailable.": "नमूना संपर्क। कॉल उपलब्ध नहीं हैं।",
-"Code sign in preview": "कोड से प्रवेश की झलक"
+"Code sign in preview": "कोड से प्रवेश की झलक",
+"Practice setup": "सेटअप का अभ्यास",
+"Your answers stay on this page. No company is created and no invite is sent.": "आपके उत्तर इसी पेज पर रहते हैं। कोई कंपनी नहीं बनती और कोई निमंत्रण नहीं भेजा जाता।",
+"Practice complete": "अभ्यास पूरा हुआ",
+"This is a sample summary. You are still signed in to the same demo company.": "यह एक नमूना सारांश है। आप अभी भी उसी नमूना कंपनी में साइन इन हैं।",
+"Please check your answers.": "कृपया अपने उत्तर जाँचें।"
 }

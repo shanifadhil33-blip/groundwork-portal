@@ -780,5 +780,10 @@
 "Pending": "Kilindiriddwa",
 "Sample household. This preview does not add a membership or show client requests.": "Amaka ag’okulabirako. Okulaba kuno tekugattako bwammemba era tekulaga kusaba kwa bakasitoma.",
 "Sample contact. Calls are unavailable.": "Ennamba ey’okulabirako. Okukuba essimu tekusoboka.",
-"Code sign in preview": "Okulaba okuyingira n’akabonero"
+"Code sign in preview": "Okulaba okuyingira n’akabonero",
+"Practice setup": "Okugezesa enteekateeka",
+"Your answers stay on this page. No company is created and no invite is sent.": "Ebyokuddamu byo bisigala ku lupapula luno. Tewali kkampuni etondebwawo era tewali kuyita kusindikibwa.",
+"Practice complete": "Okugezesa kuwedde",
+"This is a sample summary. You are still signed in to the same demo company.": "Kino kifunze kya kyakulabirako. Okyali mu kkampuni y’emu ey’ekyokulabirako.",
+"Please check your answers.": "Kebera ebyokuddamu byo."
 }

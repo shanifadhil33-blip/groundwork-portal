@@ -845,5 +845,10 @@
 "Pending": "நிலுவையில்",
 "Sample household. This preview does not add a membership or show client requests.": "மாதிரி குடும்பம். இந்த முன்னோட்டம் உறுப்பினர் சேர்க்கையையோ வாடிக்கையாளர் கோரிக்கைகளையோ காட்டாது.",
 "Sample contact. Calls are unavailable.": "மாதிரி தொடர்பு. அழைப்புகள் கிடைக்காது.",
-"Code sign in preview": "குறியீடு மூலம் நுழையும் முன்னோட்டம்"
+"Code sign in preview": "குறியீடு மூலம் நுழையும் முன்னோட்டம்",
+"Practice setup": "அமைப்புப் பயிற்சி",
+"Your answers stay on this page. No company is created and no invite is sent.": "உங்கள் பதில்கள் இந்தப் பக்கத்திலேயே இருக்கும். நிறுவனம் உருவாக்கப்படாது, அழைப்பும் அனுப்பப்படாது.",
+"Practice complete": "பயிற்சி முடிந்தது",
+"This is a sample summary. You are still signed in to the same demo company.": "இது ஒரு மாதிரிச் சுருக்கம். நீங்கள் இன்னும் அதே மாதிரி நிறுவனத்தில் உள்நுழைந்துள்ளீர்கள்.",
+"Please check your answers.": "உங்கள் பதில்களைச் சரிபார்க்கவும்."
 }

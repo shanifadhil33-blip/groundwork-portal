@@ -786,5 +786,10 @@
 "Pending": "待处理",
 "Sample household. This preview does not add a membership or show client requests.": "示例家庭。此预览不会添加成员身份或显示客户请求。",
 "Sample contact. Calls are unavailable.": "示例联系方式。无法拨打电话。",
-"Code sign in preview": "验证码登录预览"
+"Code sign in preview": "验证码登录预览",
+"Practice setup": "练习设置",
+"Your answers stay on this page. No company is created and no invite is sent.": "你的答案只保留在此页面。不会创建公司，也不会发送邀请。",
+"Practice complete": "练习完成",
+"This is a sample summary. You are still signed in to the same demo company.": "这是示例摘要。你仍然登录在同一家演示公司。",
+"Please check your answers.": "请检查你的答案。"
 }

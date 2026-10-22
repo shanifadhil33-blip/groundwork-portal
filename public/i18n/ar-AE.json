@@ -1180,5 +1180,10 @@
 "Pending": "قيد الانتظار",
 "Sample household. This preview does not add a membership or show client requests.": "منزل تجريبي. هذه المعاينة ما تضيف عضوية ولا تعرض طلبات العملاء.",
 "Sample contact. Calls are unavailable.": "رقم تجريبي. الاتصال غير متاح.",
-"Code sign in preview": "معاينة الدخول برمز"
+"Code sign in preview": "معاينة الدخول برمز",
+"Practice setup": "تجربة الإعداد",
+"Your answers stay on this page. No company is created and no invite is sent.": "إجاباتك تبقى في هذه الصفحة. ما ننشئ شركة ولا نرسل دعوة.",
+"Practice complete": "اكتملت التجربة",
+"This is a sample summary. You are still signed in to the same demo company.": "هذا ملخص تجريبي. أنت ما زلت داخل نفس الشركة التجريبية.",
+"Please check your answers.": "راجع إجاباتك."
 }

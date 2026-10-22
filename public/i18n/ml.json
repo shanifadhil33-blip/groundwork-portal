@@ -813,5 +813,10 @@
 "Pending": "തീർപ്പാകാത്തത്",
 "Sample household. This preview does not add a membership or show client requests.": "മാതൃകാ കുടുംബം. ഈ തിരനോട്ടം അംഗത്വം ചേർക്കുകയോ ഉപഭോക്തൃ അഭ്യർത്ഥനകൾ കാണിക്കുകയോ ചെയ്യുന്നില്ല.",
 "Sample contact. Calls are unavailable.": "മാതൃകാ നമ്പർ. വിളികൾ ലഭ്യമല്ല.",
-"Code sign in preview": "കോഡ് ഉപയോഗിച്ചുള്ള പ്രവേശന തിരനോട്ടം"
+"Code sign in preview": "കോഡ് ഉപയോഗിച്ചുള്ള പ്രവേശന തിരനോട്ടം",
+"Practice setup": "സജ്ജീകരണ പരിശീലനം",
+"Your answers stay on this page. No company is created and no invite is sent.": "നിങ്ങളുടെ ഉത്തരങ്ങൾ ഈ പേജിൽ തന്നെ തുടരും. കമ്പനി സൃഷ്ടിക്കുകയോ ക്ഷണം അയയ്ക്കുകയോ ചെയ്യില്ല.",
+"Practice complete": "പരിശീലനം പൂർത്തിയായി",
+"This is a sample summary. You are still signed in to the same demo company.": "ഇത് ഒരു മാതൃകാ സംഗ്രഹമാണ്. നിങ്ങൾ ഇപ്പോഴും അതേ മാതൃകാ കമ്പനിയിൽ പ്രവേശിച്ചിരിക്കുന്നു.",
+"Please check your answers.": "നിങ്ങളുടെ ഉത്തരങ്ങൾ പരിശോധിക്കുക."
 }

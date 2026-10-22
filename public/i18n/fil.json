@@ -791,5 +791,10 @@
 "Pending": "Naghihintay",
 "Sample household. This preview does not add a membership or show client requests.": "Halimbawang sambahayan. Hindi nagdaragdag ng pagiging miyembro o nagpapakita ng mga hiling ng kliyente ang pagsilip na ito.",
 "Sample contact. Calls are unavailable.": "Halimbawang numero. Hindi puwedeng tumawag.",
-"Code sign in preview": "Pagsilip sa pagpasok gamit ang code"
+"Code sign in preview": "Pagsilip sa pagpasok gamit ang code",
+"Practice setup": "Pagsasanay sa pagset up",
+"Your answers stay on this page. No company is created and no invite is sent.": "Dito lang sa pahinang ito ang mga sagot mo. Walang kumpanyang gagawin at walang imbitasyong ipapadala.",
+"Practice complete": "Tapos na ang pagsasanay",
+"This is a sample summary. You are still signed in to the same demo company.": "Halimbawang buod ito. Nasa parehong halimbawang kumpanya ka pa rin.",
+"Please check your answers.": "Pakisuri ang iyong mga sagot."
 }

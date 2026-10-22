@@ -827,5 +827,10 @@
 "Pending": "په تمه",
 "Sample household. This preview does not add a membership or show client requests.": "د بېلګې کورنۍ. دا کتنه غړیتوب نه زیاتوي او د پېرودونکو غوښتنې نه ښيي.",
 "Sample contact. Calls are unavailable.": "د بېلګې شمېره. زنګ وهل شوني نه دي.",
-"Code sign in preview": "په کوډ د ننوتلو کتنه"
+"Code sign in preview": "په کوډ د ننوتلو کتنه",
+"Practice setup": "د برابرولو تمرین",
+"Your answers stay on this page. No company is created and no invite is sent.": "ستاسو ځوابونه په همدې پاڼه کې پاتې کېږي. نه شرکت جوړېږي او نه بلنه لېږل کېږي.",
+"Practice complete": "تمرین بشپړ شو",
+"This is a sample summary. You are still signed in to the same demo company.": "دا یوه بېلګه لنډیز دی. تاسو لا هم په هماغه ازمایښتي شرکت کې ننوتلي یاست.",
+"Please check your answers.": "مهرباني وکړئ خپل ځوابونه وګورئ."
 }

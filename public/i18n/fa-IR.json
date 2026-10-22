@@ -832,5 +832,10 @@
 "Pending": "در انتظار",
 "Sample household. This preview does not add a membership or show client requests.": "خانه نمونه. این پیش نمایش عضویت اضافه نمی‌کند و درخواست‌های مشتریان را نشان نمی‌دهد.",
 "Sample contact. Calls are unavailable.": "شماره نمونه. تماس ممکن نیست.",
-"Code sign in preview": "پیش نمایش ورود با رمز"
+"Code sign in preview": "پیش نمایش ورود با رمز",
+"Practice setup": "تمرین راه‌اندازی",
+"Your answers stay on this page. No company is created and no invite is sent.": "پاسخ‌های شما در همین صفحه می‌مانند. هیچ شرکتی ساخته نمی‌شود و هیچ دعوتی فرستاده نمی‌شود.",
+"Practice complete": "تمرین کامل شد",
+"This is a sample summary. You are still signed in to the same demo company.": "این یک خلاصهٔ نمونه است. شما همچنان در همان شرکت آزمایشی وارد شده‌اید.",
+"Please check your answers.": "لطفاً پاسخ‌های خود را بررسی کنید."
 }

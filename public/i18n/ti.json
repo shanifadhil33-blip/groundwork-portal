@@ -810,5 +810,10 @@
 "Pending": "ኣብ ትጽቢት",
 "Sample household. This preview does not add a membership or show client requests.": "ናይ ኣብነት ስድራ። እዚ ቅድመ ርእይቶ ኣባልነት ኣይውስኽን ሕቶታት ዓማዊል ኣየርእይን።",
 "Sample contact. Calls are unavailable.": "ናይ ኣብነት ቁጽሪ። ምድዋል ኣይከኣልን።",
-"Code sign in preview": "ብኮድ ምእታው ቅድመ ርእይቶ"
+"Code sign in preview": "ብኮድ ምእታው ቅድመ ርእይቶ",
+"Practice setup": "ናይ ምድላው ልምምድ",
+"Your answers stay on this page. No company is created and no invite is sent.": "መልስታትኩም ኣብዚ ገጽ ይተርፉ። ኩባንያ ኣይፍጠርን፣ ዕድመ እውን ኣይለኣኽን።",
+"Practice complete": "ልምምድ ተዛዚሙ",
+"This is a sample summary. You are still signed in to the same demo company.": "እዚ ናይ ኣብነት ጽማቝ እዩ። ገና ኣብታ ተመሳሳሊት ናይ ኣብነት ኩባንያ ኣለኹም።",
+"Please check your answers.": "በጃኹም መልስታትኩም መርምሩ።"
 }

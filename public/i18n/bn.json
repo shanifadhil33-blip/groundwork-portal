@@ -850,5 +850,10 @@
 "Pending": "অপেক্ষমাণ",
 "Sample household. This preview does not add a membership or show client requests.": "নমুনা পরিবার। এই পূর্বরূপ সদস্যপদ যোগ করে না বা গ্রাহকের অনুরোধ দেখায় না।",
 "Sample contact. Calls are unavailable.": "নমুনা যোগাযোগ। কল করা যাবে না।",
-"Code sign in preview": "কোড দিয়ে প্রবেশের পূর্বরূপ"
+"Code sign in preview": "কোড দিয়ে প্রবেশের পূর্বরূপ",
+"Practice setup": "সেটআপ অনুশীলন",
+"Your answers stay on this page. No company is created and no invite is sent.": "আপনার উত্তর এই পাতাতেই থাকে। কোনো কোম্পানি তৈরি হয় না এবং কোনো আমন্ত্রণ পাঠানো হয় না।",
+"Practice complete": "অনুশীলন শেষ",
+"This is a sample summary. You are still signed in to the same demo company.": "এটি একটি নমুনা সারাংশ। আপনি এখনও একই নমুনা কোম্পানিতে প্রবেশ করে আছেন।",
+"Please check your answers.": "আপনার উত্তরগুলো যাচাই করুন।"
 }
