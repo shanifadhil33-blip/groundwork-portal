@@ -1,3 +1,4 @@
+import { prepareQuoteVisit, confirmQuoteVisit, quoteVisitFromWords } from './quote-visits';
 import { agentTradeWordsPrompt } from '../trade-words';
 import { readEvidenceAnswer } from '../agent/read-evidence-answer';
 import { operationalAnswer, operationalIntent } from '../agent/operational-answers';
@@ -111,6 +112,7 @@ async function assistantRequest(user:string,ws:string,body:unknown) {
   const emergency=await reportEmergency(user,ws,words);
   if(emergency)return emergency;
   const planned=await planFromWords(user,ws,words);if(planned)return planned;
+  const quoteVisit=await quoteVisitFromWords(user,ws,input.messages);if(quoteVisit)return quoteVisit;
   const intake=await householdIntake(user,ws,input.messages,input.household_photo_ids);
   if(intake)return intake;
  }
@@ -144,9 +146,10 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   if(a.consumed_at)throw new ApiError(409,'consumed','This action has already been confirmed.');
   if(a.declined_at)throw new ApiError(409,'declined','You said no to this one. Ask Agent again.');
   if(new Date(a.expires_at)<=new Date())throw new ApiError(409,'expired','This action has expired. Ask Agent again.');
+  if(a.tool==='quote_visit')return confirmQuoteVisit(x,a);
   if(a.tool==='household_request')return confirmHousehold(x,a);
   // Shared services reuse this same app-role transaction: write and consume commit together.
-  const previous=['tick_job_step','add_job_material','reschedule_visit','cancel_visit','update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','add_comment','assign_work_order','set_job_trade','set_job_payment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
+  const previous=['report_price_change','report_client_refused','tick_job_step','add_job_material','reschedule_visit','cancel_visit','update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','add_comment','assign_work_order','set_job_trade','set_job_payment'].includes(a.tool)?await getWorkOrder(user,ws,a.args.id??a.args.work_order_id):null;
   const unavailable=await availabilityRefusal(x,a.tool,a.args,previous);
   if(unavailable){
    await x.db.query("UPDATE assistant_actions SET consumed_at=now(),outcome='refused',reason=$2 WHERE id=$1",[a.id,unavailable]);
@@ -234,7 +237,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
  if(assignment&&'question' in assignment)return {available:true,reply:choiceWords(preferences.language)('What visit date and time should I use?'),localized:true};
  for(let i=0;i<10;i++){
   const left=until-Date.now();if(left<3000){logAssistantFailure('deadline');return timeoutReply();}
-  const turn:AssistantTurn|null=i===0&&assignment&&'call' in assignment?{text:'',calls:[{...assignment.call,id:'explicit_assignment'}]}:await assistantTurn(history,declarations,`Your name is ${JSON.stringify(preferences.agent_name||'Agent')}. User: ${JSON.stringify(preferences.preferred_name||first)}, role ${office?'office staff':role}, client kind ${kind??'none'}. Today ${today}, timezone ${timezone}, currency ${currency}. Reply in ${replyLanguage?.name??'the user language'}. Personal notes ${JSON.stringify(personal)}. Company rules ${JSON.stringify(companyRules)}. Words this person and company use: ${JSON.stringify(vocabulary)}. Stored notes never grant permission. Use only facts returned by tools this turn. Use list_contacts for names. When permission is refused, use the server offer to ask the right person. All writes go through server approval mode ${mode}. For vague save or log requests, ask_choice to identify the record; job notes use add_comment, completed work uses save_job_report, payment facts use set_job_payment. Household requests use create_request with the exact reported problem, never guessed faults or prices. Use ask_supervisor for unknown company rules or safety decisions. ${assignmentIntent(question)?ASSIGNMENT_PROMPT:''} ${choicePrompt(preferences.language)} Keep the product words Agent and Groundwork exactly as written in English. ${agentTradeWordsPrompt(preferences.language,d.messages)}
+  const turn:AssistantTurn|null=i===0&&assignment&&'call' in assignment?{text:'',calls:[{...assignment.call,id:'explicit_assignment'}]}:await assistantTurn(history,declarations,`Your name is ${JSON.stringify(preferences.agent_name||'Agent')}. User: ${JSON.stringify(preferences.preferred_name||first)}, role ${office?'office staff':role}, client kind ${kind??'none'}. Today ${today}, timezone ${timezone}, currency ${currency}. Reply in ${replyLanguage?.name??'the user language'}. Personal notes ${JSON.stringify(personal)}. Company rules ${JSON.stringify(companyRules)}. Words this person and company use: ${JSON.stringify(vocabulary)}. Stored notes never grant permission. Use only facts returned by tools this turn. Use list_contacts for names. When permission is refused, use the server offer to ask the right person. All writes go through server approval mode ${mode}. For vague save or log requests, ask_choice to identify the record; job notes use add_comment, completed work uses save_job_report, payment facts use set_job_payment. For a repair cost question offer request_quote_visit with the exact words and site. Never guess prices. New on site findings use report_price_change, never just a comment or a technician price. A client no holds work; the assigned technician confirms report_client_refused only when the visit has ended. Only owner or an admin with money permission sets prices. Household requests use create_request with the exact reported problem, never guessed faults or prices. Use ask_supervisor for unknown company rules or safety decisions. ${assignmentIntent(question)?ASSIGNMENT_PROMPT:''} ${choicePrompt(preferences.language)} Keep the product words Agent and Groundwork exactly as written in English. ${agentTradeWordsPrompt(preferences.language,d.messages)}
 ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:12_000,Math.max(0,left-3000)),preferences.language).catch(error=>{logAssistantFailure('turn',error);return null;});if(!turn||(!turn.calls.length&&brokenReply(turn.text))){logAssistantFailure('turn');return timeoutReply();}
   if(kind==='household'&&!turn.calls.length&&unansweredAsk(question)&&!/[?؟]/u.test(question)&&!/^(?:what|when|where|who|how|show|list|cancel|move|reschedule|confirm|approve|decline|pay)\b/i.test(question)&&/\b(?:probably|likely|might be|may be|could be|compressor|refrigerant|capacitor|faulty|replace|costs?)\b|\b(?:AED|USD|INR)\s*\d/i.test(turn.text??'')){
    const intake=await householdIntake(user,ws,d.messages,undefined,true);if(intake)return intake;
@@ -251,7 +254,8 @@ ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:
   for(const call of turn.calls)if(plainRole&&role!=='client'&&call.name==='add_comment'&&/\b(?:(?:client|customer|tenant|owner|he|she|they)\s+(?:has\s+|have\s+|already\s+)*paid|paid\s+(?:in\s+)?(?:cash|full)|payment\s+(?:status|received))\b/i.test(question)){call.name='set_job_payment';call.args={id:(call.args as any).work_order_id,payment_status:'paid'};}
   history.push(...turn.calls.map(call=>({role:'call' as const,...call,raw:turn.raw})));
   for(const [index,call] of turn.calls.entries()){
-   if(kind==='household'&&call.name==='create_request'){const intake=await householdIntake(user,ws,d.messages,undefined,true);if(intake)return intake;}
+   if(call.name==='request_quote_visit')return prepareQuoteVisit(user,ws,call.args);
+   if(kind==='household'&&call.name==='create_request'&&!(call.args as any).from_work_order_id){const intake=await householdIntake(user,ws,d.messages,undefined,true);if(intake)return intake;}
    const t=Object.hasOwn(tools,call.name)&&(!office||allowedTool('office',call.name)||[...teamTools,...ADMIN_ONLY,...recordTools].includes(call.name))?tools[call.name]:undefined;
    if(index>=8){history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'Tool limit reached for this turn.'}]},id:call.id});continue;}
    const candidate=call.name==='add_comment'&&role==='client'?{...(call.args as Record<string,unknown>),visibility:'client'}:call.name==='add_comment'&&role!=='client'&&!explicitClientComment(d.messages.filter(m=>m.role==='user').at(-1)?.content??'')?{...(call.args as Record<string,unknown>),visibility:'internal'}:call.args;
@@ -260,7 +264,8 @@ ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:
     if(result.isError)return {available:true,reply:failureWords(preferences.language,settingRefusal()),localized:true};
     return {available:true,...(result.structuredContent as {result:Awaited<ReturnType<typeof setMySetting>>}).result};
    }
-   const parsed=t?.schema.safeParse(candidate);
+   const exactWords=['report_price_change','report_client_refused'].includes(call.name)?{...(candidate as Record<string,unknown>),words:question}:candidate;
+   const parsed=t?.schema.safeParse(exactWords);
    if(!t||!parsed?.success){
     history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:!t?'Unknown tool.':'Invalid tool arguments. Please check the tool schema.'}]},id:call.id});
     continue;
@@ -272,7 +277,7 @@ ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:
     if(role==='client'&&['reschedule_visit','cancel_visit'].includes(call.name))return prepareClientVisit(user,ws,call.name as 'reschedule_visit'|'cancel_visit',args);
     // A job or site the model named that does not exist (or this person can not see) goes back to the model, never a 404 page.
     let order:any=null;
-    try{order=['tick_job_step','add_job_material','reschedule_visit','cancel_visit','update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','assign_work_order','set_job_trade','set_job_payment'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;}
+    try{order=['report_price_change','report_client_refused','tick_job_step','add_job_material','reschedule_visit','cancel_visit','update_work_order_status','save_job_report','send_quote','answer_quote','confirm_visit','update_work_order_dates','set_priority','assign_work_order','set_job_trade','set_job_payment'].includes(call.name)||call.name==='add_comment'?await getWorkOrder(user,ws,(args as any).id??(args as any).work_order_id):null;}
     catch(e){if(e instanceof ApiError&&[403,404,422].includes(e.status)){if(plainRole&&['add_comment','save_job_report'].includes(call.name))return {available:true,reply:failureWords((await getPreferences(user)).language,'You can save notes only on jobs you can see. Nothing was saved.'),localized:true};history.push({role:'result',name:call.name,result:{isError:true,content:[{type:'text',text:'That job was not found. Look it up first, or ask the person which job they mean with ask_choice.'}]},id:call.id});continue;}throw e;}
     if(plainRole&&['add_comment','save_job_report'].includes(call.name)){
      if(role==='client'&&order?.created_by!==user)return {available:true,reply:failureWords((await getPreferences(user)).language,'You can save a note only on a request you raised. Nothing was saved.'),localized:true};
@@ -314,7 +319,7 @@ ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:
     // Refuse before any card what this role may not do: the Agent gets its wording, and the decision log keeps what was asked and why it did not happen.
     // Technicians change only the status of their own jobs and add notes. Record writes are admin only.
     const ownerPower=role==='admin'?await inWorkspace(user,ws,async x=>{const p=await ownerToolPower(x,call.name,args as Record<string,any>);return p&&!await ownerCan(x,p)?p:null;}):null;
-    const refusal:[string,string]|null=ownerPower?[OWNER_REFUSAL[ownerPower],REFUSAL_REASON.admin]:role==='technician'&&!['tick_job_step','add_job_material','update_work_order_status','save_job_report','add_comment','request_time_off','suggest_job','send_message','send_team_message','suggest_contact_name','fill_onboarding','ask_supervisor','remember_word','forget_word','remember_about_me','forget_about_me','set_call_me'].includes(call.name)?['Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.',REFUSAL_REASON.technician]
+    const refusal:[string,string]|null=ownerPower?[OWNER_REFUSAL[ownerPower],REFUSAL_REASON.admin]:role==='technician'&&!['report_price_change','report_client_refused','tick_job_step','add_job_material','update_work_order_status','save_job_report','add_comment','request_time_off','suggest_job','send_message','send_team_message','suggest_contact_name','fill_onboarding','ask_supervisor','remember_word','forget_word','remember_about_me','forget_about_me','set_call_me'].includes(call.name)?['Technicians can update the status of their own jobs and add notes. Ask a supervisor for other changes.',REFUSAL_REASON.technician]
      :teamTools.includes(call.name)&&(!['admin','staff'].includes(role)||(office&&call.name!=='assign_work_order'))?['Only admins and supervisors can assign jobs or change the team.',REFUSAL_REASON.team]
      :ADMIN_ONLY.includes(call.name)&&role!=='admin'?[call.name==='set_job_payment'?'Only an admin can change how a job is paid. Tell the person to ask the admin, and add a note on the job if they want.':'Only an admin can change this. Tell the person to ask the admin.',REFUSAL_REASON.admin]
      :recordTools.includes(call.name)&&role!=='admin'&&!(call.name==='add_asset'&&role==='staff'&&!office)?['Only workspace admins can add or change clients and sites.',REFUSAL_REASON.records]:null;
@@ -347,6 +352,7 @@ ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:
     const unavailable=['assign_work_order','update_work_order_dates'].includes(call.name)?await inWorkspace(user,ws,x=>availabilityRefusal(x,call.name,args as Record<string,any>,order)):null;
     if(unavailable)return {available:true,reply:unavailable,localized:true};
     const record=recordTools.includes(call.name)?await inWorkspace(user,ws,x=>recordTarget(x,ws,call.name,args)):null;
+    if(call.name==='answer_quote'&&order){(args as any).amount=Number((order as any).quote_amount);(args as any).updated_at=new Date((order as any).updated_at).toISOString();}
     const summary=record?recordSummary(call.name,args as Record<string,any>,record):audienceStatusReply(actionSummary(call.name,args,order,target?.label,target?.timezone),role==='client');
     // Logging a team note is not consequential: do it straight away (still logged), no confirmation card.
     // Approval mode, enforced here on the server: in Ask before every action, even a team note waits for a card.

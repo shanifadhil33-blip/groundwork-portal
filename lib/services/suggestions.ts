@@ -11,7 +11,7 @@ import { withSystem } from '../db';
 import { allowTeam, inWorkspace, name, priority, replay, row, uuid } from './shared';
 export const suggestionInput=z.object({...tenantFields,same_technician:z.boolean().optional(),title:name,problem:z.string().trim().max(20000).default(''),client_id:uuid.nullable().optional(),site_id:uuid.nullable().optional(),from_work_order_id:uuid.nullable().optional(),priority:priority.default('normal'),preferred_window:z.string().trim().max(200).nullable().optional(),photo_ids:z.array(uuid).max(4).default([]),voice_note_text:z.string().trim().max(20000).nullable().optional()}).strict();
 export type SuggestionSource='agent'|'client'|'household'|'technician'|'whatsapp';
-export async function createSuggestion(user:string,ws:string,body:unknown,source?:SuggestionSource,key?:string,intake?:{name:string;phone:string;sender_user_id?:string|null},emergencyHandled=false,household?:{words:string;where?:string;since?:string;visit_charge?:VisitCharge}){
+export async function createSuggestion(user:string,ws:string,body:unknown,source?:SuggestionSource,key?:string,intake?:{name:string;phone:string;sender_user_id?:string|null},emergencyHandled=false,household?:{words:string;where?:string;since?:string;visit_charge?:VisitCharge},quoteVisit?:VisitCharge){
  await inWorkspace(user,ws,async c=>checkTenantInput(c,body));
  const data=normalizeTenant(suggestionInput.parse(body));
  if(household)Object.assign(data,householdFields(household.words,household.where,household.since,data));
@@ -25,7 +25,7 @@ export async function createSuggestion(user:string,ws:string,body:unknown,source
    if(data.client_id&&data.client_id!==c.client_id)throw invalid('Choose one of your own sites.','client_id');
    data.client_id=c.client_id;
    if(!data.site_id)throw invalid('Choose a site.','site_id');
-   if(c.client_kind==='household'&&!household&&!data.preferred_window)throw invalid('Tell us what time suits you for the visit.','preferred_window');
+   if(c.client_kind==='household'&&!household&&!quoteVisit&&!data.preferred_window)throw invalid('Tell us what time suits you for the visit.','preferred_window');
   }
   if(c.role==='technician'&&!data.site_id)throw invalid('Choose a site on one of your jobs.','site_id');
   if(data.site_id){const site=await row(c,'sites',data.site_id);if(data.client_id&&site.client_id!==data.client_id)throw invalid('Choose a site for this client.','site_id');data.client_id=site.client_id;
@@ -36,7 +36,7 @@ export async function createSuggestion(user:string,ws:string,body:unknown,source
    const {same_technician,...savedData}=data;
    const preference=same_technician?await previousTechnician(user,ws):null;
    if(same_technician&&!preference)throw invalid('There is no finished visit to use for this preference.');
-   const charge=actualSource==='household'?(household?.visit_charge??await visitChargeFor(c,data.site_id??null)):null;
+   const charge=quoteVisit??(actualSource==='household'?(household?.visit_charge??await visitChargeFor(c,data.site_id??null)):null);
    const fields={...savedData,visit_charge_shown:charge?.amount??null,preferred_technician_id:preference?.user_id??null,photo_ids:JSON.stringify(data.photo_ids),workspace_id:ws,source:actualSource,sender_user_id:sender,sender_name:senderName,sender_phone:intake?.phone??null};const keys=Object.keys(fields);
    if(data.photo_ids.length){const photos=(await c.db.query('SELECT id FROM shared_photos WHERE workspace_id=$1 AND uploaded_by=$2 AND suggestion_id IS NULL AND id=ANY($3::uuid[]) FOR UPDATE',[ws,user,data.photo_ids])).rows;if(photos.length!==new Set(data.photo_ids).size)throw invalid('Choose your own photos.','photo_ids');}
    const made=(await c.db.query(`INSERT INTO job_suggestions(${keys.join(',')}) VALUES(${keys.map((_,i)=>'$'+(i+1)).join(',')}) RETURNING *`,Object.values(fields))).rows[0];if(data.photo_ids.length)await c.db.query('UPDATE shared_photos SET suggestion_id=$3 WHERE workspace_id=$1 AND uploaded_by=$2 AND id=ANY($4::uuid[])',[ws,user,made.id,data.photo_ids]);delete made.sender_phone;return visibleTenant(c,made);

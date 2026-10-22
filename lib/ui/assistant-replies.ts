@@ -110,6 +110,8 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='withdraw_request')return `Withdraw your request ${plainAssistantReply(target??'')}. The office will not see it any more.`;
   if(tool==='decline_suggestion')return `Decline ${plainAssistantReply(target??'this suggestion')}.\nReason: ${plainAssistantReply(args.reason)}`;
   const name = order ? assistantTarget(order) : plainAssistantReply(target ?? 'the selected row');
+  if(tool==='report_price_change')return `Price changed: ${name}\n${plainAssistantReply(args.words)}\nWork is on hold until the client approves the price.`;
+  if(tool==='report_client_refused')return `Client refused: ${name}\n${plainAssistantReply(args.words)}\nThe visit will close. The owner decides any visit charge.`;
   if(tool==='send_quote')return `Send a price of ${Number(args.amount).toLocaleString('en')} to the client for ${name}${args.note?`\n${plainAssistantReply(args.note)}`:''}\nThe client approves or declines it.`;
   if(tool==='answer_quote')return `${args.decision==='approved'?'Approve':'Decline'} the price for ${name}${order&&(order as any).quote_amount!=null?`: ${Number((order as any).quote_amount).toLocaleString('en')}`:''}`;
   if(tool==='confirm_visit')return `Confirm the visit time for ${name}${order?.scheduled_for?`: ${formatDate(order.scheduled_for,order.timezone)}`:''}`;
@@ -166,6 +168,8 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='set_job_payment')return `Marked ${link} as ${({to_bill:'to bill',contract:'covered by the contract',paid:'paid'} as Record<string,string>)[args.payment_status]}.`;
   if(tool==='set_job_trade')return `Set the trade for ${link} to ${args.trade?tradeLabels[args.trade as Trade]:'Any'}.`;
   if(tool==='set_priority')return `Changed priority for ${link} to ${readableLabel(args.priority)}.`;
+  if(tool==='report_price_change')return `Price changed. Work is on hold until the client approves the price. ${link}`;
+  if(tool==='report_client_refused')return `Client refused. The visit is closed. ${link}`;
   if(tool==='send_quote')return `Sent the price for ${link}. I will tell you when the client answers.`;
   if(tool==='answer_quote')return args.decision==='approved'?`Approved the price for ${link}. The team can go ahead.`:`Declined the price for ${link}. The team will be in touch.`;
   if(tool==='confirm_visit')return `Confirmed the visit time for ${link}.`;

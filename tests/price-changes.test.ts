@@ -67,3 +67,48 @@ it('validates findings, amounts and idempotency content; closed jobs reject repo
  await withSystem(db=>db.query("UPDATE work_orders SET status='cancelled' WHERE id=$1",[j.id]),ids.imran);
  await expect(reportPriceChange(ids.ravi,ws,j.id,{words:'Finding'})).rejects.toMatchObject({status:409});
 });
+
+it('a newer price invalidates the old approval card even when the amount is unchanged',async()=>{
+ const j=await job();await reportPriceChange(ids.ravi,ws,j.id,{words:'New motor'});
+ await sendQuote(ids.imran,ws,j.id,{amount:850,note:'Motor only'});
+ const before=await getWorkOrder(ids.pranav,ws,j.id);
+ await sendQuote(ids.imran,ws,j.id,{amount:850,note:'Motor and wiring'});
+ await expect(decideQuote(ids.pranav,ws,j.id,{decision:'approved',amount:850,updated_at:new Date(before.updated_at).toISOString()})).rejects.toMatchObject({status:409});
+ expect((await getPriceChange(ids.pranav,ws,j.id))?.state).toBe('pending');
+});
+it('concurrent opposite answers commit only one decision and preserve the matching hold',async()=>{
+ const j=await job();await reportPriceChange(ids.ravi,ws,j.id,{words:'New motor'});await sendQuote(ids.imran,ws,j.id,{amount:850});
+ const result=await Promise.allSettled([decideQuote(ids.pranav,ws,j.id,{decision:'approved'}),decideQuote(ids.pranav,ws,j.id,{decision:'declined'})]);
+ expect(result.filter(r=>r.status==='fulfilled')).toHaveLength(1);
+ const saved=await getWorkOrder(ids.pranav,ws,j.id);expect(saved.price_change.state).toBe(saved.quote_status);
+});
+it('agent reports wait for confirmation and recheck current assignment on confirmed writes',async()=>{
+ const {callTool}=await import('../lib/agent/tools');
+ const j=await job(),context={user:ids.ravi,ws,scope:'write' as const,kind:'assistant' as const},args={id:j.id,words:'It needs a fan motor. I told him 900.'};
+ expect((await callTool(context,'report_price_change',args)).structuredContent).toMatchObject({error:{code:'confirmation_required'}});
+ expect(await getPriceChange(ids.ravi,ws,j.id)).toBeNull();
+ expect((await callTool({...context,approved:true,actionKey:'report'},'report_price_change',args)).isError).toBeUndefined();
+ expect((await getPriceChange(ids.ravi,ws,j.id))?.words).toBe(args.words);
+ await withSystem(db=>db.query('UPDATE work_orders SET assignee_id=$2 WHERE id=$1',[j.id,ids.imran]),ids.imran);
+ expect((await callTool({...context,approved:true,actionKey:'report'},'report_price_change',args)).structuredContent).toMatchObject({error:{code:'forbidden'}});
+});
+
+it('technician can confirm a refusal said in person before the client answers online',async()=>{
+ const j=await job();await reportPriceChange(ids.ravi,ws,j.id,{words:'The fan motor needs replacing.'});await sendQuote(ids.imran,ws,j.id,{amount:850});
+ await reportClientRefused(ids.ravi,ws,j.id,{words:'He said the price is too high and does not want the work.'});
+ const saved=await getWorkOrder(ids.pranav,ws,j.id);expect(saved.status).toBe('cancelled');expect(saved.quote_status).toBe('declined');expect(saved.price_change.refusal_words).toContain('too high');
+});
+
+it('a refused visit cannot be restored; later work needs a linked request',async()=>{
+ const j=await job();await reportPriceChange(ids.ravi,ws,j.id,{words:'New motor'});await sendQuote(ids.imran,ws,j.id,{amount:850});await reportClientRefused(ids.ravi,ws,j.id,{words:'He does not want the work.'});
+ const {restoreJob}=await import('../lib/services/job-records');
+ for(const user of [ids.imran,ids.sam,ids.nabil])await expect(restoreJob(user,ws,j.id,{})).rejects.toMatchObject({status:409,code:'client_refused'});
+});
+
+it('client can raise a new request linked to the refused visit without reopening it',async()=>{
+ const j=await job();await reportPriceChange(ids.ravi,ws,j.id,{words:'New motor'});await sendQuote(ids.imran,ws,j.id,{amount:850});await reportClientRefused(ids.ravi,ws,j.id,{words:'He does not want the work.'});
+ const request=await createWorkOrder(ids.pranav,ws,{title:'Please replace the motor',description:'I now want the motor replaced.',site_id:j.site_id,from_work_order_id:j.id},'new-request');
+ expect(request.from_work_order_id).toBe(j.id);expect(request.status).toBe('pending');
+ expect((await getWorkOrder(ids.pranav,ws,j.id)).status).toBe('cancelled');
+ await expect(createWorkOrder(ids.faisal,ws,{title:'Motor',description:'I want the repair.',site_id:j.site_id,from_work_order_id:j.id,preferred_window:'Tomorrow morning'})).rejects.toThrow();
+});

@@ -89,3 +89,13 @@ it('household card shows the amount without a sample label for a real price',asy
  expect([...card().querySelectorAll('dd')].at(-1)?.textContent).toBe('AED 200.00');
  expect(card().textContent).not.toContain('Sample price');
 });
+
+it('quote visit card shows site, charge and price explanation before Yes without sending a request',async()=>{
+ (api as any).role='client';
+ api.post.mockResolvedValueOnce({available:true,pending_action:{id:'quote',tool:'quote_visit',quote_visit:true,summary:'Quote visit',why:'Nothing is sent until you tap Yes.',fields:{words:'How much to fix the water heater?',home:'Marina Exchange',visit_charge:{amount:200,currency:'AED',sample:false}}}});
+ await mount();await type('Quote visit');await act(async()=>button('Send')!.click());
+ expect(card().querySelector('h3')?.textContent).toBe('Quote visit');
+ expect(card().textContent).toContain('AED 200.00');expect(card().textContent).toContain('The full price depends on what the technician finds.');
+ expect(card().querySelector('[data-no-translate]')?.textContent).toBe('How much to fix the water heater?');
+ expect(api.post).toHaveBeenCalledOnce();expect(button('Yes')).toBeTruthy();expect(button('Change')).toBeTruthy();
+});

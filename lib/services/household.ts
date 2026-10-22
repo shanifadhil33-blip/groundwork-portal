@@ -47,13 +47,13 @@ export async function householdIntake(user: string, ws: string, messages: {role:
   if (c.role !== 'client' || c.client_kind !== 'household') return null;
   await c.db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [JSON.stringify([ws, user, 'household'])]);
   const a = (await c.db.query("SELECT * FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND tool='household_intake' AND consumed_at IS NULL AND declined_at IS NULL AND expires_at>now() ORDER BY created_at DESC LIMIT 1 FOR UPDATE", [ws, user])).rows[0];
-  const asksPrice = /\b(?:how much|cost|price|charge|fee)\b|كم|سعر|تكلفة|رسوم|എത്ര|ചാർജ്|വില/iu.test(words);
+  const asksPrice = /\b(?:how much|cost|price|charge|fee)\b|كم|سعر|تكلفة|رسوم|എത്ര|ചാർജ്|വില|எவ்வளவு|செலவ|கட்டணம்|விலை|magkano|presyo/iu.test(words);
   const asksStatus = /\b(?:status|is (?:it|my .+) fixed|technician coming|when (?:is|will|does)|(?:has|was|is) .+ paid|(?:where|show|find|check) .*(?:invoice|quote|request|job))\b|حالة|موعد|എപ്പോൾ/iu.test(words);
   if (!force && asksPrice && !asksStatus && !detectEmergency(words)) {
    const sites: Site[] = (await c.db.query('SELECT id,name FROM sites WHERE workspace_id=$1 AND client_id=$2 AND archived_at IS NULL ORDER BY name,id',[ws,c.client_id])).rows;
    const site=sites.find(s=>words.toLocaleLowerCase().includes(s.name.toLocaleLowerCase()))?.id ?? a?.args?.site_id ?? (sites.length===1?sites[0].id:null);
    const charge=await visitChargeFor(c,site);
-   return {available:true,reply:charge.amount==null ? "The office will confirm the price. I won't guess it." : `The visit charge is **${charge.currency} ${charge.amount.toFixed(2)}**.\n\nThe full price depends on what the technician finds. He will tell you before any extra work.`};
+   return {available:true,choices:['Quote visit'],reply:charge.amount==null ? "The office will confirm the price. I won't guess it." : `The visit charge is **${charge.currency} ${charge.amount.toFixed(2)}**.\n\nThe full price depends on what the technician finds. He will tell you before any extra work.`};
   }
   if (!a && !force && (!report.test(words) || statusQuestion.test(words))) return null;
   // He moved on mid intake (asked something else): drop the draft quietly and answer normally.

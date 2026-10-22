@@ -24,7 +24,7 @@ export function selectAssistantTools(question:string, declarations:Declaration[]
   [/asset|equipment/i,['list_assets','add_asset','update_asset']],
   [/remember|memory|name|تذكر/i,['remember_about_me','my_memory','forget_about_me','remember_word','my_words','set_call_me','list_contacts','suggest_contact_name']],
   [/priority|urgent|أولوية/i,['set_priority']],
-  [/quote|price|cost|سعر/i,['waiting_prices','visit_charge','send_quote','answer_quote','fix_history']],
+  [/quote|price|cost|refus|said no|سعر|رفض|വില|ചാർജ്|விலை|magkano/i,['report_price_change','report_client_refused','request_quote_visit','waiting_prices','visit_charge','send_quote','answer_quote','fix_history']],
   [/message|send|رسالة/i,['list_messages','send_message','list_team_messages','send_team_message','list_contacts']],
   [/attention|today|اليوم/i,['needs_attention','get_dashboard','my_day']],
   [/week|summary|overview|أسبوع/i,['get_dashboard','needs_attention','my_day']],
