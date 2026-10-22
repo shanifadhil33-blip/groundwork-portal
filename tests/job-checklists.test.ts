@@ -1,0 +1,54 @@
+import { afterAll, expect, it } from 'vitest';
+import { closePools, withSystem } from '../lib/db';
+import { ids, siteId } from '../scripts/seed';
+import { createWorkOrder } from '../lib/services/work-orders';
+import { checklistTemplates, saveChecklistTemplate, jobChecklist, saveJobChecklist } from '../lib/services/job-checklists';
+import { templateInput, progressInput } from '../lib/job-checklists';
+const ws=ids.ridgeline;
+afterAll(closePools);
+async function job(){return createWorkOrder(ids.imran,ws,{title:'Check cooling',site_id:siteId(1),trade:'ac',assignee_id:ids.ravi});}
+it('owner and supervisor set templates; office, technician, clients and household cannot',async()=>{
+ for(const user of [ids.imran,ids.sam]) await saveChecklistTemplate(user,ws,{trade:'ac',steps:['Clean the filter','Check cooling']});
+ expect((await checklistTemplates(ids.sam,ws)).ac).toEqual(['Clean the filter','Check cooling']);
+ for(const user of [ids.nabil,ids.ravi,ids.pranav,ids.faisal]){
+  await expect(saveChecklistTemplate(user,ws,{trade:'ac',steps:[]})).rejects.toMatchObject({status:403});
+  await expect(checklistTemplates(user,ws)).rejects.toMatchObject({status:403});
+ }
+});
+it('assigned technician ticks and records parts; snapshots survive template edits and reports',async()=>{
+ await saveChecklistTemplate(ids.sam,ws,{trade:'ac',steps:['Clean the filter','Check cooling']});
+ const j=await job();
+ await saveJobChecklist(ids.ravi,ws,j.id,{action:'tick',step:'Clean the filter',done:true});
+ await saveChecklistTemplate(ids.sam,ws,{trade:'ac',steps:['New step']});
+ const body={action:'add_material',name:'Capacitor',quantity:2,note:'Outdoor unit'};
+ const first=await saveJobChecklist(ids.ravi,ws,j.id,body,'one');
+ const again=await saveJobChecklist(ids.ravi,ws,j.id,body,'one');
+ expect(again).toEqual(first);expect(first.materials).toHaveLength(1);expect(first.steps).toHaveLength(2);
+ for(const user of [ids.imran,ids.sam,ids.pranav]){
+  const view=await jobChecklist(user,ws,j.id);expect(view.steps[0].done).toBe(true);expect(view.materials[0].quantity).toBe(2);
+ }
+ await saveJobChecklist(ids.ravi,ws,j.id,{action:'remove_material',material_id:first.materials[0].id});
+ expect((await jobChecklist(ids.ravi,ws,j.id)).materials).toEqual([]);
+ await withSystem(db=>db.query("UPDATE work_orders SET status='scheduled' WHERE id=$1",[j.id]),ids.imran);
+ const {saveJobReport}=await import('../lib/services/job-report');
+ const current=await withSystem(async db=>(await db.query('SELECT updated_at FROM work_orders WHERE id=$1',[j.id])).rows[0]);
+ await saveJobReport(ids.ravi,ws,j.id,{outcome:'fixed',updated_at:new Date(current.updated_at).toISOString()});
+ expect((await jobChecklist(ids.pranav,ws,j.id)).steps[0].done).toBe(true);
+ await expect(saveJobChecklist(ids.ravi,ws,j.id,body)).rejects.toMatchObject({status:409});
+});
+it('other technicians, clients, households, office and other workspaces cannot edit',async()=>{
+ const j=await job();
+ // Sam has a technician role only for this test and is not assigned to Ravi jobs.
+ await withSystem(db=>db.query("UPDATE members SET role='technician' WHERE workspace_id=$1 AND user_id=$2",[ws,ids.sam]));
+ for(const user of [ids.sam,ids.pranav,ids.faisal,ids.nabil,ids.summitAdmin])await expect(saveJobChecklist(user,ws,j.id,{action:'add_material',name:'Washer',quantity:1})).rejects.toMatchObject({status:403});
+ await expect(jobChecklist(ids.summitAdmin,ws,j.id)).rejects.toMatchObject({status:404});
+ await withSystem(db=>db.query("UPDATE members SET role='staff' WHERE workspace_id=$1 AND user_id=$2",[ws,ids.sam]));
+});
+it('validates bounds, unknown steps and maximum materials',async()=>{
+ for(const steps of [Array(13).fill('x'),['a'.repeat(81)],[''],['Test','test']])expect(templateInput.safeParse({trade:'ac',steps}).success).toBe(false);
+ for(const quantity of [0,-1,100001,Infinity])expect(progressInput.safeParse({action:'add_material',name:'Part',quantity}).success).toBe(false);
+ expect(progressInput.safeParse({action:'add_material',name:'x'.repeat(81),quantity:1}).success).toBe(false);
+ const j=await job();await expect(saveJobChecklist(ids.ravi,ws,j.id,{action:'tick',step:'Unknown',done:true})).rejects.toMatchObject({status:422});
+ for(let n=0;n<30;n++)await saveJobChecklist(ids.ravi,ws,j.id,{action:'add_material',name:'Washer',quantity:1});
+ await expect(saveJobChecklist(ids.ravi,ws,j.id,{action:'add_material',name:'Washer',quantity:1})).rejects.toMatchObject({status:422});
+});

@@ -25,7 +25,7 @@ export async function saveOnboarding(user:string,body:unknown){
     if(answers.identity==='new'){
      for(const s of STEPS.filter(s=>!['invite','done','region'].includes(s)))validateStep(s,answers);
      const workspace=await createWorkspace(user,{name:answers.company_name,country:answers.country,region:answers.region,currency:answers.currency??currencyFor(answers.country),company_size:answers.company_size},`onboarding:${user}`);answers.workspace_id=workspace.id;
-     await db.query('UPDATE workspaces SET trades=$2,working_days=$3,working_hours=$4 WHERE id=$1',[workspace.id,answers.trades,answers.working_days,JSON.stringify(answers.working_hours)]);
+     await db.query('UPDATE workspaces SET trades=$2,working_days=$3,working_hours=working_hours || $4::jsonb WHERE id=$1',[workspace.id,answers.trades,answers.working_days,JSON.stringify(answers.working_hours)]);
     }else{
      if(!answers.invite_token)throw invalid('Ask your company for an invite link or code. Search helps you find the company name.');
      const joined=(await db.query('SELECT onboarding_accept_invite($1,$2) AS result',[hash(inviteFromText(answers.invite_token)),answers.allow_different_email??false])).rows[0].result;
