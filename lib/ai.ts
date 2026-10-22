@@ -183,7 +183,8 @@ export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,p
    // Bound the entire operation, including response body consumption and noncooperative transports.
    const data=await Promise.race([post(p,body,t,AbortSignal.any([controller.signal,local.signal])),new Promise<never>((_,reject)=>{local.signal.addEventListener('abort',()=>reject(new Skip(true,0,0,'timeout')),{once:true});timer=setTimeout(()=>{local.abort();reject(new Skip(true,0,0,'timeout'));},t);})]);
    if(controller.signal.aborted)return null;
-   const out=parse(p,data);
+   let out:T|null;try{out=parse(p,data);}catch{out=null;}
+   if(out===null&&id==='openrouter')console.warn('[ai] invalid response shape',responseShape(data));
    if(out===null)throw new Skip(true,200,0,'invalid_response');
    const previous=performance.get(id);performance.set(id,{success:Date.now(),latency:previous?previous.latency*.5+(Date.now()-started)*.5:Date.now()-started});
    void recordUsage(label,p.name,true);return out;
@@ -207,6 +208,22 @@ export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,p
  controller.abort();
  console.warn('[ai] fallback',{reason:Date.now()>=until?'deadline':order.length?'providers_exhausted':'no_provider'});
  return null;
+}
+export function responseShape(data:any) {
+ const type=(v:unknown)=>v===null?'null':Array.isArray(v)?'array':typeof v;
+ const message=data?.choices?.[0]?.message;
+ const calls=message?.tool_calls;
+ return {rootType:type(data),rootFields:data&&typeof data==='object'?Object.keys(data).length:0,
+  choicesType:type(data?.choices),choiceCount:Array.isArray(data?.choices)?data.choices.length:0,
+  messageType:type(message),contentType:type(message?.content),
+  contentBytes:typeof message?.content==='string'?Buffer.byteLength(message.content):0,
+  contentParts:Array.isArray(message?.content)?message.content.length:0,
+  reasoningPresent:!!(message?.reasoning||message?.reasoning_content||message?.reasoning_details),
+  callsType:type(calls),callCount:Array.isArray(calls)?calls.length:0,
+  wrappedCalls:Array.isArray(calls)?calls.filter((c:any)=>c?.function&&typeof c.function==='object').length:0,
+  flatCalls:Array.isArray(calls)?calls.filter((c:any)=>typeof c?.name==='string').length:0,
+  legacyCall:!!message?.function_call,
+  finish: ['stop','length','tool_calls','function_call','content_filter','error'].includes(data?.choices?.[0]?.finish_reason)?data.choices[0].finish_reason:'other'};
 }
 function contentText(value:any):string {
  if(typeof value==='string')return value;
@@ -363,19 +380,36 @@ export async function assistantTurn(history: AssistantMessage[], declarations:{n
    // Thinking parts are the model's private notes and must never reach the user.
    const text=stripThinking(parts.filter((v:any)=>typeof v.text==='string'&&!v.thought).map((v:any)=>v.text).join('\n'));
    return (!text||META.test(text))&&!calls.length?null:{text,calls,raw:parts,provider:p.name};}
-  let message=data?.choices?.[0]?.message;if(!message)return null;
-  const rawText=contentText(message.content);
-  if(/^\s*```(?:json)?\s*\{/i.test(rawText))try{
-   const envelope=parseProviderJSON(rawText);
-   if(envelope&&typeof envelope==='object'&&(Array.isArray(envelope.tool_calls)||typeof envelope.content==='string'||typeof envelope.text==='string'))
-    message={...message,...envelope,content:envelope.content??envelope.text??''};
-  }catch{/* Ordinary fenced text is still usable as text. */}
-  let calls:AssistantTurn['calls'];
-  try{calls=(message.tool_calls??[]).map((v:any)=>({name:v.function.name,args:typeof v.function.arguments==='string'?parseProviderJSON(v.function.arguments||'{}'):v.function.arguments??{},id:v.id??String(Math.random())}));}catch{return null;}
-  const content=stripThinking(contentText(message.content));
-  // Private reasoning is never shown; a reasoning only reply falls through to the next free model.
-  return (!content||META.test(content))&&!calls.length?null:{text:content||undefined,calls,provider:p.name};
+  return parseAssistantResponse(data,p.name);
+
  },{timeout:15000,deadline:Math.min(40000,Math.max(0,deadline))});
+}
+
+/** Normalize compatible Chat Completions responses. Reasoning alone remains unusable. */
+export function parseAssistantResponse(data:any,provider:string):AssistantTurn|null {
+ const choice=data?.choices?.[0];
+ let message=choice?.message;
+ if(!message&&typeof choice?.text==='string')message={content:choice.text};
+ if(!message||typeof message!=='object')return null;
+ const rawText=contentText(message.content);
+ if(/^\s*(?:```(?:json)?\s*)?\{/i.test(rawText))try{
+  const envelope=parseProviderJSON(rawText);
+  if(envelope&&typeof envelope==='object'&&(Array.isArray(envelope.tool_calls)||envelope.function_call||typeof envelope.content==='string'||typeof envelope.text==='string'))
+   message={...message,...envelope,content:envelope.content??envelope.text??''};
+ }catch{/* Ordinary JSON prose is still usable as text. */}
+ const rawCalls=message.tool_calls??(message.function_call?[{function:message.function_call}]:[]);
+ if(!Array.isArray(rawCalls))return null;
+ const calls:AssistantTurn['calls']=[];
+ for(const [i,call] of rawCalls.entries()){
+  const fn=call?.function??call;
+  if(typeof fn?.name!=='string'||!fn.name.trim())return null;
+  let args=fn.arguments??fn.args??{};
+  if(typeof args==='string')try{args=parseProviderJSON(args||'{}');}catch{return null;}
+  if(!args||typeof args!=='object'||Array.isArray(args))return null;
+  calls.push({name:fn.name,args,id:typeof call.id==='string'?call.id:String(i)});
+ }
+ const text=stripThinking(contentText(message.content));
+ return (!text||META.test(text))&&!calls.length?null:{text:text||undefined,calls,provider};
 }
 
 /** Counts AI calls per UTC day, task and provider (table ai_usage, migration 0051), so test runs and translations can be capped and the success rate seen. Never throws. */
