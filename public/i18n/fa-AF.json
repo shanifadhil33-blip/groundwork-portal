@@ -917,5 +917,10 @@
  "I could not finish answering. Please check the page before trying again.": "نتوانستم جواب را تمام کنم. پیش از کوشش دوباره صفحه را ببینید.",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "در یک جواب هر کاری که توانستم انجام دادم. لطفاً هر بار یک کار بخواهید.",
  "Stopped. Ask again when you are ready.": "متوقف شد. وقتی آماده بودید دوباره بپرسید.",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "هیچ تغییری انجام نشده است. از من بخواهید تغییر را آماده کنم تا آن را بررسی و تأیید کنید."
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "هیچ تغییری انجام نشده است. از من بخواهید تغییر را آماده کنم تا آن را بررسی و تأیید کنید.",
+ "Approve this plan? Nothing changes until you say yes.": "این برنامه را تأیید می‌کنید؟ تا بلی نگویید چیزی تغییر نمی‌کند.",
+ "Nothing is saved until you say yes.": "تا بلی نگویید چیزی ذخیره نمی‌شود.",
+ "Only the owner or a supervisor can approve the day.": "فقط مالک یا سرپرست می‌تواند برنامه روز را تأیید کند.",
+ "Nothing is waiting for a morning plan.": "کاری برای برنامه صبح منتظر نیست.",
+ "No one else covers this trade.": "کس دیگری این رشته را پوشش نمی‌دهد."
 }

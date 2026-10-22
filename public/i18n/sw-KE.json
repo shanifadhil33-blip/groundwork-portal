@@ -893,5 +893,10 @@
  "I could not finish answering. Please check the page before trying again.": "Sikuweza kumaliza kujibu. Tafadhali angalia ukurasa kabla ya kujaribu tena.",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "Nimefanya ninachoweza katika jibu moja. Tafadhali omba jambo moja kwa wakati.",
  "Stopped. Ask again when you are ready.": "Imesimama. Uliza tena ukiwa tayari.",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "Hakuna mabadiliko yaliyofanywa. Niombe nifanye mabadiliko ili uweze kuyakagua na kuthibitisha."
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Hakuna mabadiliko yaliyofanywa. Niombe nifanye mabadiliko ili uweze kuyakagua na kuthibitisha.",
+ "Approve this plan? Nothing changes until you say yes.": "Uidhinishe mpango huu? Hakuna kitakachobadilika hadi useme ndiyo.",
+ "Nothing is saved until you say yes.": "Hakuna kitakachohifadhiwa hadi useme ndiyo.",
+ "Only the owner or a supervisor can approve the day.": "Mmiliki au msimamizi pekee ndiye anayeweza kuidhinisha mpango wa siku.",
+ "Nothing is waiting for a morning plan.": "Hakuna kazi inayosubiri mpango wa asubuhi.",
+ "No one else covers this trade.": "Hakuna mtu mwingine anayefanya kazi ya aina hii."
 }

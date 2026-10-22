@@ -937,5 +937,10 @@
  "I could not finish answering. Please check the page before trying again.": "मैले जवाफ पूरा गर्न सकिनँ। फेरि प्रयास गर्नुअघि पृष्ठ हेर्नुहोस्।",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "एउटा जवाफमा सकेजति गरेँ। कृपया एक पटकमा एउटा काम भन्नुहोस्।",
  "Stopped. Ask again when you are ready.": "रोकियो। तयार भएपछि फेरि सोध्नुहोस्।",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "कुनै परिवर्तन गरिएको छैन। मलाई परिवर्तन गर्न भन्नुहोस् ताकि तपाईंले हेरेर पुष्टि गर्न सक्नुहोस्।"
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "कुनै परिवर्तन गरिएको छैन। मलाई परिवर्तन गर्न भन्नुहोस् ताकि तपाईंले हेरेर पुष्टि गर्न सक्नुहोस्।",
+ "Approve this plan? Nothing changes until you say yes.": "यो योजना स्वीकृत गर्ने? तपाईंले हुन्छ नभनेसम्म केही बदलिँदैन।",
+ "Nothing is saved until you say yes.": "तपाईंले हुन्छ नभनेसम्म केही सुरक्षित हुँदैन।",
+ "Only the owner or a supervisor can approve the day.": "मालिक वा सुपरिवेक्षकले मात्र दिनको योजना स्वीकृत गर्न सक्छन्।",
+ "Nothing is waiting for a morning plan.": "बिहानको योजनाका लागि कुनै काम बाँकी छैन।",
+ "No one else covers this trade.": "यो काम गर्ने अरू कोही छैन।"
 }

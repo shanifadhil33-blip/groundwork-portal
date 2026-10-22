@@ -905,5 +905,10 @@
  "I could not finish answering. Please check the page before trying again.": "Hindi ko natapos ang sagot. Tingnan muna ang pahina bago subukang muli.",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "Nagawa ko na ang kaya ko sa isang sagot. Mangyaring humiling ng isang bagay sa bawat pagkakataon.",
  "Stopped. Ask again when you are ready.": "Huminto na. Magtanong muli kapag handa ka na.",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "Walang ginawang pagbabago. Hilingin sa akin ang pagbabago para masuri at makumpirma mo ito."
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Walang ginawang pagbabago. Hilingin sa akin ang pagbabago para masuri at makumpirma mo ito.",
+ "Approve this plan? Nothing changes until you say yes.": "Aprubahan ang planong ito? Walang magbabago hangga’t hindi ka nagsasabi ng oo.",
+ "Nothing is saved until you say yes.": "Walang mase-save hangga’t hindi ka nagsasabi ng oo.",
+ "Only the owner or a supervisor can approve the day.": "May ari o superbisor lang ang puwedeng mag apruba ng plano ng araw.",
+ "Nothing is waiting for a morning plan.": "Walang trabahong naghihintay ng plano sa umaga.",
+ "No one else covers this trade.": "Walang ibang gumagawa ng ganitong trabaho."
 }

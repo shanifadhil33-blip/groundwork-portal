@@ -941,5 +941,10 @@
  "I could not finish answering. Please check the page before trying again.": "میں جواب مکمل نہیں کر سکا۔ دوبارہ کوشش کرنے سے پہلے صفحہ دیکھ لیں۔",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "میں ایک جواب میں جتنا کر سکتا تھا کر چکا ہوں۔ براہ کرم ایک وقت میں ایک کام کہیں۔",
  "Stopped. Ask again when you are ready.": "رک گیا۔ جب تیار ہوں تو دوبارہ پوچھیں۔",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "کوئی تبدیلی نہیں کی گئی۔ مجھ سے تبدیلی کرنے کو کہیں تاکہ آپ اسے دیکھ کر تصدیق کر سکیں۔"
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "کوئی تبدیلی نہیں کی گئی۔ مجھ سے تبدیلی کرنے کو کہیں تاکہ آپ اسے دیکھ کر تصدیق کر سکیں۔",
+ "Approve this plan? Nothing changes until you say yes.": "یہ منصوبہ منظور کریں؟ آپ کے ہاں کہنے تک کچھ نہیں بدلے گا۔",
+ "Nothing is saved until you say yes.": "آپ کے ہاں کہنے تک کچھ محفوظ نہیں ہوگا۔",
+ "Only the owner or a supervisor can approve the day.": "صرف مالک یا نگران دن کا منصوبہ منظور کر سکتا ہے۔",
+ "Nothing is waiting for a morning plan.": "صبح کے منصوبے کے لیے کوئی کام باقی نہیں ہے۔",
+ "No one else covers this trade.": "یہ کام کرنے والا کوئی اور نہیں ہے۔"
 }

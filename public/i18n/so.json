@@ -912,5 +912,10 @@
  "I could not finish answering. Please check the page before trying again.": "Ma dhammayn karin jawaabta. Fadlan bogga eeg ka hor intaadan mar kale isku dayin.",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "Waxaan sameeyay intii aan awooday hal jawaab. Fadlan hal shay mar kasta codso.",
  "Stopped. Ask again when you are ready.": "Waa la joojiyay. Mar kale weydii markaad diyaar tahay.",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "Wax isbeddel ah lama samayn. Iga codso isbeddelka si aad u eegto oo u xaqiijiso."
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Wax isbeddel ah lama samayn. Iga codso isbeddelka si aad u eegto oo u xaqiijiso.",
+ "Approve this plan? Nothing changes until you say yes.": "Ma ansixisaa qorshahan? Waxba ma beddelmayaan ilaa aad haa tiraahdo.",
+ "Nothing is saved until you say yes.": "Waxba lama kaydinayo ilaa aad haa tiraahdo.",
+ "Only the owner or a supervisor can approve the day.": "Kaliya milkiilaha ama kormeeraha ayaa ansixin kara qorshaha maalinta.",
+ "Nothing is waiting for a morning plan.": "Ma jiro shaqo sugaysa qorshaha subaxda.",
+ "No one else covers this trade.": "Ma jiro qof kale oo qabta xirfaddan."
 }

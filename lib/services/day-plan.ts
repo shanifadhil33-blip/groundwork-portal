@@ -54,14 +54,15 @@ async function load(db: { query: (q: string, v?: unknown[]) => Promise<{ rows: a
   return { people, jobs, planJobs, viewer: user };
 }
 
-function pack(lines: PlanLine[], summary: string) {
-  return { lines, summary, fingerprint: planFingerprint(lines) };
+function pack(lines: PlanLine[], summary: string, date?: string) {
+  return { lines, summary, fingerprint: (date ? `${date}|` : '') + planFingerprint(lines) };
 }
 
 /** Read the morning plan (who does which job) and late visits. Selects only. */
-export async function getDayPlan(user: string, ws: string) {
+export async function getDayPlan(user: string, ws: string, day?: 'today' | 'tomorrow') {
   return withSystem(async db => {
-    const actor = await actorOf(db, user, ws);
+    const current = await actorOf(db, user, ws);
+    const actor = { ...current, today: day === 'tomorrow' ? current.tomorrow : current.today };
     const { people, jobs, planJobs } = await load(db, user, ws, actor);
     const planner = canPlanDay(actor);
     const morning = planner || actor.role === 'staff' ? morningPlan(planJobs, people) : { lines: [] as PlanLine[], summary: DAY_REPLIES.nothingToPlan };
@@ -73,7 +74,7 @@ export async function getDayPlan(user: string, ws: string) {
       demo: actor.demo && planner,
       today: actor.today,
       summary: morning.summary,
-      fingerprint: planFingerprint(morning.lines),
+      fingerprint: pack(morning.lines, morning.summary, day ? actor.today : undefined).fingerprint,
       lines: morning.lines,
       watch,
       visits,
@@ -86,9 +87,16 @@ const body = z.object({
   action: z.enum(['preview', 'approve', 'confirm_gate', 'skip_gate', 'mark_late']),
   kind: z.enum(['morning', 'watch', 'urgent', 'sick']).optional(),
   fingerprint: z.string().max(12000).optional(),
+  date: z.iso.date().optional(),
   job_id: uuid.optional(),
   person_id: uuid.optional(),
 }).strict();
+
+function onDate(actor: Actor, date?: string): Actor {
+  if (!date) return actor;
+  if (date !== actor.today && date !== actor.tomorrow) throw new ApiError(409, 'conflict', DAY_REPLIES.dayChanged);
+  return { ...actor, today: date };
+}
 
 function proposal(kind: string, planJobs: PlanJob[], people: PlanPerson[], jobId?: string) {
   if (kind === 'morning') return morningPlan(planJobs, people);
@@ -132,11 +140,11 @@ export async function postDayPlan(user: string, ws: string, input: unknown) {
   }
   const kind = d.kind ?? 'morning';
   const preview = await withSystem(async db => {
-    const actor = await actorOf(db, user, ws);
+    const actor = onDate(await actorOf(db, user, ws), d.date);
     if (!canPlanDay(actor)) throw denied();
     const { people, planJobs } = await load(db, user, ws, actor);
     const next = proposal(kind, planJobs, people, d.job_id);
-    return { actor, next: pack(next.lines, next.summary) };
+    return { actor, next: pack(next.lines, next.summary, d.date) };
   }, user);
   if (d.action === 'preview') return { ...preview.next, reply: preview.next.summary };
   if (d.fingerprint !== preview.next.fingerprint) throw new ApiError(409, 'conflict', DAY_REPLIES.dayChanged);
@@ -144,12 +152,12 @@ export async function postDayPlan(user: string, ws: string, input: unknown) {
   if (!placed.length) return { reply: DAY_REPLIES.nothingToPlan, lines: preview.next.lines };
   let simulated = false;
   const told = await withSystem(async db => {
-    const actor = await actorOf(db, user, ws);
+    const actor = onDate(await actorOf(db, user, ws), d.date);
     simulated = actor.demo;
     if (!canPlanDay(actor)) throw denied();
     const { people, planJobs } = await load(db, user, ws, actor);
     const built = proposal(kind, planJobs, people, d.job_id);
-    const again = pack(built.lines, built.summary);
+    const again = pack(built.lines, built.summary, d.date);
     if (again.fingerprint !== d.fingerprint) throw new ApiError(409, 'conflict', DAY_REPLIES.dayChanged);
     await applyLines(db, ws, actor, kind, again.lines);
     const notes: { who: string; body: string; job: string; title: string }[] = [];

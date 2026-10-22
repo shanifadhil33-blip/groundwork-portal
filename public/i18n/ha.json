@@ -912,5 +912,10 @@
  "I could not finish answering. Please check the page before trying again.": "Ban iya gama amsawa ba. Ka duba shafin kafin ka sake gwadawa.",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "Na yi abin da zan iya a amsa ɗaya. Ka nemi abu ɗaya a kowane lokaci.",
  "Stopped. Ask again when you are ready.": "An tsaya. Ka sake tambaya idan ka shirya.",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "Ba a yi wani canji ba. Ka nemi in yi canjin domin ka duba ka tabbatar."
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Ba a yi wani canji ba. Ka nemi in yi canjin domin ka duba ka tabbatar.",
+ "Approve this plan? Nothing changes until you say yes.": "A amince da wannan shirin? Babu abin da zai canza sai ka ce eh.",
+ "Nothing is saved until you say yes.": "Ba a ajiye komai sai ka ce eh.",
+ "Only the owner or a supervisor can approve the day.": "Mai kamfani ko mai kula ne kawai zai iya amincewa da shirin ranar.",
+ "Nothing is waiting for a morning plan.": "Babu aikin da ke jiran shirin safe.",
+ "No one else covers this trade.": "Babu wani da ke yin wannan sana’ar."
 }

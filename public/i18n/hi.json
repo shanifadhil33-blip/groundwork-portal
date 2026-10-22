@@ -957,5 +957,10 @@
  "I could not finish answering. Please check the page before trying again.": "मैं जवाब पूरा नहीं कर सका। फिर कोशिश करने से पहले पेज देख लें।",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "एक जवाब में जितना कर सकता था कर लिया। कृपया एक बार में एक काम कहें।",
  "Stopped. Ask again when you are ready.": "रुक गया। जब तैयार हों तो फिर पूछें।",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "कोई बदलाव नहीं किया गया है। मुझसे बदलाव करने को कहें ताकि आप उसे देखकर पुष्टि कर सकें।"
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "कोई बदलाव नहीं किया गया है। मुझसे बदलाव करने को कहें ताकि आप उसे देखकर पुष्टि कर सकें।",
+ "Approve this plan? Nothing changes until you say yes.": "यह योजना मंज़ूर करें? आपके हाँ कहने तक कुछ नहीं बदलेगा।",
+ "Nothing is saved until you say yes.": "आपके हाँ कहने तक कुछ नहीं सहेजा जाएगा।",
+ "Only the owner or a supervisor can approve the day.": "केवल मालिक या पर्यवेक्षक दिन की योजना मंज़ूर कर सकते हैं।",
+ "Nothing is waiting for a morning plan.": "सुबह की योजना के लिए कोई काम बाकी नहीं है।",
+ "No one else covers this trade.": "यह काम करने वाला कोई और नहीं है।"
 }

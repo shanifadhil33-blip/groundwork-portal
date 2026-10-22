@@ -38,7 +38,7 @@ export function providers(env:Record<string,string|undefined>=process.env):Provi
 // Warm instances remember models that just hit a limit, so the next request skips straight to one that works.
 const cooldown=new Map<string,number>();
 export const resetCooldowns=()=>{cooldown.clear();exhausted.clear();};
-class Skip extends Error{constructor(readonly retry:boolean,readonly status=0,readonly cool=0,readonly reason='provider_error'){super('provider failed');}}
+class Skip extends Error{constructor(readonly retry:boolean,readonly status=0,readonly cool=0,readonly reason='provider_error',readonly errorBody?:string){super('provider failed');}}
 /** A model out of its daily allowance (or asking for payment) is skipped in both sweeps until it can work again. */
 const exhausted=new Map<string,number>();
 const DAILY=/per.?day|daily|neurons|free-models-per-day|insufficient balance|payment method|resource package/i;
@@ -55,13 +55,38 @@ function providerBody(p:Provider,body:any):unknown {
  }
  return out;
 }
+/** Sanitize the whole body before truncation so a credential crossing character 200 cannot leak. */
+function safeErrorBody(body: string, p: Provider) {
+ const sensitive = /key|token|secret|password|credential|authorization/i;
+ const redactFields = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(redactFields);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) =>
+   [key, sensitive.test(key) ? '[redacted]' : redactFields(item)]));
+  return value;
+ };
+ let safe = body;
+ try { safe = JSON.stringify(redactFields(JSON.parse(body))); } catch { /* Plain text errors use the same redaction below. */ }
+ // Providers sometimes echo a bare credential without a field name. Compare only to this request's credentials.
+ for (const [name, value] of Object.entries(p.headers)) {
+  if (!/authorization|key|token/i.test(name)) continue;
+  const secret = value.replace(/^Bearer\s+/i, '');
+  if (secret) safe = safe.split(secret).join('[redacted]');
+ }
+ safe = safe.replace(/\bBearer\s+[^\s"'<>;,]+/gi, 'Bearer [redacted]')
+  .replace(/(["']?(?:[\w-]*(?:key|token|secret|password|credential)[\w-]*|authorization)["']?\s*[:=]\s*)(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^\s,;&}<>]+)/gi, '$1[redacted]')
+  .replace(/\b(?:sk-[\w-]+|AIza[\w-]+|eyJ[\w-]+\.[\w-]+\.[\w-]+)\b/g, '[redacted]');
+ return safe.slice(0, 200);
+}
 async function post(p:Provider,body:unknown,timeout:number){
  let r:Response;
  try{r=await fetch(p.url,{method:'POST',headers:{'Content-Type':'application/json',...p.headers},body:JSON.stringify(providerBody(p,body)),signal:AbortSignal.timeout(timeout)});}
  catch(error){throw new Skip(true,0,0,error instanceof Error&&['TimeoutError','AbortError'].includes(error.name)?'timeout':'network');}
- if(r.status===429||r.status===402||r.status===403){const body=await r.text().catch(()=>'');const cool=r.status===402?6*3_600_000:DAILY.test(body)?3_600_000:60_000;if(cool>=3_600_000)exhausted.set(p.name,Date.now()+cool);cooldown.set(p.name,Date.now()+cool);throw new Skip(false,r.status,cool);}
- if(r.status>=500)throw new Skip(true,r.status);
- if(!r.ok)throw new Skip(false,r.status);
+ if(!r.ok){
+  const errorBody=await r.text().catch(()=>'');
+  const safe=safeErrorBody(errorBody,p);
+  if(r.status===429||r.status===402||r.status===403){const cool=r.status===402?6*3_600_000:DAILY.test(errorBody)?3_600_000:60_000;if(cool>=3_600_000)exhausted.set(p.name,Date.now()+cool);cooldown.set(p.name,Date.now()+cool);throw new Skip(false,r.status,cool,'provider_error',safe);}
+  throw new Skip(r.status>=500,r.status,0,'provider_error',safe);
+ }
  try{
   const data=await r.json();
   if(p.format==='cloudflare'){
@@ -105,7 +130,7 @@ export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,p
    const left=until-Date.now();if(left<1500){console.warn('[ai] fallback',{reason:'deadline'});return null;}
    const t=Math.min(TIMEOUTS[p.name.split('/')[0]]??timeout,timeout,left);
    try{const out=parse(p,await post(p,build(p),t));if(out!==null){await recordUsage(label,p.name,true);return out;}console.warn('[ai] empty answer',{provider:p.name.split('/')[0]});}
-   catch(e){const status=e instanceof Skip?e.status:0;console.warn('[ai] provider failed',{provider:CHAIN.some(v=>v.id===p.name.split('/')[0])?p.name.split('/')[0]:'custom',status,sweep,reason:status===429||status===402?'quota':e instanceof Skip?e.reason:'invalid_response'});
+   catch(e){const status=e instanceof Skip?e.status:0;console.warn('[ai] provider failed',{provider:CHAIN.some(v=>v.id===p.name.split('/')[0])?p.name.split('/')[0]:'custom',status,sweep,...(e instanceof Skip&&e.errorBody!==undefined?{errorBody:e.errorBody}:{}),reason:status===429||status===402?'quota':e instanceof Skip?e.reason:'invalid_response'});
     if(status===404||status===400||status===401)dead.add(p.name);
     cooldown.set(p.name,Date.now()+((e instanceof Skip&&e.cool)||(status===404?3_600_000:status===429?60_000:20_000)));await recordUsage(label,p.name,false);}
   }

@@ -892,5 +892,10 @@
  "I could not finish answering. Please check the page before trying again.": "Sisobodde kumaliriza kuddamu. Kebera olupapula nga tonnaddamu kugezaako.",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "Nkoze kye nsobola mu kuddamu kumu. Nsaba osabe ekintu kimu buli mulundi.",
  "Stopped. Ask again when you are ready.": "Kiyimiridde. Ddamu obuuze ng’oli mwetegefu.",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "Tewali kikyusiddwa. Nsaba nkole enkyukakyuka osobole okugikebera n’okugikakasa."
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Tewali kikyusiddwa. Nsaba nkole enkyukakyuka osobole okugikebera n’okugikakasa.",
+ "Approve this plan? Nothing changes until you say yes.": "Okkiriza enteekateeka eno? Tewali kikyuka okutuusa lw’ogamba yee.",
+ "Nothing is saved until you say yes.": "Tewali kiterekebwa okutuusa lw’ogamba yee.",
+ "Only the owner or a supervisor can approve the day.": "Nannyini kampuni oba omulabirizi yekka y’ayinza okukkiriza enteekateeka y’olunaku.",
+ "Nothing is waiting for a morning plan.": "Tewali mulimu gulindirira enteekateeka y’oku makya.",
+ "No one else covers this trade.": "Tewali mulala akola mulimu gwa kika kino."
 }

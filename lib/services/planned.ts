@@ -1,3 +1,4 @@
+import { choiceWords } from '../agent/choices';
 import { failureWords, UNANSWERED } from '../agent/failure-words';
 import { logAssistantFailure } from '../agent/failure-log';
 import { asAgent, withSystem } from '../db';
@@ -8,7 +9,7 @@ import { PHONE_REPLIES, PHONE_REPLIES_AR, readPhoneAsk } from '../phone-change';
 import { getPreferences } from './settings';
 import { USUAL_REPLIES, readUsualAsk, usualValid } from '../usual-context';
 import { warmLead } from '../warm-reply';
-import { DAY_REPLIES, readOnTheWay, readPlanApprove, readPlanAsk } from '../day-plan';
+import { DAY_REPLIES, readOnTheWay, readPlanApprove, readPlanAsk, readTeamPlan } from '../day-plan';
 import { LEARN_REPLIES, classifyCorrection } from '../learn-habits';
 import { applySignOff } from './job-close';
 import { getDayPlan, postDayPlan } from './day-plan';
@@ -30,12 +31,12 @@ async function firstName(user: string) {
   return String(row.rows[0]?.name ?? '').trim().split(/\s+/)[0] || null;
 }
 
-async function card(user: string, ws: string, tool: string, args: unknown, summary: string) {
+async function card(user: string, ws: string, tool: string, args: unknown, summary: string, why = 'Nothing is saved until you say yes.') {
   const id = await withSystem(async db => (await db.query(
     'INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,$3,$4,$5,$6) RETURNING id',
-    [ws, user, tool, JSON.stringify(args), summary, 'Nothing is saved until you say yes.'],
+    [ws, user, tool, JSON.stringify(args), summary, why],
   )).rows[0].id as string, user);
-  return { available: true as const, reply: summary, pending_action: { id, tool, summary, why: 'Nothing is saved until you say yes.' } };
+  return { available: true as const, reply: summary, pending_action: { id, tool, summary, why } };
 }
 
 async function queueUsual(user: string, ws: string, ask: { start?: string; areas?: string[] }) {
@@ -76,10 +77,11 @@ async function sayOnTheWay(user: string, ws: string, order: number | null) {
 export async function planFromWords(user: string, ws: string, words: string) {
   const phone = readPhoneAsk(words);
   const onWay = readOnTheWay(words);
+  const teamPlan = readTeamPlan(words);
   const planAsk = readPlanAsk(words);
   const planYes = readPlanApprove(words);
   const correction = classifyCorrection(words);
-  if (phone.kind === 'none' && !readUsualAsk(words) && !readSignOff(words) && !onWay && !planAsk && !planYes && !correction) return null;
+  if (phone.kind === 'none' && !readUsualAsk(words) && !readSignOff(words) && !onWay && !teamPlan && !planAsk && !planYes && !correction) return null;
   await inWorkspace(user, ws, async () => undefined);
   const name = await firstName(user);
   const lead = (reply: string) => warmLead(name, reply);
@@ -87,6 +89,17 @@ export async function planFromWords(user: string, ws: string, words: string) {
     if (onWay) {
       const said = await sayOnTheWay(user, ws, onWay.order);
       return { ...said, reply: lead(said.reply) };
+    }
+    if (teamPlan) {
+      const language = teamPlan.language.startsWith('en') ? (await getPreferences(user)).language : teamPlan.language;
+      const word = choiceWords(language);
+      const plan = await getDayPlan(user, ws, teamPlan.day);
+      if (!plan.can_plan) return { available: true as const, reply: word(DAY_REPLIES.onlyPlanner), localized: true };
+      if (!plan.lines.length || !plan.lines.some(line => line.kind === 'place')) return { available: true as const, reply: word(DAY_REPLIES.nothingToPlan), localized: true };
+      const summary = [plan.today, word(DAY_REPLIES.approve), ...plan.lines.map(line =>
+        `WO ${line.order} ${line.title}: ${line.assignee_name ?? word(DAY_REPLIES.noBackup)}`)].join('\n');
+      const queued = await card(user, ws, 'approve_day_plan', { kind: 'morning', date: plan.today, fingerprint: plan.fingerprint }, summary, word('Nothing is saved until you say yes.'));
+      return { ...queued, localized: true };
     }
     if (planAsk || planYes) {
       const plan = await getDayPlan(user, ws);
@@ -128,7 +141,7 @@ export async function confirmPlanned(user: string, ws: string, actionId: string)
     if (a.consumed_at) throw new ApiError(409, 'consumed', 'This action has already been confirmed.');
     if (a.declined_at) throw new ApiError(409, 'declined', 'You said no to this one. Ask Agent again.');
     if (new Date(a.expires_at) <= new Date()) throw new ApiError(409, 'expired', 'This action has expired. Ask Agent again.');
-    if (a.tool === 'approve_day_plan') return { defer: { kind: String(a.args.kind ?? 'morning'), fingerprint: String(a.args.fingerprint ?? '') }, id: a.id as string };
+    if (a.tool === 'approve_day_plan') return { defer: { kind: String(a.args.kind ?? 'morning'), fingerprint: String(a.args.fingerprint ?? ''), date: a.args.date as string | undefined }, id: a.id as string };
     let reply: string = PHONE_REPLIES.saved;
     if (a.tool === 'issue_phone_code') throw new ApiError(410, 'removed', PHONE_REPLIES.hidden);
     if (a.tool === 'set_usual_context') {
@@ -151,7 +164,7 @@ export async function confirmPlanned(user: string, ws: string, actionId: string)
     let reply: string = DAY_REPLIES.dayChanged;
     let localized = false;
     try {
-      const saved = await postDayPlan(user, ws, { action: 'approve', kind: pending.kind, fingerprint: pending.fingerprint });
+      const saved = await postDayPlan(user, ws, { action: 'approve', kind: pending.kind, fingerprint: pending.fingerprint, ...(pending.date ? { date: pending.date } : {}) });
       reply = String(saved.reply);
     } catch (error) {
       reply = await calm(user, error);

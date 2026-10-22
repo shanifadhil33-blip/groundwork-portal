@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { assistantTurn, providers, resetCooldowns, probeProvider } from '../lib/ai';
+import { assistantTurn, providers, resetCooldowns, probeProvider, withFallback } from '../lib/ai';
 
 const keys = ['GEMINI_API_KEY','OPENROUTER_API_KEY','CLOUDFLARE_AI_TOKEN','KILO_API_KEY','OVH_AI_TOKEN','ZAI_API_KEY','NVIDIA_API_KEY','REQUESTY_API_KEY','GROQ_API_KEY','CEREBRAS_API_KEY','MISTRAL_API_KEY','GITHUB_MODELS_TOKEN'];
 const ids = ['gemini','openrouter','cloudflare','kilo','ovh','zai','nvidia','requesty','groq','cerebras','mistral','github'];
@@ -95,4 +95,36 @@ it('keeps keyless access opt in and never invents an authorization header',()=>{
  const list=providers({AI_KEYLESS:'1'});
  expect([...new Set(list.map(p=>p.name.split('/')[0]))]).toEqual(['kilo','ovh']);
  expect(list.every(p=>!('Authorization' in p.headers))).toBe(true);
+});
+
+it.each([400,401,402,403,429,500])('logs HTTP %s with a redacted and bounded error body',async status=>{
+ const warn=vi.spyOn(console,'warn').mockImplementation(()=>undefined);
+ const p=providers({GEMINI_API_KEY:'fixtureCredentialValue'})[0];
+ const body='Unsupported tools. '+JSON.stringify({api_key:'privateKeyValue',accessToken:'privateTokenValue',authorization:'Bearer privateBearerValue',nested:{token:'privateNestedValue'}})+' echoed fixtureCredentialValue '+ 'x'.repeat(300);
+ vi.stubGlobal('fetch',vi.fn().mockImplementation(async()=>new Response(body,{status})));
+ await withFallback('assistant',()=>({}),()=>null,{deadline:40000},[p]);
+ const failure=warn.mock.calls.find(call=>call[0]==='[ai] provider failed')?.[1];
+ expect(failure).toMatchObject({status,errorBody:expect.stringContaining('Unsupported tools.')});
+ expect(failure.errorBody.length).toBeLessThanOrEqual(200);
+ const logged=JSON.stringify(warn.mock.calls);
+ for(const secret of ['privateKeyValue','privateTokenValue','privateBearerValue','privateNestedValue','fixtureCredentialValue'])expect(logged).not.toContain(secret);
+ expect(logged).not.toContain('x-goog-api-key');
+});
+it('redacts a credential that crosses the body excerpt boundary',async()=>{
+ const warn=vi.spyOn(console,'warn').mockImplementation(()=>undefined);
+ const p=providers({OPENROUTER_API_KEY:'fixtureLongCredentialValue'})[0];
+ vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response('x'.repeat(185)+' token=privateBoundaryCredentialValue',{status:400})));
+ await withFallback('assistant',()=>({}),()=>null,{},[p]);
+ expect(JSON.stringify(warn.mock.calls)).not.toContain('private');
+});
+
+it('redacts structured credential values including arrays and nested objects',async()=>{
+ const warn=vi.spyOn(console,'warn').mockImplementation(()=>undefined);
+ const p=providers({GEMINI_API_KEY:'fixtureCredentialValue'})[0];
+ vi.stubGlobal('fetch',vi.fn().mockResolvedValue(Response.json({message:'Unsupported request',api_keys:['privateArrayOne','privateArrayTwo'],credentials:{value:'privateObjectValue'},details:{refresh_token:'privateRefreshValue'}},{status:400})));
+ await withFallback('assistant',()=>({}),()=>null,{},[p]);
+ const failure=warn.mock.calls.find(call=>call[0]==='[ai] provider failed')?.[1];
+ expect(failure.errorBody).toContain('Unsupported request');
+ expect(failure.errorBody).toContain('[redacted]');
+ expect(JSON.stringify(warn.mock.calls)).not.toContain('private');
 });

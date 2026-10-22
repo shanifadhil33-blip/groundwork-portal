@@ -956,5 +956,10 @@
  "I could not finish answering. Please check the page before trying again.": "பதிலை முடிக்க முடியவில்லை. மீண்டும் முயல்வதற்கு முன் பக்கத்தைப் பார்க்கவும்.",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "ஒரு பதிலில் என்னால் முடிந்ததைச் செய்தேன். தயவுசெய்து ஒரு நேரத்தில் ஒரு செயலைக் கேட்கவும்.",
  "Stopped. Ask again when you are ready.": "நிறுத்தப்பட்டது. தயாரானதும் மீண்டும் கேட்கவும்.",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "மாற்றங்கள் எதுவும் செய்யப்படவில்லை. மாற்றத்தைச் செய்ய என்னிடம் கேளுங்கள், நீங்கள் பார்த்து உறுதிப்படுத்தலாம்."
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "மாற்றங்கள் எதுவும் செய்யப்படவில்லை. மாற்றத்தைச் செய்ய என்னிடம் கேளுங்கள், நீங்கள் பார்த்து உறுதிப்படுத்தலாம்.",
+ "Approve this plan? Nothing changes until you say yes.": "இந்தத் திட்டத்தை ஒப்புக்கொள்கிறீர்களா? நீங்கள் ஆம் சொல்லும் வரை எதுவும் மாறாது.",
+ "Nothing is saved until you say yes.": "நீங்கள் ஆம் சொல்லும் வரை எதுவும் சேமிக்கப்படாது.",
+ "Only the owner or a supervisor can approve the day.": "உரிமையாளர் அல்லது மேற்பார்வையாளர் மட்டுமே நாளின் திட்டத்தை ஒப்புக்கொள்ள முடியும்.",
+ "Nothing is waiting for a morning plan.": "காலைத் திட்டத்திற்காக எந்த வேலையும் காத்திருக்கவில்லை.",
+ "No one else covers this trade.": "இந்த வேலையைச் செய்ய வேறு யாரும் இல்லை."
 }

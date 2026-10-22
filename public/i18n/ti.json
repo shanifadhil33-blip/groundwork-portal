@@ -921,5 +921,10 @@
  "I could not finish answering. Please check the page before trying again.": "መልሲ ክውድእ ኣይከኣልኩን። እንደገና ቅድሚ ምፍታንካ ነቲ ገጽ ርአ።",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "ኣብ ሓደ መልሲ ዝከኣለኒ ገይረ ኣለኹ። በጃኻ ኣብ ሓደ ግዜ ሓደ ነገር ሕተት።",
  "Stopped. Ask again when you are ready.": "ደው ኢሉ። ድሉው ምስ ኮንካ እንደገና ሕተት።",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "ዝተገብረ ለውጢ የለን። ክትርእዮን ከተረጋግጾን ምእንቲ ክትክእል ነቲ ለውጢ ከዳሉ ሕተተኒ።"
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "ዝተገብረ ለውጢ የለን። ክትርእዮን ከተረጋግጾን ምእንቲ ክትክእል ነቲ ለውጢ ከዳሉ ሕተተኒ።",
+ "Approve this plan? Nothing changes until you say yes.": "ነዚ መደብ ተጽድቖ? እወ ክሳብ እትብል ዋላ ሓንቲ ኣይቅየርን።",
+ "Nothing is saved until you say yes.": "እወ ክሳብ እትብል ዋላ ሓንቲ ኣይዕቀብን።",
+ "Only the owner or a supervisor can approve the day.": "መደብ መዓልቲ ከጽድቕ ዝኽእል ዋና ወይ ተቖጻጻሪ ጥራይ እዩ።",
+ "Nothing is waiting for a morning plan.": "ንመደብ ንግሆ ዝጽበ ስራሕ የለን።",
+ "No one else covers this trade.": "ነዚ ሞያ ዝሰርሕ ካልእ ሰብ የለን።"
 }

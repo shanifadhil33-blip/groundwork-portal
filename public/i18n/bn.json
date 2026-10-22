@@ -961,5 +961,10 @@
  "I could not finish answering. Please check the page before trying again.": "আমি উত্তর শেষ করতে পারিনি। আবার চেষ্টা করার আগে পাতাটি দেখুন।",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "একটি উত্তরে যতটা পারি করেছি। অনুগ্রহ করে একবারে একটি কাজ বলুন।",
  "Stopped. Ask again when you are ready.": "থেমেছে। প্রস্তুত হলে আবার জিজ্ঞাসা করুন।",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "কোনো পরিবর্তন করা হয়নি। আমাকে পরিবর্তন করতে বলুন যাতে আপনি দেখে নিশ্চিত করতে পারেন।"
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "কোনো পরিবর্তন করা হয়নি। আমাকে পরিবর্তন করতে বলুন যাতে আপনি দেখে নিশ্চিত করতে পারেন।",
+ "Approve this plan? Nothing changes until you say yes.": "এই পরিকল্পনা অনুমোদন করবেন? আপনি হ্যাঁ না বলা পর্যন্ত কিছু বদলাবে না।",
+ "Nothing is saved until you say yes.": "আপনি হ্যাঁ না বলা পর্যন্ত কিছু সংরক্ষণ হবে না।",
+ "Only the owner or a supervisor can approve the day.": "শুধু মালিক বা তত্ত্বাবধায়ক দিনের পরিকল্পনা অনুমোদন করতে পারেন।",
+ "Nothing is waiting for a morning plan.": "সকালের পরিকল্পনার জন্য কোনো কাজ অপেক্ষায় নেই।",
+ "No one else covers this trade.": "এই কাজের জন্য আর কেউ নেই।"
 }

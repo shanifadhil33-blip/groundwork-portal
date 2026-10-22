@@ -897,5 +897,10 @@
  "I could not finish answering. Please check the page before trying again.": "我未能完成回答。请先查看页面，再重试。",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "这次回答中我已经尽力处理。请每次只提出一件事。",
  "Stopped. Ask again when you are ready.": "已停止。准备好后请再问。",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "尚未做任何更改。请告诉我要做什么更改，以便您查看并确认。"
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "尚未做任何更改。请告诉我要做什么更改，以便您查看并确认。",
+ "Approve this plan? Nothing changes until you say yes.": "批准这个计划吗？在你说同意之前，不会有任何更改。",
+ "Nothing is saved until you say yes.": "在你说同意之前，不会保存任何内容。",
+ "Only the owner or a supervisor can approve the day.": "只有业主或主管可以批准当天的计划。",
+ "Nothing is waiting for a morning plan.": "没有等待安排早晨计划的工作。",
+ "No one else covers this trade.": "没有其他人负责这类工作。"
 }

@@ -924,5 +924,10 @@
  "I could not finish answering. Please check the page before trying again.": "മറുപടി പൂർത്തിയാക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുന്നതിന് മുമ്പ് പേജ് പരിശോധിക്കുക.",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "ഒരു മറുപടിയിൽ കഴിയുന്നത്ര ചെയ്തു. ദയവായി ഒരേസമയം ഒരു കാര്യം ചോദിക്കുക.",
  "Stopped. Ask again when you are ready.": "നിർത്തി. തയ്യാറാകുമ്പോൾ വീണ്ടും ചോദിക്കുക.",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "മാറ്റങ്ങളൊന്നും വരുത്തിയിട്ടില്ല. മാറ്റം വരുത്താൻ എന്നോട് പറയുക, അപ്പോൾ നിങ്ങൾക്ക് പരിശോധിച്ച് സ്ഥിരീകരിക്കാം."
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "മാറ്റങ്ങളൊന്നും വരുത്തിയിട്ടില്ല. മാറ്റം വരുത്താൻ എന്നോട് പറയുക, അപ്പോൾ നിങ്ങൾക്ക് പരിശോധിച്ച് സ്ഥിരീകരിക്കാം.",
+ "Approve this plan? Nothing changes until you say yes.": "ഈ പദ്ധതി അംഗീകരിക്കണോ? നിങ്ങൾ അതെ എന്നു പറയുന്നതുവരെ ഒന്നും മാറില്ല.",
+ "Nothing is saved until you say yes.": "നിങ്ങൾ അതെ എന്നു പറയുന്നതുവരെ ഒന്നും സൂക്ഷിക്കില്ല.",
+ "Only the owner or a supervisor can approve the day.": "ഉടമയ്ക്കോ മേൽനോട്ടക്കാരനോ മാത്രമേ ദിവസത്തെ പദ്ധതി അംഗീകരിക്കാനാകൂ.",
+ "Nothing is waiting for a morning plan.": "രാവിലത്തെ പദ്ധതിക്കായി ജോലിയൊന്നും ബാക്കിയില്ല.",
+ "No one else covers this trade.": "ഈ ജോലി ചെയ്യാൻ മറ്റാരുമില്ല."
 }

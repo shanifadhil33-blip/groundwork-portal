@@ -166,6 +166,32 @@ export function readPlanAsk(text: string) {
   return null;
 }
 
+/** Explicit team planning only. Keep individual jobs, questions and negations on their usual paths. */
+export function readTeamPlan(text: string) {
+  const words = norm(text).replace(/[،,]/gu, '');
+  const patterns = [
+    { language: 'en-IN', tomorrow: /\btomorrow\b/u, forms: [
+      /^(?:please )?(?:plan|schedule)(?: (?:the )?(?:day|work|jobs))? (?:today|tomorrow) for (?:everyone|everybody|all (?:the )?(?:technicians|techs))(?: please)?$/u,
+      /^(?:please )?(?:plan|schedule) (?:everyone|everybody|all (?:the )?(?:technicians|techs))(?: for)? (?:today|tomorrow)(?: please)?$/u,
+    ] },
+    { language: 'ar-AE', tomorrow: /بكرة|بكره|غدا|غداً/u, forms: [
+      /^(?:خطط|خطط لي|رتب|رتب لي|جدول|جدول لي)(?: الشغل| شغل| العمل)? (?:اليوم|بكرة|بكره|غدا|غداً) (?:للجميع|للكل|لكل (?:الفنيين|الفنيين كلهم)|لجميع الفنيين)$/u,
+    ] },
+    { language: 'hi', tomorrow: /कल/u, forms: [
+      /^(?:सभी|सब|सारे)(?: तकनीशियनों| तकनीशियन| टेक्नीशियन)? के लिए (?:आज|कल)(?: का काम| का शेड्यूल| की योजना| का प्लान) (?:बनाओ|बनाएं|बनाइए|करो)$/u,
+      /^(?:आज|कल) (?:सभी|सब|सारे)(?: तकनीशियनों| तकनीशियन| टेक्नीशियन)? के लिए (?:काम की योजना|शेड्यूल|योजना|प्लान) (?:बनाओ|बनाएं|बनाइए|करो)$/u,
+    ] },
+    { language: 'ur', tomorrow: /کل/u, forms: [
+      /^(?:آج|کل) (?:سب|سبھی|تمام)(?: ٹیکنیشنز| ٹیکنیشن| تکنیکی کارکنوں)? کے لیے (?:کام کا منصوبہ|منصوبہ|شیڈول|پلان) (?:بناؤ|بنائیں|بنا دو)$/u,
+      /^(?:سب|سبھی|تمام)(?: ٹیکنیشنز| ٹیکنیشن| تکنیکی کارکنوں)? کے لیے (?:آج|کل) کا (?:منصوبہ|شیڈول|پلان) (?:بناؤ|بنائیں|بنا دو)$/u,
+    ] },
+  ];
+  for (const { language, tomorrow, forms } of patterns) {
+    if (forms.some(pattern => pattern.test(words))) return { day: tomorrow.test(words) ? 'tomorrow' as const : 'today' as const, language };
+  }
+  return null;
+}
+
 export type DisclosedJob = { payment_status?: string | null; quote_status?: string | null; quote_amount?: number | string | null; visit_shown?: number | string | null };
 
 /** The client sees only a price he was already shown. Draft bills never come through here. */

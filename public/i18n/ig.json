@@ -907,5 +907,10 @@
  "I could not finish answering. Please check the page before trying again.": "Enweghị m ike ịza ya ruo n’isi. Biko lelee ibe ahụ tupu ị nwaa ọzọ.",
  "I have done as much as I can in one reply. Please ask for one thing at a time.": "Emeela m ihe m nwere ike ime n’otu azịza. Biko rịọ otu ihe n’otu oge.",
  "Stopped. Ask again when you are ready.": "Akwụsịla. Jụọ ọzọ mgbe ị dị njikere.",
- "No changes have been made. Ask me to make the change so you can review and confirm it.": "Ọ dịghị ihe agbanwere. Rịọ m ka m mee mgbanwe ahụ ka ị nwee ike ilele ya ma kwado ya."
+ "No changes have been made. Ask me to make the change so you can review and confirm it.": "Ọ dịghị ihe agbanwere. Rịọ m ka m mee mgbanwe ahụ ka ị nwee ike ilele ya ma kwado ya.",
+ "Approve this plan? Nothing changes until you say yes.": "Kwado atụmatụ a? Ọ dịghị ihe ga agbanwe ruo mgbe ị sịrị ee.",
+ "Nothing is saved until you say yes.": "A gaghị echekwa ihe ọ bụla ruo mgbe ị sịrị ee.",
+ "Only the owner or a supervisor can approve the day.": "Naanị onye nwe ụlọ ọrụ ma ọ bụ onye nlekọta nwere ike ịkwado atụmatụ ụbọchị.",
+ "Nothing is waiting for a morning plan.": "Ọ dịghị ọrụ na eche atụmatụ ụtụtụ.",
+ "No one else covers this trade.": "Ọ dịghị onye ọzọ na arụ ụdị ọrụ a."
 }
