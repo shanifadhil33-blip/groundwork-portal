@@ -30,7 +30,7 @@ describe('Gemini assistant schemas',()=>{
   await assistantTurn([{role:'user',content:'Check workspace'},...turn!.calls.map(call=>({role:'call' as const,...call,raw:turn!.raw})),...turn!.calls.map(call=>({role:'result' as const,name:call.name,id:call.id,result:{ok:true}}))],declarations);
   const body=JSON.parse(fetcher.mock.calls[1][1].body);
   expect(body.contents).toEqual([{role:'user',parts:[{text:'Check workspace'}]},{role:'model',parts},{role:'user',parts:[{functionResponse:{name:'whoami',response:{result:{ok:true}}}},{functionResponse:{name:'get_dashboard',response:{result:{ok:true}}}}]}]);
-  expect(body.tools[0].functionDeclarations[0].parameters).toEqual({type:'object',properties:{}});
+  expect(body.tools[0].functionDeclarations[0]).toEqual({name:'whoami',description:'Membership'});
   expect(body.toolConfig.functionCallingConfig.mode).toBe('AUTO');
  });
 });

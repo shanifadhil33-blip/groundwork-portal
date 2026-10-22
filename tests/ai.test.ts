@@ -48,7 +48,7 @@ it('fallback order is Gemini, OpenRouter free, then Cloudflare (which needs its 
   const env = { GEMINI_API_KEY: 'g', OPENROUTER_API_KEY: 'o', SAMBANOVA_API_KEY: 's', CLOUDFLARE_AI_TOKEN: 'c', CLOUDFLARE_ACCOUNT_ID: 'acct' };
   const ids = [...new Set(providers(env).map(p => p.name.split('/')[0]))];
   expect(ids).toEqual(['gemini', 'openrouter', 'cloudflare']);
-  expect(providers(env).filter(p => p.name.startsWith('openrouter/')).every(p => p.model.endsWith(':free'))).toBe(true);
-  expect(providers(env).find(p => p.name.startsWith('cloudflare/'))!.url).toBe('https://api.cloudflare.com/client/v4/accounts/acct/ai/v1/chat/completions');
+  expect(providers(env).filter(p => p.name.startsWith('openrouter/')).every(p => p.model==='openrouter/free'||p.model.endsWith(':free'))).toBe(true);
+  expect(providers(env).find(p => p.name.startsWith('cloudflare/'))!.url).toBe('https://api.cloudflare.com/client/v4/accounts/acct/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast');
   expect(providers({ ...env, CLOUDFLARE_ACCOUNT_ID: '' }).some(p => p.name.startsWith('cloudflare/'))).toBe(false);
 });

@@ -4,19 +4,19 @@ import { z } from 'zod';
 export const unavailable={available:false as const,message:'AI summaries are unavailable right now. You can still review and approve rows.'};
 const item=z.object({row_id:z.uuid(),summary:z.string().max(140),priority:z.enum(['low','normal','high','urgent'])});
 /**
- * Free provider fallback chain. Order: Gemini, OpenRouter free models, Cloudflare Workers AI, Kilo and OVH (no key), Z.AI, NVIDIA and Requesty free models when keyed (best for simple replies), then Groq, Cerebras, Mistral, GitHub Models when their keys exist.
+ * Free provider fallback chain. Order: Gemini, OpenRouter free models, Cloudflare Workers AI, Kilo and OVH (no key), Z.AI, NVIDIA and Requesty free models when keyed (best for simple replies), then Groq, Cerebras and Mistral when their keys exist.
  * A provider is used only when its key is set in Vercel env. Models can be changed without code via AI_<PROVIDER>_MODELS (comma list).
  * Every attempt has a timeout; 5xx and timeouts get one quick retry; 429 and quota errors move on at once and cool that model down.
  */
 type Kind='gemini'|'openai';
-export type Provider={name:string;kind:Kind;url:string;headers:Record<string,string>;model:string};
+export type Provider={name:string;kind:Kind;url:string;headers:Record<string,string>;model:string;format?:'cloudflare'};
 const CHAIN:{id:string;kind:Kind;key:string;keyless?:boolean;url:(model:string,env:Record<string,string|undefined>)=>string;models:string[];extra?:Record<string,string>}[]=[
  {id:'gemini',kind:'gemini',key:'GEMINI_API_KEY',url:m=>`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,models:['gemini-3.8-flash','gemini-3.6-flash','gemini-3.5-flash-lite','gemini-3.1-flash-lite']},
- {id:'openrouter',kind:'openai',key:'OPENROUTER_API_KEY',url:()=>'https://openrouter.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','google/gemma-4-31b-it:free','nvidia/nemotron-3-ultra-550b-a55b:free','google/gemma-4-26b-a4b-it:free'],extra:{'HTTP-Referer':'https://groundwork-portal.vercel.app','X-Title':'Groundwork'}},
+ {id:'openrouter',kind:'openai',key:'OPENROUTER_API_KEY',url:()=>'https://openrouter.ai/api/v1/chat/completions',models:['openrouter/free'],extra:{'HTTP-Referer':'https://groundwork-portal.vercel.app','X-Title':'Groundwork'}},
  // SambaNova: removed Oct 18 2026, its free tier now asks for a payment method (402). Never paid.
- {id:'cloudflare',kind:'openai',key:'CLOUDFLARE_AI_TOKEN',url:(_m,env)=>`https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/ai/v1/chat/completions`,models:['@cf/meta/llama-3.3-70b-instruct-fp8-fast','@cf/openai/gpt-oss-120b']},
+ {id:'cloudflare',kind:'openai',key:'CLOUDFLARE_AI_TOKEN',url:(m,env)=>`https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/ai/${m.startsWith('@cf/meta/')?'run/'+m:'v1/chat/completions'}`,models:['@cf/meta/llama-3.3-70b-instruct-fp8-fast','@cf/openai/gpt-oss-120b']},
  // Free with no key (checked Oct 18 2026): Kilo AI Gateway ':free' models, 200 an hour per IP; OVHcloud AI Endpoints anonymous, 2 a minute per IP per model. Used only when AI_KEYLESS=1.
- {id:'kilo',kind:'openai',key:'KILO_API_KEY',keyless:true,url:()=>'https://ai-gateway.kilo.ai/api/v1/chat/completions',models:['nvidia/nemotron-3-super-120b-a12b:free','kilo-auto/free']},
+ {id:'kilo',kind:'openai',key:'KILO_API_KEY',keyless:true,url:()=>'https://ai-gateway.kilo.ai/api/v1/chat/completions',models:['kilo-auto/free']},
  {id:'ovh',kind:'openai',key:'OVH_AI_TOKEN',keyless:true,url:()=>'https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions',models:['gpt-oss-120b','Meta-Llama-3_3-70B-Instruct','Mistral-Small-3.2-24B-Instruct-2506','Qwen3.5-397B-A17B']},
  // Free with a key (no card): Z.AI GLM Flash, NVIDIA NIM free endpoints (phone check). Used when their keys are set.
  {id:'zai',kind:'openai',key:'ZAI_API_KEY',url:()=>'https://api.z.ai/api/paas/v4/chat/completions',models:['glm-4.7-flash','glm-4.5-flash']},
@@ -26,13 +26,13 @@ const CHAIN:{id:string;kind:Kind;key:string;keyless?:boolean;url:(model:string,e
  {id:'groq',kind:'openai',key:'GROQ_API_KEY',url:()=>'https://api.groq.com/openai/v1/chat/completions',models:['openai/gpt-oss-120b','qwen/qwen3.8-27b','llama-3.3-70b-versatile']},
  {id:'cerebras',kind:'openai',key:'CEREBRAS_API_KEY',url:()=>'https://api.cerebras.ai/v1/chat/completions',models:['gpt-oss-120b','qwen-3.8-27b']},
  {id:'mistral',kind:'openai',key:'MISTRAL_API_KEY',url:()=>'https://api.mistral.ai/v1/chat/completions',models:['mistral-medium-latest','mistral-small-latest']},
- {id:'github',kind:'openai',key:'GITHUB_MODELS_TOKEN',url:()=>'https://models.github.ai/inference/chat/completions',models:['openai/gpt-4.1-mini']},
+ // GitHub Models retired July 30 2026. Do not send requests or substitute a paid service.
 ];
 export function providers(env:Record<string,string|undefined>=process.env):Provider[]{
  const out:Provider[]=[];
  for(const p of CHAIN){const key=env[p.key];if((!key&&!(p.keyless&&env.AI_KEYLESS==='1'))||(p.id==='cloudflare'&&!env.CLOUDFLARE_ACCOUNT_ID))continue;
   const models=(env[`AI_${p.id.toUpperCase()}_MODELS`]?.split(',').map(m=>m.trim()).filter(Boolean))||p.models;
-  for(const model of models)out.push({name:`${p.id}/${model}`,kind:p.kind,url:p.url(model,env),model,headers:p.kind==='gemini'?{'x-goog-api-key':key!}:{...(key?{Authorization:`Bearer ${key}`}:{}),...p.extra}});}
+  for(const model of models)out.push({name:`${p.id}/${model}`,kind:p.kind,url:p.url(model,env),model,...(p.id==='cloudflare'&&model.startsWith('@cf/meta/')?{format:'cloudflare' as const}:{}),headers:p.kind==='gemini'?{'x-goog-api-key':key!}:{...(key?{Authorization:`Bearer ${key}`}:{}),...p.extra}});}
  return out;
 }
 // Warm instances remember models that just hit a limit, so the next request skips straight to one that works.
@@ -42,14 +42,36 @@ class Skip extends Error{constructor(readonly retry:boolean,readonly status=0,re
 /** A model out of its daily allowance (or asking for payment) is skipped in both sweeps until it can work again. */
 const exhausted=new Map<string,number>();
 const DAILY=/per.?day|daily|neurons|free-models-per-day|insufficient balance|payment method|resource package/i;
+/** Adapt only the providers whose documented wire format differs from Chat Completions. */
+function providerBody(p:Provider,body:any):unknown {
+ if(p.kind==='gemini')return body;
+ const out={...body};
+ if(p.name.startsWith('zai/')&&/^glm-4\.[67]/.test(p.model))out.thinking={type:'disabled'};
+ if(p.name.startsWith('openrouter/'))out.provider={require_parameters:true,max_price:{prompt:0,completion:0}};
+ if(p.format==='cloudflare'){
+  delete out.model;
+  // Workers AI native function declarations are flat, unlike OpenAI's function wrapper.
+  if(out.tools)out.tools=out.tools.map((t:any)=>t.function);
+ }
+ return out;
+}
 async function post(p:Provider,body:unknown,timeout:number){
  let r:Response;
- try{r=await fetch(p.url,{method:'POST',headers:{'Content-Type':'application/json',...p.headers},body:JSON.stringify(body),signal:AbortSignal.timeout(timeout)});}
+ try{r=await fetch(p.url,{method:'POST',headers:{'Content-Type':'application/json',...p.headers},body:JSON.stringify(providerBody(p,body)),signal:AbortSignal.timeout(timeout)});}
  catch(error){throw new Skip(true,0,0,error instanceof Error&&['TimeoutError','AbortError'].includes(error.name)?'timeout':'network');}
  if(r.status===429||r.status===402||r.status===403){const body=await r.text().catch(()=>'');const cool=r.status===402?6*3_600_000:DAILY.test(body)?3_600_000:60_000;if(cool>=3_600_000)exhausted.set(p.name,Date.now()+cool);cooldown.set(p.name,Date.now()+cool);throw new Skip(false,r.status,cool);}
  if(r.status>=500)throw new Skip(true,r.status);
  if(!r.ok)throw new Skip(false,r.status);
- try{return await r.json();}catch{throw new Skip(true,r.status,0,'invalid_response');}
+ try{
+  const data=await r.json();
+  if(p.format==='cloudflare'){
+   if(data?.success===false)throw new Skip(false,r.status,0,'invalid_response');
+   const result=data?.result;
+   if(!result||typeof result!=='object')throw new Skip(true,r.status,0,'invalid_response');
+   return {choices:[{message:{content:result.response,tool_calls:result.tool_calls?.map((call:any,i:number)=>({id:call.id??String(i),type:'function',function:{name:call.name,arguments:call.arguments??{}}}))}}]};
+  }
+  return data;
+ }catch(e){if(e instanceof Skip)throw e;throw new Skip(true,r.status,0,'invalid_response');}
 }
 /** Per provider timeout. Gemini free often hangs, so it gets a short leash and the chain moves on. */
 const TIMEOUTS:Record<string,number>={gemini:9000,openrouter:15000,sambanova:12000,cloudflare:15000,kilo:18000,ovh:18000,zai:15000,nvidia:15000,requesty:12000,groq:10000};
@@ -102,6 +124,14 @@ export async function draftSummaries(rows:{id:string;data:unknown}[]) {
   return array.flatMap(v=>{const result=item.safeParse(v);return result.success&&allowed.has(result.data.row_id)?[result.data]:[];});
  },{timeout:12000,deadline:30000});
  return items?{available:true as const,items}:unavailable;
+}
+/** One tiny request, no retries, usage logging or database access. Do not return provider bodies. */
+export async function probeProvider(p:Provider) {
+ const start=Date.now();
+ try{
+  const data=await post(p,p.kind==='gemini'?{contents:[{role:'user',parts:[{text:'Reply OK'}]}],generationConfig:{maxOutputTokens:32}}:{model:p.model,messages:[{role:'user',content:'Reply OK'}],max_tokens:32},10000);
+  return {provider:p.name,status:textOf(p,data)?'ok':'error',code:200,ms:Date.now()-start};
+ }catch(e){return {provider:p.name,status:'error',code:e instanceof Skip?e.status:0,ms:Date.now()-start};}
 }
 export async function aiHealth() {
  return {providers:await Promise.all(providers().map(async p=>{try{await post(p,p.kind==='gemini'?{contents:[{parts:[{text:'Reply OK'}]}],generationConfig:{maxOutputTokens:5}}:{model:p.model,messages:[{role:'user',content:'Reply OK'}],max_tokens:5},10000);return {provider:p.name,status:'ok'};}catch(e){return {provider:p.name,status:'error',code:e instanceof Skip?e.status:0};}}))};
@@ -173,8 +203,12 @@ export async function assistantTurn(history: AssistantMessage[], declarations:{n
  const system=`${SYSTEM} ${context}`.trim();
  return withFallback<AssistantTurn>('assistant',p=>p.kind==='gemini'?{
    systemInstruction:{parts:[{text:system}]},contents:geminiContents(history),
-   tools:[{functionDeclarations:declarations.map(d=>({name:d.name,description:d.description,parameters:toGeminiSchema(d.parameters)}))}],toolConfig:{functionCallingConfig:{mode:'AUTO'}},generationConfig:{maxOutputTokens:2000},
-  }:{model:p.model,messages:[{role:'system',content:system},...groqMessages(history)],tools:declarations.map(d=>({type:'function',function:d})),max_tokens:2000},(p,data)=>{
+   ...(declarations.length?{tools:[{functionDeclarations:declarations.map(d=>{
+    const parameters=toGeminiSchema(d.parameters) as Record<string,any>;
+    // Omit parameters for no argument functions, rather than declaring an empty OBJECT.
+    return {name:d.name,description:d.description,...(Object.keys(parameters.properties??{}).length?{parameters}:{})};
+   })}],toolConfig:{functionCallingConfig:{mode:'AUTO'}}}:{}),generationConfig:{maxOutputTokens:2000},
+  }:{model:p.model,messages:[{role:'system',content:system},...groqMessages(history)],...(declarations.length?{tools:declarations.map(d=>({type:'function',function:d}))}:{}),max_tokens:2000},(p,data)=>{
   if(p.kind==='gemini'){const parts=data?.candidates?.[0]?.content?.parts;if(!Array.isArray(parts))return null;
    const calls=parts.filter((v:any)=>v.functionCall).map((v:any,i:number)=>({name:v.functionCall.name,args:v.functionCall.args??{},id:String(i)}));
    // Thinking parts are the model's private notes and must never reach the user.

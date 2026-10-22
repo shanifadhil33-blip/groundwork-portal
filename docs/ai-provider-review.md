@@ -1,0 +1,32 @@
+# Free AI provider review
+
+Reviewed against public provider documentation on October 22, 2026. No live inference requests were made. The production status codes identify failure classes; they do not establish the exact provider error without its response. These changes address documented compatibility risks without raising quotas, deadlines, retries or the assistant's 2000 token output cap.
+
+| Provider | Finding and change | Public documentation |
+| --- | --- | --- |
+| Z.AI | GLM 4.7 Flash remains free and supports tools. Thinking is enabled by default and can consume the response budget before an answer. Send `thinking: {type: "disabled"}` for GLM 4.6 and 4.7 models, including the default Flash model. Do not send that setting to GLM 5.3 overrides, which reject it. This reduces a plausible source of timeouts; it cannot eliminate queue latency. | [GLM 4.7](https://docs.z.ai/guides/llm/glm-4.7), [chat request](https://docs.z.ai/api-reference/llm/chat-completion), [thinking](https://docs.z.ai/guides/capabilities/thinking) |
+| Cloudflare | Both default model IDs remain documented. Llama uses the native `/ai/run/<model>` endpoint with flat function declarations, and its REST `result.response` and `result.tool_calls` are adapted to the existing parser. GPT OSS retains the OpenAI compatible endpoint and wrapped tools. Keep `max_tokens: 2000`. | [Llama](https://developers.cloudflare.com/workers-ai/models/llama-3.3-70b-instruct-fp8-fast/), [native tools](https://developers.cloudflare.com/workers-ai/features/function-calling/traditional/), [compatibility](https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/), [GPT OSS](https://developers.cloudflare.com/workers-ai/models/gpt-oss-120b/) |
+| Kilo | Replace the pinned promotional model with `kilo-auto/free`, which tracks available free models. Retain the documented gateway URL, OpenAI tool wrapper and opt in anonymous access. Never use the paid `kilo-auto` router. | [free routing](https://kilo.ai/docs/getting-started/using-kilo-for-free), [API](https://kilo.ai/docs/gateway/api-reference), [authentication](https://kilo.ai/docs/gateway/authentication) |
+| Gemini | The existing Gemini 3.8, 3.6, 3.5 Lite and 3.1 Lite IDs are still documented, so no speculative downgrade. Omit `parameters` for functions with no arguments instead of sending an empty object schema. Preserve the existing schema conversion, thought signatures and grouped function responses. Omit tool configuration when there are no tools. | [models](https://ai.google.dev/gemini-api/docs/models), [API](https://ai.google.dev/api/generate-content), [function calling](https://ai.google.dev/gemini-api/docs/function-calling), [signatures](https://ai.google.dev/gemini-api/docs/generate-content/thought-signatures) |
+| OpenRouter | Replace pinned free variants with `openrouter/free`, whose documented router filters for requested capabilities such as tools. Require parameter support and cap input and output prices at zero. An unavailable free endpoint must fail rather than route to a paid model. Existing model overrides remain supported. | [free router](https://openrouter.ai/docs/guides/routing/routers/free-router), [price ceiling](https://openrouter.ai/blog/tutorials/how-to-get-the-lowest-cost-llm-inference-on-openrouter/) |
+| OVH | The working `gpt-oss-120b` model and OpenAI chat request are documented. Leave its request and model list unchanged. | [GPT OSS example](https://www.ovhcloud.com/en/public-cloud/ai-endpoints/catalog/gpt-oss-120b/) |
+| NVIDIA | Retain existing optional NIM configuration and OpenAI tool wrapper. No new credentials or enterprise service. | [LLM API](https://docs.api.nvidia.com/nim/reference/llm-apis) |
+| Requesty | All four current defaults remain listed as free. Preserve the existing optional configuration and exclusion from bulk translations. | [free catalog](https://docs.requesty.ai/features/free-models), [API](https://docs.requesty.ai/quickstart) |
+| Groq | Retain existing optional configuration and standard OpenAI tool wrapper. | [models](https://console.groq.com/docs/models), [tools](https://console.groq.com/docs/tool-use/overview) |
+| Cerebras | Both default model IDs remain in the shared inference catalog. Retain the existing request format. | [models](https://inference-docs.cerebras.ai/models/overview), [tools](https://inference-docs.cerebras.ai/capabilities/tool-use) |
+| Mistral | Retain existing optional configuration and documented function wrapper. | [tools](https://docs.mistral.ai/studio/conversations/function-calling) |
+| GitHub | The inference service retired July 30, 2026. Remove this dead endpoint from the chain. Do not substitute Azure or another paid service. | [retirement](https://docs.github.com/en/github-models) |
+
+No portal interface copy changed. DEMO14 limits, permissions and confirmation behavior are unchanged. No database changes are needed.
+
+## Health command for the reviewer
+
+Run `node scripts/ai-health.mjs` on the box. It reads existing environment variables and, if present, `.env.local` without printing them. It uses the same provider discovery and request adapters as the app. `AI_KEYLESS=1` remains necessary for anonymous Kilo and OVH access. No new key or account is needed.
+
+The command sends one tiny text prompt to the first configured model of each provider, sequentially, with a 32 token cap, a ten second timeout and no retries or database usage logging. It prints only the provider ID, status (including HTTP code on errors) and elapsed milliseconds. It never prints model overrides, URLs, response bodies or exception messages. The exit code is one if any probe fails. An HTTP 200 with no text is reported as an error.
+
+This is a small connectivity check, not proof that a model can complete a full assistant conversation. Reasoning models may return no visible text within the small probe budget. Tool compatibility is covered by mocked tests; the reviewer handles live checks. If `AI_<PROVIDER>_MODELS` is set, that existing override takes precedence over new defaults. Review obsolete overrides on the box without disclosing their values.
+
+## Local checks
+
+`npm run test -- --config vitest.ai.config.ts` runs the mocked provider tests, schema and history checks, safe health output checks, DEMO14 constant checks and language file tests without invoking database setup or migrations. Also run `npm run typecheck` and `npm run build`.
