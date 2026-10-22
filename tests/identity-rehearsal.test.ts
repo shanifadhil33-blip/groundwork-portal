@@ -1,10 +1,12 @@
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it, vi } from 'vitest';
+const ai = vi.hoisted(() => vi.fn());
+vi.mock('../lib/ai', () => ({ assistantTurn: ai }));
 import { closePools, withSystem } from '../lib/db';
 import { startDemo, resetDemo } from '../lib/services/demo';
 import { addFieldWorker, newFieldLink, redeemFieldLink } from '../lib/services/field-signin';
 import { acceptInvite, createInvite, listInvites, revokeInvite } from '../lib/services/invites';
 import { assistant } from '../lib/services/assistant';
-import { PRACTICE_CODE, PRACTICE_NOTICE, PRACTICE_TOKEN } from '../lib/identity-rehearsal';
+import { PRACTICE_CODE, PRACTICE_NOTICE, PRACTICE_TOKEN, practiceJoinUrl } from '../lib/identity-rehearsal';
 import { ids } from '../lib/fixture';
 
 let ws: string, second: string;
@@ -66,14 +68,21 @@ it('seeds fictional invites and supports validated create, reload, replay and re
   await expect(revokeInvite(people.imran,second,created.id)).rejects.toMatchObject({status:404});
   expect(await identityCounts()).toEqual(before);
 });
-it('a confirmed Agent add worker action returns the safe practice result once', async () => {
+it.each(['imran','sam'])('the mocked AI add worker request for %s confirms to the Team practice result once', async persona => {
+  ai.mockReset();
+  ai.mockResolvedValueOnce({calls:[{id:'add-worker',name:'add_worker',args:{name:'Yusuf'}}]});
+  const user=people[persona];
   const before=await identityCounts();
-  const id=await withSystem(async db=>(await db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary) VALUES($1,$2,'add_worker',$3,'Add Yusuf') RETURNING id",[ws,people.imran,JSON.stringify({name:'Yusuf'})])).rows[0].id);
-  const result=await assistant(people.imran,ws,{messages:[],confirm_action_id:id});
-  expect(result).toMatchObject({logged:true});
-  expect((result as any).reply).toContain(PRACTICE_NOTICE);
-  expect((result as any).reply).not.toContain('Added Yusuf');
-  await expect(assistant(people.imran,ws,{messages:[],confirm_action_id:id})).rejects.toMatchObject({status:409});
+  const proposed=await assistant(user,ws,{messages:[{role:'user',content:'Add a worker called Yusuf'}]});
+  expect(proposed).toMatchObject({available:true,pending_action:{tool:'add_worker',args:{name:'Yusuf',role:'technician'},summary:expect.stringContaining('Yusuf'),why:expect.stringContaining('Add a worker called Yusuf')}});
+  expect(await identityCounts()).toEqual(before);
+  const id=(proposed as any).pending_action.id;
+  const team=await addFieldWorker(user,ws,{name:'Yusuf'});
+  const result=await assistant(user,ws,{messages:[],confirm_action_id:id});
+  expect(result).toMatchObject({logged:true,result:{structuredContent:{result:team}}});
+  expect((result as any).reply).toBe(`${PRACTICE_NOTICE}\n\n${PRACTICE_CODE}\n\n[Sign in preview](${practiceJoinUrl})`);
+  await expect(assistant(user,ws,{messages:[],confirm_action_id:id})).rejects.toMatchObject({status:409});
+  expect(ai).toHaveBeenCalledTimes(1);
   expect(await identityCounts()).toEqual(before);
 });
 it('reset restores only the fixture preview in the replacement sandbox', async () => {
