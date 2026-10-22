@@ -10,8 +10,9 @@ export function readEvidenceAnswer(results:unknown[],language?:string|null):stri
   if(depth>8||value==null||lines.length>=10)return;
   if(Array.isArray(value)){for(const row of value.slice(0,6))walk(row,depth+1);return;}
   if(typeof value!=='object')return;
-  if(Array.isArray(value.materials)&&Array.isArray(value.steps)){
-   add(`${t('Checklist')}: ${value.steps.filter((s:any)=>s.done).length} ${t('of')} ${value.steps.length} ${t('steps done')}.`);
+  if(Array.isArray(value.materials)&&value.steps&&typeof value.steps==='object'){
+   const steps=Array.isArray(value.steps)?value.steps:Object.entries(value.steps).map(([name,done])=>({name,done}));
+   add(`${t('Checklist')}: ${steps.filter((s:any)=>s.done).length} ${t('of')} ${steps.length} ${t('steps done')}.`);
    if(!value.materials.length)add(t('No materials recorded.'));
    for(const m of value.materials)if(typeof m.name==='string'&&typeof m.quantity==='number')add(`${t('Materials used')}: ${m.quantity} × ${m.name}${m.note?`. ${m.note}`:''}`);
    return;

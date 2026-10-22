@@ -46,9 +46,11 @@ it('other technicians, clients, households, office and other workspaces cannot e
  await withSystem(db=>db.query("UPDATE members SET role='staff' WHERE workspace_id=$1 AND user_id=$2",[ws,ids.sam]));
 });
 it('validates bounds, unknown steps and maximum materials',async()=>{
- for(const steps of [Array(13).fill('x'),['a'.repeat(81)],[''],['Test','test']])expect(templateInput.safeParse({trade:'ac',steps}).success).toBe(false);
+ for(const steps of [Array.from({length:13},(_,i)=>'Step '+i),['a'.repeat(81)],[''],['Test','test']])expect(templateInput.safeParse({trade:'ac',steps}).success).toBe(false);
  for(const quantity of [0,-1,100001,Infinity])expect(progressInput.safeParse({action:'add_material',name:'Part',quantity}).success).toBe(false);
  expect(progressInput.safeParse({action:'add_material',name:'x'.repeat(81),quantity:1}).success).toBe(false);
+ expect(progressInput.safeParse({action:'add_material',name:'Part',quantity:1,note:'x'.repeat(201)}).success).toBe(false);
+ expect(progressInput.safeParse({action:'add_material',name:'Part',quantity:1,price:10}).success).toBe(false);
  const j=await job();await expect(saveJobChecklist(ids.ravi,ws,j.id,{action:'tick',step:'Unknown',done:true})).rejects.toMatchObject({status:422});
  for(let n=0;n<30;n++)await saveJobChecklist(ids.ravi,ws,j.id,{action:'add_material',name:'Washer',quantity:1});
  await expect(saveJobChecklist(ids.ravi,ws,j.id,{action:'add_material',name:'Washer',quantity:1})).rejects.toMatchObject({status:422});
@@ -64,7 +66,7 @@ it('both demo paths seed templates and filled snapshots using the shared fixture
  for(const path of ['lib/fixture.ts','lib/fixture-dune-harbour.ts'])expect(readFileSync(path,'utf8')).toContain('await populateChecklistFixture(');
 });
 it('every checklist label, default step and server message has every language key',()=>{
- const keys=['Checklists','Job type','Use up to twelve short steps. Saved jobs keep their steps.','Step','Move up','Move down','Add step','Use suggested steps','Save checklist','Checklist','steps done','No steps set for this job type.','Materials used','No materials recorded.','Material name','Quantity','Note (optional)','Add material','Clean the filter','Check the drain','Check cooling','Check for leaks','Clean the work area','Check water flow','Test the repair','Switch off the power','Check the wiring','You cannot change checklists.','You cannot change this job.','Open the job and choose a checklist step.','Use up to thirty materials.','Checklist and materials saved.','Used during the visit','Capacitor','Washer','Cable clip'];
+ const keys=['Checklists','Job type','Use up to twelve short steps. Saved jobs keep their steps.','Step','Move up','Move down','Add step','Use suggested steps','Save checklist','Checklist','steps done','No steps set for this job type.','Materials used','No materials recorded.','Material name','Quantity','Notes','Add material','Clean the filter','Check the drain','Check cooling','Check for leaks','Clean the work area','Check water flow','Test the repair','Switch off the power','Check the wiring','You cannot change checklists.','You cannot change this job.','Open the job and choose a checklist step.','Use up to thirty materials.','Checklist and materials saved.','Used during the visit','Capacitor','Washer','Cable clip'];
  for(const file of readdirSync('public/i18n').filter(f=>f.endsWith('.json'))){
   const dictionary=JSON.parse(readFileSync('public/i18n/'+file,'utf8'));
   for(const key of keys){expect(dictionary[key],file+': '+key).toBeTruthy();expect(typeof dictionary[key]).toBe('string');}
@@ -81,4 +83,18 @@ it('agent requires confirmation, then enforces assignment again at save time',as
  expect((await jobChecklist(ids.ravi,ws,j.id)).materials[0]).toMatchObject({name:'Capacitor',quantity:2});
  await withSystem(db=>db.query('UPDATE work_orders SET assignee_id=$2 WHERE id=$1',[j.id,ids.imran]),ids.imran);
  expect((await callTool({...context,approved:true},'add_job_material',args)).structuredContent).toMatchObject({error:{code:'forbidden'}});
+});
+
+it('agent reads preserve all twelve step names and page through materials without losing quantities',async()=>{
+ const {callTool}=await import('../lib/agent/tools');
+ const {compactSnapshot}=await import('../lib/ai');
+ await saveChecklistTemplate(ids.imran,ws,{trade:'ac',steps:Array.from({length:12},(_,i)=>'Check item '+i)});
+ const j=await job();for(let n=0;n<7;n++)await saveJobChecklist(ids.ravi,ws,j.id,{action:'add_material',name:'Washer',quantity:n+1});
+ const context={user:ids.sam,ws,scope:'read' as const,kind:'assistant' as const};
+ const first=await callTool(context,'get_job_checklist',{id:j.id});
+ const data=(first.structuredContent as any).result;
+ expect(Object.keys(data.steps)).toHaveLength(12);expect(data.materials).toHaveLength(6);expect(data.total_materials).toBe(7);
+ expect(Object.keys(compactSnapshot(first).result.steps)).toHaveLength(12);
+ const second=await callTool(context,'get_job_checklist',{id:j.id,page:2});
+ expect((second.structuredContent as any).result.materials.map((m:any)=>m.quantity)).toEqual([7]);
 });

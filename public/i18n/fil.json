@@ -945,7 +945,6 @@
  "No materials recorded.": "Walang naitalang materyales.",
  "Material name": "Pangalan ng materyal",
  "Quantity": "Dami",
- "Note (optional)": "Tala (opsyonal)",
  "Add material": "Magdagdag ng materyal",
  "Clean the filter": "Linisin ang filter",
  "Check the drain": "Suriin ang daluyan",
@@ -963,6 +962,6 @@
  "Checklist and materials saved.": "Naitala ang listahan at mga materyales.",
  "Used during the visit": "Ginamit sa pagbisita",
  "Capacitor": "Kapasitor",
- "Washer": "Washer",
+ "Washer": "Rondana",
  "Cable clip": "Clip ng kable"
 }

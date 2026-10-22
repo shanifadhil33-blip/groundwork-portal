@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { Button, Card, Dropdown, ErrorState, Skeleton } from '../ui';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Card, ConfirmDialog, Dropdown, ErrorState, Skeleton } from '../ui';
 import { request, RequestError } from '../../lib/ui/api';
 import { CHECKLIST_DEFAULTS, type JobChecklist } from '../../lib/job-checklists';
 import { TRADES, tradeLabels, type Trade } from '../../lib/trades';
@@ -9,11 +9,12 @@ import { useResource } from './resource';
 export function ChecklistSettings({ base }: { base: string }) {
   const data = useResource<Record<string,string[]>>(`${base}/checklists`);
   const [trade,setTrade] = useState<Trade>('ac'), [steps,setSteps] = useState<string[]>([]);
+  const [nextTrade,setNextTrade] = useState<Trade|null>(null);
   const [busy,setBusy] = useState(false), [error,setError] = useState(''), [saved,setSaved] = useState(false);
-  useEffect(() => {setSteps(data.data?.[trade] ?? []); setSaved(false); setError('');}, [trade,data.data]);
+  useEffect(() => {setSteps(data.data?.[trade] ?? []); setError('');}, [trade,data.data]);
   async function save() {
     setBusy(true);setError('');setSaved(false);
-    try {await request(`${base}/checklists`,{method:'PUT',body:JSON.stringify({trade,steps})});await data.reload();setSaved(true);}
+    try {await request(`${base}/checklists`,{method:'PUT',body:JSON.stringify({trade,steps})});data.setData({...data.data,[trade]:steps.map(s=>s.trim())});setSaved(true);}
     catch(e){setError(e instanceof RequestError ? e.message : 'That did not save. Try again.');} finally{setBusy(false);}
   }
   function change(next:string[]){setSteps(next);setSaved(false);}
@@ -21,7 +22,7 @@ export function ChecklistSettings({ base }: { base: string }) {
   if(data.loading)return <Skeleton className="skeleton-card"/>;
   if(data.error)return <ErrorState retry={data.reload}/>;
   return <section className="stack checklist-settings"><h2>Checklists</h2>
-    <Dropdown label="Job type" value={trade} options={TRADES.map(t=>({value:t,label:tradeLabels[t]}))} disabled={busy} onChange={v=>{if(steps.join('\n')!==(data.data?.[trade]??[]).join('\n')&&!window.confirm('Discard unsaved changes?'))return;setTrade(v as Trade);}}/>
+    <Dropdown label="Job type" value={trade} options={TRADES.map(t=>({value:t,label:tradeLabels[t]}))} disabled={busy} onChange={v=>{if(steps.join('\n')!==(data.data?.[trade]??[]).join('\n')){setNextTrade(v as Trade);return;}setSaved(false);setTrade(v as Trade);}}/>
     <p className="small muted">Use up to twelve short steps. Saved jobs keep their steps.</p>
     <fieldset disabled={busy} className="stack checklist-fields">
       {steps.map((step,i)=><div className="stack compact" key={i}><label className="field"><span>Step</span><input maxLength={80} required value={step} onChange={e=>change(steps.map((s,n)=>n===i?e.target.value:s))}/></label><div className="row wrap"><Button variant="secondary" disabled={i===0} onClick={()=>move(i,i-1)}>Move up</Button><Button variant="secondary" disabled={i===steps.length-1} onClick={()=>move(i,i+1)}>Move down</Button><Button variant="ghost" onClick={()=>change(steps.filter((_,n)=>n!==i))}>Remove</Button></div></div>)}
@@ -29,16 +30,18 @@ export function ChecklistSettings({ base }: { base: string }) {
     </fieldset>
     {error&&<p role="alert">{error}</p>}{saved&&<p role="status">Saved</p>}
     <Button busy={busy} disabled={steps.some(s=>!s.trim())} onClick={()=>void save()}>Save checklist</Button>
+    <ConfirmDialog open={nextTrade!==null} title="Discard unsaved changes?" confirmLabel="Discard" onClose={()=>setNextTrade(null)} onConfirm={()=>{if(nextTrade)setTrade(nextTrade);setNextTrade(null);setSaved(false);}}>Your unsaved changes will be lost.</ConfirmDialog>
   </section>;
 }
 
 export function JobChecklistCard({ base, id, readOnly=false }: {base:string;id:string;readOnly?:boolean}) {
   const result = useResource<JobChecklist & {editable:boolean}>(`${base}/work-orders/${id}/checklist`);
   const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false);
+  const pending=useRef<{body:string;key:string}|null>(null);
   const [name,setName]=useState(''),[quantity,setQuantity]=useState('1'),[note,setNote]=useState('');
   async function save(body:unknown) {
     if(busy)return false;setBusy(true);setError('');setSaved(false);
-    try {await request(`${base}/work-orders/${id}/checklist`,{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify(body)});await result.reload();setSaved(true);return true;}
+    try {const serialized=JSON.stringify(body);if(pending.current?.body!==serialized)pending.current={body:serialized,key:crypto.randomUUID()};const next=await request<JobChecklist & {editable:boolean}>(`${base}/work-orders/${id}/checklist`,{method:'POST',headers:{'Idempotency-Key':pending.current.key},body:serialized});result.setData(next);pending.current=null;setSaved(true);return true;}
     catch(e){setError(e instanceof RequestError?e.message:'That did not save. Try again.');return false;}finally{setBusy(false);}
   }
   if(result.loading)return <Skeleton className="skeleton-card"/>;
@@ -53,8 +56,8 @@ export function JobChecklistCard({ base, id, readOnly=false }: {base:string;id:s
     {editable&&<form className="stack compact" onSubmit={async e=>{e.preventDefault();if(await save({action:'add_material',name,quantity:Number(quantity),note})){setName('');setQuantity('1');setNote('');}}}>
       <label className="field"><span>Material name</span><input required maxLength={80} value={name} disabled={busy} onChange={e=>setName(e.target.value)}/></label>
       <label className="field"><span>Quantity</span><input type="number" required min="0.001" max="100000" step="any" value={quantity} disabled={busy} onChange={e=>setQuantity(e.target.value)}/></label>
-      <label className="field"><span>Note (optional)</span><input maxLength={200} value={note} disabled={busy} onChange={e=>setNote(e.target.value)}/></label>
+      <label className="field"><span>Notes</span><input maxLength={200} value={note} disabled={busy} onChange={e=>setNote(e.target.value)}/></label>
       <Button variant="secondary" busy={busy} disabled={!name.trim()||!Number(quantity)||data.materials.length>=30} type="submit">Add material</Button>
-    </form>}{error&&<p role="alert">{error}</p>}{saved&&<p role="status">Saved</p>}
+    </form>}{editable&&data.materials.length>=30&&<p>Use up to thirty materials.</p>}{error&&<p role="alert">{error}</p>}{saved&&<p role="status">Saved</p>}
   </Card>;
 }

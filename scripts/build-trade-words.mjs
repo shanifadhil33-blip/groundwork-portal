@@ -13,7 +13,7 @@ export const tradeWordSources = [...new Set([
   'light', 'fan', 'filter', 'compressor', 'thermostat', 'door closer', 'lock',
   'tile', 'ceiling', 'water heater', 'pump', 'sink', 'toilet', 'fan motor',
   'bearing', 'wiring', 'cable', 'drain tray', 'joint', 'grease trap',
-  'tap cartridge', 'washer', 'ventilation', 'handrail', 'Light', 'Filters',
+  'Capacitor', 'Washer', 'Cable clip', 'tap cartridge', 'washer', 'ventilation', 'handrail', 'Light', 'Filters',
 ])];
 
 export function buildTradeWords() {

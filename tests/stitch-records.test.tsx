@@ -7,7 +7,7 @@ import { AppContext, type Membership } from '../components/app/context';
 const state=vi.hoisted(()=>({order:{} as any}));
 vi.mock('next/navigation',()=>({useSearchParams:()=>new URLSearchParams(),useRouter:()=>({push:vi.fn(),prefetch:vi.fn()})}));
 vi.mock('../components/app/initial-resources',()=>({useInitialResource:()=>({data:{data:[state.order],total:1}})}));
-vi.mock('../components/app/resource',()=>({useResource:(url:string|null)=>({loading:false,error:null,reload:()=>{},data:!url?null:url?.endsWith('/photos')?[]:url?.includes('/suggest')?{workers:[]}:url?.endsWith('/members')?[]:url?.endsWith('/clients')?[]:url?.endsWith('/supplier/orders')?{data:[]}:state.order})}));
+vi.mock('../components/app/resource',()=>({useResource:(url:string|null)=>({loading:false,error:null,reload:()=>{},data:!url?null:url?.endsWith('/checklist')?{steps:[{name:'Test the repair',done:true}],materials:[{id:'part',name:'Washer',quantity:2}],editable:false}:url?.endsWith('/photos')?[]:url?.includes('/suggest')?{workers:[]}:url?.endsWith('/members')?[]:url?.endsWith('/clients')?[]:url?.endsWith('/supplier/orders')?{data:[]}:state.order})}));
 vi.mock('../components/ui/theme',()=>({useTheme:()=>({theme:'light',sync:()=>{}})}));
 vi.mock('../components/ui/toast',()=>({useToast:()=>()=>{}}));
 function fixture(extra:object={}){state.order={id:'order',order_number:54,title:'Replace pump valve',description:'Pump stopped working.',status:'in_progress',priority:'high',site_name:'Marina',client_name:'Northgate',assignee_name:'Ravi',assignee_id:'ravi',site_id:'site',client_id:'client',due_on:null,scheduled_for:'2026-11-13T09:00:00Z',created_at:'2026-11-12T10:00:00Z',updated_at:'2026-11-12T11:00:00Z',client:{name:'Northgate'},site:{name:'Marina',address:'Villa 18'},assignee:{id:'ravi',name:'Ravi'},comments:[],timeline:[],...extra};}
@@ -19,7 +19,7 @@ it('keeps operational columns, priority, menus and record links in the simplifie
 for(const role of ['admin','staff','technician','client'] as const){
  it(`retains ${role} job features with one primary action`,()=>{
  fixture({quote_status:'pending',quote_amount:85});const html=render(<WorkOrderDetail id="order"/>,role);expect(primaries(html)).toHaveLength(1);for(const title of ['Job details','Reported problem','Visits','Costs','Notes','History'])if(title==='Job details'&&role==='client')expect(html).toContain('Request details');else expect(html).toContain(title);
- expect(html).toContain('Print job sheet');expect(html).toContain('Pump stopped working.');if(role!=='client')expect(html).toContain('Ravi');if(role==='client'){expect(html).toContain('Approve price');expect(html).toContain('Confirm this time');expect(html).not.toContain('Assignment &amp; schedule');}else if(role==='technician')expect(html).toContain('Complete job');else expect(html).toContain('Save assignment &amp; schedule');
+ expect(html).toContain('Checklist');expect(html).toContain('Materials used');expect(html).toContain('Washer');expect(html).toContain('Print job sheet');expect(html).toContain('Pump stopped working.');if(role!=='client')expect(html).toContain('Ravi');if(role==='client'){expect(html).toContain('Approve price');expect(html).toContain('Confirm this time');expect(html).not.toContain('Assignment &amp; schedule');}else if(role==='technician')expect(html).toContain('Complete job');else expect(html).toContain('Save assignment &amp; schedule');
  });
 }
 it('uses the visit or comment as the client primary when no quote waits for approval',()=>{

@@ -933,7 +933,6 @@
  "No materials recorded.": "Hakuna vifaa vilivyorekodiwa.",
  "Material name": "Jina la kifaa",
  "Quantity": "Kiasi",
- "Note (optional)": "Maelezo (si lazima)",
  "Add material": "Ongeza kifaa",
  "Clean the filter": "Safisha kichujio",
  "Check the drain": "Kagua mfereji",
@@ -951,6 +950,6 @@
  "Checklist and materials saved.": "Orodha na vifaa vimehifadhiwa.",
  "Used during the visit": "Imetumika wakati wa ziara",
  "Capacitor": "Kapasita",
- "Washer": "Washer",
+ "Washer": "Pete ya kufungia",
  "Cable clip": "Kishikio cha kebo"
 }

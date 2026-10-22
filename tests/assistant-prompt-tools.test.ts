@@ -47,3 +47,11 @@ it('retains the aggregate workload tool and busiest counts in bounded production
  expect(JSON.stringify(snapshot)).toContain('"open":50');
  expect(JSON.stringify(snapshot)).toContain('Tech 0');
 });
+
+it('keeps checklist reads and writes for the job words technicians and supervisors use',async()=>{
+ const {tools}=await import('../lib/agent/tools');const {z}=await import('zod');
+ const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
+ for(const [question,action] of [['tick filter cleaned on WO 12','tick_job_step'],['used 2 capacitors on WO 12','add_job_material'],['what was used on WO 12','get_job_checklist'],['المواد المستخدمة في WO 12','get_job_checklist']]){
+  const chosen=selectAssistantTools(question,declarations);expect(chosen.map(t=>t.name),question).toContain(action);expect(chosen.map(t=>t.name)).toContain('get_work_order_by_number');
+ }
+});

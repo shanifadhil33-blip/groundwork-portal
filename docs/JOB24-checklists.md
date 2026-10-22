@@ -17,3 +17,7 @@ Agent: read checklist tool plus separate tick and material writes, using existin
 Edges: up to twelve unique steps of eighty characters; thirty materials; positive quantity up to one hundred thousand; optional note up to two hundred characters. Unknown steps rejected. Completed and cancelled jobs cannot be edited. Idempotency keys prevent retries adding duplicate materials. Failed saves preserve typed inputs and show retryable errors.
 
 Live role walkthrough, phone sweep and deployment are deferred to the reviewer by explicit run instruction. Local typecheck and full tests are the verification gate for this run.
+
+Endpoints: GET and PUT `/api/workspaces/{ws}/checklists`; GET and POST `/api/workspaces/{ws}/work-orders/{id}/checklist`. Template writes take trade and ordered steps. Progress writes take one action: tick, add_material or remove_material. POST accepts an Idempotency-Key. No prices are accepted.
+
+Agent reads page materials and retain all twelve exact step names within the provider context limits. Confirmed writes reuse the action id as the idempotency key. Failed screen saves keep inputs and reuse their request key when retried.

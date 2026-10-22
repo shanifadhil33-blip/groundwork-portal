@@ -116,7 +116,7 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool==='request_time_off')return `Ask your supervisor for time off\n${offSpan(args.kind??'off',args.starts_on,args.ends_on)}\nIt waits until he says yes.`;
   if(tool==='decide_time_off')return `${args.decision==='approved'?'Approve':'Decline'} time off for ${plainAssistantReply(target??'this person')}`;
   if(tool==='tick_job_step')return `Checklist: ${name}\n${plainAssistantReply(args.step)}: ${args.done?'Done':'Not done'}`;
-  if(tool==='add_job_material')return `Materials used: ${name}\nMaterial name: ${plainAssistantReply(args.name)}\nQuantity: ${args.quantity}${args.note?`\nNote (optional): ${plainAssistantReply(args.note)}`:''}`;
+  if(tool==='add_job_material')return `Materials used: ${name}\nMaterial name: ${plainAssistantReply(args.name)}\nQuantity: ${args.quantity}${args.note?`\nNotes: ${plainAssistantReply(args.note)}`:''}`;
   if(tool==='save_job_report')return `Save the job report for ${name}\nHow it ended: ${OUTCOME_LABELS[args.outcome as keyof typeof OUTCOME_LABELS]}${args.problem?`\nProblem: ${plainAssistantReply(args.problem)}`:''}${args.work?`\nWhat you did: ${plainAssistantReply(args.work)}`:''}${args.outcome==='needs_part'?'\nThe job waits for the part.':args.outcome==='cant_fix'?'\nThe job stays open for your supervisor.':'\nThe job is marked done.'}`;
   if(tool==='add_comment')return `Add ${args.visibility==='internal'?'an internal note (team only)':'a comment visible to the client'} to ${name}:\n\n${plainAssistantReply(args.body)}`;
   if(tool==='update_work_order_status')return `Move ${name}: ${statusLabels[order!.status] ?? readableLabel(order!.status)} → ${statusLabels[args.status] ?? readableLabel(args.status)}`;
