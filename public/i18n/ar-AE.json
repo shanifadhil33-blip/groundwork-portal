@@ -1149,5 +1149,11 @@
 "Your supervisor":"مشرفك",
 "System":"النظام",
 "Demo feedback saved here; nothing was sent":"تم حفظ ملاحظات التجربة هنا؛ لم يتم إرسال أي شيء",
-"In the demo, your message stays on this screen.":"في التجربة، تبقى رسالتك على هذه الشاشة."
+"In the demo, your message stays on this screen.":"في التجربة، تبقى رسالتك على هذه الشاشة.",
+  "Sample tap repair": "إصلاح صنبور تجريبي",
+  "Sample drawings": "رسومات توضيحية",
+  "The tap was leaking.": "كان الصنبور يسرب الماء.",
+  "Replaced the seal and tested the tap.": "تم استبدال الحلقة المانعة للتسرب واختبار الصنبور.",
+  "Thank you for fixing the tap.": "شكراً لك على إصلاح الصنبور.",
+  "Please check this repair again.": "يرجى فحص هذا الإصلاح مرة أخرى."
 }

@@ -814,5 +814,11 @@
 "Your supervisor":"உங்கள் மேற்பார்வையாளர்",
 "System":"அமைப்பு",
 "Demo feedback saved here; nothing was sent":"சோதனைக் கருத்து இங்கே சேமிக்கப்பட்டது; எதுவும் அனுப்பப்படவில்லை",
-"In the demo, your message stays on this screen.":"சோதனையில் உங்கள் செய்தி இந்தத் திரையிலேயே இருக்கும்."
+"In the demo, your message stays on this screen.":"சோதனையில் உங்கள் செய்தி இந்தத் திரையிலேயே இருக்கும்.",
+  "Sample tap repair": "குழாய் பழுதுபார்ப்பு மாதிரி",
+  "Sample drawings": "மாதிரி ஓவியங்கள்",
+  "The tap was leaking.": "குழாயில் தண்ணீர் கசிந்தது.",
+  "Replaced the seal and tested the tap.": "வாஷரை மாற்றி குழாயை சோதித்தோம்.",
+  "Thank you for fixing the tap.": "குழாயை சரிசெய்ததற்கு நன்றி.",
+  "Please check this repair again.": "இந்த பழுதுபார்ப்பை மீண்டும் சரிபார்க்கவும்."
 }

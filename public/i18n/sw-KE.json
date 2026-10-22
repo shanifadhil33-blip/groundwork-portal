@@ -750,5 +750,11 @@
 "Your supervisor":"Msimamizi wako",
 "System":"Mfumo",
 "Demo feedback saved here; nothing was sent":"Maoni ya majaribio yamehifadhiwa hapa; hakuna kilichotumwa",
-"In the demo, your message stays on this screen.":"Katika majaribio, ujumbe wako unabaki kwenye skrini hii."
+"In the demo, your message stays on this screen.":"Katika majaribio, ujumbe wako unabaki kwenye skrini hii.",
+  "Sample tap repair": "Mfano wa kutengeneza bomba",
+  "Sample drawings": "Michoro ya mfano",
+  "The tap was leaking.": "Bomba lilikuwa linavuja.",
+  "Replaced the seal and tested the tap.": "Nilibadilisha pete ya kuziba na kujaribu bomba.",
+  "Thank you for fixing the tap.": "Asante kwa kutengeneza bomba.",
+  "Please check this repair again.": "Tafadhali kagua matengenezo haya tena."
 }

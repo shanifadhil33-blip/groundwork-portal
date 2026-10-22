@@ -35,11 +35,17 @@ export async function addPhoto(user: string, ws: string, workOrderId: string, bo
 
 export async function getPhoto(user: string, ws: string, workOrderId: string, photoId: string) {
   uuid.parse(photoId);
-  return inWorkspace(user, ws, async c => {
-    const p = (await c.db.query('SELECT mime, bytes FROM job_photos WHERE workspace_id=$1 AND work_order_id=$2 AND id=$3', [ws, workOrderId, photoId])).rows[0];
+  let sandboxBytes: Buffer | undefined;
+  const result = await inWorkspace(user, ws, async c => {
+    const p = (await c.db.query(`SELECT p.mime,p.bytes,w.is_demo FROM job_photos p JOIN workspaces w ON w.id=p.workspace_id
+      WHERE p.workspace_id=$1 AND p.work_order_id=$2 AND p.id=$3`, [ws, workOrderId, photoId])).rows[0];
     if (!p) throw new ApiError(404, 'not_found', 'Photo not found.');
-    return p as { mime: string; bytes: Buffer };
+    // Contact-name personalization walks objects and strips Buffer's type.
+    // Keep authorized sandbox image bytes intact; the real path is unchanged.
+    if (p.is_demo) sandboxBytes = p.bytes;
+    return { mime: p.mime, bytes: p.bytes } as { mime: string; bytes: Buffer };
   });
+  return sandboxBytes ? { ...result, bytes: sandboxBytes } : result;
 }
 
 export async function removePhoto(user: string, ws: string, workOrderId: string, photoId: string) {

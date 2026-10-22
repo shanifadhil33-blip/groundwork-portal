@@ -745,5 +745,11 @@
 "Your supervisor":"Alábòójútó rẹ",
 "System":"Ètò",
 "Demo feedback saved here; nothing was sent":"A ti fi èsì àdánwò pamọ́ síbí; a kò fi ohunkóhun ránṣẹ́",
-"In the demo, your message stays on this screen.":"Nínú àdánwò, ìfiránṣẹ́ rẹ wà lórí ojú ìbòjú yìí."
+"In the demo, your message stays on this screen.":"Nínú àdánwò, ìfiránṣẹ́ rẹ wà lórí ojú ìbòjú yìí.",
+  "Sample tap repair": "Àpẹẹrẹ àtúnṣe tẹ́ẹ̀pù omi",
+  "Sample drawings": "Àwọn àwòrán àpẹẹrẹ",
+  "The tap was leaking.": "Tẹ́ẹ̀pù omi náà ń jo.",
+  "Replaced the seal and tested the tap.": "A rọ́pò òrùka ìdènà omi a sì dán tẹ́ẹ̀pù náà wò.",
+  "Thank you for fixing the tap.": "Ẹ ṣé fún títún tẹ́ẹ̀pù omi náà ṣe.",
+  "Please check this repair again.": "Ẹ jọ̀wọ́ tún yẹ àtúnṣe yìí wò."
 }

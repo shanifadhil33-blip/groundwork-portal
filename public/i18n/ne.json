@@ -795,5 +795,11 @@
 "Your supervisor":"तपाईंका सुपरभाइजर",
 "System":"प्रणाली",
 "Demo feedback saved here; nothing was sent":"डेमोको प्रतिक्रिया यहाँ सुरक्षित गरियो; केही पनि पठाइएन",
-"In the demo, your message stays on this screen.":"डेमोमा तपाईंको सन्देश यही पर्दामा रहन्छ।"
+"In the demo, your message stays on this screen.":"डेमोमा तपाईंको सन्देश यही पर्दामा रहन्छ।",
+  "Sample tap repair": "धारा मर्मतको नमुना",
+  "Sample drawings": "नमुना चित्रहरू",
+  "The tap was leaking.": "धाराबाट पानी चुहिरहेको थियो।",
+  "Replaced the seal and tested the tap.": "वासर फेरेर धारा जाँच गरियो।",
+  "Thank you for fixing the tap.": "धारा ठीक गरिदिनुभएकोमा धन्यवाद।",
+  "Please check this repair again.": "कृपया यो मर्मत फेरि जाँच गर्नुहोस्।"
 }

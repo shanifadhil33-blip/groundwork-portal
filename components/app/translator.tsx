@@ -1,10 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { DEFAULT_LANGUAGE, LANGUAGES, isRtl } from '../../lib/languages';
 import { isEnglish, languageFileUrl, mergeLanguageFile, readTranslationCache, replaceTranslation, translationPieces, translationSource, TRANSLATION_ATTRIBUTES, TRANSLATION_SKIP } from '../../lib/i18n';
 import { useResource } from './resource';
 import { setNotificationLanguage } from './notification-language';
 import { LANG_HINT_KEY } from '../../lib/head-scripts';
+import { AppContext } from './context';
+import { DEMO_PROOF_COPY } from '../../lib/demo-proof-copy';
 
 const LANGUAGE_EVENT = 'groundwork-language-changed';
 export function changeAppLanguage(lang: string) {
@@ -19,6 +21,7 @@ const write = (slot: Slot, value: string) => {
 };
 
 export function Translator() {
+  const demoProof = !!useContext(AppContext)?.workspace?.is_demo;
   const preferences = useResource<{language?: string | null}>('/api/me/preferences');
   const [chosen, setChosen] = useState<string | null>(null);
   const language = chosen ?? preferences.data?.language ?? DEFAULT_LANGUAGE;
@@ -54,12 +57,19 @@ export function Translator() {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const options: MutationObserverInit = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...TRANSLATION_ATTRIBUTES, 'data-no-translate', 'contenteditable'] };
     const observer = new MutationObserver(() => schedule());
-    const skipped = (node: Text | Element, attribute = false) => !!(node instanceof Element ? node : node.parentElement)?.closest(attribute ? TRANSLATION_SKIP.replace('textarea,', '') : TRANSLATION_SKIP);
+    const skipped = (node: Text | Element, attribute = false, source?: string) => {
+      const element = node instanceof Element ? node : node.parentElement;
+      // The fixture's exact sample words have static translations. Keep real
+      // job data and all other sandbox writing verbatim, including form inputs.
+      if (!attribute && demoProof && DEMO_PROOF_COPY.has((source ?? node.nodeValue ?? '').trim())
+        && !element?.closest(TRANSLATION_SKIP.replace('[data-no-translate],', ''))) return false;
+      return !!element?.closest(attribute ? TRANSLATION_SKIP.replace('textarea,', '') : TRANSLATION_SKIP);
+    };
     function update(slot: Slot) {
       const current = read(slot);
       // React may reuse a node for a new source. Never restore its old content.
       if (current !== slot.applied) slot.source = current;
-      if (skipped(slot.node, !!slot.attribute)) {
+      if (skipped(slot.node, !!slot.attribute, slot.source)) {
         if (current === slot.applied && current !== slot.source) write(slot, slot.source);
         return;
       }
@@ -166,7 +176,7 @@ export function Translator() {
       }
       root.lang = previousLang; root.dir = previousDir;
     };
-  }, [language, languageReady]);
+  }, [language, languageReady, demoProof]);
   // Remember the language for the pre-paint hint once it is known (never guess before preferences load).
   useEffect(() => { if (preferences.data || chosen) { try { localStorage.setItem(LANG_HINT_KEY, language); } catch { /* Storage may be disabled. */ } } }, [language, preferences.data, chosen]);
   return null;

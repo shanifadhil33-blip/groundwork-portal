@@ -769,5 +769,11 @@
 "Your supervisor":"Mai kula da kai",
 "System":"Tsarin",
 "Demo feedback saved here; nothing was sent":"An adana ra’ayin gwaji a nan; ba a aika komai ba",
-"In the demo, your message stays on this screen.":"A gwajin, saƙonka yana nan a wannan allo."
+"In the demo, your message stays on this screen.":"A gwajin, saƙonka yana nan a wannan allo.",
+  "Sample tap repair": "Misalin gyaran famfo",
+  "Sample drawings": "Zane na misali",
+  "The tap was leaking.": "Famfon yana zubar da ruwa.",
+  "Replaced the seal and tested the tap.": "An sauya zoben hana zuba kuma an gwada famfon.",
+  "Thank you for fixing the tap.": "Na gode da gyara famfon.",
+  "Please check this repair again.": "Don Allah a sake duba wannan gyaran."
 }

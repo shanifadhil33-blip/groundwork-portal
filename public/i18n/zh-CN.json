@@ -755,5 +755,11 @@
 "Your supervisor":"您的主管",
 "System":"系统",
 "Demo feedback saved here; nothing was sent":"演示反馈已保存在此处；未发送任何内容",
-"In the demo, your message stays on this screen.":"在演示中，您的消息只保留在此屏幕上。"
+"In the demo, your message stays on this screen.":"在演示中，您的消息只保留在此屏幕上。",
+  "Sample tap repair": "水龙头维修示例",
+  "Sample drawings": "示意图",
+  "The tap was leaking.": "水龙头漏水了。",
+  "Replaced the seal and tested the tap.": "更换了密封垫并测试了水龙头。",
+  "Thank you for fixing the tap.": "谢谢你修好水龙头。",
+  "Please check this repair again.": "请再次检查这次维修。"
 }

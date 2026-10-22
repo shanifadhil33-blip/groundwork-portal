@@ -5,6 +5,7 @@ import { pushJobChange } from './push';
 import { withSystem } from '../db';
 import { allow, inWorkspace, replay } from './shared';
 import type { PoolClient } from 'pg';
+import { useDemoRatingReader } from './demo-rating-reader';
 
 export const OUTCOMES = ['fixed', 'temporary', 'needs_part', 'cant_fix'] as const;
 export const OUTCOME_LABELS: Record<(typeof OUTCOMES)[number], string> = { fixed: 'Fixed', temporary: 'Temporary fix', needs_part: 'Needs a part', cant_fix: "Can't be fixed" };
@@ -76,7 +77,13 @@ export async function myFixes(user: string, ws: string, options: { month?: 'this
     const summary = (await c.db.query(`SELECT count(*) FILTER (WHERE ${month}=${current})::int AS month,
       count(*) FILTER (WHERE ${month}=${current} - interval '1 month')::int AS last_month, count(*)::int AS total ${base}`, [ws, of])).rows[0] as { month: number; last_month: number; total: number };
     // High ratings only. The technician cannot read the rating rows, and a low rating stays with the supervisor.
-    const thanks = (await withSystem(db => db.query('SELECT count(*)::int AS n FROM job_ratings r JOIN work_orders j ON j.id=r.work_order_id WHERE j.workspace_id=$1 AND j.assignee_id=$2 AND r.stars>=4', [ws, of]), user)).rows[0].n as number;
+    const thanks = await withSystem(async db => {
+      // FORCE RLS also applies to the seed owner. In a live sandbox, use its
+      // own admin to read this high-rating count after the viewer check above.
+      // No rating text or low-rating count leaves this transaction.
+      await useDemoRatingReader(db, ws, user);
+      return (await db.query('SELECT count(*)::int AS n FROM job_ratings r JOIN work_orders j ON j.id=r.work_order_id WHERE j.workspace_id=$1 AND j.assignee_id=$2 AND r.stars>=4', [ws, of])).rows[0].n as number;
+    }, user);
     const trades = (await c.db.query(`SELECT coalesce(o.trade,'general') AS trade,count(*)::int AS count ${base} AND ${month}=${current} GROUP BY coalesce(o.trade,'general') ORDER BY count(*) DESC,trade`, [ws, of])).rows as { trade: string; count: number }[];
     const filter = `${base} AND ($3='all' OR ${month}=${current} - CASE WHEN $3='last' THEN interval '1 month' ELSE interval '0 month' END)
       AND ($4='' OR strpos(lower(concat_ws(' ',o.title,s.name,o.report_problem,o.report_work)),lower($4))>0)`;

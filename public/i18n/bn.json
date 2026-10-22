@@ -819,5 +819,11 @@
 "Your supervisor":"আপনার সুপারভাইজার",
 "System":"সিস্টেম",
 "Demo feedback saved here; nothing was sent":"ডেমোর মতামত এখানে সংরক্ষিত হয়েছে; কিছুই পাঠানো হয়নি",
-"In the demo, your message stays on this screen.":"ডেমোতে আপনার বার্তা এই পর্দাতেই থাকে।"
+"In the demo, your message stays on this screen.":"ডেমোতে আপনার বার্তা এই পর্দাতেই থাকে।",
+  "Sample tap repair": "কল মেরামতের নমুনা",
+  "Sample drawings": "নমুনা আঁকা ছবি",
+  "The tap was leaking.": "কল থেকে পানি ঝরছিল।",
+  "Replaced the seal and tested the tap.": "ওয়াশার বদলে কল পরীক্ষা করা হয়েছে।",
+  "Thank you for fixing the tap.": "কল ঠিক করার জন্য ধন্যবাদ।",
+  "Please check this repair again.": "অনুগ্রহ করে এই মেরামত আবার পরীক্ষা করুন।"
 }

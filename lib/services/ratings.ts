@@ -4,13 +4,22 @@ import { withSystem } from '../db';
 import { inWorkspace, uuid } from './shared';
 import { lowRatingRecipients } from '../job-close';
 import { office, sendPush } from './push';
+import { useDemoRatingReader } from './demo-rating-reader';
 // CMP09: the client rates a finished job, once. Low stars tell the office straight away.
 const body = z.object({ stars: z.number().int().min(1).max(5), note: z.string().trim().max(1000).default('') }).strict();
 export async function getRating(user: string, ws: string, id: string) {
   return inWorkspace(user, ws, async c => { uuid.parse(id);
     const w = (await c.db.query('SELECT id,status,client_id,assignee_id FROM work_orders WHERE workspace_id=$1 AND id=$2', [ws, id])).rows[0];
     if (!w) throw new ApiError(404, 'not_found', 'This job was not found.');
-    const r = (await c.db.query('SELECT stars,note,created_at FROM job_ratings WHERE work_order_id=$1', [id])).rows[0] ?? null;
+    let r = (await c.db.query('SELECT stars,note,created_at FROM job_ratings WHERE work_order_id=$1', [id])).rows[0] ?? null;
+    // A sandbox technician can read thanks for his own work. Never return a
+    // low rating through this reader or change the real account read path.
+    if (!r && c.role === 'technician' && w.assignee_id === user) r = await withSystem(async db => {
+      if (!await useDemoRatingReader(db, ws, user)) return null;
+      return (await db.query(`SELECT r.stars,r.note,r.created_at FROM job_ratings r
+        JOIN work_orders j ON j.id=r.work_order_id AND j.workspace_id=r.workspace_id
+        WHERE j.workspace_id=$1 AND j.id=$2 AND j.assignee_id=$3 AND r.stars>=4`, [ws, id, user])).rows[0] ?? null;
+    }, user);
     const privateLow = r && r.stars <= 2 && c.role !== 'client' && !(c.role === 'admin' || (c.role === 'staff' && c.staff_kind !== 'office'));
     return { rating: privateLow ? null : r, private: !!privateLow, can_rate: !r && w.status === 'done' && c.role === 'client' && w.client_id === c.client_id };
   });

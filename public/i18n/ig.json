@@ -764,5 +764,11 @@
 "Your supervisor":"Onye nlekọta gị",
 "System":"Usoro",
 "Demo feedback saved here; nothing was sent":"Echekwara nzaghachi nnwale ebe a; ọ dịghị ihe ezipụrụ",
-"In the demo, your message stays on this screen.":"Na nnwale a, ozi gị na anọ na ihuenyo a."
+"In the demo, your message stays on this screen.":"Na nnwale a, ozi gị na anọ na ihuenyo a.",
+  "Sample tap repair": "Ihe atụ ịrụzi pọmpụ",
+  "Sample drawings": "Ihe osise atụ",
+  "The tap was leaking.": "Pọmpụ ahụ na agba mmiri.",
+  "Replaced the seal and tested the tap.": "Agbanwere mgbanaka mkpuchi ma nwalee pọmpụ ahụ.",
+  "Thank you for fixing the tap.": "Daalụ maka ịrụzi pọmpụ ahụ.",
+  "Please check this repair again.": "Biko lelee nrụzi a ọzọ."
 }

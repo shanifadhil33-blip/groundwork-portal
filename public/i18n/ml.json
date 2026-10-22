@@ -782,5 +782,11 @@
 "Your supervisor":"നിങ്ങളുടെ മേൽനോട്ടക്കാരൻ",
 "System":"സംവിധാനം",
 "Demo feedback saved here; nothing was sent":"ഡെമോ അഭിപ്രായം ഇവിടെ സൂക്ഷിച്ചു; ഒന്നും അയച്ചിട്ടില്ല",
-"In the demo, your message stays on this screen.":"ഡെമോയിൽ നിങ്ങളുടെ സന്ദേശം ഈ സ്ക്രീനിൽ തന്നെ തുടരും."
+"In the demo, your message stays on this screen.":"ഡെമോയിൽ നിങ്ങളുടെ സന്ദേശം ഈ സ്ക്രീനിൽ തന്നെ തുടരും.",
+  "Sample tap repair": "ടാപ്പ് നന്നാക്കുന്നതിന്റെ മാതൃക",
+  "Sample drawings": "മാതൃകാ ചിത്രങ്ങൾ",
+  "The tap was leaking.": "ടാപ്പിൽ നിന്ന് വെള്ളം ചോർന്നിരുന്നു.",
+  "Replaced the seal and tested the tap.": "വാഷർ മാറ്റി ടാപ്പ് പരിശോധിച്ചു.",
+  "Thank you for fixing the tap.": "ടാപ്പ് നന്നാക്കിയതിന് നന്ദി.",
+  "Please check this repair again.": "ദയവായി ഈ അറ്റകുറ്റപ്പണി വീണ്ടും പരിശോധിക്കുക."
 }

@@ -799,5 +799,11 @@
 "Your supervisor":"آپ کے سپروائزر",
 "System":"نظام",
 "Demo feedback saved here; nothing was sent":"ڈیمو کی رائے یہاں محفوظ ہو گئی؛ کچھ بھی نہیں بھیجا گیا",
-"In the demo, your message stays on this screen.":"ڈیمو میں آپ کا پیغام اسی اسکرین پر رہتا ہے۔"
+"In the demo, your message stays on this screen.":"ڈیمو میں آپ کا پیغام اسی اسکرین پر رہتا ہے۔",
+  "Sample tap repair": "نل کی مرمت کی مثال",
+  "Sample drawings": "نمونے کی تصویریں",
+  "The tap was leaking.": "نل سے پانی ٹپک رہا تھا۔",
+  "Replaced the seal and tested the tap.": "واشر بدل کر نل کو جانچا۔",
+  "Thank you for fixing the tap.": "نل ٹھیک کرنے کا شکریہ۔",
+  "Please check this repair again.": "براہ کرم اس مرمت کو دوبارہ جانچیں۔"
 }

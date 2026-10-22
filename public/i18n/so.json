@@ -770,5 +770,11 @@
 "Your supervisor":"Kormeerahaaga",
 "System":"Nidaamka",
 "Demo feedback saved here; nothing was sent":"Fikradda tijaabada halkan ayaa lagu kaydiyey; waxba lama dirin",
-"In the demo, your message stays on this screen.":"Tijaabada gudaheeda, farriintaadu waxay ku ekaanaysaa shaashaddan."
+"In the demo, your message stays on this screen.":"Tijaabada gudaheeda, farriintaadu waxay ku ekaanaysaa shaashaddan.",
+  "Sample tap repair": "Tusaale hagaajinta qasabadda",
+  "Sample drawings": "Sawirro tusaale ah",
+  "The tap was leaking.": "Qasabadda ayaa daadinaysay.",
+  "Replaced the seal and tested the tap.": "Waxaan beddelay giraanta xidhista oo tijaabiyey qasabadda.",
+  "Thank you for fixing the tap.": "Waad ku mahadsan tahay hagaajinta qasabadda.",
+  "Please check this repair again.": "Fadlan mar kale hubi hagaajintan."
 }

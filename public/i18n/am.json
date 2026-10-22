@@ -758,5 +758,11 @@
 "Your supervisor":"የእርስዎ ተቆጣጣሪ",
 "System":"ስርዓቱ",
 "Demo feedback saved here; nothing was sent":"የሙከራ አስተያየት እዚህ ተቀምጧል፤ ምንም አልተላከም",
-"In the demo, your message stays on this screen.":"በሙከራው ውስጥ መልእክትዎ በዚህ ማያ ገጽ ላይ ይቆያል።"
+"In the demo, your message stays on this screen.":"በሙከራው ውስጥ መልእክትዎ በዚህ ማያ ገጽ ላይ ይቆያል።",
+  "Sample tap repair": "የቧንቧ ጥገና ናሙና",
+  "Sample drawings": "የናሙና ሥዕሎች",
+  "The tap was leaking.": "ቧንቧው ውሃ ያፈስ ነበር።",
+  "Replaced the seal and tested the tap.": "ማሸጊያውን ቀይሬ ቧንቧውን ፈተሽኩ።",
+  "Thank you for fixing the tap.": "ቧንቧውን ስላስተካከልክ አመሰግናለሁ።",
+  "Please check this repair again.": "እባክህ ይህን ጥገና እንደገና ፈትሽ።"
 }

@@ -760,5 +760,11 @@
 "Your supervisor":"Superbisor mo",
 "System":"Sistema",
 "Demo feedback saved here; nothing was sent":"Nakaimbak dito ang puna sa demo; walang ipinadala",
-"In the demo, your message stays on this screen.":"Sa demo, nananatili sa screen na ito ang mensahe mo."
+"In the demo, your message stays on this screen.":"Sa demo, nananatili sa screen na ito ang mensahe mo.",
+  "Sample tap repair": "Halimbawang pagayos ng gripo",
+  "Sample drawings": "Mga halimbawang guhit",
+  "The tap was leaking.": "Tumutulo ang gripo.",
+  "Replaced the seal and tested the tap.": "Pinalitan ang washer at sinubukan ang gripo.",
+  "Thank you for fixing the tap.": "Salamat sa pagayos ng gripo.",
+  "Please check this repair again.": "Pakisuri muli ang pagkakaayos na ito."
 }

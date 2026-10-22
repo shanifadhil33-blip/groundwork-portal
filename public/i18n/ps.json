@@ -796,5 +796,11 @@
 "Your supervisor":"ستاسو څارونکی",
 "System":"سیستم",
 "Demo feedback saved here; nothing was sent":"د ازموینې نظر دلته خوندي شو؛ هېڅ شی نه دي لېږل شوي",
-"In the demo, your message stays on this screen.":"په ازموینه کې ستاسو پیغام په همدې پرده پاتې کېږي."
+"In the demo, your message stays on this screen.":"په ازموینه کې ستاسو پیغام په همدې پرده پاتې کېږي.",
+  "Sample tap repair": "د نل د ترمیم بېلګه",
+  "Sample drawings": "نمونوي رسمونه",
+  "The tap was leaking.": "له نل څخه اوبه څڅېدې.",
+  "Replaced the seal and tested the tap.": "واشر بدل شو او نل وازمویل شو.",
+  "Thank you for fixing the tap.": "د نل د جوړولو مننه.",
+  "Please check this repair again.": "مهرباني وکړئ دا ترمیم بیا وګورئ."
 }

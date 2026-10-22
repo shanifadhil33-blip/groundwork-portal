@@ -801,5 +801,11 @@
 "Your supervisor":"سرپرست شما",
 "System":"سامانه",
 "Demo feedback saved here; nothing was sent":"بازخورد آزمایشی اینجا ذخیره شد؛ چیزی ارسال نشد",
-"In the demo, your message stays on this screen.":"در نسخه آزمایشی، پیام شما در همین صفحه می‌ماند."
+"In the demo, your message stays on this screen.":"در نسخه آزمایشی، پیام شما در همین صفحه می‌ماند.",
+  "Sample tap repair": "نمونه تعمیر شیر آب",
+  "Sample drawings": "نقاشی‌های نمونه",
+  "The tap was leaking.": "شیر آب نشت داشت.",
+  "Replaced the seal and tested the tap.": "واشر تعویض شد و شیر آب آزمایش شد.",
+  "Thank you for fixing the tap.": "از تعمیر شیر آب متشکرم.",
+  "Please check this repair again.": "لطفاً این تعمیر را دوباره بررسی کنید."
 }

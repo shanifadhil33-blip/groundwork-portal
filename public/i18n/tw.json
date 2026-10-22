@@ -755,5 +755,11 @@
 "Your supervisor":"Wo hwɛfo",
 "System":"Nhyehyɛe no",
 "Demo feedback saved here; nothing was sent":"Wɔakora sɔhwɛ adwenkyerɛ no wɔ ha; wɔamfa biribiara ankɔma obiara",
-"In the demo, your message stays on this screen.":"Sɔhwɛ no mu no, wo nkra no tena saa krataafa yi so."
+"In the demo, your message stays on this screen.":"Sɔhwɛ no mu no, wo nkra no tena saa krataafa yi so.",
+  "Sample tap repair": "Tap nsiesie ho nhwɛso",
+  "Sample drawings": "Mfoni a wɔayɛ sɛ nhwɛso",
+  "The tap was leaking.": "Na nsu retu afi tap no mu.",
+  "Replaced the seal and tested the tap.": "Mesesaa rɔba no na mesɔɔ tap no hwɛe.",
+  "Thank you for fixing the tap.": "Meda wo ase sɛ woasiesie tap no.",
+  "Please check this repair again.": "Yɛsrɛ wo san hwɛ saa nsiesie yi bio."
 }

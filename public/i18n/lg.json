@@ -749,5 +749,11 @@
 "Your supervisor":"Omulabirizi wo",
 "System":"Enkola",
 "Demo feedback saved here; nothing was sent":"Endowooza y’okugezesa eterekeddwa wano; tewali kiweerezeddwa",
-"In the demo, your message stays on this screen.":"Mu kugezesa, obubaka bwo busigala ku lutimbe luno."
+"In the demo, your message stays on this screen.":"Mu kugezesa, obubaka bwo busigala ku lutimbe luno.",
+  "Sample tap repair": "Ekyokulabirako eky’okuddaabiriza ttaapu",
+  "Sample drawings": "Ebifaananyi ebyokulabirako",
+  "The tap was leaking.": "Ttaapu yali etonnya.",
+  "Replaced the seal and tested the tap.": "Nnakyusa akapiira ne nkebera ttaapu.",
+  "Thank you for fixing the tap.": "Weebale okuddaabiriza ttaapu.",
+  "Please check this repair again.": "Nsaba oddemu okukebera okuddaabiriza kuno."
 }
