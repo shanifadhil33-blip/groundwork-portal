@@ -57,13 +57,13 @@ it('counts tool schemas in the context budget, reduces output, and skips a provi
 it('caps snapshots, keeps counts and IDs, and removes duplicate MCP record text',()=>{
  const rows=Array.from({length:100},(_,i)=>({id:String(i),title:'Job '+i}));
  const snapshot=compactSnapshot({content:[{text:JSON.stringify(rows)}],structuredContent:{result:{count:100,data:rows}}});
- expect(snapshot).not.toHaveProperty('content');expect(snapshot.result.count).toBe(100);expect(snapshot.result.data).toMatchObject({truncated:true,total:100});expect(snapshot.result.data.items).toHaveLength(20);
+ expect(snapshot).not.toHaveProperty('content');expect(snapshot.result.count).toBe(100);expect(snapshot.result.data).toMatchObject({truncated:true,total:100});expect(snapshot.result.data.items).toHaveLength(6);
  expect(compactSnapshot({id:'001',date:'2026-10-22'})).toEqual({id:'001',date:'2026-10-22'});
 });
 it('trims old history only at user boundaries and retains tool call pairs',()=>{
  const history=Array.from({length:8},(_,i)=>({role:'user' as const,content:String(i)}));
  const result=compactAssistantHistory([...history,{role:'call',name:'list',args:{},id:'1'},{role:'result',name:'list',result:{ok:true},id:'1'}]);
- expect(result[0]).toEqual(history[4]);expect(result.slice(-2).map(m=>m.role)).toEqual(['call','result']);
+ expect(result[0]).toEqual(history[6]);expect(result.slice(-2).map(m=>m.role)).toEqual(['call','result']);
 });
 async function openaiTurn(responses:Response[]){
  for(const key of ['GEMINI_API_KEY','OPENROUTER_API_KEY','CLOUDFLARE_AI_TOKEN','KILO_API_KEY','OVH_AI_TOKEN','ZAI_API_KEY','NVIDIA_API_KEY','REQUESTY_API_KEY','GROQ_API_KEY','CEREBRAS_API_KEY','MISTRAL_API_KEY'])vi.stubEnv(key,'');
