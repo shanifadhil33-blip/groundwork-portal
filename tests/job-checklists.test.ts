@@ -1,4 +1,5 @@
 import { afterAll, expect, it } from 'vitest';
+import { readFileSync, readdirSync } from 'node:fs';
 import { closePools, withSystem } from '../lib/db';
 import { ids, siteId } from '../scripts/seed';
 import { createWorkOrder } from '../lib/services/work-orders';
@@ -51,4 +52,21 @@ it('validates bounds, unknown steps and maximum materials',async()=>{
  const j=await job();await expect(saveJobChecklist(ids.ravi,ws,j.id,{action:'tick',step:'Unknown',done:true})).rejects.toMatchObject({status:422});
  for(let n=0;n<30;n++)await saveJobChecklist(ids.ravi,ws,j.id,{action:'add_material',name:'Washer',quantity:1});
  await expect(saveJobChecklist(ids.ravi,ws,j.id,{action:'add_material',name:'Washer',quantity:1})).rejects.toMatchObject({status:422});
+});
+it('both demo paths seed templates and filled snapshots using the shared fixture',async()=>{
+ const {populateChecklistFixture}=await import('../lib/fixture-checklists');
+ await withSystem(db=>populateChecklistFixture(db,ws,ids.imran),ids.imran);
+ const templates=await checklistTemplates(ids.imran,ws);
+ const {TRADES}=await import('../lib/trades');
+ for(const trade of TRADES)expect(templates[trade].length).toBeGreaterThan(0);
+ const saved=await withSystem(async db=>(await db.query("SELECT details FROM work_order_events WHERE workspace_id=$1 AND kind='job_checklist'",[ws])).rows);
+ expect(saved.some(r=>r.details.steps.some((s:{done:boolean})=>s.done)&&r.details.materials.length>0)).toBe(true);
+ for(const path of ['lib/fixture.ts','lib/fixture-dune-harbour.ts'])expect(readFileSync(path,'utf8')).toContain('await populateChecklistFixture(');
+});
+it('every checklist label, default step and server message has every language key',()=>{
+ const keys=['Checklists','Job type','Use up to twelve short steps. Saved jobs keep their steps.','Step','Move up','Move down','Add step','Use suggested steps','Save checklist','Checklist','steps done','No steps set for this job type.','Materials used','No materials recorded.','Material name','Quantity','Note (optional)','Add material','Clean the filter','Check the drain','Check cooling','Check for leaks','Clean the work area','Check water flow','Test the repair','Switch off the power','Check the wiring','You cannot change checklists.','You cannot change this job.','Open the job and choose a checklist step.','Use up to thirty materials.','Checklist and materials saved.','Used during the visit','Capacitor','Washer','Cable clip'];
+ for(const file of readdirSync('public/i18n').filter(f=>f.endsWith('.json'))){
+  const dictionary=JSON.parse(readFileSync('public/i18n/'+file,'utf8'));
+  for(const key of keys){expect(dictionary[key],file+': '+key).toBeTruthy();expect(typeof dictionary[key]).toBe('string');}
+ }
 });

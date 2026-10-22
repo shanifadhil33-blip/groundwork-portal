@@ -1217,3 +1217,11 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 @media(max-width:360px){.day-plan,.habit-card,.parts-keep,.contract-finish,.job-done-card{width:100%}}
 @media(hover:hover) and (pointer:fine){.day-plan .button.secondary:hover,.habit-card .button:hover,.parts-keep .button:hover,.contract-finish .button:hover,.job-done-card .rating-pick button:hover,.doc-actions .button:hover{background:var(--hover)}}
 .day-plan .button:active,.habit-card .button:active,.parts-keep .button:active,.contract-finish .button:active,.job-done-card .rating-pick button:active,.doc-actions .button:active{background:var(--pressed)}
+
+/* JOB24: stacked controls remain usable on phones and in either text direction. */
+.checklist-fields { border: 0; padding: 0; min-inline-size: 0; }
+.job-checklist, .checklist-settings { min-inline-size: 0; overflow-wrap: anywhere; }
+.job-checklist .field input, .checklist-settings .field input { inline-size: 100%; min-inline-size: 0; }
+.job-checklist .precheck-item { min-block-size: 44px; }
+.checklist-materials { margin: 0; padding-inline-start: 1.2rem; }
+.checklist-settings .row, .job-checklist .row { flex-wrap: wrap; }

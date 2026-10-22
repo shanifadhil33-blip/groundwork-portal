@@ -1,3 +1,4 @@
+import { populateChecklistFixture } from './fixture-checklists';
 import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { localDate, scheduledInstant } from './dates';
@@ -135,5 +136,6 @@ export async function populateDuneHarbour(db:PoolClient,ws:string,expires:'6 hou
  await db.query("SELECT set_config('app.user_id',$1,true)",[id.imran]);
  // Storage: like Ridgeline, drop the seed noise in the audit log (bell and timeline rows).
  await db.query("DELETE FROM audit_log WHERE workspace_id=$1 AND entity IN ('notifications','work_order_events')",[ws]);
+ await populateChecklistFixture(db,ws,id.imran);
  return {ids:id,client,site};
 }

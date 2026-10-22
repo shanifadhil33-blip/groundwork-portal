@@ -1,3 +1,4 @@
+import { populateChecklistFixture } from './fixture-checklists';
 import { populateCompanyJoiningFixture } from './fixture-company-joining';
 import { populateIdentityFixture } from './fixture-identity';
 import { localDate, scheduledInstant } from './dates';
@@ -212,6 +213,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
     await populateNotificationFixture(client,ids);
     await populateIdentityFixture(client,ids);
     await populateCompanyJoiningFixture(client,ids);
+    await populateChecklistFixture(client,ids.ridgeline,ids.imran);
     // A private household preview, not a second membership: demo identity rules allow one workspace only.
     await client.query("INSERT INTO idempotency_keys(user_id,scope,key,fingerprint,result) VALUES($1,$2,'household','preview',$3)",[ids.ravi,`household_preview:${ids.ridgeline}`,JSON.stringify({workspace_id:ids.ridgeline,address:'Flat 12, Sample Court',simulated:true})]);
     await client.query("UPDATE users SET phone='+971000000000' WHERE id=$1",[ids.ravi]);
