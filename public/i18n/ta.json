@@ -842,5 +842,8 @@
 "Practice invite created. It cannot grant access.": "பயிற்சி அழைப்பு உருவாக்கப்பட்டது. இது அணுகலை வழங்காது.",
 "Practice sign in complete. You are still using the same account.": "உள்நுழைவு பயிற்சி முடிந்தது. நீங்கள் இன்னும் அதே கணக்கைப் பயன்படுத்துகிறீர்கள்.",
 "Revoked": "ரத்து செய்யப்பட்டது",
-"Pending": "நிலுவையில்"
+"Pending": "நிலுவையில்",
+"Sample household. This preview does not add a membership or show client requests.": "மாதிரி குடும்பம். இந்த முன்னோட்டம் உறுப்பினர் சேர்க்கையையோ வாடிக்கையாளர் கோரிக்கைகளையோ காட்டாது.",
+"Sample contact. Calls are unavailable.": "மாதிரி தொடர்பு. அழைப்புகள் கிடைக்காது.",
+"Code sign in preview": "குறியீடு மூலம் நுழையும் முன்னோட்டம்"
 }

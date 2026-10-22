@@ -23,9 +23,9 @@ export async function teamToday(user: string, ws: string) {
     return rows;
   }).then(async rows => {
     // Phones are not exposed by visible_user, so read them for this workspace's members only, after the role check above.
-    const phones = rows.length ? (await withSystem(db => db.query('SELECT u.id AS user_id, u.phone FROM users u JOIN members m ON m.user_id=u.id AND m.workspace_id=$1 WHERE u.phone IS NOT NULL', [ws]), user)).rows as { user_id: string; phone: string }[] : [];
-    const phoneOf = new Map(phones.map(p => [p.user_id, p.phone]));
-    return rows.map(r => ({ ...r, phone: phoneOf.get(r.user_id) ?? null, signs_in_with: r.email ? 'google' : 'code' }));
+    const phones = rows.length ? (await withSystem(db => db.query('SELECT u.id AS user_id, u.phone, u.is_demo, u.demo_persona FROM users u JOIN members m ON m.user_id=u.id AND m.workspace_id=$1 WHERE u.phone IS NOT NULL', [ws]), user)).rows as { user_id: string; phone: string; is_demo:boolean; demo_persona:string }[] : [];
+    const phoneOf = new Map(phones.map(p => [p.user_id, p]));
+    return rows.map(r => {const contact=phoneOf.get(r.user_id);const preview=!!contact?.is_demo;return { ...r, phone: contact?.phone ?? null, contact_preview:preview, signs_in_with: preview&&contact?.demo_persona==='ravi'?'code':r.email ? 'google' : 'code' };});
   });
 }
 

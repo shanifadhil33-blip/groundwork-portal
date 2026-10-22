@@ -803,5 +803,8 @@
 "Practice invite created. It cannot grant access.": "دعوت تمرینی ساخته شد. اجازه دسترسی نمی‌دهد.",
 "Practice sign in complete. You are still using the same account.": "ورود تمرینی تکمیل شد. هنوز از همان حساب استفاده می‌کنید.",
 "Revoked": "لغو شده",
-"Pending": "در انتظار"
+"Pending": "در انتظار",
+"Sample household. This preview does not add a membership or show client requests.": "خانه نمونه. این پیش نمایش عضویت اضافه نمی‌کند و درخواست‌های مشتریان را نشان نمی‌دهد.",
+"Sample contact. Calls are unavailable.": "شماره نمونه. تماس ممکن نیست.",
+"Code sign in preview": "پیش نمایش ورود با رمز"
 }

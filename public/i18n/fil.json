@@ -788,5 +788,8 @@
 "Practice invite created. It cannot grant access.": "Nagawa ang imbitasyon sa pagsasanay. Hindi ito makapagbibigay ng access.",
 "Practice sign in complete. You are still using the same account.": "Tapos na ang pagsasanay sa pagpasok. Gamit mo pa rin ang parehong account.",
 "Revoked": "Binawi",
-"Pending": "Naghihintay"
+"Pending": "Naghihintay",
+"Sample household. This preview does not add a membership or show client requests.": "Halimbawang sambahayan. Hindi nagdaragdag ng pagiging miyembro o nagpapakita ng mga hiling ng kliyente ang pagsilip na ito.",
+"Sample contact. Calls are unavailable.": "Halimbawang numero. Hindi puwedeng tumawag.",
+"Code sign in preview": "Pagsilip sa pagpasok gamit ang code"
 }

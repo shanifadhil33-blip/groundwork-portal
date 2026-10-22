@@ -827,5 +827,8 @@
 "Practice invite created. It cannot grant access.": "مشق کی دعوت بن گئی۔ اس سے رسائی نہیں مل سکتی۔",
 "Practice sign in complete. You are still using the same account.": "سائن ان کی مشق مکمل ہوئی۔ آپ اب بھی وہی اکاؤنٹ استعمال کر رہے ہیں۔",
 "Revoked": "منسوخ",
-"Pending": "زیر انتظار"
+"Pending": "زیر انتظار",
+"Sample household. This preview does not add a membership or show client requests.": "نمونہ گھرانہ۔ یہ پیش منظر رکنیت شامل نہیں کرتا اور گاہکوں کی درخواستیں نہیں دکھاتا۔",
+"Sample contact. Calls are unavailable.": "نمونہ رابطہ۔ کال دستیاب نہیں ہے۔",
+"Code sign in preview": "کوڈ سے داخلے کا پیش منظر"
 }

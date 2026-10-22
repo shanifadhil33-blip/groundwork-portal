@@ -810,5 +810,8 @@
 "Practice invite created. It cannot grant access.": "പരിശീലന ക്ഷണം സൃഷ്ടിച്ചു. ഇതിലൂടെ പ്രവേശനം ലഭിക്കില്ല.",
 "Practice sign in complete. You are still using the same account.": "സൈൻ ഇൻ പരിശീലനം പൂർത്തിയായി. നിങ്ങൾ ഇപ്പോഴും അതേ അക്കൗണ്ടാണ് ഉപയോഗിക്കുന്നത്.",
 "Revoked": "റദ്ദാക്കി",
-"Pending": "തീർപ്പാകാത്തത്"
+"Pending": "തീർപ്പാകാത്തത്",
+"Sample household. This preview does not add a membership or show client requests.": "മാതൃകാ കുടുംബം. ഈ തിരനോട്ടം അംഗത്വം ചേർക്കുകയോ ഉപഭോക്തൃ അഭ്യർത്ഥനകൾ കാണിക്കുകയോ ചെയ്യുന്നില്ല.",
+"Sample contact. Calls are unavailable.": "മാതൃകാ നമ്പർ. വിളികൾ ലഭ്യമല്ല.",
+"Code sign in preview": "കോഡ് ഉപയോഗിച്ചുള്ള പ്രവേശന തിരനോട്ടം"
 }

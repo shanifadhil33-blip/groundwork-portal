@@ -31,7 +31,7 @@ function SkillsButton({ p, base, areas, onDone }: { p: TeamPerson; base: string;
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
 }
 
-type TeamPerson = { extra_roles?: string[]; staff_kind?: string | null; trades: string[]; areas: string[]; user_id: string; role: Role; name: string | null; email: string | null; phone: string | null; open: number; today: number; late: number; done_month: number; done_total: number; off_days: number[]; signs_in_with: 'google' | 'code' };
+type TeamPerson = { contact_preview?:boolean; extra_roles?: string[]; staff_kind?: string | null; trades: string[]; areas: string[]; user_id: string; role: Role; name: string | null; email: string | null; phone: string | null; open: number; today: number; late: number; done_month: number; done_total: number; off_days: number[]; signs_in_with: 'google' | 'code' };
 
 /** Turn each role on or off. A person can hold several; they can do everything any of them allows. */
 export function RolesButton({ p, base, onDone }: { p: { user_id: string; name: string | null; role: string; extra_roles?: string[]; staff_kind?: string | null; is_owner?: boolean; is_manager?: boolean }; base: string; onDone: () => void }) {
@@ -64,7 +64,8 @@ function PersonCard({ p, base, canLink, canEdit, canRoles, areas, onDone, self }
   return <li className="person-card">
     <div className="heading-row"><div><strong data-no-translate><ContactName name={p.name} userId={p.user_id}/></strong><p className="small muted">{rolesLabel(p, roleLabels)}</p></div>
       <div className="person-head-actions">
-      {p.phone && <a className="button secondary" href={`tel:${p.phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${p.name ?? 'them'}`}><Phone size={16} aria-hidden="true" />Call</a>}{canRoles && !self && <MemberMenu person={p} base={base} onChanged={onDone} />}</div></div>
+      {p.phone && !demo && <a className="button secondary" href={`tel:${p.phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${p.name ?? 'them'}`}><Phone size={16} aria-hidden="true" />Call</a>}{canRoles && !self && <MemberMenu person={p} base={base} onChanged={onDone} />}</div></div>
+    {demo&&p.contact_preview&&<div className="stack compact"><p className="small">Sample contact. Calls are unavailable.</p><p data-no-translate dir="ltr">{p.phone}</p>{p.signs_in_with==='code'&&<p className="small">Code sign in preview</p>}</div>}
     <nav className="person-job-links" aria-label="Worker jobs">{nums.map(n => <Link key={n.label} href={n.href} aria-label={`${n.value} ${n.label} for ${p.name ?? 'them'}`}>{n.label} {n.value}</Link>)}</nav>
     {(p.trades.length > 0 || p.areas.length > 0) && <div className="skill-chips">{p.trades.map(t => <span key={t} className="chip">{tradeLabels[t as Trade] ?? t}</span>)}{p.areas.map(a => <span key={a} className="chip chip-area">{a}</span>)}</div>}
     {worker && <p className="small muted person-record">Jobs done: {p.done_month} this month, {p.done_total} in total{p.off_days?.length ? ` · Off every ${p.off_days.map(d => DAYS[d]).join(', ')}` : ''}</p>}

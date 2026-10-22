@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { withUser } from '../db';
+import { withSystem, withUser } from '../db';
 import { ApiError } from '../http';
 import { assertRealUser } from './demo';
 import { inWorkspace, uuid } from './shared';
@@ -29,10 +29,22 @@ export async function decideJoinRequest(user:string,ws:string,id:string,body:unk
  });
 }
 export async function editHomeAddress(user:string,ws:string,site:string,body:unknown){
- await assertRealUser(user);uuid.parse(ws);uuid.parse(site);
+ uuid.parse(ws);uuid.parse(site);
  const d=z.object({address:z.string().trim().min(1,'Enter your home address.').max(2000)}).strict().parse(body);
  return inWorkspace(user,ws,async c=>{
   if(c.role!=='client'||c.client_kind!=='household')throw new ApiError(403,'forbidden','You can only change your own home address.');
+  const demo=(await c.db.query('SELECT is_demo FROM users WHERE id=$1',[user])).rows[0]?.is_demo;
+  if(demo)return withSystem(async db=>{
+   // Keep the caller as actor. Lock and recheck identity, membership and expiry on the owner connection.
+   const m=(await db.query(`SELECT m.client_id FROM members m JOIN users u ON u.id=m.user_id JOIN workspaces w ON w.id=m.workspace_id
+    WHERE m.workspace_id=$1 AND m.user_id=$2 AND m.role='client' AND m.client_kind='household' AND m.archived_at IS NULL
+    AND u.is_demo AND u.demo_workspace_id=w.id AND w.is_demo AND w.demo_expires_at>now() FOR SHARE OF m,u,w`,[ws,user])).rows[0];
+   if(!m)throw new ApiError(403,'forbidden','You can only change your own home address.');
+   const result=(await db.query('UPDATE sites SET address=$4 WHERE workspace_id=$1 AND id=$2 AND client_id=$3 AND archived_at IS NULL RETURNING *',[ws,site,m.client_id,d.address])).rows[0];
+   if(!result)throw new ApiError(403,'forbidden','You can only change your own home address.');
+   return result;
+  },user);
+  await assertRealUser(user);
   try{return (await c.db.query('SELECT * FROM edit_household_address($1,$2,$3)',[ws,site,d.address])).rows[0];}
   catch(e){if((e as {code?:string}).code==='P0403')throw new ApiError(403,'forbidden','You can only change your own home address.');throw e;}
  });

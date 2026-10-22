@@ -843,5 +843,8 @@
 "Practice invite created. It cannot grant access.": "अभ्यास का आमंत्रण बनाया गया। इससे पहुँच नहीं मिल सकती।",
 "Practice sign in complete. You are still using the same account.": "साइन इन का अभ्यास पूरा हुआ। आप अभी भी उसी खाते का उपयोग कर रहे हैं।",
 "Revoked": "रद्द किया गया",
-"Pending": "लंबित"
+"Pending": "लंबित",
+"Sample household. This preview does not add a membership or show client requests.": "नमूना परिवार। यह झलक सदस्यता नहीं जोड़ती और ग्राहकों के अनुरोध नहीं दिखाती।",
+"Sample contact. Calls are unavailable.": "नमूना संपर्क। कॉल उपलब्ध नहीं हैं।",
+"Code sign in preview": "कोड से प्रवेश की झलक"
 }

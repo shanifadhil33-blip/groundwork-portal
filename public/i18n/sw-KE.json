@@ -778,5 +778,8 @@
 "Practice invite created. It cannot grant access.": "Mwaliko wa mazoezi umeundwa. Hauwezi kutoa ruhusa ya kuingia.",
 "Practice sign in complete. You are still using the same account.": "Mazoezi ya kuingia yamekamilika. Bado unatumia akaunti ileile.",
 "Revoked": "Imebatilishwa",
-"Pending": "Inasubiri"
+"Pending": "Inasubiri",
+"Sample household. This preview does not add a membership or show client requests.": "Kaya ya mfano. Onyesho hili haliongezi uanachama wala kuonyesha maombi ya wateja.",
+"Sample contact. Calls are unavailable.": "Nambari ya mfano. Simu hazipatikani.",
+"Code sign in preview": "Onyesho la kuingia kwa msimbo"
 }

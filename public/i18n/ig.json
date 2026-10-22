@@ -792,5 +792,8 @@
 "Practice invite created. It cannot grant access.": "Emepụtara ọkpụkpọ òkù omume. Ọ nweghị ike inye ohere ịbanye.",
 "Practice sign in complete. You are still using the same account.": "Omume ịbanye agwụla. Ị ka na-eji otu akaụntụ ahụ.",
 "Revoked": "Akagbuola",
-"Pending": "Na-eche"
+"Pending": "Na-eche",
+"Sample household. This preview does not add a membership or show client requests.": "Ezinụlọ ihe atụ. Nlele a anaghị etinye ịbụ onye otu ma ọ bụ gosi arịrịọ ndị ahịa.",
+"Sample contact. Calls are unavailable.": "Nọmba ihe atụ. Enweghị ike ịkpọ oku.",
+"Code sign in preview": "Nlele ịbanye na koodu"
 }

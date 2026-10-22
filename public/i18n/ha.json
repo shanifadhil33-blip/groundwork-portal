@@ -797,5 +797,8 @@
 "Practice invite created. It cannot grant access.": "An ƙirƙiri gayyatar gwaji. Ba za ta ba da izinin shiga ba.",
 "Practice sign in complete. You are still using the same account.": "An gama gwajin shiga. Har yanzu kana amfani da asusun nan ɗaya.",
 "Revoked": "An soke",
-"Pending": "Ana jira"
+"Pending": "Ana jira",
+"Sample household. This preview does not add a membership or show client requests.": "Misalin gida. Wannan samfoti ba ya ƙara zama memba ko nuna buƙatun abokan ciniki.",
+"Sample contact. Calls are unavailable.": "Misalin lambar waya. Ba a iya kira.",
+"Code sign in preview": "Samfotin shiga da lamba"
 }

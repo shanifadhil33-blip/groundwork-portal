@@ -1177,5 +1177,8 @@
 "Practice invite created. It cannot grant access.": "تم إنشاء دعوة للتجربة. ما تمنح أي صلاحية دخول.",
 "Practice sign in complete. You are still using the same account.": "اكتملت تجربة تسجيل الدخول. أنت تستخدم نفس الحساب.",
 "Revoked": "ملغاة",
-"Pending": "قيد الانتظار"
+"Pending": "قيد الانتظار",
+"Sample household. This preview does not add a membership or show client requests.": "منزل تجريبي. هذه المعاينة ما تضيف عضوية ولا تعرض طلبات العملاء.",
+"Sample contact. Calls are unavailable.": "رقم تجريبي. الاتصال غير متاح.",
+"Code sign in preview": "معاينة الدخول برمز"
 }

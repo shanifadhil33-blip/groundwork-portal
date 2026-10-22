@@ -807,5 +807,8 @@
 "Practice invite created. It cannot grant access.": "ናይ ልምምድ ዕድመ ተፈጢሩ። መእተዊ ፍቓድ ክህብ ኣይክእልን።",
 "Practice sign in complete. You are still using the same account.": "ልምምድ መእተዊ ተዛዚሙ። ገና ነቲ ሓደ መለያ ትጥቀሙ ኣለኹም።",
 "Revoked": "ተሰሪዙ",
-"Pending": "ኣብ ትጽቢት"
+"Pending": "ኣብ ትጽቢት",
+"Sample household. This preview does not add a membership or show client requests.": "ናይ ኣብነት ስድራ። እዚ ቅድመ ርእይቶ ኣባልነት ኣይውስኽን ሕቶታት ዓማዊል ኣየርእይን።",
+"Sample contact. Calls are unavailable.": "ናይ ኣብነት ቁጽሪ። ምድዋል ኣይከኣልን።",
+"Code sign in preview": "ብኮድ ምእታው ቅድመ ርእይቶ"
 }

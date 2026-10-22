@@ -847,5 +847,8 @@
 "Practice invite created. It cannot grant access.": "অনুশীলনের আমন্ত্রণ তৈরি হয়েছে। এটি প্রবেশের অনুমতি দিতে পারে না।",
 "Practice sign in complete. You are still using the same account.": "সাইন ইনের অনুশীলন শেষ। আপনি এখনও একই অ্যাকাউন্ট ব্যবহার করছেন।",
 "Revoked": "বাতিল করা হয়েছে",
-"Pending": "অপেক্ষমাণ"
+"Pending": "অপেক্ষমাণ",
+"Sample household. This preview does not add a membership or show client requests.": "নমুনা পরিবার। এই পূর্বরূপ সদস্যপদ যোগ করে না বা গ্রাহকের অনুরোধ দেখায় না।",
+"Sample contact. Calls are unavailable.": "নমুনা যোগাযোগ। কল করা যাবে না।",
+"Code sign in preview": "কোড দিয়ে প্রবেশের পূর্বরূপ"
 }

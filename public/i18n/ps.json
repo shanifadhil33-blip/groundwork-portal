@@ -824,5 +824,8 @@
 "Practice invite created. It cannot grant access.": "تمریني بلنه جوړه شوه. لاسرسی نه شي ورکولی.",
 "Practice sign in complete. You are still using the same account.": "د ننوتلو تمرین بشپړ شو. تاسو لا هم هماغه حساب کاروئ.",
 "Revoked": "لغوه شوی",
-"Pending": "په تمه"
+"Pending": "په تمه",
+"Sample household. This preview does not add a membership or show client requests.": "د بېلګې کورنۍ. دا کتنه غړیتوب نه زیاتوي او د پېرودونکو غوښتنې نه ښيي.",
+"Sample contact. Calls are unavailable.": "د بېلګې شمېره. زنګ وهل شوني نه دي.",
+"Code sign in preview": "په کوډ د ننوتلو کتنه"
 }

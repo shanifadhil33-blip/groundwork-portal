@@ -786,5 +786,8 @@
 "Practice invite created. It cannot grant access.": "የልምምድ ግብዣ ተፈጥሯል። መዳረሻ መስጠት አይችልም።",
 "Practice sign in complete. You are still using the same account.": "የመግባት ልምምድ ተጠናቋል። አሁንም ተመሳሳይ መለያ እየተጠቀሙ ነው።",
 "Revoked": "ተሰርዟል",
-"Pending": "በመጠባበቅ ላይ"
+"Pending": "በመጠባበቅ ላይ",
+"Sample household. This preview does not add a membership or show client requests.": "የሙከራ ቤተሰብ። ይህ ቅድመ እይታ አባልነት አይጨምርም ወይም የደንበኛ ጥያቄዎችን አያሳይም።",
+"Sample contact. Calls are unavailable.": "የሙከራ አድራሻ። ጥሪዎች አይገኙም።",
+"Code sign in preview": "በኮድ መግባት ቅድመ እይታ"
 }

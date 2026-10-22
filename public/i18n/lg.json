@@ -777,5 +777,8 @@
 "Practice invite created. It cannot grant access.": "Okuyita okwokwegezaamu kutondeddwa. Tekusobola kuwa lukusa kuyingira.",
 "Practice sign in complete. You are still using the same account.": "Okwegezaamu okuyingira kuwedde. Okyakozesa akawunti yemu.",
 "Revoked": "Kisaziddwamu",
-"Pending": "Kilindiriddwa"
+"Pending": "Kilindiriddwa",
+"Sample household. This preview does not add a membership or show client requests.": "Amaka ag’okulabirako. Okulaba kuno tekugattako bwammemba era tekulaga kusaba kwa bakasitoma.",
+"Sample contact. Calls are unavailable.": "Ennamba ey’okulabirako. Okukuba essimu tekusoboka.",
+"Code sign in preview": "Okulaba okuyingira n’akabonero"
 }

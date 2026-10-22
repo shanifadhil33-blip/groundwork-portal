@@ -16,6 +16,11 @@ import { orderNumber, ListSkeleton } from './work-order-list';
 import { Badge, EmptyState, ErrorState, LocalTime, RelativeTime, StatusBadge } from '../ui';
 import { workOrderTitle, isOverdue, clientStatusLabel, type Page, type WorkOrder } from '../../lib/ui/work-orders';
 export function ClientHome() {
+  const {me,member,workspace}=useApp();
+  if(me.user.is_demo&&workspace?.is_demo&&me.household_preview&&me.household_preview.workspace_id===member?.workspace_id)return <div className="page stack"><h1>My home</h1><p>Sample household. This preview does not add a membership or show client requests.</p><section className="stack site-row"><h2>Your home address</h2><p data-no-translate>{me.household_preview.address}</p></section><Link className="button secondary" href="/today">Work</Link></div>;
+  return <ClientRequests/>;
+}
+function ClientRequests() {
   const {member,workspace}=useApp(), base=member?`/api/workspaces/${member.workspace_id}/work-orders`:null;
   const open=useResource<Page<WorkOrder>>(base?`${base}?status=open&status=scheduled&status=in_progress&status=waiting_on_parts&sort=updated_at&dir=desc&pageSize=6`:null);
   const recent=useResource<Page<WorkOrder>>(base?`${base}?sort=updated_at&dir=desc&pageSize=5`:null);

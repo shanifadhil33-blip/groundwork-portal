@@ -204,8 +204,14 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   if(demo) {
     await populateProofFixture(client,ids,siteId,orderId,today,timezone);
     await populateFollowUpFixture(client,ids,siteId,today,timezone);
+    // Keep a working visit on the workspace day, including when the sample is reset on Friday.
+    await client.query('UPDATE members SET off_days=array_remove(off_days,extract(dow FROM $3::date)::smallint) WHERE workspace_id=$1 AND user_id=$2',[ids.ridgeline,ids.ravi,today]);
+    await client.query("UPDATE work_orders SET assignee_id=$2,scheduled_for=$3,due_on=$4 WHERE id=$1 AND status='scheduled'",[orderId(2),ids.ravi,scheduledInstant(today,timezone,14),today]);
     await populateDecisionFixture(client,ids,today);
     await populateNotificationFixture(client,ids);
     await populateIdentityFixture(client,ids);
+    // A private household preview, not a second membership: demo identity rules allow one workspace only.
+    await client.query("INSERT INTO idempotency_keys(user_id,scope,key,fingerprint,result) VALUES($1,$2,'household','preview',$3)",[ids.ravi,`household_preview:${ids.ridgeline}`,JSON.stringify({workspace_id:ids.ridgeline,address:'Flat 12, Sample Court',simulated:true})]);
+    await client.query("UPDATE users SET phone='+971000000000' WHERE id=$1",[ids.ravi]);
   }
 }

@@ -24,6 +24,7 @@ const schema=z.object({name,timezone:timezone.default('Asia/Dubai'),...placeFiel
 export async function me(user: string) {
  return withUser(user,async db=>({
   user:(await db.query('SELECT u.*,s.phone,s.is_demo FROM visible_user($1) u JOIN users s ON s.id=u.id',[user])).rows[0],
+  household_preview:(await db.query("SELECT k.result FROM idempotency_keys k JOIN members m ON m.user_id=k.user_id JOIN workspaces w ON w.id=m.workspace_id WHERE k.user_id=$1 AND k.scope='household_preview:'||w.id::text AND k.key='household' AND w.is_demo AND w.demo_expires_at>now() AND m.role='technician' AND m.archived_at IS NULL",[user])).rows[0]?.result??null,
   onboarding_started:Boolean((await db.query('SELECT 1 FROM onboarding_progress WHERE user_id=$1',[user])).rows[0]),
   memberships:(await db.query('SELECT m.workspace_id,m.role,m.extra_roles,m.staff_kind,m.client_kind,m.is_owner,m.is_manager,m.client_id,w.name AS workspace_name,c.name AS client_name FROM members m JOIN workspaces w ON w.id=m.workspace_id LEFT JOIN clients c ON c.id=m.client_id WHERE m.user_id=$1 AND m.archived_at IS NULL ORDER BY w.name',[user])).rows,
  }));

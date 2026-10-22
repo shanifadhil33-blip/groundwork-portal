@@ -783,5 +783,8 @@
 "Practice invite created. It cannot grant access.": "练习邀请已创建。此邀请无法授予访问权限。",
 "Practice sign in complete. You are still using the same account.": "登录练习已完成。您仍在使用同一账户。",
 "Revoked": "已撤销",
-"Pending": "待处理"
+"Pending": "待处理",
+"Sample household. This preview does not add a membership or show client requests.": "示例家庭。此预览不会添加成员身份或显示客户请求。",
+"Sample contact. Calls are unavailable.": "示例联系方式。无法拨打电话。",
+"Code sign in preview": "验证码登录预览"
 }

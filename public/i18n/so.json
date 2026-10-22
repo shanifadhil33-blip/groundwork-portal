@@ -798,5 +798,8 @@
 "Practice invite created. It cannot grant access.": "Martiqaadka tababarka waa la sameeyay. Ma bixin karo oggolaansho gelitaan.",
 "Practice sign in complete. You are still using the same account.": "Tababarka gelitaanka wuu dhammaaday. Weli waxaad isticmaalaysaa isla akoonkii.",
 "Revoked": "La buriyay",
-"Pending": "Sugaya"
+"Pending": "Sugaya",
+"Sample household. This preview does not add a membership or show client requests.": "Qoys tusaale ah. Muuqaalkan kuma daro xubinnimo mana tuso codsiyada macaamiisha.",
+"Sample contact. Calls are unavailable.": "Lambar tusaale ah. Wicitaanno lama heli karo.",
+"Code sign in preview": "Muuqaalka gelitaanka koodhka"
 }
