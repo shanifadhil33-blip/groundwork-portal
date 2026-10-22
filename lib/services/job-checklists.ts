@@ -1,3 +1,4 @@
+import { assertPriceReleased } from './price-changes';
 import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { withSystem } from '../db';
@@ -49,6 +50,7 @@ export async function saveJobChecklist(user: string, ws: string, id: string, bod
     if (!job || (m.role === 'technician' && job.assignee_id !== user)) throw new ApiError(403,'forbidden','This job is not yours.');
     return replay(db,user,ws+'/work-orders/'+id+'/checklist',key,data,async () => {
       if (['done','cancelled'].includes(job.status)) throw new ApiError(409,'closed','This job is already closed.');
+      await assertPriceReleased(db,ws,id);
       const state = await onJob(db,ws,job);
       if (data.action === 'tick') {
         const step = state.steps.find(s => s.name === data.step);

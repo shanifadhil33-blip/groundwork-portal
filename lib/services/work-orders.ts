@@ -1,3 +1,4 @@
+import { assertPriceReleased } from './price-changes';
 import { tenantFields, normalizeTenant, checkTenantInput, visibleTenant } from './tenant';
 import { checkJobAsset } from './assets';
 import { reportEmergency } from './emergencies';
@@ -120,6 +121,7 @@ export async function getWorkOrder(user:string,ws:string,id:string) {
  return inWorkspace(user,ws,async c=>{
   uuid.parse(id);
   const order=(await c.db.query(`SELECT w.*,(SELECT to_jsonb(a) FROM visible_job_asset(w.workspace_id,w.id) a) AS asset,to_jsonb(s) AS site,to_jsonb(cl) AS client,ws.timezone,
+   (SELECT e.details FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id AND e.kind='price_change' ORDER BY e.created_at DESC,e.id DESC LIMIT 1) AS price_change,
    CASE WHEN w.assignee_id IS NULL THEN NULL ELSE coalesce((SELECT to_jsonb(a) FROM visible_assignee(w.workspace_id,w.id) a),jsonb_build_object('id',w.assignee_id)) END AS assignee,
    coalesce((SELECT jsonb_agg(cm ORDER BY cm.created_at,cm.id) FROM comments cm WHERE cm.workspace_id=w.workspace_id AND cm.work_order_id=w.id),'[]') AS comments,
    coalesce((SELECT jsonb_agg(e ORDER BY e.created_at,CASE WHEN e.kind='created' THEN 0 ELSE 1 END,e.id) FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id),'[]') AS timeline
@@ -152,6 +154,7 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
   timestamp.parse(version);
   if(new Date(version).getTime()!==order.updated_at.getTime())throw new ApiError(409,'stale','This request changed since you opened it. Refresh it and try again.');
   const {updated_at:_,reopen,undo_status,on_way,...data}=parsed;
+  if(data.status&&data.status!==order.status&&data.status!=='cancelled')await assertPriceReleased(c.db,ws,id);
   if(on_way){if(Object.keys(data).length||order.assignee_id!==user||order.status!=='scheduled'||order.on_way_at)throw invalid('This visit is not ready for travel.');return update(c,'work_orders',id,{on_way_at:new Date()});}
   if(!Object.keys(data).length)throw invalid('Provide at least one change.');
   // Audit A5: a booked job with nobody on it goes back to Open, so it shows up as needing a person.

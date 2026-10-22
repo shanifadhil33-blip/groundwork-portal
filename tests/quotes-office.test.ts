@@ -13,7 +13,8 @@ const harborJob = () => withSystem(async db => (await db.query("SELECT id FROM w
 it('the office sends a price; only the client answers it, once', async () => {
   const id = await harborJob();
   await expect(sendQuote(ids.pranav, ws, id, { amount: 100 })).rejects.toMatchObject({ status: 403 });
-  await sendQuote(ids.nabil, ws, id, { amount: 450, note: 'Parts and labour' });
+  await expect(sendQuote(ids.nabil, ws, id, { amount: 450 })).rejects.toMatchObject({status:403});
+  await sendQuote(ids.imran, ws, id, { amount: 450, note: 'Parts and labour' });
   await expect(decideQuote(ids.sam, ws, id, { decision: 'approved' })).rejects.toMatchObject({ status: 403 });
   const k: any = await callTool({ user: ids.kevin, ws, scope: 'write', kind: 'assistant' }, 'answer_quote', { id, decision: 'approved' });
   expect(k.isError).toBe(true);

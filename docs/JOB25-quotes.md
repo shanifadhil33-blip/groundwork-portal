@@ -26,4 +26,4 @@ Technician finding > job event and hold > owner, supervisor and office waiting p
 
 ## Local verification
 
-Pending implementation and local checks.
+Backend implemented in lib/services/price-changes.ts and existing quotes, work orders, report and checklist services. Focused backend tests: 10 passed across price changes and quotes office. Initial typecheck passed. Full verification pending.

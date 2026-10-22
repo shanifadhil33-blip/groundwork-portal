@@ -1,3 +1,4 @@
+import { assertPriceReleased } from './price-changes';
 import { z } from 'zod';
 import type { PoolClient } from 'pg';
 import { asAgent, withSystem } from '../db';
@@ -44,6 +45,7 @@ async function canBookReturn(c:Context,job:any,visits?:{rebooked_at:unknown}[]) 
  return visits?visits.some(v=>!v.rebooked_at):!!(await c.db.query('SELECT 1 FROM job_visits WHERE workspace_id=$1 AND work_order_id=$2 AND rebooked_at IS NULL',[c.ws,job.id])).rowCount;
 }
 async function validate(c:Context,job:any,d:Action) {
+ await assertPriceReleased(c.db,c.ws,job.id);
  const team=['admin','staff'].includes(c.role),assigned=c.role==='technician'&&job.assignee_id===c.user;
  if(d.action==='follow_up'){
   if(!team)throw denied();
@@ -68,7 +70,8 @@ export async function jobNextStep(user:string,ws:string,id:string) {
  await inWorkspace(user,ws,c=>row(c,'work_orders',id));
  return withSystem(async db=>{
   const {c,job}=await context(db,user,ws,id,false);
-  const team=['admin','staff'].includes(c.role),assigned=c.role==='technician'&&job.assignee_id===user;
+  await assertPriceReleased(c.db,c.ws,job.id);
+ const team=['admin','staff'].includes(c.role),assigned=c.role==='technician'&&job.assignee_id===user;
   const follow=(await db.query('SELECT id,title,status,report_part,part_arrived_at,assignee_id FROM work_orders WHERE workspace_id=$1 AND follow_up_of=$2 AND archived_at IS NULL',[ws,id])).rows[0]??null;
   const draft=(await db.query("SELECT id,status FROM job_suggestions WHERE workspace_id=$1 AND report_follow_up_of=$2",[ws,id])).rows[0]??null;
   const visits=(await db.query('SELECT id,visited_at,photo_id,rebooked_at FROM job_visits WHERE workspace_id=$1 AND work_order_id=$2 ORDER BY visited_at DESC',[ws,id])).rows;

@@ -1,3 +1,4 @@
+import { assertPriceReleased } from './price-changes';
 import { reportNextNotice } from './job-next-step';
 import { z } from 'zod';
 import { ApiError } from '../http';
@@ -25,6 +26,7 @@ export async function saveJobReport(user:string,ws:string,id:string,body:unknown
   const o=(await db.query('SELECT * FROM work_orders WHERE workspace_id=$1 AND id=$2 FOR UPDATE',[ws,id])).rows[0];
   if(!o||(member.role==='technician'&&o.assignee_id!==user))throw new ApiError(403,'forbidden','This job is not yours.');
   return replay(db,user,ws+'/work-orders/'+id+'/report',key,data,async()=>{
+   await assertPriceReleased(db,ws,id);
    if(o.status==='done'||o.status==='cancelled')throw new ApiError(409,'closed','This job is already closed.');
    if(new Date(data.updated_at).getTime()!==new Date(o.updated_at).getTime())throw new ApiError(409,'stale','This job changed. Open it and review your report before sending again.');
    await db.query('UPDATE work_orders SET report_problem=$3,report_work=$4,report_outcome=$5,report_at=now(),report_by=$6,report_problem_en=$7,report_work_en=$8,report_language=$9,report_part=$10 WHERE workspace_id=$1 AND id=$2',[ws,id,data.problem||null,data.work||null,data.outcome,user,data.problem_en||null,data.work_en||null,data.language||null,data.part||null]);
