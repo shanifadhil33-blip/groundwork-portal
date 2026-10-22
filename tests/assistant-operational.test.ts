@@ -65,3 +65,34 @@ it('keeps a real assistant first request below six thousand estimated input toke
  expect(estimateTokens(body)).toBeLessThan(6000);
  expect(body.tools.length).toBeLessThan(12);
 });
+it('workload counts equal all visible active jobs for every caller role',async()=>{
+ const {assistantWorkload}=await import('../lib/services/assistant-reads');
+ const {listWorkOrders}=await import('../lib/services/work-orders');
+ const {readEvidenceAnswer}=await import('../lib/agent/read-evidence-answer');
+ for(const user of [ids.imran,ids.sam,ids.ravi,ids.pranav]){
+  const rows=await assistantWorkload(user,ids.ridgeline);
+  const visible=await listWorkOrders(user,ids.ridgeline,new URLSearchParams({active:'true'}));
+  expect(rows.reduce((sum,row)=>sum+row.open,0)).toBe(visible.total);
+  expect(rows.map(row=>row.open)).toEqual(rows.map(row=>row.open).sort((a,b)=>b-a));
+  if(rows.length){
+   const localized=readEvidenceAnswer([{structuredContent:{result:rows}}],'ar-AE');
+   expect(localized).toContain(String(rows[0].open));
+   expect(localized).toMatch(/\p{Script=Arabic}/u);
+  }
+ }
+});
+it('answers all workload variants without contacting an AI provider',async()=>{
+ const network=vi.fn(()=>{throw new Error('Unexpected network call');});vi.stubGlobal('fetch',network);
+ const {assistant}=await import('../lib/services/assistant');
+ for(const content of ['Which technician has the most open jobs and why might that be?','مين عنده أكثر شغل مفتوح؟','किस तकनीशियन के पास सबसे ज्यादा काम है?','کس ٹیکنیشن پر کام کا بوجھ سب سے زیادہ ہے؟']){
+  const reply=await assistant(ids.imran,ids.ridgeline,{messages:[{role:'user',content}]});
+  expect(reply).toMatchObject({quick:true,localized:true});
+ }
+ expect(network).not.toHaveBeenCalled();
+});
+it('ships a localized workload scope and evidence explanation for every app language',()=>{
+ const key='Visible open jobs only. The records do not explain why workloads differ.';
+ for(const {code} of LANGUAGES.filter(l=>!l.code.startsWith('en'))){
+  expect(choiceWords(code)(key),code).not.toBe(key);
+ }
+});

@@ -931,5 +931,6 @@
   "Highest priority first, then oldest deadline": "Mafi muhimmanci da farko, sannan mafi tsohon wa’adin ƙarshe",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "Waɗanne ayyuka ne suka makara kuma wa zan fara tuntuɓa? Yi bayani a taƙaice.",
   "What is the most important thing I need to do today?": "Mene ne abu mafi muhimmanci da zan yi yau?",
-  "Summarize this week for my team in two sentences.": "Taƙaita wannan makon ga ƙungiyata cikin jimloli biyu."
+  "Summarize this week for my team in two sentences.": "Taƙaita wannan makon ga ƙungiyata cikin jimloli biyu.",
+ "Visible open jobs only. The records do not explain why workloads differ.": "Ayyukan buɗe da kake iya gani kawai. Bayanai ba su bayyana dalilin bambancin nauyin aiki ba."
 }

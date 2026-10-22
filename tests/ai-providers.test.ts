@@ -128,3 +128,24 @@ it('redacts structured credential values including arrays and nested objects',as
  expect(failure.errorBody).toContain('[redacted]');
  expect(JSON.stringify(warn.mock.calls)).not.toContain('private');
 });
+it.each([
+ ['Your input is lacking necessary details','ar-AE','أكثر الأعمال المفتوحة لدى علي، لديه خمسة أعمال.'],
+ ['The busiest technician has five open jobs.','ar-AE','أكثر الأعمال المفتوحة لدى علي، لديه خمسة أعمال.'],
+ ['The technician is not identified in the provided output','hi','सबसे अधिक खुले काम रवि के पास हैं।'],
+ ['The technician has five open jobs','ur','علی کے پاس سب سے زیادہ کھلے کام ہیں۔'],
+])('retries a non-answer or wrong-language reply once: %s',async(bad,language,good)=>{
+ vi.stubEnv('OPENROUTER_API_KEY','test');vi.stubEnv('GROQ_API_KEY','test');vi.stubEnv('MISTRAL_API_KEY','test');
+ const fetcher=vi.fn().mockResolvedValueOnce(Response.json({choices:[{message:{content:bad}}]})).mockResolvedValueOnce(Response.json({choices:[{message:{content:good}}]}));
+ vi.stubGlobal('fetch',fetcher);
+ const turn=await assistantTurn([{role:'user',content:'Explain visible jobs'}],[],'',5000,language);
+ expect(turn?.text).toBe(good);expect(fetcher).toHaveBeenCalledTimes(2);
+ expect(fetcher.mock.calls[0][0]).not.toBe(fetcher.mock.calls[1][0]);
+ expect(JSON.parse(fetcher.mock.calls[0][1].body).messages[0].content).toContain(`Required reply language: ${language}`);
+});
+it('stops after one quality retry so the caller can return localized read evidence',async()=>{
+ vi.stubEnv('OPENROUTER_API_KEY','test');vi.stubEnv('GROQ_API_KEY','test');vi.stubEnv('MISTRAL_API_KEY','test');
+ const fetcher=vi.fn().mockImplementation(()=>Promise.resolve(Response.json({choices:[{message:{content:'Your input is lacking necessary details'}}]})));
+ vi.stubGlobal('fetch',fetcher);
+ expect(await assistantTurn([{role:'user',content:'Explain visible jobs'}],[],'',5000,'ar-AE')).toBeNull();
+ expect(fetcher).toHaveBeenCalledTimes(2);
+});

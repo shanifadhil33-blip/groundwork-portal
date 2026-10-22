@@ -940,5 +940,6 @@
   "Highest priority first, then oldest deadline": "ቅድም ዝለዓለ ቀዳምነት፣ ድሕሪኡ ዝቐደመ ዕለት",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "ኣየኖት ስራሓት ደንጒዮም ኣለዉ፣ ቅድም ንመን ክውከስ? ብሓጺሩ ግለጹ።",
   "What is the most important thing I need to do today?": "ሎሚ ክገብሮ ዘለኒ ኣዝዩ ኣገዳሲ እንታይ እዩ?",
-  "Summarize this week for my team in two sentences.": "ነዚ ሰሙን ንጉጅለይ ብኽልተ ሓረጋት ጽመቑ።"
+  "Summarize this week for my team in two sentences.": "ነዚ ሰሙን ንጉጅለይ ብኽልተ ሓረጋት ጽመቑ።",
+ "Visible open jobs only. The records do not explain why workloads differ.": "ንስኻ ክትርእዮም እትኽእል ክፉታት ስራሓት ጥራይ። መዝገባት ጾር ስራሕ ስለምንታይ ከም ዝፈላለ ኣይገልጹን።"
 }

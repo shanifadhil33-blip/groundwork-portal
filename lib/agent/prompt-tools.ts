@@ -1,3 +1,4 @@
+import { workloadQuestion } from './operational-phrases';
 type Declaration = {name:string;description:string;parameters:unknown};
 /** Select a small capability set after role filtering. Exact tool families keep unrelated schemas out. */
 export function selectAssistantTools(question:string, declarations:Declaration[]):Declaration[] {
@@ -37,7 +38,7 @@ export function selectAssistantTools(question:string, declarations:Declaration[]
  const lookup=/\b(?:wo|job|work order)\s*#?\s*\d+/i.test(question)?['get_work_order_by_number']:['list_work_orders','get_work_order_by_number'];
  const phrase=question.toLowerCase().replace(/\b(?:a|an|the|new)\b/g,'').replace(/\s+/g,' ');
  const exact=declarations.filter(d=>phrase.includes(d.name.replaceAll('_',' '))).map(d=>d.name);
- const order=[...new Set(['ask_choice',...lookup,...exact,...wanted,...named,'ask_supervisor',...(!wanted.length?['needs_attention','get_dashboard','my_day']:[])])];
+ const order=[...new Set(['ask_choice',...(workloadQuestion(question)||/workload|most.*(?:jobs|work)|busiest|per technician/i.test(question)?['technician_workload','list_team']:[]),...lookup,...exact,...wanted,...named,'ask_supervisor',...(!wanted.length?['needs_attention','get_dashboard','my_day']:[])])];
  const selected:Declaration[]=[];let bytes=2;
  for(const name of order){
   const d=declarations.find(d=>d.name===name);if(!d)continue;

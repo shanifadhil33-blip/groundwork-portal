@@ -965,5 +965,6 @@
   "Highest priority first, then oldest deadline": "اول اولویت بالاتر، سپس قدیمی‌ترین مهلت",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "کدام کارها از مهلت گذشته و اول از چه کسی پیگیری کنم؟ کوتاه بگویید.",
   "What is the most important thing I need to do today?": "مهم‌ترین کاری که امروز باید انجام بدهم چیست؟",
-  "Summarize this week for my team in two sentences.": "این هفته را برای تیم من در دو جمله خلاصه کنید."
+  "Summarize this week for my team in two sentences.": "این هفته را برای تیم من در دو جمله خلاصه کنید.",
+ "Visible open jobs only. The records do not explain why workloads differ.": "فقط کارهای باز قابل مشاهده برای شما. سوابق دلیل تفاوت بار کاری را توضیح نمی دهند."
 }

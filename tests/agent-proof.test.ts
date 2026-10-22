@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 const state=vi.hoisted(()=>({role:'admin',language:'en-IN',office:false,weekly:false,leave:null as string|null,next:'2026-10-25',person:'Ravi',forceModel:false,pending:null as any,query:vi.fn(),ai:vi.fn(),tool:vi.fn(),scheduled:'2026-10-01T08:00:00Z'}));
 const user='10000000-0000-4000-8000-000000000001',ws='20000000-0000-4000-8000-000000000001',id='50000000-0000-4000-8000-000000000001',ravi='10000000-0000-4000-8000-000000000003';
-const order=()=>({id,order_number:3,title:'Repair entry door closer',status:'in_progress',site_name:'Harbor Annex',scheduled_for:state.scheduled,updated_at:'2026-10-22T08:00:00Z',timezone:'Asia/Dubai',assignee_id:ravi});
+const order=()=>({id,order_number:3,title:'Repair entry door closer',status:'in_progress',site_name:'Harbor Annex',due_on:'2026-10-20',priority:'normal',scheduled_for:state.scheduled,updated_at:'2026-10-22T08:00:00Z',timezone:'Asia/Dubai',assignee_id:ravi});
 vi.mock('../lib/agent/assignment-request',async original=>{const actual=await original<typeof import('../lib/agent/assignment-request')>();return {...actual,assignmentRequest:(...args:Parameters<typeof actual.assignmentRequest>)=>state.forceModel?null:actual.assignmentRequest(...args)};});
 vi.mock('../lib/ai',()=>({assistantTurn:state.ai}));
 vi.mock('../lib/db',()=>({withSystem:vi.fn(()=>{throw Error('No system connection');}),asAgent:(_:unknown,fn:()=>unknown)=>fn(),appPool:{},ownerPool:{}}));
@@ -48,7 +48,8 @@ beforeEach(()=>{
 it('Arabic late jobs are a no AI reply with file words and a local date, preserving data',async()=>{
  state.language='ar-AE';const result=await ask('شو الشغل المتأخر اليوم؟');
  expect(result.reply).toContain('المهام المتأخرة: 18');expect(result.reply).toContain('Repair entry door closer');expect(result.reply).toContain('Harbor Annex');expect(result.reply).toContain('أكتوبر');expect(result.reply).not.toContain('In Progress');expect(state.ai).not.toHaveBeenCalled();
- expect(await dataAnswer(c,'شو الشغل المتأخر اليوم؟')).toBe(result.reply);
+ expect(result).toMatchObject({quick:true,localized:true});
+ expect(result.reply).toContain(choiceWords('ar-AE')('Highest priority first, then oldest deadline'));
 });
 it.each(LANGUAGES.filter(l=>!l.code.startsWith('en')).map(l=>l.code))('every quick path uses file words in %s',async language=>{
  state.language=language;

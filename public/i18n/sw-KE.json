@@ -915,5 +915,6 @@
   "Highest priority first, then oldest deadline": "Kipaumbele cha juu kwanza, kisha tarehe ya mwisho ya zamani zaidi",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "Ni kazi zipi zimechelewa na niwasiliane na nani kwanza? Eleza kwa ufupi.",
   "What is the most important thing I need to do today?": "Ni jambo gani muhimu zaidi nifanye leo?",
-  "Summarize this week for my team in two sentences.": "Fupisha wiki hii kwa timu yangu kwa sentensi mbili."
+  "Summarize this week for my team in two sentences.": "Fupisha wiki hii kwa timu yangu kwa sentensi mbili.",
+ "Visible open jobs only. The records do not explain why workloads differ.": "Kazi zilizo wazi unazoweza kuona pekee. Rekodi hazielezi sababu ya tofauti za mzigo wa kazi."
 }

@@ -7,7 +7,7 @@ import { inWorkspace } from '../lib/services/shared';
 import { ids } from '../scripts/seed';
 
 // Independent policy inventory: adding a tool requires an explicit review of its roles.
-const common = `set_my_setting get_onboarding fill_onboarding list_contacts suggest_contact_name list_messages send_message
+const common = `technician_workload set_my_setting get_onboarding fill_onboarding list_contacts suggest_contact_name list_messages send_message
 list_suggestions needs_attention list_work_orders get_work_order_by_number get_work_order my_words remember_word forget_word my_memory
 remember_about_me forget_about_me set_call_me add_comment list_sites ask_choice list_job_photos notification_status whoami`.split(/\s+/);
 const clientOnly = ['free_visit_slots','previous_technician','reschedule_visit','cancel_visit'];

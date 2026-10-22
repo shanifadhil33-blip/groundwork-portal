@@ -980,5 +980,6 @@
   "Highest priority first, then oldest deadline": "আগে সর্বোচ্চ অগ্রাধিকার, তারপর সবচেয়ে পুরোনো সময়সীমা",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "কোন কাজগুলোর সময়সীমা পেরিয়েছে এবং আগে কার সঙ্গে যোগাযোগ করব? সংক্ষেপে বলুন।",
   "What is the most important thing I need to do today?": "আজ আমার সবচেয়ে জরুরি কী করা উচিত?",
-  "Summarize this week for my team in two sentences.": "আমার দলের জন্য এই সপ্তাহের সারাংশ দুই বাক্যে বলুন।"
+  "Summarize this week for my team in two sentences.": "আমার দলের জন্য এই সপ্তাহের সারাংশ দুই বাক্যে বলুন।",
+ "Visible open jobs only. The records do not explain why workloads differ.": "শুধু আপনার দৃশ্যমান খোলা কাজ। কাজের চাপ কেন আলাদা তা নথিতে নেই।"
 }

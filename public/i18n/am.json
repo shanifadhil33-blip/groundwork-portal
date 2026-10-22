@@ -922,5 +922,6 @@
   "Highest priority first, then oldest deadline": "መጀመሪያ ከፍተኛ ቅድሚያ፣ ከዚያ በጣም የቆየ የመጨረሻ ቀን",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "የትኞቹ ሥራዎች ዘግይተዋል እና መጀመሪያ ማንን ላነጋግር? በአጭሩ ያብራሩ።",
   "What is the most important thing I need to do today?": "ዛሬ ማድረግ ያለብኝ ዋናው ነገር ምንድነው?",
-  "Summarize this week for my team in two sentences.": "ይህን ሳምንት ለቡድኔ በሁለት ዓረፍተ ነገሮች ያጠቃልሉ።"
+  "Summarize this week for my team in two sentences.": "ይህን ሳምንት ለቡድኔ በሁለት ዓረፍተ ነገሮች ያጠቃልሉ።",
+ "Visible open jobs only. The records do not explain why workloads differ.": "እርስዎ ማየት የሚችሉት ክፍት ሥራዎች ብቻ። መዝገቦቹ የሥራ ጫናው ለምን እንደሚለያይ አያብራሩም።"
 }

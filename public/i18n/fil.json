@@ -927,5 +927,6 @@
   "Highest priority first, then oldest deadline": "Unahin ang pinakamataas na priyoridad, saka ang pinakamatagal nang takdang araw",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "Aling mga trabaho ang lampas na sa takdang araw at sino ang una kong kukumustahin? Ipaliwanag nang maikli.",
   "What is the most important thing I need to do today?": "Ano ang pinakamahalagang dapat kong gawin ngayon?",
-  "Summarize this week for my team in two sentences.": "Ibuod ang linggong ito para sa aking pangkat sa dalawang pangungusap."
+  "Summarize this week for my team in two sentences.": "Ibuod ang linggong ito para sa aking pangkat sa dalawang pangungusap.",
+ "Visible open jobs only. The records do not explain why workloads differ.": "Mga bukas na trabahong nakikita mo lamang. Hindi ipinapaliwanag ng mga tala kung bakit magkakaiba ang dami ng trabaho."
 }

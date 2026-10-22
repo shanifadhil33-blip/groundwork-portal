@@ -918,5 +918,6 @@
   "Highest priority first, then oldest deadline": "Nea ehia paa di kan, afei bere a atwam akyɛ paa",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "Adwuma bɛn na bere atwam, na hena na minni kan ne no nni nkitaho? Kyerɛ mu tiawa.",
   "What is the most important thing I need to do today?": "Dɛn ne ade a ehia paa sɛ meyɛ nnɛ?",
-  "Summarize this week for my team in two sentences.": "Bɔ nnawɔtwe yi mua ma me kuw wɔ nsɛm abien mu."
+  "Summarize this week for my team in two sentences.": "Bɔ nnawɔtwe yi mua ma me kuw wɔ nsɛm abien mu.",
+ "Visible open jobs only. The records do not explain why workloads differ.": "Nnwuma a ɛda hɔ a wutumi hu nkutoo. Kyerɛwtohɔ no nkyerɛ nea enti a adwuma so adesoa gu ahorow."
 }

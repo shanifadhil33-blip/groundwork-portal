@@ -12,3 +12,13 @@ export async function assistantWeek(user:string,ws:string) {
    count(*) FILTER (WHERE ${overdueSql})::int AS late
   FROM work_orders CROSS JOIN bounds WHERE workspace_id=$1 AND archived_at IS NULL`,[ws])).rows[0] as {new:number;done:number;open:number;late:number});
 }
+
+/** Aggregate every visible active job before limiting output. RLS supplies the caller's scope.
+ * Sort busiest first so bounded model snapshots retain the answer and ties. */
+export async function assistantWorkload(user:string,ws:string) {
+ return inWorkspace(user,ws,async c=>(await c.db.query(`
+  SELECT w.assignee_id, u.name, count(*)::int AS open
+  FROM work_orders w LEFT JOIN LATERAL visible_user(w.assignee_id) u ON true
+  WHERE w.workspace_id=$1 AND w.archived_at IS NULL AND w.status NOT IN ('done','cancelled')
+  GROUP BY w.assignee_id,u.name ORDER BY open DESC,w.assignee_id NULLS LAST`,[ws])).rows as {assignee_id:string|null;name:string|null;open:number}[]);
+}

@@ -959,5 +959,6 @@
   "Highest priority first, then oldest deadline": "पहिले उच्च प्राथमिकता, त्यसपछि सबैभन्दा पुरानो म्याद",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "कुन कामको म्याद नाघेको छ र पहिले कसलाई सम्पर्क गरूँ? छोटकरीमा भन्नुहोस्।",
   "What is the most important thing I need to do today?": "आज मैले गर्नुपर्ने सबैभन्दा महत्त्वपूर्ण काम के हो?",
-  "Summarize this week for my team in two sentences.": "मेरो टोलीका लागि यो हप्ताको सार दुई वाक्यमा दिनुहोस्।"
+  "Summarize this week for my team in two sentences.": "मेरो टोलीका लागि यो हप्ताको सार दुई वाक्यमा दिनुहोस्।",
+ "Visible open jobs only. The records do not explain why workloads differ.": "तपाईंले देख्न सक्ने खुला काम मात्र। अभिलेखले कामको भार किन फरक छ भनेर बताउँदैन।"
 }

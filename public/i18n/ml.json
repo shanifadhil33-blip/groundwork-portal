@@ -943,5 +943,6 @@
   "Highest priority first, then oldest deadline": "ആദ്യം ഉയർന്ന മുൻഗണന, പിന്നെ ഏറ്റവും പഴയ സമയപരിധി",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "ഏതൊക്കെ ജോലികൾ വൈകിയിട്ടുണ്ട്, ആദ്യം ആരെ ബന്ധപ്പെടണം? ചുരുക്കി പറയൂ.",
   "What is the most important thing I need to do today?": "ഇന്ന് ഞാൻ ചെയ്യേണ്ട ഏറ്റവും പ്രധാന കാര്യം എന്താണ്?",
-  "Summarize this week for my team in two sentences.": "എന്റെ ടീമിനായി ഈ ആഴ്ചയുടെ സംഗ്രഹം രണ്ടു വാക്യങ്ങളിൽ പറയൂ."
+  "Summarize this week for my team in two sentences.": "എന്റെ ടീമിനായി ഈ ആഴ്ചയുടെ സംഗ്രഹം രണ്ടു വാക്യങ്ങളിൽ പറയൂ.",
+ "Visible open jobs only. The records do not explain why workloads differ.": "നിങ്ങൾക്ക് കാണാവുന്ന തുറന്ന ജോലികൾ മാത്രം. ജോലിഭാരം വ്യത്യാസപ്പെടുന്നതിന്റെ കാരണം രേഖകളിൽ ഇല്ല."
 }

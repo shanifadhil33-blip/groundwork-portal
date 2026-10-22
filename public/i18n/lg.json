@@ -914,5 +914,6 @@
   "Highest priority first, then oldest deadline": "Ekisinga obukulu kisooke, olwo olunaku olwaggwa edda ennyo",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "Mirimu ki egiyiseeko ekiseera era ani gwe nsooka okutuukirira? Nnyonnyola mu bufunze.",
   "What is the most important thing I need to do today?": "Kiki ekisinga obukulu kye nnina okukola leero?",
-  "Summarize this week for my team in two sentences.": "Funza wiiki eno eri ttiimu yange mu sentensi bbiri."
+  "Summarize this week for my team in two sentences.": "Funza wiiki eno eri ttiimu yange mu sentensi bbiri.",
+ "Visible open jobs only. The records do not explain why workloads differ.": "Emirimu emiggule gy’osobola okulaba gyokka. Ebiwandiiko tebinyonnyola lwaki obuzito bw’emirimu bwawukana."
 }

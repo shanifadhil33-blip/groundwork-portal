@@ -919,5 +919,6 @@
   "Highest priority first, then oldest deadline": "先按优先级，再按最早截止日期",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "哪些工单已逾期，我应该先联系谁？请简要说明。",
   "What is the most important thing I need to do today?": "今天我最需要做什么？",
-  "Summarize this week for my team in two sentences.": "用两句话为我的团队总结本周情况。"
+  "Summarize this week for my team in two sentences.": "用两句话为我的团队总结本周情况。",
+ "Visible open jobs only. The records do not explain why workloads differ.": "仅统计您可见的未完成工作。记录未说明工作量差异的原因。"
 }

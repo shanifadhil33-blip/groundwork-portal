@@ -37,3 +37,13 @@ it('caps aggregate tool data while retaining complete call/result pairs',async()
  expect(Buffer.byteLength(JSON.stringify(compact.filter(m=>m.role==='result')))).toBeLessThan(11000);
  expect(JSON.stringify(compact)).toContain('truncated');
 });
+it('retains the aggregate workload tool and busiest counts in bounded production context',async()=>{
+ const {tools}=await import('../lib/agent/tools');const {z}=await import('zod');
+ const declarations=Object.entries(tools).map(([name,t])=>({name,description:t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})}));
+ for(const q of ['Which technician has the most open jobs and why might that be?','مين عنده أكثر شغل مفتوح؟','Show workload for Sam','أعطني عبء العمل لفني في موقع مارينا']){
+  expect(selectAssistantTools(q,declarations).map(d=>d.name)).toContain('technician_workload');
+ }
+ const snapshot=compactSnapshot({structuredContent:{result:Array.from({length:25},(_,i)=>({assignee_id:`person${i}`,name:`Tech ${i}`,open:50-i}))}});
+ expect(JSON.stringify(snapshot)).toContain('"open":50');
+ expect(JSON.stringify(snapshot)).toContain('Tech 0');
+});

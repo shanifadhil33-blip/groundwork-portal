@@ -1267,5 +1267,6 @@
   "Highest priority first, then oldest deadline": "الأولوية الأعلى أول، وبعدها أقدم موعد تسليم",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "وش الشغل المتأخر ومنو أتابع معاه أول؟ وضح باختصار.",
   "What is the most important thing I need to do today?": "وش أهم شي لازم أسويه اليوم؟",
-  "Summarize this week for my team in two sentences.": "لخص هالأسبوع للفريق بجملتين."
+  "Summarize this week for my team in two sentences.": "لخص هالأسبوع للفريق بجملتين.",
+ "Visible open jobs only. The records do not explain why workloads differ.": "هذه الأعمال المفتوحة التي يمكنك رؤيتها فقط. السجلات لا توضح سبب اختلاف عبء العمل."
 }

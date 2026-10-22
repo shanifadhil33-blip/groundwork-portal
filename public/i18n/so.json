@@ -931,5 +931,6 @@
   "Highest priority first, then oldest deadline": "Mudnaanta ugu sarreysa marka hore, dabadeed waqtiga ugu horreeyey",
   "Which work orders are overdue and who should I chase first? Explain briefly.": "Shaqooyinkee waqtigoodii dhaafay, yaanse marka hore la xiriiraa? Si kooban u sharax.",
   "What is the most important thing I need to do today?": "Waa maxay waxa ugu muhiimsan ee aan maanta sameeyo?",
-  "Summarize this week for my team in two sentences.": "Toddobaadkan kooxdayda ugu soo koob laba weedhood."
+  "Summarize this week for my team in two sentences.": "Toddobaadkan kooxdayda ugu soo koob laba weedhood.",
+ "Visible open jobs only. The records do not explain why workloads differ.": "Kaliya shaqooyinka furan ee aad arki karto. Diiwaannadu ma sharxayaan sababta culayska shaqadu u kala duwan yahay."
 }
