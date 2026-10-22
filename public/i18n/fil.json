@@ -888,5 +888,6 @@
 "Which option do you mean?":"Aling pagpipilian ang ibig mong sabihin?",
 "Give a WO number":"Ibigay ang numero ng trabaho",
 "Change my note":"Baguhin ang tala ko",
-"I could not find that in your records.":"Hindi ko iyon makita sa iyong mga tala."
+"I could not find that in your records.":"Hindi ko iyon makita sa iyong mga tala.",
+  "{name} cannot take a job that day. His next free day is {day}.": "Hindi puwedeng tumanggap ng trabaho si {name} sa araw na iyon. Ang susunod niyang libreng araw ay {day}."
 }

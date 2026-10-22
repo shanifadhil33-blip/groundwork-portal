@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { choiceWords } from '../agent/choices';
+import { LANGUAGES } from '../languages';
 import type { PoolClient } from 'pg';
 import { withSystem } from '../db';
 import { ApiError, invalid, missing } from '../http';
@@ -30,7 +32,26 @@ export async function assertWorking(c: Context, assignee: string | null | undefi
   const date = (await c.db.query('SELECT ($1::timestamptz AT TIME ZONE timezone)::date::text AS d FROM workspaces WHERE id=$2', [scheduledFor, c.ws])).rows[0]?.d;
   if (!date) return;
   const reason = await offReason(c.db, c.ws, assignee, date);
-  if (reason) throw invalid(`${reason} Choose someone else or another day.`, 'assignee_id');
+  if (!reason) return;
+  // A free day is a working day outside approved time off. Several visits can share a day.
+  // Try the week after this date and each leave end, so even long or overlapping leave
+  // needs no arbitrary search limit and does not generate one row per day of leave.
+  const next = (await c.db.query(`WITH anchors AS (
+      SELECT $3::date AS d UNION
+      SELECT ends_on FROM time_off WHERE workspace_id=$1 AND user_id=$2 AND status='approved' AND ends_on >= $3::date
+    ), candidates AS (SELECT DISTINCT a.d + n AS d FROM anchors a CROSS JOIN generate_series(1,7) n)
+    SELECT d::text FROM candidates
+    WHERE NOT EXISTS (SELECT 1 FROM members m WHERE m.workspace_id=$1 AND m.user_id=$2 AND EXTRACT(DOW FROM d)::smallint=ANY(m.off_days))
+      AND NOT EXISTS (SELECT 1 FROM time_off t WHERE t.workspace_id=$1 AND t.user_id=$2 AND t.status='approved' AND d BETWEEN t.starts_on AND t.ends_on)
+    ORDER BY d LIMIT 1`, [c.ws, assignee, date])).rows[0]?.d;
+  const language = (await c.db.query('SELECT language FROM user_preferences WHERE user_id=$1', [c.user])).rows[0]?.language;
+  const locale = LANGUAGES.some(l => l.code === language) ? language : 'en-IN';
+  const word = choiceWords(locale);
+  const name = (await c.db.query('SELECT name FROM visible_user($1)', [assignee])).rows[0]?.name ?? word('Team member');
+  // ICU lists Twi date words under Akan. The app language remains Twi.
+  const label = new Intl.DateTimeFormat(locale === 'tw' ? 'ak' : locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${next}T00:00:00Z`));
+  const message = word('{name} cannot take a job that day. His next free day is {day}.').replace(/\{(name|day)\}/g, (_, key) => key === 'name' ? name : label);
+  throw invalid(message, 'assignee_id');
 }
 
 async function worker(c: Context, id: string) {

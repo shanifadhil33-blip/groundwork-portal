@@ -881,5 +881,6 @@
 "Which option do you mean?":"您指的是哪个选项？",
 "Give a WO number":"提供工单号",
 "Change my note":"更改我的备注",
-"I could not find that in your records.":"我未能在您的记录中找到该信息。"
+"I could not find that in your records.":"我未能在您的记录中找到该信息。",
+  "{name} cannot take a job that day. His next free day is {day}.": "{name}当天无法接工作。他下一个有空的日期是{day}。"
 }

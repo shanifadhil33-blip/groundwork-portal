@@ -941,5 +941,6 @@
 "Which option do you mean?":"आपका मतलब कौन सा विकल्प है?",
 "Give a WO number":"काम का नंबर दें",
 "Change my note":"मेरा नोट बदलें",
-"I could not find that in your records.":"मुझे आपके रिकॉर्ड में वह नहीं मिला।"
+"I could not find that in your records.":"मुझे आपके रिकॉर्ड में वह नहीं मिला।",
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} उस दिन काम नहीं ले सकते। उनका अगला खाली दिन {day} है।"
 }

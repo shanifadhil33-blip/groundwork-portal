@@ -1242,5 +1242,6 @@
 "Which option do you mean?":"أي خيار تقصد؟",
 "Give a WO number":"أعط رقم العمل",
 "Change my note":"غيّر ملاحظتي",
-"I could not find that in your records.":"ما حصلت هالمعلومة في سجلاتك."
+"I could not find that in your records.":"ما حصلت هالمعلومة في سجلاتك.",
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} ما يقدر يستلم شغل في هذا اليوم. أول يوم متاح له هو {day}."
 }

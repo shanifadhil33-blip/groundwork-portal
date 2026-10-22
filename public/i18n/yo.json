@@ -873,5 +873,6 @@
 "Which option do you mean?":"Àṣàyàn wo ni o túmọ̀ sí?",
 "Give a WO number":"Fún wa ní nọ́mbà iṣẹ́",
 "Change my note":"Yí àkọsílẹ̀ mi padà",
-"I could not find that in your records.":"Mi ò rí ìyẹn nínú àkọsílẹ̀ rẹ."
+"I could not find that in your records.":"Mi ò rí ìyẹn nínú àkọsílẹ̀ rẹ.",
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} kò lè gba iṣẹ́ ní ọjọ́ yẹn. Ọjọ́ tí ó tún máa ráyè ni {day}."
 }

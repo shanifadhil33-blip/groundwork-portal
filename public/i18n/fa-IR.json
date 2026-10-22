@@ -927,5 +927,6 @@
 "Which option do you mean?":"منظور شما کدام گزینه است؟",
 "Give a WO number":"شماره کار را بدهید",
 "Change my note":"یادداشت مرا تغییر دهید",
-"I could not find that in your records.":"آن را در سوابق شما پیدا نکردم."
+"I could not find that in your records.":"آن را در سوابق شما پیدا نکردم.",
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} در آن روز نمی‌تواند کاری بگیرد. روز بعدی که وقت دارد {day} است."
 }

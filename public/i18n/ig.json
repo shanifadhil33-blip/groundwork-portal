@@ -891,5 +891,6 @@
 "Which option do you mean?":"Kedu nhọrọ ị chọrọ?",
 "Give a WO number":"Nye nọmba ọrụ",
 "Change my note":"Gbanwee ihe m dere",
-"I could not find that in your records.":"Ahụghị m nke ahụ na ndekọ gị."
+"I could not find that in your records.":"Ahụghị m nke ahụ na ndekọ gị.",
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} enweghị ike ịrụ ọrụ n’ụbọchị ahụ. Ụbọchị ọzọ ọ ga enwe ohere bụ {day}."
 }

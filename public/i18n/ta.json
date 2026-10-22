@@ -940,5 +940,6 @@
 "Which option do you mean?":"எந்தத் தேர்வைக் குறிப்பிடுகிறீர்கள்?",
 "Give a WO number":"வேலை எண்ணைக் கொடுக்கவும்",
 "Change my note":"என் குறிப்பை மாற்றவும்",
-"I could not find that in your records.":"உங்கள் பதிவுகளில் அதை என்னால் கண்டுபிடிக்க முடியவில்லை."
+"I could not find that in your records.":"உங்கள் பதிவுகளில் அதை என்னால் கண்டுபிடிக்க முடியவில்லை.",
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} அன்று வேலையை ஏற்க முடியாது. அவருக்கு அடுத்து ஓய்வாக இருக்கும் நாள் {day}."
 }

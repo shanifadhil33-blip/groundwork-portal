@@ -896,5 +896,6 @@
 "Which option do you mean?":"Wane zaɓi kake nufi?",
 "Give a WO number":"Ba da lambar aiki",
 "Change my note":"Canza bayanina",
-"I could not find that in your records.":"Ban sami hakan a cikin bayananka ba."
+"I could not find that in your records.":"Ban sami hakan a cikin bayananka ba.",
+  "{name} cannot take a job that day. His next free day is {day}.": "{name} ba zai iya karɓar aiki a wannan ranar ba. Ranar da zai samu dama ta gaba ita ce {day}."
 }
