@@ -1147,5 +1147,7 @@
 "your days":"أيامك",
 "Your admin":"مسؤولك",
 "Your supervisor":"مشرفك",
-"System":"النظام"
+"System":"النظام",
+"Demo feedback saved here; nothing was sent":"تم حفظ ملاحظات التجربة هنا؛ لم يتم إرسال أي شيء",
+"In the demo, your message stays on this screen.":"في التجربة، تبقى رسالتك على هذه الشاشة."
 }

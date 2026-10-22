@@ -794,5 +794,7 @@
 "your days":"ستاسو ورځې",
 "Your admin":"ستاسو مدیر",
 "Your supervisor":"ستاسو څارونکی",
-"System":"سیستم"
+"System":"سیستم",
+"Demo feedback saved here; nothing was sent":"د ازموینې نظر دلته خوندي شو؛ هېڅ شی نه دي لېږل شوي",
+"In the demo, your message stays on this screen.":"په ازموینه کې ستاسو پیغام په همدې پرده پاتې کېږي."
 }

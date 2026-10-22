@@ -756,5 +756,7 @@
 "your days":"የእርስዎ ቀናት",
 "Your admin":"የእርስዎ አስተዳዳሪ",
 "Your supervisor":"የእርስዎ ተቆጣጣሪ",
-"System":"ስርዓቱ"
+"System":"ስርዓቱ",
+"Demo feedback saved here; nothing was sent":"የሙከራ አስተያየት እዚህ ተቀምጧል፤ ምንም አልተላከም",
+"In the demo, your message stays on this screen.":"በሙከራው ውስጥ መልእክትዎ በዚህ ማያ ገጽ ላይ ይቆያል።"
 }

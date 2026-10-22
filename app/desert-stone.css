@@ -467,3 +467,6 @@ html[dir=rtl] body:has(.app-shell) .notification-trigger .count-dot{inset-block-
  body:has(.app-shell) .ds-row .ds-main{overflow-wrap:anywhere}
  body:has(.app-shell) .ds-row .ds-chip{grid-column:2;justify-self:start;min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
 }
+
+/* Keep local feedback readable at phone widths, including long pasted text. */
+.feedback-receipt-message{white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}

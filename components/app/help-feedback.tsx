@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import { ImagePlus, Send, X } from 'lucide-react';
+import { useApp } from './context';
 import { Button } from '../ui';
 import { post, RequestError } from '../../lib/ui/api';
 import { deviceSummary, LAST_PAGE_KEY } from '../../lib/ui/device';
@@ -16,23 +17,37 @@ async function shrink(file: File): Promise<Shot> {
   throw new Error('too_big');
 }
 export function HelpFeedback() {
-  const [message, setMessage] = useState(''), [shot, setShot] = useState<Shot | null>(null), [busy, setBusy] = useState(false), [error, setError] = useState(''), [sent, setSent] = useState(false);
+  const { me, workspace } = useApp();
+  return <FeedbackForm key={`${me.user.id}:${workspace?.id ?? ''}`} demo={!!me.user.is_demo} />;
+}
+
+function FeedbackForm({ demo }: { demo: boolean }) {
+  const [message, setMessage] = useState(''), [shot, setShot] = useState<Shot | null>(null), [busy, setBusy] = useState(false), [error, setError] = useState(''), [sent, setSent] = useState(false), [receipt, setReceipt] = useState<{ message: string; shot: Shot | null } | null>(null);
   const file = useRef<HTMLInputElement>(null), trap = useRef<HTMLInputElement>(null);
   async function pick(f?: File) { setError(''); if (!f) return; if (!f.type.startsWith('image/')) { setError('Pick a picture.'); return; } try { setShot(await shrink(f)); } catch { setError('That picture is too big. Try another one.'); } }
   async function send() {
+    if (busy) return;
     if (message.trim().length < 3) { setError('Write a few words first.'); return; }
     setBusy(true); setError('');
     try {
-      await post('/api/feedback', { message: message.trim(), page: sessionStorage.getItem(LAST_PAGE_KEY) ?? '/settings', device: deviceSummary(), website: trap.current?.value || undefined, ...(shot ? { screenshot: { type: shot.type, data: shot.data } } : {}) });
+      const submitted = { message: message.trim(), shot };
+      const result = await post<{ ok: boolean; simulated?: boolean }>('/api/feedback', { message: message.trim(), page: sessionStorage.getItem(LAST_PAGE_KEY) ?? '/settings', device: deviceSummary(), website: trap.current?.value || undefined, ...(shot ? { screenshot: { type: shot.type, data: shot.data } } : {}) });
+      setReceipt(result.simulated ? submitted : null);
       setSent(true); setMessage(''); setShot(null);
     } catch (e) { setError(e instanceof RequestError && e.status !== 0 ? e.message : 'We couldn’t send it. Please try again.'); }
     finally { setBusy(false); }
   }
-  if (sent) return <section className="stack help-feedback"><h2>Thank you</h2><p>We got your message.</p><Button variant="secondary" onClick={() => setSent(false)}>Send another</Button></section>;
+  if (sent) return <section className="stack help-feedback"><h2>Thank you</h2>
+    <p role="status">{receipt ? 'Demo feedback saved here; nothing was sent' : 'We got your message.'}</p>
+    {receipt && <>
+      <p className="feedback-receipt-message" data-no-translate="true">{receipt.message}</p>
+      {receipt.shot && <div className="feedback-shot">{/* eslint-disable-next-line @next/next/no-img-element -- local preview */}<img src={receipt.shot.preview} alt="Your picture" /></div>}
+    </>}
+    <Button variant="secondary" onClick={() => { setSent(false); setReceipt(null); }}>Send another</Button></section>;
   return <section className="stack help-feedback">
     <h2>Help us make Groundwork better</h2>
     <p>Anyone can write to us. Tell us an idea, a new feature you want, something to change or make better, or anything you think should be different. You can also tell us when something does not work.</p>
-    <p className="small muted">We read every message.</p>
+    <p className="small muted">{demo ? 'In the demo, your message stays on this screen.' : 'We read every message.'}</p>
     <label className="sr-only" htmlFor="feedback-message">Your message</label>
     <textarea id="feedback-message" rows={5} maxLength={4000} value={message} onChange={e => setMessage(e.target.value)} placeholder="Write your idea or problem here" aria-invalid={!!error && message.trim().length < 3} />
     <input ref={trap} name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="sr-only" />

@@ -773,5 +773,7 @@
 "your days":"روزهای شما",
 "Your admin":"مدیر شما",
 "Your supervisor":"سرپرست شما",
-"System":"سیستم"
+"System":"سیستم",
+"Demo feedback saved here; nothing was sent":"نظر آزمایشی اینجا ذخیره شد؛ چیزی فرستاده نشد",
+"In the demo, your message stays on this screen.":"در نسخه آزمایشی، پیام شما در همین صفحه می‌ماند."
 }

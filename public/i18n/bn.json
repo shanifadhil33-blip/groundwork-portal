@@ -817,5 +817,7 @@
 "your days":"আপনার দিনগুলো",
 "Your admin":"আপনার অ্যাডমিন",
 "Your supervisor":"আপনার সুপারভাইজার",
-"System":"সিস্টেম"
+"System":"সিস্টেম",
+"Demo feedback saved here; nothing was sent":"ডেমোর মতামত এখানে সংরক্ষিত হয়েছে; কিছুই পাঠানো হয়নি",
+"In the demo, your message stays on this screen.":"ডেমোতে আপনার বার্তা এই পর্দাতেই থাকে।"
 }

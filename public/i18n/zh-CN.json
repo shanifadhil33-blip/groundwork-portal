@@ -753,5 +753,7 @@
 "your days":"您的休假日期",
 "Your admin":"您的管理员",
 "Your supervisor":"您的主管",
-"System":"系统"
+"System":"系统",
+"Demo feedback saved here; nothing was sent":"演示反馈已保存在此处；未发送任何内容",
+"In the demo, your message stays on this screen.":"在演示中，您的消息只保留在此屏幕上。"
 }
