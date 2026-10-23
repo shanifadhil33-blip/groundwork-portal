@@ -1,10 +1,11 @@
 import type { NotificationTemplate } from './notifications';
+import { rolesLabel } from '../roles';
 import { entityLabels, readableLabel, supplierReference } from './polish';
 
 export const auditTemplates = {
   changed: '{name} updated {job}.',
   created: '{name} created {job}.',
-  deleted: '{name} deleted {job}.' ,
+  deleted: '{name} deleted {job}.',
   member: '{name} changed {person}’s role to {role}',
   added: '{name} added {person} as {role}',
   removed: '{name} removed {person} from the team',
@@ -27,9 +28,13 @@ export function auditSummaryTemplates(item: AuditSource): NotificationTemplate[]
   const job = String(item.work_order_title ?? after.title ?? before.title ?? 'Job');
   const values = { name, job, action: item.action === 'insert' ? 'Created' : item.action === 'delete' ? 'Deleted' : 'Updated' };
   const make = (key: string, extra: Record<string,string> = {}, translated: string[] = []): NotificationTemplate => ({key, values: {...values, ...extra}, translatedValues: ['action', ...(name === 'System' ? ['name'] : []), ...translated]});
-  if (item.entity === 'members') return [make(item.action === 'insert' ? auditTemplates.added : item.action === 'delete' ? auditTemplates.removed : auditTemplates.member, {person: String(item.member_name ?? after.name ?? before.name ?? 'Team member'), role: readableLabel(String(after.role ?? before.role ?? 'member'))}, ['role'])];
+  if (item.entity === 'members') return [make(item.action === 'insert' ? auditTemplates.added : item.action === 'delete' ? auditTemplates.removed : auditTemplates.member, {person: String(item.member_name ?? after.name ?? before.name ?? 'Team member'), role: rolesLabel({...before,...after,role: String(after.role ?? before.role ?? 'member')})}, ['role'])];
   if (['clients','sites','workspaces'].includes(item.entity)) return [make(auditTemplates.record, {entity: entityLabels[item.entity], record: String(after.name ?? before.name ?? '')}, ['entity'])];
   if (item.entity === 'supplier_orders') return [make(auditTemplates.supplier, {reference: supplierReference(String(after.cobalt_ref ?? before.cobalt_ref ?? '')), status: readableLabel(String(after.local_status ?? after.status ?? 'Ordered'))}, ['status'])];
+  if (item.entity === 'supplier_events') {
+    const key = item.action === 'insert' ? '{name} created {type}: {item}.' : item.action === 'delete' ? '{name} deleted {type}: {item}.' : '{name} updated {type}: {item}.';
+    return [make(key, {type: entityLabels.supplier_events, item: supplierReference(String(after.cobalt_ref ?? before.cobalt_ref ?? ''))}, ['type']), {key: '{status}', values: {status: readableLabel(String(after.local_status ?? after.status ?? 'Ordered'))}, translatedValues: ['status']}];
+  }
   if (item.entity !== 'work_orders') return null;
   if (item.action !== 'update') return [make(item.action === 'insert' ? auditTemplates.created : auditTemplates.deleted)];
   if (before.status !== after.status && after.status) return [make(auditTemplates.status, {status: readableLabel(after.status)}, ['status'])];

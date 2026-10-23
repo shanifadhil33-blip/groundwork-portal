@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from '@playwright/test';
+import { hasUntranslatedLatin as latin } from './lang12-detection.mjs';
 import { sandbox } from './sandbox.mjs';
 
 const option = (name, fallback) => process.argv.find(x => x.startsWith(`--${name}=`))?.slice(name.length + 3) ?? fallback;
@@ -17,13 +18,6 @@ const selected = option('roles', personas.join(',')).split(',').filter(p=>person
 const staticRoutes = fs.readdirSync(new URL('../app/(app)/', import.meta.url), { recursive: true })
   .filter(p => /(^|\/)page\.tsx$/.test(p) && !p.includes('['))
   .map(p => '/' + p.replace(/\/page\.tsx$/, ''));
-// Exact data tokens only. Never exempt an entire line merely because it contains a name.
-const data = /Groundwork|Ridgeline Facility Services|Harbor & Pine Coworking|Northgate Self Storage|Northgate Logistics Centre, Unit 7|Northgate|Pine House, Office 1204|Larkspur Studio, Floor 3|Larkspur Coworking Studio|Marina Exchange(?:, Tower B)?|Pine Terrace(?:, Building 4)?|Harbor Annex(?:, Unit G03)?|Northgate East|Northgate West|Larkspur Loft(?:, Floor 3)?|Warehouse (?:14|9)|Al Marsa Street|Cluster D Road|King Salman Bin Abdulaziz Al Saud Street|Street (?:21|4A)|Al Khan Street|Dubai Marina|Dubai Media City|Dubai Investments Park 1|Al Quoz Industrial Area 3|Jumeirah Lake Towers|Al Majaz 3|Abu Dhabi|Dubai|Sharjah|Imran|Hassan|Sam|Ravi|Pranav(?: Menon)?|Faisal(?: Al Zaabi)?|Omar(?: Al Mansoori)?|Nabil|Kevin|Bilal|Anil|Laith(?: Haddad)?|Karim(?: Saleh)?|Arif(?: Rahman)?|Joseph Mathew|Yousef(?: Qureshi)?|Rashid(?: Al Nuaimi)?|yusuf|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\b(?:WO[- ]?\d+|QA-\d+|COBALT-DEMO-\d+)\b/gi;
-function latin(line) {
-  const rest = line.replace(/sample\.csv|Asia\/Dubai|\b(?:WO|AED|UTC)\b|Gulf Arabic|English \(India\)|United Arab Emirates|\.example/g, '')
-    .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, '').replace(data, '');
-  return /[A-Za-z]{2,}/.test(rest);
-}
 const s = await sandbox('imran', { baseURL, tokenFile: join(tmpdir(), `groundwork-lang12-${origin.port || '80'}-token`) });
 const browser = await chromium.launch();
 const report = { baseURL, viewport: { width: 360, height: 844 }, translationMode: 'static files only; translation API stubbed empty', roles: [], isolation: null };

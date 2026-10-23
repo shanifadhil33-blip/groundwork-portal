@@ -1,3 +1,5 @@
+import { demoRoundTwoTranslations } from './demo-round-two-copy';
+
 // Exact case 3 / Ridgeline fixture text; never broaden this to arbitrary job data.
 export const DEMO_JOB_TITLES = [
   'Replace lobby light fixture',
@@ -18,7 +20,7 @@ export const demoJobDescription = (number: number) => DEMO_JOB_DESCRIPTION_TEMPL
 /** Static files contain the template, never numbered job data. Expand only exact seeded instances. */
 export function demoJobTranslations(words: Record<string, string>): Record<string, string> {
  const template=words[DEMO_JOB_DESCRIPTION_TEMPLATE];
- return template?Object.fromEntries(Array.from({length:66},(_,index)=>[demoJobDescription(index+1),template.replace('{number}',String(index+1))])):{};
+ return {...demoRoundTwoTranslations(words), ...(template?Object.fromEntries(Array.from({length:66},(_,index)=>[demoJobDescription(index+1),template.replace('{number}',String(index+1))])):{})};
 }
 export const DEMO_JOB_COMMENTS = {
   client: 'We have received your request and confirmed access with the site manager.',

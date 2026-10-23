@@ -2,6 +2,10 @@ import { DEMO_PROOF_COPY } from './demo-proof-copy';
 
 /** Only known interface shapes are expanded. Placeholder values remain data, never dictionary keys. */
 const shapes: readonly [RegExp, string, readonly string[]][] = [
+  [/^(Northgate) is your company, so Postgres row level security allows these rows\.$/, '{company} is your company, so Postgres row level security allows these rows.', ['company']],
+  [/^(Northgate) query$/, '{company} query', ['company']],
+  [/^(Northgate) query · your company$/, '{company} query · your company', ['company']],
+  [/^(.+), (.+)\. Sets address fields, phone format and currency\.$/, '{country}, {region}. Sets address fields, phone format and currency.', ['country', 'region']],
   [/^(\d+) open requests?$/, '{count} open requests', ['count']],
   [/^(\d+) requests?$/, '{count} requests', ['count']],
   [/^(\d+) today$/, '{count} today', ['count']],

@@ -7,6 +7,7 @@ export const DEMO_ROUND_TWO_COPY = [
   'Good morning team. Northgate asked for an early visit today, please check your jobs.',
   'On my way. I have the spare filters in the van.',
   'SAMPLE Hot work permit, Marina Exchange',
+  'SAMPLE Civil Defence certificate', 'SAMPLE Trade licence', 'SAMPLE Public liability insurance',
   'Monthly maintenance retainer. Put the PO number on every invoice.',
   'Visitor parking at P2. Sign in at the ground floor security desk with your Emirates ID.',
   'Use the loading bay on the lake side. Keys are at reception until 6 pm.',
@@ -19,3 +20,17 @@ export const DEMO_ROUND_TWO_COPY = [
   'Plant room', 'Office water heater', 'Office kitchen', 'big chiller', 'the tower', 'the annex',
   'Inspect reception lighting',
 ] as const;
+
+/** Data stays outside shipped dictionary keys. Expand only these exact practice instances. */
+export const DEMO_ROUND_TWO_TEMPLATES: Record<string, {key: string; values: Record<string,string>}> = {
+  'Good morning team. Northgate asked for an early visit today, please check your jobs.': {key: 'Good morning team. {company} asked for an early visit today, please check your jobs.', values: {company: 'Northgate'}},
+  'SAMPLE Hot work permit, Marina Exchange': {key: 'SAMPLE Hot work permit, {site}', values: {site: 'Marina Exchange'}},
+  'Visitor parking at P2. Sign in at the ground floor security desk with your Emirates ID.': {key: 'Visitor parking at {parking}. Sign in at the ground floor security desk with your Emirates ID.', values: {parking: 'P2'}},
+  'Use the loading bay on the lake side. Keys are at reception until 6 pm.': {key: 'Use the loading bay on the lake side. Keys are at reception until {hour} pm.', values: {hour: '6'}},
+  'Roof AC 1': {key: 'Roof AC {number}', values: {number: '1'}},
+  'Roof AC 2': {key: 'Roof AC {number}', values: {number: '2'}},
+  'Warehouse work only between 7 am and 3 pm.': {key: 'Warehouse work only between {start} am and {end} pm.', values: {start: '7', end: '3'}},
+};
+export function demoRoundTwoTranslations(words: Record<string,string>): Record<string,string> {
+  return Object.fromEntries(Object.entries(DEMO_ROUND_TWO_TEMPLATES).flatMap(([source, {key,values}]) => words[key] ? [[source, words[key].replace(/\{([a-z]+)\}/g, (token, name: string) => values[name] ?? token)]] : []));
+}

@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { LANGUAGES } from '../lib/languages';
 import { isEnglish, readTranslationCache, replaceTranslation } from '../lib/i18n';
+import { demoJobTranslations } from '../lib/demo-job-copy';
 import { DEMO_ROUND_TWO_COPY } from '../lib/demo-round-two-copy';
 import { UI_TRANSLATION_TEMPLATES } from '../lib/ui-translation-templates';
 import { agentPriorityTemplate, agentSummaryTemplate, auditSummaryTemplates, auditTemplates } from '../lib/ui/audit-summary';
@@ -26,11 +27,13 @@ const interfaceCopy = [
 ];
 it.each(LANGUAGES.filter(l => !isEnglish(l.code)))('$code covers every round two fixture, interface and summary template using validated shipped words', ({code}) => {
  const words = readTranslationCache(readFileSync(`public/i18n/${code}.json`, 'utf8'), code);
- for (const source of [...DEMO_ROUND_TWO_COPY, ...interfaceCopy, ...UI_TRANSLATION_TEMPLATES, ...Object.values(auditTemplates), agentPriorityTemplate, SCHEDULE_HINT, CHANGE_SCHEDULE_HINT]) {
+ Object.assign(words, demoJobTranslations(words));
+ for (const source of [...DEMO_ROUND_TWO_COPY, ...UI_TRANSLATION_TEMPLATES, ...Object.values(auditTemplates), agentPriorityTemplate, SCHEDULE_HINT, CHANGE_SCHEDULE_HINT]) {
   expect(words[source], `${code}: ${source}`).toBeTruthy();
   expect(words[source], `${code}: ${source}`).not.toBe(source);
   if (code === 'ar-AE') expect(words[source]).not.toMatch(/\bagent\b/i);
  }
+ for (const source of interfaceCopy) expect(replaceTranslation(source,words), `${code}: ${source}`).not.toBe(source);
  const label = replaceTranslation('16 Open for Ravi', words);
  expect(label).toContain('16'); expect(label).toContain('Ravi'); expect(label).toContain(words.Open);
  expect(label).not.toContain(' for ');
@@ -58,7 +61,7 @@ it('audit templates retain each simultaneous change and carry ISO dates for the 
   expect(text).not.toMatch(/Oct|assigned|scheduled|due date/);
  }
  const member = auditSummaryTemplates({actor_name:'Imran',member_name:'Pranav',entity:'members',action:'update',after:{role:'client'}})![0];
- expect(renderNotification(member,words,'ar-AE')).toContain(words.Client);
+ expect(renderNotification(member,words,'ar-AE')).toContain(words['Facility manager']);
 });
 it('legacy Agent priority summaries use templates, preserve identifiers and translate both priorities', () => {
  const source = 'Change priority for WO 1 My repair: low to high';
