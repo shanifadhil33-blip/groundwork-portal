@@ -1,6 +1,6 @@
 import { formatInLang, uiLang } from '../date-lang';
 import { savedReturnNotice } from '../status-updates';
-import { label, clientStatusLabels, statusLabels } from './work-orders';
+import { label, clientStatusLabels, statusLabels, type Detail } from './work-orders';
 type WorkNotification = {id:string;read_at:string|null;link_target:{entity:string;id:string}|null};
 // Navigation waits for the read receipt so the bell stays in sync with the opened item.
 export async function openNotificationTarget(item:WorkNotification,markRead:(id:string)=>Promise<unknown>,navigate:(id:string)=>void) {
@@ -12,6 +12,7 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
 
 /** English readers use the keys directly. Names and job titles stay in their saved words. */
 export const notificationTemplates = {
+ price_change: '{name}: {status} on {job}.',
  client_booked: 'Your visit for {job} is booked for {time}.',
  client_way: 'The technician is on the way for {job}.',
  client_started: 'The technician has started {job}.',
@@ -65,6 +66,15 @@ export const notificationTemplates = {
  more_many: '{count} more updates on this job',
 } as const;
 export type NotificationTemplate = { key: string; values: Record<string, string>; translatedValues?: string[]; runtime?: boolean; dateValues?: Record<string,string>; timezone?: string; photoLink?: string };
+
+/** Price history is system copy even though its saved body predates notice templates. */
+export function priceChangeEventTemplate(event: Detail['timeline'][number], actor: string, title: string): NotificationTemplate | undefined {
+ if(event.kind!=='price_change')return undefined;
+ const known=['Price changed','Waiting for a price','Waiting for the client','Price approved','Client said no','Client refused'];
+ // Do not send an unknown saved body through a translated status parameter.
+ const status=known.includes(event.body??'')?event.body!:'Price changed';
+ return {key:notificationTemplates.price_change,values:{name:actor,status,job:event.work_order_title??title},translatedValues:['status']};
+}
 
 export function notificationTemplate(r: Record<string, any>, client = false): NotificationTemplate {
  const values: Record<string, string> = {name:r.actor_name??'Your team',job:r.work_order_title??r.current_title??'your job'};
