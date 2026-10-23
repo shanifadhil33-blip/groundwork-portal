@@ -1225,3 +1225,16 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 .job-checklist .precheck-item { min-block-size: 44px; }
 .checklist-materials { margin: 0; padding-inline-start: 1.2rem; }
 .checklist-settings .row, .job-checklist .row { flex-wrap: wrap; }
+
+/* LEARN16: shared memory stays readable on narrow screens and in RTL. */
+.company-memory,.company-memory :is(form,li,textarea,dl,dd){min-inline-size:0;max-inline-size:100%;box-sizing:border-box}
+.company-memory{overflow-wrap:anywhere}
+.company-memory-list{list-style:none;padding-inline-start:0}
+.company-memory-lesson{border:1px solid var(--border);border-radius:16px;padding:20px}
+.company-memory-body{white-space:pre-wrap;overflow-wrap:anywhere}
+.company-memory-evidence{display:flex;flex-wrap:wrap;gap:16px;margin:0}
+.company-memory-evidence>div{flex:1 1 160px;min-inline-size:0}
+.company-memory-evidence dt{font-weight:600}
+.company-memory-evidence dd{margin-inline-start:0}
+.company-memory .row{flex-wrap:wrap}
+.company-memory textarea{inline-size:100%;resize:vertical}
