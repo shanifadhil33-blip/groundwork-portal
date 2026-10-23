@@ -1,7 +1,8 @@
 import { afterAll, beforeEach, expect, it } from 'vitest';
 import { closePools, withSystem } from '../lib/db';
 import { ids } from '../lib/fixture';
-import { startDemo } from '../lib/services/demo';
+import { startDemo, resetDemo } from '../lib/services/demo';
+import { listNotifications } from '../lib/services/notifications';
 import { archiveMember, changeMember, listMembers, memberImpact, setClientKind, setMemberRoles, unarchiveMember } from '../lib/services/members';
 import { teamToday } from '../lib/services/team';
 import { getWorkOrder, listWorkOrders } from '../lib/services/work-orders';
@@ -13,6 +14,21 @@ beforeEach(async()=>{
  people=await withSystem(async db=>Object.fromEntries((await db.query('SELECT demo_persona,id FROM users WHERE demo_workspace_id=$1',[ws])).rows.map(p=>[p.demo_persona,p.id])));
 });
 afterAll(closePools);
+it('seeds final persona roles without role-change notices on creation or reset, but reports a later change',async()=>{
+ const checkSeed=async(workspace:string)=>{
+  const members=await withSystem(async db=>(await db.query('SELECT m.*,u.demo_persona FROM members m JOIN users u ON u.id=m.user_id WHERE m.workspace_id=$1',[workspace])).rows);
+  expect(members.find(m=>m.demo_persona==='faisal')).toMatchObject({role:'client',client_kind:'household'});
+  expect(members.find(m=>m.demo_persona==='kevin')).toMatchObject({role:'client',client_kind:'office'});
+  expect(members.find(m=>m.demo_persona==='nabil')).toMatchObject({role:'staff',staff_kind:'office'});
+  expect(await withSystem(async db=>(await db.query("SELECT id FROM notifications WHERE workspace_id=$1 AND kind='roles_changed'",[workspace])).rows)).toEqual([]);
+ };
+ await checkSeed(ws);
+ await setClientKind(people.imran,ws,people.faisal,{kind:'manager'});
+ const changed=(await listNotifications(people.faisal,ws,new URLSearchParams('pageSize=100'))).data.filter(n=>n.kind==='roles_changed');
+ expect(changed).toHaveLength(1);expect(changed[0].message).toContain('Imran changed your roles');
+ const reset=await resetDemo(people.imran,{confirm:true});
+ await checkSeed(reset.body.workspace_id);
+});
 it('saves demo roles through the Team path and reloads the same role on Members and Team',async()=>{
  await setMemberRoles(people.imran,ws,people.sam,{roles:['staff','technician']});
  expect((await listMembers(people.imran,ws)).find(m=>m.user_id===people.sam)).toMatchObject({role:'staff',extra_roles:['technician']});

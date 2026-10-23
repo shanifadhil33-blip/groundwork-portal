@@ -23,3 +23,16 @@ it('CMP08: updates on one job group into one row', () => {
   const g = groupNotifications([n('1', 'a'), n('2', 'b'), n('3', 'a'), n('4', null), n('5', 'a')]);
   expect(g.map(x => x.item.id)).toEqual(['1', '2', '4']); expect(g[0].rest.map(x => x.id)).toEqual(['3', '5']);
 });
+it.each(['on_the_way','status_changed','quote_sent','price_change'])('CMP08: demo notices never hide a real %s update or enter its group', kind => {
+  const n = (id:string, kind:string, entity='work_orders') => ({id,kind,read_at:null,link_target:{entity,id:'job'}});
+  const demo = n('demo','demo_push');
+  const real = n('real',kind);
+  const older = n('older','status_changed','work_order');
+  const reminder = n('reminder','demo_late');
+  for (const items of [[demo,real,reminder,older],[real,demo,older,reminder]]) {
+    const groups=groupNotifications(items);
+    expect(groups.find(g=>g.item===real)).toEqual({item:real,rest:[older]});
+    expect(groups.find(g=>g.item===demo)).toEqual({item:demo,rest:[]});
+    expect(groups.find(g=>g.item===reminder)).toEqual({item:reminder,rest:[]});
+  }
+});

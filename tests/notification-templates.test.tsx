@@ -139,6 +139,29 @@ describe('notification templates',()=>{
  });
 });
 
+it.each(['en-IN','ar-AE'])('%s keeps real client updates visible above grouped details when a newer demo push exists',async lang=>{
+ state.language=lang;
+ const source={work_order_title:'Repair stairwell handrail',entity_id:'job',scheduled_for:'2032-01-12T07:15:00Z',timezone:'Asia/Dubai',after_photos:2};
+ const file=lang==='en-IN'?{}:words(lang);
+ document.documentElement.lang=lang;
+ setNotificationLanguage(lang,file);
+ vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true);
+ const container=document.createElement('div');document.body.append(container);root=createRoot(container);
+ for(const [kind,to_status] of [['on_the_way',null],['status_changed','scheduled'],['status_changed','done'],['quote_sent',null],['price_change',null]] as const){
+  const real=notificationTemplate({...source,kind,to_status,details:{state:'pending'}},true);
+  const demo=notificationTemplate({...source,kind:'demo_push'},true);
+  const item=(id:string,kind:string,descriptor:typeof real)=>({id,kind,message:renderNotification(descriptor),message_template:descriptor,created_at:new Date().toISOString(),read_at:null,link_target:{entity:'work_orders',id:'job'}});
+  state.items=[item('demo','demo_push',demo),item('real',kind,real),item('older','status_changed',notificationTemplate({...source,kind:'status_changed',to_status:'open'},true))];
+  // Remount so the bell loads the next client step from its resource.
+  await act(async()=>{root!.render(<Notifications key={kind+to_status} open onClose={()=>{}} ws="workspace" onChange={()=>{}}/>);});
+  const links=[...container.querySelectorAll('.notification-item > .activity-link')];
+  expect(links.map(link=>link.textContent)).toEqual([renderNotification(demo,file,lang),renderNotification(real,file,lang)]);
+  expect(container.querySelectorAll('details .activity-link')).toHaveLength(1);
+  expect(links.every(link=>link.getAttribute('href')==='/work-orders/job'||link.getAttribute('href')==='/work-orders/job#photos')).toBe(true);
+ }
+ document.documentElement.lang='en-IN';
+});
+
 it('Arabic client sentences render from files with company time and protected job names',()=>{
  document.documentElement.lang='ar-AE';
  const source={work_order_title:'Repair tap',entity_id:'job',scheduled_for:'2032-01-12T07:15:00Z',timezone:'Asia/Dubai',after_photos:3};

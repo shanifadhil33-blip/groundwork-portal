@@ -1,10 +1,15 @@
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import fixture from './fixtures/real-world-situations.json';
 import { allowedTool } from '../lib/agent/role-tools';
 import { ids } from '../lib/fixture';
+import { closePools, withSystem } from '../lib/db';
+import { startDemo } from '../lib/services/demo';
+import { listMembers } from '../lib/services/members';
+
+afterAll(closePools);
 
 const roles = {
   imran: 'admin', sam: 'staff', ravi: 'technician', nabil: 'office',
@@ -51,19 +56,20 @@ it('includes all 80 catalogue entries exactly once in their original sections', 
   }
 });
 
-it('maps every actor to the real sandbox membership and records role differences', () => {
-  const seed = read('../lib/fixture.ts');
+it('maps every actor to the real sandbox membership and records role differences', async () => {
+  const sandbox = await startDemo({persona:'imran'},'local-real-world-situations');
+  const imran = await withSystem(async db=>(await db.query("SELECT id FROM users WHERE demo_workspace_id=$1 AND demo_persona='imran'",[sandbox.body.workspace_id])).rows[0].id);
+  const members = await listMembers(imran,sandbox.body.workspace_id);
   const demo = read('../lib/services/demo.ts');
   const memberships = { imran: 'admin', sam: 'staff', ravi: 'technician', nabil: 'staff', pranav: 'client', kevin: 'client', faisal: 'client' };
   for (const [persona, membership] of Object.entries(memberships)) {
     expect(ids).toHaveProperty(persona);
     expect(demo).toContain(`'${persona}'`);
-    expect(seed).toContain(`[ids.ridgeline,ids.${persona},'${membership}',`);
+    expect(members.find(member=>member.name?.toLowerCase()===persona)?.role).toBe(membership);
   }
-  expect(seed).toContain("staff_kind='office'");
-  expect(seed).toContain('[ids.ridgeline,ids.nabil]');
-  expect(seed).toContain("client_kind=CASE WHEN user_id=$2 THEN 'office' ELSE 'household' END");
-  expect(seed).toContain('[ids.ridgeline,ids.kevin,ids.faisal]');
+  expect(members.find(member=>member.name==='Nabil')?.staff_kind).toBe('office');
+  expect(members.find(member=>member.name==='Kevin')?.client_kind).toBe('office');
+  expect(members.find(member=>member.name==='Faisal')?.client_kind).toBe('household');
   for (const test of cases) {
     expect(test.persona_role).toBe(roles[test.persona]);
     if (/Building manager|Unknown WhatsApp/.test(test.source_actor)) expect(test.notes.length).toBeGreaterThan(0);

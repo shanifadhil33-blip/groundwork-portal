@@ -35,8 +35,12 @@ for (const lang of ['en-IN', 'ar-AE']) { await s.api.patch('/api/me/preferences'
   res[`sideways_${lang}_${w}`] = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1); check(!res[`sideways_${lang}_${w}`], `${lang} ${w} sideways`);
   await p.screenshot({ path: `${OUT}/faisal-${lang}-${w}-job.png` });
   await p.locator('.notification-trigger button').first().click(); await p.waitForTimeout(1200);
-  const sheet = await p.locator('[role=dialog]').last().innerText().catch(() => ''); res[`bell_${lang}_${w}`] = sheet.slice(0, 200);
-  if (lang === 'en-IN') check(sheet.includes('is on the way for'), `${lang} ${w} bell shows the notice`); else check(sheet.includes('الفني في الدرب'), `${lang} ${w} bell shows the Arabic notice`);
+  const dialog = p.locator('[role=dialog]').last();
+  const sheet = await dialog.innerText().catch(() => ''); res[`bell_${lang}_${w}`] = sheet.slice(0, 200);
+  // The actual update must be a visible top-level row for this job, not hidden in grouped details.
+  const notice = lang === 'en-IN' ? 'is on the way for' : 'الفني في الدرب';
+  const row = dialog.locator(`.notification-item > .activity-link[href="/work-orders/${job.id}"]`).filter({ hasText: notice });
+  check(await row.count() === 1 && await row.isVisible(), `${lang} ${w} bell shows the notice as a visible row for this job`);
   await p.screenshot({ path: `${OUT}/faisal-${lang}-${w}-bell.png` }); await ctx.close(); } }
 await s.api.patch('/api/me/preferences', { data: { language: pref.language ?? 'en-IN' } }).catch(() => {});
 await br.close(); await s.as('imran'); res.fail = fail; fs.writeFileSync(`${OUT}/report.json`, JSON.stringify(res, null, 1)); console.log(JSON.stringify(res, null, 1)); console.log(fail.length ? 'NOTIF08_FAIL' : 'NOTIF08_OK'); process.exit(fail.length ? 1 : 0);

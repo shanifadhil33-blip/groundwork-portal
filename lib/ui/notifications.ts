@@ -162,11 +162,11 @@ export function notificationMessage(r:Record<string,any>,client=false) {
  return renderNotification(notificationTemplate(r,client));
 }
 
-/** CMP08: several updates on one job show as one row, newest first, with a count of the rest. */
+/** CMP08: job updates group newest first. Demo/test delivery notices stay separate so they never hide a real update. */
 export function groupNotifications<T extends { id: string; read_at: string | null; link_target?: { entity: string; id: string } | null; kind?:string }>(items: T[]) {
   const out: { item: T; rest: T[] }[] = []; const at = new Map<string, number>();
   for (const n of items) {
-    const key = n.kind !== 'emergency' && n.kind !== 'emergency_review' && n.link_target && (n.link_target.entity === 'work_orders' || n.link_target.entity === 'work_order') ? `wo:${n.link_target.id}` : null;
+    const key = !n.kind?.startsWith('demo_') && n.kind !== 'emergency' && n.kind !== 'emergency_review' && n.link_target && (n.link_target.entity === 'work_orders' || n.link_target.entity === 'work_order') ? `wo:${n.link_target.id}` : null;
     if (key && at.has(key)) { out[at.get(key)!].rest.push(n); continue; }
     if (key) at.set(key, out.length); out.push({ item: n, rest: [] });
   }
