@@ -28,7 +28,7 @@ const languages=readdirSync('public/i18n').map(file=>file.replace('.json',''));
 const words=(lang:string)=>JSON.parse(readFileSync(`public/i18n/${lang}.json`,'utf8')) as Record<string,string>;
 const placeholders=(text:string)=>(text.match(/\{[a-z_]+\}/g)??[]).sort();
 let root: ReturnType<typeof createRoot>|undefined;
-afterEach(async()=>{if(root)await act(async()=>root!.unmount());root=undefined;document.body.replaceChildren();vi.unstubAllGlobals();setNotificationLanguage('',null);state.language='hi';});
+afterEach(async()=>{if(root)await act(async()=>root!.unmount());root=undefined;document.body.replaceChildren();localStorage.clear();vi.unstubAllGlobals();setNotificationLanguage('',null);state.language='hi';});
 
 describe('notification templates',()=>{
  it.each(languages)('%s has every template with exactly the same placeholders, ready for the static cache',lang=>{
@@ -74,8 +74,8 @@ describe('notification templates',()=>{
   const file=words('hi');
   const template=notificationTemplate({kind:'status_changed',actor_name:'Sam',work_order_title:'Original',current_title:'Renamed',from_status:'scheduled',to_status:'in_progress'},true);
   const output=renderNotification(template,file);
-  expect(output).toContain('Sam');expect(output).toContain('Original');expect(output).not.toContain('Renamed');
-  expect(output).toContain(file['Visit Scheduled']);expect(output).toContain(file['Work in Progress']);
+  expect(output).toContain('Original');expect(output).not.toContain('Renamed');
+  expect(output).toBe(file[notificationTemplates.client_started].replace('{job}','Original'));
   expect(renderNotification(notificationTemplate({kind:'job_assigned'}),file)).toContain(file['Your team']);
   expect(renderNotification(notificationTemplate({kind:'roles_changed',actor_name:'Your admin'}),file)).toContain(file['Your admin']);
  });
@@ -114,7 +114,7 @@ describe('notification templates',()=>{
   expect(emergency.values.name).toBe('Sam');
   expect(emergency.translatedValues).not.toContain('name');
  });
- it.each(['hi','ur','zh-CN'])('%s first message paint uses the file and never asks the runtime translation service',async lang=>{
+ it.each(['hi','ur','zh-CN','ar-AE'])('%s first message paint uses the file and never asks the runtime translation service',async lang=>{
   state.language=lang;
   const descriptor=notificationTemplate({kind:'job_assigned',actor_name:'Sam',work_order_title:'Replace washroom tap'});
   state.items=[0,1,2].map(i=>({id:String(i),message:renderNotification(descriptor),message_template:descriptor,created_at:new Date().toISOString(),read_at:null,link_target:{entity:'work_orders',id:'job'}}));
@@ -127,6 +127,7 @@ describe('notification templates',()=>{
   expect(container.querySelector('[data-loading]')).not.toBeNull();expect(container.textContent).not.toContain('assigned');
   await act(async()=>{resolveFile(new Response(JSON.stringify(words(lang))));await fileRequest;});
   const text=renderNotification(descriptor,words(lang));
+  expect(container.querySelectorAll('details .activity-link')).toHaveLength(2);
   expect(container.textContent).toContain(text);expect(container.textContent).toContain(renderNotification({key:notificationTemplates.more_many,values:{count:'2'}},words(lang)));
   expect(container.textContent).not.toContain('assigned Replace');
   for(const span of container.querySelectorAll('bdi'))expect(span.closest(TRANSLATION_SKIP)).not.toBeNull();
@@ -136,4 +137,38 @@ describe('notification templates',()=>{
   await act(async()=>{changeAppLanguage('en-IN');});
   expect(container.textContent).toContain('Sam assigned Replace washroom tap to you.');
  });
+});
+
+it('Arabic client sentences render from files with company time and protected job names',()=>{
+ document.documentElement.lang='ar-AE';
+ const source={work_order_title:'Repair tap',entity_id:'job',scheduled_for:'2032-01-12T07:15:00Z',timezone:'Asia/Dubai',after_photos:3};
+ const file=words('ar-AE');
+ for(const [kind,to_status,key] of [['status_changed','scheduled','client_booked'],['on_the_way',null,'client_way'],['status_changed','in_progress','client_started'],['status_changed','done','client_done'],['visit_changed',null,'client_rescheduled'],['job_cancelled',null,'client_cancelled'],['quote_sent',null,'client_price']] as const){
+  const message=notificationTemplate({...source,kind,to_status},true);
+  expect(message.key).toBe(notificationTemplates[key]);
+  const html=renderToStaticMarkup(<NotificationMessage message={message} words={file}/>);
+  const host=document.createElement('div');host.innerHTML=html;
+  expect(host.textContent).toMatch(/[ا-ي]/);
+  expect(host.textContent).not.toMatch(/Your |technician|after photos|Jan|booked|cancelled|approval|2032-01/);
+  expect(host.querySelector('span[data-no-translate]')).not.toBeNull();
+  expect(host.textContent).toContain('Repair tap');
+  if(key==='client_booked'||key==='client_rescheduled')expect(host.textContent).toContain('11:15');
+  if(key==='client_done'){expect(host.textContent).toContain('3');expect(message.photoLink).toBe('/work-orders/job#photos');}
+ }
+ document.documentElement.lang='en-IN';
+});
+
+it.each([false,true])('an unavailable Arabic file uses saved translations or waits, with saved file %s',async saved=>{
+ state.language='ar-AE';
+ const descriptor=notificationTemplate({kind:'on_the_way',work_order_title:'Repair tap'},true);
+ state.items=[{id:'notice',message:'The technician is on the way for Repair tap.',message_template:descriptor,created_at:new Date().toISOString(),read_at:null,link_target:{entity:'work_orders',id:'job'}}];
+ localStorage.clear();
+ if(saved)localStorage.setItem('groundwork-ui-translations:v1:ar-AE',JSON.stringify(words('ar-AE')));
+ vi.stubGlobal('fetch',vi.fn(async()=>new Response('',{status:503})));
+ vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true);
+ const container=document.createElement('div');document.body.append(container);root=createRoot(container);
+ await act(async()=>{root!.render(<><Translator/><Notifications open onClose={()=>{}} ws="workspace" onChange={()=>{}}/></>);});
+ expect(container.textContent).not.toContain('The technician');
+ if(saved)expect(container.textContent).toContain('الفني في الدرب عشان Repair tap.');
+ else expect(container.querySelector('[data-loading]')).not.toBeNull();
 });

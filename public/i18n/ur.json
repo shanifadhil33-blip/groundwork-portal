@@ -1112,5 +1112,13 @@
  "That did not send. Try again.": "یہ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
  "That did not work. Try again.": "یہ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
  "Profile and preferences saved.": "محفوظ ہوگیا",
- "Visit time confirmed.": "گاہک نے تصدیق کی"
+ "Visit time confirmed.": "گاہک نے تصدیق کی",
+ "Your visit for {job} is booked for {time}.": "{job} کے لیے آپ کی ملاقات {time} پر بک ہے۔",
+ "The technician is on the way for {job}.": "{job} کے لیے ٹیکنیشن راستے میں ہے۔",
+ "The technician has started {job}.": "ٹیکنیشن نے {job} شروع کر دیا ہے۔",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} مکمل ہو گیا۔ کام کے بعد کی {count} تصاویر ہیں۔ انہیں دیکھنے کے لیے کام کھولیں۔",
+ "Your visit for {job} is now booked for {time}.": "{job} کے لیے آپ کی ملاقات اب {time} پر بک ہے۔",
+ "{job} has been cancelled.": "{job} منسوخ کر دیا گیا ہے۔",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job} کی قیمت آپ کی منظوری کی منتظر ہے۔ منظور یا مسترد کرنے کے لیے کام کھولیں۔",
+ "Your request {job} was updated.": "آپ کی درخواست {job} اپ ڈیٹ کر دی گئی ہے۔"
 }

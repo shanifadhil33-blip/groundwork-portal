@@ -1068,5 +1068,13 @@
  "That did not send. Try again.": "操作失败。请重试。",
  "That did not work. Try again.": "操作失败。请重试。",
  "Profile and preferences saved.": "已保存",
- "Visit time confirmed.": "客户已确认"
+ "Visit time confirmed.": "客户已确认",
+ "Your visit for {job} is booked for {time}.": "{job}的上门时间已预约为{time}。",
+ "The technician is on the way for {job}.": "师傅正在赶来处理{job}。",
+ "The technician has started {job}.": "师傅已开始处理{job}。",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job}已完成。有{count}张完工照片。打开维修单查看。",
+ "Your visit for {job} is now booked for {time}.": "{job}的上门时间现已改为{time}。",
+ "{job} has been cancelled.": "{job}已取消。",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job}的价格正等待您确认。打开维修单同意或拒绝。",
+ "Your request {job} was updated.": "您的请求{job}已更新。"
 }

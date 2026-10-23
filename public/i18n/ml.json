@@ -1091,5 +1091,13 @@
  "That did not send. Try again.": "അത് നടന്നില്ല. വീണ്ടും ശ്രമിക്കുക.",
  "That did not work. Try again.": "അത് നടന്നില്ല. വീണ്ടും ശ്രമിക്കുക.",
  "Profile and preferences saved.": "സൂക്ഷിച്ചു",
- "Visit time confirmed.": "ഉപഭോക്താവ് ഉറപ്പിച്ചു"
+ "Visit time confirmed.": "ഉപഭോക്താവ് ഉറപ്പിച്ചു",
+ "Your visit for {job} is booked for {time}.": "{job} നുള്ള നിങ്ങളുടെ സന്ദർശനം {time} ന് ബുക്ക് ചെയ്തു.",
+ "The technician is on the way for {job}.": "{job} നായി ടെക്നീഷ്യൻ വരുന്ന വഴിയിലാണ്.",
+ "The technician has started {job}.": "ടെക്നീഷ്യൻ {job} തുടങ്ങി.",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} പൂർത്തിയായി. ജോലിക്ക് ശേഷമുള്ള {count} ഫോട്ടോകൾ ഉണ്ട്. കാണാൻ ജോലി തുറക്കുക.",
+ "Your visit for {job} is now booked for {time}.": "{job} നുള്ള നിങ്ങളുടെ സന്ദർശനം ഇപ്പോൾ {time} ന് ബുക്ക് ചെയ്തു.",
+ "{job} has been cancelled.": "{job} റദ്ദാക്കി.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job} ന്റെ വില നിങ്ങളുടെ അംഗീകാരത്തിനായി കാത്തിരിക്കുന്നു. അംഗീകരിക്കാനോ നിരസിക്കാനോ ജോലി തുറക്കുക.",
+ "Your request {job} was updated.": "നിങ്ങളുടെ അഭ്യർത്ഥന {job} പുതുക്കി."
 }

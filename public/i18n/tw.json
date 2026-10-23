@@ -1071,5 +1071,13 @@
  "That did not send. Try again.": "Ɛnyɛ yie. Sɔ bio.",
  "That did not work. Try again.": "Ɛnyɛ yie. Sɔ bio.",
  "Profile and preferences saved.": "Wɔakora so",
- "Visit time confirmed.": "Adetɔfoɔ no agye atom"
+ "Visit time confirmed.": "Adetɔfoɔ no agye atom",
+ "Your visit for {job} is booked for {time}.": "Yɛahyɛ wo nsrahwɛ a ɛfa {job} ho wɔ {time}.",
+ "The technician is on the way for {job}.": "Ɔdwumayɛfo no nam kwan so reba ama {job}.",
+ "The technician has started {job}.": "Ɔdwumayɛfo no afi {job} ase.",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} awie. Adwuma no akyi mfonini {count} wɔ hɔ. Bue adwuma no na hwɛ.",
+ "Your visit for {job} is now booked for {time}.": "Seesei yɛahyɛ wo nsrahwɛ a ɛfa {job} ho wɔ {time}.",
+ "{job} has been cancelled.": "Yɛatwa {job} mu.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job} bo no retwɛn wo pene. Bue adwuma no na pene so anaa pow.",
+ "Your request {job} was updated.": "Yɛayɛ wo adesrɛ {job} foforo."
 }

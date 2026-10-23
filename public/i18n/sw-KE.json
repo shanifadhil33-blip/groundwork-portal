@@ -1064,5 +1064,13 @@
  "That did not send. Try again.": "Hiyo haikufanyika. Jaribu tena.",
  "That did not work. Try again.": "Hiyo haikufanyika. Jaribu tena.",
  "Profile and preferences saved.": "Imehifadhiwa",
- "Visit time confirmed.": "Mteja amethibitisha"
+ "Visit time confirmed.": "Mteja amethibitisha",
+ "Your visit for {job} is booked for {time}.": "Ziara yako ya {job} imepangwa kwa {time}.",
+ "The technician is on the way for {job}.": "Fundi yuko njiani kwa ajili ya {job}.",
+ "The technician has started {job}.": "Fundi ameanza {job}.",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} imekamilika. Kuna picha {count} za baada ya kazi. Fungua kazi uzione.",
+ "Your visit for {job} is now booked for {time}.": "Ziara yako ya {job} sasa imepangwa kwa {time}.",
+ "{job} has been cancelled.": "{job} imeghairiwa.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Bei ya {job} inasubiri idhini yako. Fungua kazi ukubali au ukatae.",
+ "Your request {job} was updated.": "Ombi lako la {job} limesasishwa."
 }

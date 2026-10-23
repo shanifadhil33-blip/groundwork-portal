@@ -1071,5 +1071,13 @@
  "That did not send. Try again.": "ያ አልተሳካም። እንደገና ሞክር።",
  "That did not work. Try again.": "ያ አልተሳካም። እንደገና ሞክር።",
  "Profile and preferences saved.": "ተቀምጧል",
- "Visit time confirmed.": "ደንበኛው አረጋግጧል"
+ "Visit time confirmed.": "ደንበኛው አረጋግጧል",
+ "Your visit for {job} is booked for {time}.": "ለ {job} ጉብኝትዎ በ {time} ተይዟል።",
+ "The technician is on the way for {job}.": "ቴክኒሻኑ ለ {job} በመንገድ ላይ ነው።",
+ "The technician has started {job}.": "ቴክኒሻኑ {job} ጀምሯል።",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} ተጠናቋል። ከሥራ በኋላ የተነሱ {count} ፎቶዎች አሉ። ለማየት ሥራውን ይክፈቱ።",
+ "Your visit for {job} is now booked for {time}.": "ለ {job} ጉብኝትዎ አሁን በ {time} ተይዟል።",
+ "{job} has been cancelled.": "{job} ተሰርዟል።",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "የ {job} ዋጋ የእርስዎን ፈቃድ ይጠብቃል። ለመቀበል ወይም ላለመቀበል ሥራውን ይክፈቱ።",
+ "Your request {job} was updated.": "ጥያቄዎ {job} ተዘምኗል።"
 }

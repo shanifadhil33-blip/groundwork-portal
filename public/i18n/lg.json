@@ -1063,5 +1063,13 @@
  "That did not send. Try again.": "Ekyo tekikoleddwako. Gezaako nate.",
  "That did not work. Try again.": "Ekyo tekikoleddwako. Gezaako nate.",
  "Profile and preferences saved.": "Kiterekeddwa",
- "Visit time confirmed.": "Kasitoma akakasizza"
+ "Visit time confirmed.": "Kasitoma akakasizza",
+ "Your visit for {job} is booked for {time}.": "Okukyalira kwo ku {job} kutegekeddwa ku {time}.",
+ "The technician is on the way for {job}.": "Omukanika ali mu kkubo ku lwa {job}.",
+ "The technician has started {job}.": "Omukanika atandise {job}.",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} guwedde. Waliwo ebifaananyi {count} ebyatwaliddwa oluvannyuma lwʼomulimu. Ggulawo omulimu obirabe.",
+ "Your visit for {job} is now booked for {time}.": "Okukyalira kwo ku {job} kati kutegekeddwa ku {time}.",
+ "{job} has been cancelled.": "{job} gusaziddwamu.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Omuwendo gwa {job} gulindirira okukkiriza kwo. Ggulawo omulimu okukkiriza oba okugaana.",
+ "Your request {job} was updated.": "Okusaba kwo {job} kutereezeddwa."
 }

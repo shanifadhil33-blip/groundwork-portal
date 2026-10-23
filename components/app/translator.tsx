@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { DEFAULT_LANGUAGE, LANGUAGES, isRtl } from '../../lib/languages';
 import { isEnglish, languageFileUrl, mergeLanguageFile, readTranslationCache, replaceTranslation, translationPieces, translationSource, TRANSLATION_ATTRIBUTES, TRANSLATION_SKIP } from '../../lib/i18n';
 import { useResource } from './resource';
+import { notificationTemplates } from '../../lib/ui/notifications';
 import { setNotificationLanguage } from './notification-language';
 import { LANG_HINT_KEY } from '../../lib/head-scripts';
 import { AppContext } from './context';
@@ -163,10 +164,11 @@ export function Translator() {
       } finally { aiRunning = false; }
     }
     // LANG01: the language file comes first (one static file, no AI and no database), then saved words, then the AI queue.
+    const publishNotices=()=>setNotificationLanguage(language,Object.values(notificationTemplates).every(template=>cache[template])?{...cache}:null);
     const fileReady: Promise<void> = fetch(languageFileUrl(language), { signal: abort.signal, mode: 'cors', credentials: 'same-origin' })
       .then(r => (r.ok ? r.text() : null))
-      .then(raw => { if (!stopped) { setNotificationLanguage(language, readTranslationCache(raw, language)); if (mergeLanguageFile(cache, raw, language)) scan(); } })
-      .catch(() => { if (!stopped) setNotificationLanguage(language, {}); /* Notification templates fall back to English offline. */ });
+      .then(raw => { if (!stopped) { const changed=mergeLanguageFile(cache,raw,language); publishNotices(); if(changed)scan(); } })
+      .catch(() => { if (!stopped) publishNotices(); });
     scan();
     return () => {
       setNotificationLanguage('', null);

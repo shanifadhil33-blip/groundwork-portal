@@ -1109,5 +1109,13 @@
  "That did not send. Try again.": "دا ونه شول. بیا هڅه وکړئ.",
  "That did not work. Try again.": "دا ونه شول. بیا هڅه وکړئ.",
  "Profile and preferences saved.": "خوندي شو",
- "Visit time confirmed.": "پېرودونکي تایید کړ"
+ "Visit time confirmed.": "پېرودونکي تایید کړ",
+ "Your visit for {job} is booked for {time}.": "د {job} لپاره ستاسو لیدنه په {time} ثبت شوې ده.",
+ "The technician is on the way for {job}.": "د {job} لپاره تخنیکر په لاره دی.",
+ "The technician has started {job}.": "تخنیکر {job} پیل کړی دی.",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} بشپړ شو. له کار وروسته {count} انځورونه شته. د لیدلو لپاره کار پرانیزئ.",
+ "Your visit for {job} is now booked for {time}.": "د {job} لپاره ستاسو لیدنه اوس په {time} ثبت شوې ده.",
+ "{job} has been cancelled.": "{job} لغوه شو.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "د {job} بیه ستاسو د منلو په تمه ده. د منلو یا ردولو لپاره کار پرانیزئ.",
+ "Your request {job} was updated.": "ستاسو غوښتنه {job} نوې شوې ده."
 }

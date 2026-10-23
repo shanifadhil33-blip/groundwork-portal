@@ -1128,5 +1128,13 @@
  "That did not send. Try again.": "এটি করা যায়নি। আবার চেষ্টা করুন।",
  "That did not work. Try again.": "এটি করা যায়নি। আবার চেষ্টা করুন।",
  "Profile and preferences saved.": "সংরক্ষিত হয়েছে",
- "Visit time confirmed.": "গ্রাহক নিশ্চিত করেছেন"
+ "Visit time confirmed.": "গ্রাহক নিশ্চিত করেছেন",
+ "Your visit for {job} is booked for {time}.": "{job} এর জন্য আপনার পরিদর্শন {time} এ বুক করা হয়েছে।",
+ "The technician is on the way for {job}.": "{job} এর জন্য টেকনিশিয়ান পথে আছেন।",
+ "The technician has started {job}.": "টেকনিশিয়ান {job} শুরু করেছেন।",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} শেষ হয়েছে। কাজের পরের {count}টি ছবি আছে। দেখতে কাজটি খুলুন।",
+ "Your visit for {job} is now booked for {time}.": "{job} এর জন্য আপনার পরিদর্শন এখন {time} এ বুক করা হয়েছে।",
+ "{job} has been cancelled.": "{job} বাতিল করা হয়েছে।",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job} এর দাম আপনার অনুমোদনের অপেক্ষায় আছে। অনুমোদন বা প্রত্যাখ্যান করতে কাজটি খুলুন।",
+ "Your request {job} was updated.": "আপনার অনুরোধ {job} আপডেট করা হয়েছে।"
 }

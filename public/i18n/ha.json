@@ -1079,5 +1079,13 @@
  "That did not send. Try again.": "Wannan bai yiwu ba. Sake gwadawa.",
  "That did not work. Try again.": "Wannan bai yiwu ba. Sake gwadawa.",
  "Profile and preferences saved.": "An adana",
- "Visit time confirmed.": "Abokin ciniki ya tabbatar"
+ "Visit time confirmed.": "Abokin ciniki ya tabbatar",
+ "Your visit for {job} is booked for {time}.": "An tsara ziyararku ta {job} da {time}.",
+ "The technician is on the way for {job}.": "Mai gyara yana kan hanya don {job}.",
+ "The technician has started {job}.": "Mai gyara ya fara {job}.",
+ "{job} is done. {count} after photos. Open the job to see them.": "An gama {job}. Akwai hotuna {count} na bayan aiki. Buɗe aikin don ganin su.",
+ "Your visit for {job} is now booked for {time}.": "Yanzu an tsara ziyararku ta {job} da {time}.",
+ "{job} has been cancelled.": "An soke {job}.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Farashin {job} yana jiran amincewarku. Buɗe aikin don amincewa ko ƙin yarda.",
+ "Your request {job} was updated.": "An sabunta buƙatarku ta {job}."
 }

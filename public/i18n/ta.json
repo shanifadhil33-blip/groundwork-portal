@@ -1123,5 +1123,13 @@
  "That did not send. Try again.": "அது முடியவில்லை. மீண்டும் முயலவும்.",
  "That did not work. Try again.": "அது முடியவில்லை. மீண்டும் முயலவும்.",
  "Profile and preferences saved.": "சேமிக்கப்பட்டது",
- "Visit time confirmed.": "வாடிக்கையாளர் உறுதி செய்தார்"
+ "Visit time confirmed.": "வாடிக்கையாளர் உறுதி செய்தார்",
+ "Your visit for {job} is booked for {time}.": "{job} க்கான உங்கள் வருகை {time} க்கு பதிவு செய்யப்பட்டுள்ளது.",
+ "The technician is on the way for {job}.": "{job} க்காக தொழில்நுட்ப வல்லுநர் வரும் வழியில் உள்ளார்.",
+ "The technician has started {job}.": "தொழில்நுட்ப வல்லுநர் {job} ஐ தொடங்கியுள்ளார்.",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} முடிந்தது. வேலைக்குப் பிந்தைய {count} படங்கள் உள்ளன. பார்க்க வேலையைத் திறக்கவும்.",
+ "Your visit for {job} is now booked for {time}.": "{job} க்கான உங்கள் வருகை இப்போது {time} க்கு பதிவு செய்யப்பட்டுள்ளது.",
+ "{job} has been cancelled.": "{job} ரத்து செய்யப்பட்டது.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job} க்கான விலை உங்கள் ஒப்புதலுக்காக காத்திருக்கிறது. ஏற்க அல்லது மறுக்க வேலையைத் திறக்கவும்.",
+ "Your request {job} was updated.": "உங்கள் கோரிக்கை {job} புதுப்பிக்கப்பட்டது."
 }

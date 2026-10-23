@@ -1114,5 +1114,13 @@
  "That did not send. Try again.": "این کار انجام نشد. دوباره تلاش کنید.",
  "That did not work. Try again.": "این کار انجام نشد. دوباره تلاش کنید.",
  "Profile and preferences saved.": "ذخیره شد",
- "Visit time confirmed.": "مشتری تأیید کرد"
+ "Visit time confirmed.": "مشتری تأیید کرد",
+ "Your visit for {job} is booked for {time}.": "بازدید شما برای {job} در {time} رزرو شده است.",
+ "The technician is on the way for {job}.": "تکنسین برای {job} در راه است.",
+ "The technician has started {job}.": "تکنسین {job} را شروع کرده است.",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} تمام شد. {count} عکس پس از کار موجود است. برای دیدن آنها کار را باز کنید.",
+ "Your visit for {job} is now booked for {time}.": "بازدید شما برای {job} اکنون در {time} رزرو شده است.",
+ "{job} has been cancelled.": "{job} لغو شده است.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "قیمت {job} منتظر تأیید شما است. برای تأیید یا رد، کار را باز کنید.",
+ "Your request {job} was updated.": "درخواست شما {job} به روز شد."
 }

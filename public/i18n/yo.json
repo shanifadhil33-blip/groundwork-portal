@@ -1060,5 +1060,13 @@
  "That did not send. Try again.": "Èyí kò ṣiṣẹ́. Gbìyànjú lẹ́ẹ̀kan sí i.",
  "That did not work. Try again.": "Èyí kò ṣiṣẹ́. Gbìyànjú lẹ́ẹ̀kan sí i.",
  "Profile and preferences saved.": "A ti fi pamọ́",
- "Visit time confirmed.": "Oníbàárà ti fìdí rẹ̀ múlẹ̀"
+ "Visit time confirmed.": "Oníbàárà ti fìdí rẹ̀ múlẹ̀",
+ "Your visit for {job} is booked for {time}.": "A ti ṣètò ìbẹ̀wò rẹ fún {job} sí {time}.",
+ "The technician is on the way for {job}.": "Onímọ̀ ẹ̀rọ ń bọ̀ fún {job}.",
+ "The technician has started {job}.": "Onímọ̀ ẹ̀rọ ti bẹ̀rẹ̀ {job}.",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} ti parí. Fọ́tò {count} lẹ́yìn iṣẹ́ wà. Ṣí iṣẹ́ náà láti rí wọn.",
+ "Your visit for {job} is now booked for {time}.": "A ti yí ìbẹ̀wò rẹ fún {job} sí {time} báyìí.",
+ "{job} has been cancelled.": "A ti fagilé {job}.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Iye owó {job} ń dúró de ìfọwọ́sí rẹ. Ṣí iṣẹ́ náà láti gbà tàbí kọ̀.",
+ "Your request {job} was updated.": "A ti mú ìbéèrè rẹ {job} ṣe tuntun."
 }

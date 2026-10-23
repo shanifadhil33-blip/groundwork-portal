@@ -1079,5 +1079,13 @@
  "That did not send. Try again.": "Taasi ma shaqayn. Mar kale isku day.",
  "That did not work. Try again.": "Taasi ma shaqayn. Mar kale isku day.",
  "Profile and preferences saved.": "Waa la keydiyay",
- "Visit time confirmed.": "Macmiilka ayaa xaqiijiyay"
+ "Visit time confirmed.": "Macmiilka ayaa xaqiijiyay",
+ "Your visit for {job} is booked for {time}.": "Booqashadaada {job} waxaa loo ballamiyay {time}.",
+ "The technician is on the way for {job}.": "Farsamayaqaanku jidka ayuu ugu soo jiraa {job}.",
+ "The technician has started {job}.": "Farsamayaqaanku wuxuu bilaabay {job}.",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} waa dhammaatay. Waxaa jira {count} sawir oo shaqada ka dib ah. Fur shaqada si aad u aragto.",
+ "Your visit for {job} is now booked for {time}.": "Booqashadaada {job} hadda waxaa loo ballamiyay {time}.",
+ "{job} has been cancelled.": "{job} waa la joojiyay.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Qiimaha {job} wuxuu sugayaa oggolaanshahaaga. Fur shaqada si aad u oggolaato ama u diiddo.",
+ "Your request {job} was updated.": "Codsigaaga {job} waa la cusboonaysiiyay."
 }

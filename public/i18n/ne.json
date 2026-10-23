@@ -1108,5 +1108,13 @@
  "That did not send. Try again.": "त्यो भएन। फेरि प्रयास गर्नुहोस्।",
  "That did not work. Try again.": "त्यो भएन। फेरि प्रयास गर्नुहोस्।",
  "Profile and preferences saved.": "सुरक्षित भयो",
- "Visit time confirmed.": "ग्राहकले पुष्टि गरे"
+ "Visit time confirmed.": "ग्राहकले पुष्टि गरे",
+ "Your visit for {job} is booked for {time}.": "{job} का लागि तपाईंको भेट {time} मा बुक भएको छ।",
+ "The technician is on the way for {job}.": "{job} का लागि प्राविधिक बाटोमा हुनुहुन्छ।",
+ "The technician has started {job}.": "प्राविधिकले {job} सुरु गर्नुभएको छ।",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} सकियो। कामपछिका {count} तस्बिर छन्। हेर्न काम खोल्नुहोस्।",
+ "Your visit for {job} is now booked for {time}.": "{job} का लागि तपाईंको भेट अब {time} मा बुक भएको छ।",
+ "{job} has been cancelled.": "{job} रद्द गरिएको छ।",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job} को मूल्य तपाईंको स्वीकृतिको पर्खाइमा छ। स्वीकार वा अस्वीकार गर्न काम खोल्नुहोस्।",
+ "Your request {job} was updated.": "तपाईंको अनुरोध {job} अद्यावधिक गरिएको छ।"
 }

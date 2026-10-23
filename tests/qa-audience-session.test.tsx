@@ -7,7 +7,7 @@ vi.mock('../lib/auth', () => ({ getSessionUserId: session.user }));
 import { GET } from '../app/api/session/route';
 import { StatusBadge } from '../components/ui/states';
 import { clientStatusLabels, statusLabels } from '../lib/ui/work-orders';
-import { notificationMessage } from '../lib/ui/notifications';
+import { notificationMessage, notificationTemplate, notificationTemplates } from '../lib/ui/notifications';
 import { audienceStatusReply, plainAssistantReply } from '../lib/ui/assistant-replies';
 
 it('returns a private 200 session probe for anonymous, expired and signed in visits', async () => {
@@ -37,7 +37,10 @@ it('uses the audience status vocabulary across summary, badges, notifications an
    const badge = renderToStaticMarkup(<StatusBadge status={status}>{client ? title : undefined}</StatusBadge>);
    const escaped = renderToStaticMarkup(<span>{title}</span>).slice(6, -7);
    expect(badge).toContain(escaped);
-   expect(notificationMessage({kind:'status_changed', from_status:status, to_status:status}, client)).toContain(`from ${title} to ${title}.`);
+   const notice={kind:'status_changed',from_status:status,to_status:status};
+   const clientKeys:Record<string,keyof typeof notificationTemplates>={scheduled:'client_booked',in_progress:'client_started',done:'client_done',cancelled:'client_cancelled'};
+   if(client&&clientKeys[status])expect(notificationTemplate(notice,true).key).toBe(notificationTemplates[clientKeys[status]]);
+   else expect(notificationMessage(notice,client)).toContain(`from ${title} to ${title}.`);
    expect(plainAssistantReply(`Status: ${status}`, client)).toBe(`Status: ${title}`);
    expect(audienceStatusReply(`Status: ${statusLabels[status]}`, client)).toBe(`Status: ${title}`);
    expect(plainAssistantReply(`Status: ${title}`, client)).toBe(`Status: ${title}`);

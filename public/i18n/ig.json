@@ -1074,5 +1074,13 @@
  "That did not send. Try again.": "Nke ahụ arụghị ọrụ. Gbalịa ọzọ.",
  "That did not work. Try again.": "Nke ahụ arụghị ọrụ. Gbalịa ọzọ.",
  "Profile and preferences saved.": "Echekwara ya",
- "Visit time confirmed.": "Onye ahịa ekwenyela"
+ "Visit time confirmed.": "Onye ahịa ekwenyela",
+ "Your visit for {job} is booked for {time}.": "E debanyela nleta gị maka {job} na {time}.",
+ "The technician is on the way for {job}.": "Onye ọrụ aka nọ nʼụzọ maka {job}.",
+ "The technician has started {job}.": "Onye ọrụ aka amalitela {job}.",
+ "{job} is done. {count} after photos. Open the job to see them.": "A rụchaala {job}. Foto {count} e sere mgbe arụchara ọrụ dị. Mepee ọrụ ahụ ka ị hụ ha.",
+ "Your visit for {job} is now booked for {time}.": "E debanyela nleta gị maka {job} ugbu a na {time}.",
+ "{job} has been cancelled.": "A kagbuola {job}.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Ọnụahịa {job} na eche nkwado gị. Mepee ọrụ ahụ iji kwado ma ọ bụ jụ ya.",
+ "Your request {job} was updated.": "Emelitere arịrịọ gị {job}."
 }

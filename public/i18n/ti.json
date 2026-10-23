@@ -1088,5 +1088,13 @@
  "That did not send. Try again.": "ኣይተቐመጠን። እንደገና ፈትን።",
  "That did not work. Try again.": "ኣይተቐመጠን። እንደገና ፈትን።",
  "Profile and preferences saved.": "ተቐሚጡ",
- "Visit time confirmed.": "ዓሚል ኣረጋጊጹ"
+ "Visit time confirmed.": "ዓሚል ኣረጋጊጹ",
+ "Your visit for {job} is booked for {time}.": "ን {job} ምብጻሕኩም ኣብ {time} ተመዲቡ ኣሎ።",
+ "The technician is on the way for {job}.": "ቴክኒሻን ን {job} ኣብ መንገዲ ኣሎ።",
+ "The technician has started {job}.": "ቴክኒሻን {job} ጀሚሩ ኣሎ።",
+ "{job} is done. {count} after photos. Open the job to see them.": "{job} ተዛዚሙ። ድሕሪ ስራሕ ዝተሳእሉ {count} ስእልታት ኣለዉ። ንምርኣይ ስራሕ ክፈቱ።",
+ "Your visit for {job} is now booked for {time}.": "ን {job} ምብጻሕኩም ሕጂ ኣብ {time} ተመዲቡ ኣሎ።",
+ "{job} has been cancelled.": "{job} ተሰሪዙ።",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "ዋጋ {job} ፍቓድኩም ይጽበ ኣሎ። ንምቕባል ወይ ንምንጻግ ስራሕ ክፈቱ።",
+ "Your request {job} was updated.": "ሕቶኹም {job} ተሓዲሱ።"
 }

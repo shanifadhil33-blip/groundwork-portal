@@ -1,3 +1,4 @@
+import { formatInLang, uiLang } from '../date-lang';
 import { savedReturnNotice } from '../status-updates';
 import { label, clientStatusLabels, statusLabels } from './work-orders';
 type WorkNotification = {id:string;read_at:string|null;link_target:{entity:string;id:string}|null};
@@ -9,8 +10,16 @@ export async function openNotificationTarget(item:WorkNotification,markRead:(id:
  return true;
 }
 
-/** English keys are also the offline fallback. Values never contain translated user data. */
+/** English readers use the keys directly. Names and job titles stay in their saved words. */
 export const notificationTemplates = {
+ client_booked: 'Your visit for {job} is booked for {time}.',
+ client_way: 'The technician is on the way for {job}.',
+ client_started: 'The technician has started {job}.',
+ client_done: '{job} is done. {count} after photos. Open the job to see them.',
+ client_rescheduled: 'Your visit for {job} is now booked for {time}.',
+ client_cancelled: '{job} has been cancelled.',
+ client_price: 'The price for {job} is waiting for your approval. Open the job to approve or decline it.',
+ client_update: 'Your request {job} was updated.',
  demo_push: 'Demo notification for {job}. Nothing was sent.',
  demo_late: 'Demo late job: {job}. Nothing was sent.',
  demo_stalled: 'Demo stalled job: {job}. Nothing was sent.',
@@ -55,12 +64,36 @@ export const notificationTemplates = {
  more_one: '{count} more update on this job',
  more_many: '{count} more updates on this job',
 } as const;
-export type NotificationTemplate = { key: string; values: Record<string, string>; translatedValues?: string[]; runtime?: boolean };
+export type NotificationTemplate = { key: string; values: Record<string, string>; translatedValues?: string[]; runtime?: boolean; dateValues?: Record<string,string>; timezone?: string; photoLink?: string };
 
 export function notificationTemplate(r: Record<string, any>, client = false): NotificationTemplate {
  const values: Record<string, string> = {name:r.actor_name??'Your team',job:r.work_order_title??r.current_title??'your job'};
  const translatedValues = [!r.actor_name||['Your team','Your admin','Your supervisor','System'].includes(r.actor_name)?'name':'',!r.work_order_title&&!r.current_title?'job':''].filter(Boolean);
  const make = (id: keyof typeof notificationTemplates): NotificationTemplate => ({key:notificationTemplates[id],values,translatedValues});
+ if(client){
+  const step=r.details?.to_status??r.to_status;
+  const kind=r.kind;
+  const statuses:Record<string,keyof typeof notificationTemplates>={scheduled:'client_booked',in_progress:'client_started',done:'client_done',cancelled:'client_cancelled'};
+  const kinds:Record<string,keyof typeof notificationTemplates>={on_the_way:'client_way',quote_sent:'client_price',job_cancelled:'client_cancelled',visit_changed:'client_rescheduled',schedule_changed:'client_rescheduled'};
+  const saved=kind==='job_next_step'&&r.job_step_body?savedReturnNotice(String(r.job_step_body)):null;
+  const key=kind==='status_changed'?statuses[step]:kind==='price_change'&&r.details?.state==='pending'?'client_price':saved?.kind==='done'?'client_done':saved?.kind==='part_booked'?'client_booked':kind==='job_next_step'&&String(r.job_step_body).startsWith('Client refused.')?'client_cancelled':kinds[kind];
+  if(key){
+   const notice=make(key);
+   if(key==='client_booked'||key==='client_rescheduled'){
+    const at=r.details?.scheduled_for??r.notice_scheduled_for??r.scheduled_for;
+    values.time=at?String(at):'Unscheduled';
+    if(at)notice.dateValues={time:new Date(at).toISOString()};else translatedValues.push('time');
+    notice.timezone=r.timezone??'Asia/Dubai';
+   }
+   if(key==='client_done'){
+    values.count=String(r.after_photos??0);
+    const id=r.work_order_id??r.entity_id;
+    if(id)notice.photoLink=`/work-orders/${id}#photos`;
+   }
+   return notice;
+  }
+  if(r.timeline)return make('client_update');
+ }
  // These columns predate templates. Recover saved bodies without any schema changes.
  const fallback = (body: string): NotificationTemplate => ({key:'{body}',values:{body,...(r.actor_name?{name:r.actor_name}:{}),...(r.work_order_title&&!['emergency','emergency_review'].includes(r.kind)?{job:r.work_order_title}:{})},runtime:true});
  if(['demo_push','demo_late','demo_stalled','demo_document'].includes(r.kind)) {
@@ -103,16 +136,17 @@ export function notificationTemplate(r: Record<string, any>, client = false): No
  return make('updated');
 }
 
-export function notificationParts(message: NotificationTemplate, words: Record<string,string> = {}) {
+export function notificationParts(message: NotificationTemplate, words: Record<string,string> = {}, language = uiLang()) {
  const template=words[message.key]??message.key;
  return template.split(/(\{[a-z_]+\})/g).filter(Boolean).map(part=>{
   const name=part.match(/^\{([a-z_]+)\}$/)?.[1];
-  const value=name?message.values[name]:undefined;
+  const raw=name?message.values[name]:undefined;
+  const value=name&&message.dateValues?.[name]?formatInLang(message.dateValues[name],{dateStyle:'full',timeStyle:'short',timeZone:message.timezone??'Asia/Dubai'},language,language):raw;
   return {text:value===undefined?part:message.translatedValues?.includes(name!)?(words[value]??value):value,parameter:name??null};
  });
 }
-export function renderNotification(message: NotificationTemplate, words: Record<string,string> = {}) {
- return notificationParts(message,words).map(part=>part.text).join('');
+export function renderNotification(message: NotificationTemplate, words: Record<string,string> = {}, language = uiLang()) {
+ return notificationParts(message,words,language).map(part=>part.text).join('');
 }
 export function notificationMessage(r:Record<string,any>,client=false) {
  return renderNotification(notificationTemplate(r,client));

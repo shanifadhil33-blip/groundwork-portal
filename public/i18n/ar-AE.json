@@ -1395,5 +1395,13 @@
  "That did not send. Try again.": "ما ضبطت. جرّب مرة ثانية.",
  "That did not work. Try again.": "ما ضبطت. جرّب مرة ثانية.",
  "Profile and preferences saved.": "انحفظ",
- "Visit time confirmed.": "العميل أكد الموعد"
+ "Visit time confirmed.": "العميل أكد الموعد",
+ "Your visit for {job} is booked for {time}.": "حجزنا زيارتك بخصوص {job} في {time}.",
+ "The technician is on the way for {job}.": "الفني في الدرب عشان {job}.",
+ "The technician has started {job}.": "الفني بدا الشغل على {job}.",
+ "{job} is done. {count} after photos. Open the job to see them.": "خلصنا {job}. فيه {count} صور عقب الشغل. افتح الطلب عشان تشوفها.",
+ "Your visit for {job} is now booked for {time}.": "غيّرنا موعد زيارتك بخصوص {job} إلى {time}.",
+ "{job} has been cancelled.": "تم إلغاء {job}.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "سعر {job} ينتظر موافقتك. افتح الطلب عشان توافق أو ترفض.",
+ "Your request {job} was updated.": "حدّثنا طلبك {job}."
 }

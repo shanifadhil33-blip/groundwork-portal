@@ -1082,5 +1082,13 @@
  "That did not send. Try again.": "Hindi ito nagawa. Subukan muli.",
  "That did not work. Try again.": "Hindi ito nagawa. Subukan muli.",
  "Profile and preferences saved.": "Naitabi na",
- "Visit time confirmed.": "Kinumpirma ng kliyente"
+ "Visit time confirmed.": "Kinumpirma ng kliyente",
+ "Your visit for {job} is booked for {time}.": "Nakatakda ang pagbisita para sa {job} sa {time}.",
+ "The technician is on the way for {job}.": "Papunta na ang technician para sa {job}.",
+ "The technician has started {job}.": "Sinimulan na ng technician ang {job}.",
+ "{job} is done. {count} after photos. Open the job to see them.": "Tapos na ang {job}. May {count} larawan pagkatapos ng trabaho. Buksan ang trabaho para makita ang mga ito.",
+ "Your visit for {job} is now booked for {time}.": "Nakatakda na ngayon ang pagbisita para sa {job} sa {time}.",
+ "{job} has been cancelled.": "Kinansela ang {job}.",
+ "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Naghihintay ng pagpayag mo ang presyo para sa {job}. Buksan ang trabaho para pumayag o tumanggi.",
+ "Your request {job} was updated.": "Na update ang kahilingan mong {job}."
 }
