@@ -1238,3 +1238,10 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 .company-memory-evidence dd{margin-inline-start:0}
 .company-memory .row{flex-wrap:wrap}
 .company-memory textarea{inline-size:100%;resize:vertical}
+
+/* SEC07: wrapping actions fit narrow phones and logical alignment follows Arabic. */
+.data-protection,.privacy-notice{min-width:0;overflow-wrap:anywhere;text-align:start}
+.data-protection .button{white-space:normal;min-height:44px;text-align:center}
+.data-protection .badge{white-space:normal;width:auto}
+.data-protection .action-list{padding-inline-start:0;list-style:none}
+.privacy-notice button{min-height:44px}
