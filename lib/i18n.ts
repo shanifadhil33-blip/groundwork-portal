@@ -1,3 +1,4 @@
+import { interfaceTranslation } from './ui-translation-templates';
 import { z } from 'zod';
 import { LANGUAGES } from './languages';
 
@@ -39,8 +40,8 @@ export function translationSource(text: string): string | null {
 export function replaceTranslation(text: string, translations: Record<string, string>): string {
   return translationPieces(text).map(piece => {
     const source = translationSource(piece);
-    return source && Object.hasOwn(translations, source)
-      ? piece.replace(source, () => translations[source]) : piece;
+    const translated = source ? interfaceTranslation(source, translations) : undefined;
+    return source && translated !== undefined ? piece.replace(source, () => translated) : piece;
   }).join('');
 }
 const protectedPattern = /\{\{[^{}]+\}\}|\{[^{}]+\}|\$\{[^{}]+\}|%\d*\$?[sdif]|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\b[A-Za-z]+(?:-[A-Za-z]+)*-\d+\b|\d+(?:[.,:/-]\d+)*/g;

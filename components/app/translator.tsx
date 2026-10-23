@@ -62,6 +62,7 @@ export function Translator() {
     const observer = new MutationObserver(() => schedule());
     const skipped = (node: Text | Element, attribute = false, source?: string) => {
       const element = node instanceof Element ? node : node.parentElement;
+      if (attribute && element?.hasAttribute('data-translate-attributes')) return false;
       // The fixture's exact sample words have static translations. Keep real
       // job data and all other sandbox writing verbatim, including form inputs.
       if (!attribute && demoProof && DEMO_PROOF_COPY.has((source ?? node.nodeValue ?? '').trim())
@@ -81,7 +82,7 @@ export function Translator() {
       else slot.applied = current;
       for (const piece of translationPieces(slot.source)) {
         const source = translationSource(piece);
-        if (source && !Object.hasOwn(cache, source) && !attempted.has(source)) pending.add(source);
+        if (source && !Object.hasOwn(cache, source) && replaceTranslation(source, cache) === source && !attempted.has(source)) pending.add(source);
       }
     }
     function scan() {

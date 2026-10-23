@@ -28,7 +28,7 @@ export function MyRecord() {
   <div className="form-field"><label htmlFor="my-record-month">Month</label><Dropdown id="my-record-month" label="Month" value={month} onChange={v=>{setMonth(v);setPage(1);}} options={[{value:'this',label:'This month'},{value:'last',label:'Last month'},{value:'all',label:'All'}]}/></div>
   {result.loading && !result.data ? <div role="status" aria-label="Loading"><Skeleton className="card" /><Skeleton className="card" /></div> : result.error ? <ErrorState retry={()=>void result.reload()} /> : result.data && <>
    {result.data.data.length ? <ul className="stack" style={{listStyle:'none',padding:0,margin:0}}>{result.data.data.map(j=><li key={j.id}><Link href={`/work-orders/${j.id}`} className="card stack compact record-card">
-    <strong data-no-translate>WO {j.order_number} {j.title}</strong><span data-no-translate>{j.site_name}</span>
+    <strong data-no-translate><span>WO {j.order_number}</span> <span>{j.title}</span></strong><span data-no-translate>{j.site_name}</span>
     <span data-no-translate>{formatInLang(new Date(`${j.done_date}T00:00:00Z`),{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'},lang)}</span>
     <div><Badge>{j.outcome_label}</Badge></div>
     {j.problem&&<p className="record-line"><span>Problem</span>: <span data-no-translate>{j.problem}</span></p>}{j.fix&&<p className="record-line"><span>Fix</span>: <span data-no-translate>{j.fix}</span></p>}
