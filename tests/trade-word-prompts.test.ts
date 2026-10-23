@@ -36,7 +36,8 @@ it('adds the selected trade words to the real UI translation request with mocked
     expect(prompt).not.toContain('AC = ');
     expect(prompt).not.toContain('Agent = ');
     expect(prompt).not.toContain('Groundwork = ');
-    expect(prompt).toContain('Keep the product words Agent and Groundwork exactly as written in English.');
+    expect(prompt).toContain('Keep the product name Groundwork exactly as written in English.');
+    expect(prompt).toContain('Translate Agent using the local word for an assistant.');
   }
 });
 

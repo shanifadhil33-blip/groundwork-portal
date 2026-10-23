@@ -78,7 +78,7 @@ it('Settings and job cards have usable static words in every app language, witho
  for(const {code} of LANGUAGES){if(isEnglish(code))continue;
   const dictionary=readTranslationCache(readFileSync(`public/i18n/${code}.json`,'utf8'),code);
   for(const key of keys){if(data.has(key)||!/\p{L}/u.test(key))continue;const translated=dictionary[key];
-   if(!translated||! /\p{L}/u.test(translated)||translated===key||/\u200b/.test(translated))missing.push(`${code}: ${key}`);
+   if(!translated||! /\p{L}/u.test(translated)||translated===key||/\u200b|\bagent\b/i.test(translated))missing.push(`${code}: ${key}`);
   }
  }
  expect(missing).toEqual([]);
