@@ -1,3 +1,4 @@
+import { pushJobChange } from './push';
 import { assertPriceReleased } from './price-changes';
 import { z } from 'zod';
 import type { PoolClient } from 'pg';
@@ -104,7 +105,8 @@ export async function prepareJobNextStep(user:string,ws:string,id:string,body:un
 }
 /** Consuming the card and writing its change share one transaction. A retry cannot book or notify twice. */
 export async function confirmJobNextStep(user:string,ws:string,actionId:string) {
- return asAgent({kind:'assistant'},()=>withSystem(async db=>{
+ let booked:{before:any;after:any}|null=null;
+ const result=await asAgent({kind:'assistant'},()=>withSystem(async db=>{
   const a=(await db.query("SELECT * FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND id=$3 AND tool='job_next_step' FOR UPDATE",[ws,user,actionId])).rows[0];
   if(!a)throw denied();
   if(a.consumed_at||a.declined_at||new Date(a.expires_at)<=new Date())throw new ApiError(409,'closed','This change was already answered or has expired.');
@@ -123,13 +125,16 @@ export async function confirmJobNextStep(user:string,ws:string,actionId:string) 
    await db.query('INSERT INTO job_visits(workspace_id,work_order_id,technician_id,visited_at,photo_id) VALUES($1,$2,$3,$4,$5)',[ws,id,user,a.args.visited_at,d.photo_id??null]);
    await notify(db,ws,user,job,'no_access',a.args.visited_at);
   }else{
-   await db.query("UPDATE work_orders SET status='scheduled',scheduled_for=$3,on_way_at=NULL,visit_confirmed_for=NULL,part_arrived_at=NULL WHERE workspace_id=$1 AND id=$2",[ws,id,d.scheduled_for]);
+   const after=(await db.query("UPDATE work_orders SET status='scheduled',scheduled_for=$3,on_way_at=NULL,visit_confirmed_for=NULL,part_arrived_at=NULL WHERE workspace_id=$1 AND id=$2 RETURNING *",[ws,id,d.scheduled_for])).rows[0];
+   booked={before:job,after};
    await db.query('UPDATE job_visits SET rebooked_at=clock_timestamp() WHERE workspace_id=$1 AND work_order_id=$2 AND rebooked_at IS NULL',[ws,id]);
    if(job.part_arrived_at)await notify(db,ws,user,job,'part_booked',d.scheduled_for,false);
   }
   await db.query("UPDATE assistant_actions SET consumed_at=now(),outcome='done',after=$2 WHERE id=$1",[a.id,JSON.stringify({id,action:d.action})]);
   return {available:true,reply:'Saved.',logged:true,id,action:d.action};
  },user));
+ if(booked){const {before,after}=booked;await pushJobChange(user,before,after);}
+ return result;
 }
 /** Fixed phrase routing runs before the model. It only opens the same card as the job page. */
 export async function quickJobStep(user:string,ws:string,words:string) {

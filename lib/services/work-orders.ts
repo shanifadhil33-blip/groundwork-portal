@@ -1,3 +1,4 @@
+import { notificationTemplate } from '../ui/notifications';
 import { assertPriceReleased } from './price-changes';
 import { tenantFields, normalizeTenant, checkTenantInput, visibleTenant } from './tenant';
 import { checkJobAsset } from './assets';
@@ -120,7 +121,7 @@ const CLIENT_HIDDEN_SITE=['access_notes','contact_name','contact_phone'],CLIENT_
 export async function getWorkOrder(user:string,ws:string,id:string) {
  return inWorkspace(user,ws,async c=>{
   uuid.parse(id);
-  const order=(await c.db.query(`SELECT w.*,(SELECT to_jsonb(a) FROM visible_job_asset(w.workspace_id,w.id) a) AS asset,to_jsonb(s) AS site,to_jsonb(cl) AS client,ws.timezone,
+  const order=(await c.db.query(`SELECT w.*,(SELECT count(*)::int FROM job_photos p WHERE p.workspace_id=w.workspace_id AND p.work_order_id=w.id AND p.kind='after') AS after_photos,(SELECT to_jsonb(a) FROM visible_job_asset(w.workspace_id,w.id) a) AS asset,to_jsonb(s) AS site,to_jsonb(cl) AS client,ws.timezone,
    (SELECT e.details FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id AND e.kind='price_change' ORDER BY e.created_at DESC,e.id DESC LIMIT 1) AS price_change,
    CASE WHEN w.assignee_id IS NULL THEN NULL ELSE coalesce((SELECT to_jsonb(a) FROM visible_assignee(w.workspace_id,w.id) a),jsonb_build_object('id',w.assignee_id)) END AS assignee,
    coalesce((SELECT jsonb_agg(cm ORDER BY cm.created_at,cm.id) FROM comments cm WHERE cm.workspace_id=w.workspace_id AND cm.work_order_id=w.id),'[]') AS comments,
@@ -134,6 +135,15 @@ export async function getWorkOrder(user:string,ws:string,id:string) {
   // Client users see where the work is, never the team's access notes, site contact or internal client notes.
   if(order.client)order.client=publicClient(order.client);
   if(c.role==='client'&&(c.client_kind??'manager')!=='manager'){delete order.asset_id;if(order.asset)order.asset={name:order.asset.name};}
+  if(c.role==='client'){
+   order.comments=order.comments.filter((comment:{visibility:string})=>comment.visibility==='client');
+   if(order.on_way_at&&!order.timeline.some((event:{kind:string})=>event.kind==='on_the_way'))order.timeline.push({id:'on_way',kind:'on_the_way',created_at:new Date(order.on_way_at),actor_id:order.assignee_id});
+   order.timeline=order.timeline.map((event:Record<string,any>)=>{
+    const scheduled=event.details?.scheduled_for??order.timeline.filter((e:Record<string,any>)=>e.kind==='schedule_changed'&&new Date(e.created_at)<=new Date(event.created_at)).at(-1)?.details?.scheduled_for??order.scheduled_for;
+    const firstBooking=event.kind==='schedule_changed'&&!order.timeline.some((e:Record<string,any>)=>e.kind==='schedule_changed'&&new Date(e.created_at)<new Date(event.created_at));
+    return {...event,message_template:notificationTemplate({...event,...(firstBooking?{kind:'status_changed',to_status:'scheduled'}:{}),timeline:true,work_order_title:event.work_order_title??order.title,work_order_id:order.id,scheduled_for:scheduled,after_photos:order.after_photos,timezone:order.timezone},true)};
+   });
+  }
   if(c.role==='client'){for(const key of CLIENT_HIDDEN_SITE)delete order.site?.[key];for(const key of CLIENT_HIDDEN_CLIENT)delete order.client?.[key];}
   return {...visibleTenant(c,order),overdue:isOverdue(order,Date.now(),order.timezone)};
  });
@@ -182,11 +192,14 @@ export async function patchWorkOrder(user:string,ws:string,id:string,body:unknow
  });
  // The locked update and immutable on_way_at guard make this a single event.
  if(before&&!(before as Record<string,unknown>).on_way_at&&saved.on_way_at){
-  await withSystem(db=>db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title)
+  await withSystem(async db=>{
+   await db.query("INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body) VALUES($1,$2,$3,$4,'on_the_way','The technician is on the way.')",[ws,saved.client_id,id,user]);
+   await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title)
    SELECT DISTINCT m.user_id,$1::uuid,'on_the_way','work_orders',$2::uuid,$3::uuid,coalesce(u.name,'Your team'),$4::text
    FROM members m LEFT JOIN users u ON u.id=$3
    WHERE m.workspace_id=$1 AND m.archived_at IS NULL AND m.user_id<>$3 AND m.role='client' AND m.client_id=$5
-    AND (coalesce(m.client_kind,'manager')<>'household' OR m.user_id=$6)`,[ws,id,user,saved.title,saved.client_id,saved.created_by]),user);
+    AND (coalesce(m.client_kind,'manager')<>'household' OR m.user_id=$6)`,[ws,id,user,saved.title,saved.client_id,saved.created_by]);
+  },user);
   await pushOnTheWay(user,saved as never);
  }
  await pushJobChange(user,before,saved as never);

@@ -1,3 +1,4 @@
+import { pushClientUpdate } from './push';
 import { visibleTenant } from './tenant';
 import { z } from 'zod';
 import { asAgent, withSystem } from '../db';
@@ -120,7 +121,8 @@ async function validateChange(c: Context, job: any, tool: string, d: z.infer<typ
 }
 export async function changeClientVisit(user: string, ws: string, tool: 'reschedule_visit' | 'cancel_visit', input: unknown) {
   const d = changeInput.parse(input);
-  return clientTransaction(user, ws, d.id, async (c, job) => {
+  let changed=false;
+  const result=await clientTransaction(user, ws, d.id, async (c, job) => {
     if (tool === 'cancel_visit' && !canCancelVisit(job) && !['done', 'cancelled'].includes(job.status)) {
       await notice(c, job, 'client_callback', true);
       const who = String((await c.db.query('SELECT name FROM users WHERE id=$1', [job.assignee_id])).rows[0]?.name ?? 'The technician').split(/\s+/)[0];
@@ -131,8 +133,11 @@ export async function changeClientVisit(user: string, ws: string, tool: 'resched
       ? (await c.db.query("UPDATE work_orders SET status='cancelled' WHERE workspace_id=$1 AND id=$2 RETURNING *", [ws, d.id])).rows[0]
       : (await c.db.query('UPDATE work_orders SET scheduled_for=$3,visit_confirmed_for=NULL WHERE workspace_id=$1 AND id=$2 RETURNING *', [ws, d.id, d.scheduled_for])).rows[0];
     await notice(c, job, tool === 'cancel_visit' ? 'job_cancelled' : 'visit_changed');
+    changed=true;
     return visibleTenant(c,saved);
   });
+  if(changed)await pushClientUpdate(user,result as any,tool==='cancel_visit'?'job_cancelled':'visit_changed');
+  return result;
 }
 
 /** Keep the tap choices on the server so the next turn never has to guess a time or job. */

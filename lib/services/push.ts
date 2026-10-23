@@ -1,4 +1,6 @@
-import { isStep, statusLine, type Message } from '../status-updates';
+import { notificationTemplate, renderNotification } from '../ui/notifications';
+import { notificationLanguage, notificationWords } from '../notification-words';
+import { isStep, type Message } from '../status-updates';
 import webpush from 'web-push';
 import { z } from 'zod';
 import { withSystem, withUser } from '../db';
@@ -43,7 +45,7 @@ export async function sendPush(users: string[], msg: Msg) {
     // Classify recipients before touching subscriptions, even for urgent messages and old devices.
     const real = await withSystem(async db => {
       const recipients = (await db.query('SELECT id,is_demo,demo_workspace_id FROM users WHERE id=ANY($1::uuid[])', [list])).rows;
-      const job = msg.url.match(/^\/work-orders\/([0-9a-f-]{36})$/i)?.[1];
+      const job = msg.url.match(/^\/work-orders\/([0-9a-f-]{36})(?:#photos)?$/i)?.[1];
       if (job) for (const u of recipients.filter(u => u.is_demo)) {
         // Owner writes are limited to active sandbox members who can see this job.
         // Do not impersonate another member to get around RLS.
@@ -66,7 +68,7 @@ export async function sendPush(users: string[], msg: Msg) {
     const fresh = "burst_start IS NULL OR burst_start < now() - interval '10 minutes'";
     const subs = (await withSystem(db => db.query(`UPDATE push_subscriptions SET burst_start=CASE WHEN ${fresh} THEN now() ELSE burst_start END, burst_count=CASE WHEN ${fresh} THEN 1 ELSE burst_count+1 END
       WHERE user_id = ANY($1::uuid[]) AND EXISTS (SELECT 1 FROM users u WHERE u.id=user_id AND NOT u.is_demo) RETURNING id,endpoint,p256dh,auth,burst_count`, [real]))).rows
-      .filter(s => msg.urgent || s.burst_count <= BURST_LIMIT + 1).map(s => ({ ...s, out: msg.urgent || s.burst_count <= BURST_LIMIT ? msg : SUMMARY }));
+      .filter(s => msg.urgent || s.burst_count <= BURST_LIMIT + 1).map(s => ({ ...s, out: msg.urgent || s.burst_count <= BURST_LIMIT ? msg : msg.tag.startsWith('status-')?{...msg,tag:'summary'}:SUMMARY }));
     let sent = 0;
     await Promise.all(subs.map(async s => {
       try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(s.out), { TTL: 86400, timeout: 5000, urgency: 'high' }); sent++; }
@@ -86,11 +88,12 @@ export async function pushJobChange(actor: string, before: Partial<Job> | null, 
   if (after.assignee_id && after.assignee_id !== before?.assignee_id && after.assignee_id !== actor)
     await sendPush([after.assignee_id], { title: 'New job for you', body: after.title, url, tag: `assigned-${after.id}`, urgent: (after as { priority?: string }).priority === 'urgent' });
   // CMP05: the requester hears each step in their own language, only if they may see this job (office() checks that).
-  const changed = !!before && after.status !== before.status && isStep(after.status);
+  const rescheduled=!['done','cancelled'].includes(after.status)&&!!before&&!!before.scheduled_for&&!!after.scheduled_for&&new Date(before.scheduled_for).getTime()!==new Date(after.scheduled_for).getTime();
+  const changed = !!before && (after.status !== before.status && (isStep(after.status)||after.status==='cancelled') || rescheduled);
   if (!changed) return;
   const allowed = (await office(after.workspace_id, after.client_id, after.created_by)).filter(u => u !== actor);
   const asker = after.created_by && after.created_by !== actor && allowed.includes(after.created_by) ? after.created_by : null;
-  if (asker) await pushRequester(asker, after, after.status as Message);
+  if (asker) await pushRequester(asker, after, rescheduled&&after.status===before?.status?'rescheduled':after.status as Message|'cancelled');
   if (after.status === 'done') await sendPush(allowed.filter(u => u !== asker), { title: 'Job done', body: `${after.title} is done.`, url, tag: `done-${after.id}` });
 }
 /** NOTIF08: travel uses exactly the existing requester push visibility rule. */
@@ -99,17 +102,22 @@ export async function pushOnTheWay(actor: string, job: Job) {
   if (job.created_by && job.created_by !== actor && allowed.includes(job.created_by))
     await pushRequester(job.created_by, job, 'on_way');
 }
-async function pushRequester(asker: string, job: Job, step: Message) {
-  const extra = await withSystem(async db => {
-    const lang = (await db.query('SELECT language FROM user_preferences WHERE user_id=$1', [asker])).rows[0]?.language ?? null;
-    const timezone = step === 'scheduled' && job.scheduled_for
-      ? (await db.query('SELECT timezone FROM workspaces WHERE id=$1', [job.workspace_id])).rows[0].timezone : undefined;
-    const afterPhotos = step === 'done'
-      ? (await db.query("SELECT count(*)::int n FROM job_photos WHERE workspace_id=$1 AND work_order_id=$2 AND kind='after'", [job.workspace_id, job.id])).rows[0].n : 0;
-    return { lang, timezone, afterPhotos };
-  });
-  const m = statusLine(extra.lang, step, job.order_number ?? '', job.title, { ...extra, scheduledFor: job.scheduled_for });
-  await sendPush([asker], { title: m.title, body: m.body, url: `/work-orders/${job.id}`, tag: `status-${job.id}` });
+/** Client pushes use the same static templates as the bell and timeline. */
+export async function pushClientUpdate(actor:string,job:Job,kind:'quote_sent'|'visit_changed'|'job_cancelled') {
+ const allowed=await office(job.workspace_id,job.client_id,job.created_by);
+ if(job.created_by&&job.created_by!==actor&&allowed.includes(job.created_by))
+  await pushRequester(job.created_by,job,kind==='quote_sent'?'price':kind==='visit_changed'?'rescheduled':'cancelled');
+}
+async function pushRequester(asker: string, job: Job, step: Message|'rescheduled'|'cancelled'|'price') {
+  const extra = await withSystem(async db => ({
+    language:notificationLanguage((await db.query('SELECT language FROM user_preferences WHERE user_id=$1',[asker])).rows[0]?.language),
+    timezone:(await db.query('SELECT timezone FROM workspaces WHERE id=$1',[job.workspace_id])).rows[0].timezone,
+    after_photos:(await db.query("SELECT count(*)::int n FROM job_photos WHERE workspace_id=$1 AND work_order_id=$2 AND kind='after'",[job.workspace_id,job.id])).rows[0].n,
+  }));
+  const words=notificationWords(extra.language);
+  const kind=step==='on_way'?'on_the_way':step==='rescheduled'?'visit_changed':step==='price'?'quote_sent':'status_changed';
+  const message=notificationTemplate({...job,...extra,kind,entity_id:job.id,work_order_title:job.title,to_status:step},true);
+  await sendPush([asker],{title:words['Notifications']??'Notifications',body:renderNotification(message,words,extra.language),url:`/work-orders/${job.id}${step==='done'?'#photos':''}`,tag:`status-${job.id}`});
 }
 /** Daily: jobs that became late today (due yesterday, still not done). Tells the assignee and the office, once. */
 export async function pushLateJobs() {

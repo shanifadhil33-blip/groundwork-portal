@@ -36,7 +36,7 @@ for (const lang of ['en-IN', 'ar-AE']) { await s.api.patch('/api/me/preferences'
   await p.screenshot({ path: `${OUT}/faisal-${lang}-${w}-job.png` });
   await p.locator('.notification-trigger button').first().click(); await p.waitForTimeout(1200);
   const sheet = await p.locator('[role=dialog]').last().innerText().catch(() => ''); res[`bell_${lang}_${w}`] = sheet.slice(0, 200);
-  if (lang === 'en-IN') check(sheet.includes('is on the way for'), `${lang} ${w} bell shows the notice`); else check(sheet.length > 0, `${lang} ${w} bell opens`);
+  if (lang === 'en-IN') check(sheet.includes('is on the way for'), `${lang} ${w} bell shows the notice`); else check(sheet.includes('الفني في الدرب'), `${lang} ${w} bell shows the Arabic notice`);
   await p.screenshot({ path: `${OUT}/faisal-${lang}-${w}-bell.png` }); await ctx.close(); } }
 await s.api.patch('/api/me/preferences', { data: { language: pref.language ?? 'en-IN' } }).catch(() => {});
 await br.close(); await s.as('imran'); res.fail = fail; fs.writeFileSync(`${OUT}/report.json`, JSON.stringify(res, null, 1)); console.log(JSON.stringify(res, null, 1)); console.log(fail.length ? 'NOTIF08_FAIL' : 'NOTIF08_OK'); process.exit(fail.length ? 1 : 0);

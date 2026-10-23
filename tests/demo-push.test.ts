@@ -10,7 +10,7 @@ import { listNotifications } from '../lib/services/notifications';
 import { getDayPlan, postDayPlan } from '../lib/services/day-plan';
 import { createWorkOrder } from '../lib/services/work-orders';
 import { reportEmergency } from '../lib/services/emergencies';
-import { renderNotification, openNotificationTarget } from '../lib/ui/notifications';
+import { renderNotification, notificationTemplates, openNotificationTarget } from '../lib/ui/notifications';
 import { readFileSync, readdirSync } from 'node:fs';
 const rows = (sql: string, args: unknown[] = []) => withSystem(async db => (await db.query(sql,args)).rows);
 const message = { title: 'New job for you', body: 'test', url: '/today', tag: 'test' };
@@ -92,8 +92,18 @@ it('seeded reminders target only the intended people, match cron boundaries and 
 
 it('client step previews stay with Harbor and real job delivery still uses the requester rule', async () => {
   const {ws,u}=await sandbox();
+  await rows("INSERT INTO user_preferences(user_id,language) VALUES($1,'ar-AE') ON CONFLICT(user_id) DO UPDATE SET language='ar-AE'",[u.pranav]);
   const samples=(await notices(u.pranav,ws)).data.filter(n=>['status_changed','on_the_way'].includes(n.kind));
   expect(samples.some(n=>n.kind==='on_the_way')).toBe(true);
+  for(const key of ['client_booked','client_way','client_done'] as const){
+   const notice=samples.find(n=>n.message_template.key===notificationTemplates[key]);
+   expect(notice).toBeTruthy();expect(notice!.message).toMatch(/[ا-ي]/);
+   expect(notice!.message).not.toMatch(/Your |the way|after photos/);
+   if(key==='client_done'){
+    expect(notice!.message_template.photoLink).toBe(`/work-orders/${notice!.entity_id}#photos`);
+    expect(Number(notice!.message_template.values.count)).toBeGreaterThan(0);
+   }
+  }
   for (const n of samples) expect((await rows('SELECT client_id FROM work_orders WHERE id=$1',[n.entity_id]))[0].client_id).toBe((await rows('SELECT client_id FROM members WHERE user_id=$1 AND workspace_id=$2',[u.pranav,ws]))[0].client_id);
   for (const who of ['omar','faisal','kevin']) expect((await notices(u[who],ws)).data.filter(n=>n.kind==='on_the_way')).toEqual([]);
   const j=(await rows('SELECT * FROM work_orders WHERE workspace_id=$1 AND assignee_id=$2 LIMIT 1',[ws,u.ravi]))[0];

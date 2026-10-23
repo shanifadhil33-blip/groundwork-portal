@@ -1,3 +1,4 @@
+import { pushClientUpdate } from './push';
 import { z } from 'zod';
 import { ApiError, invalid } from '../http';
 import { withSystem } from '../db';
@@ -27,7 +28,8 @@ async function quoteContext(db: import('pg').PoolClient,user:string,ws:string,id
 }
 export async function sendQuote(user: string, ws: string, id: string, body: unknown,key?:string) {
   const data = quoteSchema.parse(body);
-  return withSystem(async db => {
+  let sentJob: any;
+  const result=await withSystem(async db => {
     const {c,o}=await quoteContext(db,user,ws,id);
     // The existing payments handover is the owner's permission for an admin to handle prices.
     await db.query('SELECT id FROM workspaces WHERE id=$1 FOR SHARE',[ws]);
@@ -38,12 +40,16 @@ export async function sendQuote(user: string, ws: string, id: string, body: unkn
       const r = (await db.query("UPDATE work_orders SET quote_amount=$3, quote_note=$4, quote_status='pending', quote_decided_by=NULL, quote_decided_at=NULL WHERE workspace_id=$1 AND id=$2 RETURNING id, quote_amount, quote_note, quote_status", [ws, id, data.amount, data.note || null])).rows[0];
       const prior=await priceChangeOn(db,ws,id);
       if(prior)await priceEvent(db,ws,o,user,{...prior,state:'pending'},'Waiting for the client');
+      else await db.query("INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body) VALUES($1,$2,$3,$4,'quote_sent','Waiting for the client')",[ws,o.client_id,id,user]);
       await db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,actor_id,actor_name,work_order_title)
         SELECT m.user_id,$1,'quote_sent','work_orders',$2,$3,$4,$5 FROM members m WHERE m.workspace_id=$1 AND m.role='client' AND m.client_id=$6 AND m.archived_at IS NULL AND (coalesce(m.client_kind,'manager')='manager' OR m.user_id=$7::uuid)`,
         [ws, id, user, name, o.title, o.client_id, o.created_by]);
+      sentJob=o;
       return r;
     });
   }, user);
+  if(sentJob)await pushClientUpdate(user,sentJob,'quote_sent');
+  return result;
 }
 
 /** The current client answers a locked job. The displayed amount protects against a replaced quote. */
