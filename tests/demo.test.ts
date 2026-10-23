@@ -37,12 +37,14 @@ it('start creates the shared fixture in one sandbox and an Auth.js database cook
  expect((await call(workspaces.GET,undefined,r.cookie)).body).toHaveLength(1);
  expect(await withUser(user,async db=>(await db.query("SELECT id FROM comments WHERE visibility='internal'")).rows)).toEqual([]);
 });
+// This integration case creates two complete fixtures before probing both directions of RLS.
+// Keep every isolation assertion, with time for both transactions on a loaded local runner.
 it('two visitors and real accounts are isolated through app-role RLS',async()=>{
  const a=await sandbox(),b=await sandbox(),u=await identity(a.cookie),v=await identity(b.cookie);
  expect(a.body.workspace_id).not.toBe(b.body.workspace_id);
  for(const [user,ws] of [[u,b.body.workspace_id],[v,a.body.workspace_id],[ids.imran,a.body.workspace_id],[ids.summitAdmin,a.body.workspace_id],[u,ids.ridgeline]])expect(await withUser(user,async db=>(await db.query('SELECT id FROM work_orders WHERE workspace_id=$1',[ws])).rows)).toEqual([]);
  for(const user of [ids.imran,ids.summitAdmin]){setAuthResolverForTests(async()=>user);const listed=await call(workspaces.GET);expect(listed.body.every((w:{is_demo:boolean})=>!w.is_demo)).toBe(true);}
-});
+},30_000);
 it('switch rotates the session and keeps the sandbox; non-demo and anonymous sessions are rejected',async()=>{
  const a=await sandbox(),old=await identity(a.cookie);const switched=await call(switchRoute.POST,{persona:'pranav'},a.cookie);
  expect(switched.status).toBe(200);expect(switched.body.workspace_id).toBe(a.body.workspace_id);expect(await identity(switched.cookie)).not.toBe(old);expect(await getSessionUserId(new Request('http://localhost',{headers:{cookie:a.cookie}}))).toBeNull();

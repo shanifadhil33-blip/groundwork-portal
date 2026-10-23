@@ -17,6 +17,7 @@ import { DEMO_JOB_TITLES, DEMO_JOB_COMMENTS, demoJobDescription, demoJobTranslat
 import { clientStatusLabel, clientStatusLabels } from '../lib/ui/work-orders';
 import { StatusBadge } from '../components/ui';
 import { DEMO_QUOTE_COPY } from '../lib/demo-quote-copy';
+import { DEMO_ROUND_TWO_COPY } from '../lib/demo-round-two-copy';
 import { DEMO_PROOF_COPY } from '../lib/demo-proof-copy';
 import { LANGUAGES } from '../lib/languages';
 import { CHECKLIST_DEFAULTS } from '../lib/job-checklists';
@@ -37,15 +38,16 @@ vi.mock('../components/app/resource',()=>({useResource:(url:string)=>React.useMe
  url.endsWith('/settings')?{name:'Ridgeline',timezone:'Asia/Dubai',country:'AE',region:'Dubai',currency:'AED',approval_mode:'important',role_names:{},owner_handover:[],enabled_roles:['admin','staff','technician','client'],enabled_trades:['ac','plumbing','electrical'],enabled_dashboards:['overview','work'],company_size:'small'}:
  url.endsWith('/visit-charge')?{amount:150,regions:{},sample:true}:[],loading:false,error:null,reload:vi.fn(),setData:vi.fn()}),[url,state.lang])}));
 let host:HTMLDivElement,root:Root;
-beforeEach(()=>{(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;host=document.createElement('div');document.body.append(host);root=createRoot(host);state.tab='profile';state.role='admin';state.demo=true;state.owner=true;state.lang='en-IN';localStorage.clear();});
-afterEach(async()=>{await act(async()=>root.unmount());host.remove();vi.unstubAllGlobals();});
+// Advance the Translator debounce deterministically; real sleeps flake under full-suite CPU load.
+beforeEach(()=>{vi.useFakeTimers({toFake:['setTimeout','clearTimeout','setInterval','clearInterval']});(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;host=document.createElement('div');document.body.append(host);root=createRoot(host);state.tab='profile';state.role='admin';state.demo=true;state.owner=true;state.lang='en-IN';localStorage.clear();});
+afterEach(async()=>{await act(async()=>root.unmount());host.remove();vi.useRealTimers();vi.unstubAllGlobals();});
 function provider(children:React.ReactNode){
  const member={workspace_id:'company',workspace_name:'Ridgeline',role:state.role,is_owner:state.owner&&state.role==='admin',client_id:null,client_name:null};
  const context={member,workspace:{id:'company',name:'Ridgeline',is_demo:state.demo,country:'AE',currency:'AED',timezone:'Asia/Dubai'},me:{user:{id:'imran',name:'Imran',email:null,image:null,is_demo:state.demo},memberships:[member]},reload:vi.fn(),updateName:vi.fn()};
  return <AppContext.Provider value={context as any}>{children}</AppContext.Provider>;
 }
 const job={id:'job',status:'in_progress',scheduled_for:null,quote_status:'pending',quote_amount:850,quote_note:DEMO_QUOTE_COPY.note,price_change:{state:'pending' as const,words:DEMO_QUOTE_COPY.finding,technician_name:'Ravi'}};
-function demoJobs(){return <><h1 data-no-translate>{DEMO_JOB_TITLES[6]}</h1><p data-no-translate>{demoJobDescription(1)}</p>{Object.values(DEMO_JOB_COMMENTS).map(copy=><p key={copy} data-no-translate>{copy}</p>)}<p data-no-translate>Pranav Menon</p><p data-no-translate>Al Marsa Street</p></>;}
+function demoJobs(){return <><h1 data-no-translate>{DEMO_JOB_TITLES[6]}</h1><p data-no-translate>{demoJobDescription(1)}</p>{Object.values(DEMO_JOB_COMMENTS).map(copy=><p key={copy} data-no-translate>{copy}</p>)}{DEMO_ROUND_TWO_COPY.map(copy=><p key={copy} data-no-translate>{copy}</p>)}<p data-no-translate>Pranav Menon</p><p data-no-translate>Al Marsa Street</p></>;}
 function cards(){return <>{Object.values(clientStatusLabels).map(label=><StatusBadge key={label} status="in_progress">{label}</StatusBadge>)}<StatusBadge status="in_progress">{clientStatusLabel(job)}</StatusBadge><PriceChangeCard base="/company" job={job} reload={()=>{}}/><QuoteVisit base="/company" o={job} client={state.role==='client'} office={state.role==='admin'} currency="AED" reload={()=>{}}/><JobChecklistCard base="/company" id="job" readOnly={state.role==='client'}/></>;}
 function screenKeys(){
  const keys=new Set<string>(),walker=document.createTreeWalker(host,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT);
@@ -99,12 +101,12 @@ it.each([true,false].flatMap(demo=>[false,true].map(cached=>({demo,cached}))))('
  if(cached)localStorage.setItem('groundwork-ui-translations:v1:ar-AE',dictionary);
  const fetcher=vi.fn(async(url:string)=>({ok:true,text:async()=>dictionary,json:async()=>({translations:{}})}));vi.stubGlobal('fetch',fetcher);
  await act(async()=>{root.render(provider(<>{cards()}{demoJobs()}<p data-no-translate>My own repair note</p><textarea defaultValue={DEMO_QUOTE_COPY.finding}/><Translator/></>));});
- await act(async()=>{await new Promise(resolve=>setTimeout(resolve,200));});
+ await act(async()=>{await vi.advanceTimersByTimeAsync(200);});
  const words=JSON.parse(dictionary);Object.assign(words,demoJobTranslations(words));
  expect(host.textContent).toContain(demo?words[DEMO_QUOTE_COPY.finding]:DEMO_QUOTE_COPY.finding);
  expect(host.textContent).toContain(demo?words[DEMO_QUOTE_COPY.note]:DEMO_QUOTE_COPY.note);
  expect(host.textContent).toContain(demo?words['Used during the visit']:'Used during the visit');
- for(const key of [DEMO_JOB_TITLES[6],demoJobDescription(1),...Object.values(DEMO_JOB_COMMENTS)])expect(host.textContent).toContain(demo?words[key]:key);
+ for(const key of [DEMO_JOB_TITLES[6],demoJobDescription(1),...Object.values(DEMO_JOB_COMMENTS),...DEMO_ROUND_TWO_COPY])expect(host.textContent).toContain(demo?words[key]:key);
  expect(host.textContent).toContain('Pranav Menon');expect(host.textContent).toContain('Al Marsa Street');
  expect(host.textContent).toContain('My own repair note');expect(host.querySelector('textarea')?.value).toBe(DEMO_QUOTE_COPY.finding);
  expect(fetcher.mock.calls.filter(([url])=>url==='/api/i18n/translate').length).toBe(0);
@@ -116,11 +118,11 @@ it.each(LANGUAGES.flatMap(({code})=>['admin','staff','technician','client'].map(
  const dictionary=JSON.parse(raw);Object.assign(dictionary,demoJobTranslations(dictionary));
  const fetcher=vi.fn(async()=>({ok:true,text:async()=>raw,json:async()=>({translations:{}})}));vi.stubGlobal('fetch',fetcher);
  await act(async()=>root.render(provider(<><Settings/>{cards()}{demoJobs()}<p data-no-translate>My own repair note</p><Translator/></>)));
- await act(async()=>{await new Promise(resolve=>setTimeout(resolve,150));});
- for(const key of ['Settings','Agent','Price changed','Technician statement','Checklist',DEMO_QUOTE_COPY.finding,DEMO_QUOTE_COPY.note,'Capacitor','Used during the visit','Waiting for the client',...Object.values(clientStatusLabels),DEMO_JOB_TITLES[6],demoJobDescription(1),...Object.values(DEMO_JOB_COMMENTS)]){
+ await act(async()=>{await vi.advanceTimersByTimeAsync(150);});
+ for(const key of ['Settings','Agent','Price changed','Technician statement','Checklist',DEMO_QUOTE_COPY.finding,DEMO_QUOTE_COPY.note,'Capacitor','Used during the visit','Waiting for the client',...Object.values(clientStatusLabels),DEMO_JOB_TITLES[6],demoJobDescription(1),...Object.values(DEMO_JOB_COMMENTS),...DEMO_ROUND_TWO_COPY]){
   expect(host.textContent,`${code}: ${key}`).toContain(isEnglish(code)?key:dictionary[key]);
  }
- for(const key of ['Waiting for the client','Price changed','Work in Progress',DEMO_JOB_TITLES[6],demoJobDescription(1),...Object.values(DEMO_JOB_COMMENTS)])if(!isEnglish(code))expect(host.textContent,`${code}: English fallback for ${key}`).not.toContain(key);
+ for(const key of ['Waiting for the client','Price changed','Work in Progress',DEMO_JOB_TITLES[6],demoJobDescription(1),...Object.values(DEMO_JOB_COMMENTS),...DEMO_ROUND_TWO_COPY])if(!isEnglish(code))expect(host.textContent,`${code}: English fallback for ${key}`).not.toContain(key);
  expect(host.textContent).toContain('Pranav Menon');expect(host.textContent).toContain('Al Marsa Street');
  expect(host.textContent).toContain('Ravi');expect(host.textContent).toContain('My own repair note');
  // A missing static entry must not be rescued by a runtime translation request.
@@ -133,7 +135,7 @@ it.each(LANGUAGES.flatMap(({code})=>['owner','admin','supervisor'].map(viewer=>(
  const fetcher=vi.fn(async(_url:string,_options?:RequestInit)=>({ok:true,text:async()=>raw,json:async()=>({translations:{}})}));vi.stubGlobal('fetch',fetcher);
  vi.stubGlobal('innerWidth',360);
  await act(async()=>root.render(provider(<><CompanyMemory/><SuggestedJobs summary/><Translator/></>)));
- await act(async()=>{await new Promise(resolve=>setTimeout(resolve,150));});
+ await act(async()=>{await vi.advanceTimersByTimeAsync(150);});
  for(const key of [...Object.values(DEMO_MEMORY_COPY),DEMO_QUOTE_COPY.title,DEMO_QUOTE_COPY.problem]){
   expect(host.textContent,`${code}: ${key}`).toContain(isEnglish(code)?key:words[key]);
   if(!isEnglish(code))expect(host.textContent).not.toContain(key);
