@@ -111,6 +111,7 @@ export async function unarchiveMember(user:string,ws:string,id:string){
   const m=(await db.query('SELECT archived_at,archive_unassigned FROM members WHERE workspace_id=$1 AND user_id=$2 FOR UPDATE',[ws,id])).rows[0];
   if(!m)throw new ApiError(404,'not_found','This person is not on your team.');
   if(!m.archived_at)throw new ApiError(409,'not_archived','This person is not archived.');
+  if((await db.query("SELECT 1 FROM idempotency_keys WHERE user_id=$1 AND scope LIKE 'sec07:delete:%' AND result->>'status'='completed' AND result->>'practice'='false'",[id])).rowCount)throw new ApiError(409,'account_deleted','This account was deleted. It cannot be restored.');
   const back=(await db.query("UPDATE work_orders SET assignee_id=$2 WHERE workspace_id=$1 AND id=ANY($3::uuid[]) AND assignee_id IS NULL AND status NOT IN ('done','cancelled') RETURNING id",[ws,id,m.archive_unassigned??[]])).rowCount;
   await db.query("UPDATE members SET archived_at=NULL, archive_unassigned='{}' WHERE workspace_id=$1 AND user_id=$2",[ws,id]);
   return {unarchived:true,jobs_back:back};

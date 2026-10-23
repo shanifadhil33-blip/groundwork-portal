@@ -21,15 +21,20 @@ export function setAuthResolverForTests(resolver?: Resolver) {
   if (process.env.NODE_ENV !== 'test') throw new Error('Test auth resolver is unavailable');
   testResolver = resolver;
 }
+async function sessionAccountIsActive(id:string) {
+  const account=(await ownerPool.query(`SELECT u.is_demo,w.demo_expires_at,
+    EXISTS(SELECT 1 FROM idempotency_keys k WHERE k.user_id=u.id AND k.scope LIKE 'sec07:delete:%'
+      AND k.result->>'status'='completed' AND k.result->>'practice'='false') AS deleted
+    FROM users u LEFT JOIN workspaces w ON w.id=u.demo_workspace_id WHERE u.id=$1`,[id])).rows[0];
+  return !!account && !account.deleted && (!account.is_demo || !!account.demo_expires_at && new Date(account.demo_expires_at)>new Date());
+}
 export async function getSessionUserId(req?:Request): Promise<string | null> {
-  if(!req)return (await auth())?.user?.id ?? null;
+  if(!req){const id=(await auth())?.user?.id;return id&&await sessionAccountIsActive(id)?id:null;}
   const token=req.headers.get('cookie')?.split(';').map(v=>v.trim()).find(v=>v.startsWith(sessionCookie.name+'='))?.slice(sessionCookie.name.length+1);
   if(!token)return null;
   const found=await authAdapter.getSessionAndUser!(token);
   if(!found || new Date(found.session.expires)<=new Date())return null;
-  const demo=(await ownerPool.query('SELECT u.is_demo,w.demo_expires_at FROM users u LEFT JOIN workspaces w ON w.id=u.demo_workspace_id WHERE u.id=$1',[found.user.id])).rows[0];
-  if(demo?.is_demo && (!demo.demo_expires_at || new Date(demo.demo_expires_at)<=new Date()))return null;
-  return found.user.id;
+  return await sessionAccountIsActive(found.user.id) ? found.user.id : null;
 }
 export async function requireUser(req: Request): Promise<string> {
   const id = process.env.NODE_ENV === 'test' && testResolver ? await testResolver(req) : await getSessionUserId(req);
