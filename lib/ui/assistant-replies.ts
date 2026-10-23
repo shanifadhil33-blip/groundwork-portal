@@ -98,6 +98,8 @@ export function actionSummary(tool: string, args: Record<string,any>, order?: Or
   if(tool === 'suggest_contact_name') return `Save ${target??'this contact'} as ${args.nickname}?`;
   if(tool === 'remember_word') return `Remember this word?\n${args.phrase} means ${target??args.means_text??'the chosen '+args.means_kind}.\n${args.scope==='company'?'Company words':'Your words'}`;
   if(tool === 'forget_word') return `Remove this word?${target?'\n'+target:''}`;
+  if(tool === 'correct_company_memory') return `Change this line\n${plainAssistantReply(target??'')}\n${plainAssistantReply(args.body)}\nSaving removes the old lesson. The correction waits for approval before use.`;
+  if(tool === 'delete_company_memory') return `Delete this company lesson?\n${plainAssistantReply(target??'')}\nThe next Agent plan will not use this lesson.`;
   if(tool === 'remember_about_me') return `Remember this about you?\n${args.note}`;
   if(tool === 'forget_about_me') return 'Forget this note about you?';
   if(tool === 'set_call_me') return `Call you ${args.name} from now on?`;
@@ -157,6 +159,8 @@ export function actionResult(tool: string, args: Record<string,any>, order?: Ord
   if(tool==='decide_time_off')return args.decision==='approved'?'Approved. It shows on the schedule now.':'Declined. He gets a message.';
   if(tool==='remember_word')return 'Word saved. You can see it on your Memory page.';
   if(tool==='forget_word')return 'Word removed.';
+  if(tool==='correct_company_memory')return 'Correction waiting for approval. The old lesson is no longer used.';
+  if(tool==='delete_company_memory')return 'Lesson deleted. The next Agent plan will not use it.';
   if(tool==='remember_about_me')return 'Saved. You can see it on your Memory page.';
   if(tool==='forget_about_me')return 'Forgotten. I will not use it again.';
   if(tool==='set_call_me')return 'I will call you that from now on.';

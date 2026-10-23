@@ -1,3 +1,4 @@
+vi.mock('../lib/services/company-memory',()=>({companyMemoryContext:async()=>[]}));
 import { beforeEach,expect,it,vi } from 'vitest';
 import { actionSummary,plainAssistantReply } from '../lib/ui/assistant-replies';
 const state=vi.hoisted(()=>({turn:vi.fn(),call:vi.fn(),actions:new Map<string,any>(),order:{id:'50000000-0000-4000-8000-000000000058',order_number:58,title:'Test access control reader',status:'scheduled',priority:'normal',timezone:'Asia/Dubai',due_on:'2026-11-10',scheduled_for:'2026-11-08T05:00:00Z'},role:'staff',kind:'manager',language:'en-IN',lengths:new Map<string,string>(),patch:vi.fn()}));

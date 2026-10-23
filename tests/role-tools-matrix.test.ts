@@ -17,8 +17,8 @@ const technician = `my_fixes job_counts list_team_messages send_team_message sug
 save_job_report request_time_off list_leave_requests my_day get_schedule list_documents`.split(/\s+/);
 const office = `visit_charge update_work_order_dates set_priority list_approval_queue approve_queue_row reject_queue_row
 list_assets get_dashboard list_clients list_team suggest_worker assign_work_order set_job_trade update_document remove_document`.split(/\s+/);
-const supervisor = `add_asset approve_suggestion decline_suggestion add_worker set_worker_skills decide_time_off`.split(' ');
-const admin = `send_quote create_client update_client create_site update_site set_approval_mode set_member_roles rename_role set_job_payment`.split(' ');
+const supervisor = `company_memory add_asset approve_suggestion decline_suggestion add_worker set_worker_skills decide_time_off`.split(' ');
+const admin = `correct_company_memory delete_company_memory send_quote create_client update_client create_site update_site set_approval_mode set_member_roles rename_role set_job_payment`.split(' ');
 const techReports=['report_price_change','report_client_refused'];
 const jobWrites = ['tick_job_step','add_job_material'];
 const inventory = [...techReports,...jobWrites,...common, ...clientOnly, ...client, ...clientAnswers, ...technician, ...office, ...supervisor, ...admin, 'fix_history'];

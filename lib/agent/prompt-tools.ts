@@ -22,7 +22,7 @@ export function selectAssistantTools(question:string, declarations:Declaration[]
   [/client|customer|عميل/i,['list_clients','create_client','update_client']],
   [/site|address|موقع/i,['list_sites','create_site','update_site']],
   [/asset|equipment/i,['list_assets','add_asset','update_asset']],
-  [/remember|memory|name|تذكر/i,['remember_about_me','my_memory','forget_about_me','remember_word','my_words','set_call_me','list_contacts','suggest_contact_name']],
+  [/remember|memory|lesson|forget|name|تذكر|ذاكرة|درس|احذف|صحح/i,['company_memory','correct_company_memory','delete_company_memory','remember_about_me','my_memory','forget_about_me','remember_word','my_words','set_call_me','list_contacts','suggest_contact_name']],
   [/priority|urgent|أولوية/i,['set_priority']],
   [/quote|price|cost|refus|said no|سعر|رفض|വില|ചാർജ്|விலை|magkano/i,['report_price_change','report_client_refused','request_quote_visit','waiting_prices','visit_charge','send_quote','answer_quote','fix_history']],
   [/message|send|رسالة/i,['list_messages','send_message','list_team_messages','send_team_message','list_contacts']],

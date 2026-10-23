@@ -1,3 +1,4 @@
+vi.mock('../lib/services/company-memory',()=>({companyMemoryContext:async()=>[]}));
 import { beforeEach, expect, it, vi } from 'vitest';
 const state=vi.hoisted(()=>({rows:new Map<string,Record<string,unknown>>(),turn:vi.fn(),role:'admin',queries:vi.fn()}));
 vi.mock('../lib/ai',()=>({assistantTurn:state.turn}));

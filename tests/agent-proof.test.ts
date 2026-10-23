@@ -1,3 +1,4 @@
+vi.mock('../lib/services/company-memory',()=>({companyMemoryContext:async()=>[]}));
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 const state=vi.hoisted(()=>({role:'admin',language:'en-IN',office:false,weekly:false,leave:null as string|null,next:'2026-10-25',person:'Ravi',forceModel:false,pending:null as any,query:vi.fn(),ai:vi.fn(),tool:vi.fn(),scheduled:'2026-10-01T08:00:00Z'}));
 const user='10000000-0000-4000-8000-000000000001',ws='20000000-0000-4000-8000-000000000001',id='50000000-0000-4000-8000-000000000001',ravi='10000000-0000-4000-8000-000000000003';

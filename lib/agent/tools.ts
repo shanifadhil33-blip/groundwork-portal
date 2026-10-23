@@ -1,3 +1,4 @@
+import { listCompanyMemory, correctCompanyMemory, deleteCompanyMemory } from '../services/company-memory';
 import { prepareQuoteVisit, quoteVisitInput } from '../services/quote-visits';
 import { reportPriceChange, reportClientRefused, priceChangeInput, waitingPrices } from '../services/price-changes';
 import { materialInput } from '../job-checklists';
@@ -88,6 +89,9 @@ export const tools:Record<string,Tool>={
  my_words:{description:'Read the words this person and company use, with ids. Use before forgetting a word.',write:false,schema:z.object({}).strict(),run:c=>listWords(c.user,c.ws)},
  remember_word:{description:'Save when he says X means Y, or when I say X I mean Y. Show Yes and Change first. Use company scope only for admins when he says the company or everyone calls it that. Otherwise use personal scope.',write:true,schema:wordInput,run:(c,a)=>saveWord(c.user,c.ws,a)},
  forget_word:{description:'Forget a word he asks to remove. Get its id from my_words. Show Yes and Change first.',write:true,schema:z.object({id:uuid}).strict(),run:(c,a)=>deleteWord(c.user,c.ws,a.id)},
+ company_memory:{description:'Read shared company lessons, ids, evidence and context use counts. Owners, admins and supervisors only. Never personal memory.',write:false,schema:z.object({}).strict(),run:c=>listCompanyMemory(c.user,c.ws)},
+ correct_company_memory:{description:'Owner/admin only: correct one company lesson using an id from company_memory. Show Yes and Change first. Removes the old lesson immediately and sends the replacement for approval; it is not used until approved.',write:true,schema:z.object({id:uuid,body:z.string().trim().min(1).max(300)}).strict(),run:(c,a)=>correctCompanyMemory(c.user,c.ws,a.id,{body:a.body})},
+ delete_company_memory:{description:'Owner/admin only: delete a company lesson using its id from company_memory. Show Yes and Change first. Future Agent requests will not use it.',write:true,schema:z.object({id:uuid}).strict(),run:(c,a)=>deleteCompanyMemory(c.user,c.ws,a.id)},
  my_memory:{description:'LEARN15: what you remember about this person only: the name to call him, his language, and his personal notes with their ids. Use before forgetting something.',write:false,schema:z.object({}).strict(),run:async c=>{const p=await getPreferences(c.user),l=await listAgentLearning(c.user,c.ws);return {call_me:p?.preferred_name??null,language:p?.language??null,notes:l.data.filter(x=>x.scope==='personal').map(x=>({id:x.id,note:x.body}))};}},
  remember_about_me:{description:'LEARN15: save one short note about this person for later (for example: I start at 7 now; I prefer voice). Only things he said about himself or how he likes to work. Never a rule for others. Show Yes and Change first.',write:true,schema:z.object({note:z.string().trim().min(2).max(300)}).strict(),run:(c,a)=>savePersonalLearning(c.user,c.ws,{body:a.note})},
  forget_about_me:{description:'LEARN15: delete one of his personal notes when he says forget that or it is no longer true. Get the id from my_memory. Show Yes and Change first.',write:true,schema:z.object({id:uuid}).strict(),run:async(c,a)=>{await deletePersonalLearning(c.user,c.ws,a.id);return {forgotten:true};}},
@@ -173,7 +177,7 @@ export async function callTool(c:AgentContext,name:string,args:unknown) {
   const a=t.schema.parse(args);
   await inWorkspace(c.user,c.ws,async x=>{const power=await ownerToolPower(x,name,a);if(power)await requireOwner(x,power);});
   if(['suggest_contact_name','fill_onboarding'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the saved name in Groundwork and choose Yes or Change first.');
-  if(['remember_word','forget_word','reschedule_visit','cancel_visit','tick_job_step','add_job_material','report_price_change','report_client_refused'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the change in Groundwork and choose Yes or Change first.');
+  if(['correct_company_memory','delete_company_memory','remember_word','forget_word','reschedule_visit','cancel_visit','tick_job_step','add_job_material','report_price_change','report_client_refused'].includes(name)&&!c.approved)throw new ApiError(409,'confirmation_required','Review the change in Groundwork and choose Yes or Change first.');
   // Approval mode covers Connect AI keys too: in Ask before every action, a key write waits for an admin.
   if(t.write&&name!=='set_my_setting'&&c.kind==='agent'&&!c.approved){
    const assetSite=name==='add_asset'?await inWorkspace(c.user,c.ws,async x=>{const r=(await x.db.query('SELECT name FROM sites WHERE workspace_id=$1 AND id=$2',[c.ws,(a as any).site_id])).rows[0];if(!r)throw new ApiError(404,'not_found','Choose a site you can see.');return r.name as string;}):undefined;
