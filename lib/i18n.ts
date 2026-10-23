@@ -37,10 +37,10 @@ export function translationSource(text: string): string | null {
   const source = text.trim();
   return source && source.length <= 500 && /\p{L}/u.test(source) ? source : null;
 }
-export function replaceTranslation(text: string, translations: Record<string, string>): string {
+export function replaceTranslation(text: string, translations: Record<string, string>, demo = false): string {
   return translationPieces(text).map(piece => {
     const source = translationSource(piece);
-    const translated = source ? interfaceTranslation(source, translations) : undefined;
+    const translated = source ? interfaceTranslation(source, translations, demo) : undefined;
     return source && translated !== undefined ? piece.replace(source, () => translated) : piece;
   }).join('');
 }

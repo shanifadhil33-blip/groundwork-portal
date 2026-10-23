@@ -94,3 +94,8 @@ export function weekLetters(lang = uiLang()): string[] {
   if (isEnglish(lang)) return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   return Array.from({ length: 7 }, (_, i) => formatInLang(new Date(Date.UTC(2026, 0, 4 + i, 12)), { weekday: 'narrow', timeZone: 'UTC' }, lang));
 }
+
+/** The board supplies a workspace wall-clock hour, not an instant to convert again. */
+export function scheduleHourLabel(hour: number, lang = uiLang()): string {
+  return formatInLang(new Date(Date.UTC(2026, 0, 1, hour)), {hour: 'numeric', timeZone: 'UTC'}, lang);
+}

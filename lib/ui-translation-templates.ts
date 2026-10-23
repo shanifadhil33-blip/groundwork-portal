@@ -1,5 +1,18 @@
+import { DEMO_PROOF_COPY } from './demo-proof-copy';
+
 /** Only known interface shapes are expanded. Placeholder values remain data, never dictionary keys. */
 const shapes: readonly [RegExp, string, readonly string[]][] = [
+  [/^(\d+) open requests?$/, '{count} open requests', ['count']],
+  [/^(\d+) requests?$/, '{count} requests', ['count']],
+  [/^(\d+) today$/, '{count} today', ['count']],
+  [/^New requests, (\d+) waiting$/, 'New requests, {count} waiting', ['count']],
+  [/^Select row (\d+): (.+)$/, 'Select row {count}: {job}', ['count', 'job']],
+  [/^Call (.+)$/, 'Call {name}', ['name']],
+  [/^Move (.+)$/, 'Move {job}', ['job']],
+  [/^Remove leave for (.+)$/, 'Remove leave for {name}', ['name']],
+  [/^(\d+) (Today|Late|Open) for (.+)$/, '{count} {label} for {name}', ['count', 'label', 'name']],
+  [/^· Undone by (.+)$/, '· Undone by {name}', ['name']],
+  [/^Your session belongs to (.+)\.$/, 'Your session belongs to {company}.', ['company']],
   [/^Notifications, (\d+) unread$/, 'Notifications, {count} unread', ['count']],
   [/^More for (.+)$/, 'More for {item}', ['item']],
   [/^Real name: (.+)$/, 'Real name: {name}', ['name']],
@@ -20,12 +33,12 @@ const shapes: readonly [RegExp, string, readonly string[]][] = [
   [/^For example, weekday mornings (\d+) to (\d+)$/, 'For example, weekday mornings {start} to {end}', ['start','end']],
 ];
 export const UI_TRANSLATION_TEMPLATES = shapes.map(([,key]) => key);
-export function interfaceTranslation(source: string, words: Record<string,string>): string | undefined {
+export function interfaceTranslation(source: string, words: Record<string,string>, demo = false): string | undefined {
   if (Object.hasOwn(words,source)) return words[source];
   for (const [pattern,key,names] of shapes) {
     const match=pattern.exec(source),template=words[key];
     if (match && template) {
-      const values=Object.fromEntries(names.map((name,index)=>[name,match[index+1]]));
+      const values=Object.fromEntries(names.map((name,index)=>[name, (name === 'label' || (demo && name === 'job' && DEMO_PROOF_COPY.has(match[index+1]))) ? (words[match[index+1]] ?? match[index+1]) : match[index+1]]));
       return template.replace(/\{([a-z]+)\}/g,(token,name:string)=>values[name]??token);
     }
   }

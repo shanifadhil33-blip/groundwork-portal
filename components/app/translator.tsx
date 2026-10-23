@@ -77,12 +77,12 @@ export function Translator() {
         if (current === slot.applied && current !== slot.source) write(slot, slot.source);
         return;
       }
-      const translated = replaceTranslation(slot.source, cache);
+      const translated = replaceTranslation(slot.source, cache, demoProof);
       if (current !== translated) write(slot, translated);
       else slot.applied = current;
       for (const piece of translationPieces(slot.source)) {
         const source = translationSource(piece);
-        if (source && !Object.hasOwn(cache, source) && replaceTranslation(source, cache) === source && !attempted.has(source)) pending.add(source);
+        if (source && !Object.hasOwn(cache, source) && replaceTranslation(source, cache, demoProof) === source && !attempted.has(source)) pending.add(source);
       }
     }
     function scan() {
