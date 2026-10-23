@@ -1141,5 +1141,19 @@
  "We have received your request and confirmed access with the site manager.": "உங்கள் கோரிக்கை கிடைத்தது. தள மேலாளருடன் நுழைவை உறுதி செய்துள்ளோம்.",
  "Check stock and technician availability before the next visit.": "அடுத்த வருகைக்கு முன் இருப்பையும் தொழில்நுட்ப வல்லுநர் கிடைப்பதையும் சரிபார்க்கவும்.",
  "{name}: {status} on {job}.": "{name}: {job} தொடர்பாக {status}.",
- "Routine facilities request {number}; coordinate access with the site manager.": "வழக்கமான பராமரிப்புக் கோரிக்கை {number}; தள மேலாளருடன் நுழைவை ஒருங்கிணைக்கவும்."
+ "Routine facilities request {number}; coordinate access with the site manager.": "வழக்கமான பராமரிப்புக் கோரிக்கை {number}; தள மேலாளருடன் நுழைவை ஒருங்கிணைக்கவும்.",
+ "{name} assigned {assignee} to {job}.": "{name}, {job} பணிக்கு {assignee} ஐ நியமித்தார்.",
+ "{name} cleared the assignment on {job}.": "{name}, {job} பணியின் ஒதுக்கீட்டை நீக்கினார்.",
+ "{name} scheduled {job} for {time}.": "{name}, {job} பணியை {time} அன்று திட்டமிட்டார்.",
+ "{name} cleared the visit schedule on {job}.": "{name}, {job} பணியின் வருகை நேரத்தை நீக்கினார்.",
+ "{name} set the due date for {job} to {time}.": "{name}, {job} பணியின் இறுதித் தேதியை {time} என அமைத்தார்.",
+ "{name} cleared the due date on {job}.": "{name}, {job} பணியின் இறுதித் தேதியை நீக்கினார்.",
+ "{name} updated the title on {job}.": "{name}, {job} பணியின் தலைப்பைப் புதுப்பித்தார்.",
+ "{name} updated the description on {job}.": "{name}, {job} பணியின் விளக்கத்தைப் புதுப்பித்தார்.",
+ "{name} changed the priority of {job} to {priority}.": "{name}, {job} பணியின் முன்னுரிமையை {priority} என மாற்றினார்.",
+ "{name} received a parts update on {job}.": "{name}, {job} பணியின் உதிரிபாகங்கள் பற்றிய புதிய தகவலைப் பெற்றார்.",
+ "{name} saved the checklist and materials for {job}.": "{name}, {job} பணியின் சரிபார்ப்புப் பட்டியலையும் பொருட்களையும் சேமித்தார்.",
+ "via assistant": "உதவியாளர் மூலம்",
+ "via AI agent: {key}": "ஏஐ முகவர் மூலம்: {key}",
+ "Unnamed key": "பெயரிடாத விசை"
 }

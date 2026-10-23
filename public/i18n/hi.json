@@ -1146,5 +1146,19 @@
  "We have received your request and confirmed access with the site manager.": "हमें आपका अनुरोध मिल गया है और साइट मैनेजर से प्रवेश की पुष्टि कर ली है।",
  "Check stock and technician availability before the next visit.": "अगली विजिट से पहले स्टॉक और तकनीशियन की उपलब्धता जाँचें।",
  "{name}: {status} on {job}.": "{name}: {job} पर {status}।",
- "Routine facilities request {number}; coordinate access with the site manager.": "नियमित रखरखाव अनुरोध {number}; साइट मैनेजर से प्रवेश का समन्वय करें।"
+ "Routine facilities request {number}; coordinate access with the site manager.": "नियमित रखरखाव अनुरोध {number}; साइट मैनेजर से प्रवेश का समन्वय करें।",
+ "{name} assigned {assignee} to {job}.": "{name} ने {job} के लिए {assignee} को नियुक्त किया।",
+ "{name} cleared the assignment on {job}.": "{name} ने {job} से नियुक्ति हटाई।",
+ "{name} scheduled {job} for {time}.": "{name} ने {job} का समय {time} तय किया।",
+ "{name} cleared the visit schedule on {job}.": "{name} ने {job} की विज़िट का समय हटाया।",
+ "{name} set the due date for {job} to {time}.": "{name} ने {job} की अंतिम तारीख {time} तय की।",
+ "{name} cleared the due date on {job}.": "{name} ने {job} की अंतिम तारीख हटाई।",
+ "{name} updated the title on {job}.": "{name} ने {job} का शीर्षक अपडेट किया।",
+ "{name} updated the description on {job}.": "{name} ने {job} का विवरण अपडेट किया।",
+ "{name} changed the priority of {job} to {priority}.": "{name} ने {job} की प्राथमिकता {priority} की।",
+ "{name} received a parts update on {job}.": "{name} को {job} के पुर्ज़ों का अपडेट मिला।",
+ "{name} saved the checklist and materials for {job}.": "{name} ने {job} की जाँच सूची और सामग्री सहेजी।",
+ "via assistant": "सहायक के ज़रिए",
+ "via AI agent: {key}": "एआई एजेंट के ज़रिए: {key}",
+ "Unnamed key": "बिना नाम की कुंजी"
 }

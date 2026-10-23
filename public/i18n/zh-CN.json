@@ -1086,5 +1086,19 @@
  "We have received your request and confirmed access with the site manager.": "我们已收到您的申请，并与现场管理员确认了进场安排。",
  "Check stock and technician availability before the next visit.": "下次上门前请检查库存和技术人员是否有空。",
  "{name}: {status} on {job}.": "{name}：{job}，{status}。",
- "Routine facilities request {number}; coordinate access with the site manager.": "日常设施维修申请 {number}；请与现场管理员协调进场事宜。"
+ "Routine facilities request {number}; coordinate access with the site manager.": "日常设施维修申请 {number}；请与现场管理员协调进场事宜。",
+ "{name} assigned {assignee} to {job}.": "{name}将{assignee}分配到{job}。",
+ "{name} cleared the assignment on {job}.": "{name}清除了{job}的人员分配。",
+ "{name} scheduled {job} for {time}.": "{name}将{job}安排在{time}。",
+ "{name} cleared the visit schedule on {job}.": "{name}清除了{job}的上门时间。",
+ "{name} set the due date for {job} to {time}.": "{name}将{job}的截止日期设为{time}。",
+ "{name} cleared the due date on {job}.": "{name}清除了{job}的截止日期。",
+ "{name} updated the title on {job}.": "{name}更新了{job}的标题。",
+ "{name} updated the description on {job}.": "{name}更新了{job}的描述。",
+ "{name} changed the priority of {job} to {priority}.": "{name}将{job}的优先级改为{priority}。",
+ "{name} received a parts update on {job}.": "{name}收到了{job}的零件更新。",
+ "{name} saved the checklist and materials for {job}.": "{name}保存了{job}的检查清单和材料。",
+ "via assistant": "通过助手",
+ "via AI agent: {key}": "通过AI代理：{key}",
+ "Unnamed key": "未命名密钥"
 }

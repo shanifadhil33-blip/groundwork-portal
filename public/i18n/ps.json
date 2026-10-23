@@ -1127,5 +1127,19 @@
  "We have received your request and confirmed access with the site manager.": "ستاسو غوښتنه مو ترلاسه کړه او د ځای له مدیر سره مو ننوتل تایید کړل.",
  "Check stock and technician availability before the next visit.": "له بلې لیدنې مخکې زېرمه او د تخنیکر شتون وګورئ.",
  "{name}: {status} on {job}.": "{name}: د {job} لپاره {status}.",
- "Routine facilities request {number}; coordinate access with the site manager.": "د عادي ساتنې غوښتنه {number}؛ د ځای له مدیر سره د ننوتلو همغږي وکړئ."
+ "Routine facilities request {number}; coordinate access with the site manager.": "د عادي ساتنې غوښتنه {number}؛ د ځای له مدیر سره د ننوتلو همغږي وکړئ.",
+ "{name} assigned {assignee} to {job}.": "{name} د {job} لپاره {assignee} وګوماره.",
+ "{name} cleared the assignment on {job}.": "{name} د {job} ګومارنه لرې کړه.",
+ "{name} scheduled {job} for {time}.": "{name} د {job} وخت {time} وټاکه.",
+ "{name} cleared the visit schedule on {job}.": "{name} د {job} د لیدنې وخت لرې کړ.",
+ "{name} set the due date for {job} to {time}.": "{name} د {job} وروستۍ نېټه {time} وټاکله.",
+ "{name} cleared the due date on {job}.": "{name} د {job} وروستۍ نېټه لرې کړه.",
+ "{name} updated the title on {job}.": "{name} د {job} سرلیک تازه کړ.",
+ "{name} updated the description on {job}.": "{name} د {job} تشریح تازه کړه.",
+ "{name} changed the priority of {job} to {priority}.": "{name} د {job} لومړیتوب {priority} ته بدل کړ.",
+ "{name} received a parts update on {job}.": "{name} د {job} د پرزو تازه معلومات ترلاسه کړل.",
+ "{name} saved the checklist and materials for {job}.": "{name} د {job} د کتنې لېست او توکي خوندي کړل.",
+ "via assistant": "د مرستیال له لارې",
+ "via AI agent: {key}": "د مصنوعي ځیرکتیا د استازي له لارې: {key}",
+ "Unnamed key": "بې نومه کیلي"
 }

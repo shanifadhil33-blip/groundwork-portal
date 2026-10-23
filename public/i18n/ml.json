@@ -1109,5 +1109,19 @@
  "We have received your request and confirmed access with the site manager.": "നിങ്ങളുടെ അഭ്യർഥന ലഭിച്ചു. സൈറ്റ് മാനേജറുമായി പ്രവേശനം ഉറപ്പാക്കിയിട്ടുണ്ട്.",
  "Check stock and technician availability before the next visit.": "അടുത്ത സന്ദർശനത്തിന് മുമ്പ് സ്റ്റോക്കും ടെക്നീഷ്യന്റെ ലഭ്യതയും പരിശോധിക്കുക.",
  "{name}: {status} on {job}.": "{name}: {job} സംബന്ധിച്ച് {status}.",
- "Routine facilities request {number}; coordinate access with the site manager.": "പതിവ് പരിപാലന അഭ്യർഥന {number}; പ്രവേശനത്തിന് സൈറ്റ് മാനേജറുമായി ഏകോപിപ്പിക്കുക."
+ "Routine facilities request {number}; coordinate access with the site manager.": "പതിവ് പരിപാലന അഭ്യർഥന {number}; പ്രവേശനത്തിന് സൈറ്റ് മാനേജറുമായി ഏകോപിപ്പിക്കുക.",
+ "{name} assigned {assignee} to {job}.": "{name} {job} എന്ന ജോലിക്ക് {assignee} നെ നിയോഗിച്ചു.",
+ "{name} cleared the assignment on {job}.": "{name} {job} എന്ന ജോലിയുടെ ചുമതല ഒഴിവാക്കി.",
+ "{name} scheduled {job} for {time}.": "{name} {job} എന്ന ജോലി {time} ലേക്ക് നിശ്ചയിച്ചു.",
+ "{name} cleared the visit schedule on {job}.": "{name} {job} എന്ന ജോലിയുടെ സന്ദർശന സമയം നീക്കി.",
+ "{name} set the due date for {job} to {time}.": "{name} {job} എന്ന ജോലിയുടെ അവസാന തീയതി {time} ആയി നിശ്ചയിച്ചു.",
+ "{name} cleared the due date on {job}.": "{name} {job} എന്ന ജോലിയുടെ അവസാന തീയതി നീക്കി.",
+ "{name} updated the title on {job}.": "{name} {job} എന്ന ജോലിയുടെ തലക്കെട്ട് പുതുക്കി.",
+ "{name} updated the description on {job}.": "{name} {job} എന്ന ജോലിയുടെ വിവരണം പുതുക്കി.",
+ "{name} changed the priority of {job} to {priority}.": "{name} {job} എന്ന ജോലിയുടെ മുൻഗണന {priority} ആക്കി.",
+ "{name} received a parts update on {job}.": "{name} ന് {job} എന്ന ജോലിയുടെ ഭാഗങ്ങളെക്കുറിച്ചുള്ള പുതിയ വിവരം ലഭിച്ചു.",
+ "{name} saved the checklist and materials for {job}.": "{name} {job} എന്ന ജോലിയുടെ പരിശോധനാ പട്ടികയും സാമഗ്രികളും സംരക്ഷിച്ചു.",
+ "via assistant": "സഹായി വഴി",
+ "via AI agent: {key}": "എഐ ഏജന്റ് വഴി: {key}",
+ "Unnamed key": "പേരില്ലാത്ത കീ"
 }

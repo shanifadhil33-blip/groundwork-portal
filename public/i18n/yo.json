@@ -1078,5 +1078,19 @@
  "We have received your request and confirmed access with the site manager.": "A ti gba ìbéèrè rẹ, a sì ti fìdí àwọlé múlẹ̀ pẹ̀lú alábòójútó ibi náà.",
  "Check stock and technician availability before the next visit.": "Ṣàyẹ̀wò ohun tó wà ní ìpamọ́ àti wíwà onímọ̀ ẹ̀rọ ṣáájú ìbẹ̀wò tó kàn.",
  "{name}: {status} on {job}.": "{name}: {status} lórí {job}.",
- "Routine facilities request {number}; coordinate access with the site manager.": "Ìbéèrè ìtọju déédéé {number}; bá alábòójútó ibi náà ṣètò àwọlé."
+ "Routine facilities request {number}; coordinate access with the site manager.": "Ìbéèrè ìtọju déédéé {number}; bá alábòójútó ibi náà ṣètò àwọlé.",
+ "{name} assigned {assignee} to {job}.": "{name} yan {assignee} fún {job}.",
+ "{name} cleared the assignment on {job}.": "{name} yọ ìyànṣẹ́ kúrò lórí {job}.",
+ "{name} scheduled {job} for {time}.": "{name} ṣètò {job} fún {time}.",
+ "{name} cleared the visit schedule on {job}.": "{name} yọ àkókò ìbẹ̀wò kúrò lórí {job}.",
+ "{name} set the due date for {job} to {time}.": "{name} ṣètò ọjọ́ ìparí {job} sí {time}.",
+ "{name} cleared the due date on {job}.": "{name} yọ ọjọ́ ìparí kúrò lórí {job}.",
+ "{name} updated the title on {job}.": "{name} ṣe àtúnṣe àkọlé {job}.",
+ "{name} updated the description on {job}.": "{name} ṣe àtúnṣe àpèjúwe {job}.",
+ "{name} changed the priority of {job} to {priority}.": "{name} yí ipò pàtàkì {job} sí {priority}.",
+ "{name} received a parts update on {job}.": "{name} gba ìròyìn tuntun nípa àwọn ẹ̀yà fún {job}.",
+ "{name} saved the checklist and materials for {job}.": "{name} fi àkójọ àyẹ̀wò àti àwọn ohun èlò fún {job} pamọ́.",
+ "via assistant": "nípasẹ̀ olùrànlọ́wọ́",
+ "via AI agent: {key}": "nípasẹ̀ aṣojú AI: {key}",
+ "Unnamed key": "Kọ́kọ́rọ́ tí kò ní orúkọ"
 }

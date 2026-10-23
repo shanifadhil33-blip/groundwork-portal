@@ -1097,5 +1097,19 @@
  "We have received your request and confirmed access with the site manager.": "Mun karɓi buƙatarka kuma mun tabbatar da shiga tare da manajan wurin.",
  "Check stock and technician availability before the next visit.": "Duba kayan da ke ajiye da samuwar mai gyara kafin ziyara ta gaba.",
  "{name}: {status} on {job}.": "{name}: {status} a kan {job}.",
- "Routine facilities request {number}; coordinate access with the site manager.": "Buƙatar kulawa ta yau da kullum {number}; shirya shiga tare da manajan wurin."
+ "Routine facilities request {number}; coordinate access with the site manager.": "Buƙatar kulawa ta yau da kullum {number}; shirya shiga tare da manajan wurin.",
+ "{name} assigned {assignee} to {job}.": "{name} ya sanya {assignee} a kan {job}.",
+ "{name} cleared the assignment on {job}.": "{name} ya cire rabon aiki a kan {job}.",
+ "{name} scheduled {job} for {time}.": "{name} ya tsara {job} don {time}.",
+ "{name} cleared the visit schedule on {job}.": "{name} ya cire jadawalin ziyarar {job}.",
+ "{name} set the due date for {job} to {time}.": "{name} ya sa ranar ƙarshe ta {job} zuwa {time}.",
+ "{name} cleared the due date on {job}.": "{name} ya cire ranar ƙarshe ta {job}.",
+ "{name} updated the title on {job}.": "{name} ya sabunta taken {job}.",
+ "{name} updated the description on {job}.": "{name} ya sabunta bayanin {job}.",
+ "{name} changed the priority of {job} to {priority}.": "{name} ya canza fifikon {job} zuwa {priority}.",
+ "{name} received a parts update on {job}.": "{name} ya karɓi sabon bayani game da kayan gyaran {job}.",
+ "{name} saved the checklist and materials for {job}.": "{name} ya adana jerin dubawa da kayan {job}.",
+ "via assistant": "ta hannun mataimaki",
+ "via AI agent: {key}": "ta hannun wakilin AI: {key}",
+ "Unnamed key": "Maɓalli marar suna"
 }

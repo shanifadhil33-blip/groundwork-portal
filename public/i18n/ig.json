@@ -1092,5 +1092,19 @@
  "We have received your request and confirmed access with the site manager.": "Anyị anatala arịrịọ gị ma kwado nbata na onye njikwa ebe ahụ.",
  "Check stock and technician availability before the next visit.": "Lelee ngwa dị n’ụlọ nkwakọba na ma onye ọrụ nka dị tupu nleta ọzọ.",
  "{name}: {status} on {job}.": "{name}: {status} maka {job}.",
- "Routine facilities request {number}; coordinate access with the site manager.": "Arịrịọ mmezi a na-eme mgbe niile {number}; gị na onye njikwa ebe ahụ hazie nbata."
+ "Routine facilities request {number}; coordinate access with the site manager.": "Arịrịọ mmezi a na-eme mgbe niile {number}; gị na onye njikwa ebe ahụ hazie nbata.",
+ "{name} assigned {assignee} to {job}.": "{name} kenyere {assignee} ọrụ {job}.",
+ "{name} cleared the assignment on {job}.": "{name} wepụrụ nkesa ọrụ na {job}.",
+ "{name} scheduled {job} for {time}.": "{name} haziri {job} maka {time}.",
+ "{name} cleared the visit schedule on {job}.": "{name} wepụrụ oge nleta maka {job}.",
+ "{name} set the due date for {job} to {time}.": "{name} debere ụbọchị ikpeazụ nke {job} na {time}.",
+ "{name} cleared the due date on {job}.": "{name} wepụrụ ụbọchị ikpeazụ nke {job}.",
+ "{name} updated the title on {job}.": "{name} melitere aha {job}.",
+ "{name} updated the description on {job}.": "{name} melitere nkọwa {job}.",
+ "{name} changed the priority of {job} to {priority}.": "{name} gbanwere mkpa {job} gaa na {priority}.",
+ "{name} received a parts update on {job}.": "{name} natara ozi ọhụrụ gbasara akụkụ maka {job}.",
+ "{name} saved the checklist and materials for {job}.": "{name} chekwara ndepụta nyocha na ihe maka {job}.",
+ "via assistant": "site n’aka onye enyemaka",
+ "via AI agent: {key}": "site n’aka onye nnọchi anya AI: {key}",
+ "Unnamed key": "Igodo enweghị aha"
 }

@@ -1089,5 +1089,19 @@
  "We have received your request and confirmed access with the site manager.": "Yɛn nsa aka w’adesrɛ no na yɛne beae no sohwɛfo ahyɛ baabi hɔ a yɛbɛkɔ no mu den.",
  "Check stock and technician availability before the next visit.": "Hwɛ nneɛma a ɛwɔ akorae ne sɛ odwumayɛfo no wɔ hɔ ansa na ɔbɛsan aba.",
  "{name}: {status} on {job}.": "{name}: {status} wɔ {job} ho.",
- "Routine facilities request {number}; coordinate access with the site manager.": "Daa nsiesie adesrɛ {number}; ne beae no sohwɛfo nyɛ nhyehyɛe fa baabi hɔ a wobɛkɔ ho."
+ "Routine facilities request {number}; coordinate access with the site manager.": "Daa nsiesie adesrɛ {number}; ne beae no sohwɛfo nyɛ nhyehyɛe fa baabi hɔ a wobɛkɔ ho.",
+ "{name} assigned {assignee} to {job}.": "{name} de {job} ahyɛ {assignee} nsa.",
+ "{name} cleared the assignment on {job}.": "{name} ayi adwuma a wɔde hyɛɛ obi nsa wɔ {job} no afi hɔ.",
+ "{name} scheduled {job} for {time}.": "{name} ahyɛ {job} bere wɔ {time}.",
+ "{name} cleared the visit schedule on {job}.": "{name} ayi nsrahwɛ bere a wɔhyɛe maa {job} no afi hɔ.",
+ "{name} set the due date for {job} to {time}.": "{name} ahyɛ {job} da a etwa to sɛ {time}.",
+ "{name} cleared the due date on {job}.": "{name} ayi {job} da a etwa to no afi hɔ.",
+ "{name} updated the title on {job}.": "{name} asesa {job} asɛmti.",
+ "{name} updated the description on {job}.": "{name} asesa {job} ho nkyerɛkyerɛmu.",
+ "{name} changed the priority of {job} to {priority}.": "{name} asesa {job} ho hia a ɛhia no ayɛ {priority}.",
+ "{name} received a parts update on {job}.": "{name} anya {job} ho afã horow ho amanneɛbɔ foforo.",
+ "{name} saved the checklist and materials for {job}.": "{name} akora {job} nhwehwɛmu din ne nneɛma so.",
+ "via assistant": "ɛnam ɔboafo no so",
+ "via AI agent: {key}": "ɛnam AI ɔnanmusifo no so: {key}",
+ "Unnamed key": "Safoa a enni din"
 }

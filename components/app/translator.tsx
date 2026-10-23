@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { DEFAULT_LANGUAGE, LANGUAGES, isRtl } from '../../lib/languages';
 import { isEnglish, languageFileUrl, mergeLanguageFile, readTranslationCache, replaceTranslation, translationPieces, translationSource, TRANSLATION_ATTRIBUTES, TRANSLATION_SKIP } from '../../lib/i18n';
 import { useResource } from './resource';
+import { historyTemplates } from '../../lib/ui/job-history';
 import { notificationTemplates } from '../../lib/ui/notifications';
 import { setNotificationLanguage } from './notification-language';
 import { LANG_HINT_KEY } from '../../lib/head-scripts';
@@ -165,7 +166,7 @@ export function Translator() {
       } finally { aiRunning = false; }
     }
     // LANG01: the language file comes first (one static file, no AI and no database), then saved words, then the AI queue.
-    const publishNotices=()=>setNotificationLanguage(language,Object.values(notificationTemplates).every(template=>cache[template])?{...cache}:null);
+    const publishNotices=()=>setNotificationLanguage(language,[...Object.values(notificationTemplates),...Object.values(historyTemplates)].every(template=>cache[template])?{...cache}:null);
     const fileReady: Promise<void> = fetch(languageFileUrl(language), { signal: abort.signal, mode: 'cors', credentials: 'same-origin' })
       .then(r => (r.ok ? r.text() : null))
       .then(raw => { if (!stopped) { const changed=mergeLanguageFile(cache,raw,language); if(demoProof)Object.assign(cache,demoJobTranslations(cache)); publishNotices(); if(changed||demoProof)scan(); } })

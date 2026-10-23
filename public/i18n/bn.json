@@ -1146,5 +1146,19 @@
  "We have received your request and confirmed access with the site manager.": "আপনার অনুরোধ পেয়েছি এবং সাইট ম্যানেজারের সঙ্গে প্রবেশের বিষয়টি নিশ্চিত করেছি।",
  "Check stock and technician availability before the next visit.": "পরের ভিজিটের আগে মজুত এবং টেকনিশিয়ানের উপস্থিতি যাচাই করুন।",
  "{name}: {status} on {job}.": "{name}: {job} এর জন্য {status}।",
- "Routine facilities request {number}; coordinate access with the site manager.": "নিয়মিত রক্ষণাবেক্ষণ অনুরোধ {number}; সাইট ম্যানেজারের সঙ্গে প্রবেশের ব্যবস্থা করুন।"
+ "Routine facilities request {number}; coordinate access with the site manager.": "নিয়মিত রক্ষণাবেক্ষণ অনুরোধ {number}; সাইট ম্যানেজারের সঙ্গে প্রবেশের ব্যবস্থা করুন।",
+ "{name} assigned {assignee} to {job}.": "{name} {job} এর জন্য {assignee} কে দায়িত্ব দিয়েছেন।",
+ "{name} cleared the assignment on {job}.": "{name} {job} এর দায়িত্ব সরিয়েছেন।",
+ "{name} scheduled {job} for {time}.": "{name} {job} এর সময় {time} নির্ধারণ করেছেন।",
+ "{name} cleared the visit schedule on {job}.": "{name} {job} এর পরিদর্শনের সময় সরিয়েছেন।",
+ "{name} set the due date for {job} to {time}.": "{name} {job} এর শেষ তারিখ {time} নির্ধারণ করেছেন।",
+ "{name} cleared the due date on {job}.": "{name} {job} এর শেষ তারিখ সরিয়েছেন।",
+ "{name} updated the title on {job}.": "{name} {job} এর শিরোনাম হালনাগাদ করেছেন।",
+ "{name} updated the description on {job}.": "{name} {job} এর বিবরণ হালনাগাদ করেছেন।",
+ "{name} changed the priority of {job} to {priority}.": "{name} {job} এর অগ্রাধিকার {priority} করেছেন।",
+ "{name} received a parts update on {job}.": "{name} {job} এর যন্ত্রাংশের নতুন তথ্য পেয়েছেন।",
+ "{name} saved the checklist and materials for {job}.": "{name} {job} এর যাচাই তালিকা ও উপকরণ সংরক্ষণ করেছেন।",
+ "via assistant": "সহকারীর মাধ্যমে",
+ "via AI agent: {key}": "এআই এজেন্টের মাধ্যমে: {key}",
+ "Unnamed key": "নামহীন কী"
 }

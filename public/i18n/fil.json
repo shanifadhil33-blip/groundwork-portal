@@ -1100,5 +1100,20 @@
  "We have received your request and confirmed access with the site manager.": "Natanggap namin ang iyong kahilingan at nakumpirma ang pagpasok sa tagapamahala ng lugar.",
  "Check stock and technician availability before the next visit.": "Suriin ang suplay at kung may available na teknisyan bago ang susunod na pagbisita.",
  "{name}: {status} on {job}.": "{name}: {status} para sa {job}.",
- "Routine facilities request {number}; coordinate access with the site manager.": "Karaniwang kahilingan sa pagpapanatili {number}; makipag-ugnayan sa tagapamahala ng lugar para sa pagpasok."
+ "Routine facilities request {number}; coordinate access with the site manager.": "Karaniwang kahilingan sa pagpapanatili {number}; makipag-ugnayan sa tagapamahala ng lugar para sa pagpasok.",
+ "{name} assigned {assignee} to {job}.": "Itinalaga ni {name} si {assignee} sa {job}.",
+ "{name} cleared the assignment on {job}.": "Inalis ni {name} ang pagtatalaga sa {job}.",
+ "{name} scheduled {job} for {time}.": "Itinakda ni {name} ang {job} sa {time}.",
+ "{name} cleared the visit schedule on {job}.": "Inalis ni {name} ang iskedyul ng pagbisita para sa {job}.",
+ "{name} set the due date for {job} to {time}.": "Itinakda ni {name} ang takdang petsa ng {job} sa {time}.",
+ "{name} cleared the due date on {job}.": "Inalis ni {name} ang takdang petsa ng {job}.",
+ "{name} updated the title on {job}.": "Binago ni {name} ang pamagat ng {job}.",
+ "{name} updated the description on {job}.": "Binago ni {name} ang paglalarawan ng {job}.",
+ "{name} changed the priority of {job} to {priority}.": "Ginawang {priority} ni {name} ang prayoridad ng {job}.",
+ "{name} received a parts update on {job}.": "Nakatanggap si {name} ng balita tungkol sa mga piyesa para sa {job}.",
+ "{name} saved the checklist and materials for {job}.": "Ini-save ni {name} ang listahan ng pagsusuri at mga materyales para sa {job}.",
+ "via assistant": "sa pamamagitan ng katulong",
+ "via AI agent: {key}": "sa pamamagitan ng ahente ng AI: {key}",
+ "Normal": "Karaniwan",
+ "Unnamed key": "Key na walang pangalan"
 }

@@ -11,6 +11,7 @@ import InviteAccept from '../app/(app)/invites/accept/page';
 import { Audit, auditDateBoundary } from '../components/app/audit';
 import { PublicHeader } from '../components/public/chrome';
 const mocks=vi.hoisted(()=>({query:'',demo:false,resource:vi.fn()}));
+vi.mock('../components/app/notification-language',()=>({useNotificationLanguage:()=>({words:{},language:'en-IN'})}));
 vi.mock('next/navigation',()=>({useRouter:()=>({replace:vi.fn()}),usePathname:()=>'/audit',useSearchParams:()=>new URLSearchParams(mocks.query)}));
 vi.mock('../components/app/resource',()=>({useResource:(url:string|null)=>mocks.resource(url)}));
 vi.mock('../components/ui/toast',()=>({useToast:()=>vi.fn()}));
@@ -29,7 +30,7 @@ describe('comment privacy',()=>{
  it('renders both badges and an internal composer, with assistant attribution on activity',()=>{
   mocks.resource.mockImplementation(url=>({loading:false,error:false,reload:vi.fn(),data:url?.endsWith('/checklist')?{steps:[],materials:[],editable:false}:url?.includes('/work-orders/')?{id:'order',order_number:1,title:'Current title',status:'open',priority:'normal',description:'',client:{name:'Client'},site:{name:'Site',address:''},comments:[{id:'internal',body:'Private',visibility:'internal',author_id:'imran',created_at:'2026-10-11T10:00:00Z',work_order_title:'Original title',actor_kind:'assistant'},{id:'client',body:'Shared',visibility:'client',author_id:'imran',created_at:'2026-10-11T11:00:00Z',work_order_title:'Original title'}],timeline:[]}:url?.endsWith('/members')?[]:{data:[]}}));
   const html=renderToStaticMarkup(<WorkOrderDetail id="order"/>);
-  expect(html).toContain('Visible to the client');expect(html).toContain('Internal note');expect(html).toContain('Add internal note');expect(html).toContain('via assistant');expect(html).toContain('to Original title');
+  expect(html).toContain('Visible to the client');expect(html).toContain('Internal note');expect(html).toContain('Add internal note');expect(html).toContain('via assistant');expect(html).toContain('Original title');expect(html).not.toContain('&lt;ContactName');
  });
 });
 describe('history and local formatting',()=>{

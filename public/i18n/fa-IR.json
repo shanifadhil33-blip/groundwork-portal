@@ -1132,5 +1132,19 @@
  "We have received your request and confirmed access with the site manager.": "درخواست شما را دریافت کردیم و ورود را با مدیر محل تأیید کردیم.",
  "Check stock and technician availability before the next visit.": "پیش از بازدید بعدی موجودی و در دسترس بودن تکنسین را بررسی کنید.",
  "{name}: {status} on {job}.": "{name}: {status} برای {job}.",
- "Routine facilities request {number}; coordinate access with the site manager.": "درخواست نگهداری معمول {number}؛ ورود را با مدیر محل هماهنگ کنید."
+ "Routine facilities request {number}; coordinate access with the site manager.": "درخواست نگهداری معمول {number}؛ ورود را با مدیر محل هماهنگ کنید.",
+ "{name} assigned {assignee} to {job}.": "{name}، {assignee} را به {job} اختصاص داد.",
+ "{name} cleared the assignment on {job}.": "{name} تخصیص {job} را پاک کرد.",
+ "{name} scheduled {job} for {time}.": "{name} زمان {job} را برای {time} تعیین کرد.",
+ "{name} cleared the visit schedule on {job}.": "{name} زمان بازدید {job} را پاک کرد.",
+ "{name} set the due date for {job} to {time}.": "{name} تاریخ سررسید {job} را {time} تعیین کرد.",
+ "{name} cleared the due date on {job}.": "{name} تاریخ سررسید {job} را پاک کرد.",
+ "{name} updated the title on {job}.": "{name} عنوان {job} را به روز کرد.",
+ "{name} updated the description on {job}.": "{name} توضیحات {job} را به روز کرد.",
+ "{name} changed the priority of {job} to {priority}.": "{name} اولویت {job} را به {priority} تغییر داد.",
+ "{name} received a parts update on {job}.": "{name} اطلاعات تازه درباره قطعات {job} دریافت کرد.",
+ "{name} saved the checklist and materials for {job}.": "{name} فهرست بررسی و مواد {job} را ذخیره کرد.",
+ "via assistant": "از طریق دستیار",
+ "via AI agent: {key}": "از طریق عامل هوش مصنوعی: {key}",
+ "Unnamed key": "کلید بی نام"
 }
