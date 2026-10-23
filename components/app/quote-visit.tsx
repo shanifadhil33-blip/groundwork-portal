@@ -23,7 +23,7 @@ export function QuoteVisit({ o, base, client, office, currency, reload, section 
 
     {error&&!open&&<p className="inline-error" role="alert">{error}</p>}
     <Dialog dirty={!!amount.trim()||!!note.trim()} open={open} onClose={() => setOpen(false)} busy={busy === 'send'} title="Send price" footer={<><Button variant="secondary" disabled={busy === 'send'} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy === 'send'} onClick={() => void send()}>Send</Button></>}>
-      <div className="stack compact"><label className="field"><span>Price ({currency})</span><input inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} /></label>
+      <div className="stack compact"><label className="field"><span><span>Price</span> <span data-no-translate>({currency})</span></span><input inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} /></label>
         <label className="field"><span>What it covers</span><textarea rows={3} maxLength={1000} value={note} onChange={e => setNote(e.target.value)} /></label>
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog>
   </Card>}</>;
