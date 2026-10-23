@@ -11,7 +11,7 @@ import { scheduleHourLabel } from '../lib/date-lang';
 import { SCHEDULE_HINT, CHANGE_SCHEDULE_HINT } from '../components/app/schedule-hint';
 
 const interfaceCopy = [
- 'Comment', 'Import', 'Import row', 'Agent key', 'Invite', 'Job activity', 'Supplier update', 'Notification', 'Needs you', 'Reads the message, photo or voice note from the app and writes it up as a suggested job.',
+ 'Your questions', 'Your questions to a supervisor', 'Waiting for your supervisor. Nothing changes until they answer.', 'My time off', 'Waiting', 'Comment', 'Import', 'Import row', 'Agent key', 'Invite', 'Job activity', 'Supplier update', 'Notification', 'Needs you', 'Reads the message, photo or voice note from the app and writes it up as a suggested job.',
  'Open job', 'Nobody is away. Add leave here, and jobs are not given to that person on those days.',
  'Your workspace', 'Sign out', 'Drawer navigation', 'Edit client', 'Main contact', 'Billing address',
  '· ends', 'Add site', 'Site contact:', 'Access:', 'Sends requests and sees their own jobs.',

@@ -19,6 +19,16 @@ export const DEMO_ROUND_TWO_COPY = [
   'Main panel', 'Ground floor', 'Roof AC 1', 'Roof AC 2', 'Roof', 'Water pump',
   'Plant room', 'Office water heater', 'Office kitchen', 'big chiller', 'the tower', 'the annex',
   'Inspect reception lighting',
+  'It was broken.',
+  'Fixed it and tested it.',
+  'Water was leaking.',
+  'Changed the seal and cleaned the pipe.',
+  'Made it safe and working for now. A new unit is needed.',
+  'The light did not turn on.',
+  'The door did not close by itself.',
+  'The room was too warm.',
+  'Changed the driver and the bulb.',
+  'Set the closer again and tightened the screws.',
 ] as const;
 
 /** Data stays outside shipped dictionary keys. Expand only these exact practice instances. */

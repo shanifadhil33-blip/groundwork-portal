@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import { hasUntranslatedLatin as latin } from './lang12-detection.mjs';
 import { sandbox } from './sandbox.mjs';
 
@@ -95,7 +95,8 @@ try {
           for (let index = 0; index < tabs; index++) {
             const tab = page.getByRole('tab').nth(index);
             await tab.click();
-            await page.waitForFunction(index => document.querySelectorAll('[role=tab]')[index]?.getAttribute('aria-selected') === 'true', index);
+            // Next may retain an inactive settings tree during navigation; scope to the visible tab.
+            await expect(page.getByRole('tab').nth(index)).toHaveAttribute('aria-selected', 'true', {timeout: 30000});
             await page.waitForTimeout(300);
             role.pages.push(await capture(page, path, 'tab:' + (new URL(page.url()).searchParams.get('tab') || index)));
           }
