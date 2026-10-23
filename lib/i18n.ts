@@ -101,7 +101,8 @@ export function readTranslationCache(raw: string | null, lang?: string): Record<
   } catch { /* A broken or unavailable cache must not prevent navigation. */ }
   return out;
 }
-/** LANG01: interface text ships in language files, one per language (public/i18n/<code>.json, written by e2e/export-language-files.mjs). */
+/** LANG01: interface text ships in public/i18n/<code>.json. A null entry explicitly marks a pending translation;
+ * readTranslationCache ignores it. Audit locally with scripts/i18n-coverage.mjs; export saved words with e2e/export-language-files.mjs. */
 export const languageFileUrl = (lang: string) => `/i18n/${encodeURIComponent(lang)}.json`;
 /** Adds the language file's words to the cache. The file wins over machine words saved in this browser, because files are what native speakers review. Returns how many words changed. */
 export function mergeLanguageFile(cache: Record<string, string>, raw: string | null, lang: string): number {

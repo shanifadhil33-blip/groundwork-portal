@@ -1,5 +1,7 @@
 # LANG12 local sweep
 
+The later [LANG01 offline source inventory](LANG01-coverage.md) records dictionary gaps beyond these swept screens, including explicit pending translations in every language file. Its source-wide counts and script findings should be reviewed alongside this historical browser result.
+
 **Round 2: clean local sweep.** Every remaining visible line from the round 1 report has been addressed in all app languages. The final browser sweep reports zero untranslated text fragments, accessibility attributes, RTL failures, overflow failures, and navigation errors for all nine personas.
 
 Browser scope: fresh mobile contexts at 360×844 in Gulf Arabic (`ar-AE`), followed by concurrent Arabic and English sessions viewing the same job. Static dictionary and rendered-screen regressions cover all 24 app locale choices, including the 21 non-English language files. Browser translation API responses were stubbed to an empty dictionary, so missing shipped words could not be rescued by runtime translation.

@@ -21,7 +21,7 @@ import yo from '../../public/i18n/yo.json';
 import zh_CN from '../../public/i18n/zh-CN.json';
 import { isEnglish, rightScript } from '../i18n';
 
-const files:Record<string,Record<string,string>>={'am':am, 'ar-AE':ar_AE, 'bn':bn, 'fa-AF':fa_AF, 'fa-IR':fa_IR, 'fil':fil, 'ha':ha, 'hi':hi, 'ig':ig, 'lg':lg, 'ml':ml, 'ne':ne, 'ps':ps, 'so':so, 'sw-KE':sw_KE, 'ta':ta, 'ti':ti, 'tw':tw, 'ur':ur, 'yo':yo, 'zh-CN':zh_CN};
+const files:Record<string,Record<string,string|null>>={'am':am, 'ar-AE':ar_AE, 'bn':bn, 'fa-AF':fa_AF, 'fa-IR':fa_IR, 'fil':fil, 'ha':ha, 'hi':hi, 'ig':ig, 'lg':lg, 'ml':ml, 'ne':ne, 'ps':ps, 'so':so, 'sw-KE':sw_KE, 'ta':ta, 'ti':ti, 'tw':tw, 'ur':ur, 'yo':yo, 'zh-CN':zh_CN};
 const FALLBACK='Which option do you mean?';
 const questionScripts:Record<string,RegExp>={
  'ar-AE':/\p{Script=Arabic}/u, ur:/\p{Script=Arabic}/u, ps:/\p{Script=Arabic}/u, 'fa-AF':/\p{Script=Arabic}/u, 'fa-IR':/\p{Script=Arabic}/u,

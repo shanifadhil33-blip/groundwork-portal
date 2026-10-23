@@ -21,7 +21,10 @@ import words18 from '../public/i18n/ig.json';
 import words19 from '../public/i18n/lg.json';
 import words20 from '../public/i18n/tw.json';
 import { LANGUAGES } from './languages';
-const files: Record<string,Record<string,string>> = {'ar-AE':words0,'hi':words1,'ur':words2,'bn':words3,'ml':words4,'ta':words5,'ne':words6,'ps':words7,'fa-AF':words8,'fa-IR':words9,'fil':words10,'zh-CN':words11,'sw-KE':words12,'am':words13,'ti':words14,'so':words15,'yo':words16,'ha':words17,'ig':words18,'lg':words19,'tw':words20};
+const sourceFiles: Record<string,Record<string,string|null>> = {'ar-AE':words0,'hi':words1,'ur':words2,'bn':words3,'ml':words4,'ta':words5,'ne':words6,'ps':words7,'fa-AF':words8,'fa-IR':words9,'fil':words10,'zh-CN':words11,'sw-KE':words12,'am':words13,'ti':words14,'so':words15,'yo':words16,'ha':words17,'ig':words18,'lg':words19,'tw':words20};
+// Pending source keys are not translations; callers receive only saved strings.
+const files: Record<string,Record<string,string>> = Object.fromEntries(Object.entries(sourceFiles).map(([code, words]) =>
+ [code, Object.fromEntries(Object.entries(words).filter((entry): entry is [string,string] => typeof entry[1] === 'string'))]));
 export function notificationLanguage(language?:string|null) {
  const code=(language??'en-IN').toLowerCase().replace('_','-');
  const aliases:Record<string,string>={tl:'fil',fa:'fa-IR'};

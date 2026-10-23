@@ -16,8 +16,9 @@ for(const lang of LANGS){const words={};
   for(const k of batch)if(typeof tr[k]==='string'&&tr[k].trim()&&tr[k]!==k)words[k]=tr[k];}
  // Words already in the file win: hand fixes and words added by hand (greetings, script refills) are never dropped by a new export.
  let existing={};try{existing=JSON.parse(fs.readFileSync(new URL(lang+'.json',OUT),'utf8'));}catch{}
- Object.assign(words,existing);
+ // Reviewed words still win. A pending marker must not overwrite a newly saved translation.
+ for(const [key,value] of Object.entries(existing))if(value!==null||!Object.hasOwn(words,key))words[key]=value;
  const sorted=Object.fromEntries(Object.keys(words).sort().map(k=>[k,words[k]]));
- fs.writeFileSync(new URL(lang+'.json',OUT),JSON.stringify(sorted,null,0).replace(/","/g,'",\n"')+'\n');
- report[lang]={words:Object.keys(words).length,of:strings.length};console.log(lang,JSON.stringify(report[lang]));}
+ fs.writeFileSync(new URL(lang+'.json',OUT),'{'+Object.entries(sorted).map(([key,value])=>JSON.stringify(key)+':'+JSON.stringify(value)).join(',\n')+'}\n');
+ report[lang]={words:Object.values(words).filter(value=>typeof value==='string').length,pending:Object.values(words).filter(value=>value===null).length,of:strings.length};console.log(lang,JSON.stringify(report[lang]));}
 fs.writeFileSync('/workspace/qa/i18n/language-files-report.json',JSON.stringify(report,null,1));console.log('done');

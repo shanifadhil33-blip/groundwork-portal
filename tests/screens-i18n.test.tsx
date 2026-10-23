@@ -71,7 +71,7 @@ it('Settings and job cards have usable static words in every app language, witho
  const data=new Set(['Ridgeline','Imran','English (India)','Asia/Dubai (UTC+4)','Asia/Dubai','United Arab Emirates','Dubai','AED','WO']);
  // Scan branches that require errors, saved state, confirmations or other device capabilities.
  const languages=LANGUAGES.filter(l=>!isEnglish(l.code));
- const known=new Set(languages.flatMap(l=>Object.keys(JSON.parse(readFileSync(`public/i18n/${l.code}.json`,'utf8')))));
+ const known=new Set(languages.flatMap(l=>Object.entries(JSON.parse(readFileSync(`public/i18n/${l.code}.json`,'utf8'))).filter(([,value])=>typeof value==='string').map(([key])=>key)));
  for(const file of ['settings','price-change','job-checklists','quote-visit','visit-charge-settings','company-options','settings-invites','push-settings','help-feedback']){
   const ast=parse(readFileSync(`components/app/${file}.tsx`,'utf8'),{sourceType:'module',plugins:['jsx','typescript']});
   function scan(node:any,parent?:any){
