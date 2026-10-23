@@ -9,7 +9,8 @@ import { sessionCookie } from '../auth';
 import { DUNE_HARBOUR_NAME, DUNE_PERSONAS, populateDuneHarbour } from '../fixture-dune-harbour';
 import { overdueSql } from '../dates';
 import { companyHistory, type CompanyHistory } from './company-history';
-const RIDGELINE_PERSONAS=['imran','sam','ravi','pranav','omar','nabil','kevin','faisal'] as const;
+import { LANGUAGES } from '../languages';
+const RIDGELINE_PERSONAS=['imran','hassan','sam','ravi','pranav','omar','nabil','kevin','faisal'] as const;
 const RIDGELINE_NAME='Ridgeline Facility Services';
 type Company='ridgeline'|'dune_harbour';
 type Persona=string;
@@ -18,11 +19,11 @@ export const duneHarbourEnabled=()=>process.env.DEMO_DUNE_HARBOUR==='1';
 const companyName=(c:Company)=>c==='dune_harbour'?DUNE_HARBOUR_NAME:RIDGELINE_NAME;
 const companyOf=(name:string):Company=>name===DUNE_HARBOUR_NAME?'dune_harbour':'ridgeline';
 function parsePersona(body:unknown,company?:Company){
- const raw=z.object({persona:z.string().max(40),company:z.enum(['ridgeline','dune_harbour']).optional()}).strict().parse(body);
+ const raw=z.object({persona:z.string().max(40),company:z.enum(['ridgeline','dune_harbour']).optional(),language:z.string().refine(l=>LANGUAGES.some(v=>v.code===l)).optional()}).strict().parse(body);
  const c=company??raw.company??'ridgeline';
  if(c==='dune_harbour'&&!duneHarbourEnabled())throw missing();
  const persona=(c==='dune_harbour'?z.enum(DUNE_PERSONAS):z.enum(RIDGELINE_PERSONAS)).parse(raw.persona);
- return {persona,company:c};
+ return {persona,company:c,language:raw.language};
 }
 const lock=async(db:PoolClient)=>{await db.query('SELECT pg_advisory_xact_lock(78201350)');};
 async function cleanup(db:PoolClient,limit:number){
@@ -34,25 +35,30 @@ async function cleanup(db:PoolClient,limit:number){
  return {workspaces:rows.length,users,sessions};
 }
 export async function cleanupDemo(limit=1000){return withSystem(async db=>{await lock(db);return cleanup(db,limit);});}
-async function session(db:PoolClient,user:string,expires:Date){
+async function session(db:PoolClient,user:string,expires:Date,language?:string){
+ if(language)await db.query('INSERT INTO user_preferences(user_id,language) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET language=EXCLUDED.language',[user,language]);
  const token=randomBytes(32).toString('base64url');
  await db.query('INSERT INTO sessions("userId","sessionToken",expires) VALUES($1,$2,$3)',[user,token,expires]);
  const cookie=`${sessionCookie.name}=${token}; Path=/; HttpOnly; SameSite=Lax; Expires=${expires.toUTCString()}${sessionCookie.options.secure?'; Secure':''}`;
  return cookie;
 }
-async function create(db:PoolClient,persona:Persona,company:Company='ridgeline'){
+async function create(db:PoolClient,persona:Persona,company:Company='ridgeline',language?:string){
  if(company==='dune_harbour'){
   const ws=randomUUID();const made=await populateDuneHarbour(db,ws);
   const expires=(await db.query('SELECT demo_expires_at FROM workspaces WHERE id=$1',[ws])).rows[0].demo_expires_at as Date;
-  return {body:{workspace_id:ws,persona,company,expires_at:expires},cookie:await session(db,made.ids[persona],expires)};
+  return {body:{workspace_id:ws,persona,company,expires_at:expires},cookie:await session(db,made.ids[persona],expires,language)};
  }
  const ids=Object.fromEntries(Object.keys(fixtureIds).map(k=>[k,randomUUID()])) as typeof fixtureIds;
  const expires=(await db.query("INSERT INTO workspaces(id,name,is_demo,demo_expires_at) VALUES($1,'Ridgeline Facility Services',true,now()+interval '6 hours') RETURNING demo_expires_at",[ids.ridgeline])).rows[0].demo_expires_at as Date;
  const sites=Array.from({length:6},()=>randomUUID()),orders=Array.from({length:60},()=>randomUUID());
  await populateFixture(db,ids,n=>sites[n-1],n=>orders[n-1],true);
+ // DEMO11: a separate admin without ownership, created only in this visitor's sandbox.
+ const hassan=randomUUID();
+ await db.query("INSERT INTO users(id,name,email,is_demo,demo_workspace_id,demo_persona) VALUES($1,'Hassan',$2,true,$3,'hassan')",[hassan,`hassan.${ids.ridgeline}@demo.groundwork.invalid`,ids.ridgeline]);
+ await db.query("INSERT INTO members(workspace_id,user_id,role,is_owner) VALUES($1,$2,'admin',false)",[ids.ridgeline,hassan]);
  // Storage: seed noise in the audit log (bell and timeline rows) is about half of each sandbox. Keep the job, comment and team history.
  await db.query("DELETE FROM audit_log WHERE workspace_id=$1 AND entity IN ('notifications','work_order_events')",[ids.ridgeline]);
- return {body:{workspace_id:ids.ridgeline,persona,expires_at:expires},cookie:await session(db,ids[persona as keyof typeof ids],expires)};
+ return {body:{workspace_id:ids.ridgeline,persona,expires_at:expires},cookie:await session(db,persona==='hassan'?hassan:ids[persona as keyof typeof ids],expires,language)};
 }
 /** Signed pointer to the visitor's own sandbox, so signing in again (any person, many times) reuses it instead of building a new one. */
 const sandboxSig=(ws:string)=>createHmac('sha256',requiredEnv('AUTH_SECRET')).update('sandbox:'+ws).digest('base64url');
@@ -65,14 +71,14 @@ function sandboxFromToken(token?:string|null){
 // Generous: judges sign in and out many times. Only abusive volumes of NEW sandboxes are refused.
 export const DEMO_NEW_PER_IP_HOUR=40;
 export async function startDemo(body:unknown,ip:string,sandbox?:string|null){
- const {persona,company}=parsePersona(body);
+ const {persona,company,language}=parsePersona(body);
  const ipHash=createHmac('sha256',requiredEnv('AUTH_SECRET')).update('demo-ip:'+ip).digest('hex');
  const reuse=sandboxFromToken(sandbox);
  return withSystem(async db=>{
   await lock(db);await cleanup(db,10);
   if(reuse){
    const live=(await db.query('SELECT w.demo_expires_at,u.id FROM workspaces w JOIN users u ON u.demo_workspace_id=w.id AND u.is_demo AND u.demo_persona=$2 WHERE w.id=$1 AND w.is_demo AND w.demo_expires_at>now() AND w.name=$3',[reuse,persona,companyName(company)])).rows[0];
-   if(live)return {body:{workspace_id:reuse,persona,expires_at:live.demo_expires_at},cookie:await session(db,live.id,live.demo_expires_at)};
+   if(live)return {body:{workspace_id:reuse,persona,expires_at:live.demo_expires_at},cookie:await session(db,live.id,live.demo_expires_at,language)};
   }
   const count=(await db.query("SELECT count(*)::int AS n FROM demo_creation_attempts WHERE ip_hash=$1 AND created_at>now()-interval '1 hour'",[ipHash])).rows[0].n;
   if(count>=DEMO_NEW_PER_IP_HOUR)throw new ApiError(429,'demo_limit','The demo is busy. Please try again later.');
@@ -81,7 +87,7 @@ export async function startDemo(body:unknown,ip:string,sandbox?:string|null){
   const over=(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at>now() ORDER BY demo_expires_at OFFSET $1',[cap-1])).rows;
   if(over.length)await db.query('SELECT delete_demo_workspace(id) FROM workspaces WHERE id=ANY($1::uuid[])',[over.map(r=>r.id)]);
   await db.query('INSERT INTO demo_creation_attempts(ip_hash) VALUES($1)',[ipHash]);
-  return create(db,persona,company);
+  return create(db,persona,company,language);
  });
 }
 async function context(db:PoolClient,user:string){
@@ -90,17 +96,18 @@ async function context(db:PoolClient,user:string){
 }
 export async function assertRealUser(user:string){await withUser(user,db=>db.query('SELECT require_real_user()'));}
 export async function switchDemo(user:string,body:unknown){
- return withSystem(async db=>{await lock(db);const m=await context(db,user);const {persona}=parsePersona(body,companyOf(m.workspace_name));
+ return withSystem(async db=>{await lock(db);const m=await context(db,user);const {persona,language}=parsePersona(body,companyOf(m.workspace_name));
  const target=(await db.query('SELECT id FROM users WHERE demo_workspace_id=$1 AND is_demo AND demo_persona=$2',[m.workspace_id,persona])).rows[0];if(!target)throw missing();
  await db.query('DELETE FROM sessions WHERE "userId" IN (SELECT id FROM users WHERE demo_workspace_id=$1)',[m.workspace_id]);
- return {body:{workspace_id:m.workspace_id,persona,expires_at:m.demo_expires_at},cookie:await session(db,target.id,m.demo_expires_at)};
+ return {body:{workspace_id:m.workspace_id,persona,expires_at:m.demo_expires_at},cookie:await session(db,target.id,m.demo_expires_at,language)};
  });
 }
 export async function resetDemo(user:string,body:unknown){
  z.object({confirm:z.literal(true)}).strict().parse(body);
  return withSystem(async db=>{await lock(db);const m=await context(db,user);const persona=m.demo_persona as Persona;const company=companyOf(m.workspace_name);
  if(company==='dune_harbour'&&!duneHarbourEnabled())throw missing();
- await db.query('SELECT delete_demo_workspace($1)',[m.workspace_id]);return create(db,persona,company);});
+ const language=(await db.query('SELECT language FROM user_preferences WHERE user_id=$1',[user])).rows[0]?.language;
+ await db.query('SELECT delete_demo_workspace($1)',[m.workspace_id]);return create(db,persona,company,language);});
 }
 export async function isolationCheck(user:string){
  // Owner lookup only establishes sandbox identity; both evidence queries run as app role.

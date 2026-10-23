@@ -3,12 +3,16 @@
 import { afterAll,beforeEach,expect,it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { closePools,ownerPool,withSystem } from '../lib/db';
-import { setAuthResolverForTests } from '../lib/auth';
+import { getSessionUserId,setAuthResolverForTests } from '../lib/auth';
+import { sandboxToken } from '../lib/services/demo';
+import { homeForPersona } from '../lib/ui/helpers';
 import { seed } from '../scripts/seed';
 import { ids } from '../lib/fixture';
 import { overdueSql } from '../lib/dates';
 import { personas } from '../components/public/demo-picker';
 import * as start from '../app/api/demo/start/route';
+import * as switchRoute from '../app/api/demo/switch/route';
+import * as reset from '../app/api/demo/reset/route';
 import * as late from '../app/api/demo/late/route';
 import * as learning from '../app/api/demo/learning/route';
 import { companyHistory } from '../lib/services/company-history';
@@ -17,7 +21,37 @@ afterAll(async()=>{await closePools();});
 const q=async(sql:string,args:unknown[])=>withSystem(async db=>(await db.query(sql,args)).rows);
 async function post(handler:(req:Request)=>Promise<Response>,body?:unknown,cookie?:string){const r=await handler(new Request('http://localhost/api',{method:'POST',headers:cookie?{cookie}:{},body:body===undefined?undefined:JSON.stringify(body)}));return {status:r.status,body:await r.json(),cookie:r.headers.get('set-cookie')??''};}
 it('the demo page has a judge login for every user type',()=>{
- expect(new Set(personas.map(p=>p.role))).toEqual(new Set(['Admin','Supervisor','Technician','Office staff','Facility manager','Facility staff','Household']));
+ expect(new Set(personas.map(p=>p.role))).toEqual(new Set(['Owner','Admin','Supervisor','Technician','Office staff','Facility manager','Facility staff','Household']));
+});
+const judgeHomes={imran:'/dashboard',hassan:'/dashboard',sam:'/dashboard',ravi:'/today',nabil:'/dashboard',pranav:'/home',omar:'/home',kevin:'/home',faisal:'/home'};
+const judgeRoles={Owner:{role:'admin',is_owner:true},Admin:{role:'admin',is_owner:false},Supervisor:{role:'staff',staff_kind:null},Technician:{role:'technician'},'Office staff':{role:'staff',staff_kind:'office'},'Facility manager':{role:'client',client_kind:'manager'},'Facility staff':{role:'client',client_kind:'office'},Household:{role:'client',client_kind:'household'}};
+for(const language of ['en-IN','ar-AE'])it(`every public login opens the right sandbox person and home in ${language}`,async()=>{
+ let ws:string|undefined;
+ for(const persona of personas){
+  const r=await post(start.POST,{persona:persona.key,language},ws?`groundwork-sandbox=${sandboxToken(ws)}`:undefined);expect(r.status,persona.key).toBe(201);
+  if(ws)expect(r.body.workspace_id).toBe(ws);else ws=r.body.workspace_id;
+  const user=await getSessionUserId(new Request('http://localhost',{headers:{cookie:r.cookie}}));expect(user).toBeTruthy();
+  const row=(await q('SELECT u.name,u.is_demo,u.demo_workspace_id,u.demo_persona,m.role,m.is_owner,m.staff_kind,m.client_kind,p.language FROM users u JOIN members m ON m.user_id=u.id JOIN user_preferences p ON p.user_id=u.id WHERE u.id=$1',[user]))[0];
+  // Manager is the default client kind in the fixture (stored as NULL).
+  expect({...row,client_kind:row.client_kind??'manager'}).toMatchObject({...judgeRoles[persona.role],name:persona.name,is_demo:true,demo_workspace_id:ws,demo_persona:persona.key,language});
+  expect(homeForPersona(persona.key)).toBe(judgeHomes[persona.key]);
+ }
+ expect((await q('SELECT is_demo FROM workspaces WHERE id=$1',[ws]))[0].is_demo).toBe(true);
+ // The new person is never added to a real workspace or given an external account.
+ expect(await q("SELECT id FROM users WHERE demo_persona='hassan' AND NOT is_demo",[])).toEqual([]);
+ expect(await q('SELECT a.id FROM accounts a JOIN users u ON u.id=a."userId" WHERE u.demo_workspace_id=$1',[ws])).toEqual([]);
+});
+it('switches to the separate admin and resets him with the viewer language, rotating the old session',async()=>{
+ const first=await post(start.POST,{persona:'imran',language:'en-IN'});
+ const switched=await post(switchRoute.POST,{persona:'hassan',language:'ar-AE'},first.cookie);expect(switched.status).toBe(200);expect(switched.body.workspace_id).toBe(first.body.workspace_id);
+ expect(await getSessionUserId(new Request('http://localhost',{headers:{cookie:first.cookie}}))).toBeNull();
+ const fresh=await post(reset.POST,{confirm:true},switched.cookie);expect(fresh.status).toBe(200);expect(fresh.body.persona).toBe('hassan');expect(fresh.body.workspace_id).not.toBe(first.body.workspace_id);
+ const user=await getSessionUserId(new Request('http://localhost',{headers:{cookie:fresh.cookie}}));
+ expect((await q('SELECT m.is_owner,p.language FROM members m JOIN user_preferences p ON p.user_id=m.user_id WHERE m.user_id=$1',[user]))[0]).toEqual({is_owner:false,language:'ar-AE'});
+});
+it('rejects unsupported viewer languages before creating a sandbox',async()=>{
+ expect((await post(start.POST,{persona:'hassan',language:'invalid'})).status).toBe(422);
+ expect(await q('SELECT id FROM workspaces WHERE is_demo',[])).toEqual([]);
 });
 it('an office person in a demo sandbox makes one job late, and only that due date moves',async()=>{
  const s=await post(start.POST,{persona:'imran'});expect(s.status).toBe(201);

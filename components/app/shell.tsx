@@ -15,6 +15,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type ReactNode, type ComponentProps } from 'react';
 import { FileText, Building2, Users, CalendarCheck, CalendarDays, ClipboardList, ClipboardCheck, Bell, House, LayoutDashboard, ChartPie, Menu, PanelLeftClose, PanelLeftOpen, Settings, Upload, ListChecks, History, Truck, MessageSquare, Mic } from 'lucide-react';
 import { request, post, RequestError } from '../../lib/ui/api';
+import { demoLanguage } from '../../lib/ui/demo-language';
 import { homeForPersona } from '../../lib/ui/helpers';
 import { Badge, BottomSheet, Button, ConfirmDialog, Dropdown, ErrorState, IconButton, PageSkeleton, useToast } from '../ui';
 import { useTheme } from '../ui/theme';
@@ -101,7 +102,7 @@ export function AppShell({ children, initial, serverLanguage, languageSetup }: {
   function openConfirm(action: typeof confirm) { guardedAction(() => { if(action==='switch')setPersona(personas.find(p=>p.key!==(me?.user.email??'').split('.')[0])?.key??'imran');setActionError(null); setConfirm(action); }); }
   async function execute() {
     if (busy) return; setBusy(true); setActionError(null);
-    try { if (confirm === 'signout') { await post('/api/auth/sign-out'); sessionStorage.clear(); rememberSession('out'); window.location.replace('/sign-in?signed_out=1'); } else if (confirm === 'reset') { await post('/api/demo/reset', { confirm: true });sessionStorage.setItem('groundwork-demo-restored','1'); window.location.replace(home); } else { await post('/api/demo/switch', { persona }); window.location.replace(homeForPersona(persona)); } }
+    try { if (confirm === 'signout') { await post('/api/auth/sign-out'); sessionStorage.clear(); rememberSession('out'); window.location.replace('/sign-in?signed_out=1'); } else if (confirm === 'reset') { await post('/api/demo/reset', { confirm: true });sessionStorage.setItem('groundwork-demo-restored','1'); window.location.replace(home); } else { await post('/api/demo/switch', { persona, language: demoLanguage(document.documentElement.lang) }); window.location.replace(homeForPersona(persona)); } }
     catch { setActionError(confirm === 'signout' ? 'We couldn’t sign you out. Please try again.' : 'We couldn’t update your demo. Please try again.'); setBusy(false); }
   }
   useEffect(() => { if (!path.startsWith('/settings')) sessionStorage.setItem(LAST_PAGE_KEY, path); }, [path]);
