@@ -1337,5 +1337,12 @@
  "Good morning, {name}": "शुभ बिहान, {name}",
  "Good afternoon, {name}": "शुभ अपराह्न, {name}",
  "Good evening, {name}": "शुभ साँझ, {name}",
- "{first}, {second}": "{first}, {second}"
+ "{first}, {second}": "{first}, {second}",
+"Visit charge:":"भ्रमण शुल्क:",
+"Share this link with them. It expires in 7 days.":"यो लिङ्क उनलाई पठाउनुहोस्। 7 दिनपछि यसको म्याद सकिन्छ।",
+"Connect your AI agent":"आफ्नो एआई एजेन्ट जडान गर्नुहोस्",
+"You can see your own count.":"तपाईं आफ्नो गन्ती मात्र हेर्न सक्नुहुन्छ।",
+"I could not find that person on your team.":"तपाईंको टोलीमा त्यो व्यक्ति भेटिएन।",
+"Which person do you mean? {names}.":"तपाईं कसको कुरा गर्दै हुनुहुन्छ? {names}।",
+"What was the problem?":"समस्या के थियो?"
 }

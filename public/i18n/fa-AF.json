@@ -1313,5 +1313,20 @@
  "Good morning, {name}": "صبح بخیر، {name}",
  "Good afternoon, {name}": "بعد از ظهر بخیر، {name}",
  "Good evening, {name}": "شام بخیر، {name}",
- "{first}, {second}": "{first}، {second}"
+ "{first}, {second}": "{first}، {second}",
+"Address:":"آدرس:",
+"Assigned to:":"سپرده شده به:",
+"Country:":"کشور:",
+"Due:":"موعد:",
+"Email:":"ایمیل:",
+"Name:":"نام:",
+"Notes:":"یادداشت‌ها:",
+"Payment:":"پرداخت:",
+"Phone:":"تلفون:",
+"Region:":"منطقه:",
+"Status:":"وضعیت:",
+"Trade:":"مسلک:",
+"Visit charge:":"هزینه بازدید:",
+"Share this link with them. It expires in 7 days.":"این پیوند را با او شریک سازید. پس از 7 روز اعتبار ندارد.",
+"Connect your AI agent":"AI Agent خود را وصل کنید"
 }

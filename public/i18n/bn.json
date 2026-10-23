@@ -1357,5 +1357,11 @@
  "Good morning, {name}": "শুভ সকাল, {name}",
  "Good afternoon, {name}": "শুভ দুপুর, {name}",
  "Good evening, {name}": "শুভ সন্ধ্যা, {name}",
- "{first}, {second}": "{first}, {second}"
+ "{first}, {second}": "{first}, {second}",
+"Visit charge:":"পরিদর্শন ফি:",
+"Share this link with them. It expires in 7 days.":"তাঁকে এই লিংক পাঠান। 7 দিন পর এর মেয়াদ শেষ হবে।",
+"Connect your AI agent":"আপনার AI Agent কানেক্ট করুন",
+"You can see your own count.":"আপনি শুধু নিজের সংখ্যা দেখতে পারেন।",
+"I could not find that person on your team.":"আপনার দলে এই ব্যক্তিকে পাইনি।",
+"Which person do you mean? {names}.":"আপনি কার কথা বলছেন? {names}।"
 }

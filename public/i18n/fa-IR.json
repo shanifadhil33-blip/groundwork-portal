@@ -1344,5 +1344,8 @@
  "Good morning, {name}": "صبح بخیر، {name}",
  "Good afternoon, {name}": "بعد از ظهر بخیر، {name}",
  "Good evening, {name}": "شب بخیر، {name}",
- "{first}, {second}": "{first}، {second}"
+ "{first}, {second}": "{first}، {second}",
+"Visit charge:":"هزینه بازدید:",
+"Share this link with them. It expires in 7 days.":"این پیوند را برای او بفرستید. پس از 7 روز اعتبار ندارد.",
+"Connect your AI agent":"اتصال AI agent خود"
 }

@@ -1352,5 +1352,11 @@
  "Good morning, {name}": "காலை வணக்கம், {name}",
  "Good afternoon, {name}": "மதியம் வணக்கம், {name}",
  "Good evening, {name}": "மாலை வணக்கம், {name}",
- "{first}, {second}": "{first}, {second}"
+ "{first}, {second}": "{first}, {second}",
+"Visit charge:":"வருகைக் கட்டணம்:",
+"Share this link with them. It expires in 7 days.":"இந்த இணைப்பை அவருக்கு அனுப்பவும். இது 7 நாட்களில் காலாவதியாகும்.",
+"Connect your AI agent":"உங்கள் AI Agent இணைக்கவும்",
+"You can see your own count.":"உங்கள் சொந்த எண்ணிக்கையை மட்டும் பார்க்கலாம்.",
+"I could not find that person on your team.":"அந்த நபர் உங்கள் குழுவில் இல்லை.",
+"Which person do you mean? {names}.":"யாரைச் சொல்கிறீர்கள்? {names}."
 }

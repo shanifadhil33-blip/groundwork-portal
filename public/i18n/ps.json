@@ -1338,5 +1338,11 @@
  "Good morning, {name}": "سهار مو پخير، {name}",
  "Good afternoon, {name}": "ماسپښین مو پخير، {name}",
  "Good evening, {name}": "ماښام مو پخير، {name}",
- "{first}, {second}": "{first}، {second}"
+ "{first}, {second}": "{first}، {second}",
+"Visit charge:":"د لیدنې فیس:",
+"Share this link with them. It expires in 7 days.":"دا لینک ورسره شریک کړئ. له 7 ورځو وروسته پای ته رسېږي.",
+"Connect your AI agent":"خپل مصنوعي ځيرکتیا Agent وصل کړئ",
+"You can see your own count.":"تاسو یوازې خپل شمېر لیدلی شئ.",
+"I could not find that person on your team.":"دا کس مې ستاسو په ټیم کې ونه موند.",
+"Which person do you mean? {names}.":"د چا خبره کوئ؟ {names}."
 }

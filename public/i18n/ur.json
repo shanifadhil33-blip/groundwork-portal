@@ -1341,5 +1341,12 @@
  "Good morning, {name}": "صبح بخیر، {name}",
  "Good afternoon, {name}": "دوپہر بخیر، {name}",
  "Good evening, {name}": "شام بخیر، {name}",
- "{first}, {second}": "{first}، {second}"
+ "{first}, {second}": "{first}، {second}",
+"Visit charge:":"آنے کی فیس:",
+"Share this link with them. It expires in 7 days.":"یہ لنک انہیں بھیجیں۔ یہ 7 دن بعد ختم ہو جائے گا۔",
+"Connect your AI agent":"اپنا AI Agent منسلک کریں",
+"You can see your own count.":"آپ صرف اپنی گنتی دیکھ سکتے ہیں۔",
+"I could not find that person on your team.":"مجھے آپ کی ٹیم میں یہ شخص نہیں ملا۔",
+"Which person do you mean? {names}.":"آپ کس کی بات کر رہے ہیں؟ {names}۔",
+"What was the problem?":"مسئلہ کیا تھا؟"
 }

@@ -1624,5 +1624,11 @@
  "Good morning, {name}": "صباح الخير، {name}",
  "Good afternoon, {name}": "مساء الخير، {name}",
  "Good evening, {name}": "مساء الخير، {name}",
- "{first}, {second}": "{first}، {second}"
+ "{first}, {second}": "{first}، {second}",
+"After photos:":"صور بعد:",
+"Visit charge:":"رسوم الزيارة:",
+"Share this link with them. It expires in 7 days.":"طرش لهم هالرابط. صلاحيته 7 أيام.",
+"Connect your AI agent":"صل مساعد الذكاء الاصطناعي",
+"Contract times":"أوقات العقد",
+"What was the problem?":"ما هي المشكلة؟"
 }

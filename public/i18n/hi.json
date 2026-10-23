@@ -1357,5 +1357,10 @@
  "Good morning, {name}": "सुप्रभात, {name}",
  "Good afternoon, {name}": "शुभ दोपहर, {name}",
  "Good evening, {name}": "शुभ संध्या, {name}",
- "{first}, {second}": "{first}, {second}"
+ "{first}, {second}": "{first}, {second}",
+"Visit charge:":"आने का शुल्क:",
+"Share this link with them. It expires in 7 days.":"उन्हें यह लिंक भेजें। यह 7 दिन बाद बंद हो जाएगा।",
+"Connect your AI agent":"अपना AI Agent कनेक्ट करें",
+"Contract times":"अनुबंध का समय",
+"What was the problem?":"समस्या क्या थी?"
 }

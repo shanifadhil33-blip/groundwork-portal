@@ -1315,5 +1315,13 @@
  "Good morning, {name}": "Magandang umaga, {name}",
  "Good afternoon, {name}": "Magandang hapon, {name}",
  "Good evening, {name}": "Magandang gabi, {name}",
- "{first}, {second}": "{first}, {second}"
+ "{first}, {second}": "{first}, {second}",
+"Address:":"Tirahan:",
+"Email:":"Sulat elektroniko:",
+"Visit charge:":"Bayad sa pagbisita:",
+"Share this link with them. It expires in 7 days.":"Ibahagi ang link na ito sa kanya. Mawawalan ito ng bisa sa loob ng 7 araw.",
+"Connect your AI agent":"Ikonekta ang iyong AI Agent",
+"You can see your own count.":"Sarili mong bilang lang ang makikita mo.",
+"I could not find that person on your team.":"Hindi ko nakita ang taong iyon sa team mo.",
+"Which person do you mean? {names}.":"Sino ang ibig mong sabihin? {names}."
 }

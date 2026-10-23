@@ -1,0 +1,1616 @@
+[
+  {
+    "code": "ar-AE",
+    "source": "After photos:",
+    "value": "صور بعد:",
+    "origin": "public/i18n/ar-AE.json:After photos (saved label plus colon)"
+  },
+  {
+    "code": "ar-AE",
+    "source": "Visit charge:",
+    "value": "رسوم الزيارة:",
+    "origin": "public/i18n/ar-AE.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "ne",
+    "source": "Visit charge:",
+    "value": "भ्रमण शुल्क:",
+    "origin": "public/i18n/ne.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "hi",
+    "source": "Visit charge:",
+    "value": "आने का शुल्क:",
+    "origin": "public/i18n/hi.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "ur",
+    "source": "Visit charge:",
+    "value": "آنے کی فیس:",
+    "origin": "public/i18n/ur.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "bn",
+    "source": "Visit charge:",
+    "value": "পরিদর্শন ফি:",
+    "origin": "public/i18n/bn.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Address:",
+    "value": "വിലാസം:",
+    "origin": "public/i18n/ml.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Assigned to:",
+    "value": "ഏൽപ്പിച്ചത്:",
+    "origin": "public/i18n/ml.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Country:",
+    "value": "രാജ്യം:",
+    "origin": "public/i18n/ml.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Due:",
+    "value": "അവസാന തീയതി:",
+    "origin": "public/i18n/ml.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Email:",
+    "value": "ഇമെയിൽ:",
+    "origin": "public/i18n/ml.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Name:",
+    "value": "പേര്:",
+    "origin": "public/i18n/ml.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Notes:",
+    "value": "കുറിപ്പുകൾ:",
+    "origin": "public/i18n/ml.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Payment:",
+    "value": "പേയ്മെന്റ്:",
+    "origin": "public/i18n/ml.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Phone:",
+    "value": "ഫോൺ:",
+    "origin": "public/i18n/ml.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Region:",
+    "value": "പ്രദേശം:",
+    "origin": "public/i18n/ml.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Status:",
+    "value": "അവസ്ഥ:",
+    "origin": "public/i18n/ml.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Trade:",
+    "value": "വ്യാപാരം:",
+    "origin": "public/i18n/ml.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "ml",
+    "source": "Visit charge:",
+    "value": "സന്ദർശന നിരക്ക്:",
+    "origin": "public/i18n/ml.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "ta",
+    "source": "Visit charge:",
+    "value": "வருகைக் கட்டணம்:",
+    "origin": "public/i18n/ta.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "ps",
+    "source": "Visit charge:",
+    "value": "د لیدنې فیس:",
+    "origin": "public/i18n/ps.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Address:",
+    "value": "آدرس:",
+    "origin": "public/i18n/fa-AF.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Assigned to:",
+    "value": "سپرده شده به:",
+    "origin": "public/i18n/fa-AF.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Country:",
+    "value": "کشور:",
+    "origin": "public/i18n/fa-AF.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Due:",
+    "value": "موعد:",
+    "origin": "public/i18n/fa-AF.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Email:",
+    "value": "ایمیل:",
+    "origin": "public/i18n/fa-AF.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Name:",
+    "value": "نام:",
+    "origin": "public/i18n/fa-AF.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Notes:",
+    "value": "یادداشت‌ها:",
+    "origin": "public/i18n/fa-AF.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Payment:",
+    "value": "پرداخت:",
+    "origin": "public/i18n/fa-AF.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Phone:",
+    "value": "تلفون:",
+    "origin": "public/i18n/fa-AF.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Region:",
+    "value": "منطقه:",
+    "origin": "public/i18n/fa-AF.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Status:",
+    "value": "وضعیت:",
+    "origin": "public/i18n/fa-AF.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Trade:",
+    "value": "مسلک:",
+    "origin": "public/i18n/fa-AF.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Visit charge:",
+    "value": "هزینه بازدید:",
+    "origin": "public/i18n/fa-AF.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "fa-IR",
+    "source": "Visit charge:",
+    "value": "هزینه بازدید:",
+    "origin": "public/i18n/fa-IR.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "fil",
+    "source": "Address:",
+    "value": "Tirahan:",
+    "origin": "public/i18n/fil.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "fil",
+    "source": "Email:",
+    "value": "Sulat elektroniko:",
+    "origin": "public/i18n/fil.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "fil",
+    "source": "Visit charge:",
+    "value": "Bayad sa pagbisita:",
+    "origin": "public/i18n/fil.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Address:",
+    "value": "地址：",
+    "origin": "public/i18n/zh-CN.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Agent:",
+    "value": "助手：",
+    "origin": "public/i18n/zh-CN.json:Agent (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Assigned to:",
+    "value": "负责人：",
+    "origin": "public/i18n/zh-CN.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Country:",
+    "value": "国家/地区：",
+    "origin": "public/i18n/zh-CN.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Due:",
+    "value": "截止时间：",
+    "origin": "public/i18n/zh-CN.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Email:",
+    "value": "电子邮件：",
+    "origin": "public/i18n/zh-CN.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Name:",
+    "value": "姓名：",
+    "origin": "public/i18n/zh-CN.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Notes:",
+    "value": "备注：",
+    "origin": "public/i18n/zh-CN.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Payment:",
+    "value": "付款：",
+    "origin": "public/i18n/zh-CN.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Phone:",
+    "value": "电话：",
+    "origin": "public/i18n/zh-CN.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Region:",
+    "value": "地区：",
+    "origin": "public/i18n/zh-CN.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Status:",
+    "value": "状态：",
+    "origin": "public/i18n/zh-CN.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Trade:",
+    "value": "工种：",
+    "origin": "public/i18n/zh-CN.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Visit charge:",
+    "value": "上门费用：",
+    "origin": "public/i18n/zh-CN.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Address:",
+    "value": "Anwani:",
+    "origin": "public/i18n/sw-KE.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Assigned to:",
+    "value": "Amepewa:",
+    "origin": "public/i18n/sw-KE.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Country:",
+    "value": "Nchi:",
+    "origin": "public/i18n/sw-KE.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Due:",
+    "value": "Tarehe ya mwisho:",
+    "origin": "public/i18n/sw-KE.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Email:",
+    "value": "Barua pepe:",
+    "origin": "public/i18n/sw-KE.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Name:",
+    "value": "Jina:",
+    "origin": "public/i18n/sw-KE.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Notes:",
+    "value": "Maelezo:",
+    "origin": "public/i18n/sw-KE.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Payment:",
+    "value": "Malipo:",
+    "origin": "public/i18n/sw-KE.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Phone:",
+    "value": "Simu:",
+    "origin": "public/i18n/sw-KE.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Region:",
+    "value": "Eneo:",
+    "origin": "public/i18n/sw-KE.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Status:",
+    "value": "Hali:",
+    "origin": "public/i18n/sw-KE.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Trade:",
+    "value": "Sekta:",
+    "origin": "public/i18n/sw-KE.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Visit charge:",
+    "value": "Ada ya ziara:",
+    "origin": "public/i18n/sw-KE.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Address:",
+    "value": "አድራሻ:",
+    "origin": "public/i18n/am.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Assigned to:",
+    "value": "የተመደበለት:",
+    "origin": "public/i18n/am.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Country:",
+    "value": "ሀገር:",
+    "origin": "public/i18n/am.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Due:",
+    "value": "የሚጠናቀቅበት:",
+    "origin": "public/i18n/am.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Email:",
+    "value": "ኢሜይል:",
+    "origin": "public/i18n/am.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Name:",
+    "value": "ስም:",
+    "origin": "public/i18n/am.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Notes:",
+    "value": "ማስታወሻዎች:",
+    "origin": "public/i18n/am.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Payment:",
+    "value": "ክፍያ:",
+    "origin": "public/i18n/am.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Phone:",
+    "value": "ስልክ:",
+    "origin": "public/i18n/am.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Region:",
+    "value": "ክልል:",
+    "origin": "public/i18n/am.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Status:",
+    "value": "ሁኔታ:",
+    "origin": "public/i18n/am.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Trade:",
+    "value": "የንግድ ስራ:",
+    "origin": "public/i18n/am.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Visit charge:",
+    "value": "የጉብኝት ክፍያ:",
+    "origin": "public/i18n/am.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Address:",
+    "value": "ኣድራሻ:",
+    "origin": "public/i18n/ti.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Assigned to:",
+    "value": "ዝተመደበሉ:",
+    "origin": "public/i18n/ti.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Country:",
+    "value": "ሃገር:",
+    "origin": "public/i18n/ti.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Due:",
+    "value": "ይጽበ:",
+    "origin": "public/i18n/ti.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Email:",
+    "value": "ኢመይል:",
+    "origin": "public/i18n/ti.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Name:",
+    "value": "ስም:",
+    "origin": "public/i18n/ti.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Notes:",
+    "value": "ማስታወሻታት:",
+    "origin": "public/i18n/ti.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Payment:",
+    "value": "ክፍሊት:",
+    "origin": "public/i18n/ti.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Phone:",
+    "value": "ስልኪ:",
+    "origin": "public/i18n/ti.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Region:",
+    "value": "ከባቢ:",
+    "origin": "public/i18n/ti.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Status:",
+    "value": "ኩነታት:",
+    "origin": "public/i18n/ti.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Trade:",
+    "value": "ሞያ:",
+    "origin": "public/i18n/ti.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "ti",
+    "source": "Visit charge:",
+    "value": "ክፍሊት ምብጻሕ:",
+    "origin": "public/i18n/ti.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Address:",
+    "value": "Cinwaan:",
+    "origin": "public/i18n/so.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Assigned to:",
+    "value": "Loo xilsaaray:",
+    "origin": "public/i18n/so.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Country:",
+    "value": "Waddanka:",
+    "origin": "public/i18n/so.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Due:",
+    "value": "Waqtiga:",
+    "origin": "public/i18n/so.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Email:",
+    "value": "Iimayl:",
+    "origin": "public/i18n/so.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Name:",
+    "value": "Magaca:",
+    "origin": "public/i18n/so.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Notes:",
+    "value": "Qoraallo:",
+    "origin": "public/i18n/so.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Payment:",
+    "value": "Lacag bixin:",
+    "origin": "public/i18n/so.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Phone:",
+    "value": "Telefoon:",
+    "origin": "public/i18n/so.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Region:",
+    "value": "Gobol:",
+    "origin": "public/i18n/so.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Status:",
+    "value": "Heerka:",
+    "origin": "public/i18n/so.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Trade:",
+    "value": "Xirfad:",
+    "origin": "public/i18n/so.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "so",
+    "source": "Visit charge:",
+    "value": "Kharashka booqashada:",
+    "origin": "public/i18n/so.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Address:",
+    "value": "Àdírẹ́sì:",
+    "origin": "public/i18n/yo.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Assigned to:",
+    "value": "Ẹni tó ń ṣe é:",
+    "origin": "public/i18n/yo.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Country:",
+    "value": "Orile-ede:",
+    "origin": "public/i18n/yo.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Due:",
+    "value": "O yẹ:",
+    "origin": "public/i18n/yo.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Email:",
+    "value": "Imeeli:",
+    "origin": "public/i18n/yo.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Name:",
+    "value": "Orúkọ:",
+    "origin": "public/i18n/yo.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Notes:",
+    "value": "Awọn akọsilẹ:",
+    "origin": "public/i18n/yo.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Payment:",
+    "value": "Isanwo:",
+    "origin": "public/i18n/yo.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Phone:",
+    "value": "Fóònù:",
+    "origin": "public/i18n/yo.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Region:",
+    "value": "Àgbègbè:",
+    "origin": "public/i18n/yo.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Status:",
+    "value": "Ipò:",
+    "origin": "public/i18n/yo.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Trade:",
+    "value": "Ona ise:",
+    "origin": "public/i18n/yo.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "yo",
+    "source": "Visit charge:",
+    "value": "Owó ìbẹ̀wò:",
+    "origin": "public/i18n/yo.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Address:",
+    "value": "Adireshi:",
+    "origin": "public/i18n/ha.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Assigned to:",
+    "value": "An ba wa:",
+    "origin": "public/i18n/ha.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Country:",
+    "value": "Ƙasa:",
+    "origin": "public/i18n/ha.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Due:",
+    "value": "Na lokaci:",
+    "origin": "public/i18n/ha.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Email:",
+    "value": "Imel:",
+    "origin": "public/i18n/ha.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Name:",
+    "value": "Suna:",
+    "origin": "public/i18n/ha.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Notes:",
+    "value": "Bayani:",
+    "origin": "public/i18n/ha.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Payment:",
+    "value": "Biya:",
+    "origin": "public/i18n/ha.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Phone:",
+    "value": "Waya:",
+    "origin": "public/i18n/ha.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Region:",
+    "value": "Yanki:",
+    "origin": "public/i18n/ha.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Status:",
+    "value": "Matsayi:",
+    "origin": "public/i18n/ha.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Trade:",
+    "value": "Sana'a:",
+    "origin": "public/i18n/ha.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "ha",
+    "source": "Visit charge:",
+    "value": "Kuɗin ziyara:",
+    "origin": "public/i18n/ha.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Address:",
+    "value": "Adreesị:",
+    "origin": "public/i18n/ig.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Assigned to:",
+    "value": "Onye e nyere:",
+    "origin": "public/i18n/ig.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Country:",
+    "value": "Mba:",
+    "origin": "public/i18n/ig.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Due:",
+    "value": "Ebe E Si Nweta:",
+    "origin": "public/i18n/ig.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Email:",
+    "value": "Ozi ịntanetị:",
+    "origin": "public/i18n/ig.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Name:",
+    "value": "Aha:",
+    "origin": "public/i18n/ig.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Notes:",
+    "value": "Ndetu:",
+    "origin": "public/i18n/ig.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Payment:",
+    "value": "Ịkwụ ụgwọ:",
+    "origin": "public/i18n/ig.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Phone:",
+    "value": "Ekwentị:",
+    "origin": "public/i18n/ig.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Region:",
+    "value": "Mpaghara:",
+    "origin": "public/i18n/ig.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Status:",
+    "value": "Ọnọdụ:",
+    "origin": "public/i18n/ig.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Trade:",
+    "value": "Ọrụaka:",
+    "origin": "public/i18n/ig.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "ig",
+    "source": "Visit charge:",
+    "value": "Ụgwọ nleta:",
+    "origin": "public/i18n/ig.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Address:",
+    "value": "Endagiriro:",
+    "origin": "public/i18n/lg.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Assigned to:",
+    "value": "Aweereddwa:",
+    "origin": "public/i18n/lg.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Country:",
+    "value": "Ensi:",
+    "origin": "public/i18n/lg.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Due:",
+    "value": "Ebiweddeko obudde:",
+    "origin": "public/i18n/lg.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Email:",
+    "value": "Emeyilo:",
+    "origin": "public/i18n/lg.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Name:",
+    "value": "Erinnya:",
+    "origin": "public/i18n/lg.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Notes:",
+    "value": "Obubaka:",
+    "origin": "public/i18n/lg.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Payment:",
+    "value": "Okusasula:",
+    "origin": "public/i18n/lg.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Phone:",
+    "value": "Essimu:",
+    "origin": "public/i18n/lg.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Region:",
+    "value": "Ekitundu:",
+    "origin": "public/i18n/lg.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Status:",
+    "value": "Embeera:",
+    "origin": "public/i18n/lg.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Trade:",
+    "value": "Omulimu:",
+    "origin": "public/i18n/lg.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "lg",
+    "source": "Visit charge:",
+    "value": "Ssente z’okukyalira:",
+    "origin": "public/i18n/lg.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Address:",
+    "value": "Adrɛs:",
+    "origin": "public/i18n/tw.json:Address (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Assigned to:",
+    "value": "Wɔde ama:",
+    "origin": "public/i18n/tw.json:Assigned to (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Country:",
+    "value": "Ɔman:",
+    "origin": "public/i18n/tw.json:Country (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Due:",
+    "value": "Bere:",
+    "origin": "public/i18n/tw.json:Due (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Email:",
+    "value": "Ɛmɛɛl:",
+    "origin": "public/i18n/tw.json:Email (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Name:",
+    "value": "Din:",
+    "origin": "public/i18n/tw.json:Name (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Notes:",
+    "value": "Nkyerɛwee:",
+    "origin": "public/i18n/tw.json:Notes (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Payment:",
+    "value": "Ka:",
+    "origin": "public/i18n/tw.json:Payment (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Phone:",
+    "value": "Telefon:",
+    "origin": "public/i18n/tw.json:Phone (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Region:",
+    "value": "Mpɔtam:",
+    "origin": "public/i18n/tw.json:Region (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Status:",
+    "value": "Tebea:",
+    "origin": "public/i18n/tw.json:Status (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Trade:",
+    "value": "Adwuma:",
+    "origin": "public/i18n/tw.json:Trade (saved label plus colon)"
+  },
+  {
+    "code": "tw",
+    "source": "Visit charge:",
+    "value": "Nsrahwɛ ho ka:",
+    "origin": "public/i18n/tw.json:Visit charge (saved label plus colon)"
+  },
+  {
+    "code": "am",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "ይህን አገናኝ ለእሱ ላክ። ከ7 ቀን በኋላ ያበቃል።",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/am.json"
+  },
+  {
+    "code": "ar-AE",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "طرش لهم هالرابط. صلاحيته 7 أيام.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/ar-AE.json"
+  },
+  {
+    "code": "bn",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "তাঁকে এই লিংক পাঠান। 7 দিন পর এর মেয়াদ শেষ হবে।",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/bn.json"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "این پیوند را با او شریک سازید. پس از 7 روز اعتبار ندارد.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/fa-AF.json"
+  },
+  {
+    "code": "fa-IR",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "این پیوند را برای او بفرستید. پس از 7 روز اعتبار ندارد.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/fa-IR.json"
+  },
+  {
+    "code": "fil",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "Ibahagi ang link na ito sa kanya. Mawawalan ito ng bisa sa loob ng 7 araw.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/fil.json"
+  },
+  {
+    "code": "ha",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "Aika masa wannan hanyar. Za ta ƙare bayan kwana 7.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/ha.json"
+  },
+  {
+    "code": "hi",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "उन्हें यह लिंक भेजें। यह 7 दिन बाद बंद हो जाएगा।",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/hi.json"
+  },
+  {
+    "code": "ig",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "Zigara ya njikọ a. Ọ ga agwụ mgbe ụbọchị 7 gasịrị.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/ig.json"
+  },
+  {
+    "code": "lg",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "Muwe enkolagana eno. Eggwaako oluvannyuma lw'ennaku 7.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/lg.json"
+  },
+  {
+    "code": "ml",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "ഈ കണ്ണി അവർക്ക് അയയ്ക്കുക. 7 ദിവസത്തിൽ കാലാവധി കഴിയും.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/ml.json"
+  },
+  {
+    "code": "ne",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "यो लिङ्क उनलाई पठाउनुहोस्। 7 दिनपछि यसको म्याद सकिन्छ।",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/ne.json"
+  },
+  {
+    "code": "ps",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "دا لینک ورسره شریک کړئ. له 7 ورځو وروسته پای ته رسېږي.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/ps.json"
+  },
+  {
+    "code": "so",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "La wadaag xiriiriyahan. Wuxuu dhacayaa 7 maalmood kadib.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/so.json"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "Mpe kiungo hiki. Muda wake unaisha baada ya siku 7.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/sw-KE.json"
+  },
+  {
+    "code": "ta",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "இந்த இணைப்பை அவருக்கு அனுப்பவும். இது 7 நாட்களில் காலாவதியாகும்.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/ta.json"
+  },
+  {
+    "code": "ti",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "ነዚ መላግቦ ንዕኡ ስደድ። ድሕሪ 7 መዓልቲ የብቅዕ።",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/ti.json"
+  },
+  {
+    "code": "tw",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "Fa kwan yi soma no. Ɛbɛgyae adwuma wɔ nna 7 akyi.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/tw.json"
+  },
+  {
+    "code": "ur",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "یہ لنک انہیں بھیجیں۔ یہ 7 دن بعد ختم ہو جائے گا۔",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/ur.json"
+  },
+  {
+    "code": "yo",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "Fi ọ̀nà yìí ránṣẹ́ sí i. Yóò parí lẹ́yìn ọjọ́ 7.",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/yo.json"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Share this link with them. It expires in 7 days.",
+    "value": "将此链接发给他。7 天后失效。",
+    "origin": "4aafcfecda434de9aadcff25605abe8cb768e70e:public/i18n/zh-CN.json"
+  },
+  {
+    "code": "ar-AE",
+    "source": "Connect your AI agent",
+    "value": "صل مساعد الذكاء الاصطناعي",
+    "origin": "6509be4da0f65a2d29b111724aa6e1972b731159:public/i18n/ar-AE.json"
+  },
+  {
+    "code": "ar-AE",
+    "source": "Contract times",
+    "value": "أوقات العقد",
+    "origin": "6509be4da0f65a2d29b111724aa6e1972b731159:public/i18n/ar-AE.json"
+  },
+  {
+    "code": "hi",
+    "source": "Connect your AI agent",
+    "value": "अपना AI Agent कनेक्ट करें",
+    "origin": "85f06b48e5854cdd12412e0bd6998d6016c2ab9a:public/i18n/hi.json"
+  },
+  {
+    "code": "hi",
+    "source": "Contract times",
+    "value": "अनुबंध का समय",
+    "origin": "85f06b48e5854cdd12412e0bd6998d6016c2ab9a:public/i18n/hi.json"
+  },
+  {
+    "code": "am",
+    "source": "Connect your AI agent",
+    "value": "የእርስዎን AI Agent ያገናኙ",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/am.json"
+  },
+  {
+    "code": "bn",
+    "source": "Connect your AI agent",
+    "value": "আপনার AI Agent কানেক্ট করুন",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/bn.json"
+  },
+  {
+    "code": "fa-AF",
+    "source": "Connect your AI agent",
+    "value": "AI Agent خود را وصل کنید",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/fa-AF.json"
+  },
+  {
+    "code": "fa-IR",
+    "source": "Connect your AI agent",
+    "value": "اتصال AI agent خود",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/fa-IR.json"
+  },
+  {
+    "code": "fil",
+    "source": "Connect your AI agent",
+    "value": "Ikonekta ang iyong AI Agent",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/fil.json"
+  },
+  {
+    "code": "ha",
+    "source": "Connect your AI agent",
+    "value": "Haɗa naka AI Agent",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/ha.json"
+  },
+  {
+    "code": "ig",
+    "source": "Connect your AI agent",
+    "value": "Jikọọ AI Agent gị",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/ig.json"
+  },
+  {
+    "code": "lg",
+    "source": "Connect your AI agent",
+    "value": "Gatta Agent yo ey'obwakyala",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/lg.json"
+  },
+  {
+    "code": "ml",
+    "source": "Connect your AI agent",
+    "value": "നിങ്ങളുടെ AI Agent ബന്ധിപ്പിക്കുക",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/ml.json"
+  },
+  {
+    "code": "ne",
+    "source": "Connect your AI agent",
+    "value": "आफ्नो एआई एजेन्ट जडान गर्नुहोस्",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/ne.json"
+  },
+  {
+    "code": "ps",
+    "source": "Connect your AI agent",
+    "value": "خپل مصنوعي ځيرکتیا Agent وصل کړئ",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/ps.json"
+  },
+  {
+    "code": "so",
+    "source": "Connect your AI agent",
+    "value": "Xirxiro Agent AI",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/so.json"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Connect your AI agent",
+    "value": "Unganisha AI Agent yako",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/sw-KE.json"
+  },
+  {
+    "code": "ta",
+    "source": "Connect your AI agent",
+    "value": "உங்கள் AI Agent இணைக்கவும்",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/ta.json"
+  },
+  {
+    "code": "ti",
+    "source": "Connect your AI agent",
+    "value": "AI Agent ኣራኽብ",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/ti.json"
+  },
+  {
+    "code": "tw",
+    "source": "Connect your AI agent",
+    "value": "Kɔnkɛt wo AI Agent",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/tw.json"
+  },
+  {
+    "code": "ur",
+    "source": "Connect your AI agent",
+    "value": "اپنا AI Agent منسلک کریں",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/ur.json"
+  },
+  {
+    "code": "yo",
+    "source": "Connect your AI agent",
+    "value": "So Agent AI rẹ mọ",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/yo.json"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Connect your AI agent",
+    "value": "连接你的 AI Agent",
+    "origin": "1cd709eee7c14955f24a52dc26816d34b94c2bf5:public/i18n/zh-CN.json"
+  },
+  {
+    "code": "ne",
+    "source": "You can see your own count.",
+    "value": "तपाईं आफ्नो गन्ती मात्र हेर्न सक्नुहुन्छ।",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ur",
+    "source": "You can see your own count.",
+    "value": "آپ صرف اپنی گنتی دیکھ سکتے ہیں۔",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "bn",
+    "source": "You can see your own count.",
+    "value": "আপনি শুধু নিজের সংখ্যা দেখতে পারেন।",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ml",
+    "source": "You can see your own count.",
+    "value": "നിങ്ങൾക്ക് സ്വന്തം എണ്ണം മാത്രം കാണാം.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ta",
+    "source": "You can see your own count.",
+    "value": "உங்கள் சொந்த எண்ணிக்கையை மட்டும் பார்க்கலாம்.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ps",
+    "source": "You can see your own count.",
+    "value": "تاسو یوازې خپل شمېر لیدلی شئ.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "fil",
+    "source": "You can see your own count.",
+    "value": "Sarili mong bilang lang ang makikita mo.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "am",
+    "source": "You can see your own count.",
+    "value": "የራስዎን ብዛት ብቻ ማየት ይችላሉ።",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ti",
+    "source": "You can see your own count.",
+    "value": "ናይ ገዛእ ርእስኹም ቁጽሪ ጥራይ ክትርእዩ ትኽእሉ።",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "so",
+    "source": "You can see your own count.",
+    "value": "Waxaad arki kartaa tiradaada oo keliya.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "yo",
+    "source": "You can see your own count.",
+    "value": "Iye tìrẹ nìkan ni o lè rí.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ha",
+    "source": "You can see your own count.",
+    "value": "Za ka iya ganin adadinka kawai.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ig",
+    "source": "You can see your own count.",
+    "value": "Ị nwere ike ịhụ naanị ọnụ ọgụgụ nke gị.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "lg",
+    "source": "You can see your own count.",
+    "value": "Osobola okulaba omuwendo gwo gwokka.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "tw",
+    "source": "You can see your own count.",
+    "value": "Wo ankasa wo dodow nko na wubetumi ahu.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ne",
+    "source": "I could not find that person on your team.",
+    "value": "तपाईंको टोलीमा त्यो व्यक्ति भेटिएन।",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ur",
+    "source": "I could not find that person on your team.",
+    "value": "مجھے آپ کی ٹیم میں یہ شخص نہیں ملا۔",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "bn",
+    "source": "I could not find that person on your team.",
+    "value": "আপনার দলে এই ব্যক্তিকে পাইনি।",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ml",
+    "source": "I could not find that person on your team.",
+    "value": "ആ വ്യക്തിയെ നിങ്ങളുടെ ടീമിൽ കണ്ടില്ല.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ta",
+    "source": "I could not find that person on your team.",
+    "value": "அந்த நபர் உங்கள் குழுவில் இல்லை.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ps",
+    "source": "I could not find that person on your team.",
+    "value": "دا کس مې ستاسو په ټیم کې ونه موند.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "fil",
+    "source": "I could not find that person on your team.",
+    "value": "Hindi ko nakita ang taong iyon sa team mo.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "am",
+    "source": "I could not find that person on your team.",
+    "value": "ያንን ሰው በቡድንዎ ውስጥ አላገኘሁትም።",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ti",
+    "source": "I could not find that person on your team.",
+    "value": "ነቲ ሰብ ኣብ ጉጅለኹም ኣይረኸብክዎን።",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "so",
+    "source": "I could not find that person on your team.",
+    "value": "Qofkaas kooxdaada kuma helin.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "yo",
+    "source": "I could not find that person on your team.",
+    "value": "Mi ò rí ẹni yẹn nínú ẹgbẹ́ rẹ.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ha",
+    "source": "I could not find that person on your team.",
+    "value": "Ban sami wannan mutumin a ƙungiyarka ba.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ig",
+    "source": "I could not find that person on your team.",
+    "value": "Ahụghị m onye ahụ n’otu gị.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "lg",
+    "source": "I could not find that person on your team.",
+    "value": "Omuntu oyo simuzudde mu ttiimu yo.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "tw",
+    "source": "I could not find that person on your team.",
+    "value": "Manhu saa nipa no wɔ wo kuw mu.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ne",
+    "source": "Which person do you mean? {names}.",
+    "value": "तपाईं कसको कुरा गर्दै हुनुहुन्छ? {names}।",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ur",
+    "source": "Which person do you mean? {names}.",
+    "value": "آپ کس کی بات کر رہے ہیں؟ {names}۔",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "bn",
+    "source": "Which person do you mean? {names}.",
+    "value": "আপনি কার কথা বলছেন? {names}।",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ml",
+    "source": "Which person do you mean? {names}.",
+    "value": "ആരെയാണ് ഉദ്ദേശിക്കുന്നത്? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ta",
+    "source": "Which person do you mean? {names}.",
+    "value": "யாரைச் சொல்கிறீர்கள்? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ps",
+    "source": "Which person do you mean? {names}.",
+    "value": "د چا خبره کوئ؟ {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "fil",
+    "source": "Which person do you mean? {names}.",
+    "value": "Sino ang ibig mong sabihin? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "am",
+    "source": "Which person do you mean? {names}.",
+    "value": "ማንን ማለትዎ ነው? {names}።",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ti",
+    "source": "Which person do you mean? {names}.",
+    "value": "መን ማለትኩም? {names}።",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "so",
+    "source": "Which person do you mean? {names}.",
+    "value": "Yaad ula jeeddaa? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "yo",
+    "source": "Which person do you mean? {names}.",
+    "value": "Ta ni o ní lọ́kàn? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ha",
+    "source": "Which person do you mean? {names}.",
+    "value": "Wa kake nufi? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ig",
+    "source": "Which person do you mean? {names}.",
+    "value": "Onye ka ị chọrọ ịsị? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "lg",
+    "source": "Which person do you mean? {names}.",
+    "value": "Otegeeza ani? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "tw",
+    "source": "Which person do you mean? {names}.",
+    "value": "Hwan na woreka ne ho asɛm? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ne",
+    "source": "What was the problem?",
+    "value": "समस्या के थियो?",
+    "origin": "lib/voice-report.ts:12"
+  },
+  {
+    "code": "hi",
+    "source": "What was the problem?",
+    "value": "समस्या क्या थी?",
+    "origin": "lib/voice-report.ts:12"
+  },
+  {
+    "code": "ur",
+    "source": "What was the problem?",
+    "value": "مسئلہ کیا تھا؟",
+    "origin": "lib/voice-report.ts:12"
+  },
+  {
+    "code": "ml",
+    "source": "What was the problem?",
+    "value": "എന്തായിരുന്നു പ്രശ്നം?",
+    "origin": "lib/voice-report.ts:12"
+  },
+  {
+    "code": "zh-CN",
+    "source": "You can see your own count.",
+    "value": "你只能查看自己的数量。",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "sw-KE",
+    "source": "You can see your own count.",
+    "value": "Unaweza kuona idadi yako tu.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "zh-CN",
+    "source": "I could not find that person on your team.",
+    "value": "我在你的团队中没有找到这个人。",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "sw-KE",
+    "source": "I could not find that person on your team.",
+    "value": "Sikumpata mtu huyo kwenye timu yako.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "zh-CN",
+    "source": "Which person do you mean? {names}.",
+    "value": "你指的是谁？{names}。",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "sw-KE",
+    "source": "Which person do you mean? {names}.",
+    "value": "Unamaanisha nani? {names}.",
+    "origin": "lib/count-lines.ts:6"
+  },
+  {
+    "code": "ar-AE",
+    "source": "What was the problem?",
+    "value": "ما هي المشكلة؟",
+    "origin": "lib/voice-report.ts:12"
+  }
+]

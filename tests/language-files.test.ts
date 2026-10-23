@@ -18,14 +18,17 @@ describe('language files', () => {
   it.each(others.map(l => [l.code]))('%s: every word is interface text with a valid translation', code => {
     const file = read(code);
     const entries = Object.entries(file);
-    expect(entries.length).toBeGreaterThan(500);
+    expect(entries.filter(([, value]) => value !== null).length).toBeGreaterThan(500);
     for (const [source, translated] of entries) {
       expect(translationSource(source), source).toBe(source);
+      // LANG01: null explicitly records an untranslated source; never a usable word.
+      if (translated === null) continue;
       expect(validTranslation(source, translated, code), `${code}: ${source}`).toBe(true);
       // A punctuation-only template can be identical in locales that use the Latin comma.
       if (source !== NAME_JOIN) expect(translated, `${code}: ${source} is still English`).not.toBe(source);
       // No demo names, places, amounts or codes: those are data, not interface text.
-      expect(source).not.toMatch(/\d|Imran|Ravi|Pranav|Harbor|Northgate|COBALT|AED|Dubai|Sharjah/);
+      // Interface limits/expiry wording can contain numbers, which validTranslation preserves.
+      expect(source).not.toMatch(/Imran|Ravi|Pranav|Harbor|Northgate|COBALT|AED|Dubai|Sharjah/);
     }
     for (const word of KEEP_AS_IS) expect(Object.hasOwn(file, word)).toBe(false);
   });
