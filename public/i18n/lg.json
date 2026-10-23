@@ -1118,5 +1118,8 @@
  "Try again": "Gezaako nate",
  "Close dialog": "Ggalawo akadirisa",
  "We couldn\u2019t load this. Please try again.": "Tetusoobola kuteekamu kino. Gezaako nate.",
- "Sign in again": "Yingira nate"
+ "Sign in again": "Yingira nate",
+ "Record the filter size before ordering a replacement.": "Wandiika obunene bw’akasengejja nga tonnalagira ak’okukaddamu.",
+ "Confirm site access before sending a technician.": "Kakasa nti basobola okuyingira ekifo nga tonnaweereza mukanika.",
+ "Check stock before booking a return visit for parts.": "Kebera ebintu ebiri mu tterekero nga tonnateekawo kuddayo olw’ebitundu."
 }

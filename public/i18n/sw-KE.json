@@ -1119,5 +1119,8 @@
  "Try again": "Jaribu tena",
  "Close dialog": "Funga kidirisha",
  "We couldn\u2019t load this. Please try again.": "Hatukuweza kupakia hii. Jaribu tena.",
- "Sign in again": "Ingia tena"
+ "Sign in again": "Ingia tena",
+ "Record the filter size before ordering a replacement.": "Rekodi ukubwa wa kichujio kabla ya kuagiza kingine.",
+ "Confirm site access before sending a technician.": "Thibitisha ruhusa ya kuingia eneo la kazi kabla ya kutuma fundi.",
+ "Check stock before booking a return visit for parts.": "Kagua akiba kabla ya kupanga ziara ya kurudi kwa ajili ya vipuri."
 }

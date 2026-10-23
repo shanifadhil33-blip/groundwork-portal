@@ -1126,5 +1126,8 @@
  "Try again": "እንደገና ሞክር",
  "Close dialog": "መገናኛውን ዝጋ",
  "We couldn\u2019t load this. Please try again.": "ይህን መጫን አልቻልንም። እንደገና ይሞክሩ።",
- "Sign in again": "እንደገና ግባ"
+ "Sign in again": "እንደገና ግባ",
+ "Record the filter size before ordering a replacement.": "ምትክ ከማዘዝዎ በፊት የማጣሪያውን መጠን ይመዝግቡ።",
+ "Confirm site access before sending a technician.": "ቴክኒሻን ከመላክዎ በፊት ወደ ቦታው መግባት እንደሚቻል ያረጋግጡ።",
+ "Check stock before booking a return visit for parts.": "ለመለዋወጫዎች የመመለሻ ጉብኝት ከመያዝዎ በፊት ክምችትን ያረጋግጡ።"
 }

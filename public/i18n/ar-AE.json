@@ -1450,5 +1450,8 @@
  "Try again": "جرّب مرة ثانية",
  "Close dialog": "سكّر النافذة",
  "We couldn\u2019t load this. Please try again.": "ما قدرنا نحمّل هالشي. جرّب مرة ثانية.",
- "Sign in again": "سجّل دخولك مرة ثانية"
+ "Sign in again": "سجّل دخولك مرة ثانية",
+ "Record the filter size before ordering a replacement.": "سجّل مقاس الفلتر قبل ما تطلب بديل.",
+ "Confirm site access before sending a technician.": "أكد دخول الموقع قبل ما ترسل الفني.",
+ "Check stock before booking a return visit for parts.": "شيّك على المخزون قبل ما تحجز زيارة متابعة لقطع الغيار."
 }

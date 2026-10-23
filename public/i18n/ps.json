@@ -1164,5 +1164,8 @@
  "Try again": "بیا هڅه وکړئ",
  "Close dialog": "کړکۍ وتړئ",
  "We couldn\u2019t load this. Please try again.": "دا مو پورته نه کړای شول. بیا هڅه وکړئ.",
- "Sign in again": "بیا ننوځئ"
+ "Sign in again": "بیا ننوځئ",
+ "Record the filter size before ordering a replacement.": "د بدیل فرمایش ورکولو مخکې د فلټر اندازه ثبت کړئ.",
+ "Confirm site access before sending a technician.": "د تخنیکر لېږلو مخکې ساحې ته د ننوتلو اجازه تایید کړئ.",
+ "Check stock before booking a return visit for parts.": "د پرزو لپاره د بیا لیدنې له ټاکلو مخکې زېرمه وګورئ."
 }

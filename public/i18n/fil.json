@@ -1138,5 +1138,8 @@
  "Try again": "Subukan ulit",
  "Close dialog": "Isara ang dialog",
  "We couldn\u2019t load this. Please try again.": "Hindi namin ito maikarga. Subukan ulit.",
- "Sign in again": "Mag sign in ulit"
+ "Sign in again": "Mag sign in ulit",
+ "Record the filter size before ordering a replacement.": "Itala ang sukat ng filter bago umorder ng kapalit.",
+ "Confirm site access before sending a technician.": "Tiyakin ang pahintulot sa pagpasok sa lugar bago magpadala ng teknisyan.",
+ "Check stock before booking a return visit for parts.": "Tingnan ang stock bago magtakda ng pagbalik para sa mga piyesa."
 }

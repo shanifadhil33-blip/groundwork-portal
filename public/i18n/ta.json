@@ -1178,5 +1178,8 @@
  "Try again": "மீண்டும் முயலவும்",
  "Close dialog": "உரையாடலை மூடு",
  "We couldn\u2019t load this. Please try again.": "இதை ஏற்ற முடியவில்லை. மீண்டும் முயலவும்.",
- "Sign in again": "மீண்டும் உள்நுழையவும்"
+ "Sign in again": "மீண்டும் உள்நுழையவும்",
+ "Record the filter size before ordering a replacement.": "மாற்று வடிகட்டியை ஆர்டர் செய்யும் முன் வடிகட்டியின் அளவைப் பதிவு செய்யவும்.",
+ "Confirm site access before sending a technician.": "தொழில்நுட்ப வல்லுநரை அனுப்பும் முன் தளத்திற்குள் நுழைய அனுமதியை உறுதிப்படுத்தவும்.",
+ "Check stock before booking a return visit for parts.": "உதிரிபாகங்களுக்காக மீண்டும் வருகையைப் பதிவு செய்யும் முன் இருப்பைச் சரிபார்க்கவும்."
 }

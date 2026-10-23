@@ -5,6 +5,9 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Settings } from '../components/app/settings';
+import { CompanyMemory } from '../components/app/company-memory';
+import { SuggestedJobs } from '../components/app/suggestions';
+import { DEMO_MEMORY_COPY } from '../lib/demo-memory-copy';
 import { JobChecklistCard } from '../components/app/job-checklists';
 import { PriceChangeCard } from '../components/app/price-change';
 import { QuoteVisit } from '../components/app/quote-visit';
@@ -22,20 +25,22 @@ import { isEnglish, readTranslationCache, TRANSLATION_ATTRIBUTES, TRANSLATION_SK
 
 // Parse the installed Next version's JSX grammar so hidden dialogs and error states are covered too.
 const {parse}=createRequire(import.meta.url)('next/dist/compiled/babel/parser');
-const state=vi.hoisted(()=>({tab:'profile',lang:'en-IN',role:'admin',demo:true}));
+const state=vi.hoisted(()=>({tab:'profile',lang:'en-IN',role:'admin',demo:true,owner:true}));
 vi.mock('next/navigation',()=>({useRouter:()=>({replace:vi.fn()}),useSearchParams:()=>new URLSearchParams({tab:state.tab})}));
 vi.mock('../components/ui/theme',()=>({useTheme:()=>({theme:'light',setTheme:vi.fn(),sync:vi.fn(),saving:false})}));
 vi.mock('../components/app/resource',()=>({useResource:(url:string)=>React.useMemo(()=>({data:
  url==='/api/me/preferences'?{language:state.lang,email_notifications:true,timezone:'Asia/Dubai'}:
+ url.endsWith('/company-memory')?{data:Object.values(DEMO_MEMORY_COPY).map((body,index)=>({id:String(index),body,recorded_by:['Ravi','Sam','Imran'][index],created_at:'2026-10-12T08:00:00.000Z',context_uses:[8,5,3][index]})),can_edit:state.role==='admin'}:
+ url.endsWith('/suggestions')?{data:[{id:'quote',title:DEMO_QUOTE_COPY.title,problem:DEMO_QUOTE_COPY.problem,sender_name:'Pranav Menon',source:'client',created_at:new Date().toISOString(),site_name:'Marina Exchange',status:'pending',photo_ids:[]}],pending_count:1}:
  url.endsWith('/checklist')?{steps:[{name:'Clean the filter',done:true}],materials:[{id:'material',name:'Capacitor',quantity:2,note:'Used during the visit'}],editable:true}:
  url.endsWith('/checklists')?{ac:['Clean the filter']}:
  url.endsWith('/settings')?{name:'Ridgeline',timezone:'Asia/Dubai',country:'AE',region:'Dubai',currency:'AED',approval_mode:'important',role_names:{},owner_handover:[],enabled_roles:['admin','staff','technician','client'],enabled_trades:['ac','plumbing','electrical'],enabled_dashboards:['overview','work'],company_size:'small'}:
  url.endsWith('/visit-charge')?{amount:150,regions:{},sample:true}:[],loading:false,error:null,reload:vi.fn(),setData:vi.fn()}),[url,state.lang])}));
 let host:HTMLDivElement,root:Root;
-beforeEach(()=>{(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;host=document.createElement('div');document.body.append(host);root=createRoot(host);state.tab='profile';state.role='admin';state.demo=true;state.lang='en-IN';localStorage.clear();});
+beforeEach(()=>{(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;host=document.createElement('div');document.body.append(host);root=createRoot(host);state.tab='profile';state.role='admin';state.demo=true;state.owner=true;state.lang='en-IN';localStorage.clear();});
 afterEach(async()=>{await act(async()=>root.unmount());host.remove();vi.unstubAllGlobals();});
 function provider(children:React.ReactNode){
- const member={workspace_id:'company',workspace_name:'Ridgeline',role:state.role,is_owner:state.role==='admin',client_id:null,client_name:null};
+ const member={workspace_id:'company',workspace_name:'Ridgeline',role:state.role,is_owner:state.owner&&state.role==='admin',client_id:null,client_name:null};
  const context={member,workspace:{id:'company',name:'Ridgeline',is_demo:state.demo,country:'AE',currency:'AED',timezone:'Asia/Dubai'},me:{user:{id:'imran',name:'Imran',email:null,image:null,is_demo:state.demo},memberships:[member]},reload:vi.fn(),updateName:vi.fn()};
  return <AppContext.Provider value={context as any}>{children}</AppContext.Provider>;
 }
@@ -120,4 +125,30 @@ it.each(LANGUAGES.flatMap(({code})=>['admin','staff','technician','client'].map(
  expect(host.textContent).toContain('Ravi');expect(host.textContent).toContain('My own repair note');
  // A missing static entry must not be rescued by a runtime translation request.
  expect(fetcher.mock.calls.length).toBe(isEnglish(code)?0:1);
+});
+
+it.each(LANGUAGES.flatMap(({code})=>['owner','admin','supervisor'].map(viewer=>({code,viewer}))))('renders seeded Company Memory and dashboard quote requests for $viewer in $code',async({code,viewer})=>{
+ state.lang=code;state.role=viewer==='supervisor'?'staff':'admin';state.owner=viewer==='owner';
+ const raw=isEnglish(code)?'{}':readFileSync(`public/i18n/${code}.json`,'utf8'),words=JSON.parse(raw);
+ const fetcher=vi.fn(async(_url:string,_options?:RequestInit)=>({ok:true,text:async()=>raw,json:async()=>({translations:{}})}));vi.stubGlobal('fetch',fetcher);
+ vi.stubGlobal('innerWidth',360);
+ await act(async()=>root.render(provider(<><CompanyMemory/><SuggestedJobs summary/><Translator/></>)));
+ await act(async()=>{await new Promise(resolve=>setTimeout(resolve,150));});
+ for(const key of [...Object.values(DEMO_MEMORY_COPY),DEMO_QUOTE_COPY.title,DEMO_QUOTE_COPY.problem]){
+  expect(host.textContent,`${code}: ${key}`).toContain(isEnglish(code)?key:words[key]);
+  if(!isEnglish(code))expect(host.textContent).not.toContain(key);
+ }
+ const memory=host.querySelector('.company-memory')!;
+ expect(memory.textContent).toContain('Ravi');expect(memory.textContent).toContain('2026-10-12');
+ expect(Array.from(memory.querySelectorAll('dd[data-no-translate]')).map(el=>el.textContent)).toEqual(['8','5','3']);
+ const buttons=Array.from(memory.querySelectorAll('button')).map(button=>button.textContent);
+ for(const label of ['Edit','Delete']){
+  if(viewer==='supervisor')expect(buttons).toHaveLength(0);
+  else expect(buttons).toContain(isEnglish(code)?label:words[label]);
+ }
+ expect(host.textContent).toContain('Pranav Menon');expect(host.textContent).toContain('Marina Exchange');
+ expect(fetcher.mock.calls.filter(([url])=>url.startsWith('/i18n/')).length).toBe(isEnglish(code)?0:1);
+ // RelativeTime may request unrelated date labels; fixture text must come from the file.
+ const requested=fetcher.mock.calls.filter(([url])=>url==='/api/i18n/translate').flatMap(([,options])=>JSON.parse(String(options?.body)).strings as string[]);
+ for(const key of [...Object.values(DEMO_MEMORY_COPY),...Object.values(DEMO_QUOTE_COPY)])expect(requested).not.toContain(key);
 });

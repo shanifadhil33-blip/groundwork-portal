@@ -1183,5 +1183,8 @@
  "Try again": "আবার চেষ্টা করুন",
  "Close dialog": "ডায়ালগ বন্ধ করুন",
  "We couldn\u2019t load this. Please try again.": "এটি লোড করা যায়নি। আবার চেষ্টা করুন।",
- "Sign in again": "আবার সাইন ইন করুন"
+ "Sign in again": "আবার সাইন ইন করুন",
+ "Record the filter size before ordering a replacement.": "বিকল্প ফিল্টার অর্ডার করার আগে ফিল্টারের মাপ লিখে রাখুন।",
+ "Confirm site access before sending a technician.": "টেকনিশিয়ান পাঠানোর আগে সাইটে প্রবেশ নিশ্চিত করুন।",
+ "Check stock before booking a return visit for parts.": "যন্ত্রাংশের জন্য আবার যাওয়ার সময় ঠিক করার আগে মজুত দেখুন।"
 }

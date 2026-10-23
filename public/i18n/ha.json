@@ -1134,5 +1134,8 @@
  "Try again": "Sake gwadawa",
  "Close dialog": "Rufe taga",
  "We couldn\u2019t load this. Please try again.": "Ba mu iya loda wannan ba. Sake gwadawa.",
- "Sign in again": "Sake shiga"
+ "Sign in again": "Sake shiga",
+ "Record the filter size before ordering a replacement.": "Rubuta girman matatar kafin yin odar madadinta.",
+ "Confirm site access before sending a technician.": "Tabbatar da izinin shiga wurin kafin aika ma’aikacin fasaha.",
+ "Check stock before booking a return visit for parts.": "Duba kayan da ke ajiye kafin tsara dawowa don kayan gyara."
 }

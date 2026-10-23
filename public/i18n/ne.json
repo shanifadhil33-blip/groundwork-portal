@@ -1163,5 +1163,8 @@
  "Try again": "फेरि प्रयास गर्नुहोस्",
  "Close dialog": "संवाद बन्द गर्नुहोस्",
  "We couldn\u2019t load this. Please try again.": "यो लोड गर्न सकेनौँ। फेरि प्रयास गर्नुहोस्।",
- "Sign in again": "फेरि साइन इन गर्नुहोस्"
+ "Sign in again": "फेरि साइन इन गर्नुहोस्",
+ "Record the filter size before ordering a replacement.": "नयाँ फिल्टर अर्डर गर्नुअघि फिल्टरको आकार टिप्नुहोस्।",
+ "Confirm site access before sending a technician.": "प्राविधिक पठाउनुअघि साइटमा प्रवेश पक्का गर्नुहोस्।",
+ "Check stock before booking a return visit for parts.": "पार्टपुर्जाका लागि फेरि जाने समय तोक्नुअघि मौज्दात जाँच्नुहोस्।"
 }

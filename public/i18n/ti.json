@@ -1143,5 +1143,8 @@
  "Try again": "እንደገና ፈትን",
  "Close dialog": "መስኮት ዕጾ",
  "We couldn\u2019t load this. Please try again.": "ነዚ ክንጽዕኖ ኣይከኣልናን። እንደገና ፈትን።",
- "Sign in again": "እንደገና እቶ"
+ "Sign in again": "እንደገና እቶ",
+ "Record the filter size before ordering a replacement.": "መተካእታ ቅድሚ ምእዛዝካ ዓቐን መጻረዪ መዝግብ።",
+ "Confirm site access before sending a technician.": "ቴክኒሻን ቅድሚ ምልኣኽካ ናብቲ ቦታ ምእታው ከምዝከኣል ኣረጋግጽ።",
+ "Check stock before booking a return visit for parts.": "ንመለዋወጢ ክፋላት ናይ ምምላስ ቆጸራ ቅድሚ ምሓዝካ ክምችት ኣረጋግጽ።"
 }

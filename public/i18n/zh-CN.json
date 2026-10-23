@@ -1123,5 +1123,8 @@
  "Try again": "重试",
  "Close dialog": "关闭对话框",
  "We couldn\u2019t load this. Please try again.": "无法加载。请重试。",
- "Sign in again": "重新登录"
+ "Sign in again": "重新登录",
+ "Record the filter size before ordering a replacement.": "订购替换滤网前，先记录滤网尺寸。",
+ "Confirm site access before sending a technician.": "派出技术人员前，先确认现场可以进入。",
+ "Check stock before booking a return visit for parts.": "预约携带零件再次上门前，先检查库存。"
 }

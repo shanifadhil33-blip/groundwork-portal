@@ -1139,5 +1139,8 @@
  "Try again": "دوباره کوشش کنید",
  "Close dialog": "بستن پنجره",
  "We couldn\u2019t load this. Please try again.": "این مورد بارگذاری نشد. دوباره کوشش کنید.",
- "Sign in again": "دوباره وارد شوید"
+ "Sign in again": "دوباره وارد شوید",
+ "Record the filter size before ordering a replacement.": "پیش از سفارش فیلتر جایگزین، اندازهٔ فیلتر را ثبت کنید.",
+ "Confirm site access before sending a technician.": "پیش از فرستادن تخنیکر، دسترسی به محل را تأیید کنید.",
+ "Check stock before booking a return visit for parts.": "پیش از تعیین بازدید دوباره برای پرزه‌ها، موجودی را بررسی کنید."
 }

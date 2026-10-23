@@ -3,6 +3,7 @@ import { expect, it } from 'vitest';
 import { DEMO_JOB_TITLES, DEMO_JOB_COMMENTS, demoJobDescription, demoJobTranslations } from '../lib/demo-job-copy';
 import { DEMO_PROOF_COPY } from '../lib/demo-proof-copy';
 import { DEMO_QUOTE_COPY } from '../lib/demo-quote-copy';
+import { DEMO_MEMORY_COPY } from '../lib/demo-memory-copy';
 import { LANGUAGES } from '../lib/languages';
 import { isEnglish, readTranslationCache } from '../lib/i18n';
 import { clientStatusLabels } from '../lib/ui/work-orders';
@@ -10,7 +11,7 @@ import { clientStatusLabels } from '../lib/ui/work-orders';
 it.each(LANGUAGES.filter(({code})=>!isEnglish(code)))('$code ships every seeded job phrase and client status without English fallback',({code})=>{
  const words=readTranslationCache(readFileSync(`public/i18n/${code}.json`,'utf8'),code);
  Object.assign(words,demoJobTranslations(words));
- const demo=[...DEMO_JOB_TITLES,...Object.values(DEMO_JOB_COMMENTS),...Object.values(DEMO_QUOTE_COPY),...Array.from({length:66},(_,index)=>demoJobDescription(index+1))];
+ const demo=[...DEMO_JOB_TITLES,...Object.values(DEMO_JOB_COMMENTS),...Object.values(DEMO_QUOTE_COPY),...Object.values(DEMO_MEMORY_COPY),...Array.from({length:66},(_,index)=>demoJobDescription(index+1))];
  for(const key of demo){
   expect(DEMO_PROOF_COPY.has(key),key).toBe(true);
   expect(words[key],key).toBeTruthy();

@@ -34,7 +34,37 @@ No new tables, columns, constraints or applied migrations. No pending migration 
 
 All new page phrases ship in every non-English app dictionary, including Gulf Arabic. English variants use the original copy. The established Translator sets RTL for Arabic, Urdu, Pashto, Dari and Farsi. User-authored instructions and names remain in their original language with automatic text direction. Layout uses logical properties, wrapping action rows and evidence fields, flexible widths and long-word wrapping for 360px screens. There are no fixed-width tables or switches.
 
-## Local validation
+## Sandbox follow-up
+
+New and reset Ridgeline sandboxes include three fictional recorded instructions in
+`company_rules`: Ravi's filter-size lesson, Sam's site-access instruction and Imran's
+stock-check instruction. The records are dated 12, 9 and 6 days before creation;
+their sample `memory_used` audit events provide counts of 8, 5 and 3. These are
+seeded demonstration history, not observations of real Agent calls or job outcomes.
+Ordinary context inclusion increments the same counts after setup. Real companies
+and existing sandboxes are not backfilled; reset the demo to load the new samples.
+
+Only the exact seeded lesson bodies and quote-request title/problem enter the
+existing demo translation allowlist. Every app language has static translations;
+authored edits, names and real company instructions retain their original wording.
+Company Memory's new sentences use each language's existing Settings label for the
+Agent, including الوكيل in Gulf Arabic. The ledger backup's LEARN16 entry names
+Joseph's lesson without specifying its wording; this fixture uses the existing
+technician Ravi and a concrete filter-size instruction.
+
+Regression coverage includes sandbox creation/reset/switching and isolation,
+recorder/date/audit evidence, owner/admin writes and supervisor read access, and
+the actual Company Memory and dashboard suggestion components in every supported
+language. The UI tests use a 360px viewport with jsdom; visual browser checks remain
+with the reviewer.
+
+Follow-up validation: `npm run typecheck` and `git diff --check` passed. Full
+`npm test`: 4,299 passed, with exactly the four known D1/RLS failures in
+`tests/demo-proof.test.ts` and `tests/technician-ratings.test.ts` (234 passing
+files, two failing files). No follow-up regression tests failed. No live checks,
+push, deployment or schema changes were performed.
+
+## Initial LEARN16 validation
 
 - `npm run typecheck`: passed.
 - Full `npm test`: 4,224 passed, four expected failures across 235 files (233 passing files). The failures are the two D1 cases in `tests/demo-proof.test.ts` and the real/demo cases in `tests/technician-ratings.test.ts`; no Company Memory tests failed.

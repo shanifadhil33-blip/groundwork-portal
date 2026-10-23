@@ -9,6 +9,7 @@ import { populateNotificationFixture } from './fixture-notifications';
 import { populateProofFixture } from './fixture-proof';
 import { populateDecisionFixture } from './fixture-decisions';
 import { populateFollowUpFixture } from './fixture-follow-ups';
+import { populateCompanyMemoryFixture } from './fixture-company-memory';
 export const ids = {
   imran: '10000000-0000-4000-8000-000000000001', sam: '10000000-0000-4000-8000-000000000002',
   pranav: '10000000-0000-4000-8000-000000000003', omar: '10000000-0000-4000-8000-000000000004',
@@ -211,6 +212,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
     await client.query('UPDATE members SET off_days=array_remove(off_days,extract(dow FROM $3::date)::smallint) WHERE workspace_id=$1 AND user_id=$2',[ids.ridgeline,ids.ravi,today]);
     await client.query("UPDATE work_orders SET assignee_id=$2,scheduled_for=$3,due_on=$4 WHERE id=$1 AND status='scheduled'",[orderId(2),ids.ravi,scheduledInstant(today,timezone,14),today]);
     await populateDecisionFixture(client,ids,today);
+    await populateCompanyMemoryFixture(client,ids);
     await populateNotificationFixture(client,ids);
     await populateIdentityFixture(client,ids);
     await populateCompanyJoiningFixture(client,ids);

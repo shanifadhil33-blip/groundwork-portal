@@ -1126,5 +1126,8 @@
  "Try again": "Sɔ hwɛ bio",
  "Close dialog": "To mfɛnsere no mu",
  "We couldn\u2019t load this. Please try again.": "Yɛantumi amfa eyi amma. Sɔ hwɛ bio.",
- "Sign in again": "San kɔ mu"
+ "Sign in again": "San kɔ mu",
+ "Record the filter size before ordering a replacement.": "Kyerɛw filter no kɛse ansa na woahyɛ nea wobɛsesa no ho kwan.",
+ "Confirm site access before sending a technician.": "Hwɛ sɛ wɔbɛtumi akɔ adwuma no beae ansa na woasoma ɔyɛfoɔ.",
+ "Check stock before booking a return visit for parts.": "Hwɛ nneɛma a ɛwɔ hɔ ansa na woahyɛ da a wobɛsan akɔ de akɔsesa nneɛma."
 }

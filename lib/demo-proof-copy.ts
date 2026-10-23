@@ -1,9 +1,11 @@
 // Only these seeded words may be translated inside otherwise verbatim job data.
 import { DEMO_JOB_TITLES, DEMO_JOB_COMMENTS, demoJobDescription } from './demo-job-copy';
 import { DEMO_QUOTE_COPY } from './demo-quote-copy';
+import { DEMO_MEMORY_COPY } from './demo-memory-copy';
 
 export const DEMO_PROOF_COPY = new Set([
   ...Object.values(DEMO_QUOTE_COPY),
+  ...Object.values(DEMO_MEMORY_COPY),
   ...DEMO_JOB_TITLES,
   ...Object.values(DEMO_JOB_COMMENTS),
   ...Array.from({ length: 66 }, (_, index) => demoJobDescription(index + 1)),

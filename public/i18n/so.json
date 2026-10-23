@@ -1134,5 +1134,8 @@
  "Try again": "Mar kale isku day",
  "Close dialog": "Xir daaqadda",
  "We couldn\u2019t load this. Please try again.": "Ma awoodin inaan soo rarno. Mar kale isku day.",
- "Sign in again": "Mar kale soo gal"
+ "Sign in again": "Mar kale soo gal",
+ "Record the filter size before ordering a replacement.": "Qor cabbirka shaandhada ka hor intaadan dalban mid beddel ah.",
+ "Confirm site access before sending a technician.": "Xaqiiji gelitaanka goobta ka hor intaadan dirin farsamayaqaan.",
+ "Check stock before booking a return visit for parts.": "Hubi kaydka ka hor intaadan ballamin booqasho soo noqosho oo qaybaha ah."
 }

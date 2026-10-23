@@ -1129,5 +1129,8 @@
  "Try again": "Nwaa ọzọ",
  "Close dialog": "Mechie windo",
  "We couldn\u2019t load this. Please try again.": "Anyị enweghị ike ibunye nke a. Nwaa ọzọ.",
- "Sign in again": "Banye ọzọ"
+ "Sign in again": "Banye ọzọ",
+ "Record the filter size before ordering a replacement.": "Detuo nha nzacha tupu ịtụ nke ga-anọchi ya.",
+ "Confirm site access before sending a technician.": "Kwenye na a ga-abanye ebe ọrụ tupu iziga onye ọrụ nka.",
+ "Check stock before booking a return visit for parts.": "Lelee ngwa dị n’ụlọ nkwakọba tupu ịhazi nleta ọzọ maka akụkụ nrụzi."
 }

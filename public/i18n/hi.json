@@ -1183,5 +1183,8 @@
  "Try again": "फिर कोशिश करें",
  "Close dialog": "डायलॉग बंद करें",
  "We couldn\u2019t load this. Please try again.": "इसे लोड नहीं कर सके। फिर कोशिश करें।",
- "Sign in again": "फिर साइन इन करें"
+ "Sign in again": "फिर साइन इन करें",
+ "Record the filter size before ordering a replacement.": "नया फ़िल्टर मँगाने से पहले उसका आकार दर्ज करें।",
+ "Confirm site access before sending a technician.": "तकनीशियन भेजने से पहले साइट पर प्रवेश की पुष्टि करें।",
+ "Check stock before booking a return visit for parts.": "पुर्जों के लिए दोबारा आने का समय तय करने से पहले स्टॉक जाँचें।"
 }
