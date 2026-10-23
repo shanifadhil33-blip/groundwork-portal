@@ -1325,4 +1325,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} உங்கள் நிறுவனம் என்பதால் தரவுத்தள வரிப் பாதுகாப்பு இந்த வரிகளை அனுமதிக்கிறது.",
 "{company} query":"{company} வினவல்",
 "{company} query · your company":"{company} வினவல் · உங்கள் நிறுவனம்",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. முகவரிப் புலங்கள், தொலைபேசி வடிவம், நாணயத்தை அமைக்கிறது."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. முகவரிப் புலங்கள், தொலைபேசி வடிவம், நாணயத்தை அமைக்கிறது.",
+"Comment":"கருத்து",
+"Import":"இறக்குமதி",
+"Import row":"இறக்குமதி வரி",
+"Agent key":"உதவியாளர் விசை",
+"Invite":"அழைப்பு",
+"Job activity":"வேலைச் செயல்பாடு",
+"Supplier update":"வழங்குநர் புதுப்பிப்பு",
+"Notification":"அறிவிப்பு"}

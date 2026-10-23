@@ -1330,4 +1330,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} आपकी कंपनी है, इसलिए डेटाबेस की पंक्ति सुरक्षा ये पंक्तियाँ दिखाने देती है।",
 "{company} query":"{company} क्वेरी",
 "{company} query · your company":"{company} क्वेरी · आपकी कंपनी",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. संयुक्त अरब अमीरात, दुबई। पता फ़ील्ड, फ़ोन का प्रारूप और मुद्रा तय करता है।"}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. संयुक्त अरब अमीरात, दुबई। पता फ़ील्ड, फ़ोन का प्रारूप और मुद्रा तय करता है।",
+"Comment":"टिप्पणी",
+"Import":"आयात",
+"Import row":"आयात पंक्ति",
+"Agent key":"सहायक कुंजी",
+"Invite":"निमंत्रण",
+"Job activity":"काम की गतिविधि",
+"Supplier update":"सप्लायर अपडेट",
+"Notification":"सूचना"}

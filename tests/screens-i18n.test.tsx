@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { WorkOrderCard } from '../components/app/work-order-card';
 import { Settings } from '../components/app/settings';
 import { CompanyMemory } from '../components/app/company-memory';
 import { SuggestedJobs } from '../components/app/suggestions';
@@ -48,7 +49,7 @@ function provider(children:React.ReactNode){
 }
 const job={id:'job',status:'in_progress',scheduled_for:null,quote_status:'pending',quote_amount:850,quote_note:DEMO_QUOTE_COPY.note,price_change:{state:'pending' as const,words:DEMO_QUOTE_COPY.finding,technician_name:'Ravi'}};
 function demoJobs(){return <><h1 data-no-translate>{DEMO_JOB_TITLES[6]}</h1><p data-no-translate>{demoJobDescription(1)}</p>{Object.values(DEMO_JOB_COMMENTS).map(copy=><p key={copy} data-no-translate>{copy}</p>)}{DEMO_ROUND_TWO_COPY.map(copy=><p key={copy} data-no-translate>{copy}</p>)}<p data-no-translate>Pranav Menon</p><p data-no-translate>Al Marsa Street</p></>;}
-function cards(){return <>{Object.values(clientStatusLabels).map(label=><StatusBadge key={label} status="in_progress">{label}</StatusBadge>)}<StatusBadge status="in_progress">{clientStatusLabel(job)}</StatusBadge><PriceChangeCard base="/company" job={job} reload={()=>{}}/><QuoteVisit base="/company" o={job} client={state.role==='client'} office={state.role==='admin'} currency="AED" reload={()=>{}}/><JobChecklistCard base="/company" id="job" readOnly={state.role==='client'}/></>;}
+function cards(){return <>{Object.values(clientStatusLabels).map(label=><StatusBadge key={label} status="in_progress">{label}</StatusBadge>)}<StatusBadge status="in_progress">{clientStatusLabel(job)}</StatusBadge><PriceChangeCard base="/company" job={job} reload={()=>{}}/><QuoteVisit base="/company" o={job} client={state.role==='client'} office={state.role==='admin'} currency="AED" reload={()=>{}}/><JobChecklistCard base="/company" id="job" readOnly={state.role==='client'}/><WorkOrderCard order={{id:"unassigned",order_number:99,title:"My own repair",site_name:"Marina Exchange",status:"open",priority:"normal",assignee_id:null,due_on:null} as any} client={state.role==='client'} clientName="Harbor & Pine Coworking" assigneeName="Unassigned" onOpen={()=>{}}/></>;}
 function screenKeys(){
  const keys=new Set<string>(),walker=document.createTreeWalker(host,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT);
  let node:Node|null;
@@ -119,7 +120,7 @@ it.each(LANGUAGES.flatMap(({code})=>['admin','staff','technician','client'].map(
  const fetcher=vi.fn(async()=>({ok:true,text:async()=>raw,json:async()=>({translations:{}})}));vi.stubGlobal('fetch',fetcher);
  await act(async()=>root.render(provider(<><Settings/>{cards()}{demoJobs()}<p data-no-translate>My own repair note</p><Translator/></>)));
  await act(async()=>{await vi.advanceTimersByTimeAsync(150);});
- for(const key of ['Settings','Agent','Price changed','Technician statement','Checklist',DEMO_QUOTE_COPY.finding,DEMO_QUOTE_COPY.note,'Capacitor','Used during the visit','Waiting for the client',...Object.values(clientStatusLabels),DEMO_JOB_TITLES[6],demoJobDescription(1),...Object.values(DEMO_JOB_COMMENTS),...DEMO_ROUND_TWO_COPY]){
+ for(const key of ['Unassigned','Settings','Agent','Price changed','Technician statement','Checklist',DEMO_QUOTE_COPY.finding,DEMO_QUOTE_COPY.note,'Capacitor','Used during the visit','Waiting for the client',...Object.values(clientStatusLabels),DEMO_JOB_TITLES[6],demoJobDescription(1),...Object.values(DEMO_JOB_COMMENTS),...DEMO_ROUND_TWO_COPY]){
   expect(host.textContent,`${code}: ${key}`).toContain(isEnglish(code)?key:dictionary[key]);
  }
  for(const key of ['Waiting for the client','Price changed','Work in Progress',DEMO_JOB_TITLES[6],demoJobDescription(1),...Object.values(DEMO_JOB_COMMENTS),...DEMO_ROUND_TWO_COPY])if(!isEnglish(code))expect(host.textContent,`${code}: English fallback for ${key}`).not.toContain(key);

@@ -1288,4 +1288,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"Kumpanya mo ang {company}, kaya pinapayagan ng seguridad ng mga row sa database ang mga row na ito.",
 "{company} query":"Query sa {company}",
 "{company} query · your company":"Query sa {company} · kumpanya mo",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Itinatakda ang mga field ng address, format ng telepono at pera."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Itinatakda ang mga field ng address, format ng telepono at pera.",
+"Comment":"Komento",
+"Import":"Pag-import",
+"Import row":"Row ng pag-import",
+"Agent key":"Key ng katulong",
+"Invite":"Imbitasyon",
+"Job activity":"Aktibidad ng trabaho",
+"Supplier update":"Update ng supplier",
+"Notification":"Abiso"}

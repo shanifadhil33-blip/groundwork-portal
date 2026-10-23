@@ -1269,4 +1269,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} 是您的公司，因此数据库行级安全策略允许返回这些行。",
 "{company} query":"{company} 查询",
 "{company} query · your company":"{company} 查询 · 您的公司",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. 设置地址字段、电话格式和货币。"}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. 设置地址字段、电话格式和货币。",
+"Comment":"评论",
+"Import":"导入",
+"Import row":"导入行",
+"Agent key":"助手密钥",
+"Invite":"邀请",
+"Job activity":"工作动态",
+"Supplier update":"供应商更新",
+"Notification":"通知"}

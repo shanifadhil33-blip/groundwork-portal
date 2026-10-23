@@ -21,8 +21,8 @@ type Board = { timezone: string; from: string; days: number; people: Person[]; j
 /** Monday of the week that holds this day (YYYY-MM-DD, no time zone games). */
 export function weekStart(day: string) { const d = new Date(day + 'T12:00:00Z'); const back = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - back); return d.toISOString().slice(0, 10); }
 export function addDays(day: string, n: number) { const d = new Date(day + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
-const dayName = (day: string, long = false, lang = 'en') => formatInLang(new Date(day + 'T12:00:00Z'), { weekday: long ? 'long' : 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }, lang);
-export const part = (day: string, o: Intl.DateTimeFormatOptions, lang = 'en') => formatInLang(new Date(day + 'T12:00:00Z'), { ...o, timeZone: 'UTC' }, lang);
+const dayName = (day: string, long = false, lang = 'en') => formatInLang(new Date(day + 'T12:00:00Z'), { weekday: long ? 'long' : 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }, lang, lang);
+export const part = (day: string, o: Intl.DateTimeFormatOptions, lang = 'en') => formatInLang(new Date(day + 'T12:00:00Z'), { ...o, timeZone: 'UTC' }, lang, lang);
 const HOURS = Array.from({ length: 15 }, (_, i) => i + 6);
 
 function Chip({ j, onOpen }: { j: Job; onOpen: (j: Job) => void }) {

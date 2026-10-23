@@ -1281,4 +1281,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} waa shirkaddaada, sidaas darteed amniga safafka kaydka xogtu wuu oggol yahay safafkan.",
 "{company} query":"Weydiinta {company}",
 "{company} query · your company":"Weydiinta {company} · shirkaddaada",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Wuxuu dejiyaa meelaha cinwaanka, qaabka taleefanka iyo lacagta."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Wuxuu dejiyaa meelaha cinwaanka, qaabka taleefanka iyo lacagta.",
+"Comment":"Faallo",
+"Import":"Soo dejin",
+"Import row":"Safka soo dejinta",
+"Agent key":"Furaha kaaliyaha",
+"Invite":"Casuumad",
+"Job activity":"Hawlaha shaqada",
+"Supplier update":"Cusboonaysiinta alaab-qeybiyaha",
+"Notification":"Ogeysiis"}

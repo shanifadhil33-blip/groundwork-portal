@@ -1290,4 +1290,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} ኩባንያኻ ስለዝኾነ ድሕነት መስርዕ መኽዘን ሓበሬታ ነዞም መሳርዕ ይፈቅድ።",
 "{company} query":"ሕቶ {company}",
 "{company} query · your company":"ሕቶ {company} · ኩባንያኻ",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. ሕቡራት ኢማራት ዓረብ፣ ዱባይ። ክፍልታት ኣድራሻ፣ ቅርጺ ተሌፎንን ባጤራን ይውስን።"}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. ሕቡራት ኢማራት ዓረብ፣ ዱባይ። ክፍልታት ኣድራሻ፣ ቅርጺ ተሌፎንን ባጤራን ይውስን።",
+"Comment":"ርእይቶ",
+"Import":"ምእታው",
+"Import row":"መስርዕ ምእታው",
+"Agent key":"መፍትሕ ሓጋዚ",
+"Invite":"ዕድመ",
+"Job activity":"ንጥፈት ስራሕ",
+"Supplier update":"ሓድሽ ሓበሬታ ኣቕራቢ",
+"Notification":"መፍለጢ"}

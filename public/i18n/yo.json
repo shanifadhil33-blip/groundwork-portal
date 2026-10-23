@@ -1262,4 +1262,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} ni ilé iṣẹ́ rẹ, nítorí náà ààbò ìlà ibi ìpamọ́ dátà gba àwọn ìlà wọ̀nyí láyè.",
 "{company} query":"Ìwádìí {company}",
 "{company} query · your company":"Ìwádìí {company} · ilé iṣẹ́ rẹ",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Ó ṣètò ààyè àdírẹ́sì, ìrísí fóònù àti owó."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Ó ṣètò ààyè àdírẹ́sì, ìrísí fóònù àti owó.",
+"Comment":"Àlàyé",
+"Import":"Gbigbewọlé",
+"Import row":"Ìlà gbígbéwọlé",
+"Agent key":"Kọ́kọ́rọ́ olùrànlọ́wọ́",
+"Invite":"Ìpè",
+"Job activity":"Ìṣe iṣẹ́",
+"Supplier update":"Àfikún olùpèsè",
+"Notification":"Ìfitónilétí"}

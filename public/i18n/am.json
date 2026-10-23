@@ -1273,4 +1273,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} የእርስዎ ኩባንያ ስለሆነ የውሂብ ጎታ የረድፍ ደህንነት እነዚህን ረድፎች ይፈቅዳል።",
 "{company} query":"የ{company} ጥያቄ",
 "{company} query · your company":"የ{company} ጥያቄ · የእርስዎ ኩባንያ",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. የተባበሩት አረብ ኤምሬትስ፣ ዱባይ። የአድራሻ መስኮችን፣ የስልክ ቅርጸትን እና ምንዛሬን ያዘጋጃል።"}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. የተባበሩት አረብ ኤምሬትስ፣ ዱባይ። የአድራሻ መስኮችን፣ የስልክ ቅርጸትን እና ምንዛሬን ያዘጋጃል።",
+"Comment":"አስተያየት",
+"Import":"ማስገባት",
+"Import row":"የማስገቢያ ረድፍ",
+"Agent key":"የረዳት ቁልፍ",
+"Invite":"ግብዣ",
+"Job activity":"የስራ እንቅስቃሴ",
+"Supplier update":"የአቅራቢ ማሻሻያ",
+"Notification":"ማሳወቂያ"}

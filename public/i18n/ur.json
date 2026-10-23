@@ -1314,4 +1314,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} آپ کی کمپنی ہے، اس لیے ڈیٹابیس کی قطاروں کی حفاظت یہ قطاریں دکھانے دیتی ہے۔",
 "{company} query":"{company} استفسار",
 "{company} query · your company":"{company} استفسار · آپ کی کمپنی",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. متحدہ عرب امارات، دبئی۔ پتے کے خانے، فون کی شکل اور کرنسی طے کرتا ہے۔"}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. متحدہ عرب امارات، دبئی۔ پتے کے خانے، فون کی شکل اور کرنسی طے کرتا ہے۔",
+"Comment":"تبصرہ",
+"Import":"درآمد",
+"Import row":"درآمدی قطار",
+"Agent key":"معاون کی کلید",
+"Invite":"دعوت",
+"Job activity":"کام کی سرگرمی",
+"Supplier update":"سپلائر کی تازہ کاری",
+"Notification":"اطلاع"}

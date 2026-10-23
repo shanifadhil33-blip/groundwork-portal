@@ -1597,4 +1597,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} هي شركتك، عشان جذي حماية الصفوف في قاعدة البيانات تسمح لك تشوف هالصفوف.",
 "{company} query":"استعلام {company}",
 "{company} query · your company":"استعلام {company} · شركتك",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. يضبط خانات العنوان وصيغة التلفون والعملة."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. يضبط خانات العنوان وصيغة التلفون والعملة.",
+"Comment":"تعليق",
+"Import":"استيراد",
+"Import row":"صف الاستيراد",
+"Agent key":"مفتاح الوكيل",
+"Invite":"دعوة",
+"Job activity":"حركة الشغل",
+"Supplier update":"تحديث المورّد",
+"Notification":"إشعار"}

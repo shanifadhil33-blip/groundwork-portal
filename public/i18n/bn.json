@@ -1330,4 +1330,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} আপনার প্রতিষ্ঠান, তাই ডেটাবেসের সারি নিরাপত্তা এই সারিগুলো দেখায়।",
 "{company} query":"{company} অনুসন্ধান",
 "{company} query · your company":"{company} অনুসন্ধান · আপনার প্রতিষ্ঠান",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. সংযুক্ত আরব আমিরাত, দুবাই। ঠিকানার ঘর, ফোনের বিন্যাস ও মুদ্রা নির্ধারণ করে।"}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. সংযুক্ত আরব আমিরাত, দুবাই। ঠিকানার ঘর, ফোনের বিন্যাস ও মুদ্রা নির্ধারণ করে।",
+"Comment":"মন্তব্য",
+"Import":"আমদানি",
+"Import row":"আমদানির সারি",
+"Agent key":"সহকারীর কী",
+"Invite":"আমন্ত্রণ",
+"Job activity":"কাজের কার্যক্রম",
+"Supplier update":"সরবরাহকারীর হালনাগাদ",
+"Notification":"বিজ্ঞপ্তি"}

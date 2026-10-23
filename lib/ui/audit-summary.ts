@@ -1,4 +1,4 @@
-import type { NotificationTemplate } from './notifications';
+import { notificationTemplates, type NotificationTemplate } from './notifications';
 import { rolesLabel } from '../roles';
 import { entityLabels, readableLabel, supplierReference } from './polish';
 
@@ -31,6 +31,17 @@ export function auditSummaryTemplates(item: AuditSource): NotificationTemplate[]
   if (item.entity === 'members') return [make(item.action === 'insert' ? auditTemplates.added : item.action === 'delete' ? auditTemplates.removed : auditTemplates.member, {person: String(item.member_name ?? after.name ?? before.name ?? 'Team member'), role: rolesLabel({...before,...after,role: String(after.role ?? before.role ?? 'member')})}, ['role'])];
   if (['clients','sites','workspaces'].includes(item.entity)) return [make(auditTemplates.record, {entity: entityLabels[item.entity], record: String(after.name ?? before.name ?? '')}, ['entity'])];
   if (item.entity === 'supplier_orders') return [make(auditTemplates.supplier, {reference: supplierReference(String(after.cobalt_ref ?? before.cobalt_ref ?? '')), status: readableLabel(String(after.local_status ?? after.status ?? 'Ordered'))}, ['status'])];
+  if (item.entity === 'imports') {
+    const key = item.action === 'insert' ? '{name} created {type}: {item}.' : item.action === 'delete' ? '{name} deleted {type}: {item}.' : '{name} updated {type}: {item}.';
+    const messages = [make(key, {type: 'Import', item: String(after.filename ?? before.filename ?? '')}, ['type'])];
+    if (after.status && after.status !== before.status) messages.push({key: '{status}', values: {status: readableLabel(String(after.status))}, translatedValues: ['status']});
+    return messages;
+  }
+  if (item.entity === 'comments') {
+    const visibility = after.visibility ?? before.visibility;
+    if (item.action === 'insert') return [make(visibility === 'internal' ? notificationTemplates.internal : notificationTemplates.comment)];
+    return [make(item.action === 'delete' ? '{name} deleted {type}: {item}.' : '{name} updated {type}: {item}.', {type: 'Comment', item: job}, ['type']), {key: '{visibility}', values: {visibility: visibility === 'internal' ? 'Internal note' : 'Visible to the client'}, translatedValues: ['visibility']}];
+  }
   if (item.entity === 'supplier_events') {
     const key = item.action === 'insert' ? '{name} created {type}: {item}.' : item.action === 'delete' ? '{name} deleted {type}: {item}.' : '{name} updated {type}: {item}.';
     return [make(key, {type: entityLabels.supplier_events, item: supplierReference(String(after.cobalt_ref ?? before.cobalt_ref ?? ''))}, ['type']), {key: '{status}', values: {status: readableLabel(String(after.local_status ?? after.status ?? 'Ordered'))}, translatedValues: ['status']}];

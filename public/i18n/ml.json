@@ -1293,4 +1293,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} നിങ്ങളുടെ കമ്പനിയായതിനാൽ ഡാറ്റാബേസിലെ വരി സുരക്ഷ ഈ വരികൾ കാണാൻ അനുവദിക്കുന്നു.",
 "{company} query":"{company} തിരയൽ",
 "{company} query · your company":"{company} തിരയൽ · നിങ്ങളുടെ കമ്പനി",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. വിലാസ ഫീൽഡുകൾ, ഫോൺ രൂപം, കറൻസി എന്നിവ നിശ്ചയിക്കുന്നു."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. വിലാസ ഫീൽഡുകൾ, ഫോൺ രൂപം, കറൻസി എന്നിവ നിശ്ചയിക്കുന്നു.",
+"Comment":"അഭിപ്രായം",
+"Import":"ഇറക്കുമതി",
+"Import row":"ഇറക്കുമതി വരി",
+"Agent key":"സഹായിയുടെ കീ",
+"Invite":"ക്ഷണം",
+"Job activity":"ജോലി പ്രവർത്തനം",
+"Supplier update":"വിതരണക്കാരന്റെ പുതുക്കൽ",
+"Notification":"അറിയിപ്പ്"}

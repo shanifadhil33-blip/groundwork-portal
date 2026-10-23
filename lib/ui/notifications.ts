@@ -151,7 +151,9 @@ export function notificationParts(message: NotificationTemplate, words: Record<s
  return template.split(/(\{[a-z_]+\})/g).filter(Boolean).map(part=>{
   const name=part.match(/^\{([a-z_]+)\}$/)?.[1];
   const raw=name?message.values[name]:undefined;
-  const value=name&&message.dateValues?.[name]?formatInLang(message.dateValues[name],{dateStyle:'full',timeStyle:'short',timeZone:message.timezone??'Asia/Dubai'},language,language):raw;
+  const date=name?message.dateValues?.[name]:undefined;
+  const calendar=!!date&&/^\d{4}-\d{2}-\d{2}$/.test(date);
+  const value=date?formatInLang(calendar?`${date}T12:00:00Z`:date,calendar?{dateStyle:'medium',timeZone:'UTC'}:{dateStyle:'full',timeStyle:'short',timeZone:message.timezone??'Asia/Dubai'},language,language):raw;
   return {text:value===undefined?part:message.translatedValues?.includes(name!)?(words[value]??value):value,parameter:name??null};
  });
 }

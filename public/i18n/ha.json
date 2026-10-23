@@ -1281,4 +1281,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} kamfaninka ne, don haka tsaron layuka na ma'ajiyar bayanai ya yarda da waɗannan layukan.",
 "{company} query":"Tambayar {company}",
 "{company} query · your company":"Tambayar {company} · kamfaninka",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Yana saita filayen adireshi, tsarin waya da kuɗi."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Yana saita filayen adireshi, tsarin waya da kuɗi.",
+"Comment":"Sharhi",
+"Import":"Shigo da bayanai",
+"Import row":"Layin shigo da bayanai",
+"Agent key":"Maɓallin mataimaki",
+"Invite":"Gayyata",
+"Job activity":"Ayyukan aiki",
+"Supplier update":"Sabuntawar mai kaya",
+"Notification":"Sanarwa"}

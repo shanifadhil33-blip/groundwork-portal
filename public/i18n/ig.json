@@ -1276,4 +1276,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} bụ ụlọ ọrụ gị, ya mere nchekwa ahịrị data na-enye ohere ahịrị ndị a.",
 "{company} query":"Ajụjụ {company}",
 "{company} query · your company":"Ajụjụ {company} · ụlọ ọrụ gị",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Na-ahazi ebe adreesị, usoro ekwentị na ego."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Na-ahazi ebe adreesị, usoro ekwentị na ego.",
+"Comment":"Nkwupụta",
+"Import":"Mbubata",
+"Import row":"Ahịrị mbubata",
+"Agent key":"Igodo onye enyemaka",
+"Invite":"Òkù",
+"Job activity":"Ihe omume ọrụ",
+"Supplier update":"Mmelite onye na-eweta ngwaahịa",
+"Notification":"Ọkwa"}

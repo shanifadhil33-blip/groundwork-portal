@@ -1311,4 +1311,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} ستاسو شرکت دی، نو د ډیټابیس د کتارونو امنیت دا کتارونه درښيي.",
 "{company} query":"د {company} پلټنه",
 "{company} query · your company":"د {company} پلټنه · ستاسو شرکت",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. د پتې برخې، د تلیفون بڼه او پیسې ټاکي."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. د پتې برخې، د تلیفون بڼه او پیسې ټاکي.",
+"Comment":"تبصره",
+"Import":"واردول",
+"Import row":"د واردولو کتار",
+"Agent key":"د مرستیال کیلي",
+"Invite":"بلنه",
+"Job activity":"د کار فعالیت",
+"Supplier update":"د عرضه کوونکي تازه معلومات",
+"Notification":"خبرتیا"}

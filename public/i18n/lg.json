@@ -1265,4 +1265,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} ye kkampuni yo, n olwekyo obukuumi bw ennyiriri mu tterekero bukkiriza ennyiriri zino.",
 "{company} query":"Okubuuliriza ku {company}",
 "{company} query · your company":"Okubuuliriza ku {company} · kkampuni yo",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Kitegeka ebifo by endagiriro, enkola y essimu n ensimbi."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Kitegeka ebifo by endagiriro, enkola y essimu n ensimbi.",
+"Comment":"Ekigambo",
+"Import":"Okuyingiza",
+"Import row":"Olunyiriri lw okuyingiza",
+"Agent key":"Ekisumuluzo ky omuyambi",
+"Invite":"Okuyitibwa",
+"Job activity":"Ebikolebwa ku mulimu",
+"Supplier update":"Ebipya eby omugabi",
+"Notification":"Okutegeezebwa"}

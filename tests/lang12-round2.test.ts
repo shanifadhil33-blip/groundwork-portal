@@ -11,7 +11,7 @@ import { scheduleHourLabel } from '../lib/date-lang';
 import { SCHEDULE_HINT, CHANGE_SCHEDULE_HINT } from '../components/app/schedule-hint';
 
 const interfaceCopy = [
- 'Needs you', 'Reads the message, photo or voice note from the app and writes it up as a suggested job.',
+ 'Comment', 'Import', 'Import row', 'Agent key', 'Invite', 'Job activity', 'Supplier update', 'Notification', 'Needs you', 'Reads the message, photo or voice note from the app and writes it up as a suggested job.',
  'Open job', 'Nobody is away. Add leave here, and jobs are not given to that person on those days.',
  'Your workspace', 'Sign out', 'Drawer navigation', 'Edit client', 'Main contact', 'Billing address',
  '· ends', 'Add site', 'Site contact:', 'Access:', 'Sends requests and sees their own jobs.',
@@ -60,6 +60,7 @@ it('audit templates retain each simultaneous change and carry ISO dates for the 
   expect(text).toContain('Imran'); expect(text).toContain('My authored job');
   expect(text).not.toMatch(/Oct|assigned|scheduled|due date/);
  }
+ expect(renderNotification(messages[2],words,'ar-AE')).not.toMatch(/\d{1,2}:\d{2}/);
  const member = auditSummaryTemplates({actor_name:'Imran',member_name:'Pranav',entity:'members',action:'update',after:{role:'client'}})![0];
  expect(renderNotification(member,words,'ar-AE')).toContain(words['Facility manager']);
 });
@@ -71,4 +72,31 @@ it('legacy Agent priority summaries use templates, preserve identifiers and tran
  const text = renderNotification(message,words,'ar-AE');
  expect(text).toContain('WO 1 My repair'); expect(text).toContain(words.Low); expect(text).toContain(words.High);
  expect(agentSummaryTemplate('My own note about priority')).toBeNull();
+});
+it('audit comments preserve visibility and supplier events preserve references without using stored English summaries', () => {
+ const words = JSON.parse(readFileSync('public/i18n/ar-AE.json','utf8'));
+ for (const visibility of ['client','internal']) {
+  const messages = auditSummaryTemplates({actor_name:'Faisal',entity:'comments',action:'insert',work_order_title:'My repair',after:{visibility,body:'My private authored note'}})!;
+  const text = messages.map(message => renderNotification(message,words,'ar-AE')).join(' ');
+  expect(text).toContain('Faisal'); expect(text).toContain('My repair');
+  expect(text).not.toMatch(/created|visible|internal|private authored note/);
+  expect(messages[0].key).toContain(visibility === 'internal' ? 'internal note' : 'visible to the client');
+ }
+ const events = auditSummaryTemplates({actor_name:'Imran',entity:'supplier_events',action:'insert',after:{cobalt_ref:'COBALT-DEMO-1',status:'ordered'}})!;
+ const text = events.map(message => renderNotification(message,words,'ar-AE')).join(' ');
+ expect(text).toContain('COBALT-DEMO-1'); expect(text).toContain(words.Ordered);
+ expect(text).not.toMatch(/created|supplier update|Ordered/);
+});
+
+it.each(['en-IN','en-US','en-GB'])('schedule clocks honor the %s locale as well as the non-English locales', code => {
+ const date = new Date(Date.UTC(2026,0,1,14));
+ expect(scheduleHourLabel(14,code)).toBe(new Intl.DateTimeFormat(code,{hour:'numeric',timeZone:'UTC'}).format(date));
+});
+it('audit import templates keep filenames as data and localize the queue status', () => {
+ const words = JSON.parse(readFileSync('public/i18n/ar-AE.json','utf8'));
+ const messages = auditSummaryTemplates({actor_name:'Sam',entity:'imports',action:'insert',after:{filename:'sample.csv',status:'queued'}})!;
+ const text = messages.map(message => renderNotification(message,words,'ar-AE')).join(' ');
+ expect(text).toContain('Sam'); expect(text).toContain('sample.csv'); expect(text).toContain(words.Queued);
+ expect(text).not.toMatch(/created import|Queued/);
+ for (const message of messages) expect(message.key).not.toContain('sample.csv');
 });

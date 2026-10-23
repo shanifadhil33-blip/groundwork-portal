@@ -1317,4 +1317,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} شرکت شماست، پس امنیت ردیفی پایگاه داده این ردیف‌ها را مجاز می‌داند.",
 "{company} query":"پرس‌وجوی {company}",
 "{company} query · your company":"پرس‌وجوی {company} · شرکت شما",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. بخش‌های نشانی، قالب تلفن و واحد پول را تعیین می‌کند."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. بخش‌های نشانی، قالب تلفن و واحد پول را تعیین می‌کند.",
+"Comment":"نظر",
+"Import":"درون‌ریزی",
+"Import row":"ردیف درون‌ریزی",
+"Agent key":"کلید دستیار",
+"Invite":"دعوت",
+"Job activity":"فعالیت کار",
+"Supplier update":"به‌روزرسانی تأمین‌کننده",
+"Notification":"اعلان"}

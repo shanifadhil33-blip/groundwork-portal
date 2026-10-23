@@ -1266,4 +1266,12 @@
 "{company} is your company, so Postgres row level security allows these rows.":"{company} ni kampuni yako, hivyo usalama wa safu za hifadhidata unaruhusu safu hizi.",
 "{company} query":"Hoja ya {company}",
 "{company} query · your company":"Hoja ya {company} · kampuni yako",
-"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Huweka sehemu za anwani, muundo wa simu na sarafu."}
+"{country}, {region}. Sets address fields, phone format and currency.":"{country}, {region}. Huweka sehemu za anwani, muundo wa simu na sarafu.",
+"Comment":"Maoni",
+"Import":"Uingizaji",
+"Import row":"Safu ya uingizaji",
+"Agent key":"Ufunguo wa msaidizi",
+"Invite":"Mwaliko",
+"Job activity":"Shughuli za kazi",
+"Supplier update":"Taarifa ya msambazaji",
+"Notification":"Arifa"}
