@@ -14,5 +14,5 @@ export function relativeLabel(value: string, now: number, language = 'en') {
   const seconds = Math.round(diff / 1000), abs = Math.abs(seconds);
   const unit = abs < 3600 ? 'minute' : abs < 86400 ? 'hour' : 'day';
   const divisor = unit === 'minute' ? 60 : unit === 'hour' ? 3600 : 86400;
-  return new Intl.RelativeTimeFormat((language === 'tw' ? 'ak' : language) + '-u-nu-latn', { numeric: 'auto' }).format(Math.round(seconds / divisor), unit);
+  return new Intl.RelativeTimeFormat(new Intl.Locale(locale, { numberingSystem: 'latn' }).toString(), { numeric: 'auto' }).format(Math.round(seconds / divisor), unit);
 }
