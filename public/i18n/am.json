@@ -1079,5 +1079,15 @@
  "Your visit for {job} is now booked for {time}.": "ለ {job} ጉብኝትዎ አሁን በ {time} ተይዟል።",
  "{job} has been cancelled.": "{job} ተሰርዟል።",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "የ {job} ዋጋ የእርስዎን ፈቃድ ይጠብቃል። ለመቀበል ወይም ላለመቀበል ሥራውን ይክፈቱ።",
- "Your request {job} was updated.": "ጥያቄዎ {job} ተዘምኗል።"
+ "Your request {job} was updated.": "ጥያቄዎ {job} ተዘምኗል።",
+ "Seal loading bay threshold": "የጭነት ማውረጃውን የበር መድረክ ያሽጉ",
+ "Replace washroom tap": "የመጸዳጃ ቤቱን ቧንቧ ይቀይሩ",
+ "Adjust meeting room cooling": "የስብሰባ ክፍሉን ማቀዝቀዣ ያስተካክሉ",
+ "Repair stairwell handrail": "የደረጃውን መደገፊያ ይጠግኑ",
+ "Replace corridor ceiling tile": "የኮሪደሩን የጣሪያ ንጣፍ ይቀይሩ",
+ "Service water pump": "የውሃ ፓምፑን ያገልግሉ",
+ "We have received your request and confirmed access with the site manager.": "ጥያቄዎን ተቀብለን ከቦታው አስተዳዳሪ ጋር መግባትን አረጋግጠናል።",
+ "Check stock and technician availability before the next visit.": "ከቀጣዩ ጉብኝት በፊት ክምችቱን እና የቴክኒሺያኑን መገኘት ያረጋግጡ።",
+ "{name}: {status} on {job}.": "{name}፦ በ{job} ላይ {status}።",
+ "Routine facilities request {number}; coordinate access with the site manager.": "መደበኛ የጥገና ጥያቄ {number}፤ መግባትን ከቦታው አስተዳዳሪ ጋር ያስተባብሩ።"
 }

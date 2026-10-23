@@ -1076,5 +1076,15 @@
  "Your visit for {job} is now booked for {time}.": "{job}的上门时间现已改为{time}。",
  "{job} has been cancelled.": "{job}已取消。",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job}的价格正等待您确认。打开维修单同意或拒绝。",
- "Your request {job} was updated.": "您的请求{job}已更新。"
+ "Your request {job} was updated.": "您的请求{job}已更新。",
+ "Seal loading bay threshold": "密封装卸区门槛",
+ "Replace washroom tap": "更换洗手间水龙头",
+ "Adjust meeting room cooling": "调节会议室制冷",
+ "Repair stairwell handrail": "维修楼梯扶手",
+ "Replace corridor ceiling tile": "更换走廊吊顶板",
+ "Service water pump": "保养水泵",
+ "We have received your request and confirmed access with the site manager.": "我们已收到您的申请，并与现场管理员确认了进场安排。",
+ "Check stock and technician availability before the next visit.": "下次上门前请检查库存和技术人员是否有空。",
+ "{name}: {status} on {job}.": "{name}：{job}，{status}。",
+ "Routine facilities request {number}; coordinate access with the site manager.": "日常设施维修申请 {number}；请与现场管理员协调进场事宜。"
 }

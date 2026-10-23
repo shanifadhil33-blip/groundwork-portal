@@ -1087,5 +1087,15 @@
  "Your visit for {job} is now booked for {time}.": "Yanzu an tsara ziyararku ta {job} da {time}.",
  "{job} has been cancelled.": "An soke {job}.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Farashin {job} yana jiran amincewarku. Buɗe aikin don amincewa ko ƙin yarda.",
- "Your request {job} was updated.": "An sabunta buƙatarku ta {job}."
+ "Your request {job} was updated.": "An sabunta buƙatarku ta {job}.",
+ "Seal loading bay threshold": "Toshe bakin ƙofar wurin loda kaya",
+ "Replace washroom tap": "Sauya famfon bandaki",
+ "Adjust meeting room cooling": "Daidaita sanyin ɗakin taro",
+ "Repair stairwell handrail": "Gyara ƙarfen riƙon matakala",
+ "Replace corridor ceiling tile": "Sauya tayil ɗin silin hanyar wucewa",
+ "Service water pump": "Yi wa famfon ruwa sabis",
+ "We have received your request and confirmed access with the site manager.": "Mun karɓi buƙatarka kuma mun tabbatar da shiga tare da manajan wurin.",
+ "Check stock and technician availability before the next visit.": "Duba kayan da ke ajiye da samuwar mai gyara kafin ziyara ta gaba.",
+ "{name}: {status} on {job}.": "{name}: {status} a kan {job}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "Buƙatar kulawa ta yau da kullum {number}; shirya shiga tare da manajan wurin."
 }

@@ -1071,5 +1071,15 @@
  "Your visit for {job} is now booked for {time}.": "Okukyalira kwo ku {job} kati kutegekeddwa ku {time}.",
  "{job} has been cancelled.": "{job} gusaziddwamu.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Omuwendo gwa {job} gulindirira okukkiriza kwo. Ggulawo omulimu okukkiriza oba okugaana.",
- "Your request {job} was updated.": "Okusaba kwo {job} kutereezeddwa."
+ "Your request {job} was updated.": "Okusaba kwo {job} kutereezeddwa.",
+ "Seal loading bay threshold": "Ziba ekisasi ky’omulyango gw’ekifo awatikirwa emigugu",
+ "Replace washroom tap": "Kyusa ttaapu y’omu kaabuyonjo",
+ "Adjust meeting room cooling": "Teekateeka obunnyogovu bw’ekisenge ky’enkiiko",
+ "Repair stairwell handrail": "Ddaabiriza eky’okukwatako ku madaala",
+ "Replace corridor ceiling tile": "Kyusa ttaayiro y’akasolya k’ekkubo ly’omunda",
+ "Service water pump": "Ddaabiriza ppampu y’amazzi",
+ "We have received your request and confirmed access with the site manager.": "Tufunye okusaba kwo era tukakasizza okuyingira n’omukulu w’ekifo.",
+ "Check stock and technician availability before the next visit.": "Kebera ebintu ebiri mu tterekero n’obanga omukugu waali nga tebannajja kuddamu.",
+ "{name}: {status} on {job}.": "{name}: {status} ku {job}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "Okusaba okuddaabiriza okwa bulijjo {number}; kwatagana n’omukulu w’ekifo ku kuyingira."
 }

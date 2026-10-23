@@ -6,6 +6,7 @@ import { expect, it, vi } from 'vitest';
 import { AppContext } from '../components/app/context';
 import { InitialResourceProvider } from '../components/app/initial-resources';
 import { Translator } from '../components/app/translator';
+import { demoJobTranslations } from '../lib/demo-job-copy';
 import { DEMO_PROOF_COPY } from '../lib/demo-proof-copy';
 
 it.each([true, false])('sample proof uses file translations only in demo: %s', async demo => {
@@ -13,6 +14,7 @@ it.each([true, false])('sample proof uses file translations only in demo: %s', a
   localStorage.clear();
   const raw = readFileSync('public/i18n/ar-AE.json', 'utf8');
   const translations = JSON.parse(raw);
+  Object.assign(translations, demoJobTranslations(translations));
   const fetch = vi.fn(async () => new Response(raw));
   vi.stubGlobal('fetch', fetch);
   const container = document.createElement('div');

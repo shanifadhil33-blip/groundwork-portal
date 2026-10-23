@@ -1082,5 +1082,15 @@
  "Your visit for {job} is now booked for {time}.": "E debanyela nleta gị maka {job} ugbu a na {time}.",
  "{job} has been cancelled.": "A kagbuola {job}.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Ọnụahịa {job} na eche nkwado gị. Mepee ọrụ ahụ iji kwado ma ọ bụ jụ ya.",
- "Your request {job} was updated.": "Emelitere arịrịọ gị {job}."
+ "Your request {job} was updated.": "Emelitere arịrịọ gị {job}.",
+ "Seal loading bay threshold": "Mechie oghere dị n’ala ọnụ ụzọ ebe a na-ebufe ibu",
+ "Replace washroom tap": "Dochie pọmpụ mmiri ụlọ mposi",
+ "Adjust meeting room cooling": "Hazie oyi dị n’ụlọ nzukọ",
+ "Repair stairwell handrail": "Rụzie ihe ejide aka n’elu steepụ",
+ "Replace corridor ceiling tile": "Dochie taịl elu ụlọ paseeji",
+ "Service water pump": "Rụzie igwe na-adọ mmiri",
+ "We have received your request and confirmed access with the site manager.": "Anyị anatala arịrịọ gị ma kwado nbata na onye njikwa ebe ahụ.",
+ "Check stock and technician availability before the next visit.": "Lelee ngwa dị n’ụlọ nkwakọba na ma onye ọrụ nka dị tupu nleta ọzọ.",
+ "{name}: {status} on {job}.": "{name}: {status} maka {job}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "Arịrịọ mmezi a na-eme mgbe niile {number}; gị na onye njikwa ebe ahụ hazie nbata."
 }

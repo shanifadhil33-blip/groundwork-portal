@@ -1099,5 +1099,15 @@
  "Your visit for {job} is now booked for {time}.": "{job} നുള്ള നിങ്ങളുടെ സന്ദർശനം ഇപ്പോൾ {time} ന് ബുക്ക് ചെയ്തു.",
  "{job} has been cancelled.": "{job} റദ്ദാക്കി.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job} ന്റെ വില നിങ്ങളുടെ അംഗീകാരത്തിനായി കാത്തിരിക്കുന്നു. അംഗീകരിക്കാനോ നിരസിക്കാനോ ജോലി തുറക്കുക.",
- "Your request {job} was updated.": "നിങ്ങളുടെ അഭ്യർത്ഥന {job} പുതുക്കി."
+ "Your request {job} was updated.": "നിങ്ങളുടെ അഭ്യർത്ഥന {job} പുതുക്കി.",
+ "Seal loading bay threshold": "ലോഡിങ് സ്ഥലത്തെ വാതിൽപ്പടി സീൽ ചെയ്യുക",
+ "Replace washroom tap": "ശുചിമുറിയിലെ ടാപ്പ് മാറ്റുക",
+ "Adjust meeting room cooling": "മീറ്റിങ് മുറിയിലെ തണുപ്പ് ക്രമീകരിക്കുക",
+ "Repair stairwell handrail": "കോവണിപ്പടിയുടെ കൈവരി നന്നാക്കുക",
+ "Replace corridor ceiling tile": "ഇടനാഴിയിലെ സീലിങ് ടൈൽ മാറ്റുക",
+ "Service water pump": "വാട്ടർ പമ്പ് സർവീസ് ചെയ്യുക",
+ "We have received your request and confirmed access with the site manager.": "നിങ്ങളുടെ അഭ്യർഥന ലഭിച്ചു. സൈറ്റ് മാനേജറുമായി പ്രവേശനം ഉറപ്പാക്കിയിട്ടുണ്ട്.",
+ "Check stock and technician availability before the next visit.": "അടുത്ത സന്ദർശനത്തിന് മുമ്പ് സ്റ്റോക്കും ടെക്നീഷ്യന്റെ ലഭ്യതയും പരിശോധിക്കുക.",
+ "{name}: {status} on {job}.": "{name}: {job} സംബന്ധിച്ച് {status}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "പതിവ് പരിപാലന അഭ്യർഥന {number}; പ്രവേശനത്തിന് സൈറ്റ് മാനേജറുമായി ഏകോപിപ്പിക്കുക."
 }

@@ -1090,5 +1090,15 @@
  "Your visit for {job} is now booked for {time}.": "Nakatakda na ngayon ang pagbisita para sa {job} sa {time}.",
  "{job} has been cancelled.": "Kinansela ang {job}.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Naghihintay ng pagpayag mo ang presyo para sa {job}. Buksan ang trabaho para pumayag o tumanggi.",
- "Your request {job} was updated.": "Na update ang kahilingan mong {job}."
+ "Your request {job} was updated.": "Na update ang kahilingan mong {job}.",
+ "Seal loading bay threshold": "Selyuhan ang bungad ng lugar ng pagkakargahan",
+ "Replace washroom tap": "Palitan ang gripo sa palikuran",
+ "Adjust meeting room cooling": "Ayusin ang lamig sa silid ng pulong",
+ "Repair stairwell handrail": "Ayusin ang hawakan sa hagdan",
+ "Replace corridor ceiling tile": "Palitan ang tile sa kisame ng pasilyo",
+ "Service water pump": "Serbisyuhan ang bomba ng tubig",
+ "We have received your request and confirmed access with the site manager.": "Natanggap namin ang iyong kahilingan at nakumpirma ang pagpasok sa tagapamahala ng lugar.",
+ "Check stock and technician availability before the next visit.": "Suriin ang suplay at kung may available na teknisyan bago ang susunod na pagbisita.",
+ "{name}: {status} on {job}.": "{name}: {status} para sa {job}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "Karaniwang kahilingan sa pagpapanatili {number}; makipag-ugnayan sa tagapamahala ng lugar para sa pagpasok."
 }

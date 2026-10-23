@@ -1087,5 +1087,15 @@
  "Your visit for {job} is now booked for {time}.": "Booqashadaada {job} hadda waxaa loo ballamiyay {time}.",
  "{job} has been cancelled.": "{job} waa la joojiyay.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Qiimaha {job} wuxuu sugayaa oggolaanshahaaga. Fur shaqada si aad u oggolaato ama u diiddo.",
- "Your request {job} was updated.": "Codsigaaga {job} waa la cusboonaysiiyay."
+ "Your request {job} was updated.": "Codsigaaga {job} waa la cusboonaysiiyay.",
+ "Seal loading bay threshold": "Xir marinka hoose ee albaabka goobta rarista",
+ "Replace washroom tap": "Beddel qasabadda musqusha",
+ "Adjust meeting room cooling": "Hagaaji qaboojinta qolka shirarka",
+ "Repair stairwell handrail": "Hagaaji birta lagu qabsado jaranjarada",
+ "Replace corridor ceiling tile": "Beddel looxa saqafka marinka",
+ "Service water pump": "Dayactir bamka biyaha",
+ "We have received your request and confirmed access with the site manager.": "Waxaan helnay codsigaaga oo waxaan gelitaanka la xaqiijinnay maamulaha goobta.",
+ "Check stock and technician availability before the next visit.": "Hubi kaydka iyo helitaanka farsamayaqaanka ka hor booqashada xigta.",
+ "{name}: {status} on {job}.": "{name}: {status} ee {job}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "Codsi dayactir caadi ah {number}; gelitaanka kala xiriir maamulaha goobta."
 }

@@ -3,6 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 vi.mock('../lib/services/push', () => ({ sendPush: vi.fn(async () => 0), pushJobChange: vi.fn(), office: vi.fn(async () => []) }));
 import { closePools, withSystem, withUser } from '../lib/db';
 import { ids, siteId } from '../lib/fixture';
+import { demoJobTranslations } from '../lib/demo-job-copy';
 import { DEMO_PROOF_COPY } from '../lib/demo-proof-copy';
 import { startDemo, resetDemo } from '../lib/services/demo';
 import { getWorkOrder } from '../lib/services/work-orders';
@@ -159,6 +160,7 @@ it('D3 real users retain the ordinary report, follow up, rebook and billing path
 it('D3 fixture text has static translations in every language', () => {
   for (const file of readdirSync('public/i18n')) {
     const text = JSON.parse(readFileSync(`public/i18n/${file}`, 'utf8'));
+    Object.assign(text, demoJobTranslations(text));
     for (const key of DEMO_PROOF_COPY) expect(text[key], `${file}: ${key}`).toBeTruthy();
   }
 });

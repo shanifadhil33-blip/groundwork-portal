@@ -1068,5 +1068,15 @@
  "Your visit for {job} is now booked for {time}.": "A ti yí ìbẹ̀wò rẹ fún {job} sí {time} báyìí.",
  "{job} has been cancelled.": "A ti fagilé {job}.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Iye owó {job} ń dúró de ìfọwọ́sí rẹ. Ṣí iṣẹ́ náà láti gbà tàbí kọ̀.",
- "Your request {job} was updated.": "A ti mú ìbéèrè rẹ {job} ṣe tuntun."
+ "Your request {job} was updated.": "A ti mú ìbéèrè rẹ {job} ṣe tuntun.",
+ "Seal loading bay threshold": "Dí àlàfo àbáwọlé ibi gbígbé ẹrù",
+ "Replace washroom tap": "Rọ́pò tẹ́ẹ̀pù omi ilé ìgbọ̀nsẹ̀",
+ "Adjust meeting room cooling": "Ṣe àtúnṣe ìtútù yàrá ìpàdé",
+ "Repair stairwell handrail": "Ṣe àtúnṣe irin ìdìmú àtẹ̀gùn",
+ "Replace corridor ceiling tile": "Rọ́pò táìlì àjà ọ̀nà àbáwọlé",
+ "Service water pump": "Ṣe ìtọju ẹ̀rọ fífa omi",
+ "We have received your request and confirmed access with the site manager.": "A ti gba ìbéèrè rẹ, a sì ti fìdí àwọlé múlẹ̀ pẹ̀lú alábòójútó ibi náà.",
+ "Check stock and technician availability before the next visit.": "Ṣàyẹ̀wò ohun tó wà ní ìpamọ́ àti wíwà onímọ̀ ẹ̀rọ ṣáájú ìbẹ̀wò tó kàn.",
+ "{name}: {status} on {job}.": "{name}: {status} lórí {job}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "Ìbéèrè ìtọju déédéé {number}; bá alábòójútó ibi náà ṣètò àwọlé."
 }

@@ -1117,5 +1117,15 @@
  "Your visit for {job} is now booked for {time}.": "د {job} لپاره ستاسو لیدنه اوس په {time} ثبت شوې ده.",
  "{job} has been cancelled.": "{job} لغوه شو.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "د {job} بیه ستاسو د منلو په تمه ده. د منلو یا ردولو لپاره کار پرانیزئ.",
- "Your request {job} was updated.": "ستاسو غوښتنه {job} نوې شوې ده."
+ "Your request {job} was updated.": "ستاسو غوښتنه {job} نوې شوې ده.",
+ "Seal loading bay threshold": "د بارولو ځای د دروازې درشل بند کړئ",
+ "Replace washroom tap": "د تشناب نل بدل کړئ",
+ "Adjust meeting room cooling": "د غونډې خونې یخوالی برابر کړئ",
+ "Repair stairwell handrail": "د زینو لاستی جوړ کړئ",
+ "Replace corridor ceiling tile": "د دهلېز د چت ټایل بدل کړئ",
+ "Service water pump": "د اوبو پمپ سرویس کړئ",
+ "We have received your request and confirmed access with the site manager.": "ستاسو غوښتنه مو ترلاسه کړه او د ځای له مدیر سره مو ننوتل تایید کړل.",
+ "Check stock and technician availability before the next visit.": "له بلې لیدنې مخکې زېرمه او د تخنیکر شتون وګورئ.",
+ "{name}: {status} on {job}.": "{name}: د {job} لپاره {status}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "د عادي ساتنې غوښتنه {number}؛ د ځای له مدیر سره د ننوتلو همغږي وکړئ."
 }

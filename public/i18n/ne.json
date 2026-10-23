@@ -1116,5 +1116,15 @@
  "Your visit for {job} is now booked for {time}.": "{job} का लागि तपाईंको भेट अब {time} मा बुक भएको छ।",
  "{job} has been cancelled.": "{job} रद्द गरिएको छ।",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job} को मूल्य तपाईंको स्वीकृतिको पर्खाइमा छ। स्वीकार वा अस्वीकार गर्न काम खोल्नुहोस्।",
- "Your request {job} was updated.": "तपाईंको अनुरोध {job} अद्यावधिक गरिएको छ।"
+ "Your request {job} was updated.": "तपाईंको अनुरोध {job} अद्यावधिक गरिएको छ।",
+ "Seal loading bay threshold": "सामान लोड गर्ने ठाउँको ढोकाको सँघार सिल गर्नुहोस्",
+ "Replace washroom tap": "शौचालयको धारा फेर्नुहोस्",
+ "Adjust meeting room cooling": "बैठक कोठाको चिसोपन मिलाउनुहोस्",
+ "Repair stairwell handrail": "भर्‍याङको रेलिङ मर्मत गर्नुहोस्",
+ "Replace corridor ceiling tile": "करिडोरको छतको टायल फेर्नुहोस्",
+ "Service water pump": "पानीको पम्प मर्मत गर्नुहोस्",
+ "We have received your request and confirmed access with the site manager.": "हामीले तपाईंको अनुरोध प्राप्त गरेका छौँ र साइट व्यवस्थापकसँग प्रवेश पुष्टि गरेका छौँ।",
+ "Check stock and technician availability before the next visit.": "अर्को भ्रमणअघि मौज्दात र प्राविधिकको उपलब्धता जाँच गर्नुहोस्।",
+ "{name}: {status} on {job}.": "{name}: {job} मा {status}।",
+ "Routine facilities request {number}; coordinate access with the site manager.": "नियमित सुविधा मर्मत अनुरोध {number}; साइट व्यवस्थापकसँग प्रवेशको समन्वय गर्नुहोस्।"
 }

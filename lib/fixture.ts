@@ -1,3 +1,4 @@
+import { DEMO_JOB_TITLES, DEMO_JOB_COMMENTS, demoJobDescription } from './demo-job-copy';
 import { populateQuoteFixture } from './fixture-quotes';
 import { populateChecklistFixture } from './fixture-checklists';
 import { populateCompanyJoiningFixture } from './fixture-company-joining';
@@ -70,7 +71,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    ['Juniper Court, Block A','Hamdan Bin Mohammed Street','Al Danah','Report to the concierge. Contractor passes are issued at the desk.','Rashid Al Nuaimi','+97125550145'],
   ];
   for (let n=1;n<=(demo?6:7);n++){const [building,address,area,access,contact,phone]=siteRecords[n-1],region=n===6?'Sharjah':n===7?'Abu Dhabi':'Dubai';await client.query('INSERT INTO sites(id,workspace_id,client_id,name,address,building,area,region,access_notes,contact_name,contact_phone) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[siteId(n),n===7?ids.summit:ids.ridgeline,n<=3?ids.harbor:n<=5?ids.northgate:n===6?ids.larkspur:ids.summitClient,names[n-1],address,building,area,region,access,contact,phone]);}
-  const tasks=['Replace lobby light fixture','Service rooftop ventilation','Repair entry door closer','Inspect emergency lighting','Seal loading bay threshold','Replace washroom tap','Adjust meeting room cooling','Repair stairwell handrail','Clear courtyard drainage','Test access control reader','Replace corridor ceiling tile','Service water pump'];
+  const tasks=DEMO_JOB_TITLES;
   const priorities=['low','normal','high','urgent'];
   await client.query("UPDATE workspaces SET visit_charge=150,visit_charge_regions='{\"Sharjah\":200}',visit_charge_sample=true WHERE id=$1",[ids.ridgeline]);
   // Sample setup, not a user change: keep it out of History.
@@ -86,13 +87,13 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    if(n===1||n===7){dates.created=new Date(Date.now()-(n===1?3.5:5)*3600000);dates.updated=new Date(dates.created.getTime()+2*3600000);}
    const assigned=summit?ids.summitAdmin:[ids.sam,ids.imran,null,ids.ravi,ids.sam,ids.ravi,null][(n-1)%7];
    const title=tasks[(n-1)%tasks.length];
-   await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)',[orderId(n),ws,company,siteId(site),title,`Routine facilities request ${n}; coordinate access with the site manager.`,fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated]);
+   await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)',[orderId(n),ws,company,siteId(site),title,demoJobDescription(n),fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated]);
    const history: {kind:string;body:string;details:Record<string,unknown>}[]=[];
    const finalStatus=fixtureStatus(n);
    const stages=finalStatus==='open'?[]:finalStatus==='cancelled'?['scheduled','cancelled']:finalStatus==='scheduled'?['scheduled']:finalStatus==='in_progress'?['scheduled','in_progress']:finalStatus==='waiting_on_parts'?['scheduled','in_progress','waiting_on_parts']:['scheduled','in_progress','done'];
    for(const [index,to_status] of stages.entries())history.push({kind:'status_changed',body:'Status updated',details:{from_status:stages[index-1]??'open',to_status}});
    for(const [index,event] of history.entries())await client.query('INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[ws,company,orderId(n),actor,event.kind,event.body,JSON.stringify(event.details),new Date(dates.created.getTime()+(index+1)*7200000)]);
-   if(n<=18) for(const [index,visibility] of ['client','internal'].entries()) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,company,orderId(n),visibility==='client'?'We have received your request and confirmed access with the site manager.':'Check stock and technician availability before the next visit.',visibility,actor,new Date(dates.updated.getTime()-(2-index)*3600000)]);
+   if(n<=18) for(const [index,visibility] of ['client','internal'].entries()) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,company,orderId(n),DEMO_JOB_COMMENTS[visibility as keyof typeof DEMO_JOB_COMMENTS],visibility,actor,new Date(dates.updated.getTime()-(2-index)*3600000)]);
    if(n<=4) await client.query('INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,$3)',[ws,orderId(n),`${prefix}COBALT-DEMO-${n}`]);
   }
   await client.query("UPDATE work_orders SET tenant_unit='1204',tenant_name='Hassan',tenant_phone='+971 50 000 1204' WHERE id=$1",[orderId(1)]);

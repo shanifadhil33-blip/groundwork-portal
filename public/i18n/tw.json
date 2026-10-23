@@ -1079,5 +1079,15 @@
  "Your visit for {job} is now booked for {time}.": "Seesei yɛahyɛ wo nsrahwɛ a ɛfa {job} ho wɔ {time}.",
  "{job} has been cancelled.": "Yɛatwa {job} mu.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "{job} bo no retwɛn wo pene. Bue adwuma no na pene so anaa pow.",
- "Your request {job} was updated.": "Yɛayɛ wo adesrɛ {job} foforo."
+ "Your request {job} was updated.": "Yɛayɛ wo adesrɛ {job} foforo.",
+ "Seal loading bay threshold": "Kata kwan a ɛwɔ baabi a wɔsoa nneɛma no pon ase",
+ "Replace washroom tap": "Sesa nsu afiri a ɛwɔ aguaree no",
+ "Adjust meeting room cooling": "Yɛ nhyiam dan no mu nwini yiye",
+ "Repair stairwell handrail": "Siesie atrapoe no nsa",
+ "Replace corridor ceiling tile": "Sesa dan atifi tael a ɛwɔ kwan no so",
+ "Service water pump": "Hwɛ nsu pam no so",
+ "We have received your request and confirmed access with the site manager.": "Yɛn nsa aka w’adesrɛ no na yɛne beae no sohwɛfo ahyɛ baabi hɔ a yɛbɛkɔ no mu den.",
+ "Check stock and technician availability before the next visit.": "Hwɛ nneɛma a ɛwɔ akorae ne sɛ odwumayɛfo no wɔ hɔ ansa na ɔbɛsan aba.",
+ "{name}: {status} on {job}.": "{name}: {status} wɔ {job} ho.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "Daa nsiesie adesrɛ {number}; ne beae no sohwɛfo nyɛ nhyehyɛe fa baabi hɔ a wobɛkɔ ho."
 }

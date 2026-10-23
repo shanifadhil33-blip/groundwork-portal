@@ -1072,5 +1072,15 @@
  "Your visit for {job} is now booked for {time}.": "Ziara yako ya {job} sasa imepangwa kwa {time}.",
  "{job} has been cancelled.": "{job} imeghairiwa.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "Bei ya {job} inasubiri idhini yako. Fungua kazi ukubali au ukatae.",
- "Your request {job} was updated.": "Ombi lako la {job} limesasishwa."
+ "Your request {job} was updated.": "Ombi lako la {job} limesasishwa.",
+ "Seal loading bay threshold": "Ziba kizingiti cha sehemu ya kupakia mizigo",
+ "Replace washroom tap": "Badilisha bomba la chooni",
+ "Adjust meeting room cooling": "Rekebisha ubaridi wa chumba cha mikutano",
+ "Repair stairwell handrail": "Rekebisha kishikio cha ngazi",
+ "Replace corridor ceiling tile": "Badilisha kigae cha dari ya korido",
+ "Service water pump": "Fanya matengenezo ya pampu ya maji",
+ "We have received your request and confirmed access with the site manager.": "Tumepokea ombi lako na kuthibitisha kuingia na msimamizi wa eneo.",
+ "Check stock and technician availability before the next visit.": "Angalia stoo na upatikanaji wa fundi kabla ya ziara inayofuata.",
+ "{name}: {status} on {job}.": "{name}: {status} kwa {job}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "Ombi la kawaida la matengenezo {number}; ratibu kuingia na msimamizi wa eneo."
 }

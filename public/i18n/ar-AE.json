@@ -1403,5 +1403,15 @@
  "Your visit for {job} is now booked for {time}.": "غيّرنا موعد زيارتك بخصوص {job} إلى {time}.",
  "{job} has been cancelled.": "تم إلغاء {job}.",
  "The price for {job} is waiting for your approval. Open the job to approve or decline it.": "سعر {job} ينتظر موافقتك. افتح الطلب عشان توافق أو ترفض.",
- "Your request {job} was updated.": "حدّثنا طلبك {job}."
+ "Your request {job} was updated.": "حدّثنا طلبك {job}.",
+ "Seal loading bay threshold": "سكّر الفراغ عند عتبة منطقة التحميل",
+ "Replace washroom tap": "بدّل حنفية الحمّام",
+ "Adjust meeting room cooling": "اضبط تبريد غرفة الاجتماعات",
+ "Repair stairwell handrail": "صلّح درابزين الدرج",
+ "Replace corridor ceiling tile": "بدّل بلاطة سقف الممر",
+ "Service water pump": "سوّ صيانة لمضخة الماي",
+ "We have received your request and confirmed access with the site manager.": "وصلنا طلبك وأكّدنا الدخول مع مسؤول الموقع.",
+ "Check stock and technician availability before the next visit.": "شيّك على المخزون وتوفّر الفنّي قبل الزيارة الياية.",
+ "{name}: {status} on {job}.": "{name}: {status} بخصوص {job}.",
+ "Routine facilities request {number}; coordinate access with the site manager.": "طلب صيانة عادي {number}؛ نسّق الدخول مع مسؤول الموقع."
 }
