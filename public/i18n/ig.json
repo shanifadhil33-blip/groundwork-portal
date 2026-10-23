@@ -1299,4 +1299,9 @@
 "The door did not close by itself.":"Ọnụ ụzọ emechighị n'onwe ya.",
 "The room was too warm.":"Ime ụlọ ahụ dị ọkụ nke ukwuu.",
 "Changed the driver and the bulb.":"Agbanwere ngwaọrụ njikwa na bọlbụ.",
-"Set the closer again and tightened the screws.":"Ahazigharịrị ihe mmechi ọnụ ụzọ ma mee ka skru sie ike."}
+"Set the closer again and tightened the screws.":"Ahazigharịrị ihe mmechi ọnụ ụzọ ma mee ka skru sie ike.",
+ "Good morning, {name}": "Ụtụtụ ọma, {name}",
+ "Good afternoon, {name}": "Ehihie ọma, {name}",
+ "Good evening, {name}": "Mgbede ọma, {name}",
+ "{first}, {second}": "{first}, {second}"
+}

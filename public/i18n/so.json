@@ -1304,4 +1304,9 @@
 "The door did not close by itself.":"Albaabku isma xidhin.",
 "The room was too warm.":"Qolku aad buu u kululaa.",
 "Changed the driver and the bulb.":"Waxaan beddelay darawalka nalka iyo guluubka.",
-"Set the closer again and tightened the screws.":"Waxaan dib u hagaajiyay xiraha albaabka oo adkeeyay boolasha."}
+"Set the closer again and tightened the screws.":"Waxaan dib u hagaajiyay xiraha albaabka oo adkeeyay boolasha.",
+ "Good morning, {name}": "Subax wanaagsan, {name}",
+ "Good afternoon, {name}": "Galab wanaagsan, {name}",
+ "Good evening, {name}": "Fiid wanaagsan, {name}",
+ "{first}, {second}": "{first}, {second}"
+}

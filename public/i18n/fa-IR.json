@@ -1340,4 +1340,9 @@
 "The door did not close by itself.":"در خودبه‌خود بسته نشد.",
 "The room was too warm.":"اتاق خیلی گرم بود.",
 "Changed the driver and the bulb.":"درایور و لامپ تعویض شد.",
-"Set the closer again and tightened the screws.":"آرام‌بند دوباره تنظیم و پیچ‌ها سفت شد."}
+"Set the closer again and tightened the screws.":"آرام‌بند دوباره تنظیم و پیچ‌ها سفت شد.",
+ "Good morning, {name}": "صبح بخیر، {name}",
+ "Good afternoon, {name}": "بعد از ظهر بخیر، {name}",
+ "Good evening, {name}": "شب بخیر، {name}",
+ "{first}, {second}": "{first}، {second}"
+}

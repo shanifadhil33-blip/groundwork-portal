@@ -1304,4 +1304,9 @@
 "The door did not close by itself.":"Ƙofar ba ta rufe da kanta ba.",
 "The room was too warm.":"Ɗakin ya yi zafi sosai.",
 "Changed the driver and the bulb.":"Na sauya mai sarrafawa da kwan fitila.",
-"Set the closer again and tightened the screws.":"Na sake saita mai rufe ƙofa na matse sukurori."}
+"Set the closer again and tightened the screws.":"Na sake saita mai rufe ƙofa na matse sukurori.",
+ "Good morning, {name}": "Barka da safe, {name}",
+ "Good afternoon, {name}": "Barka da rana, {name}",
+ "Good evening, {name}": "Barka da yamma, {name}",
+ "{first}, {second}": "{first}, {second}"
+}

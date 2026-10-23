@@ -1285,4 +1285,9 @@
 "The door did not close by itself.":"Ilẹ̀kùn kò ti ara rẹ̀ pa.",
 "The room was too warm.":"Yàrá gbóná jù.",
 "Changed the driver and the bulb.":"Mo rọ́pò ẹ̀rọ ìṣàkóso àti bọ́ọ̀bù.",
-"Set the closer again and tightened the screws.":"Mo tún ẹ̀rọ títì ilẹ̀kùn ṣètò mo sì mú súúrù rẹ̀ le."}
+"Set the closer again and tightened the screws.":"Mo tún ẹ̀rọ títì ilẹ̀kùn ṣètò mo sì mú súúrù rẹ̀ le.",
+ "Good morning, {name}": "Ẹ kaaro, {name}",
+ "Good afternoon, {name}": "Ẹ kaasan, {name}",
+ "Good evening, {name}": "Ẹ kale, {name}",
+ "{first}, {second}": "{first}, {second}"
+}

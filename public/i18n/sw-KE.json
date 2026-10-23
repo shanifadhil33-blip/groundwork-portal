@@ -1289,4 +1289,9 @@
 "The door did not close by itself.":"Mlango haukujifunga wenyewe.",
 "The room was too warm.":"Chumba kilikuwa na joto sana.",
 "Changed the driver and the bulb.":"Nilibadilisha kiendeshi na balbu.",
-"Set the closer again and tightened the screws.":"Niliweka kifunga mlango upya na kukaza skrubu."}
+"Set the closer again and tightened the screws.":"Niliweka kifunga mlango upya na kukaza skrubu.",
+ "Good morning, {name}": "Habari za asubuhi, {name}",
+ "Good afternoon, {name}": "Habari za mchana, {name}",
+ "Good evening, {name}": "Habari za jioni, {name}",
+ "{first}, {second}": "{first}, {second}"
+}

@@ -1292,4 +1292,9 @@
 "The door did not close by itself.":"门无法自行关闭。",
 "The room was too warm.":"房间太热。",
 "Changed the driver and the bulb.":"已更换驱动器和灯泡。",
-"Set the closer again and tightened the screws.":"已重新调整闭门器并拧紧螺丝。"}
+"Set the closer again and tightened the screws.":"已重新调整闭门器并拧紧螺丝。",
+ "Good morning, {name}": "早上好，{name}",
+ "Good afternoon, {name}": "下午好，{name}",
+ "Good evening, {name}": "晚上好，{name}",
+ "{first}, {second}": "{first}，{second}"
+}

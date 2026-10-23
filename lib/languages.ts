@@ -1,3 +1,5 @@
+import { joinNames } from './ui/name-joins';
+
 /**
  * LANG04: every language a person can pick, for the searchable dropdown at sign up and in the profile.
  * English (India) is the default for everyone, and every user can change his own language at any time.
@@ -40,6 +42,6 @@ const VOICE_EARLY = new Set(['ti', 'yo', 'ha', 'ig', 'lg', 'tw', 'so']);
 export function languageQuality(code: string): 'Ready' | 'Early' { return code.startsWith('en') ? 'Ready' : 'Early'; }
 export function languageVoice(code: string): 'Voice' | 'Voice early' { return VOICE_EARLY.has(code) ? 'Voice early' : 'Voice'; }
 /** Options for the Language dropdown: grouped by region, searchable by English name, own script, code or region, with quality and voice shown. */
-export function languageOptions() {
-  return LANGUAGES.map(l => ({ value: l.code, noTranslate: true, group: l.group, label: l.native === l.name ? l.name : `${l.name}, ${l.native}`, hint: `${languageQuality(l.code)} · ${languageVoice(l.code)}`, keywords: [l.code, ...l.group.split(/[: ]+/).filter(Boolean)] }));
+export function languageOptions(join: typeof joinNames = joinNames) {
+  return LANGUAGES.map(l => ({ value: l.code, noTranslate: true, group: l.group, label: l.native === l.name ? l.name : join([l.name, l.native]), hint: `${languageQuality(l.code)} · ${languageVoice(l.code)}`, keywords: [l.code, ...l.group.split(/[: ]+/).filter(Boolean)] }));
 }

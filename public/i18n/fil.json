@@ -1311,4 +1311,9 @@
 "The door did not close by itself.":"Hindi kusang nagsara ang pinto.",
 "The room was too warm.":"Masyadong mainit ang silid.",
 "Changed the driver and the bulb.":"Pinalitan ang driver at bombilya.",
-"Set the closer again and tightened the screws.":"Inayos muli ang door closer at hinigpitan ang mga turnilyo."}
+"Set the closer again and tightened the screws.":"Inayos muli ang door closer at hinigpitan ang mga turnilyo.",
+ "Good morning, {name}": "Magandang umaga, {name}",
+ "Good afternoon, {name}": "Magandang hapon, {name}",
+ "Good evening, {name}": "Magandang gabi, {name}",
+ "{first}, {second}": "{first}, {second}"
+}

@@ -1348,4 +1348,9 @@
 "The door did not close by itself.":"கதவு தானாக மூடவில்லை.",
 "The room was too warm.":"அறை மிகவும் சூடாக இருந்தது.",
 "Changed the driver and the bulb.":"இயக்கியும் பல்பும் மாற்றினேன்.",
-"Set the closer again and tightened the screws.":"கதவு மூடியை மீண்டும் அமைத்து திருகுகளை இறுக்கினேன்."}
+"Set the closer again and tightened the screws.":"கதவு மூடியை மீண்டும் அமைத்து திருகுகளை இறுக்கினேன்.",
+ "Good morning, {name}": "காலை வணக்கம், {name}",
+ "Good afternoon, {name}": "மதியம் வணக்கம், {name}",
+ "Good evening, {name}": "மாலை வணக்கம், {name}",
+ "{first}, {second}": "{first}, {second}"
+}

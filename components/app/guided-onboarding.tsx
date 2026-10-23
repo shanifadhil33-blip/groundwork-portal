@@ -1,4 +1,5 @@
 'use client';
+import { useNameJoin } from './use-name-join';
 import { OnboardingHelper } from './onboarding-helper';
 import { PageHeader } from '../ui/layout';
 import Link from 'next/link';
@@ -19,6 +20,7 @@ export function GuidedOnboarding(){
  return <OnboardingFlow key={`${me.user.id}:${workspace?.id??''}`} rehearsal={!!(me.user.is_demo||workspace?.is_demo)}/>;
 }
 function OnboardingFlow({rehearsal}:{rehearsal:boolean}){
+ const joinNames = useNameJoin();
  const {me,workspace,reload,askAssistant}=useApp(),[progress,setProgress]=useState<Progress|null>(rehearsal?{step:'language',answers:{},completed_at:null}:null),[a,setAnswers]=useState<OnboardingAnswers>({language:DEFAULT_LANGUAGE,country:'AE',currency:'AED',company_size:'small',working_days:[1,2,3,4,5],working_hours:{start:'08:00',end:'17:00'}}),[busy,setBusy]=useState(false),[error,setError]=useState(''),[dialCountry,setDialCountry]=useState('AE'),[localPhone,setLocalPhone]=useState(''),[email,setEmail]=useState(''),[invite,setInvite]=useState<{email:string;mismatch:boolean}|null>(null),[share,setShare]=useState('');
  const locationNames=rehearsal?new Intl.DisplayNames([a.language??DEFAULT_LANGUAGE],{type:'region'}):null;
  const locationOptions=countryOptions().map(o=>rehearsal?{...o,label:locationNames!.of(o.value)??o.label,noTranslate:true}:o),menuText=rehearsal?{searchLabel:'Search',clearLabel:'Clear'}:{};
@@ -39,7 +41,7 @@ function OnboardingFlow({rehearsal}:{rehearsal:boolean}){
  if(!progress&&!error)return <div className="page"><p>Loading your answers…</p></div>;
  const toggle=(values:string[],v:string)=>values.includes(v)?values.filter(x=>x!==v):[...values,v];
  return <div className="page narrow stack guided-onboarding"><Link href="/dashboard" onClick={()=>{void save(false);}}>Do this later</Link>{rehearsal&&<section className="site-row stack"><h2>Practice setup</h2><p>Your answers stay on this page. No company is created and no invite is sent.</p></section>}<ol className="onboarding-steps" aria-label="Setup progress">{steps.map((s,i)=><li key={s} className={i<=steps.indexOf(step)?'done':''} aria-label={rehearsal?undefined:`Step ${i+1}`} aria-current={s===step?'step':undefined}/>)}</ol><PageHeader><h1>{questions[step]}</h1></PageHeader><form className="stack" onSubmit={e=>{e.preventDefault();void save();}}>
- {step==='language'&&<Dropdown {...menuText} label="Language" value={a.language??DEFAULT_LANGUAGE} options={languageOptions().map(o=>rehearsal?{...o,group:undefined,hint:undefined}:o)} onChange={v=>{set('language',v);changeAppLanguage(v);}}/>}
+ {step==='language'&&<Dropdown {...menuText} label="Language" value={a.language??DEFAULT_LANGUAGE} options={languageOptions(joinNames).map(o=>rehearsal?{...o,group:undefined,hint:undefined}:o)} onChange={v=>{set('language',v);changeAppLanguage(v);}}/>}
  {step==='identity'&&<div className="stack">{([['new','Start a new company'],['team',"Join my company’s team"],['customer','Customer of a maintenance company']] as const).map(([value,label])=><Button key={value} type="button" variant={a.identity===value?'primary':'secondary'} aria-pressed={a.identity===value} onClick={()=>set('identity',value)}>{label}</Button>)}</div>}
  {step==='profile'&&<><label className="form-field">Your name<input required maxLength={80} value={a.name??''} onChange={e=>set('name',e.target.value)} autoComplete="name"/></label><div className="form-field"><label>Country code</label><Dropdown {...menuText} label="Country code" value={dialCountry} options={locationOptions.filter(c=>country(c.value).dial).map(c=>({...c,label:`${c.label} +${country(c.value).dial}`}))} onChange={setDialCountry}/></div><label className="form-field">Work WhatsApp number<input required type="tel" autoComplete="tel" value={localPhone} onChange={e=>setLocalPhone(e.target.value)}/></label></>}
  {step==='company'&&<label className="form-field">Company name<input required maxLength={80} value={a.company_name??''} onChange={e=>set('company_name',e.target.value)}/></label>}

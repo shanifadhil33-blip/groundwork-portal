@@ -1296,4 +1296,9 @@
 "The door did not close by itself.":"በሩ በራሱ አልተዘጋም።",
 "The room was too warm.":"ክፍሉ በጣም ሞቃት ነበር።",
 "Changed the driver and the bulb.":"መቆጣጠሪያውን እና አምፖሉን ቀየርሁ።",
-"Set the closer again and tightened the screws.":"መዝጊያውን እንደገና አስተካክዬ ብሎኖቹን አጠበቅሁ።"}
+"Set the closer again and tightened the screws.":"መዝጊያውን እንደገና አስተካክዬ ብሎኖቹን አጠበቅሁ።",
+ "Good morning, {name}": "እንደምን አደሩ፣ {name}",
+ "Good afternoon, {name}": "እንደምን ዋሉ፣ {name}",
+ "Good evening, {name}": "እንደምን አመሹ፣ {name}",
+ "{first}, {second}": "{first}፣ {second}"
+}

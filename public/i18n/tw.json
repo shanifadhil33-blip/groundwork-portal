@@ -1296,4 +1296,9 @@
 "The door did not close by itself.":"Ɔpon no antom ankasa.",
 "The room was too warm.":"Na dan no mu ayɛ hye dodo.",
 "Changed the driver and the bulb.":"Masɛsa driver no ne kanea no.",
-"Set the closer again and tightened the screws.":"Masan ahyehyɛ nea ɛtom ɔpon no na mayɛ skru no den."}
+"Set the closer again and tightened the screws.":"Masan ahyehyɛ nea ɛtom ɔpon no na mayɛ skru no den.",
+ "Good morning, {name}": "Mema wo akye, {name}",
+ "Good afternoon, {name}": "Mema wo aha, {name}",
+ "Good evening, {name}": "Mema wo anadwo, {name}",
+ "{first}, {second}": "{first}, {second}"
+}

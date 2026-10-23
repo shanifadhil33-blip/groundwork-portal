@@ -1,4 +1,5 @@
 'use client';
+import { useNameJoin } from './use-name-join';
 import { JobChecklistCard } from './job-checklists';
 import { enqueue } from '../../lib/ui/outbox';
 import { useLocalDraft } from '../../lib/ui/drafts';
@@ -108,7 +109,8 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
   const [flipped, setFlipped] = useState(false), frontBtn = useRef<HTMLButtonElement|null>(null), backBtn = useRef<HTMLButtonElement|null>(null), moved = useRef(false);
   useEffect(() => { if (!moved.current) return; (flipped ? backBtn : frontBtn).current?.focus({ preventScroll: true }); }, [flipped]);
   const flip = (v: boolean) => { moved.current = true; setFlipped(v); };
-  const place = [j.building, j.site_name, j.area].filter(Boolean).join(', ');
+  const joinNames = useNameJoin();
+  const place = joinNames([j.building, j.site_name, j.area]);
   const tel = j.contact_phone ? `tel:${j.contact_phone.replace(/[^+0-9]/g, '')}` : null;
   return <section className="next-job stack compact" aria-labelledby="next-job-label">
     <p id="next-job-label" className="ds-label"><span>Next job</span> · {when}</p>
@@ -126,8 +128,8 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
       <div id="next-job-back" className="flip-face flip-back ds-hero next-job-face" inert={!flipped} aria-hidden={!flipped}>
         <div className="next-job-top"><strong>Job details</strong><span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>
         <dl className="next-job-facts">
-          {(j.contact_name || j.contact_phone) && <div><dt>Contact</dt><dd data-no-translate>{[j.contact_name, j.contact_phone].filter(Boolean).join(', ')}</dd></div>}
-          <div><dt>Address</dt><dd data-no-translate>{[j.building, j.address, j.area].filter(Boolean).join(', ') || j.site_name}</dd></div>
+          {(j.contact_name || j.contact_phone) && <div><dt>Contact</dt><dd data-no-translate>{joinNames([j.contact_name, j.contact_phone])}</dd></div>}
+          <div><dt>Address</dt><dd data-no-translate>{joinNames([j.building, j.address, j.area]) || j.site_name}</dd></div>
           {j.trade && <div><dt>Trade</dt><dd>{tradeLabels[j.trade as Trade] ?? j.trade}</dd></div>}
           {j.tenant_unit && <div><dt>Flat or unit</dt><dd data-no-translate>{j.tenant_unit}</dd></div>}
         </dl>
@@ -140,7 +142,8 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
 
 /** A job row: time, title and place, meta at the end. The whole row opens the job. */
 function JobRow({ j, when, meta, selection }: { j: Job; when: ReactNode; meta?: ReactNode; selection?: ReturnType<typeof useSelection> }) {
-  return <li {...selection?.row(j.id)}>{selection?.mark(j.id)}<Link className="ds-row" href={`/work-orders/${j.id}`}><span className="ds-time">{when}</span><span className="ds-main"><strong data-no-translate>{j.title}</strong><span className="ds-sub" data-no-translate>{[j.building ?? j.site_name, j.area].filter(Boolean).join(', ')}</span></span>{meta && <span className="ds-meta">{meta}</span>}</Link></li>;
+  const joinNames = useNameJoin();
+  return <li {...selection?.row(j.id)}>{selection?.mark(j.id)}<Link className="ds-row" href={`/work-orders/${j.id}`}><span className="ds-time">{when}</span><span className="ds-main"><strong data-no-translate>{j.title}</strong><span className="ds-sub" data-no-translate>{joinNames([j.building ?? j.site_name, j.area])}</span></span>{meta && <span className="ds-meta">{meta}</span>}</Link></li>;
 }
 
 /** TECH05: the full screen card after the report is saved. Counts stay under it. */

@@ -1334,4 +1334,9 @@
 "The door did not close by itself.":"دروازه پخپله نه تړل کېده.",
 "The room was too warm.":"خونه ډېره ګرمه وه.",
 "Changed the driver and the bulb.":"چلوونکی او ګروپ بدل شول.",
-"Set the closer again and tightened the screws.":"د دروازې تړونکی بیا برابر او پیچونه ټینګ شول."}
+"Set the closer again and tightened the screws.":"د دروازې تړونکی بیا برابر او پیچونه ټینګ شول.",
+ "Good morning, {name}": "سهار مو پخير، {name}",
+ "Good afternoon, {name}": "ماسپښین مو پخير، {name}",
+ "Good evening, {name}": "ماښام مو پخير، {name}",
+ "{first}, {second}": "{first}، {second}"
+}

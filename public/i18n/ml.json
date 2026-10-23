@@ -1316,4 +1316,9 @@
 "The door did not close by itself.":"വാതിൽ തനിയെ അടഞ്ഞില്ല.",
 "The room was too warm.":"മുറിയിൽ ചൂട് കൂടുതലായിരുന്നു.",
 "Changed the driver and the bulb.":"ഡ്രൈവറും ബൾബും മാറ്റി.",
-"Set the closer again and tightened the screws.":"ഡോർ ക്ലോസർ വീണ്ടും ക്രമപ്പെടുത്തി സ്ക്രൂ മുറുക്കി."}
+"Set the closer again and tightened the screws.":"ഡോർ ക്ലോസർ വീണ്ടും ക്രമപ്പെടുത്തി സ്ക്രൂ മുറുക്കി.",
+ "Good morning, {name}": "സുപ്രഭാതം, {name}",
+ "Good afternoon, {name}": "ശുഭ മധ്യാഹ്നം, {name}",
+ "Good evening, {name}": "ശുഭ സായാഹ്നം, {name}",
+ "{first}, {second}": "{first}, {second}"
+}

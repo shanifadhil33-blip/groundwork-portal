@@ -1353,4 +1353,9 @@
 "The door did not close by itself.":"দরজা নিজে থেকে বন্ধ হয়নি।",
 "The room was too warm.":"ঘর খুব গরম ছিল।",
 "Changed the driver and the bulb.":"ড্রাইভার ও বাল্ব বদলেছি।",
-"Set the closer again and tightened the screws.":"দরজা বন্ধের যন্ত্র আবার ঠিক করে স্ক্রু এঁটেছি।"}
+"Set the closer again and tightened the screws.":"দরজা বন্ধের যন্ত্র আবার ঠিক করে স্ক্রু এঁটেছি।",
+ "Good morning, {name}": "শুভ সকাল, {name}",
+ "Good afternoon, {name}": "শুভ দুপুর, {name}",
+ "Good evening, {name}": "শুভ সন্ধ্যা, {name}",
+ "{first}, {second}": "{first}, {second}"
+}

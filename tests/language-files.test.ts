@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { NAME_JOIN } from '../lib/ui/name-joins';
 import { LANGUAGES } from '../lib/languages';
 import { isEnglish, languageFileUrl, mergeLanguageFile, translationSource, validTranslation } from '../lib/i18n';
 import { KEEP_AS_IS } from '../lib/services/translations';
@@ -21,7 +22,8 @@ describe('language files', () => {
     for (const [source, translated] of entries) {
       expect(translationSource(source), source).toBe(source);
       expect(validTranslation(source, translated, code), `${code}: ${source}`).toBe(true);
-      expect(translated, `${code}: ${source} is still English`).not.toBe(source);
+      // A punctuation-only template can be identical in locales that use the Latin comma.
+      if (source !== NAME_JOIN) expect(translated, `${code}: ${source} is still English`).not.toBe(source);
       // No demo names, places, amounts or codes: those are data, not interface text.
       expect(source).not.toMatch(/\d|Imran|Ravi|Pranav|Harbor|Northgate|COBALT|AED|Dubai|Sharjah/);
     }

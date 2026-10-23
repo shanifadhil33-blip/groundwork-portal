@@ -1313,4 +1313,9 @@
 "The door did not close by itself.":"ማዕጾ ባዕሉ ኣይተዓጽወን።",
 "The room was too warm.":"እቲ ክፍሊ ኣዝዩ ውዑይ ነይሩ።",
 "Changed the driver and the bulb.":"መቆጻጸሪን ኣምፖልን ቀይረ።",
-"Set the closer again and tightened the screws.":"መዕጸዊ ደጊመ ኣስተኻኺለ ቪታታት ኣጥቢቐ።"}
+"Set the closer again and tightened the screws.":"መዕጸዊ ደጊመ ኣስተኻኺለ ቪታታት ኣጥቢቐ።",
+ "Good morning, {name}": "ደሓን ንግሆ፣ {name}",
+ "Good afternoon, {name}": "ደሓን ቀትሪ፣ {name}",
+ "Good evening, {name}": "ደሓን ምሸት፣ {name}",
+ "{first}, {second}": "{first}፣ {second}"
+}

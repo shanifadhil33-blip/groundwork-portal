@@ -1620,4 +1620,9 @@
 "The door did not close by itself.":"الباب ما كان يسكّر بروحه.",
 "The room was too warm.":"الغرفة كانت حارة وايد.",
 "Changed the driver and the bulb.":"بدّلت مشغّل اللمبة واللمبة.",
-"Set the closer again and tightened the screws.":"ضبطت ذراع الباب مرة ثانية وشدّيت البراغي."}
+"Set the closer again and tightened the screws.":"ضبطت ذراع الباب مرة ثانية وشدّيت البراغي.",
+ "Good morning, {name}": "صباح الخير، {name}",
+ "Good afternoon, {name}": "مساء الخير، {name}",
+ "Good evening, {name}": "مساء الخير، {name}",
+ "{first}, {second}": "{first}، {second}"
+}

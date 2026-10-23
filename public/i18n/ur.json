@@ -1337,4 +1337,9 @@
 "The door did not close by itself.":"دروازہ خود بند نہیں ہوا۔",
 "The room was too warm.":"کمرہ بہت گرم تھا۔",
 "Changed the driver and the bulb.":"ڈرائیور اور بلب بدلا۔",
-"Set the closer again and tightened the screws.":"دروازہ بند کرنے والا آلہ دوبارہ درست کیا اور پیچ کسے۔"}
+"Set the closer again and tightened the screws.":"دروازہ بند کرنے والا آلہ دوبارہ درست کیا اور پیچ کسے۔",
+ "Good morning, {name}": "صبح بخیر، {name}",
+ "Good afternoon, {name}": "دوپہر بخیر، {name}",
+ "Good evening, {name}": "شام بخیر، {name}",
+ "{first}, {second}": "{first}، {second}"
+}

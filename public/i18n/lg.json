@@ -1288,4 +1288,9 @@
 "The door did not close by itself.":"Oluggi terweggalawo lwokka.",
 "The room was too warm.":"Ekisenge kyali kibuguma nnyo.",
 "Changed the driver and the bulb.":"Nakyusizza ekifuga ettaala ne bbaluubu.",
-"Set the closer again and tightened the screws.":"Naddamu okutegeka ekiggala oluggi ne nnyweza sikulaapu."}
+"Set the closer again and tightened the screws.":"Naddamu okutegeka ekiggala oluggi ne nnyweza sikulaapu.",
+ "Good morning, {name}": "Wasuze otya, {name}",
+ "Good afternoon, {name}": "Osiibye otya, {name}",
+ "Good evening, {name}": "Osiibye otya, {name}",
+ "{first}, {second}": "{first}, {second}"
+}
