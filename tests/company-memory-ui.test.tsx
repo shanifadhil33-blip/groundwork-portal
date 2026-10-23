@@ -86,7 +86,11 @@ it('ships usable words for every visible state in every app language', async () 
   state.role = 'staff'; await render(); collect(); state.staff_kind = 'office'; await render(); collect();
   for (const language of LANGUAGES.filter(l => !isEnglish(l.code))) {
     const dictionary = readTranslationCache(readFileSync(`public/i18n/${language.code}.json`, 'utf8'), language.code);
-    for (const key of keys) expect(dictionary[key], `${language.code}: ${key}`).toBeTruthy();
+    for (const key of keys) {
+      expect(dictionary[key], `${language.code}: ${key}`).toBeTruthy();
+      expect(dictionary[key], `${language.code}: ${key}`).not.toBe(key);
+      if (key.includes('Agent')) expect(dictionary[key], `${language.code}: ${key}`).not.toMatch(/\bAgent\b/);
+    }
   }
 });
 
@@ -97,5 +101,7 @@ it('uses Gulf Arabic and RTL while keeping authored evidence intact at a narrow 
   await act(async () => root.render(<><CompanyMemory/><Translator/></>));
   await act(async () => { await new Promise(resolve => setTimeout(resolve, 180)); });
   expect(document.documentElement.dir).toBe('rtl'); expect(host.textContent).toContain('ذاكرة الشركة'); expect(host.textContent).toContain(lesson.body); expect(host.textContent).toContain('Sam');
+  expect(host.textContent).toContain('الدروس اللي يستخدمها الوكيل لهالشركة.');
+  expect(host.textContent).not.toContain('Agent');
   expect(fetcher.mock.calls).toHaveLength(1);
 });

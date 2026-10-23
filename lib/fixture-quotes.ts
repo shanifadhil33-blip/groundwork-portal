@@ -11,5 +11,5 @@ export async function populateQuoteFixture(db:PoolClient,ids:typeof fixtureIds) 
  await db.query("UPDATE work_orders SET status='in_progress' WHERE id=$1",[job.id]);
  const finding={words:DEMO_QUOTE_COPY.finding,technician_name:'Ravi'};
  for(const state of ['waiting_price','pending'])await db.query("INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at) VALUES($1,$2,$3,$4,'price_change',$5,$6,clock_timestamp())",[ws,job.client_id,job.id,state==='pending'?ids.imran:ids.ravi,state==='pending'?'Waiting for the client':'Price changed',JSON.stringify({...finding,state})]);
- await db.query("INSERT INTO job_suggestions(workspace_id,source,sender_user_id,sender_name,client_id,site_id,title,problem,visit_charge_shown) VALUES($1,'client',$2,'Pranav Menon',$3,$4,'Quote visit','How much will it cost to fix my water heater?',150)",[ws,ids.pranav,job.client_id,job.site_id]);
+ await db.query("INSERT INTO job_suggestions(workspace_id,source,sender_user_id,sender_name,client_id,site_id,title,problem,visit_charge_shown) VALUES($1,'client',$2,'Pranav Menon',$3,$4,$5,$6,150)",[ws,ids.pranav,job.client_id,job.site_id,DEMO_QUOTE_COPY.title,DEMO_QUOTE_COPY.problem]);
 }
