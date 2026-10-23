@@ -67,7 +67,7 @@ export async function exportPersonalData(user: string, workspace?: string) {
 const companyTables = ['clients','sites','assets','members','work_orders','comments','work_order_events',
   'job_ratings','time_off','job_suggestions','supplier_orders','supplier_events','company_rules',
   'company_documents','draft_invoices','job_prechecks','imports','import_rows','workspace_money',
-  'job_visits','work_order_counters','supplier_sync_runs'] as const;
+  'job_visits','work_order_counters','supplier_sync_runs','invites','join_requests'] as const;
 export async function exportCompanyData(user: string, ws: string) {
   return withSystem(async db => {
     await membership(db, user, ws, true);
@@ -83,7 +83,12 @@ export async function exportCompanyData(user: string, ws: string) {
         FROM ${table} t WHERE workspace_id=$1 ORDER BY id`, [ws])).rows.map(r => r.record);
     }
     records.shared_photos = (await db.query(`SELECT to_jsonb(t)-'bytes'||jsonb_build_object('bytes_base64',encode(bytes,'base64')) AS record
-      FROM shared_photos t WHERE workspace_id=$1 AND (suggestion_id IS NOT NULL OR work_order_id IS NOT NULL) AND conversation_id IS NULL ORDER BY id`, [ws])).rows.map(r => r.record);
+      FROM shared_photos t WHERE workspace_id=$1 AND ((suggestion_id IS NOT NULL OR work_order_id IS NOT NULL) AND conversation_id IS NULL
+        OR EXISTS(SELECT 1 FROM conversations c WHERE c.id=t.conversation_id AND c.workspace_id=$1 AND c.kind='team')) ORDER BY id`, [ws])).rows.map(r => r.record);
+    records.team_messages = (await db.query(`SELECT to_jsonb(m) AS record FROM messages m JOIN conversations c ON c.id=m.conversation_id AND c.workspace_id=m.workspace_id
+      WHERE m.workspace_id=$1 AND c.kind='team' ORDER BY m.created_at,m.id`, [ws])).rows.map(r=>r.record);
+    records.company_vocabulary = (await db.query('SELECT id,phrase,means_kind,means_id,means_text,created_at FROM agent_words WHERE workspace_id=$1 AND user_id IS NULL ORDER BY id', [ws])).rows;
+    records.company_lessons = (await db.query("SELECT id,proposed_by,proposed_by_name,body,reason,status,created_at,decided_at FROM lesson_proposals WHERE workspace_id=$1 AND scope='company' ORDER BY id", [ws])).rows;
     records.audit = (await db.query('SELECT id,actor_id,action,entity,entity_id,at FROM audit_log WHERE workspace_id=$1 ORDER BY at,id', [ws])).rows;
     records.people = (await db.query(`SELECT u.id,u.name,m.role,m.archived_at FROM users u JOIN members m ON m.user_id=u.id
       WHERE m.workspace_id=$1 ORDER BY u.id`, [ws])).rows;
@@ -192,7 +197,15 @@ export async function cleanupPersonalData() {
       ['verification_token', 'expires<now()'], ['sessions', 'expires<now()'],
       ['login_attempts', "created_at<now()-interval '1 day'"],
       ['notifications', "read_at IS NOT NULL AND created_at<now()-interval '90 days'"],
-    ]) counts[table] = (await db.query(`DELETE FROM ${table} WHERE ${condition}`)).rowCount ?? 0;
+    ]) {
+      const removed = await db.query(`DELETE FROM ${table} WHERE ${condition}${table==='notifications'?' RETURNING id':''}`);
+      counts[table] = removed.rowCount ?? 0;
+      // A delete trigger copies the old notification. Keep the audit action, not an expired payload.
+      if (table==='notifications' && removed.rows.length) await db.query(
+        `UPDATE audit_log SET \"before\"=NULL,\"after\"=NULL WHERE entity='notifications' AND entity_id=ANY($1::uuid[])`,
+        [removed.rows.map(row=>row.id)],
+      );
+    }
     return counts;
   });
 }

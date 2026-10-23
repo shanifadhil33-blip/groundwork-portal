@@ -121,3 +121,7 @@ Change tools need a card (see the rules above). Counts: owner and admin 63, supe
 * tests in the gate check the role lists and the refusals (759 tests on Oct 18).
 * e2e/walk-flows.mjs walks the full job life across every role on the live demo: 41 checks, 0 gaps on Oct 18.
 * e2e/crawl-routes.mjs opens 22 pages for 8 people at 390: no crash pages, no page errors, no sideways scroll on Oct 18.
+
+## SEC07 data controls
+
+Every signed in role can export their own profile, preferences and authored or assigned work through Settings, and can confirm their own account deletion request. Company exports and deletion request handling require an active admin or owner membership in that exact company. Supervisors and office staff do not inherit those powers. Only an owner can close a company. Another company returns 404; a disallowed role in the same company returns 403. Multiple company memberships each need approval before account deletion completes. Demo deletion and closure are labelled practice actions that preserve the sandbox. See [SEC07 data protection](SEC07-data-protection.md) for retained history, expiry and schema limitations.

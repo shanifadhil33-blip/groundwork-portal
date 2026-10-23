@@ -173,6 +173,9 @@ it('retention removes expired secrets and old read notifications, keeps active a
   await withSystem(async db=>{
     expect((await db.query("SELECT \"sessionToken\" FROM sessions")).rows).toEqual([{sessionToken:'active'}]);
     expect((await db.query("SELECT read_at FROM notifications WHERE kind='sec07'")).rows).toEqual([{read_at:null}]);
+    const expiredNotificationSnapshots=(await db.query("SELECT a.before,a.after FROM audit_log a WHERE a.entity='notifications' AND NOT EXISTS(SELECT 1 FROM notifications n WHERE n.id=a.entity_id)")).rows;
+    expect(expiredNotificationSnapshots.length).toBeGreaterThan(0);
+    expect(expiredNotificationSnapshots.every(row=>row.before===null&&row.after===null)).toBe(true);
     expect((await db.query('SELECT token FROM verification_token')).rows).toEqual([{token:'active'}]);
   });
   expect(Object.values(await cleanupPersonalData()).every(n=>n===0)).toBe(true);
@@ -201,9 +204,14 @@ it('company exports contain business visits, import records and base64 attachmen
  await withSystem(async db=>{
    await db.query("INSERT INTO job_photos(id,workspace_id,client_id,work_order_id,kind,mime,bytes,width,height,taken_by) SELECT $2,workspace_id,client_id,id,'before','image/jpeg',decode(repeat('61',100),'hex'),10,10,$3 FROM work_orders WHERE id=$1",[orderId(1),jobPhoto,ids.ravi]);
    await db.query("INSERT INTO shared_photos(id,workspace_id,uploaded_by,mime,bytes,width,height) VALUES($1,$2,$3,'image/jpeg',decode(repeat('62',100),'hex'),10,10)",[draft,ws,ids.ravi]);
+   await db.query("INSERT INTO messages(workspace_id,conversation_id,sender_id,sender_name,body) SELECT $1,id,$2,'Ravi','Shared company message' FROM conversations WHERE workspace_id=$1 AND kind='team'",[ws,ids.ravi]);
+   const direct=(await db.query("INSERT INTO conversations(workspace_id,participants) VALUES($1,$2) ON CONFLICT(workspace_id,participants) DO UPDATE SET participants=EXCLUDED.participants RETURNING id",[ws,[ids.sam,ids.ravi].sort()])).rows[0].id;
+   await db.query("INSERT INTO messages(workspace_id,conversation_id,sender_id,sender_name,body) VALUES($1,$2,$3,'Ravi','Private conversation content')",[ws,direct,ids.ravi]);
  });
  const data=await exportCompanyData(ids.imran,ws);
  expect(data.records.job_visits).toBeDefined();expect(data.records.imports).toBeDefined();
+ expect(JSON.stringify(data.records.team_messages)).toContain('Shared company message');
+ expect(JSON.stringify(data.records)).not.toContain('Private conversation content');
  const photo=(data.records.job_photos as {bytes_base64:string}[])[0];
  expect(Buffer.from(photo.bytes_base64,'base64')).toEqual(Buffer.alloc(100,'a'));
  expect(JSON.stringify(data.records)).not.toContain(draft);
