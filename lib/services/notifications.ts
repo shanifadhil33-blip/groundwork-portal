@@ -35,4 +35,8 @@ export async function listNotifications(user:string,ws:string,params:URLSearchPa
 export async function markNotification(user:string,ws:string,id:string,read:boolean) {
  return inWorkspace(user,ws,async c=>{uuid.parse(id);const r=(await c.db.query(`UPDATE notifications SET read_at=${read?'coalesce(read_at,clock_timestamp())':'NULL'} WHERE workspace_id=$1 AND id=$2 RETURNING id,read_at`,[ws,id])).rows[0];if(!r)throw missing();return r;});
 }
+export async function readNotifications(user:string,ws:string,body:unknown) {
+ const {ids}=z.object({ids:z.array(uuid).min(1).max(100)}).strict().parse(body);
+ return inWorkspace(user,ws,async c=>({changed:(await c.db.query('UPDATE notifications SET read_at=clock_timestamp() WHERE workspace_id=$1 AND user_id=$2 AND id=ANY($3::uuid[]) AND read_at IS NULL',[ws,user,ids])).rowCount??0}));
+}
 export async function readAll(user:string,ws:string) {return inWorkspace(user,ws,async c=>({changed:(await c.db.query('UPDATE notifications SET read_at=clock_timestamp() WHERE workspace_id=$1 AND read_at IS NULL',[ws])).rowCount??0}));}

@@ -15,6 +15,7 @@ import * as supplier from '../lib/services/supplier';
 import * as preferencesRoute from '../app/api/me/preferences/route';
 import * as settingsRoute from '../app/api/workspaces/[ws]/settings/route';
 import * as auditRoute from '../app/api/workspaces/[ws]/audit/route';
+import * as notificationReadRoute from '../app/api/workspaces/[ws]/notifications/read/route';
 const ws=ids.ridgeline,q=(s='')=>new URLSearchParams(s);
 let user:string|null=ids.imran;
 beforeEach(async()=>{user=ids.imran;setAuthResolverForTests(async()=>user);const db=await ownerPool.connect();try{await seed(db);}finally{db.release();}});
@@ -96,4 +97,19 @@ it('notification read events stay in audit storage but do not appear in the feed
  await notifications.markNotification(ids.pranav,ws,notification.id,true);
  expect(await withSystem(async db=>(await db.query("SELECT id FROM audit_log WHERE entity='notifications' AND action='update' AND entity_id=$1",[notification.id])).rows.length)).toBeGreaterThanOrEqual(1);
  expect((await audit.listAudit(ids.imran,ws,q(`entity=notifications&action=update&entity_id=${notification.id}`))).total).toBe(0);
+});
+
+it('batch notification read endpoint updates only caller ids in this workspace and validates the cap',async()=>{
+ await withSystem(db=>db.query("INSERT INTO members(workspace_id,user_id,role) VALUES($1,$2,'staff')",[ids.summit,ids.imran]));
+ const own=[randomUUID(),randomUUID()],foreign=randomUUID(),otherWorkspace=randomUUID(),untouched=randomUUID();
+ await withSystem(db=>db.query("INSERT INTO notifications(id,user_id,workspace_id,kind,entity_id) VALUES($1,$6,$8,'status_changed',$10),($2,$6,$8,'status_changed',$10),($3,$7,$8,'status_changed',$10),($4,$6,$9,'status_changed',$11),($5,$6,$8,'status_changed',$10)",[...own,foreign,otherWorkspace,untouched,ids.imran,ids.sam,ws,ids.summit,orderId(1),orderId(61)]));
+ const idsToRead=[...own,foreign,otherWorkspace,randomUUID(),own[0]];
+ const response=await call(notificationReadRoute.POST,'POST',{ids:idsToRead});
+ expect(response.status).toBe(200);expect(await response.json()).toEqual({changed:2});
+ const rows=await withSystem(async db=>(await db.query('SELECT id,read_at FROM notifications WHERE id=ANY($1::uuid[])',[[...own,foreign,otherWorkspace,untouched]])).rows);
+ for(const row of rows)expect(!!row.read_at).toBe(own.includes(row.id));
+ expect(await (await call(notificationReadRoute.POST,'POST',{ids:idsToRead})).json()).toEqual({changed:0});
+ for(const body of [{ids:[]},{ids:[untouched,...Array.from({length:100},()=>randomUUID())]},{ids:[untouched,'invalid']},{ids:[untouched],extra:true}])expect((await call(notificationReadRoute.POST,'POST',body)).status).toBe(422);
+ expect(await withSystem(async db=>(await db.query('SELECT read_at FROM notifications WHERE id=$1',[untouched])).rows[0].read_at)).toBeNull();
+ user=null;expect((await call(notificationReadRoute.POST,'POST',{ids:own})).status).toBe(401);
 });

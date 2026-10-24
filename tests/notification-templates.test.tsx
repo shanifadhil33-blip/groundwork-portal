@@ -16,12 +16,11 @@ import { setNotificationLanguage } from '../components/app/notification-language
 const state=vi.hoisted(()=>({language:'hi',items:[] as unknown[]}));
 vi.mock('../components/app/resource',()=>({useResource:()=>({data:{language:state.language}})}));
 vi.mock('../components/app/context',async original=>({...await original<typeof import('../components/app/context')>(),useApp:()=>({member:{role:'technician'},me:{user:{is_demo:false}},reload:vi.fn()})}));
-vi.mock('../components/app/selection',()=>({useSelection:()=>({bar:null,row:()=>({}),mark:()=>null,close:()=>{}})}));
 vi.mock('next/navigation',()=>({useRouter:()=>({push:vi.fn()})}));
 vi.mock('../lib/ui/api',()=>({request:async()=>({data:state.items,total:state.items.length,unread_count:state.items.length}),post:vi.fn()}));
 vi.mock('../components/ui',()=>({
  BottomSheet:({children}:{children:React.ReactNode})=><div>{children}</div>,
- Button:({children}:{children:React.ReactNode})=><button data-no-translate>{children}</button>,
+ Button:({children,busy,busyLabel,variant,size,...props}:React.ButtonHTMLAttributes<HTMLButtonElement>&{busy?:boolean;busyLabel?:string;variant?:string;size?:string})=><button data-no-translate {...props}>{children}</button>,
  RelativeTime:()=>null,Skeleton:()=> <span data-loading="true"/>,useToast:()=>()=>{},
  ErrorState:()=> <span>Error</span>,EmptyState:()=> <span>Empty</span>,
 }));
@@ -216,10 +215,9 @@ it('CMP08 opening the grouped row marks every loaded member read and retains oth
  expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(2);
  await act(async()=>{group.querySelector<HTMLAnchorElement>(':scope > .activity-link')!.click();});
  expect(vi.mocked(post).mock.calls.map(([url])=>url)).toEqual([
-  '/api/workspaces/workspace/notifications/newest/read',
-  '/api/workspaces/workspace/notifications/older/read',
-  '/api/workspaces/workspace/notifications/oldest/read',
+  '/api/workspaces/workspace/notifications/read',
  ]);
+ expect(post).toHaveBeenCalledWith('/api/workspaces/workspace/notifications/read',{ids:['newest','older','oldest']});
  expect(onChange.mock.calls).toEqual([[-1],[-1],[-1]]);
  expect(onClose).toHaveBeenCalledOnce();
  expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(1);
@@ -237,4 +235,49 @@ it('CMP08 repeated emergency alerts stay as individual visible rows without a co
  expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(3);
  expect(container.querySelectorAll('.notification-item > .activity-link')).toHaveLength(3);
  expect(container.querySelector('details')).toBeNull();
+});
+
+
+it.each(['row','selection','open','read lead'] as const)('CMP08 %s awaits one batch and preserves unread state on failure',async action=>{
+ state.language='en-IN';setNotificationLanguage('en-IN',{});
+ const item=(id:string,job='job',read=false)=>({id,kind:'comment_added',message:'Update',created_at:'2032-01-12T10:00:00Z',read_at:read?'2032-01-12T11:00:00Z':null,link_target:{entity:'work_orders',id:job}});
+ state.items=[item('lead','job',action==='read lead'),item('older'),item('second','second-job'),item('second-older','second-job'),item('other','other-job')];
+ vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true);
+ vi.mocked(post).mockReset();
+ let resolve!:()=>void,reject!:(e:Error)=>void;
+ vi.mocked(post).mockImplementation(()=>new Promise((yes,no)=>{resolve=()=>yes({});reject=no;}));
+ const container=document.createElement('div');document.body.append(container);root=createRoot(container);
+ const onChange=vi.fn(),onClose=vi.fn();
+ await act(async()=>{root!.render(<Notifications open ws="workspace" onClose={onClose} onChange={onChange}/>);});
+ async function trigger(){
+  await act(async()=>{
+   if(action==='selection'){
+    const marks=container.querySelectorAll<HTMLButtonElement>('.selection-mark');marks[0].click();marks[1].click();
+   }
+  });
+  await act(async()=>{
+   if(action==='selection')[...container.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent==='Mark read')!.click();
+   else if(action==='row')container.querySelector<HTMLButtonElement>('.notification-read-toggle')!.click();
+   else container.querySelector<HTMLAnchorElement>('.notification-item > .activity-link')!.click();
+  });
+ }
+ const ids=action==='selection'?['lead','older','second','second-older']:['lead','older'];
+ const initialUnread=action==='read lead'?2:3;
+ await trigger();
+ expect(post).toHaveBeenCalledExactlyOnceWith('/api/workspaces/workspace/notifications/read',{ids});
+ expect(onChange).not.toHaveBeenCalled();expect(onClose).not.toHaveBeenCalled();
+ expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(initialUnread);
+ await act(async()=>{reject(new Error('Failed'));});
+ expect(container.querySelector('[role="alert"]')).not.toBeNull();
+ expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(initialUnread);
+ expect(onChange).not.toHaveBeenCalled();expect(onClose).not.toHaveBeenCalled();
+ // Retry the same action and confirm every affected member contributes to the badge.
+ vi.mocked(post).mockClear();
+ if(action==='selection')await act(async()=>{[...container.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent==='Mark read')!.click();});
+ else await trigger();
+ await act(async()=>{resolve();});
+ expect(post).toHaveBeenCalledExactlyOnceWith('/api/workspaces/workspace/notifications/read',{ids});
+ expect(onChange.mock.calls).toEqual(Array.from({length:ids.length-(action==='read lead'?1:0)},()=>[-1]));
+ expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(action==='selection'?1:2);
+ if(action==='open'||action==='read lead')expect(onClose).toHaveBeenCalledOnce();
 });
