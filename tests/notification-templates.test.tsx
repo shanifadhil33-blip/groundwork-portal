@@ -9,6 +9,7 @@ import { returnVisitLine, statusLine } from '../lib/status-updates';
 import { readTranslationCache, TRANSLATION_SKIP } from '../lib/i18n';
 import { NotificationMessage } from '../components/app/notification-message';
 import { Notifications } from '../components/app/notifications';
+import { post } from '../lib/ui/api';
 import { Translator, changeAppLanguage } from '../components/app/translator';
 import { setNotificationLanguage } from '../components/app/notification-language';
 
@@ -194,4 +195,46 @@ it.each([false,true])('an unavailable Arabic file uses saved translations or wai
  expect(container.textContent).not.toContain('The technician');
  if(saved)expect(container.textContent).toContain('الفني في الدرب عشان Repair tap.');
  else expect(container.querySelector('[data-loading]')).not.toBeNull();
+});
+
+it('CMP08 opening the grouped row marks every loaded member read and retains other jobs',async()=>{
+ state.language='en-IN';
+ setNotificationLanguage('en-IN',{});
+ vi.mocked(post).mockClear();
+ vi.mocked(post).mockResolvedValue({});
+ const descriptor=notificationTemplate({kind:'comment_added',actor_name:'Sam',work_order_title:'Repair tap'});
+ const item=(id:string,job='job')=>({id,kind:'comment_added',message:renderNotification(descriptor),message_template:descriptor,created_at:'2032-01-12T10:00:00Z',read_at:null,link_target:{entity:'work_orders',id:job}});
+ state.items=[item('newest'),item('other','other-job'),item('older'),item('oldest')];
+ vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true);
+ const onChange=vi.fn(),onClose=vi.fn();
+ const container=document.createElement('div');document.body.append(container);root=createRoot(container);
+ await act(async()=>{root!.render(<Notifications open onClose={onClose} ws="workspace" onChange={onChange}/>);});
+ expect(container.querySelectorAll('.notification-item')).toHaveLength(2);
+ const group=container.querySelector('.notification-item')!;
+ expect(group.querySelector('summary')?.textContent).toBe('2 more updates on this job');
+ expect(group.querySelectorAll('details .activity-link')).toHaveLength(2);
+ expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(2);
+ await act(async()=>{group.querySelector<HTMLAnchorElement>(':scope > .activity-link')!.click();});
+ expect(vi.mocked(post).mock.calls.map(([url])=>url)).toEqual([
+  '/api/workspaces/workspace/notifications/newest/read',
+  '/api/workspaces/workspace/notifications/older/read',
+  '/api/workspaces/workspace/notifications/oldest/read',
+ ]);
+ expect(onChange.mock.calls).toEqual([[-1],[-1],[-1]]);
+ expect(onClose).toHaveBeenCalledOnce();
+ expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(1);
+ expect(container.querySelector('.notification-item.unread details')).toBeNull();
+});
+
+it('CMP08 repeated emergency alerts stay as individual visible rows without a collapsed count',async()=>{
+ state.language='en-IN';
+ setNotificationLanguage('en-IN',{});
+ const descriptor=notificationTemplate({kind:'emergency',actor_name:'Sam',work_order_title:'Emergency reported by Sam: Water leak'});
+ state.items=['newest','older','oldest'].map(id=>({id,kind:'emergency',message:renderNotification(descriptor),message_template:descriptor,created_at:'2032-01-12T10:00:00Z',read_at:null,link_target:{entity:'work_orders',id:'job'}}));
+ vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true);
+ const container=document.createElement('div');document.body.append(container);root=createRoot(container);
+ await act(async()=>{root!.render(<Notifications open onClose={()=>{}} ws="workspace" onChange={()=>{}}/>);});
+ expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(3);
+ expect(container.querySelectorAll('.notification-item > .activity-link')).toHaveLength(3);
+ expect(container.querySelector('details')).toBeNull();
 });
