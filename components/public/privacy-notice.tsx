@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { privacyNotice } from '../../lib/ui/privacy-notice';
-export function PrivacyNotice() {
-  const [arabic, setArabic] = useState(false);
+export function PrivacyNotice({ initialArabic = false }: { initialArabic?: boolean }) {
+  const [arabic, setArabic] = useState(initialArabic);
   return <div className="privacy-notice stack" lang={arabic ? 'ar-AE' : 'en'} dir={arabic ? 'rtl' : 'ltr'} data-no-translate>
     <div className="row" role="group" aria-label={arabic ? 'لغة الإشعار' : 'Notice language'}>
       <button className="button secondary" lang="en" aria-pressed={!arabic} onClick={() => setArabic(false)}>English</button>
