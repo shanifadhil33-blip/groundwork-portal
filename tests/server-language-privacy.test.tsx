@@ -4,6 +4,8 @@ import { renderToString } from 'react-dom/server';
 import { hydrateRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
+vi.mock('server-only', () => ({}));
+
 const mocks = vi.hoisted(() => ({ session: vi.fn(), preferences: vi.fn() }));
 vi.mock('../lib/auth', () => ({ getSessionUserId: mocks.session }));
 vi.mock('../lib/services/settings', () => ({ getPreferences: mocks.preferences }));

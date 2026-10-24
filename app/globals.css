@@ -1245,3 +1245,6 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 .data-protection .badge{white-space:normal;width:auto}
 .data-protection .action-list{padding-inline-start:0;list-style:none}
 .privacy-notice button{min-height:44px}
+
+/* Preserve the public layout while providing inherited language and direction. */
+.public-shell{display:contents}
