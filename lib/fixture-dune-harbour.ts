@@ -2,6 +2,7 @@ import { populateChecklistFixture } from './fixture-checklists';
 import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { localDate, scheduledInstant } from './dates';
+import { draftLines } from './job-close';
 /**
  * DEMO20: Dune Harbour Technical Services, the championship demo company (story: championship/groundwork-demo-company-story.md).
  * A second demo company built in code, like Ridgeline. DEMO10 trimmed the cast to 13 people (3 office, 6 technicians, 4 client logins). Every person is a demo user with an address that cannot receive mail;
@@ -67,15 +68,19 @@ export async function populateDuneHarbour(db:PoolClient,ws:string,expires:'6 hou
   for(const p of c.people)await db.query("INSERT INTO members(workspace_id,user_id,role,client_id,client_kind) VALUES($1,$2,'client',$3,$4)",[ws,id[p.key],client[c.key],p.kind]);
  }
  await db.query("UPDATE clients SET contract_visits=12, contract_ends_on=(now()+interval '200 days')::date WHERE workspace_id=$1 AND id=$2",[ws,client.clinic]);
- const timezone=(await db.query('SELECT timezone FROM workspaces WHERE id=$1',[ws])).rows[0].timezone as string;
- const today=localDate(Date.now(),timezone);
+ // Anchor all dates to the same database instant used to create/reset this sandbox.
+ const clock=(await db.query('SELECT timezone, CURRENT_TIMESTAMP AS reset_at FROM workspaces WHERE id=$1',[ws])).rows[0];
+ const timezone=clock.timezone as string;
+ const today=localDate(clock.reset_at,timezone);
  const at=(day:number,hour:number,minute=0)=>{const d=new Date(scheduledInstant(dayOffset(today,day),timezone,hour)!);d.setUTCMinutes(d.getUTCMinutes()+minute);return d;};
  // Kamau's sick day waits for Joseph, who must move his three jobs first.
  await db.query("INSERT INTO time_off(workspace_id,user_id,kind,starts_on,ends_on,note,created_by,status) VALUES($1,$2,'sick',$3,$3,'Fever since last night.',$2,'pending')",[ws,id.kamau,today]);
+ // Murali has no active bookings. Keep leave valid on any reset day, not only the story Tuesday.
+ await db.query("INSERT INTO time_off(workspace_id,user_id,kind,starts_on,ends_on,note,created_by,status) VALUES($1,$2,'leave',$3,$4,'Family visit',$5,'approved')",[ws,id.murali,today,dayOffset(today,3),id.imran]);
  type Job={client:string;site:string;title:string;description:string;status:string;priority?:string;trade:string;tech?:string;visit?:Date|null;due?:number|null;by?:string;created:number;report?:[string,string,string];quote?:[number,string];paid?:string};
  const jobs:Job[]=[
   // Today: the late job and the visit it puts at risk.
-  {client:'creekgate',site:'creekgate',title:'Floor 9 riser breaker keeps tripping',description:'Breaker in the floor 9 riser room trips two or three times a day. Planned for two hours.',status:'in_progress',priority:'high',trade:'electrical',tech:'rashid',visit:at(0,8,30),due:0,by:'nabil',created:-1},
+  {client:'creekgate',site:'creekgate',title:'Floor 9 riser breaker keeps tripping',description:'Breaker in the floor 9 riser room trips two or three times a day. Planned for two hours. Still open from yesterday because the replacement breaker has not arrived.',status:'in_progress',priority:'high',trade:'electrical',tech:'rashid',visit:at(-1,8,30),due:-1,by:'nabil',created:-2,report:['needs_part','The breaker is worn and trips under load.','Made the circuit safe. Waiting for the replacement breaker.']},
   {client:'vikram',site:'vikram',title:'Bedroom socket not working',description:'The socket next to the bed stopped working. Nothing plugged in turns on.',status:'scheduled',trade:'electrical',tech:'rashid',visit:at(0,11,30),due:0,by:'vikram',created:-2},
   // Kamau's three booked jobs on his sick day.
   {client:'clinic',site:'clinic',title:'Washbasin draining slowly, treatment room 2',description:'Water stays in the basin for a few minutes.',status:'scheduled',trade:'plumbing',tech:'kamau',visit:at(0,8),due:0,by:'arun',created:-3},
@@ -103,6 +108,26 @@ export async function populateDuneHarbour(db:PoolClient,ws:string,expires:'6 hou
   {client:'clinic',site:'clinic',title:'Server room AC check',description:'Monthly check of the server room AC under the contract.',status:'done',trade:'ac',tech:'ramon',visit:at(-3,8),due:-3,by:'joseph',created:-6,report:['fixed','No fault. Monthly check.','Cleaned the filters and checked the temperature.'],paid:'contract'},
   {client:'faisal',site:'faisal',title:'Washing machine tap leaking',description:'Voice note: the tap behind the washing machine leaks.',status:'done',trade:'plumbing',tech:'dipendra',visit:at(-6,17),due:-6,by:'faisal',created:-7,report:['fixed','The tap washer was worn.','Changed the washer.'],paid:'paid'},
  ];
+ // DEMO10: four finished visits and one cancelled request in each 30 day history band.
+ // Every trade and technician has history. Keep report reasons short and factual.
+ const history=[
+  {client:'clinic',site:'clinic',title:'Clinic filter service',description:'Routine cleaning before the clinic opens.',trade:'ac',tech:'ramon',by:'arun',report:['fixed','Dust had blocked the filters.','Cleaned the filters and tested the cooling.']},
+  {client:'creekgate',site:'creekgate',title:'Creekgate washroom pipe repair',description:'Water under the washroom basin.',trade:'plumbing',tech:'kamau',by:'nabil',report:['fixed','The waste pipe joint was loose.','Refitted the joint and tested it with water.']},
+  {client:'vikram',site:'vikram',title:'Vikram kitchen light repair',description:'The kitchen light flickers when switched on.',trade:'electrical',tech:'rashid',by:'vikram',report:['fixed','The light driver had failed.','Changed the driver and tested the light.']},
+  {client:'faisal',site:'faisal',title:'Faisal cupboard hinge repair',description:'The cupboard door does not close.',trade:'general',tech:'murali',by:'faisal',report:['fixed','The hinge screws were loose.','Tightened the hinges and checked the door.']},
+ ] satisfies Omit<Job,'status'|'created'>[];
+ for(let month=0;month<6;month++){
+  const start=-180+month*30;
+  for(const [index,template] of history.entries()){
+   const tech=template.trade==='plumbing'&&month%2===0?'dipendra':template.trade==='electrical'&&month%2===0?'anil':template.tech;
+   let visit=start+2+index*5;
+   // Respect the cast's weekly off days for generated historical visits.
+   if(DUNE_TECHS.find(t=>t.key===tech)!.off.includes(new Date(`${dayOffset(today,visit)}T12:00:00Z`).getUTCDay()))visit--;
+   jobs.push({...template,tech,status:'done',created:start+index*5,visit:at(visit,9),due:visit,paid:template.client==='clinic'?'contract':'to_bill'});
+  }
+  jobs.push({client:'vikram',site:'vikram',title:'Spare room socket inspection',description:'Cancelled because Vikram confirmed the socket was working after the appliance was unplugged.',trade:'electrical',status:'cancelled',by:'vikram',created:start+22,due:start+24});
+ }
+ jobs.push({client:'faisal',site:'faisal',title:'Damp wall behind the basin',description:'The wall is wet behind the basin.',trade:'plumbing',tech:'dipendra',status:'in_progress',created:-8,visit:at(-7,11),due:1,by:'faisal',report:['cant_fix','Water is coming through the wall from outside the flat.','Isolated the basin supply. A building mason must repair the wall first.']});
  // Oldest first, so job numbers follow the order the work came in.
  jobs.sort((a,b)=>a.created-b.created);
  const ids:string[]=[];
@@ -110,10 +135,50 @@ export async function populateDuneHarbour(db:PoolClient,ws:string,expires:'6 hou
   const actor=id[j.by??'nabil'];await db.query("SELECT set_config('app.user_id',$1,true)",[actor]);
   const created=at(j.created,9);const wo=randomUUID();ids.push(wo);
   await db.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,trade,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)',
-   [wo,ws,client[j.client],site[j.site],j.title,j.description,j.status,j.priority??'normal',j.tech?id[j.tech]:null,j.visit??null,j.due===null||j.due===undefined?null:dayOffset(today,j.due),j.trade,actor,created,j.status==='done'&&j.visit?new Date(j.visit.getTime()+2*3600000):created]);
+   [wo,ws,client[j.client],site[j.site],j.title,j.description,j.status,j.priority??'normal',j.tech?id[j.tech]:null,j.visit??null,j.due===null||j.due===undefined?null:dayOffset(today,j.due),j.trade,actor,created,j.report&&j.visit?new Date(j.visit.getTime()+2*3600000):created]);
   if(j.report)await db.query('UPDATE work_orders SET report_outcome=$2,report_problem=$3,report_work=$4,report_by=assignee_id,report_at=updated_at WHERE id=$1',[wo,...j.report]);
   if(j.quote&&j.quote[0]>0)await db.query("UPDATE work_orders SET quote_amount=$2,quote_note=$3,quote_status='pending' WHERE id=$1",[wo,...j.quote]);
   if(j.paid)await db.query('UPDATE work_orders SET payment_status=$2 WHERE id=$1',[wo,j.paid]);
+ }
+ // Keep historical status changes on their visit/report dates, like Ridgeline's proof history.
+ // The insertion trigger already records creation, assignment, schedule and due dates.
+ for(const [index,j] of jobs.entries()){
+  if(j.status==='done'){
+   await db.query(`INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at)
+    VALUES($1,$2,$3,$4,'status_changed','Status updated','{"from_status":"open","to_status":"scheduled"}',$6),
+     ($1,$2,$3,$5,'status_changed','Status updated','{"from_status":"scheduled","to_status":"in_progress"}',$7),
+     ($1,$2,$3,$5,'status_changed','Status updated','{"from_status":"in_progress","to_status":"done"}',$8)`,
+    [ws,client[j.client],ids[index],id.joseph,id[j.tech!],new Date(at(j.created,9).getTime()+30*60000),j.visit,new Date(j.visit!.getTime()+2*3600000)]);
+  }else if(j.status==='cancelled')await db.query(`INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at)
+   VALUES($1,$2,$3,$4,'status_changed','Status updated','{"from_status":"open","to_status":"cancelled"}',$5)`,[ws,client[j.client],ids[index],id[j.by!],at(j.created,10)]);
+ }
+ // CLIENT05: assets use the same register and job links as Ridgeline, including repeated faults.
+ await db.query("SELECT set_config('app.user_id',$1,true)",[id.imran]);
+ for(const [where,name,kind,location,match] of [
+  ['clinic','Waiting room 2 AC','ac','Waiting room 2',(j:Job)=>j.site==='clinic'&&j.title.includes('waiting room 2')],
+  ['clinic','Server room AC','ac','Server room',(j:Job)=>j.title==='Server room AC check'||j.title==='Clinic filter service'],
+  ['creekgate','Floor 9 riser panel','panel','Floor 9 riser room',(j:Job)=>j.site==='creekgate'&&(/breaker|power off/i.test(j.title))],
+  ['creekgate','Basement water pump','pump','Basement pump room',(j:Job)=>j.title==='Water leak in the basement pump room'],
+  ['faisal','Bathroom water heater','water_heater','Bathroom',(j:Job)=>j.title==='Bathroom water heater not heating'],
+  ['vikram','Bedroom AC','ac','Bedroom',(j:Job)=>j.title==='AC not cooling in the bedroom'],
+ ] as const){
+  const asset=(await db.query('INSERT INTO assets(workspace_id,site_id,name,kind,location,created_by) VALUES($1,$2,$3,$4,$5,$6) RETURNING id',[ws,site[where],name,kind,location,id.imran])).rows[0].id;
+  for(const [index,j] of jobs.entries())if(match(j))await db.query('UPDATE work_orders SET asset_id=$2 WHERE id=$1',[ids[index],asset]);
+ }
+ // CMP09 and JOB15: insert sandbox rows directly, as Ridgeline does for ratings.
+ // Do not call services here: fixture creation must never send messages or push notifications.
+ for(const [title,person,stars,note] of [
+  ['AC leaking again, waiting room 2','arun',2,'Please check this repair again.'],
+  ['AC dripping, waiting room 2','kevin',4,'The room is dry again. Thank you.'],
+  ['Washing machine tap leaking','faisal',5,'Thank you for fixing the tap.'],
+ ] as const){
+  const index=jobs.findIndex(j=>j.title===title),job=jobs[index],wo=ids[index];
+  const signed= new Date(job.visit!.getTime()+3*3600000);
+  await db.query('UPDATE work_orders SET signed_off_at=$2,signed_off_by=$3 WHERE id=$1',[wo,signed,id[person]]);
+  await db.query('INSERT INTO draft_invoices(workspace_id,work_order_id,lines,created_at) VALUES($1,$2,$3::jsonb,$4)',[ws,wo,JSON.stringify(draftLines({report_work:job.report![2]})),signed]);
+  await db.query("SELECT set_config('app.user_id',$1,true)",[id[person]]);
+  await db.query('INSERT INTO job_ratings(workspace_id,client_id,work_order_id,rated_by,stars,note,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,client[job.client],wo,id[person],stars,note,signed]);
+  await db.query("SELECT set_config('app.user_id',$1,true)",[id.imran]);
  }
  // Company overview reads recorded money only: paid repair prices, the clinic contract payment and supplier costs (sample amounts).
  for(const [title,amount,note] of [
