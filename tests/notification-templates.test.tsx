@@ -238,7 +238,7 @@ it('CMP08 repeated emergency alerts stay as individual visible rows without a co
 });
 
 
-it.each(['row','selection','open','read lead'] as const)('CMP08 %s awaits one batch and preserves unread state on failure',async action=>{
+it.each(['row','selection','open','read lead'] as const)('CMP08 %s optimistically reads one batch and rolls back on failure',async action=>{
  state.language='en-IN';setNotificationLanguage('en-IN',{});
  const item=(id:string,job='job',read=false)=>({id,kind:'comment_added',message:'Update',created_at:'2032-01-12T10:00:00Z',read_at:read?'2032-01-12T11:00:00Z':null,link_target:{entity:'work_orders',id:job}});
  state.items=[item('lead','job',action==='read lead'),item('older'),item('second','second-job'),item('second-older','second-job'),item('other','other-job')];
@@ -265,16 +265,24 @@ it.each(['row','selection','open','read lead'] as const)('CMP08 %s awaits one ba
  const initialUnread=action==='read lead'?2:3;
  await trigger();
  expect(post).toHaveBeenCalledExactlyOnceWith('/api/workspaces/workspace/notifications/read',{ids});
- expect(onChange).not.toHaveBeenCalled();expect(onClose).not.toHaveBeenCalled();
- expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(initialUnread);
+ const changed=ids.length-(action==='read lead'?1:0);
+ expect(onChange.mock.calls).toEqual(Array.from({length:changed},()=>[-1]));
+ expect(onClose).not.toHaveBeenCalled();
+ expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(action==='selection'?1:2);
+ expect(container.querySelector('.notification-read-toggle')?.textContent).toBe('Mark as unread');
  await act(async()=>{reject(new Error('Failed'));});
- expect(container.querySelector('[role="alert"]')).not.toBeNull();
+ expect([...container.querySelectorAll('[role="alert"]')].map(alert=>alert.textContent)).toContain('We could not update this notification. Your change was undone. Try again.');
  expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(initialUnread);
- expect(onChange).not.toHaveBeenCalled();expect(onClose).not.toHaveBeenCalled();
+ expect(onChange.mock.calls).toEqual([...Array.from({length:changed},()=>[-1]),...Array.from({length:changed},()=>[1])]);
+ expect(onClose).not.toHaveBeenCalled();
+ onChange.mockClear();
  // Retry the same action and confirm every affected member contributes to the badge.
  vi.mocked(post).mockClear();
  if(action==='selection')await act(async()=>{[...container.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent==='Mark read')!.click();});
  else await trigger();
+ expect(onChange.mock.calls).toEqual(Array.from({length:changed},()=>[-1]));
+ expect(container.querySelectorAll('.notification-item.unread')).toHaveLength(action==='selection'?1:2);
+ expect(onClose).not.toHaveBeenCalled();
  await act(async()=>{resolve();});
  expect(post).toHaveBeenCalledExactlyOnceWith('/api/workspaces/workspace/notifications/read',{ids});
  expect(onChange.mock.calls).toEqual(Array.from({length:ids.length-(action==='read lead'?1:0)},()=>[-1]));
