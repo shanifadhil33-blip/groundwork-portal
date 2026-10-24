@@ -1,3 +1,4 @@
+import { sampleDocumentPdf } from './fixture-documents';
 import { populateChecklistFixture } from './fixture-checklists';
 import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
@@ -73,6 +74,14 @@ export async function populateDuneHarbour(db:PoolClient,ws:string,expires:'6 hou
  const timezone=clock.timezone as string;
  const today=localDate(clock.reset_at,timezone);
  const at=(day:number,hour:number,minute=0)=>{const d=new Date(scheduledInstant(dayOffset(today,day),timezone,hour)!);d.setUTCMinutes(d.getUTCMinutes()+minute);return d;};
+ // Reuse Ridgeline's SAMPLE PDF path: two near expiry, one valid and one expired.
+ for(const [type,title,issued,expiry,who] of [
+  ['trade_licence','SAMPLE Trade licence',-345,20,'imran'],
+  ['certificate','SAMPLE Civil Defence certificate',-358,7,'imran'],
+  ['insurance','SAMPLE Public liability insurance',-120,245,'nabil'],
+  ['permit','SAMPLE Hot work permit, Creekgate',-60,-3,'nabil'],
+ ] as const)await db.query("INSERT INTO company_documents(workspace_id,doc_type,title,issued_on,expires_on,responsible_id,file_name,mime,bytes,added_by) VALUES($1,$2,$3,$4,$5,$6,$7,'application/pdf',$8,$9)",
+  [ws,type,title,dayOffset(today,issued),dayOffset(today,expiry),id[who],title.replace(/[^\w]+/g,'_').toLowerCase()+'.pdf',sampleDocumentPdf(`${title}. Sample document, not a real licence.`),id.imran]);
  // Kamau's sick day waits for Joseph, who must move his three jobs first.
  await db.query("INSERT INTO time_off(workspace_id,user_id,kind,starts_on,ends_on,note,created_by,status) VALUES($1,$2,'sick',$3,$3,'Fever since last night.',$2,'pending')",[ws,id.kamau,today]);
  // Murali has no active bookings. Keep leave valid on any reset day, not only the story Tuesday.
@@ -151,6 +160,23 @@ export async function populateDuneHarbour(db:PoolClient,ws:string,expires:'6 hou
     [ws,client[j.client],ids[index],id.joseph,id[j.tech!],new Date(at(j.created,9).getTime()+30*60000),j.visit,new Date(j.visit!.getTime()+2*3600000)]);
   }else if(j.status==='cancelled')await db.query(`INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at)
    VALUES($1,$2,$3,$4,'status_changed','Status updated','{"from_status":"open","to_status":"cancelled"}',$5)`,[ws,client[j.client],ids[index],id[j.by!],at(j.created,10)]);
+ }
+ // Past SAMPLE Agent decisions use Ridgeline's consumed action path, without executing tools.
+ // Current priorities agree with the last applied change or the restored before snapshot.
+ await db.query("SELECT set_config('app.user_id',$1,true)",[id.imran]);
+ for(const [title,priority,beforePriority,summary,why,day,hour,undone] of [
+  ['AC fan motor noisy, treatment room 1','normal','low','Keep the clinic fan motor repair at normal priority.','The fan is noisy but the clinic can use the other treatment room.',-2,14,false],
+  ['Water leak in the basement pump room','high','normal','Raise the basement pump leak to high priority.','Water near the pump needs prompt attention.',-1,14,false],
+  ['Leak under pantry sink, floor 4','high','normal','Raise the pantry sink leak to high priority.','The leak could spread across the pantry floor.',-1,10,true],
+  ['Bedroom socket not working','low','normal','Lower the bedroom socket repair to low priority.','Vikram said he could use another socket for now.',-1,11,true],
+ ] as const){
+  const index=jobs.findIndex(j=>j.title===title),wo=ids[index],job=jobs[index];
+  const consumed=at(day,hour);
+  await db.query(`INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,before,after,created_at,consumed_at,outcome,expires_at,undone_at,undone_by)
+   VALUES($1,$2,'set_priority',$3,$4,$5,$6,$7,$8,$9,'done',$9,$10,$11)`,
+   [ws,id.imran,JSON.stringify({id:wo,priority}),summary,why,
+    JSON.stringify({id:wo,priority:beforePriority,status:job.status}),JSON.stringify({id:wo,priority,status:job.status}),
+    new Date(consumed.getTime()-60000),consumed,undone?at(day,hour+2):null,undone?id.imran:null]);
  }
  // CLIENT05: assets use the same register and job links as Ridgeline, including repeated faults.
  await db.query("SELECT set_config('app.user_id',$1,true)",[id.imran]);

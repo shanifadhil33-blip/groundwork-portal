@@ -1,5 +1,14 @@
 /** Exact Dune Harbour fixture data. Names, authored changes and editable values stay data. */
 const arabic: Record<string, string> = {
+  "SAMPLE Hot work permit, Creekgate": "نموذج تصريح أعمال ساخنة، Creekgate",
+  "Keep the clinic fan motor repair at normal priority.": "خلّ إصلاح محرك مروحة العيادة بأولوية عادية.",
+  "The fan is noisy but the clinic can use the other treatment room.": "المروحة صوتها مزعج لكن العيادة تقدر تستخدم غرفة العلاج الثانية.",
+  "Raise the basement pump leak to high priority.": "ارفع أولوية تسرب مضخة القبو إلى عالية.",
+  "Water near the pump needs prompt attention.": "الماي قرب المضخة يحتاج تدخّل سريع.",
+  "Raise the pantry sink leak to high priority.": "ارفع أولوية تسرب حوض المطبخ إلى عالية.",
+  "The leak could spread across the pantry floor.": "التسرب ممكن ينتشر على أرض المطبخ.",
+  "Lower the bedroom socket repair to low priority.": "خفّض أولوية إصلاح مقبس غرفة النوم إلى منخفضة.",
+  "Vikram said he could use another socket for now.": "Vikram قال إنه يقدر يستخدم مقبس ثاني حالياً.",
   "Maintenance contract. Visits before 10 AM, the clinic opens at 10.": "عقد صيانة. الزيارات قبل الساعة 10 صباحاً لأن العيادة تفتح الساعة 10.",
   "Use the side door next to the pharmacy. Waiting rooms 1 and 2, treatment rooms and the server room are on the ground floor.": "استخدم الباب الجانبي عند الصيدلية. غرفتا الانتظار 1 و2 وغرف العلاج وغرفة الخادم في الطابق الأرضي.",
   "Contractor pass at the lobby desk with your Emirates ID.": "خذ تصريح المقاول من مكتب الاستقبال بهويتك الإماراتية.",

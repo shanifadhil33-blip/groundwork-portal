@@ -1,3 +1,6 @@
+import { sampleDocumentPdf } from '../lib/fixture-documents';
+import { listDecisions, undoDecision } from '../lib/services/agent-log';
+import { listDocuments, getDocumentFile } from '../lib/services/documents';
 import { randomUUID } from 'node:crypto';
 import { afterAll,afterEach,beforeEach,expect,it } from 'vitest';
 import { closePools,ownerPool,withSystem } from '../lib/db';
@@ -8,7 +11,7 @@ import { DUNE_HARBOUR_NAME,DUNE_STAFF,DUNE_TECHS,DUNE_CLIENTS,DUNE_PERSONAS,popu
 import * as start from '../app/api/demo/start/route';
 import * as switchRoute from '../app/api/demo/switch/route';
 import * as reset from '../app/api/demo/reset/route';
-import { overdueSql } from '../lib/dates';
+import { overdueSql, scheduledInstant } from '../lib/dates';
 import { isDemoFixtureCopy } from '../lib/demo-proof-copy';
 import type { RouteContext } from '../lib/api';
 type Handler=(req:Request,ctx?:RouteContext)=>Promise<Response>;
@@ -125,6 +128,54 @@ it('seeds six months relative to the reset day, linked fault histories, leave, r
  prose.push(...(await q('SELECT body FROM comments WHERE workspace_id=$1',[ws])).map(r=>r.body));
  for(const value of prose){expect(isDemoFixtureCopy(value),value).toBe(true);expect(value).not.toMatch(/[-\u2013\u2014]/);}
 });
+it('seeds SAMPLE PDFs and past Agent decisions through the existing document and decision readers',async()=>{
+ process.env.DEMO_DUNE_HARBOUR='1';
+ const r=await call(start.POST,{persona:'imran',company:'dune_harbour'}),ws=r.body.workspace_id;
+ const users=Object.fromEntries((await q('SELECT demo_persona,id FROM users WHERE demo_workspace_id=$1',[ws])).map(u=>[u.demo_persona,u.id]));
+ const documents=await listDocuments(users.imran,ws);
+ expect(documents).toHaveLength(4);
+ expect(documents.filter(d=>d.days_left>0&&d.days_left<=30).map(d=>d.days_left).sort((a,b)=>a-b)).toEqual([7,20]);
+ expect(documents.map(d=>d.days_left).sort((a,b)=>a-b)).toEqual([-3,7,20,245]);
+ for(const doc of documents){
+  expect(doc.title).toMatch(/^SAMPLE /);expect(isDemoFixtureCopy(doc.title)).toBe(true);
+  expect(doc.title).not.toMatch(/[-\u2013\u2014]/);
+  expect(['Imran','Nabil']).toContain(doc.responsible_name);
+  expect(doc.issued_on<doc.expires_on).toBe(true);
+  const file=await getDocumentFile(users.imran,ws,doc.id);
+  expect(file.mime).toBe('application/pdf');
+  const stored=(await q('SELECT bytes FROM company_documents WHERE workspace_id=$1 AND id=$2',[ws,doc.id]))[0].bytes;
+  expect(stored.equals(sampleDocumentPdf(`${doc.title}. Sample document, not a real licence.`))).toBe(true);
+  expect(stored.toString('latin1')).toMatch(/^%PDF-1.4/);
+ }
+ const actions=await q(`SELECT a.*,o.workspace_id AS job_workspace,o.priority AS job_priority,o.created_at AS job_created,o.status AS job_status
+  FROM assistant_actions a JOIN work_orders o ON o.id=(a.args->>'id')::uuid WHERE a.workspace_id=$1`,[ws]);
+ expect(actions).toHaveLength(4);
+ expect(actions.filter(a=>a.undone_at)).toHaveLength(2);
+ for(const action of actions){
+  expect(action).toMatchObject({user_id:users.imran,tool:'set_priority',outcome:'done',job_workspace:ws});
+  expect(action.before.id).toBe(action.args.id);expect(action.after.id).toBe(action.args.id);
+  expect(action.after.priority).toBe(action.args.priority);
+  expect(action.before.priority).not.toBe(action.after.priority);
+  expect(action.job_priority).toBe(action.undone_at?action.before.priority:action.after.priority);
+  expect(action.before.status).toBe(action.job_status);
+  expect(action.created_at.getTime()).toBeGreaterThan(action.job_created.getTime());
+  expect(action.created_at.getTime()).toBeLessThan(action.consumed_at.getTime());
+  expect(action.consumed_at.getTime()).toBeLessThan(Date.now());
+  expect(action.expires_at.getTime()).toBe(action.consumed_at.getTime());
+  if(action.undone_at){expect(action.undone_by).toBe(users.imran);expect(action.undone_at.getTime()).toBeGreaterThan(action.consumed_at.getTime());expect(action.undone_at.getTime()).toBeLessThan(Date.now());}
+  for(const value of [action.summary,action.why]){expect(value.length).toBeGreaterThan(10);expect(isDemoFixtureCopy(value),value).toBe(true);expect(value).not.toMatch(/[-\u2013\u2014]/);}
+ }
+ const log=await listDecisions(users.imran,ws);
+ expect(log).toHaveLength(4);
+ expect(log.filter(a=>a.can_undo)).toHaveLength(2);
+ for(const entry of log){expect(entry.changes).toHaveLength(1);expect(entry.changes[0].field).toBe('priority');}
+ expect(await listDecisions(users.nabil,ws)).toEqual([]);
+ const undone=actions.find(a=>a.undone_at)!;
+ await expect(undoDecision(users.imran,ws,undone.id)).rejects.toMatchObject({status:409,code:'undone'});
+ const applied=actions.find(a=>!a.undone_at)!;
+ await undoDecision(users.imran,ws,applied.id);
+ expect((await q('SELECT priority FROM work_orders WHERE id=$1',[applied.args.id]))[0].priority).toBe(applied.before.priority);
+});
 it.each(['2032-03-01T21:30:00Z','2033-01-01T00:30:00Z'])('keeps dates relative when the database reset clock is %s',async resetAt=>{
  const ws=randomUUID();
  // Only the database reset clock changes. Real inserts still exercise constraints and triggers.
@@ -146,6 +197,13 @@ it.each(['2032-03-01T21:30:00Z','2033-01-01T00:30:00Z'])('keeps dates relative w
  expect(dates).toEqual({oldest:day(-180),newest:baseline});
  expect((await q("SELECT due_on FROM work_orders WHERE workspace_id=$1 AND title='Floor 9 riser breaker keeps tripping'",[ws]))[0].due_on).toBe(day(-1));
  expect((await q("SELECT starts_on,ends_on FROM time_off WHERE workspace_id=$1 AND kind='leave'",[ws]))[0]).toEqual({starts_on:baseline,ends_on:day(3)});
+ const documents=await q('SELECT issued_on,expires_on,doc_type FROM company_documents WHERE workspace_id=$1',[ws]);
+ for(const [type,issued,expiry] of [['trade_licence',-345,20],['certificate',-358,7],['insurance',-120,245],['permit',-60,-3]] as const){
+  expect(documents.find(d=>d.doc_type===type)).toMatchObject({issued_on:day(issued),expires_on:day(expiry)});
+ }
+ const decisions=await q('SELECT created_at,consumed_at,undone_at FROM assistant_actions WHERE workspace_id=$1 ORDER BY consumed_at',[ws]);
+ expect(decisions.map(a=>a.consumed_at.toISOString())).toEqual([[-2,14],[-1,10],[-1,11],[-1,14]].map(([offset,hour])=>new Date(scheduledInstant(day(offset),'Asia/Dubai',hour)!).toISOString()));
+ for(const decision of decisions){expect(decision.created_at.getTime()).toBe(decision.consumed_at.getTime()-60000);if(decision.undone_at)expect(decision.undone_at.getTime()).toBe(decision.consumed_at.getTime()+2*3600000);}
  const visits=await q(`SELECT u.name,m.off_days,extract(dow FROM o.scheduled_for AT TIME ZONE 'Asia/Dubai')::int AS weekday
   FROM work_orders o JOIN members m ON m.workspace_id=o.workspace_id AND m.user_id=o.assignee_id JOIN users u ON u.id=m.user_id
   WHERE o.workspace_id=$1 AND o.title IN ('Clinic filter service','Creekgate washroom pipe repair','Vikram kitchen light repair','Faisal cupboard hinge repair')`,[ws]);
@@ -166,7 +224,7 @@ it('switch stays inside Dune Harbour, reset rebuilds the same company, and the R
  expect((await q('SELECT name FROM workspaces WHERE id=$1',[again.body.workspace_id]))[0].name).toBe(DUNE_HARBOUR_NAME);
  expect((await q('SELECT count(*)::int n FROM workspaces WHERE id=$1',[r.body.workspace_id]))[0].n).toBe(0);
  const owner=(await q("SELECT id FROM users WHERE demo_workspace_id=$1 AND demo_persona='imran'",[again.body.workspace_id]))[0].id;
- for(const [table,count] of [['work_orders',52],['assets',6],['time_off',2],['job_ratings',3],['draft_invoices',3]] as const){
+ for(const [table,count] of [['work_orders',52],['assets',6],['time_off',2],['job_ratings',3],['draft_invoices',3],['company_documents',4],['assistant_actions',4]] as const){
   expect((await q(`SELECT count(*)::int n FROM ${table} WHERE workspace_id=$1`,[again.body.workspace_id],owner))[0].n).toBe(count);
   expect((await q(`SELECT count(*)::int n FROM ${table} WHERE workspace_id=$1`,[r.body.workspace_id],owner))[0].n).toBe(0);
  }
