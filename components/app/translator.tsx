@@ -9,6 +9,7 @@ import { setNotificationLanguage } from './notification-language';
 import { LANG_HINT_KEY } from '../../lib/head-scripts';
 import { AppContext } from './context';
 import { demoJobTranslations } from '../../lib/demo-job-copy';
+import { duneHarbourTranslations } from '../../lib/demo-dune-harbour-copy';
 import { isDemoFixtureCopy } from '../../lib/demo-proof-copy';
 
 const LANGUAGE_EVENT = 'groundwork-language-changed';
@@ -170,7 +171,7 @@ export function Translator() {
     const publishNotices=()=>setNotificationLanguage(language,[...Object.values(notificationTemplates),...Object.values(historyTemplates)].every(template=>cache[template])?{...cache}:null);
     const fileReady: Promise<void> = fetch(languageFileUrl(language), { signal: abort.signal, mode: 'cors', credentials: 'same-origin' })
       .then(r => (r.ok ? r.text() : null))
-      .then(raw => { if (!stopped) { const changed=mergeLanguageFile(cache,raw,language); if(demoProof)Object.assign(cache,demoJobTranslations(cache)); publishNotices(); if(changed||demoProof)scan(); } })
+      .then(raw => { if (!stopped) { const changed=mergeLanguageFile(cache,raw,language); if(demoProof)Object.assign(cache,demoJobTranslations(cache),duneHarbourTranslations(language)); publishNotices(); if(changed||demoProof)scan(); } })
       .catch(() => { if (!stopped) publishNotices(); });
     scan();
     return () => {

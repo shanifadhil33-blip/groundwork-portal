@@ -19,7 +19,7 @@ import { clientStatusLabel, clientStatusLabels } from '../lib/ui/work-orders';
 import { StatusBadge } from '../components/ui';
 import { DEMO_QUOTE_COPY } from '../lib/demo-quote-copy';
 import { DEMO_ROUND_TWO_COPY } from '../lib/demo-round-two-copy';
-import { DUNE_HARBOUR_COPY } from '../lib/demo-dune-harbour-copy';
+import { DUNE_HARBOUR_COPY, duneHarbourTranslations } from '../lib/demo-dune-harbour-copy';
 import { isDemoFixtureCopy } from '../lib/demo-proof-copy';
 import { DEMO_PROOF_COPY } from '../lib/demo-proof-copy';
 import { LANGUAGES } from '../lib/languages';
@@ -161,7 +161,7 @@ it.each(LANGUAGES.flatMap(({code})=>['owner','admin','supervisor'].map(viewer=>(
 
 it.each([true,false])('renders exact Dune Harbour prose in shipped Arabic only in demo workspaces (demo %s)',async demo=>{
  state.demo=demo;state.lang='ar-AE';
- const raw=readFileSync('public/i18n/ar-AE.json','utf8'),words=readTranslationCache(raw,'ar-AE');
+ const raw=readFileSync('public/i18n/ar-AE.json','utf8'),words=duneHarbourTranslations('ar-AE');
  const fetcher=vi.fn(async()=>({ok:true,text:async()=>raw,json:async()=>({translations:{}})}));vi.stubGlobal('fetch',fetcher);
  const own='Clinic filter service please call me';
  await act(async()=>root.render(provider(<>
