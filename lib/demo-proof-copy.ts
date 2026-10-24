@@ -1,3 +1,4 @@
+import { DUNE_HARBOUR_COPY } from './demo-dune-harbour-copy';
 // Only these seeded words may be translated inside otherwise verbatim job data.
 import { DEMO_ROUND_TWO_COPY } from './demo-round-two-copy';
 import { DEMO_JOB_TITLES, DEMO_JOB_COMMENTS, demoJobDescription } from './demo-job-copy';
@@ -24,3 +25,6 @@ export const DEMO_PROOF_COPY = new Set([
   'Cable clip',
   'Used during the visit',
 ]);
+
+/** Both demo fixtures use LANG12 exact copy protection. Real workspaces still keep authored data verbatim. */
+export const isDemoFixtureCopy = (value: string) => DEMO_PROOF_COPY.has(value) || DUNE_HARBOUR_COPY.has(value);

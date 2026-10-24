@@ -1,7 +1,7 @@
 'use client';
 import { useContext } from 'react';
 import { AppContext } from './context';
-import { DEMO_PROOF_COPY } from '../../lib/demo-proof-copy';
+import { isDemoFixtureCopy } from '../../lib/demo-proof-copy';
 import { ContactName, ContactText } from './contact-name';
 import { notificationParts, type NotificationTemplate } from '../../lib/ui/notifications';
 
@@ -12,7 +12,7 @@ export function NotificationMessage({message,words,language}:{message:Notificati
   const key = 'job', value = values.job;
   const prefix = value.match(/^(WO[- ]\d+ )/)?.[0] ?? '';
   const source = value.slice(prefix.length);
-  if (DEMO_PROOF_COPY.has(source)) values[key] = prefix + (words[source] ?? source);
+  if (isDemoFixtureCopy(source)) values[key] = prefix + (words[source] ?? source);
  }
  // Unknown bodies remain visible to the runtime translator, with user data protected.
  if(message.runtime||message.key==='{body}'){

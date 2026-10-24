@@ -1,4 +1,4 @@
-import { DEMO_PROOF_COPY } from './demo-proof-copy';
+import { isDemoFixtureCopy } from './demo-proof-copy';
 
 /** Only known interface shapes are expanded. Placeholder values remain data, never dictionary keys. */
 const shapes: readonly [RegExp, string, readonly string[]][] = [
@@ -42,7 +42,7 @@ export function interfaceTranslation(source: string, words: Record<string,string
   for (const [pattern,key,names] of shapes) {
     const match=pattern.exec(source),template=words[key];
     if (match && template) {
-      const values=Object.fromEntries(names.map((name,index)=>[name, (name === 'label' || (demo && name === 'job' && DEMO_PROOF_COPY.has(match[index+1]))) ? (words[match[index+1]] ?? match[index+1]) : match[index+1]]));
+      const values=Object.fromEntries(names.map((name,index)=>[name, (name === 'label' || (demo && name === 'job' && isDemoFixtureCopy(match[index+1]))) ? (words[match[index+1]] ?? match[index+1]) : match[index+1]]));
       return template.replace(/\{([a-z]+)\}/g,(token,name:string)=>values[name]??token);
     }
   }

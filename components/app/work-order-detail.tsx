@@ -1,7 +1,7 @@
 'use client';
 import { ScheduleHint } from './schedule-hint';
 import { historyActor, historyAttribution, historyCommentTemplate, historyEventTemplates } from '../../lib/ui/job-history';
-import { DEMO_PROOF_COPY } from '../../lib/demo-proof-copy';
+import { isDemoFixtureCopy } from '../../lib/demo-proof-copy';
 import { formatInLang } from '../../lib/date-lang';
 import type { NotificationTemplate } from '../../lib/ui/notifications';
 import { NotificationMessage } from './notification-message';
@@ -78,7 +78,7 @@ export function WorkOrderDetail({ id }: { id: string }) {
   const changes=assignee!==(o.assignee_id??'')||schedule!==dateInput(o.scheduled_for,workspace?.timezone);
   const historyMessage=(message:NotificationTemplate)=>{
     const job=message.values.job;
-    return workspace?.is_demo&&job&&DEMO_PROOF_COPY.has(job)?{...message,translatedValues:[...(message.translatedValues??[]),'job']}:message;
+    return workspace?.is_demo&&job&&isDemoFixtureCopy(job)?{...message,translatedValues:[...(message.translatedValues??[]),'job']}:message;
   };
   const events=[...o.timeline.map(e=>({id:e.id,at:e.created_at,actor:e.actor_id,messages:historyEventTemplates(e,name(e.actor_id),o.title,!staff,workspace?.timezone,noticeLanguage||'en-IN'),internal:false,attribution:staff?historyAttribution(e):null})),...comments.map(c=>({id:c.id,at:c.created_at,actor:c.author_id,messages:[historyCommentTemplate(c,name(c.author_id),o.title)],internal:c.visibility==='internal',attribution:staff?historyAttribution(c):null}))].sort((a,b)=>new Date(b.at).getTime()-new Date(a.at).getTime());
   return <div className="page stack work-detail-page"><WorkOrderBack/><PageHeader><div className="stack compact"><span className="order-number">{orderNumber(o)}</span><div className="row detail-title">{overdue&&<Badge tone="danger">Late</Badge>}<JobTitleTransition id={o.id}><h1 data-no-translate>{workOrderTitle({...o,site_name:o.site.name})}</h1></JobTitleTransition><StatusBadge status={o.status}>{!staff?clientStatusLabel(o):staffStatusLabel(o)}</StatusBadge></div>{o.status!=='cancelled'&&<ol className="ds-steps" aria-label="Status">{[['On the way',!!(o as any).on_way_at||['in_progress','waiting_on_parts','done'].includes(o.status)],[statusLabels.in_progress,['in_progress','waiting_on_parts','done'].includes(o.status)],['Done',o.status==='done']].map(([label,on])=><li key={String(label)} data-on={on?'true':'false'}><span>{label as string}</span></li>)}</ol>}</div><div className="row detail-actions">{office&&base&&<JobMenu job={o} base={base} open={false} onOptimistic={status=>{const previous=o;order.setData({...o,status});return()=>order.setData(previous);}} onChanged={()=>{setConflict(false);void order.reload();}} afterDelete={()=>{window.location.href='/work-orders';}}/>}{!staff&&base&&(o as any).created_by===me.user.id&&<ClientVisitActions base={base} job={{...o,started:o.timeline.some(e=>e.details?.to_status==='in_progress')} as any} reload={()=>void order.reload()}/>}

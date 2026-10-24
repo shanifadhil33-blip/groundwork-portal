@@ -19,6 +19,8 @@ import { clientStatusLabel, clientStatusLabels } from '../lib/ui/work-orders';
 import { StatusBadge } from '../components/ui';
 import { DEMO_QUOTE_COPY } from '../lib/demo-quote-copy';
 import { DEMO_ROUND_TWO_COPY } from '../lib/demo-round-two-copy';
+import { DUNE_HARBOUR_COPY } from '../lib/demo-dune-harbour-copy';
+import { isDemoFixtureCopy } from '../lib/demo-proof-copy';
 import { DEMO_PROOF_COPY } from '../lib/demo-proof-copy';
 import { LANGUAGES } from '../lib/languages';
 import { CHECKLIST_DEFAULTS } from '../lib/job-checklists';
@@ -154,4 +156,28 @@ it.each(LANGUAGES.flatMap(({code})=>['owner','admin','supervisor'].map(viewer=>(
  // RelativeTime may request unrelated date labels; fixture text must come from the file.
  const requested=fetcher.mock.calls.filter(([url])=>url==='/api/i18n/translate').flatMap(([,options])=>JSON.parse(String(options?.body)).strings as string[]);
  for(const key of [...Object.values(DEMO_MEMORY_COPY),...Object.values(DEMO_QUOTE_COPY)])expect(requested).not.toContain(key);
+});
+
+
+it.each([true,false])('renders exact Dune Harbour prose in shipped Arabic only in demo workspaces (demo %s)',async demo=>{
+ state.demo=demo;state.lang='ar-AE';
+ const raw=readFileSync('public/i18n/ar-AE.json','utf8'),words=readTranslationCache(raw,'ar-AE');
+ const fetcher=vi.fn(async()=>({ok:true,text:async()=>raw,json:async()=>({translations:{}})}));vi.stubGlobal('fetch',fetcher);
+ const own='Clinic filter service please call me';
+ await act(async()=>root.render(provider(<>
+  {[...DUNE_HARBOUR_COPY].map(copy=><p key={copy} data-no-translate>{copy}</p>)}
+  <p data-no-translate>{own}</p><p data-no-translate>Imran</p><p data-no-translate>Dune Harbour Technical Services</p>
+  <textarea defaultValue="Clinic filter service"/><Translator/>
+ </>)));
+ await act(async()=>{await vi.advanceTimersByTimeAsync(200);});
+ for(const copy of DUNE_HARBOUR_COPY){
+  expect(isDemoFixtureCopy(copy),copy).toBe(true);
+  expect(words[copy],copy).toBeTruthy();expect(words[copy],copy).not.toBe(copy);
+  expect(host.textContent,copy).toContain(demo?words[copy]:copy);
+  expect(copy).not.toMatch(/[-\u2013\u2014]/);expect(words[copy]).not.toMatch(/[-\u2013\u2014]/);
+ }
+ expect(isDemoFixtureCopy(own)).toBe(false);
+ expect(host.textContent).toContain(own);expect(host.textContent).toContain('Imran');expect(host.textContent).toContain('Dune Harbour Technical Services');
+ expect(host.querySelector('textarea')?.value).toBe('Clinic filter service');
+ expect(fetcher.mock.calls).toHaveLength(1);
 });

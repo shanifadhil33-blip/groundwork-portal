@@ -9,7 +9,7 @@ import { setNotificationLanguage } from './notification-language';
 import { LANG_HINT_KEY } from '../../lib/head-scripts';
 import { AppContext } from './context';
 import { demoJobTranslations } from '../../lib/demo-job-copy';
-import { DEMO_PROOF_COPY } from '../../lib/demo-proof-copy';
+import { isDemoFixtureCopy } from '../../lib/demo-proof-copy';
 
 const LANGUAGE_EVENT = 'groundwork-language-changed';
 export function changeAppLanguage(lang: string) {
@@ -65,7 +65,7 @@ export function Translator() {
       if (attribute && element?.matches('[data-translate-attributes]')) return false;
       // The fixture's exact sample words have static translations. Keep real
       // job data and all other sandbox writing verbatim, including form inputs.
-      if (!attribute && demoProof && DEMO_PROOF_COPY.has((source ?? node.nodeValue ?? '').trim())
+      if (!attribute && demoProof && isDemoFixtureCopy((source ?? node.nodeValue ?? '').trim())
         && !element?.closest(TRANSLATION_SKIP.replace('[data-no-translate],', ''))) return false;
       return !!element?.closest(attribute ? TRANSLATION_SKIP.replace('textarea,', '') : TRANSLATION_SKIP);
     };
