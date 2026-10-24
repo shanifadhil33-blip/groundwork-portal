@@ -1,23 +1,19 @@
 'use client';
 import { useState } from 'react';
+import { termsNoticeArabic } from '../../lib/terms-notice-ar';
 
 const MAIL = 'shanifadhil022@gmail.com';
 const terms = [
-  ['A portfolio project', 'مشروع لعرض الأعمال',
-    'Groundwork is a portfolio project by Adhil Shanif. It is free and offered as it is, with no promise that it will always be online or keep your data forever. Please keep your own copy of anything important.',
-    'Groundwork مشروع لعرض الأعمال من إعداد عادل شنيف. المشروع مجاني ومتوفر بحالته الحالية، من دون وعد بأنه بيظل متاح على الإنترنت دايماً أو بيحتفظ ببياناتك للأبد. يرجى الاحتفاظ بنسخة عندك من أي شيء مهم.'],
-  ['Use it fairly', 'استخدمه بإنصاف',
-    'Only add information you are allowed to share. Do not try to see other companies’ data, get around the access rules, or overload the demo.',
-    'أضف بس المعلومات المسموح لك بمشاركتها. لا تحاول تطّلع على بيانات شركات ثانية، أو تتجاوز قواعد الوصول، أو تحمّل النسخة التجريبية فوق طاقتها.'],
-  ['Your data', 'بياناتك',
-    <>Your company’s data stays yours. How we store it and how to delete it is in our <a href="/privacy">Privacy</a> page.</>,
-    <>بيانات شركتك تظل ملكك. طريقة تخزينها وحذفها موجودة في صفحة <a href="/privacy">الخصوصية</a> عندنا.</>],
-  ['Agent', 'المساعد',
-    'The agent can be wrong. Check what it suggests. It only changes anything after you confirm.',
-    'المساعد ممكن يخطئ. راجع اقتراحاته. ما يغيّر أي شيء إلا بعد تأكيدك.'],
-  ['Questions', 'الأسئلة',
-    <>Email <a href={`mailto:${MAIL}`}>{MAIL}</a>.</>,
-    <>راسلنا على <a href={`mailto:${MAIL}`}>{MAIL}</a>.</>],
+  ['A portfolio project', termsNoticeArabic[0].title,
+    'Groundwork is a portfolio project by Adhil Shanif. It is free and offered as it is, with no promise that it will always be online or keep your data forever. Please keep your own copy of anything important.', termsNoticeArabic[0].body],
+  ['Use it fairly', termsNoticeArabic[1].title,
+    'Only add information you are allowed to share. Do not try to see other companies’ data, get around the access rules, or overload the demo.', termsNoticeArabic[1].body],
+  ['Your data', termsNoticeArabic[2].title,
+    <>Your company’s data stays yours. How we store it and how to delete it is in our <a href="/privacy">Privacy</a> page.</>, termsNoticeArabic[2].body],
+  ['Agent', termsNoticeArabic[3].title,
+    'The agent can be wrong. Check what it suggests. It only changes anything after you confirm.', termsNoticeArabic[3].body],
+  ['Questions', termsNoticeArabic[4].title,
+    <>Email <a href={`mailto:${MAIL}`}>{MAIL}</a>.</>, termsNoticeArabic[4].body],
 ] as const;
 
 export function TermsNotice({ initialArabic = false }: { initialArabic?: boolean }) {

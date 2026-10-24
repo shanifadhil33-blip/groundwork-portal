@@ -67,8 +67,9 @@ for (const [name, page] of pages) {
     expect(host.querySelector('.public-footer a[href="/terms"]')?.textContent).toBe(arabic ? arabicWords.Terms : 'Terms');
     if (name !== 'join') expect(host.querySelector('.back-link')?.textContent).toBe(arabic ? arabicWords.Home : 'Home');
     if (name === 'terms') {
-      expect(host.querySelector('article h2')?.textContent).toBe('A portfolio project');
-      expect(host.querySelector('article')?.closest('[lang]')?.getAttribute('lang')).toBe('en');
+      expect(host.querySelector('article h2')?.textContent).toBe(arabic ? 'مشروع لعرض الأعمال' : 'A portfolio project');
+      expect(host.querySelector('article')?.closest('[lang]')?.getAttribute('lang')).toBe(arabic ? 'ar-AE' : 'en');
+      expect(host.querySelector('article')?.closest('[dir]')?.getAttribute('dir')).toBe(arabic ? 'rtl' : 'ltr');
     }
     for (const selector of ['.public-header', '.public-footer', '.back-link']) {
       expect(host.querySelector(selector)?.textContent ?? '').not.toMatch(/\p{Pd}/u);
