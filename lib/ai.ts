@@ -1,3 +1,4 @@
+import { getAssistantDeadline } from './ai-limits';
 import { usableReply } from './agent/reply-quality';
 import { stripThinking } from './ai-text';
 export { stripThinking };
@@ -159,7 +160,7 @@ export function fitRequest(p:Provider,body:any,adapted=false):any {
  */
 export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,parse:(p:Provider,data:any)=>T|null,{timeout=15000,deadline=40000,shouldContinue=():boolean=>true,concurrency=():number=>2}={},list=providers()):Promise<T|null>{
  const task:Task=BULK.has(label)?'bulk':'assistant';
- const until=Date.now()+Math.min(deadline,40000)-100;
+ const until=Math.min(Date.now()+Math.min(deadline,40000)-100,getAssistantDeadline()??Infinity);
  const order=interleave(route(task,list,turns[task]++)).sort((a,b)=>{
   const recent=(p:Provider)=>{const s=performance.get(p.name.split('/')[0]);return s&&Date.now()-s.success<600_000?s:undefined;};
   const x=recent(a),y=recent(b);
@@ -167,7 +168,7 @@ export async function withFallback<T>(label:string,build:(p:Provider)=>unknown,p
  });
  const attempts=new Map<string,number>(),blocked=new Set<string>(),tried=new Set<string>();
  const controller=new AbortController();
- const eligible=(p:Provider)=>shouldContinue()&&!blocked.has(p.name.split('/')[0])&&(providerCooldown.get(p.name.split('/')[0])??0)<=Date.now()&&(attempts.get(p.name.split('/')[0])??0)<(task==='assistant'?1:2)&&(tried.has(p.name)||(cooldown.get(p.name)??0)<=Date.now())&&(exhausted.get(p.name)??0)<=Date.now();
+ const eligible=(p:Provider)=>Date.now()<until&&shouldContinue()&&!blocked.has(p.name.split('/')[0])&&(providerCooldown.get(p.name.split('/')[0])??0)<=Date.now()&&(attempts.get(p.name.split('/')[0])??0)<(task==='assistant'?1:2)&&(tried.has(p.name)||(cooldown.get(p.name)??0)<=Date.now())&&(exhausted.get(p.name)??0)<=Date.now();
  const attempt=async(p:Provider):Promise<T|null>=>{
   const started=Date.now(),id=p.name.split('/')[0],left=until-started;
   if(left<250||controller.signal.aborted)return null;

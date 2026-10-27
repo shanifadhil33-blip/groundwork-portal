@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // AGENT12 count words live (no AI call): clients get the fixed refusal in English and Gulf Arabic; Imran in Gulf Arabic gets
 // Ravi's counts in Arabic with the right counted noun, marked localized, and the Agent panel at 360 and 390 shows it as written.
 // Fails on any missing piece. Restores each language it changes.

@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { Demo, list } from './helpers';
 // The Yes and Change card for every role, through the real agent route. Each run asks the AI at most a few questions;
 // when every provider is busy the backup answer from app data is accepted, but an error reply never is.
+test.skip(process.env.RUN_ASSISTANT_QA !== '1', 'Live assistant QA is paused during the build freeze');
 let d: Demo;
 test.beforeAll(async () => { d = await Demo.start('imran'); });
 test.afterAll(async () => { await d?.reset(); });

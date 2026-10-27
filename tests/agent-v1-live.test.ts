@@ -1,3 +1,4 @@
+import { limitAiRequest } from '../lib/ai-limits';
 import './fixtures';
 import { afterAll, afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { closePools, withSystem } from '../lib/db';
@@ -65,3 +66,5 @@ it('a client edit by the agent has a why built from the request and effects, and
   expect((await withSystem(async db => (await db.query('SELECT contact_name FROM clients WHERE id=$1', [ids.harbor])).rows[0])).contact_name ?? '').toBe(before.contact_name ?? '');
   await withSystem(db => db.query('DELETE FROM assistant_actions WHERE id=$1', [p.body.pending_action.id]));
 });
+
+beforeEach(()=>limitAiRequest.reset());

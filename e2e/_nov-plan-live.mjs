@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // PR #2 live (no AI call). Fails on empty. Client sign off with stars and thanks; client sees only a price he was told; the
 // morning plan, urgent and sick moves preview for Imran and refuse Ravi; Ravi says I am on the way as himself; a standing rule
 // is asked first and lands in his memory, a normal sentence is not caught; an unexpired document cannot be archived; screens

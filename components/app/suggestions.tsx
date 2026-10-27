@@ -1,8 +1,9 @@
 'use client';
+import { useVisiblePoll } from '../../lib/hooks/use-visible-poll';
 import { useSelection } from './selection';
 import { ContactName } from './contact-name';
 import Link from 'next/link';
-import { useEffect,useState } from 'react';
+import { useState } from 'react';
 import { useApp } from './context';
 import { useResource } from './resource';
 import { NoAccess } from './no-access';
@@ -16,7 +17,7 @@ export function SuggestedJobs({summary=false}:{summary?:boolean}){
  const [batch,setBatch]=useState<string[]>([]);
  const selection=useSelection((rows.data?.data??[]).filter(s=>s.status==='pending').map(s=>s.id),decide?[{label:'Approve',run:async ids=>{for(const id of ids){const s=rows.data?.data.find(s=>s.id===id);if(s&&!await save(s,'approved'))throw new Error('Could not approve this suggestion. Try again.');}}},{label:'Decline',run:ids=>{setBatch(ids);setReason('');setMode('declined');setSelected(rows.data?.data.find(s=>s.id===ids[0])??null);}}]:[]);
  const [selected,setSelected]=useState<Suggestion|null>(null),[mode,setMode]=useState<'approved'|'declined'>('approved'),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
- useEffect(()=>{if(!allowed)return;const refresh=()=>void rows.reload();window.addEventListener('focus',refresh);const timer=setInterval(refresh,20000);return()=>{clearInterval(timer);window.removeEventListener('focus',refresh);};},[allowed,rows.reload]);
+ useVisiblePoll(rows.reload,90000,allowed);
  if(!allowed)return summary?null:<NoAccess/>;
  const list=summary?(rows.data?.data?.filter(s=>s.status==='pending')??[]):(rows.data?.data??[]);
  async function save(s:Suggestion,decision:'approved'|'declined',edit=false,keepOpen=false){if(!base||busy)return false;setBusy(true);setError('');try{await post(`${base}/suggestions/${s.id}`,decision==='declined'?{decision,reason}:{decision,...(edit?{overrides:{title:s.title,problem:s.problem,priority:s.priority,site_id:s.site_id,client_id:s.client_id,preferred_window:s.preferred_window}}:{})});if(!keepOpen)setSelected(null);await rows.reload();window.dispatchEvent(new Event('groundwork-queue-changed'));return true;}catch(e){setError(e instanceof Error?e.message:'Could not save. Try again.');return false;}finally{setBusy(false);}}

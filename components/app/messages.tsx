@@ -1,4 +1,5 @@
 'use client';
+import { useVisiblePoll } from '../../lib/hooks/use-visible-poll';
 import { useLocalDraft } from '../../lib/ui/drafts';
 import { enqueue } from '../../lib/ui/outbox';
 import { useSelection } from './selection';
@@ -28,7 +29,7 @@ export function ThreadMessages({thread,onSent,canModerate=false}:{thread:Thread;
  const threadKey=JSON.stringify(thread);
  const [sendingBody,setSendingBody]=useState<string|null>(null),[removing,setRemoving]=useState<string|null>(null);
  useEffect(()=>{setError('');setOriginals([]);},[threadKey]);
- useEffect(()=>{const id=setInterval(()=>void messages.reload(),20000);return()=>clearInterval(id);},[messages.reload]);
+ useVisiblePoll(messages.reload,60000);
  useEffect(()=>{const last=messages.data?.data.at(-1);if(!base||!last||!messages.data?.last_message_at)return;void post(`${base}/messages/read`,{conversation_id:thread.conversation_id,work_order_id:thread.work_order_id,through:messages.data.last_message_at,through_id:last.id}).then(()=>window.dispatchEvent(new Event('groundwork-messages-changed'))).catch(()=>setError('Could not mark these messages as read. Try again.'));},[messages.data,base,threadKey]);
  async function send(){if(!base||busy||(!body.trim()&&!photos.length))return;setBusy(true);setError('');setSendingBody(body||'Photo');const payload=JSON.stringify({...thread,body,photo_ids:photos,voice_note_text:voice||undefined,visibility});if(submission.current.body!==payload)submission.current={body:payload,key:crypto.randomUUID()};try{if(navigator.onLine===false){enqueue(me.user.id,member!.workspace_id,{id:submission.current.key,url:`${base}/messages`,body:payload,label:'Message'});clearDraft();submission.current={body:'',key:''};return;}const made=await request<{conversation_id?:string}>(`${base}/messages`,{method:'POST',headers:{'Idempotency-Key':submission.current.key},body:payload});clearDraft();submission.current={body:'',key:''};if(made.conversation_id)onSent?.(made.conversation_id);await messages.reload();window.dispatchEvent(new Event('groundwork-messages-changed'));}catch(e){if(e instanceof Error&&'status' in e&&e.status===0){try{enqueue(me.user.id,member!.workspace_id,{id:submission.current.key,url:`${base}/messages`,body:payload,label:'Message'});clearDraft();submission.current={body:'',key:''};}catch{setError('Could not keep this message on your phone. Your draft is saved.');}}else setError(e instanceof Error?e.message:'Could not send. Try again.');}finally{setBusy(false);setSendingBody(null);}}
  async function moderate(id:string,action:string){if(!base)return;setBusy(true);setError('');try{await post(`${base}/team-space/${id}`,{action});await messages.reload();}catch(e){setError(e instanceof Error?e.message:'Could not save. Try again.');}finally{setBusy(false);}}

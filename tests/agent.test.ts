@@ -1,3 +1,4 @@
+import { limitAiRequest } from '../lib/ai-limits';
 import { decideSuggestion } from '../lib/services/suggestions';
 import { approvedClientRequest } from './request-fixtures';
 import './fixtures';
@@ -21,7 +22,7 @@ import * as mcp from '../app/api/mcp/route';
 import * as assistantRoute from '../app/api/workspaces/[ws]/assistant/route';
 let user:string=ids.sam;
 // These wire mocks exercise Gemini only; provider racing is covered in ai-resilience.test.ts.
-beforeEach(()=>{user=ids.sam;setAuthResolverForTests(async()=>user);vi.stubEnv('GEMINI_API_KEY','fictional-key');vi.stubEnv('GROQ_API_KEY','');vi.stubEnv('AI_GEMINI_MODELS','gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-2.5-flash-lite');vi.stubEnv('AI_GROQ_MODELS','openai/gpt-oss-120b');resetCooldowns();});
+beforeEach(()=>{limitAiRequest.reset();user=ids.sam;setAuthResolverForTests(async()=>user);vi.stubEnv('GEMINI_API_KEY','fictional-key');vi.stubEnv('GROQ_API_KEY','');vi.stubEnv('AI_GEMINI_MODELS','gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-2.5-flash-lite');vi.stubEnv('AI_GROQ_MODELS','openai/gpt-oss-120b');resetCooldowns();});
 afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs();setAuthResolverForTests();});
 afterAll(closePools);
 async function route(handler:any,body?:unknown,params:Record<string,string>={},method='POST',suffix=''){

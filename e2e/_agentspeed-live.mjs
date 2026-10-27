@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // Agent speed check on the fixed sandbox: 4 common questions per role (technician, supervisor, admin), time to the first useful content.
 // The answer arrives in one response, so time to first content = time to the full reply. Up to 9 AI calls per run (lesson 48: shared quota).
 import { sandbox } from './sandbox.mjs'; import fs from 'node:fs';

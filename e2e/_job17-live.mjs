@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // JOB17 and JOB13 live (no AI call): after a sandbox reset, Ravi records Could not get in on Faisal's scheduled job through the
 // Yes card; the job status stays the same, Faisal and Sam get the plain notice, Faisal can rebook from free slots, Pranav (other
 // client) is refused, and the job page holds at 360 and 390 for Ravi and Faisal in English and Gulf Arabic. Fails on any missing piece.

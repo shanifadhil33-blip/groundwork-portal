@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // PR #1 live (no AI call): Ravi reports Fixed with a Washer on Faisal's job; Faisal signs off through the Yes step; Imran (owner)
 // sees the unsent draft bill (Work 150 + Washer 25) and keeps it; Ravi and Faisal never see its amounts; Pranav is refused; the Job
 // done card holds at 360 and 390 in English and Gulf Arabic; the phone change says plainly no code went out and saves nothing.

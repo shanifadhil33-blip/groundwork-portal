@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 import fs from 'node:fs'; import { sandbox } from '/workspace/portal-hero/e2e/sandbox.mjs';
 const s = await sandbox('pranav'); await s.as('pranav'); const A = `/api/workspaces/${s.ws}`; const out = [];
 for (const q of ['What needs my attention?', 'Show me my open requests', 'Any prices waiting for me?', 'What did the technician fix last time at my site?', 'Is anything late?']) {

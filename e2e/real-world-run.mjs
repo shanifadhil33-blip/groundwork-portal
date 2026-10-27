@@ -131,6 +131,8 @@ export function groupBySection(cases) {
 
 export async function run({ env = process.env, connect, cases: suppliedCases, observe = snapshot, save } = {}) {
   const config = options(env);
+  // Injected transports remain available for offline tests during the freeze.
+  if (!connect && !config.dryRun && env.RUN_ASSISTANT_QA !== '1') return { calls: 0, status: 'disabled', cases: [], sections: {} };
   // No fixture read, report write, Playwright import, sign in or request at the default cap.
   if (!config.dryRun && config.maxCalls === 0) return { calls: 0, status: 'disabled', cases: [], sections: {} };
   const fixtures = suppliedCases ?? JSON.parse(await readFile(fixtureUrl, 'utf8'));
@@ -216,6 +218,6 @@ export async function run({ env = process.env, connect, cases: suppliedCases, ob
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const report = await run();
-    console.log(report.status === 'disabled' ? 'MAX_CALLS is zero. Nothing was sent.' : `Recorded ${report.calls} Agent requests. Review the report by section.`);
+    console.log(report.status === 'disabled' ? 'Live assistant QA is disabled. Set RUN_ASSISTANT_QA=1 and a positive MAX_CALLS after the freeze.' : `Recorded ${report.calls} Agent requests. Review the report by section.`);
   } catch (error) { console.error(String(error)); process.exitCode = 1; }
 }

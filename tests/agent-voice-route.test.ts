@@ -1,3 +1,4 @@
+import { limitAiRequest } from '../lib/ai-limits';
 import { beforeEach, expect, it, vi } from 'vitest';
 const mock=vi.hoisted(()=>({requireUser:vi.fn(),inWorkspace:vi.fn(),preferences:vi.fn(),transcribe:vi.fn()}));
 vi.mock('../lib/auth',()=>({requireUser:mock.requireUser}));
@@ -20,3 +21,5 @@ it('checks the two minute request limit and malformed audio',async()=>{for(const
 it('transcribes in the signed in user language and returns only draft words',async()=>{const r=await POST(request(),context);expect(r.status).toBe(200);expect(await r.json()).toEqual({transcript:'The pump is fixed'});expect(mock.inWorkspace).toHaveBeenCalledWith('Imran','workspace',expect.any(Function));expect(mock.transcribe).toHaveBeenCalledWith(expect.any(Uint8Array),'audio/wav','ne');});
 it('returns a friendly provider failure',async()=>{mock.transcribe.mockResolvedValue(null);const r=await POST(request(),context);expect(r.status).toBe(503);expect((await r.json()).error.message).toBe('We could not hear your message. Please try again or type it.');});
 it('reads WAV duration from the bytes',()=>{expect(audioDuration(wave(120),'audio/wav')).toBe(120);expect(audioDuration(new Uint8Array([1,2,3]),'audio/webm')).toBeNull();});
+
+beforeEach(()=>limitAiRequest.reset());

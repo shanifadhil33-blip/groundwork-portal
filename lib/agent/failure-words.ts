@@ -8,6 +8,9 @@ export const ACTION_LIMIT = 'I have done as much as I can in one reply. Please a
 // Fixed application refusals are safe English copy even before translations ship.
 // Keep this an exact allowlist: exception or provider text is never trusted.
 const SAFE_REFUSALS = new Set([
+ 'The assistant is taking too long right now. Please try again in a minute.',
+ 'We could not hear your message in time. Please try again or type it.',
+ 'You have sent a lot of requests. Please wait a minute and try again.',
  'You can raise and follow your own requests here. Ask your service company for anything else.',
  'You can save notes only on jobs you can see. Nothing was saved.',
  'You can save a note only on a request you raised. Nothing was saved.',

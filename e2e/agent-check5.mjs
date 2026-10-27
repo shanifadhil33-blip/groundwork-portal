@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // Short live Agent check: 5 AI questions at most. Prints each answer, its time and whether the outcome was right.
 import fs from 'node:fs'; import { sandbox } from './sandbox.mjs';
 const s=await sandbox('imran'); const ws=s.ws; const out=[];

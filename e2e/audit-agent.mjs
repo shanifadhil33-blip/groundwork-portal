@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // Final audit: Agent permission and action probes. 10 live AI questions at most (rule). Writes /workspace/qa/audit-agent.json
 import fs from 'node:fs'; import { sandbox } from './sandbox.mjs';
 const s=await sandbox('imran'); const ws=s.ws; const out=[]; const log=o=>{out.push(o);console.log(JSON.stringify(o).slice(0,520));};

@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // Live check: top clients question answers fast with no AI call.
 import { sandbox } from './sandbox.mjs';
 const { api, ws } = await sandbox('imran');

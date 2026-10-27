@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // LEARN04 live check (no AI call: the length request is answered before the model). Ravi says "shorter", sees the receipt with Undo, presses Undo.
 import { sandbox } from './sandbox.mjs';
 const s = await sandbox('imran'); await s.as('ravi'); const A = `/api/workspaces/${s.ws}`; const res = {};

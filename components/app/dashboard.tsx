@@ -1,4 +1,5 @@
 'use client';
+import { useVisiblePoll } from '../../lib/hooks/use-visible-poll';
 import { SystemSummary } from './system-summary';
 import { WaitingPrices } from './price-change';
 import type { ResponseWatchItem } from '../../lib/services/contract-response';
@@ -38,7 +39,7 @@ export function AgentCard(){const {member}=useApp(),office=member?.role==='admin
 type KeyAsk={id:string;summary:string|null;asked_by:string|null;key_name:string|null;created_at:string};
 /** Connect AI key actions that wait for an admin when the company asks before every action. */
 function KeyApprovals({base}:{base:string}){const asks=useResource<KeyAsk[]>(`${base}/agent-approvals`),[busy,setBusy]=useState(''),[error,setError]=useState('');
- useEffect(()=>{const t=setInterval(()=>void asks.reload(),20000);return()=>clearInterval(t);},[asks]);
+ useVisiblePoll(asks.reload,60000);
  async function decide(id:string,approve:boolean){setBusy(id);setError('');try{await post(`${base}/agent-approvals/${id}`,{approve});await asks.reload();window.dispatchEvent(new Event('groundworkAgentLog'));}catch(e){setError(e instanceof RequestError?e.message:'We couldn’t do this. Try again.');}finally{setBusy('');}}
  if(!asks.data?.length)return null;
  return <section className="stack compact key-approvals" aria-label="Waiting for your approval"><h3>Waiting for your approval</h3>{asks.data.map(a=><div key={a.id} className="key-ask"><div><strong>{a.summary??'A change'}</strong><p className="small muted">Asked by {a.key_name??'a connected AI tool'} for {a.asked_by??'a team member'}</p></div><div className="key-ask-actions"><Button variant="secondary" size="sm" busy={busy===a.id} onClick={()=>void decide(a.id,true)}>Approve</Button><Button size="sm" variant="secondary" disabled={!!busy} onClick={()=>void decide(a.id,false)}>Decline</Button></div></div>)}{error&&<p className="inline-error" role="alert">{error}</p>}</section>;}
@@ -46,7 +47,8 @@ type Decision={id:string;tool?:string;summary:string|null;why:string|null;reason
 const changeValue=(field:string,value:string|null)=>value&&DATE_FIELDS.includes(field)?formatInLang(value,field==='scheduled_for'?{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}:{day:'numeric',month:'short',year:'numeric'}):valueLabel(field,value);
 /** AGENT05 decision log: what the Agent did, what the person said no to and what it was not allowed to do, with the reason, what moved and an Undo. Office only. The dashboard shows the last 5; the full log has filters. */
 export function AgentLog({base,full=false}:{base:string;full?:boolean}){const log=useResource<Decision[]>(`${base}/assistant/log${full?'?limit=100':''}`),[undo,setUndo]=useState<Decision|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[filter,setFilter]=useState<DecisionFilter>('all');
- useEffect(()=>{const again=()=>void log.reload();const t=setInterval(again,20000);window.addEventListener('groundworkAgentLog',again);return()=>{clearInterval(t);window.removeEventListener('groundworkAgentLog',again);};},[log]);
+ useVisiblePoll(log.reload,60000);
+ useEffect(()=>{const again=()=>void log.reload();window.addEventListener('groundworkAgentLog',again);return()=>window.removeEventListener('groundworkAgentLog',again);},[log.reload]);
  const all=Array.isArray(log.data)?log.data:[],items=full?all.filter(d=>matchesFilter(d,filter)):all.slice(0,5);if(log.error)return <ErrorState retry={log.reload}/>;if(log.loading)return <p>Loading history…</p>;if(!all.length)return <p>No changes saved yet.</p>;
  async function run(){if(!undo)return;setBusy(true);setError('');try{await post(`${base}/assistant/log/${undo.id}/undo`,{});setUndo(null);void log.reload();}catch(e){setError(e instanceof RequestError?e.message:'We could not undo that. Try again.');}finally{setBusy(false);}}
  return <section className="agent-log stack compact" aria-label="What Groundwork did"><div className="agent-log-head"><h3>{full?'Decision log':'What I did'}</h3>{!full&&<Link href="/settings/agent/log#decision-log" className="small">See all</Link>}</div>

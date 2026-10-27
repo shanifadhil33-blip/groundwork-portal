@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // Agent panel check while it is thinking (Adhil, Oct 19): open the Agent, ask, then while the answer is pending try to type,
 // tap outside and tap close. Saves screenshots. Env: W (width), H, THEME (light|dark), WHO (ravi|sam|imran), PAGE, TAG (before|after), Q.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';

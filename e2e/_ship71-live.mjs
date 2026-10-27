@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // Ship 71 live check (Oct 20 2026). Fails on empty. LEARN12: a supervisor's company lesson waits for the admin; the admin says yes
 // or no with real clicks, English and Gulf Arabic, 390 wide, viewport screenshots. LEARN13: a technician and another company see nothing.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';

@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2680 | 6 | 1677 | 0 | 1002 | 1 | 0 | 0 |
-| ne | 2680 | 7 | 1342 | 0 | 1338 | 0 | 0 | 0 |
-| hi | 2680 | 5 | 1357 | 0 | 1323 | 0 | 0 | 0 |
-| ur | 2680 | 7 | 1342 | 0 | 1338 | 0 | 0 | 0 |
-| bn | 2680 | 6 | 1358 | 0 | 1322 | 0 | 0 | 0 |
-| ml | 2680 | 19 | 1326 | 0 | 1354 | 0 | 0 | 0 |
-| ta | 2680 | 6 | 1357 | 0 | 1322 | 1 | 0 | 0 |
-| ps | 2680 | 6 | 1340 | 0 | 1340 | 0 | 0 | 0 |
-| fa-AF | 2680 | 15 | 1326 | 0 | 1354 | 0 | 0 | 0 |
-| fa-IR | 2680 | 3 | 1338 | 0 | 1342 | 0 | 0 | 0 |
-| fil | 2680 | 8 | 1324 | 0 | 1355 | 1 | 0 | 0 |
-| zh-CN | 2680 | 19 | 1312 | 0 | 1368 | 0 | 0 | 0 |
-| sw-KE | 2680 | 18 | 1311 | 0 | 1369 | 0 | 0 | 0 |
-| am | 2680 | 18 | 1311 | 0 | 1369 | 0 | 0 | 0 |
-| ti | 2680 | 18 | 1328 | 0 | 1351 | 1 | 0 | 0 |
-| so | 2680 | 18 | 1326 | 0 | 1353 | 0 | 1 | 0 |
-| yo | 2680 | 18 | 1309 | 0 | 1371 | 0 | 0 | 0 |
-| ha | 2680 | 18 | 1327 | 0 | 1353 | 0 | 0 | 0 |
-| ig | 2680 | 18 | 1322 | 0 | 1358 | 0 | 0 | 0 |
-| lg | 2680 | 18 | 1309 | 0 | 1369 | 2 | 0 | 0 |
-| tw | 2680 | 18 | 1320 | 0 | 1360 | 0 | 0 | 0 |
+| ar-AE | 2683 | 6 | 1677 | 0 | 1005 | 1 | 0 | 0 |
+| ne | 2683 | 7 | 1342 | 0 | 1341 | 0 | 0 | 0 |
+| hi | 2683 | 5 | 1357 | 0 | 1326 | 0 | 0 | 0 |
+| ur | 2683 | 7 | 1342 | 0 | 1341 | 0 | 0 | 0 |
+| bn | 2683 | 6 | 1358 | 0 | 1325 | 0 | 0 | 0 |
+| ml | 2683 | 19 | 1326 | 0 | 1357 | 0 | 0 | 0 |
+| ta | 2683 | 6 | 1357 | 0 | 1325 | 1 | 0 | 0 |
+| ps | 2683 | 6 | 1340 | 0 | 1343 | 0 | 0 | 0 |
+| fa-AF | 2683 | 15 | 1326 | 0 | 1357 | 0 | 0 | 0 |
+| fa-IR | 2683 | 3 | 1338 | 0 | 1345 | 0 | 0 | 0 |
+| fil | 2683 | 8 | 1324 | 0 | 1358 | 1 | 0 | 0 |
+| zh-CN | 2683 | 19 | 1312 | 0 | 1371 | 0 | 0 | 0 |
+| sw-KE | 2683 | 18 | 1311 | 0 | 1372 | 0 | 0 | 0 |
+| am | 2683 | 18 | 1311 | 0 | 1372 | 0 | 0 | 0 |
+| ti | 2683 | 18 | 1328 | 0 | 1354 | 1 | 0 | 0 |
+| so | 2683 | 18 | 1326 | 0 | 1356 | 0 | 1 | 0 |
+| yo | 2683 | 18 | 1309 | 0 | 1374 | 0 | 0 | 0 |
+| ha | 2683 | 18 | 1327 | 0 | 1356 | 0 | 0 | 0 |
+| ig | 2683 | 18 | 1322 | 0 | 1361 | 0 | 0 | 0 |
+| lg | 2683 | 18 | 1309 | 0 | 1372 | 2 | 0 | 0 |
+| tw | 2683 | 18 | 1320 | 0 | 1363 | 0 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -975,6 +975,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "That practice control is only in the demo company." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "That record was not found." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "The WhatsApp channel is not switched on." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "The assistant is taking too long right now. Please try again in a minute." — All
 - "The booked visit is after the promised time." — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "The client can read this comment." — All
 - "The client goes back to how it was before." — All
@@ -1145,6 +1146,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "We could not check what is linked. Try again." — All
 - "We could not create your demo. Please try again." — All
 - "We could not hear you. Please try again or type your message." — All
+- "We could not hear your message in time. Please try again or type it." — All
 - "We could not hear your message. Please try again or type it." — All
 - "We could not load your answers. Try again." — All
 - "We could not make an invite. Try again." — All
@@ -1282,6 +1284,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "You finished {month} jobs this month and {total} in total." — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "You have joined this company. Open your home to continue." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "You have no visit ready to start." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "You have sent a lot of requests. Please wait a minute and try again." — All
 - "You said no to this one. Ask Agent again." — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "You said no. Nothing was changed." — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "You sent a lot today. Please try again later." — All
