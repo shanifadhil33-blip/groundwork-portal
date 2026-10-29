@@ -2687,7 +2687,7 @@
 "SEC06 seals channel phone numbers, message text and voice notes before storage using AES 256 GCM and a server secret. Sign in codes are hashed. This does not encrypt every field. Names, profile phone numbers, job text, photos and browser voice transcripts can still be stored as ordinary database fields. Access checks protect them. Photos have location and camera details removed before upload.":null,
 "Without a company, Yes deletes your account now.":null,
 "Your company access changed. Refresh and try again.":null,
-  "The assistant is taking too long right now. Please try again in a minute.": null,
-  "We could not hear your message in time. Please try again or type it.": null,
-  "You have sent a lot of requests. Please wait a minute and try again.": null
+"The assistant is taking too long right now. Please try again in a minute.":"معاون ابھی جواب دینے میں زیادہ وقت لے رہا ہے۔ ایک منٹ بعد دوبارہ کوشش کریں۔",
+"We could not hear your message in time. Please try again or type it.":"ہم وقت پر آپ کا پیغام نہیں سن سکے۔ دوبارہ کوشش کریں یا لکھ کر بھیجیں۔",
+"You have sent a lot of requests. Please wait a minute and try again.":"آپ نے بہت سی درخواستیں بھیجی ہیں۔ ایک منٹ انتظار کر کے دوبارہ کوشش کریں۔"
 }

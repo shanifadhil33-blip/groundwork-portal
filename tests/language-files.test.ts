@@ -85,3 +85,20 @@ it.each(others.map(l=>[l.code]))('%s translates every assistant confirmation car
   expect(file[key],`${code}: ${key}`).toBeTruthy();expect(file[key]).not.toBe(key);expect(file[key]).not.toMatch(/\p{Pd}/u);
  }
 });
+
+// Recovery messages must work offline when the assistant or voice request times out.
+it.each(others.map(l=>[l.code]))('%s translates assistant recovery messages offline',code=>{
+ const file=read(code);
+ for(const key of [
+  'The assistant is taking too long right now. Please try again in a minute.',
+  'We could not hear your message in time. Please try again or type it.',
+  'You have sent a lot of requests. Please wait a minute and try again.',
+ ]){
+  expect(typeof file[key]).toBe('string');
+  expect(validTranslation(key,file[key],code),`${code}: ${key}`).toBe(true);
+  expect(file[key]).not.toBe(key);expect(file[key]).not.toMatch(/\p{Pd}/u);
+ }
+});
+it('Malayalam has an offline label for the client home switch',()=>{
+ expect(read('ml')['My home']).toBe('എന്റെ വീട്');
+});

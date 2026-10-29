@@ -1822,7 +1822,7 @@
 "Moved {link} to {value2}.":null,
 "Moved.":null,
 "My day":null,
-"My home":null,
+"My home":"എന്റെ വീട്",
 "My record":null,
 "Needs a look":null,
 "Never":null,
@@ -2694,7 +2694,7 @@
 "SEC06 seals channel phone numbers, message text and voice notes before storage using AES 256 GCM and a server secret. Sign in codes are hashed. This does not encrypt every field. Names, profile phone numbers, job text, photos and browser voice transcripts can still be stored as ordinary database fields. Access checks protect them. Photos have location and camera details removed before upload.":null,
 "Without a company, Yes deletes your account now.":null,
 "Your company access changed. Refresh and try again.":null,
-  "The assistant is taking too long right now. Please try again in a minute.": null,
-  "We could not hear your message in time. Please try again or type it.": null,
-  "You have sent a lot of requests. Please wait a minute and try again.": null
+"The assistant is taking too long right now. Please try again in a minute.":"സഹായി ഇപ്പോൾ മറുപടി നൽകാൻ കൂടുതൽ സമയമെടുക്കുന്നു. ഒരു മിനിറ്റ് കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക.",
+"We could not hear your message in time. Please try again or type it.":"നിങ്ങളുടെ സന്ദേശം സമയത്തിനുള്ളിൽ കേൾക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക അല്ലെങ്കിൽ ടൈപ്പ് ചെയ്യുക.",
+"You have sent a lot of requests. Please wait a minute and try again.":"നിങ്ങൾ ധാരാളം അഭ്യർത്ഥനകൾ അയച്ചിട്ടുണ്ട്. ഒരു മിനിറ്റ് കാത്തിരുന്ന് വീണ്ടും ശ്രമിക്കുക."
 }
