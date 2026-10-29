@@ -1,3 +1,4 @@
+import { ASSISTANT_TIMEOUT } from '../lib/ai-limits';
 vi.mock('../lib/services/company-memory',()=>({companyMemoryContext:async()=>[]}));
 import { afterEach,beforeEach,expect,it,vi } from 'vitest';
 const state=vi.hoisted(()=>({turn:vi.fn(),call:vi.fn(),actions:new Map<string,any>(),order:{id:'50000000-0000-4000-8000-000000000058',order_number:58,title:'Test access control reader',status:'scheduled',priority:'normal',timezone:'Asia/Dubai',due_on:'2026-11-10',scheduled_for:'2026-11-08T05:00:00Z'},role:'staff',kind:'manager',language:'en-IN',lengths:new Map<string,string>(),patch:vi.fn(),allowed:true,plan:vi.fn(),postPlan:vi.fn(),assignment:vi.fn()}));
@@ -102,8 +103,8 @@ it.each(languages)('$code: planned action failures use shipped words',async({cod
 it('the total turn deadline uses shipped words and never starts an AI call',async()=>{
  state.language='ar-AE';
  const now=Date.now();const time=vi.spyOn(Date,'now').mockReturnValue(now);
- state.assignment.mockImplementation(async()=>{time.mockReturnValue(now+39_000);return null;});
- expect(await ask()).toMatchObject({reply:choiceWords('ar-AE')(UNANSWERED),localized:true});
+ state.assignment.mockImplementation(async()=>{time.mockReturnValue(now+51_000);return null;});
+ await expect(ask()).rejects.toMatchObject({status:503,message:failureWords('ar-AE',ASSISTANT_TIMEOUT)});
  expect(state.turn).not.toHaveBeenCalled();
  expect(warn).toHaveBeenCalledWith('[assistant] fallback',expect.objectContaining({stage:'deadline'}));
 });

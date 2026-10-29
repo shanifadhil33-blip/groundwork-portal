@@ -2693,5 +2693,8 @@
 "Practice complete. The workspace would close. Your sandbox still works.":null,
 "SEC06 seals channel phone numbers, message text and voice notes before storage using AES 256 GCM and a server secret. Sign in codes are hashed. This does not encrypt every field. Names, profile phone numbers, job text, photos and browser voice transcripts can still be stored as ordinary database fields. Access checks protect them. Photos have location and camera details removed before upload.":null,
 "Without a company, Yes deletes your account now.":null,
-"Your company access changed. Refresh and try again.":null
+"Your company access changed. Refresh and try again.":null,
+  "The assistant is taking too long right now. Please try again in a minute.": null,
+  "We could not hear your message in time. Please try again or type it.": null,
+  "You have sent a lot of requests. Please wait a minute and try again.": null
 }

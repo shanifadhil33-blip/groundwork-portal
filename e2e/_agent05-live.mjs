@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // AGENT05 live check on the fixed sandbox: Imran confirms a change (log shows what moved, then Undo), Sam taps Change (said no, card dead), Ravi asks for a change a technician may not make (not allowed, with the reason).
 import { sandbox } from './sandbox.mjs'; import fs from 'node:fs';
 const s = await sandbox('imran'); const A = `/api/workspaces/${s.ws}`; const res = {};

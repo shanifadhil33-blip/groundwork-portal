@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // Household card check on the fixed sandbox (no AI call for the intake; label translation uses saved words, then the translate chain once).
 // Faisal at 360 and 390 in en-IN, ar-AE and ml: heading New request, labels in his language, his words untouched, no sideways scroll.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';

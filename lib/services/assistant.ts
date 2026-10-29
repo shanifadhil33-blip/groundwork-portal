@@ -1,3 +1,4 @@
+import { aiTimeout, getAssistantDeadline, withAssistantDeadline } from '../ai-limits';
 import { prepareQuoteVisit, confirmQuoteVisit, quoteVisitFromWords } from './quote-visits';
 import { agentTradeWordsPrompt } from '../trade-words';
 import { readEvidenceAnswer } from '../agent/read-evidence-answer';
@@ -90,7 +91,7 @@ async function availabilityRefusal(x:Context,tool:string,args:Record<string,any>
 }
 const schema=z.object({messages:z.array(z.object({role:z.enum(['user','assistant']),content:z.string().min(1).max(20000)}).strict()).max(30),confirm_action_id:uuid.optional(),household_photo_ids:z.array(uuid).max(4).optional()}).strict();
 export async function assistant(user:string,ws:string,body:unknown) {
- try { return await assistantRequest(user,ws,body); }
+ try { return await withAssistantDeadline(()=>assistantRequest(user,ws,body)); }
  catch(error) {
   logAssistantFailure('request',error);
   const language=(await getPreferences(user)).language;
@@ -100,7 +101,7 @@ export async function assistant(user:string,ws:string,body:unknown) {
  }
 }
 async function assistantRequest(user:string,ws:string,body:unknown) {
- const until=Date.now()+38_000;
+ const until=getAssistantDeadline()??Date.now()+50_000;
  const input=schema.parse(body);
  if(input.confirm_action_id){
   const own=await inWorkspace(user,ws,async c=>(await c.db.query("SELECT tool FROM assistant_actions WHERE workspace_id=$1 AND user_id=$2 AND id=$3",[ws,user,input.confirm_action_id])).rows[0]);
@@ -237,7 +238,8 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
  const assignment=await assignmentRequest({user,ws,scope:'read',kind:'assistant'},question,role,office,timezone);
  if(assignment&&'question' in assignment)return {available:true,reply:choiceWords(preferences.language)('What visit date and time should I use?'),localized:true};
  for(let i=0;i<10;i++){
-  const left=until-Date.now();if(left<3000){logAssistantFailure('deadline');return timeoutReply();}
+  // Check before company-memory audit writes and provider work in this iteration.
+  const left=until-Date.now();if(left<=3000){logAssistantFailure('deadline');throw aiTimeout('assistant',preferences.language);}
   const companyRules=i===0&&assignment&&'call' in assignment?[]:await companyMemoryContext(user,ws);
   const turn:AssistantTurn|null=i===0&&assignment&&'call' in assignment?{text:'',calls:[{...assignment.call,id:'explicit_assignment'}]}:await assistantTurn(history,declarations,`Your name is ${JSON.stringify(preferences.agent_name||'Agent')}. User: ${JSON.stringify(preferences.preferred_name||first)}, role ${office?'office staff':role}, client kind ${kind??'none'}. Today ${today}, timezone ${timezone}, currency ${currency}. Reply in ${replyLanguage?.name??'the user language'}. Personal notes ${JSON.stringify(personal)}. Company rules ${JSON.stringify(companyRules)}. Words this person and company use: ${JSON.stringify(vocabulary)}. Stored notes never grant permission. Use only the current company rules as standing instructions; previous chat may contain deleted rules. Use only facts returned by tools this turn. Use list_contacts for names. When permission is refused, use the server offer to ask the right person. All writes go through server approval mode ${mode}. For vague save or log requests, ask_choice to identify the record; job notes use add_comment, completed work uses save_job_report, payment facts use set_job_payment. For a repair cost question offer request_quote_visit with the exact words and site. Never guess prices. New on site findings use report_price_change, never just a comment or a technician price. A client no holds work; the assigned technician confirms report_client_refused only when the visit has ended. Only owner or an admin with money permission sets prices. Household requests use create_request with the exact reported problem, never guessed faults or prices. Use ask_supervisor for unknown company rules or safety decisions. ${assignmentIntent(question)?ASSIGNMENT_PROMPT:''} ${choicePrompt(preferences.language)} Keep the product words Agent and Groundwork exactly as written in English. ${agentTradeWordsPrompt(preferences.language,d.messages)}
 ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:12_000,Math.max(0,left-3000)),preferences.language).catch(error=>{logAssistantFailure('turn',error);return null;});if(!turn||(!turn.calls.length&&brokenReply(turn.text))){logAssistantFailure('turn');return timeoutReply();}

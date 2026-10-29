@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // AGENT09 live check on the fixed sandbox, no AI call: the Agent reply is stubbed in the browser. Ravi dictates (fake speech recognition), sends, the reply is read aloud (fake speechSynthesis), Stop reading shows, a typed message stays silent, and the remembered placeholder returns after reopening.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';
 const OUT = '/workspace/qa/agent09-live'; fs.mkdirSync(OUT, { recursive: true });

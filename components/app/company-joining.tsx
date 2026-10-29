@@ -1,4 +1,5 @@
 'use client';
+import { useVisiblePoll } from '../../lib/hooks/use-visible-poll';
 import { useEffect, useState } from 'react';
 import { useApp } from './context';
 import { useResource } from './resource';
@@ -16,8 +17,9 @@ function FindCompanyFlow({rehearsal}:{rehearsal:boolean}){
  const endpoint=rehearsal?'/api/demo/company-joining':'/api/join-requests';
  const details=useResource<{name:string;phone:string;address:string;note:string}|null>(rehearsal?`${endpoint}?details=1`:null);
  useEffect(()=>{if(rehearsal&&details.data){setName(details.data.name);setPhone(details.data.phone);setAddress(details.data.address);setNote(details.data.note);}},[rehearsal,details.data]);
- useEffect(()=>{if(!rehearsal)void request('/api/join-requests/read',{method:'POST'}).catch(()=>{});const refresh=()=>void mine.reload();const timer=setInterval(refresh,30000);window.addEventListener('focus',refresh);return()=>{clearInterval(timer);window.removeEventListener('focus',refresh);};},[]);
+ useEffect(()=>{if(!rehearsal)void request('/api/join-requests/read',{method:'POST'}).catch(()=>{});},[rehearsal]);
  const results=useResource<Company[]>(query.length>=2?`${rehearsal?endpoint:'/api/find-company'}?q=${encodeURIComponent(query)}`:null),mine=useResource<Join[]>(endpoint);
+ useVisiblePoll(mine.reload,90000);
  useEffect(()=>{setQuery('');const timer=setTimeout(()=>setQuery(q.trim()),350);return()=>clearTimeout(timer);},[q]);
  async function send(){if(!selected||busy)return;setBusy(true);setError('');try{await request(endpoint,{method:'POST',body:JSON.stringify({workspace_id:selected.id,kind,name,phone,address,note})});setSent(selected.name);setSelected(null);await mine.reload();}catch(e){setError(message(e));}finally{setBusy(false);}}
  return <div className="page stack company-joining"><h1>Find your company</h1><p>Find the maintenance company you have a contract with and ask to join.</p>{rehearsal&&<section className="site-row stack"><h2>Practice join</h2><p>{PRACTICE_JOIN_NOTICE}</p><p>Only the sample company appears here.</p></section>}<label className="form-field">Company name or area<input type="search" maxLength={120} value={q} onChange={e=>{setQ(e.target.value);setSelected(null);}}/></label>{q.trim().length<2?<p>Type at least two letters.</p>:query.length<2||results.loading?<Skeleton className="skeleton-card"/>:results.error?<ErrorState retry={results.reload}/>:results.data?.length?<div className="stack">{results.data.map(c=><section className="site-row" key={c.id}><div className="stack compact"><h2 data-no-translate>{c.name}</h2>{c.listing_area&&<p data-no-translate>{c.listing_area}</p>}<p>{rehearsal?c.trades.map((t,i)=><span key={t}>{i?', ':''}<span>{tradeLabels[t as Trade]??t}</span></span>):c.trades.map(t=>tradeLabels[t as Trade]??t).join(', ')}</p><Button variant="secondary" disabled={busy||mine.data?.some(r=>r.workspace_id===c.id&&r.status==='pending')} onClick={()=>{setSelected(c);setSent('');setError('');}}>Ask to join</Button></div></section>)}</div>:<EmptyState title="No companies found">{!rehearsal&&<>Only companies that choose to be listed appear here. You can still ask your company for an invite link.</>}</EmptyState>}

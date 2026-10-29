@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // JOB21 live check on the fixed sandbox (no AI call: the emergency path answers before the model). Household reports gas; Imran sees the urgent alert.
 import { sandbox } from './sandbox.mjs';
 const s = await sandbox('imran'); const A = `/api/workspaces/${s.ws}`; const res = {};

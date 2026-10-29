@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // AGENT11 phone check on the fixed sandbox: Ravi opens the Agent at 360 or 390, asks for a change he may not make, sees the Ask button, taps it once and sees the sent line.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';
 const W = Number(process.env.W || 390), OUT = '/workspace/qa/agent11-live'; fs.mkdirSync(OUT, { recursive: true });

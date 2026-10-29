@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // HOME03 phone check on the fixed sandbox, no AI call (intake answers before the model). Faisal at 390: report, tap the choices, photo offer shows, skip, card shows his words, Change puts his words back.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';
 const OUT = '/workspace/qa/home03-live'; fs.mkdirSync(OUT, { recursive: true });

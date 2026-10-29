@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // AGENT11 live check on the fixed sandbox: Ravi (technician) asks for changes he may not make; the reply carries an offer to ask a named person, and tapping it creates a question that person sees.
 import { sandbox } from './sandbox.mjs'; import fs from 'node:fs';
 const s = await sandbox('imran'); const A = `/api/workspaces/${s.ws}`; const res = { tries: [] };

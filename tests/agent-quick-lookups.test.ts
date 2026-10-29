@@ -1,3 +1,4 @@
+import { limitAiRequest } from '../lib/ai-limits';
 // Adhil, Oct 19: simple lookups answer straight from the database with no AI call, well under a second, and stay role scoped.
 import './fixtures';
 import { afterAll,afterEach,beforeEach,expect,it,vi } from 'vitest';
@@ -48,3 +49,5 @@ it('what needs attention groups unread messages per job with a count, never repe
  expect(attentionReply({summary:'You have 0 suggested jobs',message_groups:[]})).toBe('You have 0 suggested jobs.\nYou have no unread messages.');
  const live=await ask('What needs attention?');const out=live.body.reply.split('\n');expect(new Set(out).size).toBe(out.length);expect(ai).not.toHaveBeenCalled();
 });
+
+beforeEach(()=>limitAiRequest.reset());

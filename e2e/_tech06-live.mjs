@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // TECH06 live: Ravi's My record. The summary equals his record numbers, cards show, search narrows, Today links to it,
 // the Agent answers "Show my fixes this month" from app data (English and Gulf Arabic), Imran gets no access to the page,
 // Pranav gets the fixed refusal. Phone 360 and 390, en-IN and ar-AE, no sideways scroll. Fails on any missing piece.

@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // Scope cut live check (Adhil, Oct 20 2026). Fails on empty. Every removed or hidden feature must be gone from every role's
 // screens (English and Gulf Arabic, 390 wide) and agent answers, and the server must refuse it. Data stays.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';

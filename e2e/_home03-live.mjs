@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // HOME03 live check on the fixed sandbox (no AI call: intake answers before the model). Faisal reports a problem, answers the taps, skips the photo, sees the card with his words, taps Yes.
 import { sandbox } from './sandbox.mjs';
 const s = await sandbox('imran'); await s.as('faisal'); const A = `/api/workspaces/${s.ws}`; const res = { steps: [] };

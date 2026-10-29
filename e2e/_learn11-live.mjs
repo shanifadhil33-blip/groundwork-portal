@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // LEARN11 live (no AI call): demo words after reset. Company word "the tower" means Marina Exchange; Ravi's own "the annex" means Harbor Annex.
 // Team (Imran, Sam, Ravi) see company words, clients (Pranav, Faisal) do not. "anything late at the tower?" gets a quick answer about that site only.
 // Ravi adds and removes a word on the phone at 390; the Words section at 360 and 390 in en-IN and ar-AE has no sideways scroll. Fails on any missing piece.

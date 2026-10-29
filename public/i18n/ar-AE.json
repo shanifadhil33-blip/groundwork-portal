@@ -2683,5 +2683,8 @@
 "Practice complete. The workspace would close. Your sandbox still works.":"اكتمل التدريب. مساحة الشركة بتتقفل في الإغلاق الفعلي. مساحتك التجريبية بعدها تشتغل.",
 "Without a company, Yes deletes your account now.":"إذا ما عندك شركة، نعم تحذف حسابك الحين.",
 "Your company access changed. Refresh and try again.":"تغير وصولك للشركة. حدث الصفحة وحاول مرة ثانية.",
-"Choose a company before exporting company data.":"اختر شركة قبل تنزيل بيانات الشركة."
+"Choose a company before exporting company data.":"اختر شركة قبل تنزيل بيانات الشركة.",
+  "The assistant is taking too long right now. Please try again in a minute.": null,
+  "We could not hear your message in time. Please try again or type it.": null,
+  "You have sent a lot of requests. Please wait a minute and try again.": null
 }

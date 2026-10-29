@@ -1,4 +1,5 @@
 'use client';
+import { useVisiblePoll } from '../../lib/hooks/use-visible-poll';
 import { tabKey, tabWord } from '../../lib/tab-words';
 import { Outbox } from './outbox';
 import { ContactNamesProvider } from './contact-names-context';
@@ -75,17 +76,20 @@ export function AppShell({ children, initial, serverLanguage, languageSetup }: {
   const docked=dashboardAssistant&&desktop;
   useEffect(()=>{if(docked)setAssistantLoaded(true);},[docked]);
   const companyReplies=useResource<{company_replies:number}>('/api/notifications/unread-count');
-  useEffect(()=>{const refresh=()=>void companyReplies.reload();const timer=setInterval(refresh,30000);window.addEventListener('focus',refresh);return()=>{clearInterval(timer);window.removeEventListener('focus',refresh);};},[companyReplies.reload]);
+  useVisiblePoll(companyReplies.reload,90000);
   const messageCounts=useResource<{unread_count:number;direct_unread_count?:number;team_unread_count?:number}>(member?`/api/workspaces/${member.workspace_id}/messages/unread`:null);
-  useEffect(()=>{const refresh=()=>void messageCounts.reload();window.addEventListener('groundwork-messages-changed',refresh);window.addEventListener('focus',refresh);const timer=setInterval(refresh,60000);return()=>{clearInterval(timer);window.removeEventListener('groundwork-messages-changed',refresh);window.removeEventListener('focus',refresh);};},[messageCounts.reload]);
+  useVisiblePoll(messageCounts.reload,120000);
+  useEffect(()=>{const refresh=()=>void messageCounts.reload();window.addEventListener('groundwork-messages-changed',refresh);return()=>window.removeEventListener('groundwork-messages-changed',refresh);},[messageCounts.reload]);
   const suggestions=useResource<{pending_suggestions:number}>(member&&office?`/api/workspaces/${member.workspace_id}/dashboard`:null);
-  useEffect(()=>{if(!member||!office)return;const refresh=()=>void suggestions.reload();window.addEventListener('groundwork-queue-changed',refresh);window.addEventListener('focus',refresh);const timer=setInterval(refresh,60000);return()=>{clearInterval(timer);window.removeEventListener('groundwork-queue-changed',refresh);window.removeEventListener('focus',refresh);};},[member,office,suggestions.reload]);
+  useVisiblePoll(suggestions.reload,90000,!!member&&office);
+  useEffect(()=>{if(!member||!office)return;const refresh=()=>void suggestions.reload();window.addEventListener('groundwork-queue-changed',refresh);return()=>window.removeEventListener('groundwork-queue-changed',refresh);},[member,office,suggestions.reload]);
   const clientDetail=useResource<{name:string}>(member&&office&&/^\/clients\/[^/]+$/.test(path)?`/api/workspaces/${member.workspace_id}${path}`:null);
   const load = useCallback(async () => { setLoading(true); setError(false); try { const result = await request<Me>('/api/me'); const selected=localStorage.getItem('groundwork-workspace');result.memberships.sort((a,b)=>Number(b.workspace_id===selected)-Number(a.workspace_id===selected));const membership = result.memberships[0]; const ws = membership ? await request<Workspace>(`/api/workspaces/${membership.workspace_id}`) : null; setMe(result); setWorkspace(ws);document.cookie='groundwork-session=1; Path=/; SameSite=Lax; Max-Age=31536000'; if(ws?.is_demo)document.cookie='groundwork-demo=1; Path=/; SameSite=Lax; Max-Age=2592000'; await sync(); } catch (e) { if (e instanceof RequestError && e.status === 401) return; setError(true); } finally { setLoading(false); } }, [sync]);
   useEffect(() => { if(!initial)void load();else {document.cookie='groundwork-session=1; Path=/; SameSite=Lax; Max-Age=31536000';if(initial.workspace?.is_demo)document.cookie='groundwork-demo=1; Path=/; SameSite=Lax; Max-Age=2592000';void sync();} setCollapsed(localStorage.getItem('groundwork-sidebar') === 'collapsed'); }, [load]);
   useEffect(() => { if (!me) return; if (!me.user.is_demo && !workspace?.is_demo && !me.onboarding_started && path !== '/find-company' && path !== '/onboarding' && path !== '/invites/accept' && !sessionStorage.getItem(`onboardingShown:${me.user.id}`)){sessionStorage.setItem(`onboardingShown:${me.user.id}`,'1');router.replace('/onboarding');} if (member && (path === (member.role === 'client' ? '/dashboard' : '/home') || (member.role === 'technician' && path === '/dashboard'))) router.replace(home); }, [me, member, path, home, router]);
   const refreshUnread = useCallback(async () => { try { const result = await request<{ unread_count: number }>('/api/notifications/unread-count'); setUnread(result.unread_count); setCountError(false); } catch { setCountError(true); } }, []);
-  useEffect(() => { if (!member) return; if(!initial)void refreshUnread(); const timer = setInterval(refreshUnread, 60000); const focus = () => { void refreshUnread(); }; window.addEventListener('focus', focus); return () => { clearInterval(timer); window.removeEventListener('focus', focus); }; }, [member, refreshUnread]);
+  useVisiblePoll(refreshUnread,120000,!!member);
+  useEffect(()=>{if(member&&!initial)void refreshUnread();},[member,refreshUnread]);
   useEffect(() => {
     if (!member || !isOffice(member.role)) { setPending(null); return; }
     let active = true;

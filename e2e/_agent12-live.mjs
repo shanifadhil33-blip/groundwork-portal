@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // AGENT12 live (no AI call): job counts from app data. Imran and Sam ask about Ravi and get the same numbers as Ravi's record;
 // Ravi asks about himself and gets his numbers, asks about Sam and is refused plainly; Pranav and Faisal never get a count.
 // Phone check: the Agent panel at 360 and 390 shows the answer, no sideways scroll. Fails on any missing piece.

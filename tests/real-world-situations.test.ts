@@ -150,6 +150,9 @@ function transport(failFirst = false) {
 }
 
 describe('later runner local guards and observations', () => {
+  it('requires the freeze opt in before connecting a live transport', async () => {
+    expect(await runner.run({ env: { MAX_CALLS: '1', CASE_IDS: 'RW23' }, cases })).toMatchObject({ calls: 0, status: 'disabled' });
+  });
   it('does nothing at the default cap and rejects invalid settings', async () => {
     const connect = vi.fn(), save = vi.fn();
     expect(await runner.run({ env: {}, connect, save })).toMatchObject({ calls: 0, status: 'disabled' });

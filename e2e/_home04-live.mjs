@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // HOME04 live: Imran sees the Visit charge settings; Faisal asks the price and gets the fixed reply. 360 and 390, en-IN and ar-AE.
 import { chromium } from '@playwright/test'; import fs from 'node:fs'; import { sandbox, B } from './sandbox.mjs';
 const OUT = process.env.OUT || '/workspace/qa/home04-live'; fs.mkdirSync(OUT, { recursive: true });

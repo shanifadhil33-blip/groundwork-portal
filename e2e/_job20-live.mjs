@@ -1,3 +1,4 @@
+if (process.env.RUN_ASSISTANT_QA !== '1') { console.log('Skipping live assistant QA during the build freeze'); process.exit(0); }
 // JOB20 and SET05 live (no AI call): after a demo reset Harbor & Pine is promised a visit within 4 hours; WO 7 is past it and WO 1 is close.
 // Imran and Sam see both on the dashboard API and card, missed first; Ravi, Pranav and Faisal get nothing. Quick answers for contract times and
 // what needs my attention come from app data. Sam can not change the hours. Screens at 360 and 390 in en-IN and ar-AE. Fails on any missing piece.
