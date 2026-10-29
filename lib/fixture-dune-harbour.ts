@@ -1,3 +1,4 @@
+import { dunePhotos } from './fixture-dune-photos';
 import { sampleDocumentPdf } from './fixture-documents';
 import { populateChecklistFixture } from './fixture-checklists';
 import { randomUUID } from 'node:crypto';
@@ -190,6 +191,20 @@ export async function populateDuneHarbour(db:PoolClient,ws:string,expires:'6 hou
  ] as const){
   const asset=(await db.query('INSERT INTO assets(workspace_id,site_id,name,kind,location,created_by) VALUES($1,$2,$3,$4,$5,$6) RETURNING id',[ws,site[where],name,kind,location,id.imran])).rows[0].id;
   for(const [index,j] of jobs.entries())if(match(j))await db.query('UPDATE work_orders SET asset_id=$2 WHERE id=$1',[ids[index],asset]);
+ }
+ // Staged fictional photos on the most recent matching completed visits only.
+ // Direct inserts keep these inside the Dune Harbour sandbox and its normal reset.
+ for(const [title,before,after] of [
+  ['Clinic filter service',dunePhotos.acBefore,dunePhotos.acAfter],
+  ['Creekgate washroom pipe repair',dunePhotos.leakBefore,dunePhotos.leakAfter],
+ ] as const){
+  const index=jobs.findLastIndex(j=>j.title===title&&j.status==='done'),job=jobs[index];
+  for(const [kind,photo] of [['before',before],['after',after]] as const){
+   const taken=new Date(job.visit!.getTime()+(kind==='after'?2*3600000:0));
+   await db.query(`INSERT INTO job_photos(workspace_id,client_id,work_order_id,kind,mime,bytes,width,height,taken_by,created_at)
+    VALUES($1,$2,$3,$4,'image/webp',$5,$6,$7,$8,$9)`,
+    [ws,client[job.client],ids[index],kind,photo.bytes,photo.width,photo.height,id[job.tech!],taken]);
+  }
  }
  // CMP09 and JOB15: insert sandbox rows directly, as Ridgeline does for ratings.
  // Do not call services here: fixture creation must never send messages or push notifications.

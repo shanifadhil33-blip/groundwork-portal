@@ -1,3 +1,4 @@
+import { dunePhotos } from '../lib/fixture-dune-photos';
 import { sampleDocumentPdf } from '../lib/fixture-documents';
 import { listDecisions, undoDecision } from '../lib/services/agent-log';
 import { listDocuments, getDocumentFile } from '../lib/services/documents';
@@ -76,6 +77,34 @@ it('builds the trimmed Dune Harbour cast (13 people) in a demo sandbox with no r
  for(const m of await q('SELECT note FROM workspace_money WHERE workspace_id=$1',[ws]))expect(m.note).not.toMatch(/[-\u2013\u2014]/);
  // Public copy: no dashes in names, titles or notes.
  for(const j of jobs)expect(j.title).not.toMatch(/[-\u2013\u2014]/);
+});
+it('seeds staged WebP pairs only in Dune Harbour on completed jobs by their assigned technicians',async()=>{
+ const ridge=await call(start.POST,{persona:'imran'});expect(ridge.status).toBe(201);
+ const staged=Object.values(dunePhotos).map(p=>p.bytes);
+ expect(await q('SELECT id FROM job_photos WHERE bytes=ANY($1::bytea[])',[staged])).toEqual([]);
+ process.env.DEMO_DUNE_HARBOUR='1';
+ const dune=await call(start.POST,{persona:'imran',company:'dune_harbour'});expect(dune.status).toBe(201);
+ const photos=await q(`SELECT p.*,w.title,w.status,w.assignee_id,w.client_id AS job_client,w.scheduled_for,w.report_at
+  FROM job_photos p JOIN work_orders w ON w.id=p.work_order_id WHERE p.workspace_id=$1`,[dune.body.workspace_id]);
+ expect(photos).toHaveLength(4);
+ for(const [title,before,after] of [
+  ['Clinic filter service',dunePhotos.acBefore,dunePhotos.acAfter],
+  ['Creekgate washroom pipe repair',dunePhotos.leakBefore,dunePhotos.leakAfter],
+ ] as const){
+  const pair=photos.filter(p=>p.title===title);expect(pair).toHaveLength(2);
+  expect(new Set(pair.map(p=>p.work_order_id)).size).toBe(1);
+  for(const [kind,fixture] of [['before',before],['after',after]] as const){
+   const photo=pair.find(p=>p.kind===kind)!;
+   expect(photo).toMatchObject({mime:'image/webp',status:'done',width:480,height:360});
+   expect(photo.bytes).toEqual(fixture.bytes);
+   expect(photo.bytes.length).toBeGreaterThan(0);expect(photo.bytes.length).toBeLessThan(40*1024);
+   expect(photo.bytes.subarray(0,4).toString()).toBe('RIFF');
+   expect(photo.bytes.subarray(8,12).toString()).toBe('WEBP');
+   expect(photo.taken_by).toBe(photo.assignee_id);expect(photo.client_id).toBe(photo.job_client);
+   expect(photo.created_at).toEqual(kind==='before'?photo.scheduled_for:photo.report_at);
+  }
+ }
+ expect((await q('SELECT DISTINCT workspace_id FROM job_photos WHERE bytes=ANY($1::bytea[])',[staged])).map(p=>p.workspace_id)).toEqual([dune.body.workspace_id]);
 });
 it('seeds six months relative to the reset day, linked fault histories, leave, ratings and draft bills',async()=>{
  process.env.DEMO_DUNE_HARBOUR='1';
@@ -220,16 +249,18 @@ it('switch stays inside Dune Harbour, reset rebuilds the same company, and the R
  expect((await call(switchRoute.POST,{persona:'sam'},s.cookie)).status).toBe(422);
  const user=await getSessionUserId(new Request('http://localhost',{headers:{cookie:s.cookie}}));
  expect((await q('SELECT name FROM users WHERE id=$1',[user]))[0].name).toBe('Dipendra');
+ const oldPhotos=await q('SELECT id FROM job_photos WHERE workspace_id=$1',[r.body.workspace_id]);expect(oldPhotos).toHaveLength(4);
  const again=await call(reset.POST,{confirm:true},s.cookie);expect(again.status).toBe(200);
  expect((await q('SELECT name FROM workspaces WHERE id=$1',[again.body.workspace_id]))[0].name).toBe(DUNE_HARBOUR_NAME);
  expect((await q('SELECT count(*)::int n FROM workspaces WHERE id=$1',[r.body.workspace_id]))[0].n).toBe(0);
  const owner=(await q("SELECT id FROM users WHERE demo_workspace_id=$1 AND demo_persona='imran'",[again.body.workspace_id]))[0].id;
- for(const [table,count] of [['work_orders',52],['assets',6],['time_off',2],['job_ratings',3],['draft_invoices',3],['company_documents',4],['assistant_actions',4]] as const){
+ for(const [table,count] of [['work_orders',52],['assets',6],['time_off',2],['job_ratings',3],['draft_invoices',3],['company_documents',4],['assistant_actions',4],['job_photos',4]] as const){
   expect((await q(`SELECT count(*)::int n FROM ${table} WHERE workspace_id=$1`,[again.body.workspace_id],owner))[0].n).toBe(count);
   expect((await q(`SELECT count(*)::int n FROM ${table} WHERE workspace_id=$1`,[r.body.workspace_id],owner))[0].n).toBe(0);
  }
  expect((await q('SELECT count(*)::int n FROM work_orders WHERE workspace_id=$1',[ridge.body.workspace_id]))[0].n).toBe(68);
  expect((await q('SELECT count(*)::int n FROM assets WHERE workspace_id=$1',[ridge.body.workspace_id]))[0].n).toBe(5);
+ expect(await q('SELECT id FROM job_photos WHERE id=ANY($1::uuid[])',[oldPhotos.map(p=>p.id)])).toEqual([]);
  // Without the switch on, a leftover Dune Harbour sandbox can not be reset into a new one.
  delete process.env.DEMO_DUNE_HARBOUR;
  expect((await call(reset.POST,{confirm:true},again.cookie)).status).toBe(404);
