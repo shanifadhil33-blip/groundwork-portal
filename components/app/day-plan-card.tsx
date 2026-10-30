@@ -1,4 +1,5 @@
 'use client';
+import { Translated } from './app-words';
 import { useState } from 'react';
 import { Button, Card } from '../ui';
 import { post, RequestError } from '../../lib/ui/api';
@@ -20,16 +21,16 @@ export type DayPlanData = {
 /** The reason starts with a person's name: the name stays as written, the rest is interface text the language file translates. */
 function Why({ text, names }: { text: string; names: string[] }) {
   const name = names.filter(Boolean).sort((a, b) => b.length - a.length).find(n => text.startsWith(`${n} `));
-  if (!name) return <p className="small">{text}</p>;
-  return <p className="small"><span data-no-translate>{name}</span> <span>{text.slice(name.length + 1)}</span></p>;
+  if (!name) return <Translated><p className="small">{text}</p></Translated>;
+  return <Translated><p className="small"><span data-no-translate>{name}</span> <span>{text.slice(name.length + 1)}</span></p></Translated>;
 }
 
 function Line({ line, names = [] }: { line: PlanLine; names?: string[] }) {
-  return <li className="stack compact" style={{ minWidth: 0 }}>
+  return <Translated><li className="stack compact" style={{ minWidth: 0 }}>
     <strong data-no-translate>WO {line.order} {line.title}</strong>
     {line.assignee_name && <p data-no-translate>{line.assignee_name}</p>}
     <Why text={line.why} names={[line.assignee_name ?? '', ...names]} />
-  </li>;
+  </li></Translated>;
 }
 
 export function DayPlanView({ data, busy, error, notice, onApprove, onLate }: {
@@ -42,7 +43,7 @@ export function DayPlanView({ data, busy, error, notice, onApprove, onLate }: {
 }) {
   const visits = data.visits ?? [];
   const people = data.people ?? [];
-  return <div className="stack day-plan">
+  return <Translated><div className="stack day-plan">
     {(data.can_plan || data.lines.length > 0) && <Card className="stack day-plan"><h2>{DAY_REPLIES.planAsk}</h2>
       {data.lines.length ? <p><bdi dir="ltr" data-no-translate>{data.lines.filter(l => l.kind === 'place').length}/{data.lines.length}</bdi> <span>open jobs can be placed.</span> <span>Nothing is saved until you say yes.</span></p> : <p>{DAY_REPLIES.nothingToPlan}</p>}
       {!!data.lines.length && <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{data.lines.map(line => <Line key={`${line.job_id}:${line.kind}`} line={line} names={people.map(p => p.name)} />)}</ul>}
@@ -56,7 +57,7 @@ export function DayPlanView({ data, busy, error, notice, onApprove, onLate }: {
     </Card>}
     {notice && <p role="status">{notice}</p>}
     {error && <p role="alert">{error}</p>}
-  </div>;
+  </div></Translated>;
 }
 
 export function DayPlan({ base }: { base: string }) {
@@ -74,7 +75,7 @@ export function DayPlan({ base }: { base: string }) {
     } catch (e) { setError(e instanceof RequestError ? e.message : 'That did not save. Try again.'); }
     finally { setBusy(''); }
   }
-  return <DayPlanView data={data} busy={busy} error={error} notice={notice}
+  return <Translated><DayPlanView data={data} busy={busy} error={error} notice={notice}
     onApprove={(kind, fingerprint, jobId) => void send({ action: 'approve', kind, fingerprint, job_id: jobId }, kind === 'watch' ? (jobId ?? kind) : kind)}
-    onLate={id => void send({ action: 'mark_late', job_id: id }, 'late')} />;
+    onLate={id => void send({ action: 'mark_late', job_id: id }, 'late')} /></Translated>;
 }

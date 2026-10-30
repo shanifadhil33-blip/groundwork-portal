@@ -29,7 +29,7 @@ it('server renders the work queue before effects without metric tiles',()=>{
   '/api/workspaces/workspace/work-orders?overdue=true&sort=due_on&dir=asc&pageSize=5':{data:{data:[]}},
   '/api/workspaces/workspace/work-orders?status=open&status=waiting_on_parts&sort=updated_at&dir=asc&pageSize=100':{data:{data:[]}},
   '/api/workspaces/workspace/waiting-prices':{data:[]},
-  '/api/workspaces/workspace/dashboard':{data:{by_status:{open:12},overdue:7,waiting_on_parts:3,pending_queue_rows:2,last_supplier_sync_at:null}},
+  '/api/workspaces/workspace/dashboard':{data:{by_status:{open:12},today_jobs:0,overdue:7,waiting_on_parts:3,pending_queue_rows:2,last_supplier_sync_at:null}},
   '/api/workspaces/workspace/audit?pageSize=5':{data:{data:[{id:'entry',at:'2026-10-11T10:00:00Z',actor:{name:'Admin'},summary:'Created repair request',entity:'work_orders',entity_id:'order'}]}},
   '/api/workspaces/workspace/supplier/sync-runs':{data:[]},
  }}><Dashboard/></InitialResourceProvider></AppContext.Provider>);

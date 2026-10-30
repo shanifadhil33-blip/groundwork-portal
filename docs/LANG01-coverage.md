@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2684 | 6 | 1689 | 0 | 994 | 1 | 0 | 0 |
-| ne | 2684 | 7 | 1354 | 0 | 1330 | 0 | 0 | 0 |
-| hi | 2684 | 5 | 1369 | 0 | 1315 | 0 | 0 | 0 |
-| ur | 2684 | 7 | 1354 | 0 | 1330 | 0 | 0 | 0 |
-| bn | 2684 | 6 | 1370 | 0 | 1314 | 0 | 0 | 0 |
-| ml | 2684 | 19 | 1339 | 0 | 1345 | 0 | 0 | 0 |
-| ta | 2684 | 6 | 1369 | 0 | 1314 | 1 | 0 | 0 |
-| ps | 2684 | 6 | 1352 | 0 | 1332 | 0 | 0 | 0 |
-| fa-AF | 2684 | 15 | 1338 | 0 | 1346 | 0 | 0 | 0 |
-| fa-IR | 2684 | 3 | 1350 | 0 | 1334 | 0 | 0 | 0 |
-| fil | 2684 | 8 | 1336 | 0 | 1347 | 1 | 0 | 0 |
-| zh-CN | 2684 | 19 | 1324 | 0 | 1360 | 0 | 0 | 0 |
-| sw-KE | 2684 | 18 | 1323 | 0 | 1361 | 0 | 0 | 0 |
-| am | 2684 | 18 | 1323 | 0 | 1361 | 0 | 0 | 0 |
-| ti | 2684 | 18 | 1340 | 0 | 1343 | 1 | 0 | 0 |
-| so | 2684 | 18 | 1338 | 0 | 1345 | 0 | 1 | 0 |
-| yo | 2684 | 18 | 1321 | 0 | 1363 | 0 | 0 | 0 |
-| ha | 2684 | 18 | 1339 | 0 | 1345 | 0 | 0 | 0 |
-| ig | 2684 | 18 | 1334 | 0 | 1350 | 0 | 0 | 0 |
-| lg | 2684 | 18 | 1321 | 0 | 1361 | 2 | 0 | 0 |
-| tw | 2684 | 18 | 1332 | 0 | 1352 | 0 | 0 | 0 |
+| ar-AE | 2684 | 6 | 1690 | 0 | 993 | 1 | 0 | 0 |
+| ne | 2684 | 7 | 1364 | 0 | 1320 | 0 | 0 | 0 |
+| hi | 2684 | 5 | 1379 | 0 | 1305 | 0 | 0 | 0 |
+| ur | 2684 | 7 | 1364 | 0 | 1320 | 0 | 0 | 0 |
+| bn | 2684 | 6 | 1380 | 0 | 1304 | 0 | 0 | 0 |
+| ml | 2684 | 19 | 1349 | 0 | 1335 | 0 | 0 | 0 |
+| ta | 2684 | 6 | 1379 | 0 | 1304 | 1 | 0 | 0 |
+| ps | 2684 | 6 | 1362 | 0 | 1322 | 0 | 0 | 0 |
+| fa-AF | 2684 | 15 | 1348 | 0 | 1336 | 0 | 0 | 0 |
+| fa-IR | 2684 | 3 | 1360 | 0 | 1324 | 0 | 0 | 0 |
+| fil | 2684 | 8 | 1346 | 0 | 1337 | 1 | 0 | 0 |
+| zh-CN | 2684 | 19 | 1334 | 0 | 1350 | 0 | 0 | 0 |
+| sw-KE | 2684 | 18 | 1333 | 0 | 1351 | 0 | 0 | 0 |
+| am | 2684 | 18 | 1333 | 0 | 1351 | 0 | 0 | 0 |
+| ti | 2684 | 18 | 1350 | 0 | 1333 | 1 | 0 | 0 |
+| so | 2684 | 18 | 1348 | 0 | 1335 | 0 | 1 | 0 |
+| yo | 2684 | 18 | 1331 | 0 | 1353 | 0 | 0 | 0 |
+| ha | 2684 | 18 | 1349 | 0 | 1335 | 0 | 0 | 0 |
+| ig | 2684 | 18 | 1344 | 0 | 1340 | 0 | 0 | 0 |
+| lg | 2684 | 18 | 1331 | 0 | 1351 | 2 | 0 | 0 |
+| tw | 2684 | 18 | 1342 | 0 | 1342 | 0 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -550,7 +550,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Mark no photos" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Mark read" — All
 - "Mark this closed job as having no photos?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Mark this job late" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Mark {name} as {value2}{value3}" — All
 - "Marked late. No message was sent." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Marked {link} as {value2}." — All
@@ -809,7 +808,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Row count" — All
 - "Row rejected. Undo is available for 10 minutes." — All
 - "Rows sent from an import will appear here for review." — All
-- "Running late" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Runs the company and can choose its roles." — All
 - "SEC06 seals channel phone numbers, message text and voice notes before storage using AES 256 GCM and a server secret. Sign in codes are hashed. This does not encrypt every field. Names, profile phone numbers, job text, photos and browser voice transcripts can still be stored as ordinary database fields. Access checks protect them. Photos have location and camera details removed before upload." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Said no" — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -855,7 +853,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Search {label}" — All
 - "Search {value1}" — All
 - "See all in My record." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "See all late jobs" — All
 - "See new requests" — All
 - "See your parts orders inside each job. This is coming soon." — All
 - "Select all" — All
@@ -1053,7 +1050,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "This number matches more than one person. The team will review this request." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "This order still has parts history, so it stays. Archive it instead." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "This person" — All
-- "This practice control marks the job late. No message is sent." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "This recording is too large. Please record a shorter message." — All
 - "This removes the company workspace and its work records. Personal accounts used in other companies stay open." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "This removes the message for everyone. This cannot be undone." — All
@@ -1070,7 +1066,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Title · A to Z" — All
 - "Title · Z to A" — All
 - "To" — All
-- "Today's plan" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Too late to undo" — All
 - "Too many tries. Ask again for a new code." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Too many tries. Please wait a while and try again." — All
@@ -1328,7 +1323,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "can not be undone here. To remove it, use Delete in its menu on Clients." — All
 - "cleared the assignment{value1}" — All
 - "cleared the visit schedule{value1}" — All
-- "covers this trade." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "covers this visit." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "created {title}" — All
 - "created {value1}" — All
@@ -1340,11 +1334,8 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "has no jobs or notes, so they can be deleted. They lose access to this workspace. This can not be undone." — All
 - "has no jobs." — All
 - "has no later window for the job that moves." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "has no room left today." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "in total." — All
 - "invites you to Groundwork to raise and follow your requests:" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "is free to take it. Nothing is sent until you say yes." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "is free." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "is off sick that day." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "is off that day." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "is on leave that day." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -1355,7 +1346,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "older copies until the hosting provider removes them. We cannot erase a backup instantly." — All
 - "on these days." — All
 - "on {title}" — All
-- "open jobs can be placed." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "review personal details inside free text or photos. An owner must choose another owner or close the company first. Only an owner can close the whole workspace. Demo actions are labelled practice and reset with the sandbox." — All
 - "scheduled for {value1}" — All
 - "scheduled {value1} for {value2}" — All

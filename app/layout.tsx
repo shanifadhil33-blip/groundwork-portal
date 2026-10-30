@@ -4,7 +4,10 @@ import { Manrope, IBM_Plex_Sans_Arabic, Noto_Sans_Tamil, Noto_Sans_Malayalam, No
 import { ThemeProvider } from '../components/ui/theme';
 import { ToastProvider } from '../components/ui/toast';
 import { RequestRecovery } from '../components/ui/request-recovery';
-import { languageHintScript, sessionHintScript, themeScript } from '../lib/head-scripts';
+import { appLanguageScript, sessionHintScript, themeScript } from '../lib/head-scripts';
+import { getServerLanguage } from '../lib/server-language';
+import { AppWords } from '../components/app/app-words';
+import { ServerLangProvider } from '../components/app/use-ui-lang';
 import './globals.css';
 import './desert-stone.css';
 // Desert Stone (Oct 21 2026): Manrope for Latin, IBM Plex Sans Arabic 400 and 600 for Arabic.
@@ -22,4 +25,4 @@ const notoLatin = Noto_Sans({ weight: '400', display: 'swap', preload: false, su
 const fontVars = [geist, tamil, malayalam, devanagari, bengali, arabic, sinhala, chinese, ethiopic, notoLatin].map(f => f.variable).join(' ');
 export const metadata: Metadata = { title: { default: 'Groundwork: client portal and back office', template: '%s · Groundwork' }, description: 'A client portal and back office for service companies. Jobs, private client views, spreadsheet approval, supplier sync, and AI agent access through MCP.' };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };
-export default function Layout({ children }: { children: ReactNode }) { return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript + ';' + sessionHintScript + ';' + languageHintScript }} /></head><body className={fontVars}><ThemeProvider><ToastProvider><RequestRecovery />{children}</ToastProvider></ThemeProvider></body></html>; }
+export default async function Layout({ children }: { children: ReactNode }) { const {language, dir, words} = await getServerLanguage(); return <html lang={language} dir={dir} data-translating={Object.keys(words).length ? "" : undefined} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript + ';' + sessionHintScript + ';' + appLanguageScript(language) }} /></head><body className={fontVars}><AppWords language={language} words={words}><ServerLangProvider language={language}><ThemeProvider><ToastProvider><RequestRecovery />{children}</ToastProvider></ThemeProvider></ServerLangProvider></AppWords></body></html>; }

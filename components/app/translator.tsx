@@ -6,14 +6,17 @@ import { useResource } from './resource';
 import { historyTemplates } from '../../lib/ui/job-history';
 import { notificationTemplates } from '../../lib/ui/notifications';
 import { setNotificationLanguage } from './notification-language';
+import { useAppWords, LANGUAGE_EVENT } from './app-words';
+import { languageCookie } from '../../lib/language-cookie';
 import { LANG_HINT_KEY } from '../../lib/head-scripts';
 import { AppContext } from './context';
 import { demoJobTranslations } from '../../lib/demo-job-copy';
 import { duneHarbourTranslations } from '../../lib/demo-dune-harbour-copy';
 import { isDemoFixtureCopy } from '../../lib/demo-proof-copy';
 
-const LANGUAGE_EVENT = 'groundwork-language-changed';
 export function changeAppLanguage(lang: string) {
+  if (!LANGUAGES.some(l => l.code === lang)) return;
+  document.cookie = languageCookie(lang);
   window.dispatchEvent(new CustomEvent(LANGUAGE_EVENT, { detail: lang }));
 }
 type Slot = { node: Text | Element; attribute?: string; source: string; applied: string };
@@ -25,10 +28,11 @@ const write = (slot: Slot, value: string) => {
 };
 
 export function Translator() {
+  const initialWords = useAppWords();
   const demoProof = !!useContext(AppContext)?.workspace?.is_demo;
   const preferences = useResource<{language?: string | null}>('/api/me/preferences');
   const [chosen, setChosen] = useState<string | null>(null);
-  const language = chosen ?? preferences.data?.language ?? DEFAULT_LANGUAGE;
+  const language = chosen ?? (initialWords.language || preferences.data?.language || DEFAULT_LANGUAGE);
   useEffect(() => {
     const listener = (event: Event) => {
       const lang: unknown = (event as CustomEvent).detail;
@@ -37,7 +41,7 @@ export function Translator() {
     window.addEventListener(LANGUAGE_EVENT, listener);
     return () => window.removeEventListener(LANGUAGE_EVENT, listener);
   }, []);
-  const languageReady = !!(preferences.data || chosen || preferences.error);
+  const languageReady = !!(initialWords.language || preferences.data || chosen || preferences.error);
   useEffect(() => {
     if (!languageReady) return;
     setNotificationLanguage(language, isEnglish(language) ? {} : null);
@@ -47,11 +51,13 @@ export function Translator() {
     root.dir = isRtl(language) ? 'rtl' : 'ltr';
     const quiet = (on: boolean) => { if (on) root.dataset.translating = ''; else delete root.dataset.translating; };
     let quietTimer: ReturnType<typeof setTimeout> | undefined;
+    if (!isEnglish(language) && initialWords.language === language && !initialWords.words) { quiet(true); return () => quiet(false); }
     if (isEnglish(language)) { quiet(false); return () => { setNotificationLanguage('', null); root.lang = previousLang; root.dir = previousDir; }; }
 
     const key = `groundwork-ui-translations:v1:${language}`;
-    let cache: Record<string, string> = Object.create(null);
-    try { cache = readTranslationCache(localStorage.getItem(key), language); } catch { /* Storage may be disabled. */ }
+    let cache: Record<string, string> = {...(initialWords.language === language ? initialWords.words : {})};
+    try { cache = {...readTranslationCache(localStorage.getItem(key), language), ...cache}; } catch { /* Storage may be disabled. */ }
+    if (demoProof) Object.assign(cache, demoJobTranslations(cache), duneHarbourTranslations(language));
     const textSlots = new Map<Text, Slot>(), attributeSlots = new Map<Element, Map<string, Slot>>();
     const attempted = new Set<string>();
     const pending = new Set<string>();
@@ -78,7 +84,8 @@ export function Translator() {
         if (current === slot.applied && current !== slot.source) write(slot, slot.source);
         return;
       }
-      const translated = replaceTranslation(slot.source, cache, demoProof);
+      const resolved = replaceTranslation(slot.source, cache, demoProof);
+      const translated = resolved === slot.source && translationSource(slot.source) ? '…' : resolved;
       if (current !== translated) write(slot, translated);
       else slot.applied = current;
       for (const piece of translationPieces(slot.source)) {
@@ -124,7 +131,7 @@ export function Translator() {
     }
     function schedule() {
       clearTimeout(timer);
-      timer = setTimeout(scan, 120);
+      scan();
     }
     async function ask(strings: string[], cachedOnly: boolean) {
       const response = await fetch('/api/i18n/translate', {
@@ -169,7 +176,7 @@ export function Translator() {
     }
     // LANG01: the language file comes first (one static file, no AI and no database), then saved words, then the AI queue.
     const publishNotices=()=>setNotificationLanguage(language,[...Object.values(notificationTemplates),...Object.values(historyTemplates)].every(template=>cache[template])?{...cache}:null);
-    const fileReady: Promise<void> = fetch(languageFileUrl(language), { signal: abort.signal, mode: 'cors', credentials: 'same-origin' })
+    const fileReady: Promise<void> = initialWords.language === language && initialWords.words ? Promise.resolve().then(() => { publishNotices(); scan(); }) : fetch(languageFileUrl(language), { signal: abort.signal, mode: 'cors', credentials: 'same-origin' })
       .then(r => (r.ok ? r.text() : null))
       .then(raw => { if (!stopped) { const changed=mergeLanguageFile(cache,raw,language); if(demoProof)Object.assign(cache,demoJobTranslations(cache),duneHarbourTranslations(language)); publishNotices(); if(changed||demoProof)scan(); } })
       .catch(() => { if (!stopped) publishNotices(); });
@@ -182,8 +189,8 @@ export function Translator() {
       }
       root.lang = previousLang; root.dir = previousDir;
     };
-  }, [language, languageReady, demoProof]);
+  }, [language, languageReady, demoProof, initialWords.words, initialWords.language]);
   // Remember the language for the pre-paint hint once it is known (never guess before preferences load).
-  useEffect(() => { if (preferences.data || chosen) { try { localStorage.setItem(LANG_HINT_KEY, language); } catch { /* Storage may be disabled. */ } } }, [language, preferences.data, chosen]);
+  useEffect(() => { if (preferences.data || chosen) { try { localStorage.setItem(LANG_HINT_KEY, language); document.cookie = languageCookie(language); } catch { /* Storage may be disabled. */ } } }, [language, preferences.data, chosen]);
   return null;
 }

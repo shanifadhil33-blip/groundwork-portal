@@ -28,13 +28,12 @@ describe('LANG01 slice 3 server language', () => {
     expect(root.dir).toBe(['ne','yo'].includes(lang)?'ltr':'rtl');
     expect(root.dataset.translating).toBe('');
     expect(hints.get(LANG_HINT_KEY)).toBe(lang);
-    expect(timeout).toHaveBeenCalledWith(expect.any(Function),3000);
-    timeout.mock.calls[0][0]();
-    expect(root.dataset).not.toHaveProperty('translating');
+    expect(timeout).not.toHaveBeenCalled();
+    expect(root.dataset.translating).toBe('');
   });
   it.each(['en-IN','en-US','en-GB'])('clears a stale hint for %s', lang => {
     const {root,hints}=run(lang);
-    expect(root).toEqual({lang:'en',dir:'ltr',dataset:{}});
+    expect(root).toEqual({lang,dir:'ltr',dataset:{}});
     expect(hints.has(LANG_HINT_KEY)).toBe(false);
   });
   it('does not put unchecked values into the script', () => {
@@ -42,7 +41,7 @@ describe('LANG01 slice 3 server language', () => {
   });
   it('sets document language even when storage is blocked', () => {
     expect(run('ps',true).root).toEqual({lang:'ps',dir:'rtl',dataset:{translating:''}});
-    expect(run('en-IN',true).root).toEqual({lang:'en',dir:'ltr',dataset:{}});
+    expect(run('en-IN',true).root).toEqual({lang:'en-IN',dir:'ltr',dataset:{}});
   });
   function Language() { return <span>{useUiLang()}</span>; }
   it('uses the provided server snapshot, with English as the fallback', () => {
