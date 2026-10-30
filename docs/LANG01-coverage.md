@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2684 | 6 | 1690 | 0 | 993 | 1 | 0 | 0 |
-| ne | 2684 | 7 | 1364 | 0 | 1320 | 0 | 0 | 0 |
-| hi | 2684 | 5 | 1379 | 0 | 1305 | 0 | 0 | 0 |
-| ur | 2684 | 7 | 1364 | 0 | 1320 | 0 | 0 | 0 |
-| bn | 2684 | 6 | 1380 | 0 | 1304 | 0 | 0 | 0 |
-| ml | 2684 | 19 | 1349 | 0 | 1335 | 0 | 0 | 0 |
-| ta | 2684 | 6 | 1379 | 0 | 1304 | 1 | 0 | 0 |
-| ps | 2684 | 6 | 1362 | 0 | 1322 | 0 | 0 | 0 |
-| fa-AF | 2684 | 15 | 1348 | 0 | 1336 | 0 | 0 | 0 |
-| fa-IR | 2684 | 3 | 1360 | 0 | 1324 | 0 | 0 | 0 |
-| fil | 2684 | 8 | 1346 | 0 | 1337 | 1 | 0 | 0 |
-| zh-CN | 2684 | 19 | 1334 | 0 | 1350 | 0 | 0 | 0 |
-| sw-KE | 2684 | 18 | 1333 | 0 | 1351 | 0 | 0 | 0 |
-| am | 2684 | 18 | 1333 | 0 | 1351 | 0 | 0 | 0 |
-| ti | 2684 | 18 | 1350 | 0 | 1333 | 1 | 0 | 0 |
-| so | 2684 | 18 | 1348 | 0 | 1335 | 0 | 1 | 0 |
-| yo | 2684 | 18 | 1331 | 0 | 1353 | 0 | 0 | 0 |
-| ha | 2684 | 18 | 1349 | 0 | 1335 | 0 | 0 | 0 |
-| ig | 2684 | 18 | 1344 | 0 | 1340 | 0 | 0 | 0 |
-| lg | 2684 | 18 | 1331 | 0 | 1351 | 2 | 0 | 0 |
-| tw | 2684 | 18 | 1342 | 0 | 1342 | 0 | 0 | 0 |
+| ar-AE | 2694 | 6 | 1690 | 0 | 1003 | 1 | 0 | 0 |
+| ne | 2694 | 7 | 1364 | 0 | 1330 | 0 | 0 | 0 |
+| hi | 2694 | 5 | 1379 | 0 | 1315 | 0 | 0 | 0 |
+| ur | 2694 | 7 | 1364 | 0 | 1330 | 0 | 0 | 0 |
+| bn | 2694 | 6 | 1380 | 0 | 1314 | 0 | 0 | 0 |
+| ml | 2694 | 19 | 1349 | 0 | 1345 | 0 | 0 | 0 |
+| ta | 2694 | 6 | 1379 | 0 | 1314 | 1 | 0 | 0 |
+| ps | 2694 | 6 | 1362 | 0 | 1332 | 0 | 0 | 0 |
+| fa-AF | 2694 | 15 | 1348 | 0 | 1346 | 0 | 0 | 0 |
+| fa-IR | 2694 | 3 | 1360 | 0 | 1334 | 0 | 0 | 0 |
+| fil | 2694 | 8 | 1346 | 0 | 1347 | 1 | 0 | 0 |
+| zh-CN | 2694 | 19 | 1334 | 0 | 1360 | 0 | 0 | 0 |
+| sw-KE | 2694 | 18 | 1333 | 0 | 1361 | 0 | 0 | 0 |
+| am | 2694 | 18 | 1333 | 0 | 1361 | 0 | 0 | 0 |
+| ti | 2694 | 18 | 1350 | 0 | 1343 | 1 | 0 | 0 |
+| so | 2694 | 18 | 1348 | 0 | 1345 | 0 | 1 | 0 |
+| yo | 2694 | 18 | 1331 | 0 | 1363 | 0 | 0 | 0 |
+| ha | 2694 | 18 | 1349 | 0 | 1345 | 0 | 0 | 0 |
+| ig | 2694 | 18 | 1344 | 0 | 1350 | 0 | 0 | 0 |
+| lg | 2694 | 18 | 1331 | 0 | 1361 | 2 | 0 | 0 |
+| tw | 2694 | 18 | 1342 | 0 | 1352 | 0 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -436,6 +436,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Got a code from your admin? Sign in with a code" — All
 - "Groundwork field" — All
 - "Groundwork is a portfolio project by Adhil Shanif. Your company decides why it uses your work records. Groundwork provides the tools to store and manage them. This notice explains your choices under the UAE Personal Data Protection Law, Federal Decree Law 45 of 2021." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Groundwork on your computer and phone" — All
 - "Groundwork: client portal and back office" — All
 - "Handle deletion request" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Have you saved your key?" — All
@@ -457,6 +458,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Import completed" — All
 - "Import progress" — All
 - "Import spreadsheet" — All
+- "Imran’s dashboard with today’s jobs, technicians and company totals" — All
 - "In" — All
 - "Info" — All
 - "Installed" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -612,6 +614,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "No rows excluded." — All
 - "No rows in this view" — All
 - "No rows match this status" — All
+- "No sign up needed. Try it with practice jobs." — All
 - "No sites yet" — All
 - "No suggested jobs waiting." — All
 - "No supplier orders yet" — All
@@ -689,6 +692,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Other" — All
 - "Out" — All
 - "Outbox" — All
+- "Owners, office and technicians in one app. Voice notes in 22 languages." — All
 - "Page unavailable · Groundwork" — All
 - "Parking, entrance, security desk or key pickup. Visible to your team only." — All
 - "Part arrived" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -808,6 +812,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Row count" — All
 - "Row rejected. Undo is available for 10 minutes." — All
 - "Rows sent from an import will appear here for review." — All
+- "Run every job from request to" — All
 - "Runs the company and can choose its roles." — All
 - "SEC06 seals channel phone numbers, message text and voice notes before storage using AES 256 GCM and a server secret. Sign in codes are hashed. This does not encrypt every field. Names, profile phone numbers, job text, photos and browser voice transcripts can still be stored as ordinary database fields. Access checks protect them. Photos have location and camera details removed before upload." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Said no" — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -916,6 +921,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Someone is assigned or it has moved on." — All
 - "Somewhere else" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Sort jobs" — All
+- "Speak in your own words." — All
 - "Speak or type" — All
 - "Spreadsheet column" — All
 - "Start a new demo" — All
@@ -953,6 +959,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Tell me up to eight area names." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Tell me what is happening in your home." — ne, hi, ur, ml, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Tell me your answers" — All
+- "Tell your assistant what needs doing. Review changes before they happen." — All
 - "Thanks from clients:" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Thanks. The team knows you are ready." — All
 - "Thanks. The team will review this request." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -965,6 +972,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "That photo did not work. Try another." — All
 - "That practice control is only in the demo company." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "That record was not found." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "The Hindi assistant with the microphone on and सुन रहा है visible" — All
 - "The WhatsApp channel is not switched on." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "The booked visit is after the promised time." — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "The client can read this comment." — All
@@ -1062,6 +1070,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "This visit moves so the urgent call can come first." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Thu" — yo
 - "Time off" — All
+- "Times New Roman" — All
 - "Title updated" — All
 - "Title · A to Z" — All
 - "Title · Z to A" — All
@@ -1326,6 +1335,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "covers this visit." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "created {title}" — All
 - "created {value1}" — All
+- "done." — All
 - "for" — All
 - "for {title}" — All
 - "from {value1}" — All

@@ -617,3 +617,19 @@ Added five second Undo bars, immediate changes with failure rollback for reads, 
 
 ## Part P3 work in progress
 Company overview now reads a paid completed job at AED 480, a recorded contract receipt at AED 7200, and four supplier costs totalling AED 815. The demo therefore shows Money in AED 7680 and Money out AED 815 from recorded data. The service check verifies those sources and totals and refuses non admin access. This part also remains uncommitted under the full suite requirement. No deployment, push or real database was used.
+
+## Groundwork public landing refresh, October 31 2026
+
+Premium pattern gate reviewed against [phone](qa/landing-after/first-390.png) and [desktop](qa/landing-after/first-1440.png) production captures.
+
+- [x] Real dashboard and Hindi voice screen in the first screen.
+- [x] Result headline retained: Run every job from request to done.
+- [x] Instrument Serif on headings only, with done in violet.
+- [x] One solid accent, with neutral surrounding chrome. Existing scene colours preserved.
+- [x] One primary pill and one quiet secondary action in the hero.
+- [x] Exact factual trust line, including voice notes in 22 languages.
+- [x] Empty space around the copy and product frames at phone and desktop widths.
+
+Implementation, capture provenance, validation and limitations: [landing report](docs/landing-premium-report.md). No scene runtime files or scroll rules were changed. No migration, provider call, commit or push was performed.
+
+Final verification: 4,669 tests in 251 full suite files, 570 tests in 24 i18n files and 44 focused checks in 3 files pass. Type checking and production build pass. The report records the existing phone canvas initialization movement separately from the stable hero images.

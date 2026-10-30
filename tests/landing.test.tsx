@@ -1,6 +1,7 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+vi.mock('next/font/local', () => ({ default: () => ({ variable: 'landing-display' }) }));
 import Landing from '../app/page';
 import { shouldUse3D, type LandingCapabilities } from '../lib/landing/capabilities';
 it('renders accessible landing copy, hero and reveal actions, and legal footer on the server', () => {
@@ -50,7 +51,7 @@ describe('static hero variants', () => {
     expect(html.match(/class="lx-seq-poster" data-tone="light"/g)).toHaveLength(1); expect(html.match(/class="lx-seq-poster" data-tone="dark"/g)).toHaveLength(1);
     expect(html.match(/class="lx-seq-canvas"/g)).toHaveLength(1);
     expect(html).not.toMatch(/lx-building|lx-floor|<svg[^>]*viewBox="90 70/);
-    const copy = ['Run every job', 'A request becomes a plan.', 'Requests come in', 'Your team schedules and works them', 'Clients see progress', 'Your AI agents can work here too.', 'Every job,', 'Privacy'];
+    const copy = ['Run every job', 'A request becomes a plan.', 'Requests come in', 'Your team schedules and works them', 'Clients see progress', 'Speak in your own words.', 'Every job,', 'Privacy'];
     const positions = copy.map(text => html.indexOf(text));
     expect(positions.every(index => index >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
@@ -209,4 +210,37 @@ describe('compositor driven phone stage', () => {
     expect(flowState(layout, edge + y, y).opacity).toBeLessThan(1e-9);
     expect(flowState(layout, edge + y + 200, y).opacity).toBeGreaterThan(.9);
   });
+});
+
+it('shows exactly two hero actions and the verified language count', () => {
+  const html = renderToStaticMarkup(<Landing />);
+  const hero = html.split('<section class="lx-hero"')[1].split('</section>')[0];
+  expect(hero.match(/<a\s/g)).toHaveLength(2);
+  expect(hero).toContain('Try the demo');
+  expect(hero).toContain('Sign in');
+  expect(hero).toContain('Owners, office and technicians in one app. Voice notes in 22 languages.');
+  expect(hero.slice(hero.indexOf('>') + 1).replace(/<[^>]*>/g, '')).not.toMatch(/[-–—]/);
+});
+
+it('reserves space for both real product images and loads them eagerly', () => {
+  const html = renderToStaticMarkup(<Landing />);
+  const hero = html.split('<section class="lx-hero"')[1].split('</section>')[0];
+  const images = hero.match(/<img\s[^>]*>/g)!;
+  expect(images).toHaveLength(2);
+  for (const img of images) {
+    expect(img).toMatch(/alt="[^"]+"/);
+    expect(img).toMatch(/width="\d+"/);
+    expect(img).toMatch(/height="\d+"/);
+    expect(img).toContain('loading="eager"');
+    expect(img).toContain('fetchPriority="high"');
+  }
+});
+
+it('uses a solid pill action and an accent word without a highlight box', () => {
+  const css = readFileSync(new URL('../components/landing/landing.css', import.meta.url), 'utf8');
+  const rules = css.match(/[^{}]*\.lx-primary[^{}]*\{[^}]*\}/g)!;
+  expect(rules.length).toBeGreaterThan(0);
+  for (const rule of rules) expect(rule).not.toContain('gradient');
+  expect(css).toContain('background:var(--lx-accent)');
+  expect(css).not.toMatch(/\.lx-highlight::(?:before|after)/);
 });
