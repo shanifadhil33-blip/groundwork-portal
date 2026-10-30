@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2683 | 6 | 1680 | 0 | 1002 | 1 | 0 | 0 |
-| ne | 2683 | 7 | 1345 | 0 | 1338 | 0 | 0 | 0 |
-| hi | 2683 | 5 | 1360 | 0 | 1323 | 0 | 0 | 0 |
-| ur | 2683 | 7 | 1345 | 0 | 1338 | 0 | 0 | 0 |
-| bn | 2683 | 6 | 1361 | 0 | 1322 | 0 | 0 | 0 |
-| ml | 2683 | 19 | 1330 | 0 | 1353 | 0 | 0 | 0 |
-| ta | 2683 | 6 | 1360 | 0 | 1322 | 1 | 0 | 0 |
-| ps | 2683 | 6 | 1343 | 0 | 1340 | 0 | 0 | 0 |
-| fa-AF | 2683 | 15 | 1329 | 0 | 1354 | 0 | 0 | 0 |
-| fa-IR | 2683 | 3 | 1341 | 0 | 1342 | 0 | 0 | 0 |
-| fil | 2683 | 8 | 1327 | 0 | 1355 | 1 | 0 | 0 |
-| zh-CN | 2683 | 19 | 1315 | 0 | 1368 | 0 | 0 | 0 |
-| sw-KE | 2683 | 18 | 1314 | 0 | 1369 | 0 | 0 | 0 |
-| am | 2683 | 18 | 1314 | 0 | 1369 | 0 | 0 | 0 |
-| ti | 2683 | 18 | 1331 | 0 | 1351 | 1 | 0 | 0 |
-| so | 2683 | 18 | 1329 | 0 | 1353 | 0 | 1 | 0 |
-| yo | 2683 | 18 | 1312 | 0 | 1371 | 0 | 0 | 0 |
-| ha | 2683 | 18 | 1330 | 0 | 1353 | 0 | 0 | 0 |
-| ig | 2683 | 18 | 1325 | 0 | 1358 | 0 | 0 | 0 |
-| lg | 2683 | 18 | 1312 | 0 | 1369 | 2 | 0 | 0 |
-| tw | 2683 | 18 | 1323 | 0 | 1360 | 0 | 0 | 0 |
+| ar-AE | 2684 | 6 | 1689 | 0 | 994 | 1 | 0 | 0 |
+| ne | 2684 | 7 | 1354 | 0 | 1330 | 0 | 0 | 0 |
+| hi | 2684 | 5 | 1369 | 0 | 1315 | 0 | 0 | 0 |
+| ur | 2684 | 7 | 1354 | 0 | 1330 | 0 | 0 | 0 |
+| bn | 2684 | 6 | 1370 | 0 | 1314 | 0 | 0 | 0 |
+| ml | 2684 | 19 | 1339 | 0 | 1345 | 0 | 0 | 0 |
+| ta | 2684 | 6 | 1369 | 0 | 1314 | 1 | 0 | 0 |
+| ps | 2684 | 6 | 1352 | 0 | 1332 | 0 | 0 | 0 |
+| fa-AF | 2684 | 15 | 1338 | 0 | 1346 | 0 | 0 | 0 |
+| fa-IR | 2684 | 3 | 1350 | 0 | 1334 | 0 | 0 | 0 |
+| fil | 2684 | 8 | 1336 | 0 | 1347 | 1 | 0 | 0 |
+| zh-CN | 2684 | 19 | 1324 | 0 | 1360 | 0 | 0 | 0 |
+| sw-KE | 2684 | 18 | 1323 | 0 | 1361 | 0 | 0 | 0 |
+| am | 2684 | 18 | 1323 | 0 | 1361 | 0 | 0 | 0 |
+| ti | 2684 | 18 | 1340 | 0 | 1343 | 1 | 0 | 0 |
+| so | 2684 | 18 | 1338 | 0 | 1345 | 0 | 1 | 0 |
+| yo | 2684 | 18 | 1321 | 0 | 1363 | 0 | 0 | 0 |
+| ha | 2684 | 18 | 1339 | 0 | 1345 | 0 | 0 | 0 |
+| ig | 2684 | 18 | 1334 | 0 | 1350 | 0 | 0 | 0 |
+| lg | 2684 | 18 | 1321 | 0 | 1361 | 2 | 0 | 0 |
+| tw | 2684 | 18 | 1332 | 0 | 1352 | 0 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -93,7 +93,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Add a document" — All
 - "Add a header row with a unique name for each column, with none left blank." — All
 - "Add a name and phone. We give you a code to send on WhatsApp. They sign in with it. No email needed." — All
-- "Add a note to a job" — All
 - "Add a photo" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Add a technician on the Team page to assign this job." — All
 - "Add an area to your sites first." — All
@@ -444,7 +443,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "He has no visits left to move." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "His work email" — All
 - "Home address saved." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "How are my requests going?" — All
 - "How did it end?" — All
 - "How did we do?" — All
 - "How long we keep data" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -487,7 +485,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Job created." — All
 - "Job done" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Job done for now. The office will plan the return visit." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Job done, fixed it" — All
 - "Job done. Great work!" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Job history" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Job reopened." — All
@@ -523,7 +520,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Like 2027-03-31." — All
 - "Link copied." — All
 - "Linked record" — All
-- "Listening" — All
 - "Living room" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Loading dashboard" — All
 - "Loading demo picker" — All
@@ -784,7 +780,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Repair" — All
 - "Repair supplier updates?" — All
 - "Repaired" — All
-- "Report a problem" — All
 - "Report saved. The job waits for the part." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Report saved. Your supervisor will take it from here." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Request Received. Your service company will review it." — All
@@ -933,7 +928,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Status: Open" — fil
 - "Step {value1}" — All
 - "Still working on it…" — All
-- "Stop" — All
 - "Stop for today" — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Stop reading" — All
 - "Stop recording" — All
@@ -1226,7 +1220,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Welcome to Groundwork" — All
 - "What did you do?" — All
 - "What does a visit cost" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "What is my next job?" — All
 - "What is the new phone number?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "What was the problem?" — bn, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "What we store and why" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -1234,7 +1227,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "What {value1} can do" — All
 - "What {value1} does" — All
 - "WhatsApp number" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "When is the technician coming?" — All
 - "Where in your home is the problem?" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Which home is this for?" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Which part?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw

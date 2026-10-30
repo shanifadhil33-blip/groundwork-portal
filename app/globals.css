@@ -988,7 +988,17 @@ a:focus-visible,button:focus-visible,[role=button]:focus-visible,input:focus-vis
 .agent-settings { font-size:16px; }
 .agent-settings input, .agent-settings button { min-height:44px; }
 .settings-agent-row, .assistant-panel-header h2 a, .presentation-assistant h2 a { display:inline-flex; align-items:center; min-height:44px; }
-.voice-recording { display:flex; align-items:center; gap:12px; font-size:16px; }
+.voice-recording { display:flex; align-items:center; gap:8px; font-size:16px; min-width:0; min-inline-size:0; inline-size:100%; max-inline-size:100%; }
+.voice-recording-label { flex:1 1 0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:start; }
+.voice-recording-time { flex:0 0 auto; font-variant-numeric:tabular-nums; }
+.voice-recording .recording-dot { flex:0 0 auto; }
+.assistant-composer .voice-recording .button.button { width:auto; inline-size:auto; flex:0 1 auto; min-inline-size:44px; min-block-size:44px; padding-inline:8px; white-space:normal; overflow-wrap:anywhere; }
+.voice-recording .button-sizer { min-width:0; }
+.assistant-starters { align-items:stretch; min-width:0; }
+.assistant-starters p { block-size:3lh; overflow:hidden; margin-block:0 var(--s2); }
+.assistant-starters .button { block-size:44px; min-width:0; max-inline-size:100%; }
+.assistant-starters .button-sizer { display:block; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.assistant-starters .starter-placeholder { background:var(--border); border-radius:18px; }
 .voice-recording .button, .assistant-control { min-height:44px; min-width:44px; }
 .recording-dot { width:10px; height:10px; border-radius:50%; background:#c62828; animation:recording-pulse 1s ease-in-out infinite; }
 @keyframes recording-pulse { 50% { opacity:.4; } }

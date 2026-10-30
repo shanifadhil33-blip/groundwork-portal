@@ -7,6 +7,8 @@ import {afterEach,beforeEach,expect,it,vi} from 'vitest';
 import { failureWords, INCOMPLETE, UNAVAILABLE, UNANSWERED } from '../lib/agent/failure-words';
 import {Assistant} from '../components/app/assistant';
 import {AppContext,type Membership} from '../components/app/context';
+import {setNotificationLanguage} from '../components/app/notification-language';
+import {notificationWords} from '../lib/notification-words';
 const api=vi.hoisted(()=>({post:vi.fn(),wide:false,voice:false,language:'en-IN'}));
 vi.mock('../lib/ui/api',async original=>({...await original<typeof import('../lib/ui/api')>(),post:api.post}));
 vi.mock('../components/app/resource',()=>({useResource:()=>({data:{agent_name:null,voice_enabled:api.voice,language:api.language}})}));
@@ -23,8 +25,10 @@ beforeEach(()=>{
  vi.stubGlobal('matchMedia',(q:string)=>({matches:q.includes('min-width: 1024px')?api.wide:false,addEventListener:vi.fn(),removeEventListener:vi.fn()}));
  Element.prototype.scrollIntoView=vi.fn();
 });
-afterEach(async()=>{await act(async()=>root.unmount());host.remove();page.remove();document.body.innerHTML='';vi.useRealTimers();vi.unstubAllGlobals();});
+afterEach(async()=>{await act(async()=>root.unmount());setNotificationLanguage('',null);host.remove();page.remove();document.body.innerHTML='';vi.useRealTimers();vi.unstubAllGlobals();});
 async function mount(onClose=vi.fn()){
+ // Translator is mocked in this suite, so publish its shipped words explicitly.
+ setNotificationLanguage(api.language,notificationWords(api.language));
  const member:Membership={workspace_id:'workspace',workspace_name:'Company',role:'technician',client_id:null,client_name:null};
  await act(async()=>root.render(<AppContext.Provider value={{member,workspace:null,me:{user:{id:'ravi',name:'Ravi',email:null,image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}><Assistant ws="workspace" open onClose={onClose}/></AppContext.Provider>));
  return onClose;
@@ -32,7 +36,7 @@ async function mount(onClose=vi.fn()){
 const button=(label:string)=>Array.from(document.querySelectorAll('button')).find(b=>b.textContent===label||b.getAttribute('aria-label')===label) as HTMLButtonElement|undefined;
 const field=()=>document.querySelector('#assistant-input') as HTMLTextAreaElement;
 async function type(value:string){const f=field();const set=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value')!.set!;await act(async()=>{set.call(f,value);f.dispatchEvent(new Event('input',{bubbles:true}));});}
-async function ask(label='Show jobs waiting on parts'){await act(async()=>button(label)!.click());}
+async function ask(label='Show jobs waiting on parts'){await act(async()=>button(notificationWords(api.language)[label]??label)!.click());}
 
 it('while thinking, close works and cancels the question, the box takes the next message, and send becomes Stop',async()=>{
  hang();const onClose=await mount();await ask();
