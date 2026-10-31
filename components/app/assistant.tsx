@@ -1,4 +1,5 @@
 'use client';
+import { Translated } from './app-words';
 import { AssistantSuggestions, ListeningBar } from './assistant-language';
 import { failureWords, INCOMPLETE } from '../../lib/agent/failure-words';
 import { JobNextStep } from './job-next-step';
@@ -69,7 +70,7 @@ export function Assistant({ws,open,onClose,ask,docked=false,homeContent}:{ws:str
  const agentName=preferences.data?.agent_name||'Agent';
  const wide=useWide();
  useKeyboardHeight(open&&!docked);
- const heading=<Link href="/settings/agent" className="agent-heading" onClick={close} data-no-translate={!!preferences.data?.agent_name}><AgentAvatar avatar={preferences.data?.agent_avatar}/>{agentName}</Link>;
+ const heading=<Translated><Link href="/settings/agent" className="agent-heading" onClick={close} data-no-translate={preferences.data?.agent_name ? true : undefined}><AgentAvatar avatar={preferences.data?.agent_avatar}/>{agentName}</Link></Translated>;
  const [messages,setMessages]=useState<Message[]>([]),[inputDraft,setInputDraft]=useLocalDraft(`groundwork-agent-draft:${me.user.id}:${ws}`,{body:''}),[busy,setBusy]=useState(false),[pending,setPending]=useState<Pending|null>(null),[resting,setResting]=useState(false),[error,setError]=useState(''),[failed,setFailed]=useState<{messages:Message[];confirm_action_id?:string;readAloud?:boolean;household_photo_ids?:string[]}|null>(null);
  const input=inputDraft.body,setInput=(v:React.SetStateAction<string>)=>setInputDraft(d=>({body:typeof v==='function'?v(d.body):v}));
  const inputRef=useRef<HTMLTextAreaElement>(null);

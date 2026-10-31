@@ -224,3 +224,6 @@ html[data-theme=dark] .lx-root .lx-primary{background:#7955db}
 }
 .lx-root .lx-brand{--primary-fg:#fff}
 html[data-theme=dark] .lx-root .lx-brand{--primary-fg:#000}
+
+/* Reassurance belongs immediately below the hero actions. */
+.lx-root .lx-hero .lx-note{font-size:12px;line-height:1.6;margin-top:10px;max-width:350px}

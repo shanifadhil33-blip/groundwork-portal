@@ -124,9 +124,10 @@ export function Translator() {
         }
       }
       observer.observe(document.body, options);
-      // Quiet loading: hide the screen (never show English) while a batch of its words is still on the way, at most 3 seconds.
-      if (pending.size >= 3) { quiet(true); clearTimeout(quietTimer); quietTimer = setTimeout(() => quiet(false), 3000); }
-      else if (!running || !pending.size) { quiet(false); }
+      // Once the dictionary is loaded, unresolved slots already contain ellipses.
+      // Keep translated jobs visible while other cards request missing words.
+      if (pending.size >= 3 && !initialWords.words) { quiet(true); clearTimeout(quietTimer); quietTimer = setTimeout(() => quiet(false), 3000); }
+      else { quiet(false); }
       void flush();
     }
     function schedule() {

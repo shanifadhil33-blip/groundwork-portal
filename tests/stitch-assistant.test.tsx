@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
 import React, { act } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { readFileSync } from 'node:fs';
+import { AppWords } from '../components/app/app-words';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ThemeProvider } from '../components/ui/theme';
@@ -154,4 +157,17 @@ it('household photo uploads through the shared job photo endpoint before prepari
  expect(api.post.mock.calls[2][1].household_photo_ids).toEqual(['photo']);
  expect(host.querySelector('.pending-reply')?.textContent).toContain('Photo: Yes');
  expect(api.post.mock.calls.some(([,body])=>body.confirm_action_id)).toBe(false);
+});
+
+it.each(['hi','ar-AE'])('translates the default assistant heading in %s first HTML while preserving a custom name', language => {
+ const words = JSON.parse(readFileSync(`public/i18n/${language}.json`, 'utf8'));
+ const member:Membership={workspace_id:'workspace',workspace_name:'Company',role:'admin',client_id:null,client_name:null};
+ const render = () => renderToStaticMarkup(<AppWords language={language} words={words}><AppContext.Provider value={{member,workspace:null,me:{user:{id:'user',name:'Imran',email:null,image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}><Assistant ws="workspace" docked open={false} onClose={()=>{}}/></AppContext.Provider></AppWords>);
+ for (const name of [null, 'My helper']) {
+  api.preferences.agent_name = name;
+  const doc = document.createElement('div'); doc.innerHTML = render();
+  const heading = doc.querySelector('.agent-heading');
+  expect(heading?.textContent).toBe(name ?? words.Agent);
+  if (!name) expect(heading?.hasAttribute('data-no-translate')).toBe(false);
+ }
 });

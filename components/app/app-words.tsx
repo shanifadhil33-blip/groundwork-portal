@@ -21,10 +21,13 @@ export function AppWords({language, words, children}: Words & {children: ReactNo
       if (isEnglish(next)) return;
       try {
         const response = await fetch(languageFileUrl(next));
-        if (!response.ok) return;
+        if (!response.ok) throw new Error();
         const words = readTranslationCache(await response.text(), next);
         if (active && run === generation) setCurrent({language: next, words});
-      } catch { /* Keep untranslated copy hidden until a later language choice. */ }
+      } catch {
+        // A failed dictionary is settled too. Reveal source copy instead of leaving it pending.
+        if (active && run === generation) setCurrent({language: next, words: {}});
+      }
     };
     window.addEventListener(LANGUAGE_EVENT, change);
     return () => { active = false; window.removeEventListener(LANGUAGE_EVENT, change); };
@@ -39,8 +42,10 @@ export function Translated({children}: {children: ReactNode}) {
     if (typeof node === 'string') {
       if (!translationSource(node)) return node;
       const text = words ? replaceTranslation(node, words) : node;
-      const missing = text === node && /[A-Za-z]/.test(node);
-      return <span data-no-translate="" data-translated-copy="" style={missing ? {visibility:'hidden'} : undefined} aria-busy={missing || undefined}>{missing ? '…' : text}</span>;
+      // Equality can mean a missing entry, an identifier or an intentional identity translation.
+      // Only an outstanding dictionary request is pending. React owns these skipped nodes.
+      const pending = words === null && /[A-Za-z]/.test(node);
+      return <span data-no-translate="" data-translated-copy="" style={pending ? {visibility:'hidden'} : undefined} aria-busy={pending || undefined}>{pending ? '…' : text}</span>;
     }
     if (!isValidElement<Record<string,unknown>>(node)) return node;
     const props = node.props;
@@ -49,9 +54,9 @@ export function Translated({children}: {children: ReactNode}) {
     if (node.type === 'option') {
       const source = Children.toArray(props.children as ReactNode).join('');
       const text = words ? replaceTranslation(source, words) : source;
-      return cloneElement(node, {'data-no-translate':'', children:text === source && /[A-Za-z]/.test(source) ? '…' : text});
+      return cloneElement(node, {'data-no-translate':'', children:words === null && /[A-Za-z]/.test(source) ? '…' : text});
     }
-    for (const attr of TRANSLATION_ATTRIBUTES) if (typeof props[attr] === 'string') { const text = words ? replaceTranslation(props[attr], words) : props[attr]; next[attr] = text === props[attr] && /[A-Za-z]/.test(text) ? '' : text; }
+    for (const attr of TRANSLATION_ATTRIBUTES) if (typeof props[attr] === 'string') { const text = words ? replaceTranslation(props[attr], words) : props[attr]; next[attr] = words === null && /[A-Za-z]/.test(text) ? '' : text; }
     if (props.children !== undefined) next.children = Children.map(props.children as ReactNode, visit);
     return cloneElement(node, next);
   }
