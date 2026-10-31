@@ -10,6 +10,8 @@ import {ServerLangProvider, useUiLang} from '../components/app/use-ui-lang';
 import {InitialResourceProvider} from '../components/app/initial-resources';
 import {OwnerSummary, TodayJobs} from '../components/app/owner-today';
 import {DayPlanView, type DayPlanData} from '../components/app/day-plan-card';
+import {NeedsAction} from '../components/app/dashboard';
+import {WaitingPrices} from '../components/app/price-change';
 import {AppContext} from '../components/app/context';
 import {LANGUAGES} from '../lib/languages';
 import {demoJobDescription, DEMO_JOB_DESCRIPTION_TEMPLATE} from '../lib/demo-job-copy';
@@ -124,4 +126,83 @@ it('uses the server dictionary for exact demo descriptions without another langu
  expect(host.textContent).toBe(words[DEMO_JOB_DESCRIPTION_TEMPLATE].replace('{number}','1'));
  expect(fetch.mock.calls).toHaveLength(0);
  }finally{await act(async()=>root.unmount());host.remove();}
+});
+
+
+it.each(['hi', 'ar-AE'])('settles missing words, codes and identity translations visibly in %s server HTML', language => {
+ const words = {Known: language === 'hi' ? 'ज्ञात' : 'معروف', Groundwork: 'Groundwork'};
+ const html = renderToStaticMarkup(<AppWords language={language} words={words}><Translated>
+  <p>Known</p><p>Missing word</p><span className="order-number">WO 39</span><span className="initials">SA</span><p>Groundwork</p>
+  <input placeholder="Missing hint" aria-label="Missing label"/><select><option>Missing option</option></select>
+ </Translated></AppWords>);
+ expect(html).toContain(words.Known);
+ for (const source of ['Missing word', 'WO 39', 'SA', 'Groundwork', 'Missing hint', 'Missing label', 'Missing option']) expect(html).toContain(source);
+ expect(html).not.toMatch(/visibility:hidden|aria-busy="true"|…/);
+});
+
+it.each(['loaded', 'http error', 'network error'] as const)('reveals pending missing words and WO 39 after a dictionary %s', async outcome => {
+ vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
+ let resolve!: (response: Response) => void;
+ let reject!: (error: Error) => void;
+ vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>((yes, no) => { resolve = yes; reject = no; })));
+ const host = document.createElement('div'); document.body.append(host); const root = createRoot(host);
+ try {
+  await act(async () => root.render(<AppWords language="en-IN" words={{}}><Translated>
+   <p>Known</p><p>Missing word</p><span className="order-number">WO 39</span>
+   <input placeholder="Missing hint"/><select><option>Missing option</option></select>
+  </Translated></AppWords>));
+  await act(async () => changeAppLanguage('hi'));
+  expect(host.querySelectorAll('[data-translated-copy][aria-busy="true"]')).toHaveLength(3);
+  expect(host.textContent).not.toContain('Known');
+  await act(async () => {
+   if (outcome === 'network error') reject(new Error('offline'));
+   else resolve(new Response(JSON.stringify({Known: 'ज्ञात', 'Missing word': null}), {status: outcome === 'http error' ? 503 : 200}));
+  });
+  expect(host.textContent).toContain(outcome === 'loaded' ? 'ज्ञात' : 'Known');
+  expect(host.textContent).toContain('Missing word'); expect(host.querySelector('.order-number')?.textContent).toBe('WO 39');
+  expect(host.querySelector('input')?.placeholder).toBe('Missing hint'); expect(host.querySelector('option')?.textContent).toBe('Missing option');
+  expect(host.querySelector('[aria-busy="true"], [style*="visibility: hidden"]')).toBeNull();
+ } finally { await act(async () => root.unmount()); host.remove(); }
+});
+
+it('ships the Hindi account mode and composer words for the first paint', () => {
+ const words = JSON.parse(readFileSync('public/i18n/hi.json', 'utf8'));
+ const html = renderToStaticMarkup(<AppWords language="hi" words={words}><Translated><button>Work</button><button>My home</button><label>Ask Agent</label><input placeholder="Ask Agent or speak"/></Translated></AppWords>);
+ expect(html).toContain('काम'); expect(html).toContain('मेरा घर');
+ expect(html).not.toMatch(/>Work<|>My home<|\bAgent\b|aria-busy="true"/);
+});
+
+// Exercise the real split string/number children, not a single "WO 39" literal.
+function OrderLists({language, pending = false}: {language: string; pending?: boolean}) {
+ const words = pending ? null : language === 'en-IN' ? {} : JSON.parse(readFileSync(`public/i18n/${language}.json`, 'utf8'));
+ const job = {id:'job', order_number:39, title:'Fixture title', status:'open', quote_status:'pending'};
+ return <AppWords language={language} words={words}><AppContext.Provider value={{...context, member:{role:'client',client_kind:'manager'}} as any}>
+  <InitialResourceProvider resources={{
+   '/demo/work-orders?active=true&sort=updated_at&dir=asc&pageSize=100':{data:{data:[job],total:1}},
+   '/demo/waiting-prices':{data:[job]},
+  }}><NeedsAction base="/demo" client/><WaitingPrices base="/demo"/></InitialResourceProvider>
+ </AppContext.Provider></AppWords>;
+}
+it.each(['hi','ar-AE','en-IN'])('keeps split order identifiers visible in %s first HTML and hydration, even while words load', async language => {
+ vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
+ for (const pending of [false, true]) {
+  const content = <OrderLists language={language} pending={pending}/>;
+  const host = document.createElement('div'); document.body.append(host);
+  host.innerHTML = renderToString(content);
+  const check = () => {
+   const numbers = [...host.querySelectorAll('.order-number')];
+   expect(numbers).toHaveLength(2);
+   for (const number of numbers) {
+    expect(number.textContent).toBe('WO 39');
+    expect(number.querySelector('[aria-busy="true"], [style*="visibility"]')).toBeNull();
+   }
+  };
+  check();
+  if (pending && language !== 'en-IN') expect(host.querySelector('h2 [aria-busy="true"]')).toBeTruthy();
+  const recover = vi.fn(); let root!: ReturnType<typeof hydrateRoot>;
+  try {
+   await act(async () => {root = hydrateRoot(host, content, {onRecoverableError: recover});});
+   check(); expect(recover).not.toHaveBeenCalled();
+  } finally {if(root) await act(async () => root.unmount());host.remove();}
+ }
 });

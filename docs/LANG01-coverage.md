@@ -16,7 +16,7 @@ Recovered 269 translations from static repository tables, local Git history, and
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | ar-AE | 2684 | 6 | 1690 | 0 | 993 | 1 | 0 | 0 |
 | ne | 2684 | 7 | 1364 | 0 | 1320 | 0 | 0 | 0 |
-| hi | 2684 | 5 | 1379 | 0 | 1305 | 0 | 0 | 0 |
+| hi | 2684 | 5 | 1381 | 0 | 1303 | 0 | 0 | 0 |
 | ur | 2684 | 7 | 1364 | 0 | 1320 | 0 | 0 | 0 |
 | bn | 2684 | 6 | 1380 | 0 | 1304 | 0 | 0 | 0 |
 | ml | 2684 | 19 | 1349 | 0 | 1335 | 0 | 0 | 0 |
@@ -572,7 +572,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Moved {link} to {value2}." — All
 - "Moved." — All
 - "My day" — All
-- "My home" — ne, hi, ur, bn, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "My home" — ne, ur, bn, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "My record" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Needs a look" — All
 - "Never" — All
@@ -1239,7 +1239,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Word added." — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Word removed." — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Word saved. You can see it on your Memory page." — All
-- "Work" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Work" — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Work order" — fil
 - "Work reported" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Workspace" — fil
