@@ -3,7 +3,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { NAME_JOIN } from '../lib/ui/name-joins';
 import { LANGUAGES } from '../lib/languages';
-import { isEnglish, languageFileUrl, mergeLanguageFile, translationSource, validTranslation } from '../lib/i18n';
+import { isEnglish, languageFileUrl, mergeLanguageFile, rightScript, translationSource, validTranslation } from '../lib/i18n';
 import { KEEP_AS_IS } from '../lib/services/translations';
 
 // LANG01: interface text lives in one language file per language.
@@ -99,6 +99,15 @@ it.each(others.map(l=>[l.code]))('%s translates assistant recovery messages offl
   expect(file[key]).not.toBe(key);expect(file[key]).not.toMatch(/\p{Pd}/u);
  }
 });
-it('Malayalam has an offline label for the client home switch',()=>{
- expect(read('ml')['My home']).toBe('എന്റെ വീട്');
+it.each(others.map(l=>[l.code]))('%s translates Work, My home and Dashboard offline', code=>{
+ const file=read(code);
+ for(const key of ['Work','My home','Dashboard']){
+  const value=file[key];
+  expect(typeof value, `${code}: ${key}`).toBe('string');
+  if(typeof value!=='string') continue;
+  expect(validTranslation(key, value, code), `${code}: ${key}`).toBe(true);
+  expect(value).not.toBe(key);
+  expect(value).not.toMatch(/\p{Pd}/u);
+  expect(rightScript(value, code), `${code}: ${key}`).toBe(true);
+ }
 });

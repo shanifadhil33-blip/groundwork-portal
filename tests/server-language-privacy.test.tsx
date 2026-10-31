@@ -37,6 +37,7 @@ function expectNotice(arabic: boolean) {
   expect(notice.querySelectorAll('article section')).toHaveLength(8);
   expect(notice.querySelector('button[aria-pressed="true"]')?.textContent).toBe(arabic ? 'العربية' : 'English');
   expect(notice.textContent).not.toMatch(/[-–—]/);
+  expect(notice.textContent).not.toMatch(/portfolio|Adhil Shanif|عادل شنيف/i);
   return notice;
 }
 

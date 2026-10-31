@@ -35,8 +35,9 @@ function expectNotice(arabic: boolean) {
   expect(notice.hasAttribute('data-no-translate')).toBe(true);
   expect(notice.querySelector('h1')?.textContent).toBe(arabic ? 'الشروط' : 'Terms');
   expect(Array.from(notice.querySelectorAll('h2'), heading => heading.textContent)).toEqual(arabic
-    ? ['مشروع لعرض الأعمال', 'استخدمه بإنصاف', 'بياناتك', 'المساعد', 'الأسئلة']
-    : ['A portfolio project', 'Use it fairly', 'Your data', 'Agent', 'Questions']);
+    ? ['ما هذا', 'استخدمه بإنصاف', 'بياناتك', 'المساعد', 'الأسئلة']
+    : ['What this is', 'Use it fairly', 'Your data', 'Agent', 'Questions']);
+  expect(notice.textContent).not.toMatch(/portfolio|Adhil Shanif|عادل شنيف/i);
   expect(notice.querySelectorAll('article section')).toHaveLength(5);
   expect(notice.querySelector('article p')?.textContent).toContain(arabic
     ? 'يرجى الاحتفاظ بنسخة عندك من أي شيء مهم.'
