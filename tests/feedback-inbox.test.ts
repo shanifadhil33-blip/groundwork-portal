@@ -39,6 +39,8 @@ describe('help and feedback', () => {
   });
   it('remembers the last page before any early return in the shell', () => {
     const shell = readFileSync(new URL('../components/app/shell.tsx', import.meta.url), 'utf8');
-    expect(shell.indexOf('LAST_PAGE_KEY, path')).toBeLessThan(shell.indexOf('if (error) return'));
+    const firstReturn = shell.search(/\n  if \([^\n]*\) return /);
+    expect(firstReturn).toBeGreaterThan(0);
+    expect(shell.indexOf('LAST_PAGE_KEY, path')).toBeLessThan(firstReturn);
   });
 });

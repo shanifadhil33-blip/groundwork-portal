@@ -51,7 +51,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   const [ask,setAsk]=useState<{text:string;n:number}|null>(null);
   useEffect(()=>{if(assistant)setAssistantLoaded(true);},[assistant]);
   // Signed in: public pages opened later show 'Go to dashboard' from their first frame.
-  useEffect(()=>{rememberSession('in');},[]);
+  useEffect(()=>{if(me)rememberSession('in');},[me]);
   const [shortcut, setShortcut] = useState('Ctrl J');
   useEffect(() => {
     setShortcut(/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘J' : 'Ctrl J');
@@ -106,8 +106,9 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   }
   useEffect(() => { if (!path.startsWith('/settings')) sessionStorage.setItem(LAST_PAGE_KEY, path); }, [path]);
   const htmlLang = useUiLang();
-  if (error) return <Translated><div className="public-page"><Brand /><ErrorState message="We couldn’t open your workspace. Please try again." retry={load} /></div></Translated>;
-  if (loading || !me || (member && !workspace) || (member?.role === 'client' && path === '/dashboard') || (member?.role === 'technician' && path === '/dashboard') || (member && member.role !== 'client' && path === '/home')) return <Translated><><div className="public-header"><Brand /></div><PageSkeleton /></></Translated>;
+  if (error && !me) return <Translated><div className="public-page"><Brand /><ErrorState message="We couldn’t open your workspace. Please try again." retry={load} /></div></Translated>;
+  // Refreshes retain the authenticated screen; only the first identity load needs a fallback.
+  if (!me || (member && !workspace) || (member?.role === 'client' && path === '/dashboard') || (member?.role === 'technician' && path === '/dashboard') || (member && member.role !== 'client' && path === '/home')) return <Translated><><div className="public-header"><Brand /></div><PageSkeleton /></></Translated>;
   const nav = member?.role === 'technician' ? [{ href: '/today', label: 'Today', icon: CalendarCheck }, { href: '/work-orders', label: 'My jobs', icon: ClipboardList }, { href: '/suggestions/new', label: 'Suggest a job', icon: ClipboardCheck }, { href: '/settings', label: 'Settings', icon: Settings }] : [{ href: home, label: 'Home', icon: member?.role === 'client' ? House : LayoutDashboard }, ...(office && doesJobs(member) ? [{ href: '/today', label: 'My day', icon: CalendarCheck }, { href: `/work-orders?assignee_id=${me.user.id}&active=true`, label: 'My jobs', icon: ClipboardCheck }] : []), ...(member && office ? [{ href: '/work-orders', label: 'Jobs', icon: ClipboardList }, { href: '/schedule', label: 'Schedule', icon: CalendarDays }, { href: '/documents', label: 'Documents', icon: FileText }, { href: '/queue', label: 'New requests', icon: ListChecks }, { href: '/suggestions', label: 'Suggested', icon: ClipboardCheck }, { href: '/team', label: 'Team', icon: Users }, { href: '/clients', label: 'Clients', icon: Building2 }, { href: '/import', label: 'Add from Excel', icon: Upload }] : member ? [{href:'/work-orders',label:'Requests',icon:ClipboardList}] : []), { href: '/settings', label: 'Settings', icon: Settings }];
   if(member)nav.splice(nav.length-1,0,{href:'/messages',label:'Messages',icon:MessageSquare});
   if(member&&member.role!=='client')nav.splice(nav.length-1,0,{href:'/team-space',label:'Team space',icon:Users});

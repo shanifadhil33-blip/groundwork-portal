@@ -9,6 +9,6 @@ export default defineConfig({ test: {
     'tests/screens-i18n.test.tsx', 'tests/server-language*.test.ts*', 'tests/demo-job-i18n.test.ts',
     'tests/trade-words.test.ts', 'tests/quotes-i18n.test.ts', 'tests/languages.test.ts', 'tests/language-options.test.ts',
     'tests/agent-choices.test.ts', 'tests/notification-templates.test.tsx', 'tests/not-found-body.test.tsx',
-    'tests/data-protection-ui.test.tsx', 'tests/stitch-assistant.test.tsx', 'tests/resource-refresh.test.tsx',
+    'tests/data-protection-ui.test.tsx', 'tests/stitch-assistant.test.tsx', 'tests/resource-refresh.test.tsx', 'tests/session-blank.test.tsx',
   ],
 } });

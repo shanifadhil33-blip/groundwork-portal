@@ -7,9 +7,9 @@ describe('app shell hook order', () => {
     const src = readFileSync('components/app/shell.tsx', 'utf8');
     const start = src.indexOf('export function AppShell') >= 0 ? src.indexOf('export function AppShell') : 0;
     const body = src.slice(start);
-    const firstReturn = body.indexOf('\n  if (error) return');
+    const firstReturn = body.search(/\n  if \([^\n]*\) return /);
     expect(firstReturn).toBeGreaterThan(0);
-    const end = body.indexOf('\n  return <InitialResourceProvider', firstReturn);
+    const end = body.indexOf('\n  return <Translated>', firstReturn);
     const between = body.slice(firstReturn, end);
     expect(between.match(/\buse[A-Z][A-Za-z]*\(/g) ?? []).toEqual([]);
   });
