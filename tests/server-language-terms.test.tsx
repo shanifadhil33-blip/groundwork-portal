@@ -28,10 +28,10 @@ afterEach(async () => {
   vi.unstubAllGlobals();
 });
 
-function expectNotice(arabic: boolean) {
+function expectNotice(arabic: boolean, rtl = arabic) {
   const notice = host.querySelector('.terms-notice')!;
   expect(notice.getAttribute('lang')).toBe(arabic ? 'ar-AE' : 'en');
-  expect(notice.getAttribute('dir')).toBe(arabic ? 'rtl' : 'ltr');
+  expect(notice.getAttribute('dir')).toBe(rtl ? 'rtl' : 'ltr');
   expect(notice.hasAttribute('data-no-translate')).toBe(true);
   expect(notice.querySelector('h1')?.textContent).toBe(arabic ? 'الشروط' : 'Terms');
   expect(Array.from(notice.querySelectorAll('h2'), heading => heading.textContent)).toEqual(arabic
@@ -63,10 +63,16 @@ it.each(['demo-persona', 'practice-persona'])('uses the same saved preference re
   expect(mocks.preferences).toHaveBeenCalledExactlyOnceWith(user, false);
 });
 
-it.each(['en-IN', 'en-US', 'ur', 'fa-IR', null, 'arbitrary'])('renders English for saved %s without a notice translation', async language => {
+it.each(['en-IN', 'en-US', null, 'arbitrary'])('renders English for saved %s without a notice translation', async language => {
   mocks.preferences.mockResolvedValue({ language });
   host.innerHTML = renderToString(await Page());
   expectNotice(false);
+});
+
+it.each(['ur', 'fa-IR', 'fa-AF', 'ps'])('keeps the English notice and a right to left page for saved %s', async language => {
+  mocks.preferences.mockResolvedValue({ language });
+  host.innerHTML = renderToString(await Page());
+  expectNotice(false, true);
 });
 
 it('keeps English for a signed in user without a preferences row', async () => {
@@ -93,6 +99,7 @@ it.each(['ar-AE', 'en-IN'])('hydrates saved %s without changing the markup and l
   host.innerHTML = renderToString(page);
   const serverHtml = host.innerHTML;
   const arabic = language === 'ar-AE';
+  const pageRtl = arabic;
   expectNotice(arabic);
   const recoverableError = vi.fn();
   await act(async () => { root = hydrateRoot(host, page, { onRecoverableError: recoverableError }); });
@@ -100,9 +107,9 @@ it.each(['ar-AE', 'en-IN'])('hydrates saved %s without changing the markup and l
   expect(host.innerHTML).toBe(serverHtml);
   const buttons = host.querySelectorAll<HTMLButtonElement>('.terms-notice button');
   await act(async () => buttons[arabic ? 0 : 1].click());
-  expectNotice(!arabic);
+  expectNotice(!arabic, !arabic || pageRtl);
   await act(async () => buttons[arabic ? 1 : 0].click());
-  expectNotice(arabic);
+  expectNotice(arabic, arabic || pageRtl);
   expect(mocks.preferences).toHaveBeenCalledTimes(1);
 });
 
