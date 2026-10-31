@@ -82,6 +82,8 @@ export function scanSource(text: string, file = 'fixture.tsx'): Map<string, stri
   function walk(node: any, parent?: any) {
     if (!node || typeof node !== 'object') return;
     if (['ImportDeclaration', 'ExportAllDeclaration', 'TSLiteralType', 'TSTypeAliasDeclaration', 'TSInterfaceDeclaration'].includes(node.type)) return;
+    // next/font fallback configuration names a font, not interface copy.
+    if (node.type === 'ObjectProperty' && (node.key.name ?? node.key.value) === 'adjustFontFallback') return;
     if (node.type === 'JSXAttribute' && ['className', 'href', 'src', 'style', 'key', 'id', 'type', 'name', 'value', 'role', 'download', 'data-testid'].includes(node.name.name)) return;
     if (node.type === 'JSXElement') {
       const tag = node.openingElement.name.name;

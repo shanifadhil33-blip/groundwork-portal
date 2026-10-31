@@ -43,6 +43,13 @@ it('discovers new screen copy, attributes, branches, options, and interpolation 
   for (const key of ['./thing', 'Private customer words', 'Technical code', 'some class {value}']) expect(keys.has(key), key).toBe(false);
 });
 
+it('skips font fallback configuration while still discovering displayed font names', () => {
+  expect(scanSource(readFileSync('app/page.tsx', 'utf8')).has('Times New Roman')).toBe(false);
+  expect(scanSource(`const font = localFont({ adjustFontFallback: 'Times New Roman' });`).size).toBe(0);
+  expect(scanSource(`const font = localFont({ 'adjustFontFallback': 'Times New Roman' });`).size).toBe(0);
+  expect(scanSource(`const label = <span>Times New Roman</span>;`).has('Times New Roman')).toBe(true);
+});
+
 it('checks scripts beyond the permissive runtime Latin allowance, while preserving template placeholders', () => {
   expect(translationIssue('Save', 'Save', 'hi')).toBe('wrong script');
   expect(translationIssue('Save', 'सहेजें', 'ml')).toBe('wrong script');
