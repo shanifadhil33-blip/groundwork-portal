@@ -1,11 +1,12 @@
 'use client';
 import { useState } from 'react';
+import { useLegalPageRtl } from './language';
 import { termsNoticeArabic } from '../../lib/terms-notice-ar';
 
 const MAIL = 'shanifadhil022@gmail.com';
 const terms = [
-  ['A portfolio project', termsNoticeArabic[0].title,
-    'Groundwork is a portfolio project by Adhil Shanif. It is free and offered as it is, with no promise that it will always be online or keep your data forever. Please keep your own copy of anything important.', termsNoticeArabic[0].body],
+  ['What this is', termsNoticeArabic[0].title,
+    'Groundwork is free and offered as it is, with no promise that it will always be online or keep your data forever. Please keep your own copy of anything important.', termsNoticeArabic[0].body],
   ['Use it fairly', termsNoticeArabic[1].title,
     'Only add information you are allowed to share. Do not try to see other companies’ data, get around the access rules, or overload the demo.', termsNoticeArabic[1].body],
   ['Your data', termsNoticeArabic[2].title,
@@ -16,9 +17,11 @@ const terms = [
     <>Email <a href={`mailto:${MAIL}`}>{MAIL}</a>.</>, termsNoticeArabic[4].body],
 ] as const;
 
-export function TermsNotice({ initialArabic = false }: { initialArabic?: boolean }) {
+export function TermsNotice({ initialArabic = false, pageRtl = false }: { initialArabic?: boolean; pageRtl?: boolean }) {
   const [arabic, setArabic] = useState(initialArabic);
-  return <div className="terms-notice stack" lang={arabic ? 'ar-AE' : 'en'} dir={arabic ? 'rtl' : 'ltr'} data-no-translate>
+  useLegalPageRtl(arabic);
+  const rtl = arabic || pageRtl;
+  return <div className="terms-notice stack" lang={arabic ? 'ar-AE' : 'en'} dir={rtl ? 'rtl' : 'ltr'} data-no-translate>
     <div className="row" role="group" aria-label={arabic ? 'لغة الشروط' : 'Terms language'}>
       <button className="button secondary" lang="en" aria-pressed={!arabic} onClick={() => setArabic(false)}>English</button>
       <button className="button secondary" lang="ar-AE" aria-pressed={arabic} onClick={() => setArabic(true)}>العربية</button>

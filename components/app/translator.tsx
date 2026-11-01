@@ -14,6 +14,15 @@ import { demoJobTranslations } from '../../lib/demo-job-copy';
 import { duneHarbourTranslations } from '../../lib/demo-dune-harbour-copy';
 import { isDemoFixtureCopy } from '../../lib/demo-proof-copy';
 
+/** React writes this on a host node only after that node has hydrated. The page scanner must wait for it. */
+export function translationHostReady(node: Node): boolean {
+  const el = node instanceof Element ? node : node.parentElement;
+  if (!el) return false;
+  for (const key of Object.keys(el)) {
+    if (key.startsWith('__reactFiber') || key.startsWith('__reactInternalInstance') || key.startsWith('__reactContainer')) return true;
+  }
+  return false;
+}
 export function changeAppLanguage(lang: string) {
   if (!LANGUAGES.some(l => l.code === lang)) return;
   document.cookie = languageCookie(lang);
@@ -103,6 +112,9 @@ export function Translator() {
       let node: Node | null;
       while ((node = walker.nextNode())) {
         if (node instanceof Text) {
+          // A suspended page is still server HTML. Rewriting it before hydration
+          // makes the client render disagree with the DOM (React error 418).
+          if (!translationHostReady(node)) continue;
           let slot = textSlots.get(node);
           if (!slot && !skipped(node)) {
             slot = { node, source: node.data, applied: node.data };
@@ -110,6 +122,7 @@ export function Translator() {
           }
           if (slot) update(slot);
         } else if (node instanceof Element) {
+          if (!translationHostReady(node)) continue;
           for (const attribute of TRANSLATION_ATTRIBUTES) {
             const value = node.getAttribute(attribute);
             const slots = attributeSlots.get(node) ?? new Map<string, Slot>();
@@ -182,9 +195,11 @@ export function Translator() {
       .then(raw => { if (!stopped) { const changed=mergeLanguageFile(cache,raw,language); if(demoProof)Object.assign(cache,demoJobTranslations(cache),duneHarbourTranslations(language)); publishNotices(); if(changed||demoProof)scan(); } })
       .catch(() => { if (!stopped) publishNotices(); });
     scan();
+    // Suspense pages hydrate after this effect. Scan again once their hosts exist.
+    const later = [0, 50, 250, 1000].map(ms => setTimeout(() => { if (!stopped) scan(); }, ms));
     return () => {
       setNotificationLanguage('', null);
-      stopped = true; abort.abort(); observer.disconnect(); clearTimeout(timer); clearTimeout(quietTimer); quiet(false);
+      stopped = true; abort.abort(); observer.disconnect(); clearTimeout(timer); clearTimeout(quietTimer); later.forEach(clearTimeout); quiet(false);
       for (const slot of [...textSlots.values(), ...[...attributeSlots.values()].flatMap(slots => [...slots.values()])]) {
         if (slot.node.isConnected && read(slot) === slot.applied) write(slot, slot.source);
       }

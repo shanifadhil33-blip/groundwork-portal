@@ -942,8 +942,8 @@ body:has(.app-shell) .person-card{border:0;border-radius:0;border-bottom:1px sol
 .person-card:last-child{border-bottom:0}
 @media(max-width:720px){
  .app-main .work-list-page .page-header>.button{width:100%}
- .app-main .work-list-page .list-toolbar{padding:var(--s4);border:0;background:transparent}
- .app-main .work-list-page .toolbar-controls{flex-wrap:nowrap}.app-main .work-list-page .search-control{flex:1;min-width:0}
+ .app-main .work-list-page .list-toolbar{padding:0;border:0;background:transparent}
+ .app-main .work-list-page .toolbar-controls{flex-wrap:wrap}.app-main .work-list-page .search-control{flex:1 1 100%;min-width:0;max-width:none}
  .app-main .work-list-page .work-meta{flex-wrap:wrap;gap:var(--s2)}
  .app-main .work-list-page .work-row-head .order-number{font-size:14px}
  .app-main .work-list-page .work-card-wrap .work-list-item{padding-inline-end:var(--s12)}

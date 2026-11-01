@@ -67,7 +67,7 @@ for (const [name, page] of pages) {
     expect(host.querySelector('.public-footer a[href="/terms"]')?.textContent).toBe(arabic ? arabicWords.Terms : 'Terms');
     if (name !== 'join') expect(host.querySelector('.back-link')?.textContent).toBe(arabic ? arabicWords.Home : 'Home');
     if (name === 'terms') {
-      expect(host.querySelector('article h2')?.textContent).toBe(arabic ? 'مشروع لعرض الأعمال' : 'A portfolio project');
+      expect(host.querySelector('article h2')?.textContent).toBe(arabic ? 'ما هذا' : 'What this is');
       expect(host.querySelector('article')?.closest('[lang]')?.getAttribute('lang')).toBe(arabic ? 'ar-AE' : 'en');
       expect(host.querySelector('article')?.closest('[dir]')?.getAttribute('dir')).toBe(arabic ? 'rtl' : 'ltr');
     }
@@ -106,6 +106,60 @@ it.each(['ar-AE', 'en-IN'])('hydrates saved %s without changing chrome or callin
   expect(document.documentElement.lang).toBe(language === 'ar-AE' ? 'ar-AE' : 'en');
   expect(document.documentElement.dir).toBe(language === 'ar-AE' ? 'rtl' : 'ltr');
   expect(fetch).not.toHaveBeenCalled();
+});
+
+it.each(['privacy', 'terms'] as const)('lays %s out right to left while Arabic is shown and for saved Urdu', async name => {
+  const Page = name === 'privacy' ? Privacy : Terms;
+  const notice = name === 'privacy' ? '.privacy-notice' : '.terms-notice';
+  mocks.preferences.mockResolvedValue({ language: 'en-IN' });
+  const english = await Layout({ children: await Page() });
+  host.innerHTML = renderToString(english);
+  const recoverableError = vi.fn();
+  await act(async () => { root = hydrateRoot(host, english, { onRecoverableError: recoverableError }); });
+  expect(recoverableError).not.toHaveBeenCalled();
+  expect(document.documentElement.dir).toBe('ltr');
+  expect(host.querySelector('.public-shell')?.getAttribute('dir')).toBe('ltr');
+  await act(async () => host.querySelector<HTMLButtonElement>('button[lang="ar-AE"]')!.click());
+  expect(document.documentElement.dir).toBe('rtl');
+  expect(host.querySelector('.public-shell')?.getAttribute('dir')).toBe('rtl');
+  expect(host.querySelector(notice)?.getAttribute('dir')).toBe('rtl');
+  expect(host.querySelector('.back-link')?.getAttribute('dir')).toBeNull();
+  await act(async () => host.querySelector<HTMLButtonElement>('button[lang="en"]')!.click());
+  expect(document.documentElement.dir).toBe('ltr');
+  expect(host.querySelector('.public-shell')?.getAttribute('dir')).toBe('ltr');
+  expect(host.querySelector(notice)?.getAttribute('dir')).toBe('ltr');
+  await act(async () => root!.unmount());
+  root = undefined;
+
+  mocks.preferences.mockResolvedValue({ language: 'ur' });
+  const urdu = await Layout({ children: await Page() });
+  host.innerHTML = renderToString(urdu);
+  expect(host.querySelector('.public-shell')?.getAttribute('dir')).toBe('rtl');
+  expect(host.querySelector(notice)?.getAttribute('dir')).toBe('rtl');
+  expect(host.querySelector(notice)?.getAttribute('lang')).toBe('en');
+  document.documentElement.dir = 'ltr';
+  await act(async () => { root = hydrateRoot(host, urdu, { onRecoverableError: recoverableError }); });
+  expect(recoverableError).not.toHaveBeenCalled();
+  expect(document.documentElement.dir).toBe('rtl');
+  expect(host.querySelector('.public-shell')?.getAttribute('dir')).toBe('rtl');
+  await act(async () => root!.unmount());
+  root = undefined;
+
+  mocks.session.mockResolvedValue(null);
+  document.documentElement.dir = 'rtl';
+  const guest = await Layout({ children: await Page() });
+  host.innerHTML = renderToString(guest);
+  expect(host.querySelector('.public-shell')?.hasAttribute('dir')).toBe(false);
+  await act(async () => { root = hydrateRoot(host, guest, { onRecoverableError: recoverableError }); });
+  expect(recoverableError).not.toHaveBeenCalled();
+  expect(document.documentElement.dir).toBe('ltr');
+  await act(async () => host.querySelector<HTMLButtonElement>('button[lang="ar-AE"]')!.click());
+  expect(document.documentElement.dir).toBe('rtl');
+  expect(host.querySelector('.public-shell')?.getAttribute('dir')).toBe('rtl');
+  await act(async () => host.querySelector<HTMLButtonElement>('button[lang="en"]')!.click());
+  expect(document.documentElement.dir).toBe('ltr');
+  expect(host.querySelector('.public-shell')?.hasAttribute('dir')).toBe(false);
+  expect(host.querySelector(notice)?.getAttribute('dir')).toBe('ltr');
 });
 
 it.each(['ar', 'AR-eg', 'ar-SA'])('uses the existing Gulf Arabic chrome for saved %s', async language => {

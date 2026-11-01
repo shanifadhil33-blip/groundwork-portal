@@ -2,7 +2,7 @@
 import { privacyNoticeArabic } from '../privacy-notice-ar';
 export const privacyNotice = [
   ["Who handles your data", privacyNoticeArabic[0].title,
-    "Groundwork is a portfolio project by Adhil Shanif. Your company decides why it uses your work records. Groundwork provides the tools to store and manage them. This notice explains your choices under the UAE Personal Data Protection Law, Federal Decree Law 45 of 2021.", privacyNoticeArabic[0].body],
+    "Your company decides why it uses your work records. Groundwork provides the tools to store and manage them. This notice explains your choices under the UAE Personal Data Protection Law, Federal Decree Law 45 of 2021.", privacyNoticeArabic[0].body],
   ["What we store and why", privacyNoticeArabic[1].title,
     "We store your name, contact details, Google account details or code sign in records, language and preferences. We use these to identify you, keep your account safe and show your screens. We also store company details, clients, sites, jobs, assignments, comments, photos, voice notes, reports, leave, ratings, messages and change history to run the work. Personal Agent memory helps with your own requests. Browser notification details are stored only when you turn notifications on.", privacyNoticeArabic[1].body],
   ["Who in your company can see it", privacyNoticeArabic[2].title,

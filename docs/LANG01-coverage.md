@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2693 | 6 | 1691 | 0 | 1001 | 1 | 0 | 0 |
-| ne | 2693 | 7 | 1365 | 0 | 1328 | 0 | 0 | 0 |
-| hi | 2693 | 5 | 1382 | 0 | 1311 | 0 | 0 | 0 |
-| ur | 2693 | 7 | 1365 | 0 | 1328 | 0 | 0 | 0 |
-| bn | 2693 | 6 | 1381 | 0 | 1312 | 0 | 0 | 0 |
-| ml | 2693 | 19 | 1350 | 0 | 1343 | 0 | 0 | 0 |
-| ta | 2693 | 6 | 1380 | 0 | 1312 | 1 | 0 | 0 |
-| ps | 2693 | 6 | 1363 | 0 | 1330 | 0 | 0 | 0 |
-| fa-AF | 2693 | 15 | 1349 | 0 | 1344 | 0 | 0 | 0 |
-| fa-IR | 2693 | 3 | 1361 | 0 | 1332 | 0 | 0 | 0 |
-| fil | 2693 | 8 | 1347 | 0 | 1345 | 1 | 0 | 0 |
-| zh-CN | 2693 | 19 | 1335 | 0 | 1358 | 0 | 0 | 0 |
-| sw-KE | 2693 | 18 | 1334 | 0 | 1359 | 0 | 0 | 0 |
-| am | 2693 | 18 | 1334 | 0 | 1359 | 0 | 0 | 0 |
-| ti | 2693 | 18 | 1351 | 0 | 1341 | 1 | 0 | 0 |
-| so | 2693 | 18 | 1349 | 0 | 1343 | 0 | 1 | 0 |
-| yo | 2693 | 18 | 1332 | 0 | 1361 | 0 | 0 | 0 |
-| ha | 2693 | 18 | 1350 | 0 | 1343 | 0 | 0 | 0 |
-| ig | 2693 | 18 | 1345 | 0 | 1348 | 0 | 0 | 0 |
-| lg | 2693 | 18 | 1332 | 0 | 1359 | 2 | 0 | 0 |
-| tw | 2693 | 18 | 1343 | 0 | 1350 | 0 | 0 | 0 |
+| ar-AE | 2696 | 6 | 1691 | 0 | 1004 | 1 | 0 | 0 |
+| ne | 2696 | 7 | 1367 | 0 | 1329 | 0 | 0 | 0 |
+| hi | 2696 | 5 | 1382 | 0 | 1314 | 0 | 0 | 0 |
+| ur | 2696 | 7 | 1367 | 0 | 1329 | 0 | 0 | 0 |
+| bn | 2696 | 6 | 1383 | 0 | 1313 | 0 | 0 | 0 |
+| ml | 2696 | 19 | 1351 | 0 | 1345 | 0 | 0 | 0 |
+| ta | 2696 | 6 | 1382 | 0 | 1313 | 1 | 0 | 0 |
+| ps | 2696 | 6 | 1365 | 0 | 1331 | 0 | 0 | 0 |
+| fa-AF | 2696 | 15 | 1351 | 0 | 1345 | 0 | 0 | 0 |
+| fa-IR | 2696 | 3 | 1363 | 0 | 1333 | 0 | 0 | 0 |
+| fil | 2696 | 8 | 1350 | 0 | 1345 | 1 | 0 | 0 |
+| zh-CN | 2696 | 19 | 1337 | 0 | 1359 | 0 | 0 | 0 |
+| sw-KE | 2696 | 18 | 1336 | 0 | 1360 | 0 | 0 | 0 |
+| am | 2696 | 18 | 1336 | 0 | 1360 | 0 | 0 | 0 |
+| ti | 2696 | 18 | 1353 | 0 | 1342 | 1 | 0 | 0 |
+| so | 2696 | 18 | 1351 | 0 | 1344 | 0 | 1 | 0 |
+| yo | 2696 | 18 | 1334 | 0 | 1362 | 0 | 0 | 0 |
+| ha | 2696 | 18 | 1352 | 0 | 1344 | 0 | 0 | 0 |
+| ig | 2696 | 18 | 1347 | 0 | 1349 | 0 | 0 | 0 |
+| lg | 2696 | 18 | 1334 | 0 | 1360 | 2 | 0 | 0 |
+| tw | 2696 | 18 | 1345 | 0 | 1351 | 0 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -335,7 +335,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Created {link}." — All
 - "Creating your sandbox…" — All
 - "Creating…" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Dashboard" — fil
 - "Day off" — All
 - "Decision" — All
 - "Decision log" — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -436,6 +435,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Got a code from your admin? Sign in with a code" — All
 - "Groundwork field" — All
 - "Groundwork is a portfolio project by Adhil Shanif. Your company decides why it uses your work records. Groundwork provides the tools to store and manage them. This notice explains your choices under the UAE Personal Data Protection Law, Federal Decree Law 45 of 2021." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Groundwork is free and offered as it is, with no promise that it will always be online or keep your data forever. Please keep your own copy of anything important." — All
 - "Groundwork on your computer and phone" — All
 - "Groundwork: client portal and back office" — All
 - "Handle deletion request" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -574,7 +574,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Moved {link} to {value2}." — All
 - "Moved." — All
 - "My day" — All
-- "My home" — ne, ur, bn, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "My record" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Needs a look" — All
 - "Never" — All
@@ -1223,6 +1222,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "What did you do?" — All
 - "What does a visit cost" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "What is the new phone number?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "What this is" — All
 - "What was the problem?" — bn, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "What we store and why" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "What your Agent remembers about you. Only you see this. Tell your Agent to forget something, or change it here." — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -1246,7 +1246,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Word added." — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Word removed." — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Word saved. You can see it on your Memory page." — All
-- "Work" — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Work order" — fil
 - "Work reported" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Workspace" — fil
@@ -1290,6 +1289,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Your comment wasn’t sent. Try again." — All
 - "Your companies handle the request. Personal account fields are cleared and sign in stops after all companies approve. Job history keeps the name Deleted person." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Your company access changed. Refresh and try again." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Your company decides why it uses your work records. Groundwork provides the tools to store and manage them. This notice explains your choices under the UAE Personal Data Protection Law, Federal Decree Law 45 of 2021." — All
 - "Your deletion request is saved. Each company must approve before your account closes." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Your download is ready. Keep the file somewhere private." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Your invite details will be lost." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw

@@ -1835,7 +1835,7 @@
 "Moved {link} to {value2}.":null,
 "Moved.":null,
 "My day":null,
-"My home":null,
+"My home":"আমার বাড়ি",
 "My record":null,
 "Needs a look":null,
 "Never":null,
@@ -2452,7 +2452,7 @@
 "Word added.":null,
 "Word removed.":null,
 "Word saved. You can see it on your Memory page.":null,
-"Work":null,
+"Work":"কাজ",
 "Work reported":null,
 "Workspace change":null,
 "Workspace changes and their authors will appear here.":null,
@@ -2698,5 +2698,8 @@
 "Speak in your own words.":null,
 "Tell your assistant what needs doing. Review changes before they happen.":null,
 "The Hindi assistant with the microphone on and सुन रहा है visible":null,
-"done.":null
+"done.":null,
+"Groundwork is free and offered as it is, with no promise that it will always be online or keep your data forever. Please keep your own copy of anything important.":null,
+"What this is":null,
+"Your company decides why it uses your work records. Groundwork provides the tools to store and manage them. This notice explains your choices under the UAE Personal Data Protection Law, Federal Decree Law 45 of 2021.":null
 }
