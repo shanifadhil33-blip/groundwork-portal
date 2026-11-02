@@ -43,7 +43,7 @@ function expectNotice(arabic: boolean, rtl = arabic) {
     ? 'يرجى الاحتفاظ بنسخة عندك من أي شيء مهم.'
     : 'Please keep your own copy of anything important.');
   expect(notice.querySelector('a[href="/privacy"]')?.textContent).toBe(arabic ? 'الخصوصية' : 'Privacy');
-  expect(notice.querySelector('a[href^="mailto:"]')?.textContent).toBe('shanifadhil022@gmail.com');
+  expect(notice.querySelector('a[href^="mailto:"]')?.textContent).toBe('shanifadhil33@gmail.com');
   expect(notice.querySelector('button[aria-pressed="true"]')?.textContent).toBe(arabic ? 'العربية' : 'English');
   expect(notice.textContent).not.toMatch(/[-–—]/);
   return notice;

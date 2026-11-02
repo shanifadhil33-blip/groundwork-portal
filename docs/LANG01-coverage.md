@@ -1263,7 +1263,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "You are offline. We will try again when you are back online." — All
 - "You can add 25 at a time. Pick 25 or fewer." — All
 - "You can add a photo or skip it." — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
-- "You can ask to correct data, restrict its use, withdraw permission where permission is the basis, or raise a concern. Contact your company owner or email shanifadhil022@gmail.com with the subject Privacy request. We aim to respond within 30 days and will explain any records the company must keep for a legal obligation or a dispute. We do not sell data or use advertising trackers." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "You can ask to correct data, restrict its use, withdraw permission where permission is the basis, or raise a concern. Contact your company owner or email shanifadhil33@gmail.com with the subject Privacy request. We aim to respond within 30 days and will explain any records the company must keep for a legal obligation or a dispute. We do not sell data or use advertising trackers." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "You can mark no photos after the job is done." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "You can only change your own home address." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "You can see your own count." — fa-AF, fa-IR
