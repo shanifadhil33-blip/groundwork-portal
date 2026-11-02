@@ -37,6 +37,13 @@ describe('demo chat copy', () => {
     for (const l of LANGUAGES.filter(l => !isEnglish(l.code))) for (const w of DEMO_CHAT_WORDS) expect(Object.hasOwn(read(l.code), w), `${l.code}: ${w}`).toBe(true);
     expect(isRtl('ar-AE')).toBe(true);
   });
+  it('has a real translation in every language, with no dashes', () => {
+    for (const l of LANGUAGES.filter(l => !isEnglish(l.code))) for (const w of DEMO_CHAT_WORDS) {
+      const v = read(l.code)[w];
+      expect(v, `${l.code}: ${w}`).toBeTruthy();
+      expect(v, `${l.code}: ${w}`).not.toMatch(/[-‐-―]/);
+    }
+  });
   it('the English source inventory lists every sentence', () => {
     const source: string[] = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'scripts', 'i18n', 'english.json'), 'utf8'));
     for (const w of DEMO_CHAT_WORDS) expect(source).toContain(w);
