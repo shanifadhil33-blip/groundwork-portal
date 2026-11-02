@@ -5,6 +5,7 @@ import { formatInLang } from '../date-lang';
 import { inWorkspace } from '../services/shared';
 import { listWorkOrders } from '../services/work-orders';
 import { statusLabels } from '../ui/work-orders';
+import { isDemoWorkspace, localizedJobTitle } from './demo-titles';
 
 /** Fixed file words around data. Never send names, job titles or site names for translation. */
 export async function localizedDataAnswer(c: AgentContext, question: string, who: { language?: string | null; timezone?: string; tomorrow?: string; role?: string }): Promise<string | undefined> {
@@ -13,9 +14,10 @@ export async function localizedDataAnswer(c: AgentContext, question: string, who
  const t=choiceWords(lang);
  const timezone=who.timezone??await inWorkspace(c.user,c.ws,async x=>(await x.db.query('SELECT timezone FROM workspaces WHERE id=$1',[c.ws])).rows[0]?.timezone??'Asia/Dubai');
  const date=(value:unknown)=>value?formatInLang(new Date(String(value).length===10?`${value}T12:00:00Z`:String(value)),{timeZone:String(value).length===10?'UTC':timezone,weekday:'short',day:'numeric',month:'short',...(String(value).length===10?{}:{hour:'2-digit',minute:'2-digit'})},lang,lang):'';
+ const demo=await isDemoWorkspace(c.user,c.ws);
  const field=(key:string,value:unknown)=>`${t(key)}: ${value??''}`;
- const job=(j:any)=>[`• WO ${j.order_number}: ${j.title}`,j.site_name?field('Site',j.site_name):'',field('Status',t(statusLabels[j.status]??j.status)),j.scheduled_for?field('Visit',date(j.scheduled_for)):''].filter(Boolean).join('\n');
- const rows=(key:string,r:any)=>[field(key,r.total??r.data?.length??0),...(r.data??[]).map(job)].join('\n');
+ const job=(j:any)=>[`• WO ${j.order_number}: ${localizedJobTitle(j.title,lang,demo)}`,j.site_name?field('Site',j.site_name):'',field('Status',t(statusLabels[j.status]??j.status)),j.scheduled_for?field('Visit',date(j.scheduled_for)):''].filter(Boolean).join('\n');
+ const rows=(key:string,r:any)=>[field(key,r.total??r.data?.length??0),...(r.data??[]).map(job)].join('\n\n');
  const read=async(name:string,args:unknown={})=>{const result=await callTool(c,name,args);return result.isError?null:(result.structuredContent as any)?.result;};
  const named=splitQuick(question);
  const kind=quickLookup(question)??detectIntent(question).intent;

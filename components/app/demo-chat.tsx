@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Check, CheckCheck, SendHorizontal } from 'lucide-react';
 import { useApp } from './context';
+import { DirectedLines } from '../ui/directed-lines';
 import { Mark } from '../public/chrome';
 import { post, RequestError } from '../../lib/ui/api';
 import { failureWords, INCOMPLETE } from '../../lib/agent/failure-words';
@@ -104,7 +105,7 @@ export function DemoChat() {
       <div ref={scroller} className="chat-scroll" aria-live="polite">
         {!lines.length && <div className="chat-starters"><p>{C.starters}</p>{DEMO_CHAT_STARTERS.map(s => <button key={s} type="button" className="chat-chip" disabled={busy} onClick={e => submit(e.currentTarget.textContent ?? s)}>{s}</button>)}</div>}
         {lines.map((l, i) => <div key={l.id} data-line={l.id} className={`bubble ${l.from === 'me' ? 'out' : 'in'}`} data-no-translate>
-          <span className="bubble-text">{l.text}</span>
+          <div className="bubble-text"><DirectedLines text={l.text} /></div>
           <span className="bubble-meta"><time>{chatTime(l.at, language)}</time>{l.from === 'me' && (i < lines.length - 1 || !busy ? <CheckCheck size={14} className="tick read" aria-label={C.read} /> : <Check size={14} className="tick" aria-label={C.delivered} />)}</span>
         </div>)}
         {pending && !busy && <div className="chat-chips"><button type="button" className="chat-chip" onClick={() => answer(true)}>{C.yes}</button><button type="button" className="chat-chip" onClick={() => answer(false)}>{C.no}</button></div>}
