@@ -1266,6 +1266,7 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 .demo-chat-only{margin:48px 16px;text-align:center}
 .phone-frame{width:100%;max-width:390px;height:min(720px,calc(100dvh - 230px));min-height:420px;display:flex;flex-direction:column;overflow:hidden;background:#efeae2;border:1px solid #d6d3d1}
 @media(min-width:641px){.phone-frame{border-radius:36px;border:10px solid #1f2937}}
+@media(max-width:640px){.demo-chat-page{min-height:0;padding-bottom:calc(8px + env(safe-area-inset-bottom))}.phone-frame{height:var(--chat-fit,calc(100dvh - 260px));min-height:0;flex:none}.chat-scroll{min-height:0;overscroll-behavior:contain}.chat-header,.chat-input{flex:none}}
 .chat-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f0f2f5;border-bottom:1px solid #e2e8f0}
 .chat-avatar{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #d6d3d1;display:grid;place-items:center;flex:none;overflow:hidden}
 .chat-who{display:flex;flex-direction:column;line-height:1.25}.chat-who small{color:#475569}

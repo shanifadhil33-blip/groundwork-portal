@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Check, CheckCheck, SendHorizontal } from 'lucide-react';
 import { useApp } from './context';
@@ -20,10 +20,35 @@ export function DemoChat() {
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<Send | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
-  const counter = useRef(0), lock = useRef(false), end = useRef<HTMLDivElement>(null), abort = useRef<AbortController | null>(null);
+  const counter = useRef(0), lock = useRef(false), end = useRef<HTMLDivElement>(null), abort = useRef<AbortController | null>(null), frame = useRef<HTMLElement>(null), scroller = useRef<HTMLDivElement>(null), shown = useRef(0);
   const language = typeof document === 'undefined' ? 'en' : document.documentElement.lang || 'en';
   useEffect(() => () => abort.current?.abort(), []);
-  useEffect(() => { end.current?.scrollIntoView({ block: 'end' }); }, [lines, busy, failed, pending]);
+  // On phones the fixed bottom tabs cover the page bottom, so size the frame to the space left between its top and the tabs.
+  useLayoutEffect(() => {
+    const el = frame.current; if (!el || typeof window.matchMedia !== 'function') return;
+    const fit = () => {
+      if (!window.matchMedia('(max-width: 640px)').matches) { el.style.removeProperty('--chat-fit'); return; }
+      const tabs = document.querySelector<HTMLElement>('.bottom-tabs');
+      const viewport = window.visualViewport?.height ?? window.innerHeight;
+      const top = el.getBoundingClientRect().top;
+      const room = viewport - top - (tabs?.offsetHeight ?? 0) - 40;
+      el.style.setProperty('--chat-fit', `${Math.max(280, Math.floor(room))}px`);
+    };
+    fit();
+    window.addEventListener('resize', fit); window.visualViewport?.addEventListener('resize', fit);
+    const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(fit) : null; ro?.observe(document.body);
+    return () => { window.removeEventListener('resize', fit); window.visualViewport?.removeEventListener('resize', fit); ro?.disconnect(); };
+  }, [workspace?.is_demo, member]);
+  useEffect(() => {
+    const box = scroller.current; if (!box) return;
+    const fresh = lines.find(l => l.id > shown.current && l.from === 'agent');
+    shown.current = lines[lines.length - 1]?.id ?? 0;
+    const first = fresh && box.querySelector<HTMLElement>(`[data-line="${fresh.id}"]`);
+    // A reply arrived: put the start of it in view instead of its end.
+    if (first) box.scrollTop += first.getBoundingClientRect().top - box.getBoundingClientRect().top - 8;
+    else end.current?.scrollIntoView({ block: 'end' });
+  }, [lines]);
+  useEffect(() => { if (busy || failed) end.current?.scrollIntoView({ block: 'end' }); }, [busy, failed]);
 
   if (!workspace?.is_demo || !member) {
     return <div className="demo-chat-page"><p className="demo-chat-only">{C.demoOnly} <Link href="/demo">{C.demoOnlyLink}</Link></p></div>;
@@ -71,14 +96,14 @@ export function DemoChat() {
 
   return <div className="demo-chat-page">
     <p className="demo-chat-label" role="note">{C.label}</p>
-    <section className="phone-frame" aria-label={C.windowLabel}>
+    <section ref={frame} className="phone-frame" aria-label={C.windowLabel}>
       <header className="chat-header">
         <span className="chat-avatar" aria-hidden="true"><Mark /></span>
         <span className="chat-who"><strong>{C.name}</strong><small>{busy ? C.typing : C.online}</small></span>
       </header>
-      <div className="chat-scroll" aria-live="polite">
+      <div ref={scroller} className="chat-scroll" aria-live="polite">
         {!lines.length && <div className="chat-starters"><p>{C.starters}</p>{DEMO_CHAT_STARTERS.map(s => <button key={s} type="button" className="chat-chip" disabled={busy} onClick={e => submit(e.currentTarget.textContent ?? s)}>{s}</button>)}</div>}
-        {lines.map((l, i) => <div key={l.id} className={`bubble ${l.from === 'me' ? 'out' : 'in'}`} data-no-translate>
+        {lines.map((l, i) => <div key={l.id} data-line={l.id} className={`bubble ${l.from === 'me' ? 'out' : 'in'}`} data-no-translate>
           <span className="bubble-text">{l.text}</span>
           <span className="bubble-meta"><time>{chatTime(l.at, language)}</time>{l.from === 'me' && (i < lines.length - 1 || !busy ? <CheckCheck size={14} className="tick read" aria-label={C.read} /> : <Check size={14} className="tick" aria-label={C.delivered} />)}</span>
         </div>)}
