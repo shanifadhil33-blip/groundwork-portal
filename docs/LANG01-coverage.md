@@ -15,26 +15,26 @@ Recovered 269 translations from static repository tables, local Git history, and
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | ar-AE | 2715 | 6 | 1710 | 0 | 1004 | 1 | 0 | 0 |
-| ne | 2715 | 7 | 1367 | 0 | 1348 | 0 | 0 | 0 |
-| hi | 2715 | 5 | 1382 | 0 | 1333 | 0 | 0 | 0 |
-| ur | 2715 | 7 | 1367 | 0 | 1348 | 0 | 0 | 0 |
-| bn | 2715 | 6 | 1383 | 0 | 1332 | 0 | 0 | 0 |
-| ml | 2715 | 19 | 1351 | 0 | 1364 | 0 | 0 | 0 |
-| ta | 2715 | 6 | 1382 | 0 | 1332 | 1 | 0 | 0 |
-| ps | 2715 | 6 | 1365 | 0 | 1350 | 0 | 0 | 0 |
-| fa-AF | 2715 | 15 | 1351 | 0 | 1364 | 0 | 0 | 0 |
-| fa-IR | 2715 | 3 | 1363 | 0 | 1352 | 0 | 0 | 0 |
-| fil | 2715 | 8 | 1350 | 0 | 1364 | 1 | 0 | 0 |
-| zh-CN | 2715 | 19 | 1337 | 0 | 1378 | 0 | 0 | 0 |
-| sw-KE | 2715 | 18 | 1336 | 0 | 1379 | 0 | 0 | 0 |
-| am | 2715 | 18 | 1336 | 0 | 1379 | 0 | 0 | 0 |
-| ti | 2715 | 18 | 1353 | 0 | 1361 | 1 | 0 | 0 |
-| so | 2715 | 18 | 1351 | 0 | 1363 | 0 | 1 | 0 |
-| yo | 2715 | 18 | 1334 | 0 | 1381 | 0 | 0 | 0 |
-| ha | 2715 | 18 | 1352 | 0 | 1363 | 0 | 0 | 0 |
-| ig | 2715 | 18 | 1347 | 0 | 1368 | 0 | 0 | 0 |
-| lg | 2715 | 18 | 1334 | 0 | 1379 | 2 | 0 | 0 |
-| tw | 2715 | 18 | 1345 | 0 | 1370 | 0 | 0 | 0 |
+| ne | 2715 | 7 | 1386 | 0 | 1329 | 0 | 0 | 0 |
+| hi | 2715 | 5 | 1401 | 0 | 1314 | 0 | 0 | 0 |
+| ur | 2715 | 7 | 1386 | 0 | 1329 | 0 | 0 | 0 |
+| bn | 2715 | 6 | 1402 | 0 | 1313 | 0 | 0 | 0 |
+| ml | 2715 | 19 | 1370 | 0 | 1345 | 0 | 0 | 0 |
+| ta | 2715 | 6 | 1401 | 0 | 1313 | 1 | 0 | 0 |
+| ps | 2715 | 6 | 1384 | 0 | 1331 | 0 | 0 | 0 |
+| fa-AF | 2715 | 15 | 1370 | 0 | 1345 | 0 | 0 | 0 |
+| fa-IR | 2715 | 3 | 1382 | 0 | 1333 | 0 | 0 | 0 |
+| fil | 2715 | 8 | 1369 | 0 | 1345 | 1 | 0 | 0 |
+| zh-CN | 2715 | 19 | 1356 | 0 | 1359 | 0 | 0 | 0 |
+| sw-KE | 2715 | 18 | 1355 | 0 | 1360 | 0 | 0 | 0 |
+| am | 2715 | 18 | 1355 | 0 | 1360 | 0 | 0 | 0 |
+| ti | 2715 | 18 | 1372 | 0 | 1342 | 1 | 0 | 0 |
+| so | 2715 | 18 | 1370 | 0 | 1344 | 0 | 1 | 0 |
+| yo | 2715 | 18 | 1353 | 0 | 1362 | 0 | 0 | 0 |
+| ha | 2715 | 18 | 1371 | 0 | 1344 | 0 | 0 | 0 |
+| ig | 2715 | 18 | 1366 | 0 | 1349 | 0 | 0 | 0 |
+| lg | 2715 | 18 | 1353 | 0 | 1360 | 2 | 0 | 0 |
+| tw | 2715 | 18 | 1364 | 0 | 1351 | 0 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -189,7 +189,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Bedroom" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Before photos" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Book a follow up visit" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Book a visit for Al Barsha villa" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Book this visit?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Bring back" — All
 - "Browser" — All
@@ -217,7 +216,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Changes" — All
 - "Changes saved." — All
 - "Changes undone." — All
-- "Chat with Groundwork Assistant" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Check invite" — All
 - "Check that the payment details are correct before saving." — All
 - "Check the email address and try again." — All
@@ -351,8 +349,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Deletion requests" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Demo" — fil
 - "Demo accounts and Google accounts without a verified email can’t sign in. Use your verified Google account." — All
-- "Demo chat" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Demo chat. This is a simulation using sample data. It is not connected to WhatsApp." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Demo companies are never shown in Find your company." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Demo companies cannot be listed." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Demo data restored" — All
@@ -437,7 +433,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Go ahead." — All
 - "Google handles Google sign in, Neon hosts the database and Vercel hosts the website. Your browser provider delivers notifications. Agent requests can send your message and relevant work context to configured free AI services: Google Gemini, OpenRouter, Cloudflare, Kilo, OVHcloud, Z.AI, NVIDIA, Requesty, Groq, Cerebras and Mistral. Translation can send the text being translated to these services, except OpenRouter and Requesty. Providers may process data outside the UAE under their own terms." — All
 - "Got a code from your admin? Sign in with a code" — All
-- "Groundwork Assistant" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Groundwork field" — All
 - "Groundwork is a portfolio project by Adhil Shanif. Your company decides why it uses your work records. Groundwork provides the tools to store and manage them. This notice explains your choices under the UAE Personal Data Protection Law, Federal Decree Law 45 of 2021." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Groundwork is free and offered as it is, with no promise that it will always be online or keep your data forever. Please keep your own copy of anything important." — All
@@ -611,7 +606,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "No open requests" — All
 - "No phone notification went out." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "No photos" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "No problem. Nothing was changed." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "No reason recorded" — All
 - "No requests match these filters" — All
 - "No requests yet" — All
@@ -663,7 +657,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Oldest created" — All
 - "Oldest first" — All
 - "On the way. The client can see it in the app." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Online" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Only admins and supervisors assign jobs or change the team." — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Only admins and supervisors see documents" — All
 - "Only an admin adds or changes clients and sites." — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -685,7 +678,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Open my home" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Open settings" — All
 - "Open that import" — All
-- "Open the demo chat" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Open the job and tap On the way." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Open the job to choose its next step." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Open the job to sign off." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -754,7 +746,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Raise your first request." — All
 - "Rate this job before it closes." — All
 - "Rating" — All
-- "Read" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Read and write" — All
 - "Read the privacy notice" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Real name:" — All
@@ -876,7 +867,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Send a few words and the team will review them." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Send a request to your maintenance team." — All
 - "Send answer" — All
-- "Send message" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Send on WhatsApp" — All
 - "Send photo" — All
 - "Send rating" — All
@@ -898,7 +888,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Set the trade for {link} to {value2}." — All
 - "Set the trade for {name}: {value2}" — All
 - "Sets the region list and phone format for this client." — All
-- "Shall I go ahead?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Share on WhatsApp" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Should I remember this?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Show all pending rows" — All
@@ -978,7 +967,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "That did not work. Please try again." — All
 - "That is already your number. Nothing was changed." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "That is not part of Groundwork. Nothing was changed." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "That message did not go through." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "That photo did not work. Try another." — All
 - "That practice control is only in the demo company." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "That record was not found." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -1026,7 +1014,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "This action cannot wait in the Outbox." — All
 - "This can not be undone." — All
 - "This change was already answered or has expired." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "This chat is only available in the demo." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "This client has" — All
 - "This client has no sites." — All
 - "This client is archived. It is hidden from daily lists and can not get new jobs. Every job stays." — All
@@ -1092,18 +1079,15 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Try another search or clear your filters." — All
 - "Try another status." — All
 - "Try changing or clearing your filters." — All
-- "Try one of these" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Try signing in again" — All
 - "Try the demo instead" — All
 - "Turn down" — All
 - "Turn on everything this person does. In a small company one person can do it all." — All
 - "Turned down" — All
 - "Type" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Type a message" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Type the 6 numbers your admin sent you." — All
 - "Type the 6 numbers." — All
 - "Type the code from your new number. The number is not saved until the code matches." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Typing" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Unarchive" — All
 - "Unassign this member’s jobs before making them a client." — All
 - "Unavailable" — All
@@ -1247,14 +1231,12 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "WhatsApp number" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Where in your home is the problem?" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Which home is this for?" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
-- "Which jobs are overdue today?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Which part?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Which person do you mean? {names}." — fa-AF, fa-IR
 - "Who" — All
 - "Who can read this" — All
 - "Who handles your data" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Who in your company can see it" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Who is free tomorrow morning?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Who is this for" — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Why" — All
 - "Withdraw" — All
@@ -1275,7 +1257,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Writing your words…" — All
 - "Yes, do it" — All
 - "Yes, forget all" — All
-- "Yes, go ahead" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "You already imported this file on {date}." — All
 - "You already imported this file." — All
 - "You are offline. Please check your internet." — All

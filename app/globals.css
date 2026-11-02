@@ -1274,7 +1274,7 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 .bubble{max-width:80%;padding:6px 10px 4px;border-radius:10px;color:#111b21;overflow-wrap:anywhere;font-size:15px;line-height:1.4}
 .bubble.out{align-self:flex-end;background:#d9fdd3;border-end-end-radius:2px}
 .bubble.in{align-self:flex-start;background:#fff;border-end-start-radius:2px}
-.bubble-text{white-space:pre-wrap}
+.bubble-text{white-space:pre-wrap}.bidi-line{display:block;text-align:start;unicode-bidi:isolate}.bidi-gap{display:block;height:.6em}
 .bubble-meta{display:flex;justify-content:flex-end;align-items:center;gap:4px;font-size:14px;color:#667781;margin-top:2px}
 .tick{color:#667781}.tick.read{color:#2b7fb8}
 .typing{display:flex;gap:4px;padding:12px 14px}.typing span{width:7px;height:7px;border-radius:50%;background:#8696a0;animation:chat-dot 1.2s infinite ease-in-out}
