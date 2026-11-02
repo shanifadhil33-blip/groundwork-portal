@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useLegalPageRtl } from './language';
 import { termsNoticeArabic } from '../../lib/terms-notice-ar';
 
-const MAIL = 'shanifadhil022@gmail.com';
+const MAIL = 'shanifadhil33@gmail.com';
 const terms = [
   ['What this is', termsNoticeArabic[0].title,
     'Groundwork is free and offered as it is, with no promise that it will always be online or keep your data forever. Please keep your own copy of anything important.', termsNoticeArabic[0].body],

@@ -1,5 +1,5 @@
 /** Authored Gulf Arabic terms. Never sent to an AI provider. */
-const MAIL = 'shanifadhil022@gmail.com';
+const MAIL = 'shanifadhil33@gmail.com';
 export const termsNoticeArabic = [
   {
     title: 'ما هذا',
