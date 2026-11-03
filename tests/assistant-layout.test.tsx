@@ -1,4 +1,5 @@
 import React from 'react';
+import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { jobBlock, stack } from '../lib/agent/operational-answers';
@@ -100,5 +101,28 @@ describe('sample job titles in quick answers', () => {
     expect(localizedJobTitle('Adjust meeting room cooling', 'ar-AE', false)).toBe('Adjust meeting room cooling');
     expect(localizedJobTitle('Adjust meeting room cooling', 'en-IN', true)).toBe('Adjust meeting room cooling');
     expect(localizedJobTitle('Fix the gate at Kevin Villa', 'ar-AE', true)).toBe('Fix the gate at Kevin Villa');
+  });
+});
+
+describe('job lines stand apart in chat bubbles', () => {
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
+  const marked = (html: string) => [...html.matchAll(/<span ([^>]*)>([^<]*)<\/span>/g)].filter(m => m[1].includes('data-wo')).map(m => m[2]);
+  it('marks each line that starts with a WO number, with or without a bullet, and no other line', () => {
+    const text = ['Late jobs: 3.', 'WO 31: Adjust meeting room cooling, Marina Exchange, Urgent', '• WO 56: Service water pump', '- WO 57: Fix leak', 'Today: 0.', 'Chase first: WO 31.', 'WORK 12', 'Unread updates: 2.'].join('\n');
+    const html = renderToStaticMarkup(<DirectedLines text={text} />);
+    expect(marked(html)).toEqual(['WO 31: Adjust meeting room cooling, Marina Exchange, Urgent', '• WO 56: Service water pump', '- WO 57: Fix leak']);
+    expect((html.match(/class="bidi-line"/g) ?? []).length).toBe(8);
+    expect(text.split('\n')).not.toContain('');
+  });
+  it('marks job lines in the Agent panel too, left to right and right to left', () => {
+    const ar = jobBlock({ number: 31, title: 'اضبط تبريد غرفة الاجتماعات', site: 'Marina Exchange', assignee: null, priority: 'عاجل', due: '19 Oct 2026' }, choiceWords('ar-AE'), 'ar-AE');
+    const html = renderToStaticMarkup(<AssistantMarkdown text={stack(['Late jobs: 2.'], [job(56, 'Service water pump'), ar])} />);
+    expect(marked(html)).toHaveLength(2);
+    expect(html).toMatch(/dir="ltr" class="bidi-line" data-wo="">WO 56/);
+    expect(html).toMatch(/dir="rtl" class="bidi-line" data-wo="">WO 31: اضبط/);
+    expect(html).toMatch(/dir="ltr" class="bidi-line">Late jobs/);
+  });
+  it('gives a marked line a small logical gap above it, never above the first line', () => {
+    expect(css).toMatch(/\.bidi-line\[data-wo\]:not\(:first-child\)\{margin-block-start:6px\}/);
   });
 });
