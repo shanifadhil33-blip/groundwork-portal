@@ -6,6 +6,7 @@ import { inWorkspace } from '../services/shared';
 import { listWorkOrders } from '../services/work-orders';
 import { statusLabels } from '../ui/work-orders';
 import { isDemoWorkspace, localizedJobTitle } from './demo-titles';
+import { distinct, jobLine } from './job-line';
 
 /** Fixed file words around data. Never send names, job titles or site names for translation. */
 export async function localizedDataAnswer(c: AgentContext, question: string, who: { language?: string | null; timezone?: string; tomorrow?: string; role?: string }): Promise<string | undefined> {
@@ -16,8 +17,9 @@ export async function localizedDataAnswer(c: AgentContext, question: string, who
  const date=(value:unknown)=>value?formatInLang(new Date(String(value).length===10?`${value}T12:00:00Z`:String(value)),{timeZone:String(value).length===10?'UTC':timezone,weekday:'short',day:'numeric',month:'short',...(String(value).length===10?{}:{hour:'2-digit',minute:'2-digit'})},lang,lang):'';
  const demo=await isDemoWorkspace(c.user,c.ws);
  const field=(key:string,value:unknown)=>`${t(key)}: ${value??''}`;
- const job=(j:any)=>[`• WO ${j.order_number}: ${localizedJobTitle(j.title,lang,demo)}`,j.site_name?field('Site',j.site_name):'',field('Status',t(statusLabels[j.status]??j.status)),j.scheduled_for?field('Visit',date(j.scheduled_for)):''].filter(Boolean).join('\n');
- const rows=(key:string,r:any)=>[field(key,r.total??r.data?.length??0),...(r.data??[]).map(job)].join('\n\n');
+ // One line per job, starting with its own WO number, so jobs that share a site or status never repeat a line.
+ const job=(j:any)=>jobLine(j.order_number,localizedJobTitle(j.title,lang,demo),[j.site_name,t(statusLabels[j.status]??j.status),j.scheduled_for?field('Visit',date(j.scheduled_for)):''],lang,'• ');
+ const rows=(key:string,r:any)=>[field(key,r.total??r.data?.length??0),...(r.data??[]).map(job)].join('\n');
  const read=async(name:string,args:unknown={})=>{const result=await callTool(c,name,args);return result.isError?null:(result.structuredContent as any)?.result;};
  const named=splitQuick(question);
  const kind=quickLookup(question)??detectIntent(question).intent;
@@ -61,7 +63,7 @@ export async function localizedDataAnswer(c: AgentContext, question: string, who
  }
  if(kind==='suggestions'){
   const r=await read('list_suggestions');if(!r)return undefined;
-  return [field('Suggested jobs',(r.data??[]).filter((v:any)=>v.status==='pending').length),...(r.data??[]).slice(0,7).map((v:any)=>`• ${v.title}: ${t(v.status==='pending'?'Waiting for review':v.status==='approved'?'Accepted':'Declined')}${v.decline_reason?' ('+v.decline_reason+')':''}`)].join('\n');
+  return [field('Suggested jobs',(r.data??[]).filter((v:any)=>v.status==='pending').length),...distinct((r.data??[]).map((v:any)=>`• ${v.title}: ${t(v.status==='pending'?'Waiting for review':v.status==='approved'?'Accepted':'Declined')}${v.decline_reason?' ('+v.decline_reason+')':''}`)).slice(0,7)].join('\n');
  }
  if(topClientsQuestion(question)){
   const counts=await inWorkspace(c.user,c.ws,async x=>{
@@ -76,11 +78,12 @@ export async function localizedDataAnswer(c: AgentContext, question: string, who
  if(kind==='messages'){
   const r=await read('list_messages');if(!r)return undefined;
   const list=(r.data??r.threads??[]).filter((v:any)=>v.unread||v.unread_count);
-  return [field('Unread messages',list.length),...list.slice(0,4).map((v:any)=>`• ${v.title??v.from_name??v.last_sender??t('Message')}${v.last_body?': '+String(v.last_body).slice(0,80):''}`)].join('\n');
+  return [field('Unread messages',list.length),...distinct(list.map((v:any)=>`• ${v.title??v.from_name??v.last_sender??t('Message')}${v.last_body?': '+String(v.last_body).slice(0,80):''}`)).slice(0,4)].join('\n');
  }
+ // Notification messages are English sentences, so only their count is shown here; suggestion titles are data.
  if(kind==='attention'||kind==='summary'){
   const r=await read('needs_attention');if(!r)return undefined;
-  return [field('Suggested jobs',r.suggested_jobs??0),field('Unread messages',r.unread_messages??0),field('Unread updates',r.unread_notifications??0),...(r.suggestions??[]).slice(0,3).map((v:any)=>`• ${v.title}${v.sender_name?': '+v.sender_name:''}`),...(r.notifications??[]).slice(0,3).map((v:any)=>`• ${v.title??v.body}`)].join('\n');
+  return [field('Suggested jobs',r.suggested_jobs??0),field('Unread messages',r.unread_messages??0),field('Unread updates',r.unread_notifications??0),...distinct((r.suggestions??[]).map((v:any)=>`• ${v.title}${v.sender_name?': '+v.sender_name:''}`)).slice(0,3)].join('\n');
  }
  return undefined;
 }
