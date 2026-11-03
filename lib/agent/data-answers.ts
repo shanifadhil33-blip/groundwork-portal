@@ -15,6 +15,7 @@ import { listWorkOrders } from '../services/work-orders';
  */
 import { callTool, type AgentContext } from './tools';
 import { countLine, countLocalized, fixesLine } from '../count-lines';
+import { distinct } from './job-line';
 
 export type Intent = 'attention' | 'today' | 'late' | 'job' | 'messages' | 'suggestions' | 'leave' | 'summary';
 
@@ -80,7 +81,7 @@ async function attention(c: AgentContext) {
   if (a.unread_notifications) bits.push(`You have ${plural(a.unread_notifications, 'unread update')}.`);
   for (const n of (a.notifications ?? []).slice(0, 3)) if (n.title || n.body) bits.push(`• ${n.title ?? n.body}`);
   if (a.unread_messages) bits.push(`You have ${plural(a.unread_messages, 'unread message')}.`);
-  return bits.join('\n');
+  return distinct(bits.join('\n').split('\n')).join('\n');
 }
 
 async function today(c: AgentContext, tz?: string) {
@@ -119,7 +120,7 @@ async function suggestions(c: AgentContext) {
   const out = [pending.length ? `${plural(pending.length, 'suggested job is', 'suggested jobs are')} waiting for review.` : 'No suggested jobs are waiting.'];
   for (const s of pending.slice(0, 4)) out.push(`• ${s.title}${s.sender_name ? ` from ${s.sender_name}` : ''}`);
   for (const s of decided) out.push(`• ${s.title}: ${s.status === 'approved' ? 'Accepted' : `Not accepted${s.decline_reason ? ` (${s.decline_reason})` : ''}`}`);
-  return out.join('\n');
+  return distinct(out).join('\n');
 }
 
 async function messages(c: AgentContext) {
@@ -127,7 +128,7 @@ async function messages(c: AgentContext) {
   if (r) {
     const unread = (r.data ?? r.threads ?? []).filter((t: any) => t.unread || t.unread_count);
     if (!unread.length) return 'You have no unread messages.';
-    return [`You have ${plural(unread.length, 'conversation')} with unread messages.`, ...unread.slice(0, 4).map((t: any) => `• ${t.title ?? t.from_name ?? t.last_sender ?? 'Message'}${t.last_body ? `: ${String(t.last_body).slice(0, 80)}` : ''}`)].join('\n');
+    return [`You have ${plural(unread.length, 'conversation')} with unread messages.`, ...distinct(unread.map((t: any) => `• ${t.title ?? t.from_name ?? t.last_sender ?? 'Message'}${t.last_body ? `: ${String(t.last_body).slice(0, 80)}` : ''}`)).slice(0, 4)].join('\n');
   }
   return attention(c);
 }
