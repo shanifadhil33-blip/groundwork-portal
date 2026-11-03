@@ -5,6 +5,7 @@ import { localizedDataAnswer } from './localized-data-answers';
 import { getPreferences } from '../services/settings';
 import { listWords,resolveWords } from '../services/agent-words';
 import { inWorkspace } from '../services/shared';
+import { formatDate, workspaceTimezone } from '../dates';
 import { listWorkOrders } from '../services/work-orders';
 /**
  * Answers from the app's own data when every AI provider is busy or gives a broken reply.
@@ -54,9 +55,16 @@ export function brokenReply(text: string | undefined | null): boolean {
 
 const STATUS: Record<string, string> = { open: 'Open', scheduled: 'Visit booked', in_progress: 'In progress', on_hold: 'On hold', waiting_on_parts: 'Waiting on parts', done: 'Done', cancelled: 'Cancelled' };
 const label = (s: string) => STATUS[s] ?? s.replace(/_/g, ' ');
-const when = (v: unknown, tz?: string) => { if (!v) return ''; const d = new Date(String(v)); if (Number.isNaN(d.getTime())) return String(v); return d.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: tz }); };
+/** Visit times in the workspace time zone, never the server's own clock (Asia/Dubai when unknown). */
+const when = (v: unknown, tz: string = workspaceTimezone) => { if (!v) return ''; const d = new Date(String(v)); if (Number.isNaN(d.getTime())) return String(v); return d.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: tz }); };
 const line = (j: any, tz?: string) => `• WO ${j.order_number}: ${j.title}${j.site_name ? ` at ${j.site_name}` : ''}${j.scheduled_for ? `, ${when(j.scheduled_for, tz)}` : ''} (${label(j.status)})`;
 const plural = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+
+/** The workspace time zone for dates in replies; Asia/Dubai when it can not be read. */
+async function workspaceZone(c: AgentContext): Promise<string> {
+  try { return await inWorkspace(c.user, c.ws, async x => (await x.db.query('SELECT timezone FROM workspaces WHERE id=$1', [c.ws])).rows[0]?.timezone ?? workspaceTimezone); }
+  catch { return workspaceTimezone; }
+}
 
 async function read(c: AgentContext, name: string, args: unknown = {}): Promise<any | null> {
   const r = await callTool(c, name, args);
@@ -75,7 +83,7 @@ async function attention(c: AgentContext) {
   return bits.join('\n');
 }
 
-async function today(c: AgentContext) {
+async function today(c: AgentContext, tz?: string) {
   const d = await read(c, 'my_day');
   if (d) {
     if (!d.today.length && !d.late.length) return `You have no jobs today.${d.next?.length ? ` Next: ${d.next.slice(0, 1).map((j: any) => line(j, d.timezone).slice(2)).join('')}` : ''}`;
@@ -83,7 +91,7 @@ async function today(c: AgentContext) {
   }
   const open = await read(c, 'list_work_orders', { status: ['open', 'scheduled', 'in_progress', 'on_hold'], sort: 'scheduled_for', dir: 'asc', pageSize: 6 });
   if (!open) return null;
-  return open.data?.length ? [`You have ${plural(open.total ?? open.data.length, 'open job')}.`, ...open.data.map((j: any) => line(j))].join('\n') : 'You have no open jobs right now.';
+  return open.data?.length ? [`You have ${plural(open.total ?? open.data.length, 'open job')}.`, ...open.data.map((j: any) => line(j, tz))].join('\n') : 'You have no open jobs right now.';
 }
 
 async function late(c: AgentContext, tz?: string) {
@@ -92,14 +100,14 @@ async function late(c: AgentContext, tz?: string) {
   return r.data?.length ? [`${plural(r.total ?? r.data.length, 'job is', 'jobs are')} late.`, ...r.data.map((j: any) => line(j, tz))].join('\n') : 'Nothing is late. Every job is on time.';
 }
 
-async function job(c: AgentContext, n: number) {
+async function job(c: AgentContext, n: number, tz?: string) {
   const j = await read(c, 'get_work_order_by_number', { number: n });
   if (!j) return `I could not find WO ${n}. Check the number on the Work orders page.`;
   const bits = [`WO ${j.order_number}: ${j.title}`, `Status: ${label(j.status)}`];
   if (j.site_name ?? j.site?.name) bits.push(`Site: ${j.site_name ?? j.site.name}`);
   if (j.assignee_name) bits.push(`Assigned to: ${j.assignee_name}`);
-  if (j.scheduled_for) bits.push(`Visit: ${when(j.scheduled_for)}`);
-  if (j.due_on) bits.push(`Due: ${j.due_on}`);
+  if (j.scheduled_for) bits.push(`Visit: ${when(j.scheduled_for, j.timezone ?? tz)}`);
+  if (j.due_on) bits.push(`Due: ${formatDate(j.due_on, j.timezone ?? tz)}`);
   return bits.join('\n');
 }
 
@@ -141,11 +149,12 @@ export async function dataAnswer(c: AgentContext, question: string): Promise<str
   const scoped=await scopedQuickAnswer(c,question);
   if(scoped!==undefined)return scoped;
   const { intent, number } = detectIntent(question);
+  const tz = await workspaceZone(c);
   try {
-    const answer = intent === 'job' ? await job(c, number!) : intent === 'late' ? await late(c) : intent === 'messages' ? await messages(c) : intent === 'suggestions' ? await suggestions(c) : intent === 'leave' ? await leave(c) : intent === 'today' ? await today(c) : await attention(c);
+    const answer = intent === 'job' ? await job(c, number!, tz) : intent === 'late' ? await late(c, tz) : intent === 'messages' ? await messages(c) : intent === 'suggestions' ? await suggestions(c) : intent === 'leave' ? await leave(c) : intent === 'today' ? await today(c, tz) : await attention(c);
     if (answer) return intent === 'summary' ? `${answer}\n\nYou can also ask about today's jobs, late jobs, or a job number like WO 12.` : answer;
   } catch { /* fall through to the summary */ }
-  try { const t = await today(c); if (t) return t; } catch { /* ignore */ }
+  try { const t = await today(c, tz); if (t) return t; } catch { /* ignore */ }
   return 'I can show today\'s jobs, late jobs, a job by its number, suggested jobs and messages. Which would you like?';
 }
 
@@ -308,7 +317,7 @@ export async function quickAnswer(c: AgentContext, question: string, who: { role
     if (k === 'parts') return await parts(c, who.timezone);
     if (k === 'late') return await late(c, who.timezone);
     if (k === 'next') return await nextJob(c);
-    if (k === 'today') return await today(c);
+    if (k === 'today') return await today(c, who.timezone);
     if (k === 'free_tomorrow') return who.role === 'technician' || !who.tomorrow ? null : await freeTomorrow(c, who.tomorrow);
     if (k === 'client_requests') return await clientRequests(c, who.timezone);
     return await clientVisit(c, who.timezone);
