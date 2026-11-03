@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate } from '../lib/dates';
+import { formatDate, localDate } from '../lib/dates';
+import { fixtureDates } from '../lib/fixture';
 import { formatInLang } from '../lib/date-lang';
 
 // 2026-10-18 20:30 UTC is 00:30 on 19 Oct in Dubai (UTC+4); 19:30 UTC is 23:30 on 18 Oct.
@@ -23,5 +24,15 @@ describe('one calendar date in every language, in the workspace time zone', () =
   });
   it('a time zone is applied the same way in every language', () => {
     for (const lang of langs) expect(day(formatInLang(afterMidnight, { day: 'numeric', month: 'short', timeZone: 'UTC' }, lang, lang))).toBe('18');
+  });
+});
+
+// Root cause of WO 31 showing 18 Oct then 19 Oct (QA, Nov 2): every demo sandbox is built fresh, with due dates counted
+// from the Dubai day it was built. WO 31 is due 15 days before that day, so a sandbox built after midnight Dubai
+// (20:00 UTC) moves it one day later. The formatting itself agrees in every language.
+describe('demo due dates follow the Dubai day the sandbox was built', () => {
+  it('WO 31 is due 15 days before the build day', () => {
+    expect(fixtureDates(31, localDate('2026-11-02T19:59:00Z', 'Asia/Dubai'), 'Asia/Dubai').due).toBe('2026-10-18');
+    expect(fixtureDates(31, localDate('2026-11-02T20:01:00Z', 'Asia/Dubai'), 'Asia/Dubai').due).toBe('2026-10-19');
   });
 });
