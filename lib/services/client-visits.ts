@@ -72,6 +72,7 @@ export async function slotsForJob(c: Context, job: Record<string, any>, d: {day?
     const slots: string[] = [];
     for (const r of ordered) {
       const at = new Date(r.at).toISOString();
+      if (slots.includes(at)) continue;
       try { await assertFreeVisit(c, job, at); slots.push(at); if (slots.length === 3 || exact && at === new Date(exact).toISOString()) break; }
       catch (e) { if (!(e instanceof ApiError && e.status === 422)) throw e; }
     }

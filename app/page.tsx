@@ -17,7 +17,7 @@ function ProductShots() {
       <img src="/landing/dashboard.webp" width={2880} height={1800} alt="Imran’s dashboard with today’s jobs, technicians and company totals" fetchPriority="high" loading="eager" decoding="async" />
     </div>
     <div className="lx-phone-frame">
-      <img src="/landing/voice-hindi.webp" width={780} height={1688} alt="The Hindi assistant with the microphone on and सुन रहा है visible" fetchPriority="high" loading="eager" decoding="async" />
+      <img src="/landing/voice-hindi.webp" width={780} height={1688} alt="The Hindi agent with the microphone on and सुन रहा है visible" fetchPriority="high" loading="eager" decoding="async" />
     </div>
   </div>;
 }
@@ -37,7 +37,7 @@ export default function Landing() {
         <article><span className="lx-number">03</span><h2>Clients see progress</h2><p>Every client sees the updates on their jobs, from open to done.</p></article>
       </div></section>
       </div>
-      <section className="lx-agent"><div className="lx-agent-copy lx-reveal-text"><h2>Speak in your own words.</h2><p>Tell your assistant what needs doing. Review changes before they happen.</p></div></section>
+      <section className="lx-agent"><div className="lx-agent-copy lx-reveal-text"><h2>Speak in your own words.</h2><p>Tell your agent what needs doing. Review changes before they happen.</p></div></section>
       <section className="lx-finale" aria-label="Try Groundwork"><div className="lx-reveal-text"><h2>Every job,<br />every building,<br /><span className="lx-highlight lx-highlight--after-line">one place.</span></h2><Actions /></div></section>
     </main>
     <footer className="lx-footer"><span className="lx-footer-brand">Groundwork</span><nav aria-label="Legal"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></nav></footer>

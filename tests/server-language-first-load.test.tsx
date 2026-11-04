@@ -193,7 +193,7 @@ it.each(['hi','ar-AE','en-IN'])('keeps split order identifiers visible in %s fir
    const numbers = [...host.querySelectorAll('.order-number')];
    expect(numbers).toHaveLength(2);
    for (const number of numbers) {
-    expect(number.textContent).toBe('WO 39');
+    expect(number.textContent).toBe('#39');
     expect(number.querySelector('[aria-busy="true"], [style*="visibility"]')).toBeNull();
    }
   };
