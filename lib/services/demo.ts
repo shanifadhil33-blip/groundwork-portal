@@ -83,8 +83,8 @@ export async function startDemo(body:unknown,ip:string,sandbox?:string|null){
   const count=(await db.query("SELECT count(*)::int AS n FROM demo_creation_attempts WHERE ip_hash=$1 AND created_at>now()-interval '1 hour'",[ipHash])).rows[0].n;
   if(count>=DEMO_NEW_PER_IP_HOUR)throw new ApiError(429,'demo_limit','The demo is busy. Please try again later.');
   const configured=Number(process.env.DEMO_MAX_SANDBOXES??200);const cap=Number.isSafeInteger(configured)&&configured>0?configured:200;
-  // At the cap, recycle the oldest sandboxes instead of turning anyone away.
-  const over=(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at>now() ORDER BY demo_expires_at OFFSET $1',[cap-1])).rows;
+  // At the cap, recycle the oldest sandboxes (earliest to expire) instead of turning anyone away. Keep the newest, so someone who just started never loses his demo.
+  const over=(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at>now() ORDER BY demo_expires_at DESC OFFSET $1',[cap-1])).rows;
   if(over.length)await db.query('SELECT delete_demo_workspace(id) FROM workspaces WHERE id=ANY($1::uuid[])',[over.map(r=>r.id)]);
   await db.query('INSERT INTO demo_creation_attempts(ip_hash) VALUES($1)',[ipHash]);
   return create(db,persona,company,language);

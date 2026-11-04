@@ -96,6 +96,13 @@ it('only abusive volumes of new sandboxes get a plain 429; at the global cap the
  expect((await call(start.POST,{persona:'imran'})).status).toBe(201);expect((await call(start.POST,{persona:'sam'})).status).toBe(201);
  expect(await withSystem(async db=>(await db.query('SELECT count(*)::int n FROM workspaces WHERE is_demo AND demo_expires_at>now()')).rows[0].n)).toBeLessThanOrEqual(2);
 });
+it('at the cap the oldest sandbox is recycled and the newest ones stay',async()=>{
+ await withSystem(db=>db.query('TRUNCATE demo_creation_attempts'));process.env.DEMO_MAX_SANDBOXES='2';
+ const first=await call(start.POST,{persona:'imran'}),second=await call(start.POST,{persona:'sam'}),third=await call(start.POST,{persona:'hassan'});
+ expect([first.status,second.status,third.status]).toEqual([201,201,201]);
+ const alive=async(id:string)=>withSystem(async db=>(await db.query('SELECT count(*)::int n FROM workspaces WHERE id=$1 AND is_demo',[id])).rows[0].n);
+ expect(await alive(first.body.workspace_id)).toBe(0);expect(await alive(second.body.workspace_id)).toBe(1);expect(await alive(third.body.workspace_id)).toBe(1);
+});
 it('cron GET/POST require constant-time bearer authentication; validation and creation failures stay plain',async()=>{
  expect((await call(cron.GET)).status).toBe(401);expect((await call(cron.POST,{},undefined,{}, {authorization:'Bearer wrong'})).status).toBe(401);expect((await call(cron.GET,undefined,undefined,{}, {authorization:'Bearer demo-test-cron'})).status).toBe(200);
  expect((await call(start.POST,{persona:'unknown'})).status).toBe(422);
