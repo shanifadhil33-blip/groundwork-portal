@@ -71,7 +71,8 @@ export async function jobNextStep(user:string,ws:string,id:string) {
  await inWorkspace(user,ws,c=>row(c,'work_orders',id));
  return withSystem(async db=>{
   const {c,job}=await context(db,user,ws,id,false);
-  await assertPriceReleased(c.db,c.ws,job.id);
+  // A job waiting on a price is a normal state: show no next step instead of an error.
+  try{await assertPriceReleased(c.db,c.ws,job.id);}catch(e){if(e instanceof ApiError&&e.code==='price_hold')return {title:job.title as string,label:null,part:null,visits:[],can_follow:false,can_arrive:false,can_no_access:false,can_book:false,outcome:null,follow_up:null,reason:null} as any;throw e;}
  const team=['admin','staff'].includes(c.role),assigned=c.role==='technician'&&job.assignee_id===user;
   const follow=(await db.query('SELECT id,title,status,report_part,part_arrived_at,assignee_id FROM work_orders WHERE workspace_id=$1 AND follow_up_of=$2 AND archived_at IS NULL',[ws,id])).rows[0]??null;
   const draft=(await db.query("SELECT id,status FROM job_suggestions WHERE workspace_id=$1 AND report_follow_up_of=$2",[ws,id])).rows[0]??null;

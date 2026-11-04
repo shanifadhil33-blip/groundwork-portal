@@ -27,7 +27,7 @@ function Why({ text, names }: { text: string; names: string[] }) {
 
 function Line({ line, names = [] }: { line: PlanLine; names?: string[] }) {
   return <Translated><li className="stack compact" style={{ minWidth: 0 }}>
-    <strong data-no-translate>WO {line.order} {line.title}</strong>
+    <strong><bdi data-no-translate>#{line.order} {line.title}</bdi></strong>
     {line.assignee_name && <p data-no-translate>{line.assignee_name}</p>}
     <Why text={line.why} names={[line.assignee_name ?? '', ...names]} />
   </li></Translated>;

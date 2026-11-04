@@ -54,9 +54,9 @@ export async function unreadMessages(user:string,ws:string){return inWorkspace(u
  const data=(await c.db.query(`WITH items AS (
  SELECT m.id,m.conversation_id,NULL::uuid AS work_order_id,m.sender_id,m.sender_name,m.created_at,NULL::integer AS order_number,t.kind AS thread_kind FROM messages m JOIN conversations t ON t.id=m.conversation_id AND t.workspace_id=m.workspace_id WHERE m.workspace_id=$1
  UNION ALL SELECT cm.id,NULL,cm.work_order_id,cm.author_id,coalesce(cm.author_name,'Team member'),cm.created_at,w.order_number,'job' FROM comments cm JOIN work_orders w ON w.id=cm.work_order_id AND w.workspace_id=cm.workspace_id WHERE cm.workspace_id=$1
- ) SELECT a.*,count(*) OVER()::int AS _total,count(*) FILTER(WHERE a.thread_kind='team') OVER()::int AS _team_total FROM items a LEFT JOIN message_reads r ON r.workspace_id=$1 AND r.user_id=$2 AND (r.conversation_id=a.conversation_id OR r.work_order_id=a.work_order_id)
+ ) SELECT a.*,count(*) OVER()::int AS _total,count(*) FILTER(WHERE a.thread_kind='team') OVER()::int AS _team_total,count(*) FILTER(WHERE a.thread_kind='direct') OVER()::int AS _direct_total FROM items a LEFT JOIN message_reads r ON r.workspace_id=$1 AND r.user_id=$2 AND (r.conversation_id=a.conversation_id OR r.work_order_id=a.work_order_id)
  WHERE a.sender_id<>$2 AND a.created_at>coalesce(r.last_read_at,'epoch'::timestamptz) ORDER BY a.created_at DESC LIMIT 100`,[ws,user])).rows;
- const unread_count=data[0]?Number(data[0]._total):0,team_unread_count=data[0]?Number(data[0]._team_total):0;for(const item of data){delete item._total;delete item._team_total;}return {unread_count,team_unread_count,direct_unread_count:unread_count-team_unread_count,data};
+ const unread_count=data[0]?Number(data[0]._total):0,team_unread_count=data[0]?Number(data[0]._team_total):0,direct_unread_count=data[0]?Number(data[0]._direct_total):0;for(const item of data){delete item._total;delete item._team_total;delete item._direct_total;}return {unread_count,team_unread_count,direct_unread_count,data};
 });}
 export async function listThreads(user:string,ws:string){return inWorkspace(user,ws,async c=>{
  const direct=(await c.db.query(`SELECT c.id,c.participants,c.created_at,p.name AS title,'direct' AS kind,

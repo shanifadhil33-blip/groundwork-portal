@@ -1293,3 +1293,12 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 .chat-send{width:44px;height:44px;border-radius:50%;border:0;background:#1f7a4d;color:#fff;display:grid;place-items:center;cursor:pointer;flex:none}
 .chat-send:disabled{opacity:.5;cursor:default}
 [dir=rtl] .chat-send svg{transform:scaleX(-1)}
+/* Phone tap targets: links and checkboxes inside lists and tables are at least 44px to tap, with no change to the text. */
+@media(pointer:coarse),(max-width:640px){
+ main :is(td,li,p,.row,.work-row,.work-row-head,.work-row-meta,.record-details,.small) a:not(.button):not([class*="button"]):not(.skip-link){display:inline-flex;align-items:center;min-height:44px}
+ main input[type=checkbox],main input[type=radio]{min-width:24px;min-height:24px}
+ main label:has(>input[type=checkbox]){min-height:44px;display:flex;align-items:center;gap:12px}
+ main label:has(>input[type=checkbox])>span{flex:1;min-width:0}
+}
+/* Phone toasts sit inside the screen in both directions: no centre transform, equal side gaps. */
+@media(max-width:640px){.toast-region{left:16px;right:16px;inset-inline:16px;transform:none;width:auto;max-width:none}}

@@ -25,7 +25,7 @@ describe('demo chat copy', () => {
   });
   it('states that it is a simulation and not WhatsApp', () => {
     expect(DEMO_CHAT_COPY.label).toBe('Demo chat. This is a simulation using sample data. It is not connected to WhatsApp.');
-    expect(DEMO_CHAT_COPY.name).toBe('Groundwork Assistant');
+    expect(DEMO_CHAT_COPY.name).toBe('Groundwork Agent');
     expect(DEMO_CHAT_STARTERS).toHaveLength(3);
   });
   it('is translated into Arabic with no dashes, and every language file has an entry', () => {
@@ -75,7 +75,7 @@ describe('demo chat screen', () => {
     const { host, done } = await mount();
     try {
       expect(host.textContent).toContain(DEMO_CHAT_COPY.label);
-      expect(host.textContent).toContain('Groundwork Assistant');
+      expect(host.textContent).toContain('Groundwork Agent');
       const chip = [...host.querySelectorAll('button')].find(b => b.textContent === DEMO_CHAT_STARTERS[0])!;
       await act(async () => chip.click());
       expect(api.post.mock.calls[0][0]).toBe('/api/workspaces/ws1/assistant');

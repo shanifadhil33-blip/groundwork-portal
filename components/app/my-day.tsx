@@ -66,7 +66,7 @@ export function DoneDialog({ j, base, onClose, onSaved }: { j: Job; base: string
     if(!outcome)return;
     setBusy(true);
     const payload=JSON.stringify({problem,work,part:draft.part??'',outcome,...(english?{problem_en:english.problem_en,work_en:english.work_en,language:lang}:{}),updated_at:j.updated_at});const key=crypto.randomUUID();
-    const queue=()=>{enqueue(me.user.id,member!.workspace_id,{id:key,url:`${base}/work-orders/${j.id}/report`,body:payload,label:`Job report for WO ${j.order_number}`});clearDraft();toast('Waiting to send');onClose();};
+    const queue=()=>{enqueue(me.user.id,member!.workspace_id,{id:key,url:`${base}/work-orders/${j.id}/report`,body:payload,label:`Job report for job ${j.order_number}`});clearDraft();toast('Waiting to send');onClose();};
     try { if(navigator.onLine===false){queue();return;}const r = await request<{ record: JobRecord }>(`${base}/work-orders/${j.id}/report`, { method: 'POST', headers:{'Idempotency-Key':key},body:payload }); clearDraft();
       const list = Array.isArray(photos.data) ? photos.data : [];
       onSaved(outcome, r.record, { problem, work, before: list.filter(p => p.kind === 'before').length, after: list.filter(p => p.kind === 'after').length, name: me.user.name ?? '' }); }
@@ -116,7 +116,7 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
     <p id="next-job-label" className="ds-label"><span>Next job</span> · {when}</p>
     <div className="flip" data-flipped={flipped}><div className="flip-inner">
       <div className="flip-face flip-front ds-hero next-job-face" inert={flipped} aria-hidden={flipped}>
-        <div className="next-job-top">{j.priority === 'urgent' ? <span className="ds-chip-urgent">Urgent</span> : j.status !== 'scheduled' ? <span className="ds-chip-hero">{statusLabels[j.status] ?? j.status}</span> : <span />}<span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>
+        <div className="next-job-top">{j.priority === 'urgent' ? <span className="ds-chip-urgent">Urgent</span> : j.status !== 'scheduled' ? <span className="ds-chip-hero">{statusLabels[j.status] ?? j.status}</span> : <span />}<span className="ds-muted num"><bdi data-no-translate>#{j.order_number}</bdi></span></div>
         <h2 className="next-job-title" data-no-translate><button type="button" ref={frontBtn} aria-pressed={false} aria-controls="next-job-back" onClick={() => flip(true)}>{j.title}</button></h2>
         {place && <p className="next-job-place"><MapPin size={18} aria-hidden="true" /><span data-no-translate>{place}</span></p>}
         {j.access_notes && <p className="ds-muted next-job-note">{j.access_notes}</p>}
@@ -126,7 +126,7 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
         </div>
       </div>
       <div id="next-job-back" className="flip-face flip-back ds-hero next-job-face" inert={!flipped} aria-hidden={!flipped}>
-        <div className="next-job-top"><strong>Job details</strong><span className="ds-muted num" data-no-translate>WO {j.order_number}</span></div>
+        <div className="next-job-top"><strong>Job details</strong><span className="ds-muted num"><bdi data-no-translate>#{j.order_number}</bdi></span></div>
         <dl className="next-job-facts">
           {(j.contact_name || j.contact_phone) && <div><dt>Contact</dt><dd data-no-translate>{joinNames([j.contact_name, j.contact_phone])}</dd></div>}
           <div><dt>Address</dt><dd data-no-translate>{joinNames([j.building, j.address, j.area]) || j.site_name}</dd></div>

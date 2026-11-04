@@ -32,7 +32,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
   const hero = root.querySelector<HTMLElement>('.lx-hero');
   const context = canvas?.getContext('2d');
   if (!visual || !canvas || !main || !story || !hero || !context) return () => {};
-  const still = options.reducedMotion || options.saveData;
+  const still = options.reducedMotion || options.saveData || options.phone();
   const compositor = typeof CSS !== 'undefined' && CSS.supports('animation-timeline: scroll()');
   const images: HTMLImageElement[] = [];
   const loaded = new Array<boolean>(FRAME_COUNT).fill(false);
@@ -42,7 +42,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
   let stopped = false, frame = 0, dirty = true, active = 0, idle = 0, timer = 0, drawnKey = '';
   let layout: PhoneLayout | null = null, flowTops: number[] = [], styleKey = '';
   let style: HTMLStyleElement | null = null;
-  const floating = () => options.phone() && !options.reducedMotion;
+  const floating = () => false;
 
   function measure() {
     if (!floating()) { teardownStage(); return; }
@@ -106,7 +106,7 @@ export function startSequence(root: HTMLElement, options: SequenceOptions): () =
       // Fit the building's own bounding box into the inner part of the stage, so the radial mask never cuts it.
       const sw = image.naturalWidth, sh = image.naturalHeight;
       const sx = BUILDING_CROP.x * sw, sy = BUILDING_CROP.y * sh, cw = BUILDING_CROP.w * sw, ch = BUILDING_CROP.h * sh;
-      const dh = Math.min(h * .7, (w * .46) * ch / cw), dw = dh * cw / ch;
+      const dh = Math.min(h * .8, (w * .52) * ch / cw), dw = dh * cw / ch;
       context!.drawImage(image, sx, sy, cw, ch, (w - dw) / 2, (h - dh) / 2, dw, dh);
     } else {
       const box = fitFrame(w, h, 'contain');

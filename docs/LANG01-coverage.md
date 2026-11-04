@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2715 | 6 | 1710 | 0 | 1004 | 1 | 0 | 0 |
-| ne | 2715 | 7 | 1386 | 0 | 1329 | 0 | 0 | 0 |
-| hi | 2715 | 5 | 1401 | 0 | 1314 | 0 | 0 | 0 |
-| ur | 2715 | 7 | 1386 | 0 | 1329 | 0 | 0 | 0 |
-| bn | 2715 | 6 | 1402 | 0 | 1313 | 0 | 0 | 0 |
-| ml | 2715 | 19 | 1370 | 0 | 1345 | 0 | 0 | 0 |
-| ta | 2715 | 6 | 1401 | 0 | 1313 | 1 | 0 | 0 |
-| ps | 2715 | 6 | 1384 | 0 | 1331 | 0 | 0 | 0 |
-| fa-AF | 2715 | 15 | 1370 | 0 | 1345 | 0 | 0 | 0 |
-| fa-IR | 2715 | 3 | 1382 | 0 | 1333 | 0 | 0 | 0 |
-| fil | 2715 | 8 | 1369 | 0 | 1345 | 1 | 0 | 0 |
-| zh-CN | 2715 | 19 | 1356 | 0 | 1359 | 0 | 0 | 0 |
-| sw-KE | 2715 | 18 | 1355 | 0 | 1360 | 0 | 0 | 0 |
-| am | 2715 | 18 | 1355 | 0 | 1360 | 0 | 0 | 0 |
-| ti | 2715 | 18 | 1372 | 0 | 1342 | 1 | 0 | 0 |
-| so | 2715 | 18 | 1370 | 0 | 1344 | 0 | 1 | 0 |
-| yo | 2715 | 18 | 1353 | 0 | 1362 | 0 | 0 | 0 |
-| ha | 2715 | 18 | 1371 | 0 | 1344 | 0 | 0 | 0 |
-| ig | 2715 | 18 | 1366 | 0 | 1349 | 0 | 0 | 0 |
-| lg | 2715 | 18 | 1353 | 0 | 1360 | 2 | 0 | 0 |
-| tw | 2715 | 18 | 1364 | 0 | 1351 | 0 | 0 | 0 |
+| ar-AE | 2717 | 6 | 1711 | 0 | 1005 | 1 | 0 | 0 |
+| ne | 2717 | 7 | 1386 | 0 | 1331 | 0 | 0 | 0 |
+| hi | 2717 | 5 | 1401 | 0 | 1316 | 0 | 0 | 0 |
+| ur | 2717 | 7 | 1386 | 0 | 1331 | 0 | 0 | 0 |
+| bn | 2717 | 6 | 1402 | 0 | 1315 | 0 | 0 | 0 |
+| ml | 2717 | 19 | 1370 | 0 | 1347 | 0 | 0 | 0 |
+| ta | 2717 | 6 | 1401 | 0 | 1315 | 1 | 0 | 0 |
+| ps | 2717 | 6 | 1384 | 0 | 1333 | 0 | 0 | 0 |
+| fa-AF | 2717 | 15 | 1370 | 0 | 1347 | 0 | 0 | 0 |
+| fa-IR | 2717 | 3 | 1382 | 0 | 1335 | 0 | 0 | 0 |
+| fil | 2717 | 8 | 1369 | 0 | 1347 | 1 | 0 | 0 |
+| zh-CN | 2717 | 19 | 1356 | 0 | 1361 | 0 | 0 | 0 |
+| sw-KE | 2717 | 18 | 1355 | 0 | 1362 | 0 | 0 | 0 |
+| am | 2717 | 18 | 1355 | 0 | 1362 | 0 | 0 | 0 |
+| ti | 2717 | 18 | 1372 | 0 | 1344 | 1 | 0 | 0 |
+| so | 2717 | 18 | 1370 | 0 | 1346 | 0 | 1 | 0 |
+| yo | 2717 | 18 | 1353 | 0 | 1364 | 0 | 0 | 0 |
+| ha | 2717 | 18 | 1371 | 0 | 1346 | 0 | 0 | 0 |
+| ig | 2717 | 18 | 1366 | 0 | 1351 | 0 | 0 | 0 |
+| lg | 2717 | 18 | 1353 | 0 | 1362 | 2 | 0 | 0 |
+| tw | 2717 | 18 | 1364 | 0 | 1353 | 0 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -183,7 +183,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Back in the list." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Back to clients" — All
 - "Back to dashboard" — All
-- "Back to jobs" — All
+- "Back to jobs" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Bathroom" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Bearer <your key>" — All
 - "Bedroom" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
@@ -483,6 +483,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Its {value1} will be deleted too." — All
 - "Its {value1}{value2} will be deleted too." — All
 - "I’ve saved my key" — All
+- "Job #{order_number}" — All
 - "Job completed" — All
 - "Job created." — All
 - "Job done" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -490,10 +491,11 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Job done. Great work!" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Job history" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Job reopened." — All
-- "Job report for WO {order_number}" — All
+- "Job report for job {order_number}" — All
 - "Job saved." — All
 - "Job scheduled." — All
 - "Job updated." — All
+- "Job {order_number}" — All
 - "Jobs are not given to" — All
 - "Jobs assigned." — All
 - "Jobs with a visit day show here." — All
@@ -560,6 +562,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Member client" — All
 - "Memory" — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Message for WO {value1}" — All
+- "Message for job #{value1}" — All
 - "Message photo" — All
 - "Message removed by an admin" — All
 - "Messages marked as read." — All
@@ -752,7 +755,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Reason" — All
 - "Reason (required)" — All
 - "Reason:" — All
-- "Reassign WO {order_number}" — All
+- "Reassign job {order_number}" — All
 - "Rebook" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Recently updated" — All
 - "Record" — All
@@ -957,7 +960,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Tell me up to eight area names." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Tell me what is happening in your home." — ne, hi, ur, ml, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Tell me your answers" — All
-- "Tell your assistant what needs doing. Review changes before they happen." — All
+- "Tell your agent what needs doing. Review changes before they happen." — All
 - "Thanks from clients:" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Thanks. The team knows you are ready." — All
 - "Thanks. The team will review this request." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -970,7 +973,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "That photo did not work. Try another." — All
 - "That practice control is only in the demo company." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "That record was not found." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "The Hindi assistant with the microphone on and सुन रहा है visible" — All
+- "The Hindi agent with the microphone on and सुन रहा है visible" — All
 - "The WhatsApp channel is not switched on." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "The booked visit is after the promised time." — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "The client can read this comment." — All
@@ -1127,7 +1130,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Visit scheduled for {value1}" — All
 - "Visits in the contract" — All
 - "Voice input is unavailable in this browser. You can type your message." — All
-- "WO {order_number}" — All
 - "WO {order_number} {value2}" — All
 - "Waiting for other companies" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Waiting for the owner" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
