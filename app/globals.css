@@ -1302,3 +1302,11 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 }
 /* Phone toasts sit inside the screen in both directions: no centre transform, equal side gaps. */
 @media(max-width:640px){.toast-region{left:16px;right:16px;inset-inline:16px;transform:none;width:auto;max-width:none}}
+/* Phone tap targets, round two: stand alone links and names get a 44px hit area without moving the text. */
+@media(pointer:coarse),(max-width:640px){
+ main :is(div,p,li,td)>a:not([class]):only-child,main a.text-link{display:inline-flex;align-items:center;min-height:44px}
+ .contact-name{position:relative;display:inline-block}
+ .contact-name::after{content:"";position:absolute;inset:-12px -8px}
+ main button:has(>.count-badge),main a:has(>.count-badge){min-width:44px}
+}
+@media(pointer:coarse),(max-width:640px){.person-job-links a{min-width:44px;justify-content:center}}
