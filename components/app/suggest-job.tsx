@@ -6,7 +6,7 @@ import { useRouter,useSearchParams } from 'next/navigation';
 import { useApp } from './context';
 import { useResource } from './resource';
 import { NoAccess } from './no-access';
-import { AssistantComposer } from './assistant';
+import { AssistantComposer } from './assistant-composer';
 import { SharedPhotoUpload } from './shared-photo-upload';
 import { post } from '../../lib/ui/api';
 import { Button,ErrorState } from '../ui';

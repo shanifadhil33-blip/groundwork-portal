@@ -28,3 +28,20 @@ it('uses the default language for someone without a preferences row', async()=>{
   mocks.preferences.mockResolvedValue(undefined);
   expect((await getAppPageData())?.resources['/api/me/preferences']).toMatchObject({data:{language:null,email_notifications:true,voice_enabled:true}});
 });
+
+it('starts each initial resource in a separate user scope and isolates failures', async()=>{
+  const { initialResources } = await import('../lib/server-page-data');
+  const { ApiError } = await import('../lib/http');
+  let finish!:()=>void;
+  const barrier=new Promise<void>(resolve=>{finish=resolve;});
+  const started:string[]=[];
+  const first=vi.fn(async()=>{started.push('first');await barrier;return {count:1};});
+  const second=vi.fn(async()=>{started.push('second');await barrier;throw new ApiError(403,'forbidden','No access');});
+  const pending=initialResources('user',[['/first',first],['/second',second]]);
+  expect(started).toEqual(['first','second']);
+  // An outer transaction would collapse both tasks into a single DB connection.
+  expect(mocks.withUser).toHaveBeenCalledTimes(2);
+  expect(mocks.withUser.mock.calls.every(([user])=>user==='user')).toBe(true);
+  finish();
+  expect(await pending).toMatchObject({'/first':{data:{count:1}},'/second':{error:{status:403,code:'forbidden'}}});
+});
