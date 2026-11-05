@@ -720,7 +720,7 @@
   "Get a copy or ask for deletion",
   "Get a message on this phone or computer when a job is given to you, when a job is done, and when a job is late.",
   "Get started",
-  "Give a WO number",
+  "Give a job number",
   "Give it to",
   "Give the document a name.",
   "Give to",
@@ -2716,5 +2716,5 @@
   "· Wood",
   "· application connection",
   "· ends",
-  "→ WO-{work_order_number}"
+  "→ Job #{work_order_number}"
 ]

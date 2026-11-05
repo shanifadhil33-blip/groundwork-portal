@@ -14,6 +14,6 @@ it.each(['en-IN','en-US','en-GB',null,'unknown'])('preserves English behavior fo
 
 it.each(['ar-AE','hi','ur'])('localizes the server job clarification in %s',language=>{
  const file=JSON.parse(readFileSync(`public/i18n/${language}.json`,'utf8'));
- expect(localizedChoice({question:'Which job do you mean?',options:['Give a WO number','Change my note']},language)).toMatchObject({reply:file['Which option do you mean?'],choices:[file['Give a WO number'],file['Change my note']]});
+ expect(localizedChoice({question:'Which job do you mean?',options:['Give a job number','Change my note']},language)).toMatchObject({reply:file['Which option do you mean?'],choices:[file['Give a job number'],file['Change my note']]});
  expect(localizedChoice({question:'Please tell me what you mean?',options:[file.Yes,file.Change]},language)).toMatchObject({reply:file['Which option do you mean?'],choices:[file.Yes,file.Change]});
 });

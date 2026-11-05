@@ -1,3 +1,4 @@
+import { plainJobWording } from './job-wording';
 import { equipmentKinds } from './assets';
 /** Same words as the Job report screen. Kept here so client code never imports server code. */
 const OUTCOME_LABELS={fixed:'Fixed',temporary:'Temporary fix',needs_part:'Needs a part',cant_fix:"Can't be fixed"} as const;
@@ -26,6 +27,7 @@ export function audienceStatusReply(value:string, client=false) {
 const uuid = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
 /** Remove storage identifiers and translate machine words at the final reply boundary. */
 export function plainAssistantReply(value: string, client=false) {
+  value=plainJobWording(value);
   value=value.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g,(_,a,b)=>a??b).replace(/(?<!\w)_([^_\n]+)_(?!\w)/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/^#{1,6}\s+/gm,'').replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g,'$1');
   const links: string[] = [];
   let text = value.replace(/\]\(\/work-orders\/[0-9a-f-]{36}\)/gi, link => { links.push(link);return `LINKPLACEHOLDER${links.length-1}END`; });

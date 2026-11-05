@@ -40,7 +40,7 @@ it('AGENT11: technician gets one named supervisor offer per refused tool, with t
  const r=await ask(ids.ravi);
  expect(r.pending_action).toBeUndefined();expect(r.reply).toContain("can't change");expect(r.offers).toHaveLength(1);
  const offer=r.offers[0];expect(offer).toMatchObject({to_name:'Sam',label:'Ask Sam',work_order_id:o.id});
- expect(offer.question).toContain('Ravi');expect(offer.question).toContain('Give this job to Nabil');expect(offer.question).toContain(`WO ${o.order_number}`);
+ expect(offer.question).toContain('Ravi');expect(offer.question).toContain('Give this job to Nabil');expect(offer.question).toContain(`Job #${o.order_number}`);
  const log=(await listDecisions(ids.ravi,ws)).find((r:any)=>r.tool==='assign_work_order')!;
  expect(log).toMatchObject({outcome:'refused',reason:REFUSAL_REASON.technician});expect(log.summary).toBe(offer.proposed);expect(log.why).toContain('Offered to ask Sam.');
  const history=vi.mocked(assistantTurn).mock.calls[1][0];

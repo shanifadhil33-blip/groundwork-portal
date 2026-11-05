@@ -1,3 +1,4 @@
+import { plainJobWording } from './job-wording';
 import { notificationTemplates, type NotificationTemplate } from './notifications';
 import { rolesLabel } from '../roles';
 import { entityLabels, readableLabel, supplierReference } from './polish';
@@ -62,5 +63,5 @@ export const agentPriorityTemplate = 'Change priority for {job}: {from} to {to}'
 /** Legacy decision logs use this exact system shape; freeform replies remain authored text. */
 export function agentSummaryTemplate(source: string): NotificationTemplate | null {
   const match = /^Change priority for (.+): (low|normal|high|urgent|Low|Normal|High|Urgent) (?:to|→) (low|normal|high|urgent|Low|Normal|High|Urgent)$/.exec(source);
-  return match ? {key: agentPriorityTemplate, values: {job: match[1], from: readableLabel(match[2]), to: readableLabel(match[3])}, translatedValues: ['from','to']} : null;
+  return match ? {key: agentPriorityTemplate, values: {job: plainJobWording(match[1], 'en'), from: readableLabel(match[2]), to: readableLabel(match[3])}, translatedValues: ['from','to']} : null;
 }

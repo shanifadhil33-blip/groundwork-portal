@@ -89,7 +89,7 @@ it('the name lead keeps a capital I and acronyms, and lowers only a normal first
   const { warmLead } = await import('../lib/warm-reply');
   expect(warmLead('Ravi', 'I cannot change your phone number here.')).toBe('Ravi, I cannot change your phone number here.');
   expect(warmLead('Ravi', "I'm on it.")).toBe("Ravi, I'm on it.");
-  expect(warmLead('Ravi', 'Job #12 is done.')).toBe('Ravi, Job #12 is done.');
+  expect(warmLead('Ravi', 'Job #12 is done.')).toBe('Ravi, job #12 is done.');
   expect(warmLead('Ravi', 'The job is done.')).toBe('Ravi, the job is done.');
 });
 

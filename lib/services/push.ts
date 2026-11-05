@@ -1,3 +1,4 @@
+import { plainJobWording } from '../ui/job-wording';
 import { notificationTemplate, renderNotification } from '../ui/notifications';
 import { notificationLanguage, notificationWords } from '../notification-words';
 import { isStep, type Message } from '../status-updates';
@@ -40,6 +41,7 @@ export const BURST_LIMIT = 6;
 const SUMMARY: Msg = { title: 'More job updates', body: 'You have more updates. Open Groundwork to see them all.', url: '/home', tag: 'summary' };
 /** Send to every device of these people. Dead devices (404/410) are removed. Never throws. */
 export async function sendPush(users: string[], msg: Msg) {
+  msg = {...msg,title:plainJobWording(msg.title),body:plainJobWording(msg.body)};
   const list = [...new Set(users)].filter(Boolean); if (!list.length) return 0;
   try {
     // Classify recipients before touching subscriptions, even for urgent messages and old devices.

@@ -11,7 +11,7 @@ const DAYS: Record<string,string> = {
  'اليوم':'today','بكرة':'tomorrow','باجر':'tomorrow','غدا':'tomorrow','आज':'today','कल':'tomorrow','آج':'today','کل':'tomorrow',
 };
 function explicitAssignment(question:string) {
- let q=assignmentText(question).replace(/[.!؟?।]+$/, '').trim();
+ let q=assignmentText(question).replace(/(?:\b(?:job|work order)\s*#?\s*|مهمة\s*#?\s*)(?=\d)/giu, 'WO ').replace(/[.!؟?।]+$/, '').trim();
  let date='';
  const takeDate=()=>{
   const match=q.match(new RegExp(`\\s+(?:(?:يوم|في)\\s+)?(${Object.keys(DAYS).join('|')})(?:\\s+को)?$`, 'u'));
@@ -28,7 +28,7 @@ function explicitAssignment(question:string) {
   const recipient=q.match(/^(WO\s*\d+)\s+([\p{L}\p{M}][\p{L}\p{M}' ]*)$/iu);
   if(recipient)return `Give ${recipient[1]} to ${recipient[2]}${date?` ${date}`:''}`;
  }
- return question;
+ return `${q}${date?` ${date}`:''}`;
 }
 
 /** A narrow explicit command works even when the free providers are unavailable. Reads stay role scoped. */

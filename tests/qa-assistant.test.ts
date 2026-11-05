@@ -194,7 +194,7 @@ it('AGENT21 preserves a supported AI reply after a tool lookup',async()=>{
  const text='Ravi has completed 3 jobs. WO 58 costs AED 150.00. WO 58 is booked for 8 November 2026.';
  state.turn.mockResolvedValueOnce({calls:[{id:'read',name:'list_work_orders',args:{}}]}).mockResolvedValueOnce({calls:[],text});
  state.call.mockResolvedValueOnce({structuredContent:{result:{data:[{...state.order,assignee_name:'Ravi',quote_amount:'150.00',scheduled_for:'2026-11-08'}],total:3}}});
- expect(await assistant(user,ws,{messages:[{role:'user',content:'Tell me about the repair'}]})).toMatchObject({available:true,reply:text});
+ expect(await assistant(user,ws,{messages:[{role:'user',content:'Tell me about the repair'}]})).toMatchObject({available:true,reply:'Ravi has completed 3 jobs. Job #58 costs AED 150.00. Job #58 is booked for 8 November 2026.'});
  expect(state.turn).toHaveBeenCalledTimes(2);
 });
 

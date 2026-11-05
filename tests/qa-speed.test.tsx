@@ -50,6 +50,6 @@ it('validates 500 mapped rows from one lookup read and preserves duplicate/date 
  expect(repeated.errors).toContainEqual(expect.objectContaining({code:'duplicate_file',message:'Duplicate of row 1'}));
  addLookupOrder(lookup,{order_number:10,title:'Another job',status:'open',site_id:site.id,external_ref:null,due_on:'2026-11-13',scheduled_for:'2026-11-12'});
  const same=await validateRow(c,{...inputs[0],title:'Another job',external_ref:''},undefined,1,lookup);
- expect(same.errors).toContainEqual(expect.objectContaining({code:'duplicate_open',message:'Already open as work order Job #10'}));
+ expect(same.errors).toContainEqual(expect.objectContaining({code:'duplicate_open',message:'Already open as Job #10'}));
  expect(query).toHaveBeenCalledTimes(1);
 });

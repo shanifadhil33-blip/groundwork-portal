@@ -54,7 +54,7 @@ it('concurrent repeats and changed wording of the same kind alert once for ten m
 });
 it('includes the assignee and links to a visible job',async()=>{
  await clear();
- await send(ids.imran,'WO 4 I smell gas');
+ await send(ids.imran,'Job #4 I smell gas');
  expect((await alerts()).map(n=>n.user_id)).toEqual([ids.imran,ids.sam,ids.ravi].sort());
  expect((await alerts()).every(n=>n.entity_id===orderId(4))).toBe(true);
  const feed=await listNotifications(ids.ravi,ws,new URLSearchParams());

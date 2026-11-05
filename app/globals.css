@@ -1317,3 +1317,14 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
 .page :is(.text-link,.ds-link,.back-link),.page .heading-row>a,.page .section-header>a,.page .ds-section-head>a,.page .agent-log-head a,.messages-page>a{display:inline-flex;align-items:center;min-height:44px;min-width:44px}
 .button,.button.sm,.link-button,.menu-option{min-width:44px}
 }
+
+/* Apply to the controls themselves, including public pages, dialogs and header actions. */
+@media (pointer:coarse), (max-width:640px) {
+ body :is(a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=link],[role=tab],[role=menuitem],[role=checkbox],[role=radio]) {
+  min-inline-size:44px;
+  min-block-size:44px;
+  box-sizing:border-box;
+ }
+ body a[href] { display:inline-flex;align-items:center; }
+ body input:is([type=checkbox],[type=radio]) { flex-shrink:0; }
+}

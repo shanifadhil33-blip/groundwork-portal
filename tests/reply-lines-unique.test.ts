@@ -42,6 +42,6 @@ it('no reply line repeats when every open job shares the same title, site, prior
   const late = await withSystem(async db => (await db.query(`SELECT count(*)::int n FROM work_orders WHERE workspace_id=$1 AND status='in_progress' AND due_on < (now() AT TIME ZONE 'Asia/Dubai')::date`, [ids.ridgeline])).rows[0].n as number);
   expect(late).toBeGreaterThan(3);
   const reply = await operationalAnswer(ids.imran, ids.ridgeline, 'overdue', 'ar-AE');
-  expect(reply.split('\n').filter(l => l.startsWith('WO ')).length).toBeGreaterThan(3);
+  expect(reply.split('\n').filter(l => l.startsWith('مهمة #')).length).toBeGreaterThan(3);
   await everyReply('shared');
 }, 300000);

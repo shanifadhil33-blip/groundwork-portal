@@ -122,7 +122,7 @@ it('bulk approval rechecks references created earlier in the batch and rolls bac
  const second=await upload(`Title,Site,External Ref\n${title} second,Marina Exchange,${reference}`);
  for(const imp of [first,second]){await s.mapImport(ids.imran,ids.ridgeline,imp.id,{mapping:imp.mapping});await s.queueImport(ids.imran,ids.ridgeline,imp.id);}
  const rows=(await Promise.all([first,second].map(imp=>s.importRows(ids.imran,ids.ridgeline,imp.id,new URLSearchParams())))).flatMap(page=>page.data);
- await expect(s.bulkApprove(ids.imran,ids.ridgeline,{row_ids:rows.map(r=>r.id)})).rejects.toMatchObject({status:422,fields:{external_ref:[expect.stringMatching(/^External reference already used by WO \d+\.$/)]}});
+ await expect(s.bulkApprove(ids.imran,ids.ridgeline,{row_ids:rows.map(r=>r.id)})).rejects.toMatchObject({status:422,fields:{external_ref:[expect.stringMatching(/^External reference already used by Job #\d+\.$/)]}});
  for(const imp of [first,second])expect((await s.getImport(ids.imran,ids.ridgeline,imp.id)).counts).toMatchObject({approved:0,pending:1});
  expect((await withUser(ids.imran,db=>db.query('SELECT id FROM work_orders WHERE workspace_id=$1 AND external_ref=$2',[ids.ridgeline,reference]))).rows).toHaveLength(0);
 });

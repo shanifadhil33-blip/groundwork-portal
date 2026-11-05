@@ -70,7 +70,7 @@ it('legacy Agent priority summaries use templates, preserve identifiers and tran
  expect(message.values.job).toBe('Job #1 My repair');
  const words = JSON.parse(readFileSync('public/i18n/ar-AE.json','utf8'));
  const text = renderNotification(message,words,'ar-AE');
- expect(text).toContain('Job #1 My repair'); expect(text).toContain(words.Low); expect(text).toContain(words.High);
+ expect(text).toContain('مهمة #1 My repair'); expect(text).toContain(words.Low); expect(text).toContain(words.High);
  expect(agentSummaryTemplate('My own note about priority')).toBeNull();
 });
 it('audit comments preserve visibility and supplier events preserve references without using stored English summaries', () => {

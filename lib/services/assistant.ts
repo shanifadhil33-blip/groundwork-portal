@@ -217,7 +217,7 @@ async function assistantInner(user:string,ws:string,body:unknown,offers:RefusalO
   :office?['set_worker_skills','add_worker','set_member_roles','decide_time_off','set_job_payment','set_approval_mode']
   :role==='staff'?[...ADMIN_ONLY,...recordTools]:[];
  const preferences=await getPreferences(user);
- const followup=/^(?:yes|no|change|نعم|لا|اي|إي|تمام|WO\s*\d+)[.!؟?]*$/i.test(resolvedQuestion.trim())||['Yes','No','Change'].some(word=>choiceWords(preferences.language)(word)===resolvedQuestion.trim());
+ const followup=/^(?:yes|no|change|نعم|لا|اي|إي|تمام|(?:WO|Job|مهمة)\s*#?\s*\d+)[.!؟?]*$/i.test(resolvedQuestion.trim())||['Yes','No','Change'].some(word=>choiceWords(preferences.language)(word)===resolvedQuestion.trim());
  const toolQuestion=followup?d.messages.filter(m=>m.role==='user').slice(-2).map(m=>resolveWords(m.content,words)).join(' '):resolvedQuestion;
  const declarations=selectAssistantTools(toolQuestion,Object.entries(tools).filter(([name])=>allowedTool(office?'office':role==='client'?`client:${kind??'manager'}`:role,name)||refusable.includes(name)).map(([name,t])=>({name,description:role==='technician'&&name==='save_job_report'?t.description.replace(', "log this work"',''):t.description,parameters:z.toJSONSchema(t.schema,{io:'input'})})));
  const replyLanguage=LANGUAGES.find(language=>language.code===preferences.language);
