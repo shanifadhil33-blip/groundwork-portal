@@ -476,3 +476,14 @@ body:has(.app-shell) .app-main .page button.button,
 body:has(.app-shell) button.button {
  min-width:44px; min-inline-size:44px; min-height:44px; min-block-size:44px;
 }
+
+/* Phone controls must win over component sizing and translated wrapping resets. */
+@media(pointer:coarse),(max-width:640px){
+ body:has(.app-shell) :is(a[href],button,[role=button],input:not([type=hidden]),select,textarea,[role=tab],summary):not(.sr-only):not(.skip-link),
+ body:has(.app-shell) .app-main .page :is(a[href],button,[role=button],input:not([type=hidden]),select,textarea,[role=tab],summary):not(.sr-only):not(.skip-link){
+  min-width:44px;min-inline-size:44px;min-height:44px;min-block-size:44px;box-sizing:border-box;
+ }
+ body:has(.app-shell) :is(.contact-name[role=button],a.ds-link,a.text-link,.heading-row>a,.section-header>a,.ds-section-head>a,.messages-page>a){display:inline-flex;align-items:center}
+ /* Keep structured job links in their existing phone grid. */
+ body:has(.app-shell) .app-main .page a.ds-row{display:grid}
+}
