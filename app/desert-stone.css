@@ -472,7 +472,7 @@ html[dir=rtl] body:has(.app-shell) .notification-trigger .count-dot{inset-block-
 .feedback-receipt-message{white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}
 
 /* Keep translated controls above the phone wrapping rule's min-width reset. */
-@media (pointer:coarse), (max-width:640px) {
- body:has(.app-shell) .app-main .page button.button,
- body:has(.app-shell) button.button { min-width:44px; min-inline-size:44px; min-height:44px; min-block-size:44px; }
+body:has(.app-shell) .app-main .page button.button,
+body:has(.app-shell) button.button {
+ min-width:44px; min-inline-size:44px; min-height:44px; min-block-size:44px;
 }
