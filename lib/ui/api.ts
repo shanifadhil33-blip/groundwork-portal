@@ -23,6 +23,9 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
       throw new RequestError(0, networkCopy(), undefined, 'network');
     }
   }
+  return readResponse<T>(response);
+}
+async function readResponse<T>(response: Response): Promise<T> {
   const data = await response.json().catch(() => null);
   if (!response.ok) {
     handleSessionFailure(response.status, data?.error?.code);
@@ -31,6 +34,25 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   }
   if (data === null) throw new RequestError(502, 'We couldn’t read the response. Please try again.');
   return data as T;
+}
+// This endpoint commits the session and sandbox cookies before returning success.
+// Its caller only needs the status to navigate, so never wait for a streamed body.
+export async function postDemoStart(body: { persona: string; language: string }): Promise<void> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60_000);
+  try {
+    let response: Response;
+    try {
+      response = await fetch('/api/demo/start', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }, cache: 'no-store', signal: controller.signal });
+    } catch {
+      reportRequestFailure(0);
+      throw new RequestError(0, networkCopy(), undefined, 'network');
+    }
+    if (!response.ok) await readResponse<never>(response);
+  } finally {
+    clearTimeout(timeout);
+    controller.abort();
+  }
 }
 export const post = <T,>(url: string, body?: unknown, init?: Pick<RequestInit, 'signal'>) => request<T>(url, { method: 'POST', ...init, ...(body ? { body: JSON.stringify(body) } : {}) });
 const isAbort = (error: unknown) => error instanceof DOMException && error.name === 'AbortError';
