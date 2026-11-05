@@ -85,7 +85,7 @@ describe('JOB14 JOB15 PHOTO04 TECH05 TECH09 CLIENT07 LANG06', () => {
     expect(canSignOff({ role: 'technician', user: 'tech', client_id: null }, job)).toBe(false);
     expect(canSignOff({ role: 'client', user: 'home', client_id: 'client' }, { ...job, signed_off_at: '2026-11-16' })).toBe(false);
     expect(signOffRefusal({ role: 'technician', user: 'tech' }, job)).toBe(CLOSE_REPLIES.onlyClient);
-    expect(readSignOff('Please sign off WO 12')).toEqual({ order: 12 });
+    expect(readSignOff('Please sign off Job #12')).toEqual({ order: 12 });
     expect(readSignOff('sign off the other job')).toBeNull();
     expect(signOffReminder('ar-AE')).toMatch(/[\u0600-\u06FF]/);
   });

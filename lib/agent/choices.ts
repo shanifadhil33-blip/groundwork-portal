@@ -44,7 +44,7 @@ export function localizedChoice(q:{question:string;options:string[]},language?:s
  let reply=word(q.question);
  // If the model ignores the language instruction, keep the choices and ask safely.
  if(localized&&(!rightScript(reply,language??undefined)||(questionScripts[language??'']&&!questionScripts[language??''].test(reply))||/^(?:what|which|where|when|who|how|shall|should|would|could|can|do|did|are|is|save)\b/i.test(reply)))reply=word(FALLBACK);
- return {reply,choices:q.options.map(word),...(localized?{localized:true}:{})};
+ return {reply,choices:q.options.map(option=>word(option.replace('Give a WO number','Give a job number'))),...(localized?{localized:true}:{})};
 }
 
 /** Match only shipped error text; arbitrary server text is never trusted as visible copy. */

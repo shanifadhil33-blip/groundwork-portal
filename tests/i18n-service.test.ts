@@ -57,6 +57,6 @@ it('rejects bad requests before accessing the cache or AI', async () => {
 });
 it('retries cached translations that changed protected data', async () => {
   mocks.query.mockResolvedValue({rows:[{source:'Open WO-12',translated:'افتح WO-13'}]});
-  expect(await translateUi('user',{lang:'ar-AE',strings:['Open WO-12']})).toEqual({translations:{}});
+  expect(await translateUi('user',{lang:'ar-AE',strings:['Open Job #12']})).toEqual({translations:{}});
   expect(mocks.fallback).toHaveBeenCalledTimes(1);
 });

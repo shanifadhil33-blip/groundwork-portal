@@ -1,3 +1,4 @@
+import { plainJobWording } from './job-wording';
 import { equipmentKinds } from './assets';
 /** Same words as the Job report screen. Kept here so client code never imports server code. */
 const OUTCOME_LABELS={fixed:'Fixed',temporary:'Temporary fix',needs_part:'Needs a part',cant_fix:"Can't be fixed"} as const;
@@ -26,11 +27,12 @@ export function audienceStatusReply(value:string, client=false) {
 const uuid = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
 /** Remove storage identifiers and translate machine words at the final reply boundary. */
 export function plainAssistantReply(value: string, client=false) {
+  value=plainJobWording(value);
   value=value.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g,(_,a,b)=>a??b).replace(/(?<!\w)_([^_\n]+)_(?!\w)/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/^#{1,6}\s+/gm,'').replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g,'$1');
   const links: string[] = [];
   let text = value.replace(/\]\(\/work-orders\/[0-9a-f-]{36}\)/gi, link => { links.push(link);return `LINKPLACEHOLDER${links.length-1}END`; });
-  // Job numbers read WO 1 everywhere, matching the app.
-  text = text.replace(/\bWO[-\u2010\u2011\u2012 ]?(?=\d)/g, 'WO ');
+  // Job numbers read Job #1 everywhere, matching the app.
+  text = text.replace(/\b(?:WO|work order|job)[-\u2010\u2011\u2012 ]?#?\s?(?=\d)/gi, 'Job #');
   // No dashes in user facing copy: spaced en, em or plain dashes become commas.
   text = text.replace(/(\d)[^\S\n]*[\u2013\u2014][^\S\n]*(?=\d)/g, '$1 to ').replace(/[^\S\n]*[\u2013\u2014][^\S\n]*/g, ', ').replace(/(?<=\S)[^\S\n]+-[^\S\n]+(?=\S)/g, ', ');
   // Audit A18: model typography hyphens inside English words (leave‑request) read as a space, and request(s) reads requests.
@@ -86,14 +88,14 @@ export function recordResult(tool: string, args: Record<string,any>, target?: { 
   return `Updated ${tool === 'update_site' ? 'site' : 'client'} ${name}.`;
 }
 type Order = {id:string;order_number:number;title:string;status:string;priority:string;timezone?:string;due_on?:string|null;scheduled_for?:string|null};
-function assistantTarget(order: Order) { return `WO ${order.order_number} ${plainAssistantReply(order.title)}`; }
+function assistantTarget(order: Order) { return `Job #${order.order_number} ${plainAssistantReply(order.title)}`; }
 const niceDay=(d:string)=>new Intl.DateTimeFormat('en',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(`${d}T00:00:00Z`));
 /** Plain words for time off, like "Day off, Thursday 15 October". */
 export const offSpan=(kind:string,from:string,to?:string)=>`${({off:'Day off',leave:'On leave',sick:'Sick'} as Record<string,string>)[kind]??'Time off'}, ${!to||to===from?niceDay(from):`${niceDay(from)} to ${niceDay(to)}`}`;
 export function actionSummary(tool: string, args: Record<string,any>, order?: Order | null, target?: string, timezone?:string) {
   if(tool==='add_asset')return recordSummary(tool,args,{label:target??'this site'});
-  if(tool==='cancel_visit')return `Cancel WO ${order?.order_number} ${order?.title}?`;
-  if(tool==='reschedule_visit')return `Move WO ${order?.order_number} ${order?.title} to ${formatDate(args.scheduled_for,order?.timezone)}?`;
+  if(tool==='cancel_visit')return `Cancel Job #${order?.order_number} ${order?.title}?`;
+  if(tool==='reschedule_visit')return `Move Job #${order?.order_number} ${order?.title} to ${formatDate(args.scheduled_for,order?.timezone)}?`;
   if(tool === 'fill_onboarding') return 'Save these setup answers?\n'+Object.entries(args.answers??{}).map(([k,v])=>`${readableLabel(k)}: ${typeof v==='object'?JSON.stringify(v):v}`).join('\n');
   if(tool === 'suggest_contact_name') return `Save ${target??'this contact'} as ${args.nickname}?`;
   if(tool === 'remember_word') return `Remember this word?\n${args.phrase} means ${target??args.means_text??'the chosen '+args.means_kind}.\n${args.scope==='company'?'Company words':'Your words'}`;

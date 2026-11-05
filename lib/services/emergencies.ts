@@ -13,7 +13,7 @@ export async function reportEmergency(user: string, ws: string, words: string, i
  const context = await inWorkspace(user, ws, async c => {
   checkTenantInput(c,intake.tenant);
   const sites = (await c.db.query('SELECT id,client_id,name FROM sites WHERE workspace_id=$1 AND archived_at IS NULL ORDER BY id', [ws])).rows;
-  const number = words.match(/\bWO\s*(\d+)\b/i)?.[1];
+  const number = words.match(/(?:\b(?:WO|job|work order)|مهمة)\s*[-#]?\s*(\d+)\b/i)?.[1];
   const job = intake.work_order_id || number ? (await c.db.query('SELECT id,site_id,assignee_id FROM work_orders WHERE workspace_id=$1 AND (id=$2 OR order_number=$3)', [ws, intake.work_order_id ?? null, number ? Number(number) : null])).rows[0] : null;
   const site = sites.find(s => s.id === (intake.site_id ?? job?.site_id)) ?? sites.find(s => words.toLowerCase().includes(String(s.name).toLowerCase())) ?? (sites.length === 1 ? sites[0] : null);
   return { client_kind:c.client_kind,role: c.role, client: c.client_id, site, job };
@@ -68,7 +68,7 @@ export async function reportEmergency(user: string, ws: string, words: string, i
    const id = (await db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,$3,$4,$5,$6) RETURNING id', [ws,user,tool,JSON.stringify(args),summary,why])).rows[0].id;
    pending_action = { id, tool, args, summary, why };
   }
-  const result = { notificationIds, recipients: recipients.map(r => String(r.user_id)), notification: message, available: true, emergency: true, reply: reply + (!falseAlarm && context.role !== 'client' && kind !== 'people' && !pending_action && intake.prepareCard !== false ? '\n\nTell me the site or WO number to prepare the job card.' : ''), ...(pending_action ? {pending_action} : {}), job, request, kind };
+  const result = { notificationIds, recipients: recipients.map(r => String(r.user_id)), notification: message, available: true, emergency: true, reply: reply + (!falseAlarm && context.role !== 'client' && kind !== 'people' && !pending_action && intake.prepareCard !== false ? '\n\nTell me the site or job number to prepare the job card.' : ''), ...(pending_action ? {pending_action} : {}), job, request, kind };
   await db.query('INSERT INTO idempotency_keys(user_id,scope,key,fingerprint,result) VALUES($1,$2,$3,$4,$5) ON CONFLICT(user_id,scope,key) DO UPDATE SET result=excluded.result,fingerprint=excluded.fingerprint,created_at=now()', [user,scope,key,hash(words),JSON.stringify(result)]);
   return result;
  }, user);

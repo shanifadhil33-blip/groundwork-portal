@@ -45,11 +45,11 @@ it('validates 500 mapped rows from one lookup read and preserves duplicate/date 
  expect(results.every(r=>r.status==='valid')).toBe(true);expect(query).toHaveBeenCalledTimes(1);
  expect(results[0].data).toMatchObject({site_id:site.id,due_on:'2026-11-13',scheduled_for:'2026-11-12'});
  const duplicate=await validateRow(c,{...inputs[0],external_ref:'USED'},undefined,1,lookup);
- expect(duplicate.errors[0]).toMatchObject({field:'external_ref',code:'duplicate_ref',message:'External reference already used by WO 9.'});
+ expect(duplicate.errors[0]).toMatchObject({field:'external_ref',code:'duplicate_ref',message:'External reference already used by Job #9.'});
  const repeated=await validateRow(c,inputs[0],seen,501,lookup);
  expect(repeated.errors).toContainEqual(expect.objectContaining({code:'duplicate_file',message:'Duplicate of row 1'}));
  addLookupOrder(lookup,{order_number:10,title:'Another job',status:'open',site_id:site.id,external_ref:null,due_on:'2026-11-13',scheduled_for:'2026-11-12'});
  const same=await validateRow(c,{...inputs[0],title:'Another job',external_ref:''},undefined,1,lookup);
- expect(same.errors).toContainEqual(expect.objectContaining({code:'duplicate_open',message:'Already open as work order WO 10'}));
+ expect(same.errors).toContainEqual(expect.objectContaining({code:'duplicate_open',message:'Already open as Job #10'}));
  expect(query).toHaveBeenCalledTimes(1);
 });

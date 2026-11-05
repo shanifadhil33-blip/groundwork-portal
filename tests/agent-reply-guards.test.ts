@@ -9,7 +9,7 @@ it('a tool call written as text counts as a broken reply, a normal sentence does
   expect(brokenReply('Let me check. {"name": "list_work_orders", "arguments": {"status": "open"}}')).toBe(true);
   expect(brokenReply('<tool_call>needs_attention</tool_call>')).toBe(true);
   expect(brokenReply('<function=waiting_prices>{}</function>')).toBe(true);
-  expect(brokenReply('Your price for WO 12 is AED 150.00. Reply Yes to approve it.')).toBe(false);
+  expect(brokenReply('Your price for Job #12 is AED 150.00. Reply Yes to approve it.')).toBe(false);
 });
 it('what needs my attention is answered from app data without AI', () => {
   for (const q of ['What needs my attention?', 'what needs attention', 'Anything that needs my attention?']) expect(quickLookup(q)).toBe('attention');

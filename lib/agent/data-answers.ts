@@ -58,7 +58,7 @@ const STATUS: Record<string, string> = { open: 'Open', scheduled: 'Visit booked'
 const label = (s: string) => STATUS[s] ?? s.replace(/_/g, ' ');
 /** Visit times in the workspace time zone, never the server's own clock (Asia/Dubai when unknown). */
 const when = (v: unknown, tz: string = workspaceTimezone) => { if (!v) return ''; const d = new Date(String(v)); if (Number.isNaN(d.getTime())) return String(v); return d.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: tz }); };
-const line = (j: any, tz?: string) => `• WO ${j.order_number}: ${j.title}${j.site_name ? ` at ${j.site_name}` : ''}${j.scheduled_for ? `, ${when(j.scheduled_for, tz)}` : ''} (${label(j.status)})`;
+const line = (j: any, tz?: string) => `• Job #${j.order_number}: ${j.title}${j.site_name ? ` at ${j.site_name}` : ''}${j.scheduled_for ? `, ${when(j.scheduled_for, tz)}` : ''} (${label(j.status)})`;
 const plural = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 
 /** The workspace time zone for dates in replies; Asia/Dubai when it can not be read. */
@@ -103,8 +103,8 @@ async function late(c: AgentContext, tz?: string) {
 
 async function job(c: AgentContext, n: number, tz?: string) {
   const j = await read(c, 'get_work_order_by_number', { number: n });
-  if (!j) return `I could not find WO ${n}. Check the number on the Work orders page.`;
-  const bits = [`WO ${j.order_number}: ${j.title}`, `Status: ${label(j.status)}`];
+  if (!j) return `I could not find Job #${n}. Check the number on the Jobs page.`;
+  const bits = [`Job #${j.order_number}: ${j.title}`, `Status: ${label(j.status)}`];
   if (j.site_name ?? j.site?.name) bits.push(`Site: ${j.site_name ?? j.site.name}`);
   if (j.assignee_name) bits.push(`Assigned to: ${j.assignee_name}`);
   if (j.scheduled_for) bits.push(`Visit: ${when(j.scheduled_for, j.timezone ?? tz)}`);
@@ -153,7 +153,7 @@ export async function dataAnswer(c: AgentContext, question: string): Promise<str
   const tz = await workspaceZone(c);
   try {
     const answer = intent === 'job' ? await job(c, number!, tz) : intent === 'late' ? await late(c, tz) : intent === 'messages' ? await messages(c) : intent === 'suggestions' ? await suggestions(c) : intent === 'leave' ? await leave(c) : intent === 'today' ? await today(c, tz) : await attention(c);
-    if (answer) return intent === 'summary' ? `${answer}\n\nYou can also ask about today's jobs, late jobs, or a job number like WO 12.` : answer;
+    if (answer) return intent === 'summary' ? `${answer}\n\nYou can also ask about today's jobs, late jobs, or a job number like #12.` : answer;
   } catch { /* fall through to the summary */ }
   try { const t = await today(c, tz); if (t) return t; } catch { /* ignore */ }
   return 'I can show today\'s jobs, late jobs, a job by its number, suggested jobs and messages. Which would you like?';
@@ -258,7 +258,7 @@ export async function countAnswer(c: AgentContext, question: string, who: { role
     const word=choiceWords(who.language);
     const localized=countLocalized(who.language);
     const ar = !!who.language?.startsWith('ar');
-    const lines = r.data.slice(0, 5).map((j: any) => [`WO ${j.order_number} ${j.title}`, j.site_name, word(j.outcome_label)].filter(Boolean).join(ar ? '، ' : ', '));
+    const lines = r.data.slice(0, 5).map((j: any) => [`Job #${j.order_number} ${j.title}`, j.site_name, word(j.outcome_label)].filter(Boolean).join(ar ? '، ' : ', '));
     return { text: [fixesLine(who.language, r.summary), ...lines, localized ? word('My record') : 'See all in My record.'].join('\n'), localized };
   }
   const person = countPerson(question);

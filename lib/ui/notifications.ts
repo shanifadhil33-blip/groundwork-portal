@@ -1,3 +1,4 @@
+import { plainJobWording } from './job-wording';
 import { formatInLang, uiLang } from '../date-lang';
 import { savedReturnNotice } from '../status-updates';
 import { label, clientStatusLabels, statusLabels, type Detail } from './work-orders';
@@ -61,7 +62,7 @@ export const notificationTemplates = {
  cant_fix: 'Our technician could not fix this today. The supervisor will call you.',
  no_access: 'Our technician came at {time} but could not get in. Choose a new time.',
  part_booked: 'The part has arrived. Your visit is booked for {time}.',
- done: 'Your job is done. Please rate it. WO {n} {job}',
+ done: 'Your job is done. Please rate it. Job #{n} {job}',
  more_one: '{count} more update on this job',
  more_many: '{count} more updates on this job',
 } as const;
@@ -147,10 +148,10 @@ export function notificationTemplate(r: Record<string, any>, client = false): No
 }
 
 export function notificationParts(message: NotificationTemplate, words: Record<string,string> = {}, language = uiLang()) {
- const template=words[message.key]??message.key;
+ const template=plainJobWording(words[message.key]??message.key,language);
  return template.split(/(\{[a-z_]+\})/g).filter(Boolean).map(part=>{
   const name=part.match(/^\{([a-z_]+)\}$/)?.[1];
-  const raw=name?message.values[name]:undefined;
+  const raw=name&&message.values[name]!==undefined?plainJobWording(message.values[name],language):undefined;
   const date=name?message.dateValues?.[name]:undefined;
   const calendar=!!date&&/^\d{4}-\d{2}-\d{2}$/.test(date);
   const value=date?formatInLang(calendar?`${date}T12:00:00Z`:date,calendar?{dateStyle:'medium',timeZone:'UTC'}:{dateStyle:'full',timeStyle:'short',timeZone:message.timezone??'Asia/Dubai'},language,language):raw;

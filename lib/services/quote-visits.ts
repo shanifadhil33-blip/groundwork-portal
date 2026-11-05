@@ -48,7 +48,7 @@ export async function quoteVisitFromWords(user:string,ws:string,messages:{role:s
    await c.db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,'quote_visit_intake',$3,'Quote visit','Choose a site.')",[ws,user,JSON.stringify({words:original.slice(0,2000)})]);
    return {available:true,reply:'Which site is this for?',choices:sites.map(s=>s.name)};
   }
-  if(c.client_kind==='household'||!priceQuestion.test(words)||/\b(?:WO\s*\d|status|paid|invoice|waiting|approve|decline)\b|حالة|موعد|எப்போது|എപ്പോൾ/iu.test(words))return null;
+  if(c.client_kind==='household'||!priceQuestion.test(words)||/\b(?:(?:WO|Job)\s*#?\s*\d|status|paid|invoice|waiting|approve|decline)\b|حالة|موعد|எப்போது|എപ്പോൾ/iu.test(words))return null;
   const site=sites.find(s=>words.toLocaleLowerCase().includes(s.name.toLocaleLowerCase()))??(sites.length===1?sites[0]:null);
   const charge=await visitChargeFor(c,site?.id??null);
   return {available:true,reply:charge.amount==null?'The office will confirm the price.':`The visit charge is **${charge.currency} ${charge.amount.toFixed(2)}**.\n\n${FULL_PRICE}`,choices:['Quote visit']};

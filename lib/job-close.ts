@@ -139,7 +139,7 @@ export function draftCost(lines: DraftLine[]) {
 
 export function readSignOff(text: string) {
   const words = text.normalize('NFC').trim().replace(/[.!?؟]+$/u, '').replace(/\s+/gu, ' ');
-  const numbered = /^(?:please\s+)?sign off(?:\s+wo\s*(\d+))?$/i.exec(words) || /^(?:اعتماد|اعتمد)(?:\s*(\d+))?$/.exec(words);
+  const numbered = /^(?:please\s+)?sign off(?:\s+(?:wo|job|work order|مهمة)\s*#?\s*(\d+))?$/i.exec(words) || /^(?:اعتماد|اعتمد)(?:\s*(\d+))?$/.exec(words);
   if (!numbered) return null;
   return { order: numbered[1] ? Number(numbered[1]) : null };
 }

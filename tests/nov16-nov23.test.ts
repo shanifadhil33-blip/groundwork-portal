@@ -135,6 +135,6 @@ describe('PR 2 review fixes', () => {
     expect(classifyCorrection('Never mind, show my jobs')).toBeNull();
     expect(classifyCorrection('I am off just today')).toBeNull();
     expect(classifyCorrection('From now on put Marina jobs first')).toMatchObject({ kind: 'ask' });
-    expect(classifyCorrection('Just this once move WO 12')).toEqual({ kind: 'once' });
+    expect(classifyCorrection('Just this once move Job #12')).toEqual({ kind: 'once' });
   });
 });

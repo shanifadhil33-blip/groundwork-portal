@@ -81,8 +81,8 @@ it('the four quick questions return counts and at most five fixes with no AI', a
   expect(r.quick).toBe(true);
   expect(r.reply.split('\n')[0]).toBe(fixesLine('en',record.summary));
   expect(r.reply.split('\n').at(-1)).toBe('See all in My record.');
-  expect(r.reply.split('\n').filter((l:string)=>l.startsWith('WO ')).length).toBeLessThanOrEqual(5);
-  expect(r.reply.split('\n').slice(1,-1)).toEqual(record.data.slice(0,5).map(j=>`WO ${j.order_number} ${j.title}, ${j.site_name ?? ''}, ${j.outcome_label}`));
+  expect(r.reply.split('\n').filter((l:string)=>l.startsWith('Job #')).length).toBeLessThanOrEqual(5);
+  expect(r.reply.split('\n').slice(1,-1)).toEqual(record.data.slice(0,5).map(j=>`Job #${j.order_number} ${j.title}, ${j.site_name ?? ''}, ${j.outcome_label}`));
  }
  expect(assistantTurn).not.toHaveBeenCalled();
 });

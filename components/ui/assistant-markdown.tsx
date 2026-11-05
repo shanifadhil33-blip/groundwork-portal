@@ -1,3 +1,4 @@
+import { plainJobWording } from '../../lib/ui/job-wording';
 import React, { Fragment, type ReactNode } from 'react';
 import { DirectedLines } from './directed-lines';
 import { lineDirection } from '../../lib/ui/text-direction';
@@ -7,6 +8,7 @@ function inline(text:string,renderText:(text:string)=>ReactNode=t=>t):ReactNode[
 }
 // Only local work-order links are clickable. HTML and all other links remain escaped text.
 export function AssistantMarkdown({text,renderText}:{text:string;renderText?:(text:string)=>ReactNode}) {
+ text=plainJobWording(text);
  const blocks:ReactNode[]=[],lines=text.split('\n');
  for(let i=0;i<lines.length;) {
   if(!lines[i].trim()){i++;continue;}

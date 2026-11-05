@@ -55,7 +55,7 @@ async function queueSignOff(user: string, ws: string, order: number | null) {
     const visible = jobs.filter(job => canSignOff(actor, job));
     if (visible.length !== 1) return { available: true as const, reply: visible.length ? 'Open the job to sign off.' : (signOffRefusal(actor, jobs[0] ?? { status: 'open', client_id: '' }) ?? CLOSE_REPLIES.onlyClient) };
     const job = visible[0];
-    return card(user, ws, 'sign_off', { id: job.id }, `${CLOSE_REPLIES.signOffAsk} WO ${job.order_number} ${job.title}`);
+    return card(user, ws, 'sign_off', { id: job.id }, `${CLOSE_REPLIES.signOffAsk} Job #${job.order_number} ${job.title}`);
   });
 }
 
@@ -97,7 +97,7 @@ export async function planFromWords(user: string, ws: string, words: string) {
       if (!plan.can_plan) return { available: true as const, reply: word(DAY_REPLIES.onlyPlanner), localized: true };
       if (!plan.lines.length || !plan.lines.some(line => line.kind === 'place')) return { available: true as const, reply: word(DAY_REPLIES.nothingToPlan), localized: true };
       const summary = [plan.today, word(DAY_REPLIES.approve), ...plan.lines.map(line =>
-        `WO ${line.order} ${line.title}: ${line.assignee_name ?? word(DAY_REPLIES.noBackup)}`)].join('\n');
+        `Job #${line.order} ${line.title}: ${line.assignee_name ?? word(DAY_REPLIES.noBackup)}`)].join('\n');
       const queued = await card(user, ws, 'approve_day_plan', { kind: 'morning', date: plan.today, fingerprint: plan.fingerprint }, summary, word('Nothing is saved until you say yes.'));
       return { ...queued, localized: true };
     }

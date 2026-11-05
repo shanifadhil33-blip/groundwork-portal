@@ -53,7 +53,7 @@ export async function validateRow(c:Context,input:Partial<RowData>,seen?:Map<str
   const key='ref:'+data.external_ref.toLowerCase();
   if(seen?.has(key))error('external_ref','duplicate_file',`Duplicate of row ${seen.get(key)}`);else seen?.set(key,number);
   const duplicate=lookup?lookup.references.get(data.external_ref.toLowerCase()):(await c.db.query('SELECT order_number FROM work_orders WHERE workspace_id=$1 AND lower(external_ref)=lower($2) LIMIT 1',[c.ws,data.external_ref])).rows[0];
-  if(duplicate)error('external_ref','duplicate_ref',`External reference already used by WO ${duplicate.order_number}.`);
+  if(duplicate)error('external_ref','duplicate_ref',`External reference already used by Job #${duplicate.order_number}.`);
  }
  if(data.site_id) {
   // A repeated title is only a duplicate when site, reference and dates also match.
@@ -61,7 +61,7 @@ export async function validateRow(c:Context,input:Partial<RowData>,seen?:Map<str
   if(seen?.has(key))error('title','duplicate_file',`Duplicate of row ${seen.get(key)}`);else seen?.set(key,number);
   const matches=lookup?(lookup.titles.get(normalTitle(data.title))??[]):(await c.db.query(`SELECT order_number,site_id,external_ref,due_on,scheduled_for FROM work_orders WHERE workspace_id=$1 AND status NOT IN ('done','cancelled') AND lower(regexp_replace(trim(title),'\\s+',' ','g'))=$2`,[c.ws,normalTitle(data.title)])).rows;
   const same=matches.find(order=>order.site_id===data.site_id && (order.external_ref??'').toLowerCase()===data.external_ref.toLowerCase() && (order.due_on??'')===data.due_on && (order.scheduled_for?localDate(order.scheduled_for,timezone):'')===(data.scheduled_for?localDate(data.scheduled_for,timezone):''));
-  if(same)error('title','duplicate_open',`Already open as work order WO ${same.order_number}`);
+  if(same)error('title','duplicate_open',`Already open as Job #${same.order_number}`);
   else if(matches.length)warnings.push({field:'title',code:'similar_title',message:'A work order has a similar title. Check the site, reference and dates.'});
  }
  return {data,errors,warnings,status:errors.length?'error':warnings.length?'warning':'valid'};

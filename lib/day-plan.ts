@@ -145,7 +145,7 @@ const norm = (text: string) => text.normalize('NFC').trim().replace(/[.!?؟]+$/u
 
 export function readOnTheWay(text: string) {
   const words = norm(text);
-  const english = /^(?:i am|i'm|im) on the way(?: to (?:wo\s*)?(\d+))?$/.exec(words);
+  const english = /^(?:i am|i'm|im) on the way(?: to (?:(?:wo|job|work order|مهمة)\s*#?\s*)?(\d+))?$/.exec(words);
   const arabic = /^(?:انا|أنا) (?:في|على) الطريق(?:\s+(\d+))?$/.exec(text.normalize('NFC').trim());
   const hit = english || arabic;
   if (!hit) return null;

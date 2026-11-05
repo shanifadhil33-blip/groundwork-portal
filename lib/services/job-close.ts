@@ -106,7 +106,7 @@ export async function signOffJob(user: string, ws: string, id: string, input?: {
     const to = actor.role === 'client' && stars ? await writeRating(db, user, ws, id, String(actor.client_id), stars, thanks) : [];
     return { reply, to, title: job.title, order: job.order_number };
   }, user);
-  if (saved.to.length) await sendPush(saved.to, { title: 'Low rating', body: `WO ${saved.order} ${saved.title}`, url: `/work-orders/${id}`, tag: `rating-${id}` });
+  if (saved.to.length) await sendPush(saved.to, { title: 'Low rating', body: `Job #${saved.order} ${saved.title}`, url: `/work-orders/${id}`, tag: `rating-${id}` });
   return { reply: saved.reply };
 }
 
@@ -122,7 +122,7 @@ export async function thankJob(user: string, ws: string, id: string, input?: { s
     const to = !existing && stars ? await writeRating(db, user, ws, id, String(actor.client_id), stars, thanks) : [];
     return { reply: CLOSE_REPLIES.thanks, to, title: job.title, order: job.order_number };
   }, user);
-  if (saved.to.length) await sendPush(saved.to, { title: 'Low rating', body: `WO ${saved.order} ${saved.title}`, url: `/work-orders/${id}`, tag: `rating-${id}` });
+  if (saved.to.length) await sendPush(saved.to, { title: 'Low rating', body: `Job #${saved.order} ${saved.title}`, url: `/work-orders/${id}`, tag: `rating-${id}` });
   return { reply: saved.reply };
 }
 

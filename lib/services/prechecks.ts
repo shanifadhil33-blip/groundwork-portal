@@ -26,6 +26,6 @@ export async function savePrecheck(user: string, ws: string, id: string, input: 
   });
   const s = precheckState(out.r.answers);
   // Only a problem is worth a ping: a full yes stays quiet (no notification floods).
-  if (!s.ready) await sendPush([out.w.assignee_id, ...(await office(ws, out.w.client_id, null))].filter(u => u && u !== user), { title: 'Visit check: not ready', body: `WO ${out.w.order_number} ${out.w.title}: ${s.missing.join(', ')}`, url: `/work-orders/${id}`, tag: `precheck-${id}` });
+  if (!s.ready) await sendPush([out.w.assignee_id, ...(await office(ws, out.w.client_id, null))].filter(u => u && u !== user), { title: 'Visit check: not ready', body: `Job #${out.w.order_number} ${out.w.title}: ${s.missing.join(', ')}`, url: `/work-orders/${id}`, tag: `precheck-${id}` });
   return { precheck: out.r, ...s, can_answer: true };
 }

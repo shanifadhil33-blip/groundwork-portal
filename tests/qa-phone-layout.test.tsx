@@ -9,8 +9,8 @@ import { WorkOrderCard } from '../components/app/work-order-card';
 import { workOrderTitle, type WorkOrder } from '../lib/ui/work-orders';
 const order:WorkOrder={id:'order',order_number:54,title:'Replace washroom tap — Northgate East / 54',site_name:'Northgate East',client_name:'Northgate',assignee_name:'Sam',client_id:'client',site_id:'site',status:'waiting_on_parts',priority:'high',assignee_id:'sam',due_on:'2026-10-10',scheduled_for:null,created_at:'2026-10-09T08:00:00Z',updated_at:'2026-10-09T08:00:00Z',description:''};
 it('uses one shared header with separate number, title, status and actions',()=>{
- const html=renderToStaticMarkup(<PageHeader><div><span className="order-number">WO-60</span><div className="detail-title"><h1>Service rooftop ventilation</h1><span>Cancelled</span></div></div><div className="detail-actions"><p>This work order is cancelled.</p><button>Edit work order</button></div></PageHeader>);
- expect(html).toContain('<header class="heading-row page-header">');expect(html).toContain('WO-60</span>');expect(html).toContain('<h1>Service rooftop ventilation</h1>');expect(html).toContain('This work order is cancelled.');
+ const html=renderToStaticMarkup(<PageHeader><div><span className="order-number">Job #60</span><div className="detail-title"><h1>Service rooftop ventilation</h1><span>Cancelled</span></div></div><div className="detail-actions"><p>This work order is cancelled.</p><button>Edit work order</button></div></PageHeader>);
+ expect(html).toContain('<header class="heading-row page-header">');expect(html).toContain('Job #60</span>');expect(html).toContain('<h1>Service rooftop ventilation</h1>');expect(html).toContain('This work order is cancelled.');
 });
 it('retains table semantics and labels every cell in mapped rows, including Actions',()=>{
  const html=renderToStaticMarkup(<ResponsiveTable><table><thead><tr><th>Member</th><th><span>Role</span></th><th/></tr></thead><tbody>{['Imran','Sam'].map((name,i)=><tr key={name}><td>{name}</td><td>{i?'Staff':'Admin'}</td><td><button>Remove member</button></td></tr>)}</tbody></table></ResponsiveTable>);

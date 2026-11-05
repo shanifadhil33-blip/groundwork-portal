@@ -132,15 +132,15 @@ it('uses the server dictionary for exact demo descriptions without another langu
 it.each(['hi', 'ar-AE'])('settles missing words, codes and identity translations visibly in %s server HTML', language => {
  const words = {Known: language === 'hi' ? 'ज्ञात' : 'معروف', Groundwork: 'Groundwork'};
  const html = renderToStaticMarkup(<AppWords language={language} words={words}><Translated>
-  <p>Known</p><p>Missing word</p><span className="order-number">WO 39</span><span className="initials">SA</span><p>Groundwork</p>
+  <p>Known</p><p>Missing word</p><span className="order-number">Job #39</span><span className="initials">SA</span><p>Groundwork</p>
   <input placeholder="Missing hint" aria-label="Missing label"/><select><option>Missing option</option></select>
  </Translated></AppWords>);
  expect(html).toContain(words.Known);
- for (const source of ['Missing word', 'WO 39', 'SA', 'Groundwork', 'Missing hint', 'Missing label', 'Missing option']) expect(html).toContain(source);
+ for (const source of ['Missing word', 'Job #39', 'SA', 'Groundwork', 'Missing hint', 'Missing label', 'Missing option']) expect(html).toContain(source);
  expect(html).not.toMatch(/visibility:hidden|aria-busy="true"|…/);
 });
 
-it.each(['loaded', 'http error', 'network error'] as const)('reveals pending missing words and WO 39 after a dictionary %s', async outcome => {
+it.each(['loaded', 'http error', 'network error'] as const)('reveals pending missing words and Job #39 after a dictionary %s', async outcome => {
  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
  let resolve!: (response: Response) => void;
  let reject!: (error: Error) => void;
@@ -148,7 +148,7 @@ it.each(['loaded', 'http error', 'network error'] as const)('reveals pending mis
  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host);
  try {
   await act(async () => root.render(<AppWords language="en-IN" words={{}}><Translated>
-   <p>Known</p><p>Missing word</p><span className="order-number">WO 39</span>
+   <p>Known</p><p>Missing word</p><span className="order-number">Job #39</span>
    <input placeholder="Missing hint"/><select><option>Missing option</option></select>
   </Translated></AppWords>));
   await act(async () => changeAppLanguage('hi'));
@@ -159,7 +159,7 @@ it.each(['loaded', 'http error', 'network error'] as const)('reveals pending mis
    else resolve(new Response(JSON.stringify({Known: 'ज्ञात', 'Missing word': null}), {status: outcome === 'http error' ? 503 : 200}));
   });
   expect(host.textContent).toContain(outcome === 'loaded' ? 'ज्ञात' : 'Known');
-  expect(host.textContent).toContain('Missing word'); expect(host.querySelector('.order-number')?.textContent).toBe('WO 39');
+  expect(host.textContent).toContain('Missing word'); expect(host.querySelector('.order-number')?.textContent).toBe('Job #39');
   expect(host.querySelector('input')?.placeholder).toBe('Missing hint'); expect(host.querySelector('option')?.textContent).toBe('Missing option');
   expect(host.querySelector('[aria-busy="true"], [style*="visibility: hidden"]')).toBeNull();
  } finally { await act(async () => root.unmount()); host.remove(); }
@@ -172,7 +172,7 @@ it('ships the Hindi account mode and composer words for the first paint', () => 
  expect(html).not.toMatch(/>Work<|>My home<|\bAgent\b|aria-busy="true"/);
 });
 
-// Exercise the real split string/number children, not a single "WO 39" literal.
+// Exercise the real split string/number children, not a single "Job #39" literal.
 function OrderLists({language, pending = false}: {language: string; pending?: boolean}) {
  const words = pending ? null : language === 'en-IN' ? {} : JSON.parse(readFileSync(`public/i18n/${language}.json`, 'utf8'));
  const job = {id:'job', order_number:39, title:'Fixture title', status:'open', quote_status:'pending'};

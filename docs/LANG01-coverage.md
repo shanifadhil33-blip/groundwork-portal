@@ -14,39 +14,59 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2717 | 6 | 1711 | 0 | 1005 | 1 | 0 | 0 |
-| ne | 2717 | 7 | 1386 | 0 | 1331 | 0 | 0 | 0 |
-| hi | 2717 | 5 | 1401 | 0 | 1316 | 0 | 0 | 0 |
-| ur | 2717 | 7 | 1386 | 0 | 1331 | 0 | 0 | 0 |
-| bn | 2717 | 6 | 1402 | 0 | 1315 | 0 | 0 | 0 |
-| ml | 2717 | 19 | 1370 | 0 | 1347 | 0 | 0 | 0 |
-| ta | 2717 | 6 | 1401 | 0 | 1315 | 1 | 0 | 0 |
-| ps | 2717 | 6 | 1384 | 0 | 1333 | 0 | 0 | 0 |
-| fa-AF | 2717 | 15 | 1370 | 0 | 1347 | 0 | 0 | 0 |
-| fa-IR | 2717 | 3 | 1382 | 0 | 1335 | 0 | 0 | 0 |
-| fil | 2717 | 8 | 1369 | 0 | 1347 | 1 | 0 | 0 |
-| zh-CN | 2717 | 19 | 1356 | 0 | 1361 | 0 | 0 | 0 |
-| sw-KE | 2717 | 18 | 1355 | 0 | 1362 | 0 | 0 | 0 |
-| am | 2717 | 18 | 1355 | 0 | 1362 | 0 | 0 | 0 |
-| ti | 2717 | 18 | 1372 | 0 | 1344 | 1 | 0 | 0 |
-| so | 2717 | 18 | 1370 | 0 | 1346 | 0 | 1 | 0 |
-| yo | 2717 | 18 | 1353 | 0 | 1364 | 0 | 0 | 0 |
-| ha | 2717 | 18 | 1371 | 0 | 1346 | 0 | 0 | 0 |
-| ig | 2717 | 18 | 1366 | 0 | 1351 | 0 | 0 | 0 |
-| lg | 2717 | 18 | 1353 | 0 | 1362 | 2 | 0 | 0 |
-| tw | 2717 | 18 | 1364 | 0 | 1353 | 0 | 0 | 0 |
+| ar-AE | 2718 | 6 | 1712 | 0 | 1005 | 1 | 0 | 0 |
+| ne | 2718 | 7 | 1386 | 0 | 1331 | 1 | 0 | 0 |
+| hi | 2718 | 5 | 1401 | 0 | 1316 | 1 | 0 | 0 |
+| ur | 2718 | 7 | 1386 | 0 | 1331 | 1 | 0 | 0 |
+| bn | 2718 | 6 | 1402 | 0 | 1315 | 1 | 0 | 0 |
+| ml | 2718 | 19 | 1370 | 0 | 1347 | 1 | 0 | 0 |
+| ta | 2718 | 6 | 1401 | 0 | 1315 | 2 | 0 | 0 |
+| ps | 2718 | 6 | 1384 | 0 | 1333 | 1 | 0 | 0 |
+| fa-AF | 2718 | 15 | 1370 | 0 | 1347 | 1 | 0 | 0 |
+| fa-IR | 2718 | 3 | 1382 | 0 | 1335 | 1 | 0 | 0 |
+| fil | 2718 | 8 | 1369 | 0 | 1347 | 2 | 0 | 0 |
+| zh-CN | 2718 | 19 | 1356 | 0 | 1361 | 1 | 0 | 0 |
+| sw-KE | 2718 | 18 | 1355 | 0 | 1362 | 1 | 0 | 0 |
+| am | 2718 | 18 | 1355 | 0 | 1362 | 1 | 0 | 0 |
+| ti | 2718 | 18 | 1372 | 0 | 1344 | 2 | 0 | 0 |
+| so | 2718 | 18 | 1370 | 0 | 1346 | 1 | 1 | 0 |
+| yo | 2718 | 18 | 1353 | 0 | 1364 | 1 | 0 | 0 |
+| ha | 2718 | 18 | 1371 | 0 | 1346 | 1 | 0 | 0 |
+| ig | 2718 | 18 | 1366 | 0 | 1351 | 1 | 0 | 0 |
+| lg | 2718 | 18 | 1353 | 0 | 1362 | 3 | 0 | 0 |
+| tw | 2718 | 18 | 1364 | 0 | 1353 | 1 | 0 | 0 |
 
 ## Existing values needing review
 
 These values are retained for review and are not counted as usable.
 
 - ar-AE: "page." (wrong script)
+- ne: "Job #" (wrong script)
+- hi: "Job #" (wrong script)
+- ur: "Job #" (wrong script)
+- bn: "Job #" (wrong script)
+- ml: "Job #" (wrong script)
+- ta: "Job #" (wrong script)
 - ta: "Reported problem" (wrong script)
+- ps: "Job #" (wrong script)
+- fa-AF: "Job #" (wrong script)
+- fa-IR: "Job #" (wrong script)
+- fil: "Job #" (wrong script)
 - fil: "Privacy" (wrong script)
+- zh-CN: "Job #" (wrong script)
+- sw-KE: "Job #" (wrong script)
+- am: "Job #" (wrong script)
+- ti: "Job #" (wrong script)
 - ti: "Why:" (wrong script)
+- so: "Job #" (wrong script)
 - so: "My AI agent" (English unchanged)
+- yo: "Job #" (wrong script)
+- ha: "Job #" (wrong script)
+- ig: "Job #" (wrong script)
 - lg: "Before" (wrong script)
 - lg: "Before and after photos are made smaller on your phone before upload, and the location and camera details inside the photo are removed. Only the picture is stored." (wrong script)
+- lg: "Job #" (wrong script)
+- tw: "Job #" (wrong script)
 
 ## Remaining source gaps
 
@@ -197,7 +217,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Building name or number, and office or unit." — All
 - "By continuing, you agree to the" — All
 - "Calls you" — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Cancel WO {value1} {value2}?" — All
+- "Cancel Job #{value1} {value2}?" — All
 - "Cancel edits" — All
 - "Cancel job" — All
 - "Cancel job instead" — All
@@ -484,6 +504,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Its {value1}{value2} will be deleted too." — All
 - "I’ve saved my key" — All
 - "Job #{order_number}" — All
+- "Job #{order_number} {value2}" — All
 - "Job completed" — All
 - "Job created." — All
 - "Job done" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -561,7 +582,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Match each column. Only the job name is needed." — All
 - "Member client" — All
 - "Memory" — ml, fa-AF, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Message for WO {value1}" — All
+- "Message for Job #{value1}" — All
 - "Message for job #{value1}" — All
 - "Message photo" — All
 - "Message removed by an admin" — All
@@ -1130,7 +1151,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Visit scheduled for {value1}" — All
 - "Visits in the contract" — All
 - "Voice input is unavailable in this browser. You can type your message." — All
-- "WO {order_number} {value2}" — All
 - "Waiting for other companies" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Waiting for the owner" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Waiting for your approval" — All
@@ -1438,4 +1458,4 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "· AC" — ps, fil, sw-KE, am, so, yo, ha, ig, lg, tw
 - "· Off every {value1}" — All
 - "· Plumbing" — yo
-- "→ WO-{work_order_number}" — All
+- "→ Job #{work_order_number}" — All

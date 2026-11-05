@@ -9,7 +9,7 @@ it('renders formatting and escapes model HTML',()=>{
 it('makes only local work-order links clickable without showing their storage identifier',()=>{
  const id='50000000-0000-4000-8000-000000000058';
  const html=renderToStaticMarkup(<AssistantMarkdown text={`Moved [WO-58 Test access control reader](/work-orders/${id}) to In Progress.\n\n[unsafe](javascript:alert(1)) [external](https://example.test)`}/>);
- expect(html).toContain(`<a href="/work-orders/${id}">WO-58 Test access control reader</a>`);
+ expect(html).toContain(`<a href="/work-orders/${id}">Job #58 Test access control reader</a>`);
  expect(html).not.toContain('href="javascript:');expect(html).not.toContain('href="https://');
  expect(html.replace(/href="[^"]*"/g,'')).not.toContain(id);
 });

@@ -1,3 +1,4 @@
+import { plainJobWording } from '../ui/job-wording';
 import { notificationTemplate, renderNotification } from '../ui/notifications';
 import { notificationLanguage, notificationWords } from '../notification-words';
 import { isStep, type Message } from '../status-updates';
@@ -40,6 +41,7 @@ export const BURST_LIMIT = 6;
 const SUMMARY: Msg = { title: 'More job updates', body: 'You have more updates. Open Groundwork to see them all.', url: '/home', tag: 'summary' };
 /** Send to every device of these people. Dead devices (404/410) are removed. Never throws. */
 export async function sendPush(users: string[], msg: Msg) {
+  msg = {...msg,title:plainJobWording(msg.title),body:plainJobWording(msg.body)};
   const list = [...new Set(users)].filter(Boolean); if (!list.length) return 0;
   try {
     // Classify recipients before touching subscriptions, even for urgent messages and old devices.
@@ -128,7 +130,7 @@ export async function pushLateJobs() {
   // Stalled: an active job nobody touched for three days goes to the office once (same tag, no repeats).
   const stalled = (await withSystem(db => db.query(`SELECT w.id,w.workspace_id,w.title,w.order_number,w.client_id FROM work_orders w JOIN workspaces s ON s.id=w.workspace_id
     WHERE w.status IN ('scheduled','in_progress') AND w.archived_at IS NULL AND w.updated_at < now() - interval '3 days' AND w.updated_at >= now() - interval '4 days' AND s.demo_expires_at IS NULL`))).rows;
-  for (const j of stalled) sent += await sendPush(await office(j.workspace_id, j.client_id, null), { title: 'Job not moving', body: `WO ${j.order_number} ${j.title} has had no update for three days. Tap to reassign or check in.`, url: `/work-orders/${j.id}`, tag: `stalled-${j.id}` });
+  for (const j of stalled) sent += await sendPush(await office(j.workspace_id, j.client_id, null), { title: 'Job not moving', body: `Job #${j.order_number} ${j.title} has had no update for three days. Tap to reassign or check in.`, url: `/work-orders/${j.id}`, tag: `stalled-${j.id}` });
   return { late: late.length, stalled: stalled.length, sent };
 }
 

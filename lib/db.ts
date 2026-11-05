@@ -4,7 +4,7 @@ import { requiredEnv } from './env';
 // Postgres date values are calendar dates, not midnight instants.
 types.setTypeParser(1082, value => value);
 const testing = process.env.NODE_ENV === 'test';
-const poolSettings = { max: 4, idleTimeoutMillis: 10_000, connectionTimeoutMillis: 5_000, keepAlive: true };
+const poolSettings = { max: 4, idleTimeoutMillis: 10_000, connectionTimeoutMillis: 5_000, keepAlive: true, ...(testing ? { query_timeout: 10_000, statement_timeout: 10_000 } : {}) };
 // Runtime uses DATABASE_URL (Neon's pooled -pooler host); owner access stays separate.
 export const appPool = new Pool({ connectionString: requiredEnv(testing ? 'TEST_DATABASE_URL' : 'DATABASE_URL'), ...poolSettings });
 // Owner access is reserved for auth, migrations/seed, signed Cobalt ingest, authorized simulator/sync operations, and cron.

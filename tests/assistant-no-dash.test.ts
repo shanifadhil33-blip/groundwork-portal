@@ -13,7 +13,7 @@ describe('assistant replies have no dashes', () => {
 import { withCurrency } from '../lib/ui/assistant-replies';
 describe('job numbers and money', () => {
   it('writes WO 1 not WO-1', () => {
-    expect(plainAssistantReply('See WO-1 and WO‑31.')).toBe('See WO 1 and WO 31.');
+    expect(plainAssistantReply('See Job #1 and WO‑31.')).toBe('See Job #1 and Job #31.');
   });
   it('adds currency to bare amounts only', () => {
     expect(withCurrency('A pending quote of 850.00 for this.')).toBe('A pending quote of AED 850.00 for this.');

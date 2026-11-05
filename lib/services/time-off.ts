@@ -148,7 +148,7 @@ async function refuseIfBooked(c: Parameters<typeof bookedDuring>[0], ws: string,
   const jobs = await bookedDuring(c, ws, userId, start, end);
   if (!jobs.length) return;
   const name = String((await c.db.query('SELECT name FROM visible_user($1)', [userId])).rows[0]?.name ?? 'This person');
-  const list = jobs.map(j => `WO ${j.order_number} ${j.title} (${j.day})`).join(', ');
+  const list = jobs.map(j => `Job #${j.order_number} ${j.title} (${j.day})`).join(', ');
   throw new ApiError(409, 'booked', `${name} has ${jobs.length === 1 ? 'a job' : `${jobs.length} jobs`} booked on those days: ${list}. Give ${jobs.length === 1 ? 'it' : 'them'} to someone else or move ${jobs.length === 1 ? 'it' : 'them'}, then approve.`);
 }
 

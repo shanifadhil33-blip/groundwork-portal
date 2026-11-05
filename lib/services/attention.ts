@@ -10,7 +10,7 @@ export function groupUnread(items:Unread[]){
   const g=groups.get(key)??{kind:m.work_order_id?'job' as const:'direct' as const,order_number:m.order_number,total:0,senders:new Map<string,number>()};
   g.total++;g.senders.set(m.sender_name,(g.senders.get(m.sender_name)??0)+1);groups.set(key,g);}
  return [...groups.values()].map(g=>{const who=[...g.senders].map(([name,n])=>`${n} from ${name}`).join(', ');
-  return {kind:g.kind,order_number:g.order_number,total:g.total,senders:Object.fromEntries(g.senders),summary:g.kind==='job'?`WO ${g.order_number}: ${who}`:`Direct chat: ${who}`};});
+  return {kind:g.kind,order_number:g.order_number,total:g.total,senders:Object.fromEntries(g.senders),summary:g.kind==='job'?`Job #${g.order_number}: ${who}`:`Direct chat: ${who}`};});
 }
 /** The no AI answer to what needs attention: counts first, then unread messages per job or chat, never the same line twice. */
 export function attentionReply(a:{summary:string;message_groups:ReturnType<typeof groupUnread>}){
@@ -27,7 +27,7 @@ export async function needsAttention(user:string,ws:string){
  return inWorkspace(user,ws,async c=>{
   const suggestions=await listSuggestions(user,ws),notifications=await listNotifications(user,ws,new URLSearchParams('unread=true&pageSize=20'));
   const unread=await unreadMessages(user,ws);
-  const messages=unread.data.filter(m=>m.thread_kind!=='team').map(m=>({...m,summary:m.order_number?`${m.sender_name} messaged about WO ${m.order_number}`:`${m.sender_name} sent you a message`}));
+  const messages=unread.data.filter(m=>m.thread_kind!=='team').map(m=>({...m,summary:m.order_number?`${m.sender_name} messaged about Job #${m.order_number}`:`${m.sender_name} sent you a message`}));
   const pending=suggestions.data.filter(s=>s.status==='pending');
   const leave=c.role==='client'?[]:(await c.db.query("SELECT id,user_id,kind,starts_on,ends_on FROM time_off WHERE workspace_id=$1 AND status='pending'",[ws])).rows;
   const quotes=(await c.db.query("SELECT id,title,quote_amount FROM work_orders WHERE workspace_id=$1 AND quote_status='pending'",[ws])).rows;

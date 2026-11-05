@@ -41,9 +41,9 @@ it('technician saves his matching note with a server reply and What I did entry'
  try{
   turn('add_comment',{work_order_id:o.id,body:'Cleaned the drain line',visibility:'client'});
   const r=await ask(ids.ravi,'log this work: cleaned the drain line at the clinic');
-  expect(r.reply).toBe(`Done, Rav. I saved your note on WO ${o.order_number} ${o.title}. [Open job](/work-orders/${o.id})`);
+  expect(r.reply).toBe(`Done, Rav. I saved your note on Job #${o.order_number} ${o.title}. [Open job](/work-orders/${o.id})`);
   expect(r.logged).toBe(true);expect(await notes(o.id)).toEqual([{body:'Cleaned the drain line',visibility:'internal'}]);
-  expect(await listDecisions(ids.ravi,ws)).toContainEqual(expect.objectContaining({tool:'add_comment',outcome:'done',summary:expect.stringContaining(`WO ${o.order_number}`)}));
+  expect(await listDecisions(ids.ravi,ws)).toContainEqual(expect.objectContaining({tool:'add_comment',outcome:'done',summary:expect.stringContaining(`Job #${o.order_number}`)}));
  }finally{await patchPreferences(ids.ravi,{preferred_name:null});}
 });
 it('technician cannot note a job assigned to another man',async()=>{
@@ -54,7 +54,7 @@ it('technician cannot note a job assigned to another man',async()=>{
 it('two matching jobs ask one short question through ask_choice without saving',async()=>{
  const a=await job(),b=await job('Clinic tap');turn('add_comment',{work_order_id:a.id,body:'Cleaned the drain'});
  const r=await ask(ids.ravi,'save this at the clinic');
- expect(r.reply).toBe('Which job do you mean?');expect(r.choices).toEqual([`WO ${a.order_number} ${a.title}`.slice(0,30),`WO ${b.order_number} ${b.title}`.slice(0,30)]);
+ expect(r.reply).toBe('Which job do you mean?');expect(r.choices).toEqual([`Job #${a.order_number} ${a.title}`.slice(0,30),`Job #${b.order_number} ${b.title}`.slice(0,30)]);
  expect(await notes(a.id)).toEqual([]);expect(await notes(b.id)).toEqual([]);
 });
 it('no matching job asks for a choice and saves nothing',async()=>{
@@ -64,17 +64,17 @@ it('no matching job asks for a choice and saves nothing',async()=>{
 it('office staff saves a note on any workspace job',async()=>{
  const o=await job('Office fan',undefined,ids.sam);turn('add_comment',{work_order_id:o.id,body:'Call before coming'});
  const r=await ask(ids.nabil,`Note on WO ${o.order_number}: call before coming`);
- expect(r.reply).toContain(`Done, Nabil. I saved your note on WO ${o.order_number}`);expect(r.logged).toBe(true);expect((await notes(o.id))[0].visibility).toBe('internal');
+ expect(r.reply).toContain(`Done, Nabil. I saved your note on Job #${o.order_number}`);expect(r.logged).toBe(true);expect((await notes(o.id))[0].visibility).toBe('internal');
 });
 it.each([[ids.pranav,'manager','Pranav'],[ids.kevin,'office','Kevin'],[ids.faisal,'household','Faisal']])('client %s as %s saves only his own request with company visibility',async(user,_kind,name)=>{
  const own=await job('Client drain',user),other=await job('Other drain',user===ids.faisal?ids.omar:ids.imran);
  turn('add_comment',{work_order_id:own.id,body:'Please call first',visibility:'internal'});
  const r=await ask(user,`Save this on WO ${own.order_number}: please call first`);
- expect(r.reply).toContain(`Done, ${name}. I saved your note on WO ${own.order_number}`);expect(r.logged).toBe(true);
+ expect(r.reply).toContain(`Done, ${name}. I saved your note on Job #${own.order_number}`);expect(r.logged).toBe(true);
  expect(await notes(own.id)).toEqual([{body:'Please call first',visibility:'client'}]);
  expect(await listDecisions(user,ws)).toContainEqual(expect.objectContaining({tool:'add_comment',outcome:'done'}));
  vi.mocked(assistantTurn).mockReset();turn('add_comment',{work_order_id:other.id,body:'Wrong request'});
- expect((await ask(user,`Save this on WO ${other.order_number}`)).reply).toContain('Nothing was saved');expect(await notes(other.id)).toEqual([]);
+ expect((await ask(user,`Save this on Job #${other.order_number}`)).reply).toContain('Nothing was saved');expect(await notes(other.id)).toEqual([]);
 });
 it.each(['set_job_payment','add_comment'])('technician cash payment gets an AGENT11 Ask offer even from %s and saves nothing',async(tool)=>{
  const o=await job();turn(tool,tool==='add_comment'?{work_order_id:o.id,body:'The client paid cash'}:{id:o.id,payment_status:'paid'});
@@ -104,17 +104,17 @@ it.each([[ids.ravi,'Ravi'],[ids.kevin,'Kevin']])('notes in ask before every chan
   const p=await ask(user,`Save this on WO ${o.order_number}: call first`);
   expect(p.pending_action.tool).toBe('add_comment');expect(await notes(o.id)).toEqual([]);
   const done:any=await assistant(user,ws,{messages:[],confirm_action_id:p.pending_action.id});
-  expect(done.reply).toBe(`Done, ${name}. I saved your note on WO ${o.order_number} ${o.title}. [Open job](/work-orders/${o.id})`);
+  expect(done.reply).toBe(`Done, ${name}. I saved your note on Job #${o.order_number} ${o.title}. [Open job](/work-orders/${o.id})`);
   expect(done.logged).toBe(true);
  }finally{await withSystem(db=>db.query("UPDATE workspaces SET approval_mode='important' WHERE id=$1",[ws]));}
 });
 it('a tap choice uses the latest WO number rather than an earlier one',async()=>{
  const a=await job(),b=await job('Clinic tap');turn('add_comment',{work_order_id:b.id,body:'Call first'});
  const r:any=await assistant(ids.ravi,ws,{messages:[{role:'user',content:`WO ${a.order_number}`},{role:'assistant',content:'Which job do you mean?'},{role:'user',content:`WO ${b.order_number}: call first`}]});
- expect(r.reply).toContain(`I saved your note on WO ${b.order_number}`);expect(await notes(a.id)).toEqual([]);
+ expect(r.reply).toContain(`I saved your note on Job #${b.order_number}`);expect(await notes(a.id)).toEqual([]);
 });
 it('a technician note that only mentions paying a supplier stays a note, not a payment change',async()=>{
  const o=await job();turn('add_comment',{work_order_id:o.id,body:'Paid the supplier for the part'});
  const r=await ask(ids.ravi,`Note on WO ${o.order_number}: I paid the supplier for the part`);
- expect(r.offers).toBeUndefined();expect(r.reply).toContain(`WO ${o.order_number}`);expect((await notes(o.id)).map(n=>n.body)).toEqual(['Paid the supplier for the part']);
+ expect(r.offers).toBeUndefined();expect(r.reply).toContain(`Job #${o.order_number}`);expect((await notes(o.id)).map(n=>n.body)).toEqual(['Paid the supplier for the part']);
 });

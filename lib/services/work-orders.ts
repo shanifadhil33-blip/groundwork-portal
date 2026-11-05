@@ -249,7 +249,7 @@ export async function archiveWorkOrders(user:string,ws:string,body:unknown){
  return inWorkspace(user,ws,async c=>{
   if(!['admin','staff'].includes(c.role)||isOfficeStaff(c))throw new ApiError(403,'forbidden','Only an admin or supervisor can archive jobs.');
   const open=(await c.db.query("SELECT order_number FROM work_orders WHERE workspace_id=$1 AND id=ANY($2::uuid[]) AND status NOT IN ('done','cancelled')",[ws,data.ids])).rows;
-  if(open.length)throw invalid(`Only finished or cancelled jobs can be archived. WO ${open[0].order_number} is still open.`,'ids');
+  if(open.length)throw invalid(`Only finished or cancelled jobs can be archived. Job #${open[0].order_number} is still open.`,'ids');
   const r=await c.db.query(`UPDATE work_orders SET archived_at=${data.archived?'clock_timestamp()':'NULL'} WHERE workspace_id=$1 AND id=ANY($2::uuid[]) RETURNING id`,[ws,data.ids]);
   return {updated:r.rowCount??0,archived:data.archived};
  });

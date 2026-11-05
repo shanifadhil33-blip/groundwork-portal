@@ -50,7 +50,7 @@ export async function operationalAnswer(user:string,ws:string,kind:OperationalIn
  const job=(j:any)=>jobBlock({number:j.order_number,title:title(j),site:j.site_name,assignee:j.assignee_name||null,priority:t(j.priority==='urgent'?'Urgent':j.priority==='high'?'High':j.priority==='low'?'Low':'Normal'),due:date(j.due_on)},t,lang);
  const head=`${t('Late jobs')}: ${late.total}.`;
  const first=jobs[0];
- const chase=first?`${t(first.assignee_name?'Chase first':'Assign an owner first')}: ${first.assignee_name||`WO ${first.order_number}`}. ${t('Highest priority first, then oldest deadline')}.`:'';
+ const chase=first?`${t(first.assignee_name?'Chase first':'Assign an owner first')}: ${first.assignee_name||`Job #${first.order_number}`}. ${t('Highest priority first, then oldest deadline')}.`:'';
  if(kind==='overdue')return stack([head,chase],jobs.map(job));
  const [attention,today]=await Promise.all([needsAttention(user,ws),listWorkOrders(user,ws,new URLSearchParams({today:'true',active:'true',pageSize:'3',sort:'scheduled_for',dir:'asc'}))]);
  return [stack([head,chase],jobs.slice(0,3).map(job)),`${t('Today')}: ${today.total}.`,...today.data.map(j=>jobLine(j.order_number,title(j),[j.site_name,t(statusLabels[j.status]??j.status)],lang)),`${t('Suggested jobs')}: ${attention.suggested_jobs}. ${t('Unread messages')}: ${attention.unread_messages}. ${t('Unread updates')}: ${attention.unread_notifications}.`].filter(Boolean).join('\n');
