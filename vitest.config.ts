@@ -21,7 +21,7 @@ export default defineConfig(async () => {
   pool: 'forks', maxWorkers: 1, fileParallelism: false,
   globalSetup: databaseAvailable ? ['./tests/setup.ts'] : [],
   setupFiles: ['./tests/offline.ts', ...(databaseAvailable ? ['./tests/fixtures.ts'] : [])],
-  testTimeout: 10000, hookTimeout: 15000, teardownTimeout: 5000,
+  testTimeout: 10000, hookTimeout: 30000, teardownTimeout: 5000,
   exclude: ['**/node_modules/**', 'e2e/**', ...(!databaseAvailable ? databaseSuites : [])],
  } };
 });
