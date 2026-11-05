@@ -1,4 +1,6 @@
 'use client';
+import { BidiNames } from './bidi-names';
+import { isRtl } from '../../lib/languages';
 import { useNameJoin } from './use-name-join';
 import { JobChecklistCard } from './job-checklists';
 import { enqueue } from '../../lib/ui/outbox';
@@ -6,7 +8,7 @@ import { useLocalDraft } from '../../lib/ui/drafts';
 import { useSelection } from './selection';
 import Link from 'next/link';
 import { useEffect,useRef,useState } from 'react';
-import { AssistantComposer } from './assistant';
+import { AssistantComposer } from './assistant-composer';
 import { Greeting } from './greeting';
 import { MyAgentQuestions } from './agent-questions';
 import { useUiLang } from './use-ui-lang';
@@ -142,8 +144,8 @@ function NextJobHero({ j: original, tz, base, lang, onDone, onFinished, when }: 
 
 /** A job row: time, title and place, meta at the end. The whole row opens the job. */
 function JobRow({ j, when, meta, selection }: { j: Job; when: ReactNode; meta?: ReactNode; selection?: ReturnType<typeof useSelection> }) {
-  const joinNames = useNameJoin();
-  return <li {...selection?.row(j.id)}>{selection?.mark(j.id)}<Link className="ds-row" href={`/work-orders/${j.id}`}><span className="ds-time">{when}</span><span className="ds-main"><strong data-no-translate>{j.title}</strong><span className="ds-sub" data-no-translate>{joinNames([j.building ?? j.site_name, j.area])}</span></span>{meta && <span className="ds-meta">{meta}</span>}</Link></li>;
+  const lang = useUiLang();
+  return <li {...selection?.row(j.id)}>{selection?.mark(j.id)}<Link className="ds-row" dir={isRtl(lang)?'rtl':'ltr'} href={`/work-orders/${j.id}`}><span className="ds-time" dir="auto">{when}</span>{' '}<span className="ds-main" dir="auto"><strong dir="auto" data-no-translate>{j.title}</strong>{' '}<span className="ds-sub" dir="auto" data-no-translate><BidiNames values={[j.building ?? j.site_name, j.area]}/></span></span>{' '}{meta && <span className="ds-meta" dir="auto">{meta}</span>}</Link></li>;
 }
 
 /** TECH05: the full screen card after the report is saved. Counts stay under it. */

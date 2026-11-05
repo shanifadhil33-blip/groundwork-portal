@@ -10,7 +10,7 @@ import { useEffect,useRef,useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from './context';
 import { useResource } from './resource';
-import { AssistantComposer } from './assistant';
+import { AssistantComposer } from './assistant-composer';
 import { SharedPhotoUpload } from './shared-photo-upload';
 import { Button,ConfirmDialog,ErrorState,RelativeTime,useToast } from '../ui';
 import { request,post,RequestError } from '../../lib/ui/api';

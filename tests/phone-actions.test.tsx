@@ -15,7 +15,7 @@ vi.mock('../components/app/context',async original=>({...await original<typeof i
 vi.mock('../components/app/resource',()=>({useResource:(url:string)=>({data:resources.get(url)??null,loading:false,error:null,reload:vi.fn(),setData:vi.fn()})}));
 vi.mock('../components/ui',async original=>({...await original<typeof import('../components/ui')>(),useToast:()=>toast,...await import('../components/ui/dialog')}));
 vi.mock('../lib/ui/api',async original=>({...await original<typeof import('../lib/ui/api')>(),request:vi.fn(),post:vi.fn()}));
-vi.mock('../components/app/assistant',()=>({AssistantComposer:({input,setInput,submit,busy,blocked}:any)=><><textarea aria-label="Message" value={input} onChange={e=>setInput(e.target.value)}/><button disabled={busy||blocked} onClick={submit}>Send</button></>}));
+vi.mock('../components/app/assistant-composer',()=>({AssistantComposer:({input,setInput,submit,busy,blocked}:any)=><><textarea aria-label="Message" value={input} onChange={e=>setInput(e.target.value)}/><button disabled={busy||blocked} onClick={submit}>Send</button></>}));
 (globalThis as any).React=React;(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;
 let root:ReturnType<typeof createRoot>|undefined;
 beforeEach(()=>{localStorage.clear();resources.clear();toast.mockReset();vi.mocked(request).mockReset();vi.mocked(post).mockReset();member.role='admin';vi.stubGlobal('matchMedia',vi.fn(()=>({matches:false,addEventListener:vi.fn(),removeEventListener:vi.fn()})));Object.defineProperty(navigator,'onLine',{value:true,configurable:true});});
