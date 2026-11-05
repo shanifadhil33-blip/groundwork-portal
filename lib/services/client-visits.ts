@@ -107,7 +107,7 @@ export async function prepareClientVisit(user: string, ws: string, tool: 'resche
       return { available: true, reply: `${who} is already on the way. I asked the supervisor to call you.` };
     }
     await validateChange(c, job, tool, d);
-    const summary = tool === 'cancel_visit' ? `Cancel WO ${job.order_number} ${job.title}?` : `Move WO ${job.order_number} ${job.title} to ${new Intl.DateTimeFormat('en', { dateStyle: 'full', timeStyle: 'short', timeZone: (await c.db.query('SELECT timezone FROM workspaces WHERE id=$1', [ws])).rows[0].timezone }).format(new Date(d.scheduled_for!))}?`;
+    const summary = tool === 'cancel_visit' ? `Cancel Job #${job.order_number} ${job.title}?` : `Move Job #${job.order_number} ${job.title} to ${new Intl.DateTimeFormat('en', { dateStyle: 'full', timeStyle: 'short', timeZone: (await c.db.query('SELECT timezone FROM workspaces WHERE id=$1', [ws])).rows[0].timezone }).format(new Date(d.scheduled_for!))}?`;
     const a = (await c.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why,before) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id', [ws, user, tool, JSON.stringify(d), summary, 'You asked Agent to change your visit. The technician and supervisors will be notified.', JSON.stringify(job)])).rows[0];
     return { available: true, pending_action: { id: a.id, tool, args: d, summary, why: 'Nothing changes until you say yes.' } };
   });
@@ -151,7 +151,7 @@ export async function visitSlotChoices(user: string, ws: string, result: { id: s
       await c.db.query('INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,$3,$4,$5,$6)', [ws, user, 'reschedule_visit', JSON.stringify({ id: result.id, updated_at: result.updated_at, scheduled_for: at }), label, 'Visit time choice']);
       choices.push(label);
     }
-    return { available: true, reply: choices.length ? `Choose a free visit time for WO ${job.order_number} ${job.title}.` : 'There are no free visits in this period. Try another day.', choices };
+    return { available: true, reply: choices.length ? `Choose a free visit time for Job #${job.order_number} ${job.title}.` : 'There are no free visits in this period. Try another day.', choices };
   });
 }
 export async function selectedVisitChoice(user: string, ws: string, text: string) {

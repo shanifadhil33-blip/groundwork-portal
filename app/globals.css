@@ -1310,3 +1310,10 @@ body:has(.app-shell) .assistant-chat .assistant-suggestions .button.button:activ
  main button:has(>.count-badge),main a:has(>.count-badge){min-width:44px}
 }
 @media(pointer:coarse),(max-width:640px){.person-job-links a{min-width:44px;justify-content:center}}
+/* Nov 5: on touch screens the clickable element itself is at least 44 by 44 (no hidden hit area on a wrapper). */
+@media(pointer:coarse),(max-width:640px){
+.contact-name{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px}
+.contact-name::after{display:none}
+.page :is(.text-link,.ds-link,.back-link),.page .heading-row>a,.page .section-header>a,.page .ds-section-head>a,.page .agent-log-head a,.messages-page>a{display:inline-flex;align-items:center;min-height:44px;min-width:44px}
+.button,.button.sm,.link-button,.menu-option{min-width:44px}
+}

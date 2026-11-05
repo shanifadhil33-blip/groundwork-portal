@@ -69,7 +69,7 @@ it.each([['owner','admin'],['admin','admin'],['supervisor','staff']])('%s receiv
  expect(state.ai).not.toHaveBeenCalled();expect(state.tool.mock.calls.some(([,name])=>name==='assign_work_order')).toBe(false);
 });
 it('asks one short question when a dated assignment has no existing visit time',async()=>{
- state.scheduled='';const result=await ask('Assign WO 3 to Ravi tomorrow');expect(result.reply).toBe('What visit date and time should I use?');expect(result.pending_action).toBeUndefined();expect(state.query.mock.calls.some(([sql])=>sql.includes('INSERT INTO assistant_actions'))).toBe(false);
+ state.scheduled='';const result=await ask('Assign Job #3 to Ravi tomorrow');expect(result.reply).toBe('What visit date and time should I use?');expect(result.pending_action).toBeUndefined();expect(state.query.mock.calls.some(([sql])=>sql.includes('INSERT INTO assistant_actions'))).toBe(false);
 });
 it('a model assignment cannot drop a named date',async()=>{
  state.ai.mockResolvedValue({calls:[{id:'call',name:'assign_work_order',args:{id,assignee_id:ravi,updated_at:'2026-10-22T08:00:00Z'}}]});
@@ -88,15 +88,15 @@ it('plain text strips markdown in every script',()=>{
 });
 it('keeps restricted roles out of the provider independent assignment path',async()=>{
  const {assignmentRequest}=await import('../lib/agent/assignment-request');
- for(const [role,office] of [['technician',false],['client',false],['staff',true]] as const){expect(await assignmentRequest(c,'Assign WO 3 to Ravi tomorrow',role,office,'Asia/Dubai')).toBeNull();}
+ for(const [role,office] of [['technician',false],['client',false],['staff',true]] as const){expect(await assignmentRequest(c,'Assign Job #3 to Ravi tomorrow',role,office,'Asia/Dubai')).toBeNull();}
  expect(state.tool).not.toHaveBeenCalled();
 });
 it('includes Saturday on the card',async()=>{
- const result=await ask('Give WO 3 to Ravi on Saturday');expect(result.pending_action.tool).toBe('assign_work_order');expect(new Date(result.pending_action.args.scheduled_for).getUTCDay()).toBe(6);expect(result.pending_action.summary).toContain('Visit:');
+ const result=await ask('Give Job #3 to Ravi on Saturday');expect(result.pending_action.tool).toBe('assign_work_order');expect(new Date(result.pending_action.args.scheduled_for).getUTCDay()).toBe(6);expect(result.pending_action.summary).toContain('Visit:');
 });
 it('an ambiguous person never gets a guessed assignment card',async()=>{
  state.tool.mockImplementation(async(_c:unknown,name:string)=>({structuredContent:{result:name==='list_team'?[{user_id:ravi,name:'Ravi Kumar'},{user_id:user,name:'Ravi Patel'}]:order()}}));
- const result=await ask('Assign WO 3 to Ravi tomorrow');expect(result.pending_action).toBeUndefined();expect(state.ai).toHaveBeenCalled();
+ const result=await ask('Assign Job #3 to Ravi tomorrow');expect(result.pending_action).toBeUndefined();expect(state.ai).toHaveBeenCalled();
 });
 
 afterEach(()=>vi.useRealTimers());
@@ -136,20 +136,20 @@ it.each(['weekly','leave'])('refuses confirmation when %s availability changed a
 it('uses the workspace Saturday when a model timestamp is still Friday in UTC',async()=>{
  saturdayCase();state.forceModel=true;state.weekly=true;
  state.ai.mockResolvedValue({calls:[{id:'assign',name:'assign_work_order',args:{id,assignee_id:ravi,scheduled_for:'2026-10-23T21:00:00Z',updated_at:'2026-10-22T08:00:00Z'}}]});
- expect(await ask('Give WO 3 to Anil on Saturday')).toEqual({available:true,reply:refusal(),localized:true});
+ expect(await ask('Give Job #3 to Anil on Saturday')).toEqual({available:true,reply:refusal(),localized:true});
  expect(state.query).toHaveBeenCalledWith(expect.stringContaining('AS weekly'),[ws,ravi,'2026-10-24']);
  expect(state.pending).toBeNull();
 });
 it('checks the current assignee when the model proposes moving a visit during leave',async()=>{
  saturdayCase();state.forceModel=true;state.leave='leave';
  state.ai.mockResolvedValue({calls:[{id:'move',name:'update_work_order_dates',args:{id,scheduled_for:'2026-10-24T12:00:00Z',updated_at:'2026-10-22T08:00:00Z'}}]});
- expect(await ask('Move WO 3 to Saturday')).toEqual({available:true,reply:refusal(),localized:true});
+ expect(await ask('Move Job #3 to Saturday')).toEqual({available:true,reply:refusal(),localized:true});
  expect(state.pending).toBeNull();
 });
 it('checks the existing visit when a model assignment omits a new visit time',async()=>{
  saturdayCase();state.forceModel=true;state.weekly=true;state.scheduled='2026-10-23T21:00:00Z';
  state.ai.mockResolvedValue({calls:[{id:'assign',name:'assign_work_order',args:{id,assignee_id:ravi,updated_at:'2026-10-22T08:00:00Z'}}]});
- expect(await ask('Give WO 3 to Anil')).toEqual({available:true,reply:refusal(),localized:true});
+ expect(await ask('Give Job #3 to Anil')).toEqual({available:true,reply:refusal(),localized:true});
  expect(state.pending).toBeNull();
 });
 
@@ -163,7 +163,7 @@ it('allows a model assignment on a working day without saving the job',async()=>
 it('checks a date only visit at the same workspace time used when saving',async()=>{
  saturdayCase();state.forceModel=true;state.weekly=true;
  state.ai.mockResolvedValue({calls:[{id:'move',name:'update_work_order_dates',args:{id,scheduled_for:'2026-10-24',updated_at:'2026-10-22T08:00:00Z'}}]});
- expect(await ask('Move WO 3 to Saturday')).toEqual({available:true,reply:refusal(),localized:true});
+ expect(await ask('Move Job #3 to Saturday')).toEqual({available:true,reply:refusal(),localized:true});
  expect(state.query).toHaveBeenCalledWith(expect.stringContaining("time '09:00'"),['2026-10-24',ws]);
  expect(state.pending).toBeNull();
 });
@@ -195,7 +195,7 @@ it.each(['عط WO 3 لـ Anil يوم السبت', 'WO 3 لـ Anil يوم الس�
  saturdayCase();state.forceModel=true;state.weekly=true;state.language='ar-AE';
  state.ai.mockReset();state.ai.mockResolvedValueOnce({calls:[{id:'read',name:'get_work_order_by_number',args:{number:3}},{id:'team',name:'list_team',args:{}}]}).mockResolvedValueOnce({calls:[{id:'assign',name:'assign_work_order',args:{id,assignee_id:ravi,scheduled_for:'2026-10-24T12:00:00Z',updated_at:'2026-10-22T08:00:00Z'}}]});
  expect(await ask(question)).toEqual({available:true,reply:refusal(),localized:true});
- expect(state.ai).toHaveBeenCalledTimes(2);expect(state.ai.mock.calls[0][2]).toContain('عط WO 3 لـ Anil يوم السبت');expect(state.pending).toBeNull();
+ expect(state.ai).toHaveBeenCalledTimes(2);expect(state.ai.mock.calls[0][2]).toContain('عط Job #3 لـ Anil يوم السبت');expect(state.pending).toBeNull();
 });
 it.each(['حوّل WO 3 يوم السبت', 'WO 3 शनिवार तय करो', 'WO 3 ہفتہ شیڈول کرو', 'WO 3 शनिवार शेड्यूल कर दो', 'WO 3 ہفتہ شیڈول کر دو'])('visit changes reach availability checks: %s',async question=>{
  saturdayCase();state.weekly=true;state.language='ar-AE';
@@ -222,5 +222,5 @@ it('keeps translated read questions on the no AI path',async()=>{
 });
 
 it.each(['السبت؟','بكرة.','आज।','کل؟'])('recognizes a requested date beside punctuation: %s',day=>{
- expect(namesVisitDate(`WO 3 Anil ${day}`)).toBe(true);
+ expect(namesVisitDate(`Job #3 Anil ${day}`)).toBe(true);
 });

@@ -58,7 +58,7 @@ it('includes the assignee and links to a visible job',async()=>{
  expect((await alerts()).map(n=>n.user_id)).toEqual([ids.imran,ids.sam,ids.ravi].sort());
  expect((await alerts()).every(n=>n.entity_id===orderId(4))).toBe(true);
  const feed=await listNotifications(ids.ravi,ws,new URLSearchParams());
- expect(feed.data.find(n=>n.kind==='emergency')).toMatchObject({priority:'urgent',message:'Emergency reported by Imran: WO 4 I smell gas',message_template:{key:notificationTemplates.emergency,values:{name:'Imran',words:'WO 4 I smell gas'}},link_target:{entity:'work_orders',id:orderId(4)}});
+ expect(feed.data.find(n=>n.kind==='emergency')).toMatchObject({priority:'urgent',message:'Emergency reported by Imran: Job #4 I smell gas',message_template:{key:notificationTemplates.emergency,values:{name:'Imran',words:'Job #4 I smell gas'}},link_target:{entity:'work_orders',id:orderId(4)}});
 });
 for(const user of [ids.pranav,ids.faisal])for(const [words,trade] of [['I smell gas','general'],['fire','general'],['water pouring from the ceiling','plumbing'],['burning smell from the panel','electrical']])it(`creates an urgent request for ${user} ${trade} ${words}`,async()=>{
  await clear();

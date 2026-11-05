@@ -136,7 +136,7 @@ it.each(['hi', 'ar-AE'])('settles missing words, codes and identity translations
   <input placeholder="Missing hint" aria-label="Missing label"/><select><option>Missing option</option></select>
  </Translated></AppWords>);
  expect(html).toContain(words.Known);
- for (const source of ['Missing word', 'WO 39', 'SA', 'Groundwork', 'Missing hint', 'Missing label', 'Missing option']) expect(html).toContain(source);
+ for (const source of ['Missing word', 'Job #39', 'SA', 'Groundwork', 'Missing hint', 'Missing label', 'Missing option']) expect(html).toContain(source);
  expect(html).not.toMatch(/visibility:hidden|aria-busy="true"|…/);
 });
 
@@ -159,7 +159,7 @@ it.each(['loaded', 'http error', 'network error'] as const)('reveals pending mis
    else resolve(new Response(JSON.stringify({Known: 'ज्ञात', 'Missing word': null}), {status: outcome === 'http error' ? 503 : 200}));
   });
   expect(host.textContent).toContain(outcome === 'loaded' ? 'ज्ञात' : 'Known');
-  expect(host.textContent).toContain('Missing word'); expect(host.querySelector('.order-number')?.textContent).toBe('WO 39');
+  expect(host.textContent).toContain('Missing word'); expect(host.querySelector('.order-number')?.textContent).toBe('Job #39');
   expect(host.querySelector('input')?.placeholder).toBe('Missing hint'); expect(host.querySelector('option')?.textContent).toBe('Missing option');
   expect(host.querySelector('[aria-busy="true"], [style*="visibility: hidden"]')).toBeNull();
  } finally { await act(async () => root.unmount()); host.remove(); }

@@ -37,7 +37,7 @@ describe('history and local formatting',()=>{
  it('uses stored titles, names key actions, internal notes and approval decisions',()=>{
   expect(activitySentence({actor_name:'Sam',entity:'comments',action:'insert',work_order_title:'Original title',after:{visibility:'internal'}})).toBe('Sam created an internal note on Original title');
   expect(activitySentence({actor_name:'Imran',entity:'api_tokens',action:'insert',after:{name:'QA read key'}})).toBe("Imran created agent key 'QA read key'");
-  expect(activitySentence({actor_name:'Imran',entity:'import_rows',action:'update',after:{row_number:4,filename:'sample-work-orders.csv',decision:'approved',work_order_number:61}})).toBe('Imran approved row 4 of sample-work-orders.csv → WO-61');
+  expect(activitySentence({actor_name:'Imran',entity:'import_rows',action:'update',after:{row_number:4,filename:'sample-work-orders.csv',decision:'approved',work_order_number:61}})).toBe('Imran approved row 4 of sample-work-orders.csv → Job #61');
   expect(staffEvent({id:'event',kind:'status_changed',created_at:'',actor_id:null,work_order_title:'Original title',details:{from_status:'scheduled',to_status:'in_progress'}})).toBe('moved Original title from Scheduled to In Progress');
  });
  it('formats notification changes using captured context after a title rename',()=>{

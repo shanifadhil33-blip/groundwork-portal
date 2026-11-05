@@ -38,7 +38,7 @@ it('a job id the model made up goes back to the model, never a not found page', 
     .mockImplementationOnce(async () => Response.json({ candidates: [{ content: { parts: [{ functionCall: { name: 'set_priority', args: { id: bad, priority: 'high', updated_at: '2026-10-11T00:00:00Z' } } }] } }] }))
     .mockImplementationOnce(async () => Response.json({ candidates: [{ content: { parts: [{ functionCall: { name: 'ask_choice', args: { question: 'Which job do you mean?', options: ['WO-25', 'Change'] } } }] } }] })));
   const r = await post({ messages: [{ role: 'user', content: 'save this' }] });
-  expect(r.status).toBe(200); expect(r.body.choices).toEqual(['WO 25', 'Change']); expect(r.body.pending_action).toBeUndefined();
+  expect(r.status).toBe(200); expect(r.body.choices).toEqual(['Job #25', 'Change']); expect(r.body.pending_action).toBeUndefined();
 });
 it('a note reply always uses the name from the server, and Undo removes the note', async () => {
   user = ids.sam;

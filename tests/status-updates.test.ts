@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { readdirSync } from 'node:fs';
 import { statusLine, STATUS_LANGS, isStep, type Step } from '../lib/status-updates';
 describe('CMP05 status updates in the requester language', () => {
-  it('uses the requester language', () => { const m = statusLine('ar', 'in_progress', 12, 'AC leak'); expect(m.lang).toBe('ar'); expect(m.body).toContain('WO 12 AC leak'); });
-  it('falls back to English', () => { expect(statusLine('xx', 'done', 3, 'Door').body).toBe('Your job is done. Please rate it. WO 3 Door'); expect(statusLine(null, 'scheduled', 1, 'A').lang).toBe('en'); });
+  it('uses the requester language', () => { const m = statusLine('ar', 'in_progress', 12, 'AC leak'); expect(m.lang).toBe('ar'); expect(m.body).toContain('Job #12 AC leak'); });
+  it('falls back to English', () => { expect(statusLine('xx', 'done', 3, 'Door').body).toBe('Your job is done. Please rate it. Job #3 Door'); expect(statusLine(null, 'scheduled', 1, 'A').lang).toBe('en'); });
   it('handles region codes', () => { expect(statusLine('hi-IN', 'scheduled', 1, 'A').lang).toBe('hi'); });
   it('has no dashes in English copy', () => { for (const s of ['scheduled', 'in_progress', 'done'] as const) expect(statusLine('en', s, 1, 'A').body).not.toMatch(/[-–—]/); });
 });
@@ -22,7 +22,7 @@ describe('HOME06 status updates for every app language', () => {
       expect(message.title).not.toBe('Job update');
       expect(message.title.trim()).not.toBe('');
       expect(message.body).not.toBe(statusLine('en', step, 12, 'Leak').body);
-      expect(message.body.endsWith(' WO 12 Leak')).toBe(true);
+      expect(message.body.endsWith(' Job #12 Leak')).toBe(true);
       expect(message.body.split(' WO')[0].trim()).not.toBe('');
     }
   });
@@ -65,7 +65,7 @@ describe('HOME06 status updates for every app language', () => {
       const message = statusLine(code, step, 12, 'Leak');
       expect(message.title).not.toMatch(/[-\u2013\u2014]/);
       expect(message.body).not.toMatch(/[-\u2013\u2014]/);
-      expect(message.body.endsWith(' WO 12 Leak')).toBe(true);
+      expect(message.body.endsWith(' Job #12 Leak')).toBe(true);
     }
   });
 });
@@ -76,9 +76,9 @@ describe('NOTIF08 travel, visit time and after photos', () => {
     const travel = statusLine(code, 'on_way', 12, 'Leak');
     const done = statusLine(code, 'done', 12, 'Leak', { afterPhotos: 2 });
     expect(travel.lang).toBe(code);
-    expect(travel.body.endsWith(' WO 12 Leak')).toBe(true);
+    expect(travel.body.endsWith(' Job #12 Leak')).toBe(true);
     expect(done.body.split('\n')).toHaveLength(2);
-    expect(done.body.split('\n')[0].endsWith(' WO 12 Leak')).toBe(true);
+    expect(done.body.split('\n')[0].endsWith(' Job #12 Leak')).toBe(true);
     expect(done.body.split('\n')[1]).toContain('2');
     for (const body of [travel.body, done.body]) expect(body).not.toMatch(/[-–—]/);
     if (code !== 'en') {

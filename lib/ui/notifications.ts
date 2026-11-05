@@ -61,7 +61,7 @@ export const notificationTemplates = {
  cant_fix: 'Our technician could not fix this today. The supervisor will call you.',
  no_access: 'Our technician came at {time} but could not get in. Choose a new time.',
  part_booked: 'The part has arrived. Your visit is booked for {time}.',
- done: 'Your job is done. Please rate it. WO {n} {job}',
+ done: 'Your job is done. Please rate it. Job #{n} {job}',
  more_one: '{count} more update on this job',
  more_many: '{count} more updates on this job',
 } as const;

@@ -105,8 +105,8 @@ it('AGENT11: when the model refuses in its own words without a tool call, a tech
  text("I'm not able to change a work order's priority. A supervisor can do it.");
  const r=await ask(ids.ravi,'Change the priority of WO 1 to urgent');
  expect(r.offers?.[0]).toMatchObject({to_name:'Sam',label:'Ask Sam'});
- expect(r.offers[0].question).toContain('Change the priority of WO 1 to urgent');expect(r.offers[0].question).not.toMatch(/[-\u2013\u2014]/);
- text("I can't find WO 999. Check the number.");expect((await ask(ids.ravi,'Open WO 999')).offers).toBeUndefined();
+ expect(r.offers[0].question).toContain('Change the priority of Job #1 to urgent');expect(r.offers[0].question).not.toMatch(/[-\u2013\u2014]/);
+ text("I can't find Job #999. Check the number.");expect((await ask(ids.ravi,'Open Job #999')).offers).toBeUndefined();
  const client=await withSystem(async db=>(await db.query("SELECT user_id FROM members WHERE workspace_id=$1 AND role='client' AND archived_at IS NULL LIMIT 1",[ws])).rows[0]?.user_id);
  if(client){text('Only an admin can change that.');expect((await ask(client,'Change the price')).offers).toBeUndefined();}
 });

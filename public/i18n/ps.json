@@ -785,7 +785,7 @@
 "Our technician could not fix this today. The supervisor will call you.":"زموږ تخنیکر نن دا جوړ نه کړای شو. څارونکی به تاسو ته زنګ ووهي.",
 "Our technician came at {time} but could not get in. Choose a new time.":"زموږ تخنیکر په {time} راغی خو دننه نه شو تللی. نوی وخت وټاکئ.",
 "The part has arrived. Your visit is booked for {time}.":"پرزه راورسېده. ستاسو لیدنه د {time} لپاره ثبت شوې ده.",
-"Your job is done. Please rate it. WO {n} {job}":"ستاسو کار بشپړ شو. مهرباني وکړئ نمرې ورکړئ. WO {n} {job}",
+"Your job is done. Please rate it. Job #{n} {job}":"ستاسو کار بشپړ شو. مهرباني وکړئ نمرې ورکړئ. #{n} {job}",
 "{count} more update on this job":"د دې کار په اړه {count} نور خبر",
 "{count} more updates on this job":"د دې کار په اړه {count} نور خبرونه",
 "Your team":"ستاسو ډله",
@@ -1480,7 +1480,7 @@
 "Building name or number":null,
 "Building name or number, and office or unit.":null,
 "By continuing, you agree to the":null,
-"Cancel WO {value1} {value2}?":null,
+"Cancel Job #{value1} {value2}?":null,
 "Cancel edits":null,
 "Cancel job":null,
 "Cancel job instead":null,
@@ -1810,7 +1810,7 @@
 "Marked. This closed job has no photos.":null,
 "Match each column. Only the job name is needed.":null,
 "Member client":null,
-"Message for WO {value1}":null,
+"Message for Job #{value1}":null,
 "Message photo":null,
 "Message removed by an admin":null,
 "Messages marked as read.":null,
@@ -2339,7 +2339,7 @@
 "Visits in the contract":null,
 "Voice input is unavailable in this browser. You can type your message.":null,
 "Job {order_number}":null,
-"WO {order_number} {value2}":null,
+"Job #{order_number} {value2}":null,
 "Waiting for the owner":null,
 "Waiting for your approval":null,
 "Waiting to send":null,
@@ -2721,5 +2721,6 @@
  "Who is free tomorrow morning?": "سبا سهار څوک وزګار دی؟",
  "Book a visit for Al Barsha villa": "د البرشا ویلا لپاره یو لیدنه وټاکئ",
 "Job #{order_number}":null,
-"Message for job #{value1}":null
+"Message for job #{value1}":null,
+ "Job #": "#"
 }

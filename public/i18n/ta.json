@@ -803,7 +803,7 @@
 "Our technician could not fix this today. The supervisor will call you.":"இன்று எங்கள் தொழில்நுட்ப வல்லுநரால் இதை சரிசெய்ய முடியவில்லை. மேற்பார்வையாளர் அழைப்பார்.",
 "Our technician came at {time} but could not get in. Choose a new time.":"எங்கள் தொழில்நுட்ப வல்லுநர் {time} மணிக்கு வந்தார் ஆனால் உள்ளே செல்ல முடியவில்லை. புதிய நேரத்தை தேர்ந்தெடுக்கவும்.",
 "The part has arrived. Your visit is booked for {time}.":"உதிரிபாகம் வந்துவிட்டது. உங்கள் வருகை {time} க்கு பதிவு செய்யப்பட்டுள்ளது.",
-"Your job is done. Please rate it. WO {n} {job}":"உங்கள் வேலை முடிந்தது. மதிப்பிடவும். WO {n} {job}",
+"Your job is done. Please rate it. Job #{n} {job}":"உங்கள் வேலை முடிந்தது. மதிப்பிடவும். #{n} {job}",
 "{count} more update on this job":"இந்த வேலையில் மேலும் {count} தகவல்",
 "{count} more updates on this job":"இந்த வேலையில் மேலும் {count} தகவல்கள்",
 "Your team":"உங்கள் குழு",
@@ -1490,7 +1490,7 @@
 "Building name or number":null,
 "Building name or number, and office or unit.":null,
 "By continuing, you agree to the":null,
-"Cancel WO {value1} {value2}?":null,
+"Cancel Job #{value1} {value2}?":null,
 "Cancel edits":null,
 "Cancel job":null,
 "Cancel job instead":null,
@@ -1816,7 +1816,7 @@
 "Marked. This closed job has no photos.":null,
 "Match each column. Only the job name is needed.":null,
 "Member client":null,
-"Message for WO {value1}":null,
+"Message for Job #{value1}":null,
 "Message photo":null,
 "Message removed by an admin":null,
 "Messages marked as read.":null,
@@ -2340,7 +2340,7 @@
 "Visits in the contract":null,
 "Voice input is unavailable in this browser. You can type your message.":null,
 "Job {order_number}":null,
-"WO {order_number} {value2}":null,
+"Job #{order_number} {value2}":null,
 "Waiting for the owner":null,
 "Waiting for your approval":null,
 "Waiting to send":null,
@@ -2717,5 +2717,6 @@
  "Who is free tomorrow morning?": "நாளை காலை யாருக்கு நேரம் இருக்கிறது?",
  "Book a visit for Al Barsha villa": "அல் பர்ஷா வில்லாவுக்கு ஒரு வருகையை பதிவு செய்யவும்",
 "Job #{order_number}":null,
-"Message for job #{value1}":null
+"Message for job #{value1}":null,
+ "Job #": "#"
 }

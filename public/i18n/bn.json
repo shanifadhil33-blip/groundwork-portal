@@ -808,7 +808,7 @@
 "Our technician could not fix this today. The supervisor will call you.":"আমাদের টেকনিশিয়ান আজ এটি ঠিক করতে পারেননি। সুপারভাইজার আপনাকে ফোন করবেন।",
 "Our technician came at {time} but could not get in. Choose a new time.":"আমাদের টেকনিশিয়ান {time} এ এসেছিলেন কিন্তু ঢুকতে পারেননি। নতুন সময় বেছে নিন।",
 "The part has arrived. Your visit is booked for {time}.":"যন্ত্রাংশ এসে গেছে। আপনার পরিদর্শন {time} এর জন্য বুক হয়েছে।",
-"Your job is done. Please rate it. WO {n} {job}":"আপনার কাজ শেষ হয়েছে। অনুগ্রহ করে রেটিং দিন। WO {n} {job}",
+"Your job is done. Please rate it. Job #{n} {job}":"আপনার কাজ শেষ হয়েছে। অনুগ্রহ করে রেটিং দিন। #{n} {job}",
 "{count} more update on this job":"এই কাজের আরও {count}টি খবর",
 "{count} more updates on this job":"এই কাজের আরও {count}টি খবর",
 "Your team":"আপনার দল",
@@ -1495,7 +1495,7 @@
 "Building name or number":null,
 "Building name or number, and office or unit.":null,
 "By continuing, you agree to the":null,
-"Cancel WO {value1} {value2}?":null,
+"Cancel Job #{value1} {value2}?":null,
 "Cancel edits":null,
 "Cancel job":null,
 "Cancel job instead":null,
@@ -1821,7 +1821,7 @@
 "Marked. This closed job has no photos.":null,
 "Match each column. Only the job name is needed.":null,
 "Member client":null,
-"Message for WO {value1}":null,
+"Message for Job #{value1}":null,
 "Message photo":null,
 "Message removed by an admin":null,
 "Messages marked as read.":null,
@@ -2345,7 +2345,7 @@
 "Visits in the contract":null,
 "Voice input is unavailable in this browser. You can type your message.":null,
 "Job {order_number}":null,
-"WO {order_number} {value2}":null,
+"Job #{order_number} {value2}":null,
 "Waiting for the owner":null,
 "Waiting for your approval":null,
 "Waiting to send":null,
@@ -2722,5 +2722,6 @@
  "Who is free tomorrow morning?": "আগামীকাল সকালে কে ফাঁকা আছে?",
  "Book a visit for Al Barsha villa": "আল বারশার ভিলার জন্য একটি ভিজিট বুক করুন",
 "Job #{order_number}":null,
-"Message for job #{value1}":null
+"Message for job #{value1}":null,
+ "Job #": "#"
 }

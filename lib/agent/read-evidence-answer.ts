@@ -18,7 +18,7 @@ export function readEvidenceAnswer(results:unknown[],language?:string|null):stri
    return;
   }
   if(value.order_number&&typeof value.title==='string'){
-   add([`WO ${value.order_number}: ${value.title}`,value.assignee_name?`${t('Assigned to')}: ${value.assignee_name}`:'',value.status?`${t('Status')}: ${t(statusLabels[value.status]??value.status)}`:''].filter(Boolean).join('. '));return;
+   add([`Job #${value.order_number}: ${value.title}`,value.assignee_name?`${t('Assigned to')}: ${value.assignee_name}`:'',value.status?`${t('Status')}: ${t(statusLabels[value.status]??value.status)}`:''].filter(Boolean).join('. '));return;
   }
   if('assignee_id' in value&&typeof value.open==='number'){add(`${t('Assigned to')}: ${value.name||t('Unassigned')}. ${t('Open')}: ${value.open}.`);return;}
   for(const [key,item] of Object.entries(value)){

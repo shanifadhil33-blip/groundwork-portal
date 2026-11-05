@@ -57,7 +57,7 @@ const teamTools=['assign_work_order','set_job_trade','set_worker_skills','add_wo
 const MEMORY_EFFECT:Record<string,string>={correct_company_memory:'Saving removes the old lesson. The correction waits for approval before use.',delete_company_memory:'The next Agent plan will not use this lesson.',remember_about_me:'It goes on your Memory page and is used only when helping you.',forget_about_me:'It comes off your Memory page and is not used again.',set_call_me:'The Agent calls you by this name from now on.'};
 function savedNoteReply(name:string,order:{id:string;order_number:number;title:string}){
  const jobLink=`/work-orders/${order.id}`;
- return `Done${name?`, ${plainAssistantReply(name)}`:''}. I saved your note on WO ${order.order_number} ${plainAssistantReply(order.title)}. [Open job](${jobLink})`;
+ return `Done${name?`, ${plainAssistantReply(name)}`:''}. I saved your note on Job #${order.order_number} ${plainAssistantReply(order.title)}. [Open job](${jobLink})`;
 }
 /** The person a team action is about, by name, for the confirmation card. */
 async function personLabel(x:{user?:string;db:{query:(q:string,v:unknown[])=>Promise<{rows:any[]}>}},ws:string,tool:string,args:any):Promise<string|undefined>{
@@ -287,8 +287,8 @@ ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:
      if(role==='client'&&order?.created_by!==user)return {available:true,reply:failureWords((await getPreferences(user)).language,'You can save a note only on a request you raised. Nothing was saved.'),localized:true};
      const {jobs,matches}=await noteTargets(user,ws,d.messages.filter(m=>m.role==='user').map(m=>m.content));
      if(matches.length!==1||matches[0].id!==order?.id){
-      const options=(matches.length?matches:jobs).slice(0,2).map(j=>`WO ${j.order_number} ${plainAssistantReply(j.title)}`.slice(0,30));
-      if(options.length<2)options.push('Give a WO number','Change my note');
+      const options=(matches.length?matches:jobs).slice(0,2).map(j=>`Job #${j.order_number} ${plainAssistantReply(j.title)}`.slice(0,30));
+      if(options.length<2)options.push('Give a job number','Change my note');
       const result=await callTool(c,'ask_choice',{question:'Which job do you mean?',options:options.slice(0,3)});
       const choice=(result.structuredContent as any).result;
       return {available:true,...localizedChoice(choice,preferences.language)};
@@ -296,7 +296,7 @@ ${replyLengthPrompt(preferences.reply_length??'normal')}`,Math.min(i===0?20_000:
     }
     let target:{label?:string;timezone?:string}|undefined;
     try{target=await inWorkspace(user,ws,async x=>{
-     if(call.name==='send_message'){const a=args as any;if(a.work_order_id){const job=await getWorkOrder(user,ws,a.work_order_id);return {label:`WO ${job.order_number}`,timezone:undefined};}const people=(await x.db.query('SELECT * FROM message_people($1)',[ws])).rows;if(a.recipient_id){const person=people.find(p=>p.user_id===a.recipient_id);if(!person)throw missing();return {label:person.name,timezone:undefined};}const thread=(await x.db.query('SELECT participants,kind FROM conversations WHERE workspace_id=$1 AND id=$2',[ws,a.conversation_id])).rows[0];if(!thread)throw missing();return {label:thread.kind==='team'?'Team space':people.find(p=>thread.participants.includes(p.user_id))?.name??'this thread',timezone:undefined};}
+     if(call.name==='send_message'){const a=args as any;if(a.work_order_id){const job=await getWorkOrder(user,ws,a.work_order_id);return {label:`Job #${job.order_number}`,timezone:undefined};}const people=(await x.db.query('SELECT * FROM message_people($1)',[ws])).rows;if(a.recipient_id){const person=people.find(p=>p.user_id===a.recipient_id);if(!person)throw missing();return {label:person.name,timezone:undefined};}const thread=(await x.db.query('SELECT participants,kind FROM conversations WHERE workspace_id=$1 AND id=$2',[ws,a.conversation_id])).rows[0];if(!thread)throw missing();return {label:thread.kind==='team'?'Team space':people.find(p=>thread.participants.includes(p.user_id))?.name??'this thread',timezone:undefined};}
      if(['approve_suggestion','decline_suggestion','withdraw_request'].includes(call.name)){const s=(await x.db.query('SELECT title FROM job_suggestions WHERE workspace_id=$1 AND id=$2',[ws,(args as any).id])).rows[0];if(!s)throw missing();return {label:s.title,timezone:undefined};}
      if(call.name==='create_request'||call.name==='suggest_job'){const site=(await x.db.query('SELECT s.name,c.name AS client,w.timezone FROM sites s JOIN clients c ON c.id=s.client_id AND c.workspace_id=s.workspace_id JOIN workspaces w ON w.id=s.workspace_id WHERE s.workspace_id=$1 AND s.id=$2',[ws,(args as any).site_id])).rows[0];if(!site)throw missing();return {label:`${site.client} · ${site.name}`,timezone:site.timezone};}
      if(['approve_queue_row','reject_queue_row'].includes(call.name)){const row=(await x.db.query('SELECT row_number,data FROM import_rows WHERE workspace_id=$1 AND id=$2',[ws,(args as any).row_id])).rows[0];if(!row)throw missing();return {label:`row ${row.row_number}: ${row.data.title}`,timezone:undefined};}

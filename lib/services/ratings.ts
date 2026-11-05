@@ -32,7 +32,7 @@ export async function rateJob(user: string, ws: string, id: string, input: unkno
   const to = d.stars <= 2
     ? lowRatingRecipients((await withSystem(db => db.query("SELECT user_id,role,staff_kind FROM members WHERE workspace_id=$1 AND archived_at IS NULL AND role IN ('admin','staff')", [ws]), user)).rows, saved.w.assignee_id)
     : (await office(ws, saved.w.client_id, null)).filter(u => u !== user);
-  await sendPush(to, { title: d.stars <= 2 ? 'Low rating' : 'Job rated', body: `WO ${saved.w.order_number} ${saved.w.title}: ${d.stars} of 5${d.note ? `. ${d.note.slice(0, 120)}` : ''}`, url: `/work-orders/${id}`, tag: `rating-${id}` });
+  await sendPush(to, { title: d.stars <= 2 ? 'Low rating' : 'Job rated', body: `Job #${saved.w.order_number} ${saved.w.title}: ${d.stars} of 5${d.note ? `. ${d.note.slice(0, 120)}` : ''}`, url: `/work-orders/${id}`, tag: `rating-${id}` });
   if (d.stars <= 2) await withSystem(db => db.query(`INSERT INTO notifications(user_id,workspace_id,kind,entity,entity_id,work_order_title,job_step_body)
     SELECT unnest($1::uuid[]),$2,'low_rating','work_orders',$3,$4,$5`, [to, ws, id, saved.w.title, 'A client gave a low rating. Open the job.']), user);
   return { rating: saved.rating, can_rate: false };

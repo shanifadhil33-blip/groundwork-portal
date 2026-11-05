@@ -759,7 +759,7 @@
 "Our technician could not fix this today. The supervisor will call you.":"Farsamayaqaankayagu maanta ma hagaajin karin tan. Kormeeraha ayaa ku soo wici doona.",
 "Our technician came at {time} but could not get in. Choose a new time.":"Farsamayaqaankayagu wuxuu yimid {time} laakiin ma geli karin. Dooro waqti cusub.",
 "The part has arrived. Your visit is booked for {time}.":"Qaybtii way timid. Booqashadaada waxaa loo ballamiyay {time}.",
-"Your job is done. Please rate it. WO {n} {job}":"Shaqadaadii waa dhammaatay. Fadlan qiimee. WO {n} {job}",
+"Your job is done. Please rate it. Job #{n} {job}":"Shaqadaadii waa dhammaatay. Fadlan qiimee. #{n} {job}",
 "{count} more update on this job":"War kale oo ku saabsan shaqadan: {count}",
 "{count} more updates on this job":"Warar kale oo ku saabsan shaqadan: {count}",
 "Your team":"Kooxdaada",
@@ -1463,7 +1463,7 @@
 "Building name or number, and office or unit.":null,
 "By continuing, you agree to the":null,
 "Calls you":null,
-"Cancel WO {value1} {value2}?":null,
+"Cancel Job #{value1} {value2}?":null,
 "Cancel edits":null,
 "Cancel job":null,
 "Cancel job instead":null,
@@ -1794,7 +1794,7 @@
 "Match each column. Only the job name is needed.":null,
 "Member client":null,
 "Memory":null,
-"Message for WO {value1}":null,
+"Message for Job #{value1}":null,
 "Message photo":null,
 "Message removed by an admin":null,
 "Messages marked as read.":null,
@@ -2335,7 +2335,7 @@
 "Visits in the contract":null,
 "Voice input is unavailable in this browser. You can type your message.":null,
 "Job {order_number}":null,
-"WO {order_number} {value2}":null,
+"Job #{order_number} {value2}":null,
 "Waiting for the owner":null,
 "Waiting for your approval":null,
 "Waiting to send":null,
@@ -2716,5 +2716,6 @@
  "Who is free tomorrow morning?": "Yaa bannaan berri subaxda?",
  "Book a visit for Al Barsha villa": "Ballan u samee booqasho villada Al Barsha",
 "Job #{order_number}":null,
-"Message for job #{value1}":null
+"Message for job #{value1}":null,
+ "Job #": "#"
 }

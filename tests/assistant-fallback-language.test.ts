@@ -73,7 +73,7 @@ it('empty model replies use the same localized fallback',async()=>{
 });
 it('the action loop limit returns available read evidence without increasing its budget',async()=>{
  state.language='ar-AE';state.turn.mockResolvedValue({calls:[{id:'read',name:'list_work_orders',args:{}}]});
- expect(await ask()).toMatchObject({reply:expect.stringContaining('WO 58'),localized:true});
+ expect(await ask()).toMatchObject({reply:expect.stringContaining('Job #58'),localized:true});
  expect(state.turn).toHaveBeenCalledTimes(10);
 });
 it('confirmation errors keep their status and use safe language file text',async()=>{
@@ -126,7 +126,7 @@ it.each([
  expect(state.plan).toHaveBeenCalledWith(user,ws,day);
  expect(result).toMatchObject({localized:true,pending_action:{tool:'approve_day_plan',summary:expect.stringContaining(choiceWords(language)('Approve this plan? Nothing changes until you say yes.'))}});
  expect((result as {reply:string}).reply).toContain(date);
- expect((result as {reply:string}).reply).toContain('WO 58 Tap: Ravi');
+ expect((result as {reply:string}).reply).toContain('Job #58 Tap: Ravi');
  expect([...state.actions.values()][0].args).toEqual({kind:'morning',date,fingerprint:`${date}|plan`});
  expect(state.turn).not.toHaveBeenCalled();expect(state.call).not.toHaveBeenCalled();
 });
@@ -150,7 +150,7 @@ it('returns successful read evidence if the final model call fails, with time re
  state.language='ar-AE';
  state.turn.mockResolvedValueOnce({calls:[{id:'1',name:'list_work_orders',args:{}}]}).mockResolvedValueOnce(null);
  const result=await ask();
- expect(result).toMatchObject({reply:expect.stringContaining('WO 58'),localized:true});
+ expect(result).toMatchObject({reply:expect.stringContaining('Job #58'),localized:true});
  expect(state.turn.mock.calls[0][3]).toBeLessThanOrEqual(20_000);
  expect(state.turn.mock.calls[1][3]).toBeLessThanOrEqual(12_000);
  expect(state.actions.size).toBe(0);

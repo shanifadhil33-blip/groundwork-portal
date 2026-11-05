@@ -16,7 +16,7 @@ const waiting=(assignee?:string)=>withSystem(async db=>(await db.query(`SELECT c
 
 it('matches only whole short lookups, including the suggested prompts',()=>{
  for(const q of ['Show jobs waiting on parts','show jobs waiting on parts?','Which jobs are waiting for parts','Which jobs are late?','late jobs','What is my next job?',"what's my next job",'Who is free tomorrow?','How are my requests going?','When is the technician coming?'])expect(quickLookup(q),q).not.toBeNull();
- for(const q of ['Show jobs waiting on parts at Marina tower and tell Sam','Why are jobs late this week and what should I do?','Give WO 12 to Ravi','Create a new job','I need a part','Job done, fixed it','late'])expect(quickLookup(q),q).toBeNull();
+ for(const q of ['Show jobs waiting on parts at Marina tower and tell Sam','Why are jobs late this week and what should I do?','Give Job #12 to Ravi','Create a new job','I need a part','Job done, fixed it','late'])expect(quickLookup(q),q).toBeNull();
 });
 it('supervisor: jobs waiting on parts answers from the database with no AI call in under a second',async()=>{
  const r=await ask('Show jobs waiting on parts');expect(r.status).toBe(200);expect(r.body.quick).toBe(true);expect(ai).not.toHaveBeenCalled();expect(r.ms).toBeLessThan(1000);
@@ -42,9 +42,9 @@ it('what needs attention groups unread messages per job with a count, never repe
  const { groupUnread, attentionReply } = await import('../lib/services/attention');
  const m=(wo:number|null,who:string,kind='job')=>({conversation_id:wo?null:'chat-'+who,work_order_id:wo?'job-'+wo:null,order_number:wo,sender_name:who,thread_kind:kind});
  const groups=groupUnread([m(6,'Sam'),m(6,'Sam'),m(12,'Sam'),m(6,'Imran'),m(12,'Sam'),m(null,'Ravi','direct'),m(null,'Ravi','direct'),m(null,'Bilal','team')]);
- expect(groups.map(g=>g.summary)).toEqual(['WO 6: 2 from Sam, 1 from Imran','WO 12: 2 from Sam','Direct chat: 2 from Ravi']);
+ expect(groups.map(g=>g.summary)).toEqual(['Job #6: 2 from Sam, 1 from Imran','Job #12: 2 from Sam','Direct chat: 2 from Ravi']);
  const reply=attentionReply({summary:'You have 2 suggested jobs',message_groups:groups});
- expect(reply).toBe('You have 2 suggested jobs.\nYou have 7 unread messages: 5 on 2 jobs and 2 in direct chats.\n• WO 6: 2 from Sam, 1 from Imran\n• WO 12: 2 from Sam\n• Direct chat: 2 from Ravi');
+ expect(reply).toBe('You have 2 suggested jobs.\nYou have 7 unread messages: 5 on 2 jobs and 2 in direct chats.\n• Job #6: 2 from Sam, 1 from Imran\n• Job #12: 2 from Sam\n• Direct chat: 2 from Ravi');
  const lines=reply.split('\n');expect(new Set(lines).size).toBe(lines.length);
  expect(attentionReply({summary:'You have 0 suggested jobs',message_groups:[]})).toBe('You have 0 suggested jobs.\nYou have no unread messages.');
  const live=await ask('What needs attention?');const out=live.body.reply.split('\n');expect(new Set(out).size).toBe(out.length);expect(ai).not.toHaveBeenCalled();

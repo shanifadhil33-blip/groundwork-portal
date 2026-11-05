@@ -771,7 +771,7 @@
 "Our technician could not fix this today. The supervisor will call you.":"ഇന്ന് ഇത് ശരിയാക്കാൻ ഞങ്ങളുടെ ടെക്നീഷ്യന് കഴിഞ്ഞില്ല. സൂപ്പർവൈസർ വിളിക്കും.",
 "Our technician came at {time} but could not get in. Choose a new time.":"ഞങ്ങളുടെ ടെക്നീഷ്യൻ {time} ന് എത്തിയെങ്കിലും അകത്ത് കയറാനായില്ല. പുതിയ സമയം തിരഞ്ഞെടുക്കുക.",
 "The part has arrived. Your visit is booked for {time}.":"ഭാഗം എത്തി. നിങ്ങളുടെ സന്ദർശനം {time} ന് ബുക്ക് ചെയ്തു.",
-"Your job is done. Please rate it. WO {n} {job}":"നിങ്ങളുടെ ജോലി പൂർത്തിയായി. ദയവായി റേറ്റ് ചെയ്യുക. WO {n} {job}",
+"Your job is done. Please rate it. Job #{n} {job}":"നിങ്ങളുടെ ജോലി പൂർത്തിയായി. ദയവായി റേറ്റ് ചെയ്യുക. #{n} {job}",
 "{count} more update on this job":"ഈ ജോലിയിൽ {count} വിവരം കൂടി",
 "{count} more updates on this job":"ഈ ജോലിയിൽ {count} വിവരങ്ങൾ കൂടി",
 "Your team":"നിങ്ങളുടെ ടീം",
@@ -1476,7 +1476,7 @@
 "Building name or number, and office or unit.":null,
 "By continuing, you agree to the":null,
 "Calls you":null,
-"Cancel WO {value1} {value2}?":null,
+"Cancel Job #{value1} {value2}?":null,
 "Cancel edits":null,
 "Cancel job":null,
 "Cancel job instead":null,
@@ -1808,7 +1808,7 @@
 "Match each column. Only the job name is needed.":null,
 "Member client":null,
 "Memory":null,
-"Message for WO {value1}":null,
+"Message for Job #{value1}":null,
 "Message photo":null,
 "Message removed by an admin":null,
 "Messages marked as read.":null,
@@ -2350,7 +2350,7 @@
 "Visits in the contract":null,
 "Voice input is unavailable in this browser. You can type your message.":null,
 "Job {order_number}":null,
-"WO {order_number} {value2}":null,
+"Job #{order_number} {value2}":null,
 "Waiting for the owner":null,
 "Waiting for your approval":null,
 "Waiting to send":null,
@@ -2730,5 +2730,6 @@
  "Who is free tomorrow morning?": "നാളെ രാവിലെ ആരാണ് ഒഴിവുള്ളത്?",
  "Book a visit for Al Barsha villa": "അൽ ബർഷ വില്ലയ്ക്ക് ഒരു സന്ദർശനം ബുക്ക് ചെയ്യുക",
 "Job #{order_number}":null,
-"Message for job #{value1}":null
+"Message for job #{value1}":null,
+ "Job #": "#"
 }

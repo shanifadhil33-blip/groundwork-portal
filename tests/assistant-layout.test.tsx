@@ -23,18 +23,18 @@ const unique = (text: string) => { const lines = text.split('\n'); expect(new Se
 
 describe('quick list answers', () => {
   it('puts each job on one short line, number and title first', () => {
-    expect(job(31, 'Adjust meeting room cooling')).toBe('WO 31: Adjust meeting room cooling, Marina Exchange, Urgent, Unassigned, Due: 18 Oct 2026');
-    expect(job(51, 'Repair entry door closer', 'Imran')).toBe('WO 51: Repair entry door closer, Marina Exchange, Urgent, Assigned to: Imran, Due: 18 Oct 2026');
+    expect(job(31, 'Adjust meeting room cooling')).toBe('Job #31: Adjust meeting room cooling, Marina Exchange, Urgent, Unassigned, Due: 18 Oct 2026');
+    expect(job(51, 'Repair entry door closer', 'Imran')).toBe('Job #51: Repair entry door closer, Marina Exchange, Urgent, Assigned to: Imran, Due: 18 Oct 2026');
   });
   it('keeps the opening lines first and never repeats a line, even when jobs share every detail', () => {
     const text = stack(['Late jobs: 3.', 'Chase first: WO 31.'], [job(31, 'Same title'), job(56, 'Same title'), job(57, 'Same title')]);
     expect(text.split('\n')).toHaveLength(5);
-    expect(text.split('\n').slice(0, 2)).toEqual(['Late jobs: 3.', 'Chase first: WO 31.']);
+    expect(text.split('\n').slice(0, 2)).toEqual(['Late jobs: 3.', 'Chase first: Job #31.']);
     unique(text);
     expect(text).not.toMatch(/[-\u2010-\u2015]/);
   });
   it('keeps a job on one line when a title or site name holds a line break', () => {
-    expect(jobBlock({ number: 7, title: 'Fix\n\nleak', site: 'Tower\nA', assignee: null, priority: 'Low', due: '1 Nov 2026' }, t)).toBe('WO 7: Fix leak, Tower A, Low, Unassigned, Due: 1 Nov 2026');
+    expect(jobBlock({ number: 7, title: 'Fix\n\nleak', site: 'Tower\nA', assignee: null, priority: 'Low', due: '1 Nov 2026' }, t)).toBe('Job #7: Fix leak, Tower A, Low, Unassigned, Due: 1 Nov 2026');
   });
   it.each(LANGUAGES.map(l => l.code))('%s: shared details never repeat a line, with no dashes in the words around the data', code => {
     const w = choiceWords(code);
@@ -44,7 +44,7 @@ describe('quick list answers', () => {
     expect(text.split('\n')).toHaveLength(4);
     for (const line of jobs) expect(line).toMatch(/^WO \d+: /);
     expect(text.replace(/Marina Exchange|\d{1,2} Oct 2026/g, '')).not.toMatch(/[-\u2010-\u2015]/);
-    if (code === 'ar-AE') expect(jobs[0]).toBe('WO 31: اضبط تبريد غرفة الاجتماعات، Marina Exchange، عاجل، غير معين، الموعد النهائي: 19 Oct 2026');
+    if (code === 'ar-AE') expect(jobs[0]).toBe('Job #31: اضبط تبريد غرفة الاجتماعات، Marina Exchange، عاجل، غير معين، الموعد النهائي: 19 Oct 2026');
   });
 });
 
@@ -53,7 +53,7 @@ describe('reply layout on screen', () => {
   it('the main Ask panel shows each line as its own block', () => {
     const html = renderToStaticMarkup(<AssistantMarkdown text={reply} />);
     expect((html.match(/class="bidi-line"/g) ?? []).length).toBe(3);
-    expect(html).toContain('WO 56: Service water pump, Marina Exchange');
+    expect(html).toContain('Job #56: Service water pump, Marina Exchange');
     expect(html).not.toContain('\n');
   });
   it('lists keep the earlier markup apart from direction', () => {
@@ -69,7 +69,7 @@ describe('reply layout on screen', () => {
 
 describe('reading direction per line', () => {
   it('keeps a Latin only line left to right so the full stop stays at the end', () => {
-    expect(lineDirection('WO 31: Adjust meeting room cooling.')).toBe('ltr');
+    expect(lineDirection('Job #31: Adjust meeting room cooling.')).toBe('ltr');
     const html = renderToStaticMarkup(<DirectedLines text={'WO 31: Adjust meeting room cooling.'} />);
     expect(html).toContain('dir="ltr"');
   });
@@ -85,7 +85,7 @@ describe('reading direction per line', () => {
   });
   it('gives each line its own direction in one reply', () => {
     const html = renderToStaticMarkup(<AssistantMarkdown text={'WO 31: اضبط تبريد غرفة الاجتماعات\nSite: Marina Exchange'} />);
-    expect(html).toMatch(/dir="rtl"[^>]*>WO 31: اضبط/);
+    expect(html).toMatch(/dir="rtl"[^>]*>Job #31: اضبط/);
     expect(html).toMatch(/dir="ltr"[^>]*>Site: Marina Exchange/);
   });
 });
@@ -110,7 +110,7 @@ describe('job lines stand apart in chat bubbles', () => {
   it('marks each line that starts with a WO number, with or without a bullet, and no other line', () => {
     const text = ['Late jobs: 3.', 'WO 31: Adjust meeting room cooling, Marina Exchange, Urgent', '• WO 56: Service water pump', '- WO 57: Fix leak', 'Today: 0.', 'Chase first: WO 31.', 'WORK 12', 'Unread updates: 2.'].join('\n');
     const html = renderToStaticMarkup(<DirectedLines text={text} />);
-    expect(marked(html)).toEqual(['WO 31: Adjust meeting room cooling, Marina Exchange, Urgent', '• WO 56: Service water pump', '- WO 57: Fix leak']);
+    expect(marked(html)).toEqual(['Job #31: Adjust meeting room cooling, Marina Exchange, Urgent', '• Job #56: Service water pump', '- Job #57: Fix leak']);
     expect((html.match(/class="bidi-line"/g) ?? []).length).toBe(8);
     expect(text.split('\n')).not.toContain('');
   });
@@ -118,8 +118,8 @@ describe('job lines stand apart in chat bubbles', () => {
     const ar = jobBlock({ number: 31, title: 'اضبط تبريد غرفة الاجتماعات', site: 'Marina Exchange', assignee: null, priority: 'عاجل', due: '19 Oct 2026' }, choiceWords('ar-AE'), 'ar-AE');
     const html = renderToStaticMarkup(<AssistantMarkdown text={stack(['Late jobs: 2.'], [job(56, 'Service water pump'), ar])} />);
     expect(marked(html)).toHaveLength(2);
-    expect(html).toMatch(/dir="ltr" class="bidi-line" data-wo="">WO 56/);
-    expect(html).toMatch(/dir="rtl" class="bidi-line" data-wo="">WO 31: اضبط/);
+    expect(html).toMatch(/dir="ltr" class="bidi-line" data-wo="">Job #56/);
+    expect(html).toMatch(/dir="rtl" class="bidi-line" data-wo="">Job #31: اضبط/);
     expect(html).toMatch(/dir="ltr" class="bidi-line">Late jobs/);
   });
   it('gives a marked line a small logical gap above it, never above the first line', () => {

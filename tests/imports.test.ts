@@ -34,7 +34,7 @@ it('sample end to end yields 35 created, 2 rejected and preserves dates and sour
  await expect(s.bulkApprove(ids.sam,ids.ridgeline,{row_ids:rows.slice(2).map((r:{id:string})=>r.id)})).rejects.toMatchObject({status:403});
  const approved=await s.bulkApprove(ids.imran,ids.ridgeline,{row_ids:rows.slice(2).map((r:{id:string})=>r.id)});expect(approved.data).toHaveLength(35);expect(approved.data[0].source).toBe('import');expect(approved.data[0].due_on).toBe('2026-11-20');expect(approved.data[0].scheduled_for.toISOString()).toBe('2026-11-18T05:00:00.000Z');expect(approved.data.every(o=>o.order_number>0)).toBe(true);
  const summary=await s.getImport(ids.imran,ids.ridgeline,imp.id);expect(summary.status).toBe('completed');expect(summary.result_summary).toBe('35 created, 2 rejected');
- const report=await s.errorReport(ids.sam,ids.ridgeline,imp.id);expect(report).toContain('reason');expect(report).toContain('External reference already used by WO 1');expect(report.split('\r\n')).toHaveLength(4);
+ const report=await s.errorReport(ids.sam,ids.ridgeline,imp.id);expect(report).toContain('reason');expect(report).toContain('External reference already used by Job #1');expect(report.split('\r\n')).toHaveLength(4);
 });
 it('reads XLSX and fuzzy headers through SheetJS',()=>{const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,XLSX.utils.aoa_to_sheet([['Job Title','Site Address','Due Date'],['Test','12 Road','2026-11-20']]),'Orders');const result=parseFile(XLSX.write(book,{type:'buffer',bookType:'xlsx'}),'orders.xlsx');expect(result.rows).toHaveLength(1);expect(result.mapping).toMatchObject({title:'Job Title',site:'Site Address',due_on:'Due Date'});});
 it('rejects unsupported files, size and data row limits with filename and limit',async()=>{

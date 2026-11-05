@@ -790,7 +790,7 @@
 "Our technician could not fix this today. The supervisor will call you.":"تکنسین ما امروز نتوانست این را تعمیر کند. سرپرست با شما تماس می‌گیرد.",
 "Our technician came at {time} but could not get in. Choose a new time.":"تکنسین ما ساعت {time} آمد ولی نتوانست وارد شود. زمان جدیدی انتخاب کنید.",
 "The part has arrived. Your visit is booked for {time}.":"قطعه رسیده است. بازدید شما برای {time} رزرو شده است.",
-"Your job is done. Please rate it. WO {n} {job}":"کار شما تمام شده است. لطفاً به آن امتیاز بدهید. WO {n} {job}",
+"Your job is done. Please rate it. Job #{n} {job}":"کار شما تمام شده است. لطفاً به آن امتیاز بدهید. #{n} {job}",
 "{count} more update on this job":"{count} خبر دیگر درباره این کار",
 "{count} more updates on this job":"{count} خبر دیگر درباره این کار",
 "Your team":"تیم شما",
@@ -1483,7 +1483,7 @@
 "Building name or number":null,
 "Building name or number, and office or unit.":null,
 "By continuing, you agree to the":null,
-"Cancel WO {value1} {value2}?":null,
+"Cancel Job #{value1} {value2}?":null,
 "Cancel edits":null,
 "Cancel job":null,
 "Cancel job instead":null,
@@ -1814,7 +1814,7 @@
 "Marked. This closed job has no photos.":null,
 "Match each column. Only the job name is needed.":null,
 "Member client":null,
-"Message for WO {value1}":null,
+"Message for Job #{value1}":null,
 "Message photo":null,
 "Message removed by an admin":null,
 "Messages marked as read.":null,
@@ -2343,7 +2343,7 @@
 "Visits in the contract":null,
 "Voice input is unavailable in this browser. You can type your message.":null,
 "Job {order_number}":null,
-"WO {order_number} {value2}":null,
+"Job #{order_number} {value2}":null,
 "Waiting for the owner":null,
 "Waiting for your approval":null,
 "Waiting to send":null,
@@ -2726,5 +2726,6 @@
  "Who is free tomorrow morning?": "فردا صبح چه کسی آزاد است؟",
  "Book a visit for Al Barsha villa": "یک بازدید برای ویلای البرشا رزرو کن",
 "Job #{order_number}":null,
-"Message for job #{value1}":null
+"Message for job #{value1}":null,
+ "Job #": "#"
 }

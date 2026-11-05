@@ -65,7 +65,7 @@ describe('AI answers and local cache', () => {
   const source = 'Send WO-12 to ali@example.com at 10:30 for {name} and {{count}}';
   it('preserves identifiers, numbers, emails and placeholders including counts', () => {
     const translated = 'أرسل WO-12 إلى ali@example.com الساعة 10:30 لـ {name} و {{count}}';
-    expect(protectedTokens(source)).toContain('WO-12');
+    expect(protectedTokens(source)).toContain('Job #12');
     expect(parseTranslations(JSON.stringify({[source]:translated,extra:'ignore'}),[source])).toEqual({[source]:translated});
     for (const changed of [translated.replace('12','13'),translated.replace('{name}','اسم'),translated+' 5',translated.replace('ali@','omar@')]) {
       expect(parseTranslations(JSON.stringify({[source]:changed}),[source])).toBeNull();

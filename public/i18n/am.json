@@ -747,7 +747,7 @@
 "Our technician could not fix this today. The supervisor will call you.":"ቴክኒሻናችን ዛሬ ይህን ማስተካከል አልቻለም። ተቆጣጣሪው ይደውልልዎታል።",
 "Our technician came at {time} but could not get in. Choose a new time.":"ቴክኒሻናችን በ {time} መጣ ግን መግባት አልቻለም። አዲስ ሰዓት ይምረጡ።",
 "The part has arrived. Your visit is booked for {time}.":"መለዋወጫው ደርሷል። ጉብኝትዎ ለ {time} ተይዟል።",
-"Your job is done. Please rate it. WO {n} {job}":"ሥራዎ ተጠናቋል። እባክዎ ደረጃ ይስጡ። WO {n} {job}",
+"Your job is done. Please rate it. Job #{n} {job}":"ሥራዎ ተጠናቋል። እባክዎ ደረጃ ይስጡ። #{n} {job}",
 "{count} more update on this job":"በዚህ ሥራ ላይ ተጨማሪ {count} መረጃ",
 "{count} more updates on this job":"በዚህ ሥራ ላይ ተጨማሪ {count} መረጃዎች",
 "Your team":"የእርስዎ ቡድን",
@@ -1459,7 +1459,7 @@
 "Building name or number, and office or unit.":null,
 "By continuing, you agree to the":null,
 "Calls you":null,
-"Cancel WO {value1} {value2}?":null,
+"Cancel Job #{value1} {value2}?":null,
 "Cancel edits":null,
 "Cancel job":null,
 "Cancel job instead":null,
@@ -1794,7 +1794,7 @@
 "Match each column. Only the job name is needed.":null,
 "Member client":null,
 "Memory":null,
-"Message for WO {value1}":null,
+"Message for Job #{value1}":null,
 "Message photo":null,
 "Message removed by an admin":null,
 "Messages marked as read.":null,
@@ -2339,7 +2339,7 @@
 "Visits in the contract":null,
 "Voice input is unavailable in this browser. You can type your message.":null,
 "Job {order_number}":null,
-"WO {order_number} {value2}":null,
+"Job #{order_number} {value2}":null,
 "Waiting for the owner":null,
 "Waiting for your approval":null,
 "Waiting to send":null,
@@ -2724,5 +2724,6 @@
  "Who is free tomorrow morning?": "ነገ ጠዋት ማን ነፃ ነው?",
  "Book a visit for Al Barsha villa": "ለአል ባርሻ ቪላ ጉብኝት ያስይዙ",
 "Job #{order_number}":null,
-"Message for job #{value1}":null
+"Message for job #{value1}":null,
+ "Job #": "#"
 }

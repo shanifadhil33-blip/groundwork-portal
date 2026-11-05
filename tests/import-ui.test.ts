@@ -47,4 +47,4 @@ describe('spreadsheet review presentation', () => {
   });
 });
 
-it('places external reference conflicts under their own field',()=>{expect(validationCopy({external_ref:['External reference already used by WO-1.']})).toEqual({external_ref:'This external reference is already used. Choose a unique reference.'});});
+it('places external reference conflicts under their own field',()=>{expect(validationCopy({external_ref:['External reference already used by Job #1.']})).toEqual({external_ref:'This external reference is already used. Choose a unique reference.'});});

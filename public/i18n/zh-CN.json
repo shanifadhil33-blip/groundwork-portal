@@ -744,7 +744,7 @@
 "Our technician could not fix this today. The supervisor will call you.":"我们的师傅今天未能修好。主管会给您打电话。",
 "Our technician came at {time} but could not get in. Choose a new time.":"我们的师傅于{time}到达，但无法进入。请选择新时间。",
 "The part has arrived. Your visit is booked for {time}.":"零件已到。您的上门时间已预约为{time}。",
-"Your job is done. Please rate it. WO {n} {job}":"您的维修已完成。请评分。 WO {n} {job}",
+"Your job is done. Please rate it. Job #{n} {job}":"您的维修已完成。请评分。 #{n} {job}",
 "{count} more update on this job":"此工作还有{count}条更新",
 "{count} more updates on this job":"此工作还有{count}条更新",
 "Your team":"您的团队",
@@ -1455,7 +1455,7 @@
 "Building name or number, and office or unit.":null,
 "By continuing, you agree to the":null,
 "Calls you":null,
-"Cancel WO {value1} {value2}?":null,
+"Cancel Job #{value1} {value2}?":null,
 "Cancel edits":null,
 "Cancel job":null,
 "Cancel job instead":null,
@@ -1790,7 +1790,7 @@
 "Match each column. Only the job name is needed.":null,
 "Member client":null,
 "Memory":null,
-"Message for WO {value1}":null,
+"Message for Job #{value1}":null,
 "Message photo":null,
 "Message removed by an admin":null,
 "Messages marked as read.":null,
@@ -2335,7 +2335,7 @@
 "Visits in the contract":null,
 "Voice input is unavailable in this browser. You can type your message.":null,
 "Job {order_number}":null,
-"WO {order_number} {value2}":null,
+"Job #{order_number} {value2}":null,
 "Waiting for the owner":null,
 "Waiting for your approval":null,
 "Waiting to send":null,
@@ -2719,5 +2719,6 @@
  "Who is free tomorrow morning?": "明天早上谁有空？",
  "Book a visit for Al Barsha villa": "为阿尔巴沙别墅预约一次上门",
 "Job #{order_number}":null,
-"Message for job #{value1}":null
+"Message for job #{value1}":null,
+ "Job #": "#"
 }

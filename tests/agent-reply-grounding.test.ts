@@ -29,27 +29,27 @@ it('keeps supported names, job numbers, prices, formatted dates, counts and mark
 it('checks each job against its own price and date', () => {
  vi.spyOn(console,'warn').mockImplementation(() => {});
  const other={order_number:59,title:'Fix light',quote_amount:'999.00',scheduled_for:'2026-11-09'};
- expect(groundedReply('WO 58 costs AED 999.00. WO 58 is booked for 9 November 2026.',[tool([job,other])]))
+ expect(groundedReply('Job #58 costs AED 999.00. Job #58 is booked for 9 November 2026.',[tool([job,other])]))
   .toBe(`${RECORDS_FALLBACK} ${RECORDS_FALLBACK}`);
 });
 it('does not use IDs or job numbers as proof of prices or counts', () => {
  vi.spyOn(console,'warn').mockImplementation(() => {});
- expect(groundedReply('WO 58 costs AED 58.00. Ravi completed 58 jobs.',[tool(job)]))
+ expect(groundedReply('Job #58 costs AED 58.00. Ravi completed 58 jobs.',[tool(job)]))
   .toBe(`${RECORDS_FALLBACK} ${RECORDS_FALLBACK}`);
 });
 it('ignores failed results and handles plain JSON result payloads', () => {
  vi.spyOn(console,'warn').mockImplementation(() => {});
- expect(groundedReply('WO 58 is open.',[{...tool(job),isError:true}])).toBe(RECORDS_FALLBACK);
- expect(groundedReply('WO 58 is open.',[{content:[{text:JSON.stringify(job)}]}])).toBe('WO 58 is open.');
- expect(groundedReply('WO 58 is open.',[{content:[{text:'not JSON'}]}])).toBe(RECORDS_FALLBACK);
+ expect(groundedReply('Job #58 is open.',[{...tool(job),isError:true}])).toBe(RECORDS_FALLBACK);
+ expect(groundedReply('Job #58 is open.',[{content:[{text:JSON.stringify(job)}]}])).toBe('Job #58 is open.');
+ expect(groundedReply('Job #58 is open.',[{content:[{text:'not JSON'}]}])).toBe(RECORDS_FALLBACK);
 });
 it.each(['Hello, Imran. How can I help?', 'Which job do you mean?', 'Do you mean WO 99?', 'I could not find WO 99.', 'I cannot change that price. Ask a supervisor.', 'Please give a WO number.', 'Open Work orders to check your jobs.', 'This is ready to review.', 'There is nothing to change.', 'Today is a good time to check.'])('keeps normal conversation: %s', reply => {
  expect(groundedReply(reply,[],['Imran'])).toBe(reply);
 });
 it('keeps line breaks and handles Arabic Indic job numbers', () => {
  vi.spyOn(console,'warn').mockImplementation(() => {});
- expect(groundedReply('WO ٥٨ is open.\nWO ٩٩ is open.\nHow can I help?',[tool(job)]))
-  .toBe(`WO ٥٨ is open.\n${RECORDS_FALLBACK}\nHow can I help?`);
+ expect(groundedReply('Job #٥٨ is open.\nWO ٩٩ is open.\nHow can I help?',[tool(job)]))
+  .toBe(`Job #٥٨ is open.\n${RECORDS_FALLBACK}\nHow can I help?`);
 });
 
 it('does not mistake an ordinary pronoun for a name', () => {

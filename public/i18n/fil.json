@@ -749,7 +749,7 @@
 "Our technician could not fix this today. The supervisor will call you.":"Hindi ito naayos ng aming technician ngayon. Tatawag sa iyo ang superbisor.",
 "Our technician came at {time} but could not get in. Choose a new time.":"Dumating ang aming technician nang {time} pero hindi makapasok. Pumili ng bagong oras.",
 "The part has arrived. Your visit is booked for {time}.":"Dumating na ang piyesa. Naka book ang iyong pagbisita sa {time}.",
-"Your job is done. Please rate it. WO {n} {job}":"Tapos na ang iyong trabaho. Pakirate ito. WO {n} {job}",
+"Your job is done. Please rate it. Job #{n} {job}":"Tapos na ang iyong trabaho. Pakirate ito. #{n} {job}",
 "{count} more update on this job":"May {count} pang balita sa trabahong ito",
 "{count} more updates on this job":"May {count} pang balita sa trabahong ito",
 "Your team":"Team mo",
@@ -1459,7 +1459,7 @@
 "Building name or number":null,
 "Building name or number, and office or unit.":null,
 "By continuing, you agree to the":null,
-"Cancel WO {value1} {value2}?":null,
+"Cancel Job #{value1} {value2}?":null,
 "Cancel edits":null,
 "Cancel job":null,
 "Cancel job instead":null,
@@ -1796,7 +1796,7 @@
 "Marked. This closed job has no photos.":null,
 "Match each column. Only the job name is needed.":null,
 "Member client":null,
-"Message for WO {value1}":null,
+"Message for Job #{value1}":null,
 "Message photo":null,
 "Message removed by an admin":null,
 "Messages marked as read.":null,
@@ -2330,7 +2330,7 @@
 "Visits in the contract":null,
 "Voice input is unavailable in this browser. You can type your message.":null,
 "Job {order_number}":null,
-"WO {order_number} {value2}":null,
+"Job #{order_number} {value2}":null,
 "Waiting for the owner":null,
 "Waiting for your approval":null,
 "Waiting to send":null,
@@ -2715,5 +2715,6 @@
  "Who is free tomorrow morning?": "Sino ang libre bukas ng umaga?",
  "Book a visit for Al Barsha villa": "Mag iskedyul ng pagbisita para sa villa sa Al Barsha",
 "Job #{order_number}":null,
-"Message for job #{value1}":null
+"Message for job #{value1}":null,
+ "Job #": "#"
 }
