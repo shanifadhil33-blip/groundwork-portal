@@ -174,7 +174,7 @@ function RefusalOfferButton({ws,offer,onSent}:{ws:string;offer:RefusalOffer & {s
   catch{lock.current=false;setError(true);}finally{setBusy(false);}
  }
  if(offer.sent)return <p role="status"><span>Sent to</span>{' '}<bdi data-no-translate>{offer.to_name}</bdi><span>. Nothing changes until he answers.</span></p>;
- return <div className="stack"><Button variant="secondary" style={{minHeight:44,width:'100%',textAlign:'start'}} busy={busy} onClick={()=>void send()}><span>Ask</span>{' '}<span data-no-translate><bdi>{offer.to_name}</bdi></span></Button>{error&&<p role="alert">Could not send. Tap Ask to try again.</p>}</div>;
+ return <div className="stack"><Button className="tap fill text-start" variant="secondary" busy={busy} onClick={()=>void send()}><span>Ask</span>{' '}<span data-no-translate><bdi>{offer.to_name}</bdi></span></Button>{error&&<p role="alert">Could not send. Tap Ask to try again.</p>}</div>;
 }
 
 /** Laptop width: the Agent sits beside the page and never covers it. */

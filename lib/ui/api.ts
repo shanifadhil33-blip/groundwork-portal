@@ -23,7 +23,10 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
       throw new RequestError(0, networkCopy(), undefined, 'network');
     }
   }
-  return readResponse<T>(response);
+  const result = await readResponse<T>(response);
+  // A write makes cached lists stale here and in other tabs.
+  if (init?.method && init.method !== 'GET' && typeof window !== 'undefined') window.dispatchEvent(new Event('groundwork-write'));
+  return result;
 }
 async function readResponse<T>(response: Response): Promise<T> {
   const data = await response.json().catch(() => null);

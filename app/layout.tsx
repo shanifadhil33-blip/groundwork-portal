@@ -8,9 +8,10 @@ import { appLanguageScript, sessionHintScript, themeScript } from '../lib/head-s
 import { getServerLanguage } from '../lib/server-language';
 import { AppWords } from '../components/app/app-words';
 import { ServerLangProvider } from '../components/app/use-ui-lang';
+import './tokens.css';
 import './globals.css';
-import './desert-stone.css';
-// Desert Stone (Oct 21 2026): Manrope for Latin, IBM Plex Sans Arabic 400 and 600 for Arabic.
+import './screens.css';
+// Manrope for Latin, IBM Plex Sans Arabic 400 and 600 for Arabic. Other scripts load only when their characters are on screen.
 const geist = Manrope({ subsets: ['latin'], variable: '--font-ui', display: 'swap' });
 // Real faces for each script at weight 400 (no fake bold). Each only downloads when its characters are on screen.
 const tamil = Noto_Sans_Tamil({ weight: '400', display: 'swap', preload: false, subsets: ['tamil'], variable: '--font-tamil' });

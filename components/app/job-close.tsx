@@ -56,7 +56,7 @@ export function JobCloseView({ state, currency, busy, error, onSign, onMark, onK
     {state.marked && <p role="status">Marked. This closed job has no photos.</p>}
     {state.can_mark && <Button variant="secondary" busy={busyMark || (!client && busy)} onClick={onMark}>Mark no photos</Button>}
     {!client && state.draft && <Card className="stack"><h2>Draft bill</h2>
-      <ul className="draft-lines" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{state.draft.lines.map(line => <li key={`${line.label}:${line.detail}`}><div><span className="small muted">{line.label}</span><span data-no-translate>{line.detail}</span></div><span className="amount" data-no-translate={line.amount ? true : undefined}><bdi dir="ltr">{line.amount ? `${currency} ${line.amount}` : state.draft?.waiting}</bdi></span></li>)}</ul>
+      <ul className="draft-lines plain-list" >{state.draft.lines.map(line => <li key={`${line.label}:${line.detail}`}><div><span className="small muted">{line.label}</span><span data-no-translate>{line.detail}</span></div><span className="amount" data-no-translate={line.amount ? true : undefined}><bdi dir="ltr">{line.amount ? `${currency} ${line.amount}` : state.draft?.waiting}</bdi></span></li>)}</ul>
       <p>{state.draft.status === 'kept' ? 'The owner kept this draft. It is not sent.' : 'Waiting for the owner'}</p>
       {state.draft.can_keep && <Button busy={busyKeep || (!client && busy)} onClick={onKeep}>Keep this draft</Button>}
     </Card>}

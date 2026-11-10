@@ -6,7 +6,19 @@ import { postDemoStart, RequestError } from '../../lib/ui/api';
 import { demoLanguage } from '../../lib/ui/demo-language';
 import { homeForPersona } from '../../lib/ui/helpers';
 import { Badge, ErrorState } from '../ui/states';
-export const personas = [{ key: 'imran', name: 'Imran', role: 'Owner', company: 'Ridgeline Facility Services', detail: 'Runs the company. Sees and changes everything.' }, { key: 'hassan', name: 'Hassan', role: 'Admin', company: 'Ridgeline Facility Services', detail: 'Runs the company. Sees and changes everything.' }, { key: 'sam', name: 'Sam', role: 'Supervisor', company: 'Ridgeline Facility Services', detail: 'Plans jobs, gives them to the team and checks new requests.' }, { key: 'ravi', name: 'Ravi', role: 'Technician', company: 'Ridgeline Facility Services', detail: 'Sees only his own jobs. Updates them and adds notes.' }, { key: 'nabil', name: 'Nabil', role: 'Office staff', company: 'Ridgeline Facility Services', detail: 'Takes calls, makes jobs and books the best person for each.' }, { key: 'pranav', name: 'Pranav', role: 'Facility manager', company: 'Harbor & Pine Coworking', detail: 'Asks for repairs and follows them for Harbor & Pine.' }, { key: 'omar', name: 'Omar', role: 'Facility manager', company: 'Northgate Self Storage', detail: 'Asks for repairs and follows them for Northgate.' }, { key: 'kevin', name: 'Kevin', role: 'Facility staff', company: 'Harbor & Pine Coworking', detail: 'Raises requests for his office and follows them.' }, { key: 'faisal', name: 'Faisal', role: 'Household', company: 'Northgate Self Storage', detail: 'Sees only his own requests at his own address.' }] as const;
+import { ROLE_CAN_DO, ROLE_NAME, type RoleGroup } from '../../lib/nav';
+const people = [
+  { key: 'imran', name: 'Imran', group: 'owner', company: 'Ridgeline Facility Services' },
+  { key: 'hassan', name: 'Hassan', group: 'admin', company: 'Ridgeline Facility Services' },
+  { key: 'sam', name: 'Sam', group: 'supervisor', company: 'Ridgeline Facility Services' },
+  { key: 'nabil', name: 'Nabil', group: 'office', company: 'Ridgeline Facility Services' },
+  { key: 'ravi', name: 'Ravi', group: 'technician', company: 'Ridgeline Facility Services' },
+  { key: 'pranav', name: 'Pranav', group: 'client_manager', company: 'Harbor and Pine Coworking' },
+  { key: 'omar', name: 'Omar', group: 'client_manager', company: 'Northgate Self Storage' },
+  { key: 'kevin', name: 'Kevin', group: 'client_staff', company: 'Harbor and Pine Coworking' },
+  { key: 'faisal', name: 'Faisal', group: 'home_client', company: 'His own home' },
+] as const satisfies readonly { key: string; name: string; group: RoleGroup; company: string }[];
+export const personas = people.map(p => ({ ...p, role: ROLE_NAME[p.group], detail: ROLE_CAN_DO[p.group] }));
 export function DemoPicker() {
   const [busy, setBusy] = useState<string | null>(null), [error, setError] = useState<string | null>(null), [last, setLast] = useState('imran');
   async function start(persona: string) { if (busy) return; setBusy(persona); setLast(persona); setError(null); try { await postDemoStart({ persona, language: demoLanguage() }); window.location.replace(homeForPersona(persona)); } catch (e) { setError(e instanceof RequestError && e.status === 429 ? 'Too many tries. Please wait a while and try again.' : 'We couldn’t open the demo. Please try again.'); setBusy(null); } }

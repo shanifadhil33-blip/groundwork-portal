@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { formatInLang } from '../../lib/date-lang';
-import { Button, Dialog, useToast } from '../ui';
+import { Button, Dialog, useToast, Dropdown } from '../ui';
 import { request, RequestError } from '../../lib/ui/api';
 import { useResource } from './resource';
 
@@ -44,8 +44,8 @@ export function LeaveCalendar({ base, people, readOnly }: { base: string; people
       : <p className="small muted">Nobody is away. Add leave here, and jobs are not given to that person on those days.</p>}
     <Dialog open={open} onClose={() => setOpen(false)} busy={busy} title="Add leave" footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} onClick={add}>Save</Button></>}>
       <div className="stack compact">
-        <label className="field"><span>Who</span><select value={who} onChange={e => setWho(e.target.value)}>{workers.map(p => <option key={p.user_id} value={p.user_id}>{p.name ?? 'Team member'}</option>)}</select></label>
-        <label className="field"><span>Why</span><select value={kind} onChange={e => setKind(e.target.value)}>{KINDS.map(k => <option key={k.v} value={k.v}>{k.label}</option>)}</select></label>
+        <label className="field"><span>Who</span><Dropdown label="Person" width={320} value={who} onChange={setWho} options={workers.map(p => ({ value: p.user_id, label: p.name ?? 'Team member', noTranslate: !!p.name }))} /></label>
+        <label className="field"><span>Why</span><Dropdown label="Reason" width={320} value={kind} onChange={setKind} options={KINDS.map(k => ({ value: k.v, label: k.label }))} /></label>
         <div className="row"><label className="field"><span>From</span><input type="date" value={from} onChange={e => setFrom(e.target.value)} /></label><label className="field"><span>To</span><input type="date" value={to} min={from} onChange={e => setTo(e.target.value)} /></label></div>
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog>
   </section>;
@@ -66,7 +66,7 @@ export function RequestTimeOff({ base, onDone }: { base: string; onDone?: () => 
   return <><Button variant="secondary" onClick={() => { setFrom(today()); setTo(today()); setKind('off'); setError(''); setOpen(true); }}>Request time off</Button>
     <Dialog open={open} onClose={() => setOpen(false)} busy={busy} title="Request time off" footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} onClick={send}>Send</Button></>}>
       <div className="stack compact"><p className="small">Your supervisor says yes or no. You get a message.</p>
-        <label className="field"><span>Why</span><select value={kind} onChange={e => setKind(e.target.value)}>{KINDS.map(k => <option key={k.v} value={k.v}>{k.label}</option>)}</select></label>
+        <label className="field"><span>Why</span><Dropdown label="Reason" width={320} value={kind} onChange={setKind} options={KINDS.map(k => ({ value: k.v, label: k.label }))} /></label>
         <div className="row"><label className="field"><span>From</span><input type="date" value={from} min={today()} onChange={e => setFrom(e.target.value)} /></label><label className="field"><span>To</span><input type="date" value={to} min={from} onChange={e => setTo(e.target.value)} /></label></div>
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
 }

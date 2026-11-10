@@ -2,8 +2,8 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { usePublicCopy } from './language';
-export function Mark() { return <svg className="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor" /><path d="M8 10h16v4H12v8h8v-4h-4" fill="none" stroke="var(--primary-fg)" strokeWidth="3" strokeLinejoin="round" /></svg>; }
-export function Brand({ href = '/' }: { href?: string }) { const t = usePublicCopy(); return <Link href={href} className="brand" aria-label={t('Groundwork home')}><Mark /><span className="brand-label">Groundwork</span></Link>; }
+export function Mark() { return <svg className="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor" /><path d="M8 10h16v4H12v8h8v-4h-4" fill="none" stroke="var(--ink-fg)" strokeWidth="3" strokeLinejoin="round" /></svg>; }
+export function Brand({ href = '/', label = true }: { href?: string; label?: boolean }) { const t = usePublicCopy(); return <Link href={href} className="brand" aria-label={t(href === '/' ? 'Groundwork home' : 'Home')}><Mark />{label && <span className="brand-label">Groundwork</span>}</Link>; }
 /**
  * signedIn known (server rendered pages): render that state. Unknown (static pages): render both, and let the
  * html data-session hint (set before paint from the last known state, then confirmed) pick one. The swap is a

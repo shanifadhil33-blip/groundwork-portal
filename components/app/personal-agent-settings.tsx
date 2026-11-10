@@ -61,7 +61,7 @@ export function PersonalAgentLog(){
  <h2>About you</h2>
  {learning.error?<ErrorState retry={learning.reload}/>:!mine.length?<p>Nothing yet. Try telling your Agent: I start at 7 now.</p>:<ul className="action-list">{mine.map(n=><li key={n.id}>{editing?.id===n.id?<div className="stack compact memory-edit"><label className="form-field">Change this line<textarea value={editing.body} maxLength={2000} onChange={e=>setEditing({id:n.id,body:e.target.value})}/></label><div className="row"><Button busy={busy} disabled={!editing.body.trim()} onClick={()=>void saveEdit()}>Save</Button><Button variant="secondary" onClick={()=>setEditing(null)}>Cancel</Button></div></div>:<><div><p><DemoDecisionText text={n.body}/></p></div><div className="row memory-actions"><Button variant="secondary" disabled={busy} onClick={()=>setEditing({id:n.id,body:n.body})}>Edit</Button><Button variant="secondary" disabled={busy} onClick={()=>void remove(n.id)}>Delete</Button></div></>}</li>)}</ul>}
  {rules.length>0&&<><h2>Company rules</h2>{(member?.role==='admin'||(member?.role==='staff'&&member.staff_kind!=='office'))&&<Link href="/settings/company-memory">Company Memory</Link>}<ul className="action-list">{rules.map(n=><li key={n.id}><div><p><DemoDecisionText text={n.body}/></p></div></li>)}</ul></>}
- <label className="form-field">Remember this<textarea value={body} maxLength={2000} onChange={e=>setBody(e.target.value)}/></label>{member?.role==='admin'&&<label className="form-field">Who is this for<select value={scope} onChange={e=>setScope(e.target.value)}><option value="personal">Only me</option><option value="company_rule">Company rule</option></select></label>}<Button busy={busy} disabled={!body.trim()} onClick={()=>void save()}>Save</Button>
+ <label className="form-field">Remember this<textarea value={body} maxLength={2000} onChange={e=>setBody(e.target.value)}/></label>{member?.role==='admin'&&<label className="form-field">Who is this for<Dropdown label="Who is this for" width={320} value={scope} onChange={setScope} options={[{value:'personal',label:'Only me'},{value:'company_rule',label:'Company rule'}]}/></label>}<Button busy={busy} disabled={!body.trim()} onClick={()=>void save()}>Save</Button>
  {mine.length>0&&(confirmReset?<div className="stack compact" role="group" aria-label="Reset memory"><p>Forget everything your Agent knows about you? Company rules stay.</p><div className="row"><Button busy={busy} onClick={()=>void reset()}>Yes, forget all</Button><Button variant="secondary" onClick={()=>setConfirmReset(false)}>Keep</Button></div></div>:<Button variant="secondary" onClick={()=>setConfirmReset(true)}>Reset everything</Button>)}
  {error&&<p role="alert">{error}</p>}{base&&<div id="decision-log"><AgentLog base={base} full/></div>}</div>;
 }
@@ -74,7 +74,7 @@ function UsualContext(){
  const hours=Array.from({length:15},(_,i)=>{const hour=String(i+6).padStart(2,'0');return {value:`${hour}:00`,label:`${hour}:00`,noTranslate:true};});
  return <section className="stack"><h2>Usual start</h2>
   <div className="form-field"><label htmlFor="usual-start">Usual start</label><Dropdown id="usual-start" label="Usual start" value={start} options={[{value:'',label:'Not set yet'},...hours]} onChange={setStart}/></div>
-  <label className="form-field">Usual areas<input value={areas} maxLength={200} onChange={e=>setAreas(e.target.value)} style={{minHeight:44}}/></label>
+  <label className="form-field">Usual areas<input className="tap" value={areas} maxLength={200} onChange={e=>setAreas(e.target.value)} /></label>
   <Button busy={busy} disabled={!start&&!areas.trim()} onClick={()=>void save()}>Save</Button>
   {saved&&<p role="status">{saved}</p>}{error&&<p role="alert">{error}</p>}
  </section>;
@@ -90,9 +90,9 @@ function AgentWords(){
  const group=(title:string,list:AgentWord[],canRemove:boolean)=><><h3>{title}</h3>{list.length===0?<p className="muted">No words yet.</p>:<ul className="action-list">{list.map(w=><li key={w.id}><div><strong data-no-translate>{w.phrase}</strong><p data-no-translate>{w.means_text}</p></div>{canRemove&&<Button variant="secondary" disabled={busy} onClick={()=>setRemoving(w)}>Delete</Button>}</li>)}</ul>}</>;
  return <section className="stack"><h2>Words</h2>{words.loading?<p>Loading…</p>:words.error?<ErrorState retry={words.reload}/>:<>{group('Your words',words.data?.personal??[],true)}{member?.role!=='client'&&group('Company words',words.data?.company??[],admin)}</>}
  <form className="stack compact" onSubmit={e=>{e.preventDefault();void save();}}>
- <label className="form-field">Word<input value={phrase} maxLength={60} disabled={busy} onChange={e=>setPhrase(e.target.value)} style={{minHeight:44}}/></label>
+ <label className="form-field">Word<input className="tap" value={phrase} maxLength={60} disabled={busy} onChange={e=>setPhrase(e.target.value)} /></label>
  <div className="form-field"><label htmlFor="word-means">Means</label><Dropdown id="word-means" label="Means" value={means} options={options} disabled={busy||sites.loading||assets.loading} onChange={setMeans}/></div>
- {means==='other'&&<label className="form-field">Something else<input value={text} maxLength={200} disabled={busy} onChange={e=>setText(e.target.value)} style={{minHeight:44}}/></label>}
+ {means==='other'&&<label className="form-field">Something else<input className="tap" value={text} maxLength={200} disabled={busy} onChange={e=>setText(e.target.value)} /></label>}
  {admin&&<div className="form-field"><label htmlFor="word-scope">Who is this for</label><Dropdown id="word-scope" label="Who is this for" value={scope} options={[{value:'personal',label:'Your words'},{value:'company',label:'Company words'}]} disabled={busy} onChange={setScope}/></div>}
  {sites.error&&<ErrorState retry={sites.reload}/>} {assets.error&&<ErrorState retry={assets.reload}/>}
  <Button type="submit" busy={busy} disabled={!phrase.trim()||(means==='other'&&!text.trim())}>Add word</Button>
