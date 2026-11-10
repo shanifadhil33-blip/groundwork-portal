@@ -2761,6 +2761,6 @@
 "You can sign in again any time.":null,
 "Your buildings and the equipment in each one.":null,
 "Your maintenance company adds your buildings. Ask them to add one.":null,
-"{count} to approve":null,
-"{count} unread":null
+ "{count} to approve": "{count} za kuidhinisha",
+ "{count} unread": "{count} hazijasomwa"
 }

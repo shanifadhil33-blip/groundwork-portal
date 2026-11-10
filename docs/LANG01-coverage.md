@@ -15,26 +15,26 @@ Recovered 269 translations from static repository tables, local Git history, and
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | ar-AE | 2762 | 6 | 1757 | 0 | 1004 | 1 | 0 | 0 |
-| ne | 2762 | 7 | 1387 | 0 | 1374 | 1 | 0 | 0 |
-| hi | 2762 | 5 | 1402 | 0 | 1359 | 1 | 0 | 0 |
-| ur | 2762 | 7 | 1387 | 0 | 1374 | 1 | 0 | 0 |
-| bn | 2762 | 6 | 1403 | 0 | 1358 | 1 | 0 | 0 |
-| ml | 2762 | 19 | 1371 | 0 | 1390 | 1 | 0 | 0 |
-| ta | 2762 | 6 | 1402 | 0 | 1358 | 2 | 0 | 0 |
-| ps | 2762 | 6 | 1385 | 0 | 1376 | 1 | 0 | 0 |
-| fa-AF | 2762 | 15 | 1371 | 0 | 1390 | 1 | 0 | 0 |
-| fa-IR | 2762 | 3 | 1383 | 0 | 1378 | 1 | 0 | 0 |
-| fil | 2762 | 8 | 1370 | 0 | 1390 | 2 | 0 | 0 |
-| zh-CN | 2762 | 19 | 1357 | 0 | 1404 | 1 | 0 | 0 |
-| sw-KE | 2762 | 18 | 1356 | 0 | 1405 | 1 | 0 | 0 |
-| am | 2762 | 18 | 1356 | 0 | 1405 | 1 | 0 | 0 |
-| ti | 2762 | 18 | 1373 | 0 | 1387 | 2 | 0 | 0 |
-| so | 2762 | 18 | 1371 | 0 | 1389 | 1 | 1 | 0 |
-| yo | 2762 | 18 | 1354 | 0 | 1407 | 1 | 0 | 0 |
-| ha | 2762 | 18 | 1372 | 0 | 1389 | 1 | 0 | 0 |
-| ig | 2762 | 18 | 1367 | 0 | 1394 | 1 | 0 | 0 |
-| lg | 2762 | 18 | 1354 | 0 | 1405 | 3 | 0 | 0 |
-| tw | 2762 | 18 | 1365 | 0 | 1396 | 1 | 0 | 0 |
+| ne | 2762 | 7 | 1389 | 0 | 1372 | 1 | 0 | 0 |
+| hi | 2762 | 5 | 1404 | 0 | 1357 | 1 | 0 | 0 |
+| ur | 2762 | 7 | 1389 | 0 | 1372 | 1 | 0 | 0 |
+| bn | 2762 | 6 | 1405 | 0 | 1356 | 1 | 0 | 0 |
+| ml | 2762 | 19 | 1373 | 0 | 1388 | 1 | 0 | 0 |
+| ta | 2762 | 6 | 1404 | 0 | 1356 | 2 | 0 | 0 |
+| ps | 2762 | 6 | 1387 | 0 | 1374 | 1 | 0 | 0 |
+| fa-AF | 2762 | 15 | 1373 | 0 | 1388 | 1 | 0 | 0 |
+| fa-IR | 2762 | 3 | 1385 | 0 | 1376 | 1 | 0 | 0 |
+| fil | 2762 | 8 | 1372 | 0 | 1388 | 2 | 0 | 0 |
+| zh-CN | 2762 | 19 | 1359 | 0 | 1402 | 1 | 0 | 0 |
+| sw-KE | 2762 | 18 | 1358 | 0 | 1403 | 1 | 0 | 0 |
+| am | 2762 | 18 | 1358 | 0 | 1403 | 1 | 0 | 0 |
+| ti | 2762 | 18 | 1375 | 0 | 1385 | 2 | 0 | 0 |
+| so | 2762 | 18 | 1373 | 0 | 1387 | 1 | 1 | 0 |
+| yo | 2762 | 18 | 1356 | 0 | 1405 | 1 | 0 | 0 |
+| ha | 2762 | 18 | 1374 | 0 | 1387 | 1 | 0 | 0 |
+| ig | 2762 | 18 | 1369 | 0 | 1392 | 1 | 0 | 0 |
+| lg | 2762 | 18 | 1356 | 0 | 1403 | 3 | 0 | 0 |
+| tw | 2762 | 18 | 1367 | 0 | 1394 | 1 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -1444,8 +1444,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "{actor} {verb} supplier {value3} {value4}{value5}{value6}" — All
 - "{br} on {os}" — All
 - "{company} invites you to Groundwork to raise and follow your requests: {link}" — All
-- "{count} to approve" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "{count} unread" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "{field} column" — All
 - "{kind} photo" — All
 - "{label} has history" — All
