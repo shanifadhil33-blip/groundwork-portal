@@ -144,7 +144,7 @@ it.each(['button','Escape'])('cancels immediately when closing with %s before th
  await act(async()=>root.render(<Assistant ws="workspace" open onClose={onClose}/>));
  expect(document.querySelector('[aria-label="Stop reading"]')).toBeTruthy();const count=synth.cancel.mock.calls.length;
  vi.useFakeTimers();await act(async()=>{
-  if(how==='button')document.querySelector<HTMLButtonElement>('[aria-label="Close dialog"]')!.click();
+  if(how==='button')document.querySelector<HTMLButtonElement>('[aria-label="Close"]')!.click();
   else document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
  });
  expect(synth.cancel).toHaveBeenCalledTimes(count+1);expect(onClose).not.toHaveBeenCalled();expect(document.querySelector('[aria-label="Stop reading"]')).toBeNull();

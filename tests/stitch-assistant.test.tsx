@@ -76,7 +76,7 @@ it('sends a refusal offer once, protects the name, and keeps the sent line after
  api.post.mockResolvedValueOnce({available:true,reply:"I can't change that. I can ask Sam for you.",offers:[refusalOffer],choices:['Thanks']});
  await mount('technician');await click('Show jobs waiting on parts');
  const button=Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Ask Sam')!;
- expect(button.style.minHeight).toBe('44px');expect(button.querySelector('[data-no-translate]')?.textContent).toBe('Sam');
+ expect(button.className).toContain('tap');expect(button.querySelector('[data-no-translate]')?.textContent).toBe('Sam');
  let finish!:(value:unknown)=>void;api.post.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
  await act(async()=>{button.click();button.click();});
  expect(button.disabled).toBe(true);expect(button.getAttribute('aria-busy')).toBe('true');expect(api.post).toHaveBeenCalledTimes(2);

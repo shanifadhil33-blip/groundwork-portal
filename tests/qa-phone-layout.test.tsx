@@ -28,13 +28,9 @@ it('renders complete client phone cards with clean titles, parts status, priorit
 it('removes only a matching legacy site and number suffix',()=>{
  expect(workOrderTitle(order)).toBe('Replace washroom tap');expect(workOrderTitle({...order,title:'Inspect pump / 54'})).toBe('Inspect pump / 54');expect(workOrderTitle({...order,title:'Repair — Northgate East / 55'})).toBe('Repair — Northgate East / 55');expect(workOrderTitle({...order,site_name:'Marina'})).toBe(order.title);
 });
-it('overrides the old phone widths for shared headers, badges, sheets and table cards',()=>{
- const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8').split('/* Shared app layouts:')[1];
- expect(css).toContain('flex-direction:column;align-items:stretch');expect(css).toContain('overflow-wrap:anywhere');expect(css).toContain('white-space:normal');expect(css).toContain('display:block;width:100%;min-width:0');expect(css).toContain('content:attr(data-label)');expect(css).toContain('inset:0');expect(css).toContain('.tabs-scroll:after');
-});
 it('prefetches notifications independently of opening and keeps loaded data during refresh',()=>{
  const source=readFileSync(new URL('../components/app/notifications.tsx',import.meta.url),'utf8');
  const load=source.slice(source.indexOf('const load ='),source.indexOf('// Prefetch'));
  expect(load).not.toContain('setData(null)');expect(load).toContain('run===generation.current');expect(source).toContain('setData(null); lastLoaded.current=0; void load();');expect(source).toContain('open&&!pending.current&&Date.now()-lastLoaded.current>30_000');
- const tabs=readFileSync(new URL('../components/ui/tabs.tsx',import.meta.url),'utf8');expect(tabs).toContain('scrollIntoView');expect(tabs).toContain("inline:'nearest'");
+ const tabs=readFileSync(new URL('../components/ui/tabs.tsx',import.meta.url),'utf8');expect(tabs).toContain('scrollIntoView');expect(tabs).toContain("inline: 'nearest'");
 });

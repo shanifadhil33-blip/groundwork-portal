@@ -64,7 +64,7 @@ it('still shows the workspace error when the first identity load fails',async()=
  const host=document.createElement('div');document.body.append(host);const root=createRoot(host);
  try{
   await act(async()=>root.render(<AppShell initial={null}><p>screen</p></AppShell>));
-  expect(host.querySelector('[role=alert]')?.textContent).toContain('We couldn’t open your workspace');
+  expect(host.querySelector('[role=alert]')?.textContent).toContain('We couldn’t open Groundwork');
   expect(host.querySelector('main')).toBeNull();
  }finally{await act(async()=>root.unmount());host.remove();vi.restoreAllMocks();}
 });

@@ -8,9 +8,9 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: 'sm' | 'md' | 'lg';
   /** Optional leading lucide icon. While loading, the spinner takes its place. */
   icon?: ReactNode;
-  /** Loading: the button stays focusable, announces busy and ignores repeat clicks. */
+  /** Loading: announces busy and can not be pressed again, so a form is never sent twice. */
   busy?: boolean;
-  /** The busy word, for example "Saving". The width stays that of the wider of the two labels. */
+  /** The busy word, for example "Saving". Space for it is kept from the start, so the width never jumps. */
   busyLabel?: string;
 };
 
@@ -29,12 +29,9 @@ export function Button({ variant = 'primary', size = 'md', icon, busy, busyLabel
     onClick?.(event);
   }
   return (
-    <button type="button" {...props} disabled={disabled} aria-busy={busy || undefined} aria-disabled={busy || undefined} className={`button ${variant} ${size} ${className}`} onClick={click}>
+    <button type="button" {...props} disabled={disabled || busy} aria-busy={busy || undefined} data-label={busyLabel} className={`button ${variant} ${size} ${className}`} onClick={click}>
       <span className="button-sizer" aria-hidden={!!busy}>{icon}{children}</span>
-      <span className="button-busy" role={busy ? 'status' : undefined} aria-hidden={!busy}>
-        {busy && spin ? <LoaderCircle className="spinner" aria-hidden="true" /> : icon}
-        <span>{busyLabel ?? children}</span>
-      </span>
+      {busy && <span className="button-busy" role="status">{spin && <LoaderCircle className="spinner" aria-hidden="true" />}<span>{busyLabel ?? children}</span></span>}
     </button>
   );
 }

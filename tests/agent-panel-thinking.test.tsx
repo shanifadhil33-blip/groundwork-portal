@@ -41,13 +41,13 @@ async function ask(label='Show jobs waiting on parts'){await act(async()=>button
 it('while thinking, close works and cancels the question, the box takes the next message, and send becomes Stop',async()=>{
  hang();const onClose=await mount();await ask();
  expect(document.querySelector('.agent-typing')?.textContent).toContain('Thinking');
- expect(button('Close dialog')!.disabled).toBe(false);
+ expect(button('Close')!.disabled).toBe(false);
  expect(field().disabled).toBe(false);
  await type('and the late ones');expect(field().value).toBe('and the late ones');
  expect(button('Stop')).toBeTruthy();expect(button('Send')).toBeUndefined();
  // Enter while it thinks keeps his draft and sends nothing new.
  await act(async()=>field().dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true})));expect(api.post).toHaveBeenCalledTimes(1);expect(field().value).toBe('and the late ones');
- await act(async()=>button('Close dialog')!.click());await act(async()=>new Promise(r=>setTimeout(r,250)));
+ await act(async()=>button('Close')!.click());await act(async()=>new Promise(r=>setTimeout(r,250)));
  expect(onClose).toHaveBeenCalledOnce();expect(signals[0].aborted).toBe(true);
 });
 it('Escape closes while thinking',async()=>{
@@ -74,7 +74,7 @@ it('a slow answer shows progress, then stops at 48 seconds with a friendly line 
 it('on a phone the panel is full screen and modal, yet close still works while thinking',async()=>{
  hang();await mount();await ask();
  expect(document.querySelector('[role="dialog"]')?.getAttribute('aria-modal')).toBe('true');expect(page.inert).toBe(true);
- expect(button('Close dialog')!.disabled).toBe(false);
+ expect(button('Close')!.disabled).toBe(false);
 });
 it('on a laptop the panel never covers or locks the page behind it',async()=>{
  api.wide=true;hang();await mount();await ask();
@@ -112,7 +112,7 @@ it('voice: a tap keeps listening, works while the Agent thinks, Stop keeps the w
   // A blocked microphone gets friendly words, and the panel still closes.
   await act(async()=>speech.onerror?.({error:'not-allowed'}));
   await press(0);await act(async()=>speech.onerror?.({error:'not-allowed'}));expect(document.body.textContent).toMatch(/microphone/i);expect(document.body.textContent).not.toContain('not-allowed');
-  expect(button('Close dialog')!.disabled).toBe(false);
+  expect(button('Close')!.disabled).toBe(false);
  }finally{Reflect.deleteProperty(window,'SpeechRecognition');}
 });
 

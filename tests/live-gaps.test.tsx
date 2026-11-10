@@ -12,11 +12,11 @@ const job={id:'job',order_number:25,title:'إصلاح الباب',assignee_name:
 it('separates account text and excludes decorative initials from the accessible text',()=>{
   const host=document.createElement('div');
   host.innerHTML=renderToStaticMarkup(<AccountIdentity name="Imran" role="المالك"/>);
-  expect(host.querySelector('.account-copy')?.children).toHaveLength(2);
+  expect(host.querySelector('.account-copy')?.children.length).toBe(2);
   host.querySelector('[aria-hidden=true]')?.remove();
   expect(host.textContent?.trim()).toBe('Imranالمالك');
   expect(host.querySelector('.account-copy strong')?.getAttribute('dir')).toBe('auto');
-  expect(host.querySelectorAll('bdi')).toHaveLength(2);
+  expect(host.querySelectorAll('bdi')).toHaveLength(1);
 });
 it.each([['ar-AE','rtl'],['en-IN','ltr']])('isolates mixed job titles, names, times and statuses in %s', (language,dir)=>{
   const resources=Object.fromEntries(['today=true&sort=scheduled_for&dir=asc&pageSize=10','overdue=true&sort=due_on&dir=asc&pageSize=5'].map(query=>[`/demo/work-orders?${query}`,{data:{data:[job],total:1}}]));

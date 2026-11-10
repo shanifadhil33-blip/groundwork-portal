@@ -10,9 +10,9 @@ const read=(p:string)=>readFileSync(p,'utf8');
 const contacts:Contact[]=[{user_id:'sam',real_name:'Sam',nickname:'Sam at Tower 3',name:'Sam at Tower 3'}];
 describe('Customer labels follow permissions',()=>{
  it('keeps maintenance Office staff distinct from facility contacts',()=>{
-  expect(customerRoleLabel('manager')).toBe('Facility manager');expect(customerRoleLabel('office')).toBe('Facility staff');
-  expect(rolesLabel({role:'client',client_kind:'office'})).toBe('Facility staff');expect(rolesLabel({role:'staff',staff_kind:'office'})).toBe('Office staff');
-  const picker=read('components/public/demo-picker.tsx');expect(picker).toContain("name: 'Pranav', role: 'Facility manager'");expect(picker).toContain("name: 'Kevin', role: 'Facility staff'");expect(picker).toContain("name: 'Nabil', role: 'Office staff'");
+  expect(customerRoleLabel('manager')).toBe('Client manager');expect(customerRoleLabel('office')).toBe('Client staff');expect(customerRoleLabel('household')).toBe('Home client');
+  expect(rolesLabel({role:'client',client_kind:'office'})).toBe('Client staff');expect(rolesLabel({role:'staff',staff_kind:'office'})).toBe('Office staff');
+  const picker=read('components/public/demo-picker.tsx');expect(picker).toContain("name: 'Pranav', group: 'client_manager'");expect(picker).toContain("name: 'Kevin', group: 'client_staff'");expect(picker).toContain("name: 'Nabil', group: 'office'");
  });
 });
 describe('Viewer names',()=>{
@@ -34,7 +34,7 @@ describe('Company size',()=>{
   expect(sizeRoles(['staff','technician'],[],'big').extra_roles).toEqual(['staff','technician']);
   expect(sizeRoles(small.extra_roles,small.size_added_roles,'small')).toEqual(small);
  });
- it('shows owner and manager labels while preserving the permission role',()=>{expect(rolesLabel({role:'admin',is_owner:true})).toBe('Owner');expect(rolesLabel({role:'staff',is_manager:true})).toBe('Manager');});
+ it('shows owner and manager labels while preserving the permission role',()=>{expect(rolesLabel({role:'admin',is_owner:true})).toBe('Owner');expect(rolesLabel({role:'staff',is_manager:true})).toBe('Supervisor');});
  it('hides unused screens, keeps required roles and validates company size',()=>{
   expect(menuEnabled('/schedule',['work'])).toBe(false);expect(menuEnabled('/settings',['work'])).toBe(true);
   expect(z.object(companyOptions).safeParse({enabled_roles:['technician']}).success).toBe(false);

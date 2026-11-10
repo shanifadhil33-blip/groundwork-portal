@@ -62,7 +62,7 @@ it('audit templates retain each simultaneous change and carry ISO dates for the 
  }
  expect(renderNotification(messages[2],words,'ar-AE')).not.toMatch(/\d{1,2}:\d{2}/);
  const member = auditSummaryTemplates({actor_name:'Imran',member_name:'Pranav',entity:'members',action:'update',after:{role:'client'}})![0];
- expect(renderNotification(member,words,'ar-AE')).toContain(words['Facility manager']);
+ expect(renderNotification(member,words,'ar-AE')).toContain(words['Client manager']);
 });
 it('legacy Agent priority summaries use templates, preserve identifiers and translate both priorities', () => {
  const source = 'Change priority for WO 1 My repair: low to high';

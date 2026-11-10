@@ -29,7 +29,7 @@ it('shows owner switches and close account, saves handover with Saved feedback',
  await act(async()=>switches[0].click());
  expect(state.request).toHaveBeenCalledWith('/api/workspaces/company/settings',{method:'PATCH',body:JSON.stringify({owner_handover:['approval_mode']})});
  expect(state.toast).toHaveBeenCalledWith('Saved');
- expect((switches[0].closest('label') as HTMLElement).style.minHeight).toBe('44px');
+ expect((switches[0].closest('label') as HTMLElement).classList.contains('check-row')).toBe(true);
 });
 it('plain admins see the mode and owner line, with no switches or close button',async()=>{
  await mount(false);
@@ -64,7 +64,7 @@ it.each([true,false])('owner and admin can save visit charge with Saved feedback
  expect(host.textContent).toContain('Households see this before they send a request.');
  const amounts=host.querySelectorAll<HTMLInputElement>('input[type="number"]');
  expect(amounts[0].value).toBe('150.00');expect(amounts[1].value).toBe('200');
- expect(amounts[0].style.minHeight).toBe('44px');
+ expect(amounts[0].classList.contains('tap')).toBe(true);
  // The region picker is the app dropdown (known issues: custom dropdowns for known options), not a native select.
  expect(host.querySelector('select')).toBeNull();expect(host.querySelector('#visit-region-0')!.textContent).toContain('Sharjah');
  await act(async()=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(amounts[0],'175');amounts[0].dispatchEvent(new Event('input',{bubbles:true}));});

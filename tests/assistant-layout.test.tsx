@@ -106,7 +106,7 @@ describe('sample job titles in quick answers', () => {
 });
 
 describe('job lines stand apart in chat bubbles', () => {
-  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../app/screens.css', import.meta.url), 'utf8').replace(/\s*([{};:,])\s*/g, '$1').replace(/;\}/g, '}');
   const marked = (html: string) => [...html.matchAll(/<span ([^>]*)>([^<]*)<\/span>/g)].filter(m => m[1].includes('data-wo')).map(m => m[2]);
   it('marks each line that starts with a WO number, with or without a bullet, and no other line', () => {
     const text = ['Late jobs: 3.', 'Job #31: Adjust meeting room cooling, Marina Exchange, Urgent', '• Job #56: Service water pump', '- Job #57: Fix leak', 'Today: 0.', 'Chase first: Job #31.', 'WORK 12', 'Unread updates: 2.'].join('\n');

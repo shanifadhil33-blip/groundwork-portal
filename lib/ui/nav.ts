@@ -1,5 +1,5 @@
 import { Building2, CalendarCheck, CalendarDays, CalendarOff, CircleHelp, ClipboardList, FileCheck, House, MapPin, MessageSquare, Settings, Users, type LucideIcon } from 'lucide-react';
-import type { TabKey } from './tab-words';
+import type { TabKey } from '../tab-words';
 
 /** One set of role names used everywhere: picker, chips, Team, blocked messages. */
 export type RoleGroup = 'owner' | 'admin' | 'supervisor' | 'office' | 'technician' | 'client_manager' | 'client_staff' | 'home_client';

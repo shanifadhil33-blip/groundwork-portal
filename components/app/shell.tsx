@@ -8,7 +8,7 @@ import type { AppPageData } from '../../lib/server-page-data';
 import { useVisiblePoll } from '../../lib/hooks/use-visible-poll';
 import { tabWord } from '../../lib/tab-words';
 import { isOffice } from '../../lib/roles';
-import { HELP_ITEM, isCurrent, navFor, parentOf, ROLE_CAN_DO, ROLE_NAME, roleGroup, SETTINGS_ITEM, type NavItem } from '../../lib/nav';
+import { HELP_ITEM, isCurrent, navFor, parentOf, ROLE_CAN_DO, ROLE_NAME, roleGroup, SETTINGS_ITEM, type NavItem } from '../../lib/ui/nav';
 import { LAST_PAGE_KEY } from '../../lib/ui/device';
 import { demoEmail } from '../../lib/ui/polish';
 import { request, post, RequestError } from '../../lib/ui/api';
@@ -46,6 +46,7 @@ function AssistantHost(props: ComponentProps<typeof import('./assistant').Assist
 }
 
 type Overlay = 'more' | 'people' | 'notifications' | 'agent' | null;
+const bellLabel = (count: number) => (count > 0 ? `Notifications, ${count} unread` : 'Notifications');
 type Counts = { unread_count: number; company_replies?: number };
 const ENTRY_PATHS = ['/onboarding', '/find-company', '/invites/accept'];
 
@@ -86,7 +87,9 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
       setLoadError(true);
     }
   }, []);
-  useEffect(() => { if (!initial) void load(); }, [initial, load]);
+  // Runs once. A later page payload without a seed must not reload the person and blank the screen.
+  const started = useRef(false);
+  useEffect(() => { if (started.current) return; started.current = true; if (!initial) void load(); }, [initial, load]);
   useEffect(() => {
     if (!me) return;
     rememberSession('in');
@@ -143,6 +146,12 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
     return () => window.removeEventListener('keydown', toggle);
   }, []);
   function warmAgent() { setAgentMounted(true); void loadAssistant(); }
+  // On a phone the tap and the touch start are too close together to load code in between, so it also loads when the page is idle.
+  useEffect(() => {
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, options?: { timeout: number }) => number }).requestIdleCallback;
+    const warm = () => { void loadAssistant().then(() => setAgentMounted(true)).catch(() => {}); };
+    if (idle) idle(warm, { timeout: 3000 }); else setTimeout(warm, 1500);
+  }, []);
   useEffect(() => { if (overlay === 'agent') setAgentMounted(true); }, [overlay]);
 
   async function switchWorkspace(id: string) {
@@ -204,11 +213,11 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   const moreCurrent = nav.more.some(item => isCurrent(item, path)) && !nav.tabs.some(item => isCurrent(item, path));
   const open = (next: Exclude<Overlay, null>) => setOverlay(current => (current === next ? null : next));
 
-  const badge = (item: NavItem) => item.badge === 'approve' && toApprove > 0
-    ? <span className="nav-count" aria-label={`${toApprove} to approve`}>{toApprove > 99 ? '99+' : toApprove}</span>
-    : item.badge === 'messages' && unreadMessages > 0
-      ? <span className="nav-count" aria-label={`${unreadMessages} unread`}>{unreadMessages > 99 ? '99+' : unreadMessages}</span>
-      : null;
+  const countLabel = (kind: NavItem['badge']) => { const count = kind === 'approve' ? toApprove : unreadMessages; return kind === 'approve' ? `${count} to approve` : `${count} unread`; };
+  const badge = (item: NavItem) => {
+    const count = item.badge === 'approve' ? toApprove : item.badge === 'messages' ? unreadMessages : 0;
+    return count > 0 ? <span className="nav-count" aria-label={countLabel(item.badge)}>{count > 99 ? '99+' : count}</span> : null;
+  };
   const navLink = (item: NavItem, onClick?: () => void) => (
     <Link key={item.href + item.label} href={item.href} prefetch className="nav-link" aria-current={isCurrent(item, path) ? 'page' : undefined} title={collapsed ? item.label : undefined} onClick={onClick}>
       <item.icon aria-hidden="true" /><span className="nav-label">{item.label}</span>{badge(item)}
@@ -220,8 +229,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
       <Link key={item.href + item.label} href={item.href} prefetch aria-current={isCurrent(item, path) ? 'page' : undefined} onClick={() => { if (isCurrent(item, path) && path === item.href) window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
         <item.icon aria-hidden="true" />
         {word ? <span className="tab-label" data-no-translate>{word}</span> : <span className="tab-label">{item.label}</span>}
-        {item.badge === 'approve' && toApprove > 0 && <span className="nav-dot" aria-label={`${toApprove} to approve`} />}
-        {item.badge === 'messages' && unreadMessages > 0 && <span className="nav-dot" aria-label={`${unreadMessages} unread`} />}
+        {((item.badge === 'approve' && toApprove > 0) || (item.badge === 'messages' && unreadMessages > 0)) && <span className="nav-dot" aria-label={countLabel(item.badge)} />}
       </Link>
     );
   };
@@ -272,7 +280,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
                     <div className="header-actions">
                       <AgentButton open={overlay === 'agent'} onWarm={warmAgent} onClick={() => { warmAgent(); open('agent'); }} />
                       <span className="bell">
-                        <IconButton label={unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'} onClick={() => open('notifications')}><Bell /></IconButton>
+                        <IconButton label={bellLabel(unread)} onClick={() => open('notifications')}><Bell /></IconButton>
                         {unread > 0 && <span className="bell-count num" aria-hidden="true">{unread > 99 ? '99+' : unread}</span>}
                       </span>
                     </div>
@@ -308,7 +316,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
                 {nav.tabs.map(tabLink)}
                 <button type="button" aria-current={moreCurrent ? 'page' : undefined} aria-haspopup="dialog" onClick={() => open('more')}>
                   <Menu aria-hidden="true" /><span className="tab-label" data-no-translate>{tabWord(lang, 'more', false)}</span>
-                  {unreadMessages > 0 && nav.more.some(item => item.badge === 'messages') && <span className="nav-dot" aria-label={`${unreadMessages} unread`} />}
+                  {unreadMessages > 0 && nav.more.some(item => item.badge === 'messages') && <span className="nav-dot" aria-label={countLabel('messages')} />}
                 </button>
               </nav>
             )}

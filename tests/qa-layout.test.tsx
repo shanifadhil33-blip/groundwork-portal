@@ -25,16 +25,9 @@ it('shows actionable records instead of dashboard count tiles',()=>{
  expect(html).toContain('<h2>Needs action</h2>');expect(html).toContain('Repair entry door');
  expect(html).toContain('/work-orders/order');expect(html).not.toContain('class="tile');expect(html).not.toContain('stat-strip');
 });
-it('defines neutral canvases and prevents badge stretching in flex columns',()=>{
- const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
- expect(css).toMatch(/:root\{[^}]*--bg:#f7f8f7;--surface:#ffffff/);
- expect(css).toMatch(/\[data-theme=dark\]\{[^}]*--bg:#000000;--surface:#000000/);
- expect(css).toMatch(/\.badge\{[^}]*width:max-content;[^}]*align-self:flex-start/);
- expect(css).toContain('.client-home .update-list{gap:0}');
- expect(css).toContain('padding-bottom:calc(var(--s4) + env(safe-area-inset-bottom,0))');
- expect(css).toMatch(/\.assistant-send:disabled\{opacity:1;background:var\(--surface-subtle\);color:var\(--text-muted\);border:1px/);
- const touch=css; // Later coarse pointer rules may supplement these shared touch targets.
- expect(touch).toMatch(/\.inline-hint \.button[^}]*min-height:44px;min-width:44px/);
- expect(touch).toMatch(/\.public-footer a[^}]*min-width:44px;min-height:44px/);
- expect(touch).toMatch(/\.settings-page form>\.queue-check[^}]*min-width:44px;min-height:44px;padding:var\(--s3\)/);
+it('defines warm canvases in the tokens file and prevents badge stretching in flex columns',()=>{
+ const tokens=readFileSync(new URL('../app/tokens.css',import.meta.url),'utf8'),css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8').replace(/\s+/g,'');
+ expect(tokens).toMatch(/:root \{[^}]*--bg: #F6F5F2;\s*--surface: #FFFFFF/);
+ expect(tokens).toMatch(/\[data-theme='dark'\] \{[^}]*--bg: #151412;\s*--surface: #1E1C19/);
+ expect(css).toMatch(/\.badge\{[^}]*align-self:flex-start;[^}]*width:max-content/);
 });

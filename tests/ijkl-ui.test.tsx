@@ -18,7 +18,7 @@ afterEach(async()=>{if(root)await act(async()=>root.unmount());host?.remove();do
 it('tapping a saved name reveals the real name and a personal name editor',async()=>{
  await render(<ContactNamesProvider><ContactName name="Sam" userId="target"/></ContactNamesProvider>);
  expect(host.textContent).toContain('Sam at Tower 3');expect(host.querySelector('[title="Real name: Sam"]')).toBeTruthy();expect(vi.mocked(request)).not.toHaveBeenCalled();
- await act(async()=>(host.querySelector('[role="button"]') as HTMLElement).click());expect(document.body.textContent).toContain('Real name: Sam');expect(document.body.textContent).toContain('Facility manager');expect(document.body.textContent).toContain('Save as...');expect(document.body.textContent).toContain('This name is saved for you only.');
+ await act(async()=>(host.querySelector('[role="button"]') as HTMLElement).click());expect(document.body.textContent).toContain('Real name: Sam');expect(document.body.textContent).toContain('Client manager');expect(document.body.textContent).toContain('Save as...');expect(document.body.textContent).toContain('This name is saved for you only.');
  const save=[...document.body.querySelectorAll('button')].find(b=>b.textContent==='Save name')!;await act(async()=>save.click());expect(vi.mocked(request)).toHaveBeenCalledWith('/api/workspaces/workspace/contact-names/target',expect.objectContaining({method:'PATCH',body:JSON.stringify({nickname:'Sam at Tower 3'})}));
 });
 it('Agent text uses the same tappable identity',async()=>{

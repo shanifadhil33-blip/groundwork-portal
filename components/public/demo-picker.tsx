@@ -6,7 +6,7 @@ import { postDemoStart, RequestError } from '../../lib/ui/api';
 import { demoLanguage } from '../../lib/ui/demo-language';
 import { homeForPersona } from '../../lib/ui/helpers';
 import { Badge, ErrorState } from '../ui/states';
-import { ROLE_CAN_DO, ROLE_NAME, type RoleGroup } from '../../lib/nav';
+import { ROLE_CAN_DO, ROLE_NAME, type RoleGroup } from '../../lib/ui/nav';
 const people = [
   { key: 'imran', name: 'Imran', group: 'owner', company: 'Ridgeline Facility Services' },
   { key: 'hassan', name: 'Hassan', group: 'admin', company: 'Ridgeline Facility Services' },

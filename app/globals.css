@@ -271,7 +271,7 @@ label {
     color var(--dur-release) var(--ease-out),
     transform var(--dur-release) var(--ease-out);
 }
-.button:active:not(:disabled):not([aria-busy='true']),
+.button:active:not(:disabled),
 .link-button:active {
   transform: scale(var(--press-scale));
   transition-duration: var(--dur-press);
@@ -337,7 +337,7 @@ label {
     background: var(--st-late);
   }
 }
-.button:disabled {
+.button:disabled:not([aria-busy='true']) {
   opacity: 0.4;
 }
 .button[aria-busy='true'] {
@@ -364,9 +364,10 @@ label {
   width: 18px;
   height: 18px;
 }
-/* The rest label and the busy label share one cell, so the width never changes. */
+/* The rest label, the busy label and a hidden copy of the busy word share one cell, so the width never changes. */
 .button-sizer,
-.button-busy {
+.button-busy,
+.button[data-label]::after {
   grid-area: 1 / 1;
   display: inline-flex;
   align-items: center;
@@ -374,12 +375,13 @@ label {
   gap: var(--s2);
   min-width: 0;
 }
-.button-busy,
+.button[data-label]::after {
+  content: attr(data-label);
+  visibility: hidden;
+  padding-inline-start: calc(18px + var(--s2));
+}
 .button[aria-busy='true'] .button-sizer {
   visibility: hidden;
-}
-.button[aria-busy='true'] .button-busy {
-  visibility: visible;
 }
 .icon-button {
   width: var(--tap);
@@ -486,8 +488,7 @@ label {
 .skeleton {
   min-height: var(--t-body-lh);
   border-radius: var(--r-control);
-  background: linear-gradient(90deg, var(--surface-2) 25%, var(--line) 50%, var(--surface-2) 75%);
-  background-size: 200% 100%;
+  background: var(--line);
   animation: shimmer var(--dur-shimmer) var(--ease-linear) infinite;
 }
 .skeleton-title {
@@ -505,11 +506,8 @@ label {
   border-radius: var(--r-card);
 }
 @keyframes shimmer {
-  from {
-    background-position: 100% 0;
-  }
-  to {
-    background-position: -100% 0;
+  50% {
+    opacity: 0.5;
   }
 }
 
@@ -1753,6 +1751,29 @@ button.list-row:active {
   max-width: var(--w-form);
   margin: var(--s12) auto;
   padding: var(--s6);
+}
+
+/* ---------- /design reference page (development only) ---------- */
+.design-theme {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  background: var(--bg);
+  color: var(--text);
+}
+.button.primary.is-hover {
+  background: var(--ink-hover);
+}
+.button.secondary.is-hover {
+  background: var(--surface-2);
+}
+.button.is-pressed {
+  transform: scale(var(--press-scale));
+}
+.button.primary.is-pressed {
+  background: var(--ink-press);
+}
+.button.secondary.is-pressed {
+  background: var(--surface-2);
 }
 
 /* ---------- Reduced motion: opacity only ---------- */

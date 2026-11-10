@@ -18,6 +18,8 @@ const shapes: readonly [RegExp, string, readonly string[]][] = [
   [/^· Undone by (.+)$/, '· Undone by {name}', ['name']],
   [/^Your session belongs to (.+)\.$/, 'Your session belongs to {company}.', ['company']],
   [/^Notifications, (\d+) unread$/, 'Notifications, {count} unread', ['count']],
+  [/^(\d+) to approve$/, '{count} to approve', ['count']],
+  [/^(\d+) unread$/, '{count} unread', ['count']],
   [/^More for (.+)$/, 'More for {item}', ['item']],
   [/^Real name: (.+)$/, 'Real name: {name}', ['name']],
   [/^Client type for (.+)$/, 'Client type for {name}', ['name']],
