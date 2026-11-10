@@ -103,6 +103,8 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   useEffect(() => {
     if (!me) return;
     if (!member) { if (!ENTRY_PATHS.includes(path)) router.replace('/onboarding'); return; }
+    // Company setup is only for a person with no company. In the demo there is nothing to join either.
+    if (path === '/onboarding' || (path === '/find-company' && me.user.is_demo)) { router.replace(nav.home); return; }
     if ((path === '/dashboard' || path === '/home' || path === '/overview') && path !== nav.home) router.replace(nav.home);
   }, [me, member, path, nav.home, router]);
 

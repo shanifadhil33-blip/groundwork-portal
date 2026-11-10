@@ -6,6 +6,7 @@ import { Translated } from './app-words';
 import { useApp } from './context';
 import { Equipment } from './equipment';
 import { HelpFeedback } from './help-feedback';
+import { NoAccess } from './no-access';
 import { useResource } from './resource';
 import { LeaveRequests, RequestTimeOff } from './time-off';
 
@@ -32,6 +33,7 @@ export function HelpPage() {
 export function TimeOffPage() {
   const { me, member } = useApp();
   if (!member) return null;
+  if (member.role === 'client') return <NoAccess />;
   const base = `/api/workspaces/${member.workspace_id}`;
   return (
     <Translated>
@@ -49,8 +51,9 @@ export function TimeOffPage() {
 /** Sites for a client manager: his buildings and the equipment in each. */
 export function SitesPage() {
   const { member } = useApp();
-  const base = member ? `/api/workspaces/${member.workspace_id}` : null;
+  const base = member?.role === 'client' ? `/api/workspaces/${member.workspace_id}` : null;
   const sites = useResource<{ id: string; name: string }[]>(base ? `${base}/request-sites` : null);
+  if (member && member.role !== 'client') return <NoAccess />;
   const list = Array.isArray(sites.data) ? sites.data : [];
   return (
     <Translated>

@@ -18,7 +18,8 @@ export function parseFile(content:Buffer,filename:string) {
  if(content.length>2*1024*1024)throw invalid(`${filename}: the file limit is 2 MB.`,'file');
  if(!/\.(csv|xlsx)$/i.test(filename))throw invalid(`${filename}: use a CSV or XLSX file (maximum 2 MB).`,'file');
  try {
-  const book=XLSX.read(content,{type:'buffer',cellDates:false,sheetRows:502,codepage:65001});
+  // A CSV is read as typed, so a date like 2026-02-30 stays wrong and is reported, never rolled over to March.
+  const book=XLSX.read(content,{type:'buffer',cellDates:false,sheetRows:502,codepage:65001,raw:/\.csv$/i.test(filename)});
   const sheet=book.Sheets[book.SheetNames[0]];
   if(!sheet)throw new Error();
   const grid=XLSX.utils.sheet_to_json<unknown[]>(sheet,{header:1,defval:'',raw:false,blankrows:false});

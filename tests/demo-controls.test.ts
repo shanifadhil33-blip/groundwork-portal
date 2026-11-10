@@ -66,10 +66,9 @@ it('a technician, a client and a real (non demo) account are refused',async()=>{
  setAuthResolverForTests(async()=>ids.imran);
  expect((await post(late.POST)).status).toBe(404);
 });
-it('the control is labelled as a demo control in the demo menu, for the office only',()=>{
+it('keeps practice controls out of the demo menu (cut list, section 4)',()=>{
  const shell=readFileSync('components/app/shell.tsx','utf8');
- expect(shell).toContain('{isOffice(member?.role)&&<Button variant="ghost" disabled={lateBusy} onClick={()=>void makeLate()}>Demo: make a job late</Button>}');
- expect(JSON.parse(readFileSync('public/i18n/ar-AE.json','utf8'))['Demo: make a job late']).toBeTruthy();
+ for(const label of ['Demo: make a job late','Demo: before and after learning','Isolation check','Switch persona','Open the demo chat'])expect(shell).not.toContain(label);
 });
 it('Demo: before and after learning picks the open job with the most history, changes nothing, office only',async()=>{
  const s=await post(start.POST,{persona:'imran'});const ws=s.body.workspace_id;
@@ -82,7 +81,7 @@ it('Demo: before and after learning picks the open job with the most history, ch
  expect(await snap()).toBe(before);
  for(const persona of ['ravi','pranav']){const t=await post(start.POST,{persona});expect((await post(learning.POST,undefined,t.cookie)).status).toBe(403);}
  setAuthResolverForTests(async()=>ids.imran);expect((await post(learning.POST)).status).toBe(404);
- const shell=readFileSync('components/app/shell.tsx','utf8');expect(shell).toContain('{isOffice(member?.role)&&<Button variant="ghost" disabled={lateBusy} onClick={()=>void showLearning()}>Demo: before and after learning</Button>}');
+ 
  const card=readFileSync('components/app/company-history.tsx','utf8');expect(card).toContain('Before learning');expect(card).toContain('After learning');
 });
 it('the history card and the demo controls are written in all 21 languages, min in Arabic too',()=>{

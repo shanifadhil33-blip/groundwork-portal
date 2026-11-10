@@ -1,2 +1,3 @@
 import { GuidedOnboarding } from '../../../components/app/guided-onboarding';
-export default function Page(){return <GuidedOnboarding/>;}
+import { entryOnly } from '../../../lib/entry-redirect';
+export default async function Page() { await entryOnly(); return <GuidedOnboarding />; }
