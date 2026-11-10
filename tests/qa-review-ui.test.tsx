@@ -56,8 +56,9 @@ it('advances by queue order and keeps the suggestion separate until applied',()=
  const rows=[row('a',8),row('b',1),row('c',5)];expect(nextQueueRow(rows,['a'],rows[0])?.id).toBe('b');expect(nextQueueRow(rows,['c'],rows[2])?.id).toBe('a');expect(nextQueueRow(rows,['a','b','c'],rows[0])).toBeNull();
  const edits=suggestionEdits(rows[0],'Asia/Dubai');expect(edits.description).toBe(rows[0].ai_summary);expect(edits.priority).toBe('high');expect(edits.scheduled_for).toBe('2026-11-13');expect(rows[0].data.priority).toBe('normal');
 });
-it('uses one count helper and accepts an Unassigned filter while rejecting invalid assignee IDs',()=>{
- for(const term of ['work order','request','row','client','site','member','key']){expect(plural(1,term)).toBe(`1 ${term}`);expect(plural(2,term)).toBe(`2 ${term}s`);}expect(plural(1,'entry','entries')).toBe('1 entry');expect(parseListQuery(new URLSearchParams('assignee_id=unassigned')).assignee_id).toBe('unassigned');expect(()=>parseListQuery(new URLSearchParams('assignee_id=oops'))).toThrow();
+it('uses one count helper and accepts an Unassigned filter and drops invalid assignee IDs',()=>{
+ for(const term of ['work order','request','row','client','site','member','key']){expect(plural(1,term)).toBe(`1 ${term}`);expect(plural(2,term)).toBe(`2 ${term}s`);}expect(plural(1,'entry','entries')).toBe('1 entry');expect(parseListQuery(new URLSearchParams('assignee_id=unassigned')).assignee_id).toBe('unassigned');// A bad or unknown filter in a link is dropped, never an error page (bug 39).
+expect(parseListQuery(new URLSearchParams('assignee_id=oops')).assignee_id).toBeUndefined();expect(parseListQuery(new URLSearchParams('status=late&status=done&tab=approve')).status).toEqual(['done']);
 });
 it('sample requests all have real client/site names and useful descriptions',()=>{
  const parsed=parseFile(Buffer.from(readFileSync(new URL('../data/sample-work-orders.csv',import.meta.url),'utf8')),'sample.csv');expect(parsed.rows).toHaveLength(40);
