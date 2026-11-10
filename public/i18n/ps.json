@@ -2809,5 +2809,21 @@
 "requests to approve":null,
 "time off request":null,
 "time off requests":null,
-"without a technician":null
+"without a technician":null,
+ "In progress": "په پرمختګ کې",
+"All done for today.":null,
+"Ask for work and follow it here.":null,
+"Confirm the visit time":null,
+"Here are your jobs today.":null,
+"Late since":null,
+"New jobs from the office show here.":null,
+"No jobs today.":null,
+"Saving":null,
+"See my jobs":null,
+"Sent":null,
+"Starting":null,
+"The office will set a time for this job.":null,
+"Waiting for the office":null,
+"Waiting for you":null,
+"Your next job is":null
 }

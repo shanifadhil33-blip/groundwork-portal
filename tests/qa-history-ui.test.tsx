@@ -38,10 +38,10 @@ describe('history and local formatting',()=>{
   expect(activitySentence({actor_name:'Sam',entity:'comments',action:'insert',work_order_title:'Original title',after:{visibility:'internal'}})).toBe('Sam created an internal note on Original title');
   expect(activitySentence({actor_name:'Imran',entity:'api_tokens',action:'insert',after:{name:'QA read key'}})).toBe("Imran created agent key 'QA read key'");
   expect(activitySentence({actor_name:'Imran',entity:'import_rows',action:'update',after:{row_number:4,filename:'sample-work-orders.csv',decision:'approved',work_order_number:61}})).toBe('Imran approved row 4 of sample-work-orders.csv → Job #61');
-  expect(staffEvent({id:'event',kind:'status_changed',created_at:'',actor_id:null,work_order_title:'Original title',details:{from_status:'scheduled',to_status:'in_progress'}})).toBe('moved Original title from Scheduled to In Progress');
+  expect(staffEvent({id:'event',kind:'status_changed',created_at:'',actor_id:null,work_order_title:'Original title',details:{from_status:'scheduled',to_status:'in_progress'}})).toBe('moved Original title from Scheduled to In progress');
  });
  it('formats notification changes using captured context after a title rename',()=>{
-  expect(notificationMessage({kind:'status_changed',actor_name:'Sam',work_order_title:'Original title',current_title:'Renamed',from_status:'scheduled',to_status:'in_progress'})).toBe('Sam moved Original title from Scheduled to In Progress.');
+  expect(notificationMessage({kind:'status_changed',actor_name:'Sam',work_order_title:'Original title',current_title:'Renamed',from_status:'scheduled',to_status:'in_progress'})).toBe('Sam moved Original title from Scheduled to In progress.');
   expect(notificationMessage({kind:'comment_added',actor_name:'Sam',work_order_title:'Repair tap'})).toBe('Sam added a comment visible to the client to Repair tap.');
  });
  it('drops visually unchanged fields and formats timestamps in the workspace timezone',()=>{

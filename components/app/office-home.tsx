@@ -11,6 +11,7 @@ import { BottomSheet, Button, Card, IconButton, Skeleton, useToast } from '../ui
 import { post, RequestError } from '../../lib/ui/api';
 import { formatInLang } from '../../lib/date-lang';
 import { useUiLang } from './use-ui-lang';
+import { greetingWord } from '../../lib/ui/greeting-word';
 import { roleGroup, type RoleGroup } from '../../lib/ui/nav';
 import { workOrderTitle, type Page, type WorkOrder } from '../../lib/ui/work-orders';
 
@@ -37,7 +38,6 @@ const TRY_FIRST: Partial<Record<RoleGroup, { text: string; label: string; href: 
   office: { text: 'Add a job for a client.', label: 'New job', href: '/work-orders/new' },
 };
 
-function greetingWord(hour: number) { return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'; }
 function money(value: number, currency: string) { return `${currency} ${Math.round(value).toLocaleString('en-US')}`; }
 
 function TryFirst({ group, onPlan }: { group: RoleGroup; onPlan: () => void }) {
@@ -142,7 +142,6 @@ export function OfficeHome() {
   if (!member) return null;
   const group = roleGroup(member) ?? 'office';
   const tz = workspace?.timezone ?? 'Asia/Dubai';
-  const hour = now ? Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: tz }).format(now)) : 12;
   const first = (me.user.name ?? '').split(' ')[0];
   const data = summary.data;
   const toPlace = plan.data?.lines.filter(line => line.kind === 'place').length ?? 0;
@@ -157,7 +156,7 @@ export function OfficeHome() {
       <div className="page home-page">
         <PageHeader>
           <div className="page-title">
-            <h1><span>{greetingWord(hour)}</span>{first && <>, <bdi data-no-translate>{first}</bdi></>}</h1>
+            <h1><span suppressHydrationWarning>{greetingWord(tz, now ?? undefined)}</span>{first && <>, <bdi data-no-translate>{first}</bdi></>}</h1>
             <p><span data-no-translate suppressHydrationWarning>{now ? formatInLang(now, { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }, lang) : ''}</span>{now && '. '}<span>Here is your company today.</span></p>
           </div>
         </PageHeader>

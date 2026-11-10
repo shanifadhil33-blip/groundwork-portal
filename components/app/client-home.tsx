@@ -1,41 +1,57 @@
 'use client';
-import { Equipment } from './equipment';
-import { RequestSuggestions } from './request-suggestions';
-import { Greeting } from './greeting';
-
-import { PageHeader, ResponsiveTable } from '../ui/layout';
-import { plural } from '../../lib/ui/polish';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { ChevronRight, Plus } from 'lucide-react';
+import { Translated } from './app-words';
+import { RequestSuggestions } from './request-suggestions';
+import { PageHeader } from '../ui/layout';
 import { useApp } from './context';
 import { useResource } from './resource';
-import { AgentCard, NeedsAction } from './dashboard';
-import { orderNumber, ListSkeleton } from './work-order-list';
-import { Badge, EmptyState, ErrorState, LocalTime, RelativeTime, StatusBadge } from '../ui';
+import { Card, ErrorState, Skeleton, StatusBadge } from '../ui';
 import { workOrderTitle, isOverdue, clientStatusLabel, type Page, type WorkOrder } from '../../lib/ui/work-orders';
-import { OrderNo } from './work-order-list';
-function HouseholdNext({page,loading}:{page?:Page<WorkOrder>;loading:boolean}){
-  const first=page?.data[0];
-  function remember(){sessionStorage.setItem('work-orders-return','/home');}
-  if(loading)return null;
-  if(!first)return <section className="stack site-row"><h2>Next step</h2><p>Nothing is waiting</p><Link className="button primary" href="/work-orders/new" onClick={remember}>New request</Link></section>;
-  return <section className="stack site-row"><h2>Next step</h2><p data-no-translate>{workOrderTitle(first)}</p><StatusBadge status={first.status}>{clientStatusLabel(first)}</StatusBadge><Link className="button primary" href={`/work-orders/${first.id}`} onClick={remember}>View details</Link></section>;
-}
-export function ClientHome() {
-  const {me,member,workspace}=useApp();
-  if(me.user.is_demo&&workspace?.is_demo&&me.household_preview&&me.household_preview.workspace_id===member?.workspace_id)return <div className="page stack"><h1>My home</h1><p>Sample household. This preview does not add a membership or show client requests.</p><section className="stack site-row"><h2>Your home address</h2><p data-no-translate>{me.household_preview.address}</p></section><Link className="button secondary" href="/today">Work</Link></div>;
-  return <ClientRequests/>;
-}
-function ClientRequests() {
-  const {member,workspace}=useApp(), base=member?`/api/workspaces/${member.workspace_id}/work-orders`:null;
-  const open=useResource<Page<WorkOrder>>(base?`${base}?status=open&status=scheduled&status=in_progress&status=waiting_on_parts&sort=updated_at&dir=desc&pageSize=6`:null);
-  const recent=useResource<Page<WorkOrder>>(base?`${base}?sort=updated_at&dir=desc&pageSize=5`:null);
-  const completed=useResource<Page<WorkOrder>>(base?`${base}?status=done&sort=updated_at&dir=desc&pageSize=5`:null);
-  useEffect(()=>{const refresh=()=>{void open.reload();void recent.reload();void completed.reload();};window.addEventListener('groundwork-suggestions-changed',refresh);return()=>window.removeEventListener('groundwork-suggestions-changed',refresh);},[open.reload,recent.reload,completed.reload]);
-  function remember(){sessionStorage.setItem('work-orders-return','/home');}
-  if(!member)return <div className="page stack"><h1>Find your company</h1><Link className="button primary" href="/find-company">Find your company</Link></div>;
-  return <div className="page stack client-home"><Greeting mode="hello"/>{member?.client_kind==='household'&&<HouseholdNext page={open.data??undefined} loading={open.loading}/>}<PageHeader><h1>Maintenance requests</h1><Link className="button primary" href="/work-orders/new" onClick={remember}><Plus size={16} aria-hidden="true"/>New request</Link></PageHeader><RequestSuggestions/>{member&&<NeedsAction base={`/api/workspaces/${member.workspace_id}`} client/>}<section className="stack"><div className="heading-row"><h2>Open requests</h2><Link className="back-link" href="/work-orders">See all</Link></div>{open.loading?<ListSkeleton/>:open.error?<ErrorState message="We couldn’t load your open requests." retry={open.reload}/>:open.data?.data.length?<><ul className="action-list client-requests">{open.data.data.map(o=><li key={o.id}><div className="action-copy"><span className="order-number"><OrderNo order={o}/></span><Link href={`/work-orders/${o.id}`} onClick={remember} data-no-translate>{workOrderTitle(o)}</Link><span className="small muted" data-no-translate>{[o.site_name,o.assignee_name].filter(Boolean).join(' · ')}</span><span className="small muted">{o.scheduled_for?<LocalTime value={o.scheduled_for}/>: 'Unscheduled'}</span></div><div className="row"><StatusBadge status={o.status}>{clientStatusLabel(o)}</StatusBadge>{isOverdue(o,Date.now(),workspace?.timezone)&&<Badge tone="danger">Late</Badge>}</div></li>)}</ul><p className="small muted">Showing {open.data.data.length} of {plural(open.data.total,'open request')}</p></>:recent.loading?<ListSkeleton/>:<EmptyState title={recent.data?.total===0?'No requests yet':'No open requests'} action={<Link className="button secondary" href="/work-orders/new" onClick={remember}>New request</Link>}>{recent.data?.total===0?'Send a request to your maintenance team.':'You’re all caught up. New requests will appear here.'}</EmptyState>}</section><section className="stack"><div className="heading-row"><h2>Recent completed jobs</h2><Link className="text-link" href="/work-orders?status=done">View all past records</Link></div>{completed.loading?<ListSkeleton/>:completed.error?<ErrorState message="We couldn’t load completed requests." retry={completed.reload}/>:completed.data?.data.length?<ul className="action-list client-requests completed-requests">{completed.data.data.map(o=><li key={o.id}><div className="action-copy"><span className="order-number"><OrderNo order={o}/></span><Link href={`/work-orders/${o.id}`} onClick={remember} data-no-translate>{workOrderTitle(o)}</Link><span className="small muted" data-no-translate>{o.site_name}</span><span className="small muted">Updated <RelativeTime value={o.updated_at}/></span></div><div className="row"><StatusBadge status={o.status}>{clientStatusLabel(o)}</StatusBadge><Link className="text-link" href={`/work-orders/${o.id}`} onClick={remember}>View details</Link></div></li>)}</ul>:<EmptyState title="No completed requests yet" action={<Link className="button secondary" href="/work-orders">View requests</Link>}/>}</section><details className="request-updates"><summary>Recent updates</summary><section className="stack">{recent.loading?<ListSkeleton/>:recent.error?<ErrorState message="We couldn’t load recent updates." retry={recent.reload}/>:recent.data?.data.length?<ResponsiveTable><table><thead><tr><th>Request</th><th>Latest update</th></tr></thead><tbody>{recent.data.data.map(o=><tr key={o.id}><td><span className="order-number"><OrderNo order={o}/></span><Link href={`/work-orders/${o.id}`} onClick={remember} data-no-translate>{workOrderTitle(o)}</Link></td><td><div className="request-update-meta"><StatusBadge status={o.status}>{clientStatusLabel(o)}</StatusBadge>{isOverdue(o,Date.now(),workspace?.timezone)&&<Badge tone="danger">Late</Badge>}<span className="small muted">Updated <RelativeTime value={o.updated_at}/></span></div></td></tr>)}</tbody></table></ResponsiveTable>:<EmptyState title="No updates yet" action={<Link className="button secondary" href="/work-orders/new" onClick={remember}>New request</Link>}>Your team’s updates will appear here.</EmptyState>}</section></details>{member&&member.role==='client'&&(member.client_kind??'manager')==='manager'&&<ClientEquipment base={`/api/workspaces/${member.workspace_id}`}/>}<AgentCard/></div>;
+type ClientJob = WorkOrder & { quote_status?: string | null; visit_confirmed_for?: string | null };
+
+function ClientRow({ job, reason }: { job: ClientJob; reason?: string }) {
+  const { workspace } = useApp();
+  const late = isOverdue(job, Date.now(), workspace?.timezone);
+  return <li><Link className="list-row" href={`/work-orders/${job.id}`} onClick={() => sessionStorage.setItem('work-orders-return', '/home')}>
+    <span className="list-row-main">
+      <span className="list-row-title"><span data-no-translate>{workOrderTitle(job)}</span><StatusBadge status={job.status}>{clientStatusLabel(job)}</StatusBadge></span>
+      <span className="list-row-meta" data-no-translate>{[job.site_name, job.assignee_name].filter(Boolean).join(', ')}</span>
+      {reason && <span className="list-row-meta waiting-reason">{reason}</span>}
+      {late && <span className="list-row-meta late-note">Late</span>}
+    </span>
+    <ChevronRight className="directional-icon" aria-hidden="true" />
+  </Link></li>;
 }
 
-function ClientEquipment({base}:{base:string}){const sites=useResource<{id:string;name:string}[]>(`${base}/request-sites`);return <section className="stack"><h2>Your sites</h2>{sites.error?<ErrorState retry={sites.reload}/>:sites.loading?<p>Loading sites…</p>:(Array.isArray(sites.data)?sites.data:[]).map(s=><div key={s.id} className="stack"><h3 data-no-translate>{s.name}</h3><Equipment base={base} siteId={s.id}/></div>)}</section>;}
+function Group({ title, jobs, loading, error, retry, seeAll, empty, reason }: { title: string; jobs: ClientJob[]; loading: boolean; error: unknown; retry: () => void; seeAll?: string; empty: string; reason?: (job: ClientJob) => string }) {
+  return <section className="stack compact">
+    <div className="section-title"><h2>{title}</h2>{seeAll && jobs.length > 3 && <Link className="text-link" href={seeAll}>See all</Link>}</div>
+    <Card>{loading ? <div className="stack compact"><Skeleton className="skeleton-row" /><Skeleton className="skeleton-row" /></div> : error ? <ErrorState retry={retry} /> : jobs.length ? <ul className="list">{jobs.slice(0, 3).map(job => <ClientRow key={job.id} job={job} reason={reason?.(job)} />)}</ul> : <p>{empty}</p>}</Card>
+  </section>;
+}
+
+/** Client Home: Your requests. One primary, then what waits for him, what is open and what is done. */
+export function ClientHome() {
+  const { member, workspace } = useApp(), base = member ? `/api/workspaces/${member.workspace_id}/work-orders` : null;
+  const active = useResource<Page<ClientJob>>(base ? `${base}?active=true&sort=updated_at&dir=asc&pageSize=100` : null);
+  const done = useResource<Page<ClientJob>>(base ? `${base}?status=done&sort=updated_at&dir=desc&pageSize=5` : null);
+  useEffect(() => { const refresh = () => { void active.reload(); void done.reload(); }; window.addEventListener('groundwork-suggestions-changed', refresh); return () => window.removeEventListener('groundwork-suggestions-changed', refresh); }, [active.reload, done.reload]);
+  if (!member) return null;
+  const decides = ['manager', 'household'].includes(member.client_kind ?? 'manager');
+  const now = Date.now(), tz = workspace?.timezone;
+  // Only things he must answer: a price, or a new visit time on a job that is not late (bug 52).
+  const waiting = (active.data?.data ?? []).filter(o => decides && (o.quote_status === 'pending' || (!!o.scheduled_for && new Date(o.scheduled_for).getTime() > now && !isOverdue(o, now, tz) && (!o.visit_confirmed_for || new Date(o.visit_confirmed_for).getTime() !== new Date(o.scheduled_for).getTime()))));
+  const open = (active.data?.data ?? []).filter(o => !waiting.some(w => w.id === o.id)).reverse();
+  return <Translated><div className="page client-home">
+    <PageHeader>
+      <div className="page-title"><h1>Your requests</h1><p>Ask for work and follow it here.</p></div>
+      <div className="page-actions"><Link className="button primary lg" href="/work-orders/new" onClick={() => sessionStorage.setItem('work-orders-return', '/home')}><Plus aria-hidden="true" />New request</Link></div>
+    </PageHeader>
+    {waiting.length > 0 && <Group title="Waiting for you" jobs={waiting} loading={false} error={null} retry={active.reload} seeAll="/work-orders?active=true" empty="" reason={job => job.quote_status === 'pending' ? 'A price to approve' : 'Confirm the visit time'} />}
+    <RequestSuggestions />
+    <Group title="Open" jobs={open} loading={active.loading} error={active.error} retry={active.reload} seeAll="/work-orders?active=true" empty="Nothing is open. Send a request when something needs fixing." />
+    <Group title="Done" jobs={done.data?.data ?? []} loading={done.loading} error={done.error} retry={done.reload} seeAll="/work-orders?status=done" empty="Finished work shows here." />
+  </div></Translated>;
+}

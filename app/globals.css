@@ -1931,3 +1931,42 @@ button.list-row:active {
   color: var(--text-2);
   font-size: var(--t-meta);
 }
+
+/* ---------- Technician Today ---------- */
+.next-job-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.next-job-when {
+  font-size: var(--t-meta);
+  line-height: var(--t-meta-lh);
+}
+.next-job-card h2 a {
+  border-radius: var(--r-control);
+}
+.next-job-place {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.next-job-place svg {
+  width: var(--icon);
+  height: var(--icon);
+}
+.next-job-actions {
+  display: flex;
+  gap: var(--s2);
+  margin-block-start: var(--s2);
+}
+.next-job-actions > .button.primary {
+  flex: 1;
+}
+.late-note {
+  color: var(--st-late);
+  font-weight: var(--w-medium);
+}
+.waiting-reason {
+  color: var(--accent);
+  font-weight: var(--w-medium);
+}

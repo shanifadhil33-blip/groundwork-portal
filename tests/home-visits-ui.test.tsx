@@ -53,5 +53,5 @@ it('client and staff job cards show travel once the technician set off',()=>{
  expect(renderToStaticMarkup(<WorkOrderCard {...props} client/>)).toContain('On the way');
  expect(renderToStaticMarkup(<WorkOrderCard {...props} client={false}/>)).toContain('On the way');
  expect(renderToStaticMarkup(<WorkOrderCard {...props} order={{...travelJob,on_way_at:null}} client={false}/>)).toContain('Scheduled');
- expect(renderToStaticMarkup(<WorkOrderCard {...props} order={{...travelJob,on_way_at:null}} client/>)).toContain('Visit Scheduled');
+ expect(renderToStaticMarkup(<WorkOrderCard {...props} order={{...travelJob,on_way_at:null}} client/>)).toContain('Scheduled');
 });

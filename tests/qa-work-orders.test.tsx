@@ -40,7 +40,7 @@ describe('workspace deadlines and visits',()=>{
  });
  it('names assignment, visit, due and status changes for staff and clients',()=>{
   expect(staffEvent(event('assignment_changed',{assignee_name:'Sam'}))).toBe('assigned Sam');
-  expect(staffEvent(event('status_changed',{to_status:'in_progress'}))).toBe('moved to In Progress');
+  expect(staffEvent(event('status_changed',{to_status:'in_progress'}))).toBe('moved to In progress');
   expect(clientEvent(event('schedule_changed',{scheduled_for:'2026-11-07T20:00:00Z'}))).toBe('Visit scheduled for Nov 8, 2026');
   expect(clientEvent(event('due_changed',{due_on:'2026-11-13'}))).toBe('Due date set to Nov 13, 2026');
  });

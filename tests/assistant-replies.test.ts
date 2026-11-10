@@ -17,15 +17,15 @@ it.each([false, true])('preserves ordinary prose for client=%s', client => {
 });
 
 it.each([false, true])('translates machine statuses and explicit status labels for client=%s', client => {
- const scheduled = client ? 'Visit Scheduled' : 'Scheduled';
- const done = client ? 'Completed' : 'Done';
- const open = client ? 'Request Received' : 'Open';
- const progress = client ? 'Work in Progress' : 'In Progress';
+ const scheduled = client ? 'Scheduled' : 'Scheduled';
+ const done = 'Done';
+ const open = client ? 'Open' : 'Open';
+ const progress = client ? 'In progress' : 'In progress';
  for (const format of [audienceStatusReply, plainAssistantReply]) {
-  expect(format('in_progress; waiting_on_parts', client)).toBe(`${progress}; Waiting on Parts`);
+  expect(format('in_progress; waiting_on_parts', client)).toBe(`${progress}; Waiting for parts`);
   expect(format('Scheduled; Done; Open', client)).toBe(`${scheduled}; ${done}; ${open}`);
   expect(format('Status: scheduled. The status is done. Status: open.', client)).toBe(`Status: ${scheduled}. The status is ${done}. Status: ${open}.`);
-  expect(format('Status: Visit Scheduled. Status: Completed.', client)).toBe(`Status: ${scheduled}. Status: ${done}.`);
+  expect(format('Status: Scheduled. Status: Completed.', client)).toBe(`Status: ${scheduled}. Status: ${done}.`);
  }
 });
 

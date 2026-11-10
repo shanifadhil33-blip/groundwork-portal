@@ -14,11 +14,12 @@ it('offers sign in without a dashboard loop when signed out',()=>{
  expect(html).toContain('href="/sign-in"');expect(html).toContain('Sign in');expect(html).toContain('Go back');expect(html).not.toContain('/dashboard');
  expect(render(<NoAccess/>)).toContain('Go home');expect(render(<NoAccess/>)).toContain('It is for your maintenance team.');expect(render(<NoAccess/>,'admin')).toContain('Go home');
 });
-it('groups recent update badges and time below the request title',()=>{
+it('shows the client Home as Your requests with Open and Done groups and no duplicate lists',()=>{
  const html=render(<ClientHome/>);
- expect(html).toContain('page stack client-home');
- expect(html).toMatch(/request-update-meta"><span class="badge[^>]*>Request Received<\/span><span class="small muted">Updated /);
- expect(html).toContain('<h2>Open requests</h2>');expect(html).toContain('<h2>Needs action</h2>');expect(html).toContain('action-list client-requests');expect(html).toContain('Repair entry door');expect(html).toContain('Recent completed jobs');expect(html).toContain('href="/work-orders?status=done"');expect(html).toContain('<summary>Recent updates</summary>');
+ expect(html).toContain('page client-home');expect(html).toContain('<h1>Your requests</h1>');
+ expect(html).toContain('<h2>Open</h2>');expect(html).toContain('<h2>Done</h2>');
+ expect(html).toContain('Repair entry door');
+ for(const gone of ['Recent updates','Recent completed jobs','Needs action','View all past records','Request Received'])expect(html).not.toContain(gone);
 });
 it('shows actionable records instead of dashboard count tiles',()=>{
  const html=render(<Dashboard/>,'admin');
