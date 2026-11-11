@@ -59,6 +59,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   // Only one sheet or panel is open at a time.
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [agentMounted, setAgentMounted] = useState(false);
+  const [agentTab, setAgentTab] = useState<'agent' | 'whatsapp'>('agent');
   const [ask, setAsk] = useState<{ text: string; n: number } | null>(null);
   const [confirm, setConfirm] = useState<'signout' | 'reset' | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -111,6 +112,8 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   useEffect(() => {
     visits.current += 1;
     setOverlay(current => (current === 'agent' ? current : null));
+    // ?agent=whatsapp (from the demo bar or the old Demo chat link) opens the WhatsApp preview in the Agent.
+    if (new URLSearchParams(window.location.search).get('agent') === 'whatsapp') { setAgentTab('whatsapp'); setAgentMounted(true); setOverlay('agent'); }
     setDemoOpen(false);
     if (!path.startsWith('/settings')) sessionStorage.setItem(LAST_PAGE_KEY, path);
   }, [path]);
@@ -301,7 +304,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
                         <p>{ROLE_CAN_DO[group]}</p>
                         <p><span data-no-translate><bdi>{company}</bdi></span>. <span>Sample data, resets every 6 hours.</span></p>
                         <div className="row">
-                          {(group === 'owner' || group === 'admin') && <Link className="button secondary sm" href="/dashboard?agent=whatsapp" onClick={() => setDemoOpen(false)}>See a WhatsApp request arrive</Link>}
+                          {(group === 'owner' || group === 'admin') && <Button variant="secondary" size="sm" onClick={() => { setDemoOpen(false); setAgentTab('whatsapp'); warmAgent(); setOverlay('agent'); }}>See a WhatsApp request arrive</Button>}
                           <Button variant="secondary" size="sm" onClick={() => askToConfirm('reset')}>Start over</Button>
                         </div>
                       </div>
@@ -356,7 +359,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
               </div>
             </BottomSheet>
 
-            {member && agentMounted && <AssistantHost key={`agent:${me.user.id}:${member.workspace_id}`} ws={member.workspace_id} open={overlay === 'agent'} ask={ask} onClose={() => setOverlay(current => (current === 'agent' ? null : current))} />}
+            {member && agentMounted && <AssistantHost key={`agent:${me.user.id}:${member.workspace_id}`} ws={member.workspace_id} open={overlay === 'agent'} ask={ask} tab={agentTab} onTab={setAgentTab} onClose={() => setOverlay(current => (current === 'agent' ? null : current))} />}
             {member && <Notifications key={`notifications:${me.user.id}:${member.workspace_id}`} open={overlay === 'notifications'} onClose={() => setOverlay(current => (current === 'notifications' ? null : current))} ws={member.workspace_id} onChange={delta => { if (delta) counts.setData(current => (current ? { ...current, unread_count: Math.max(0, current.unread_count + delta) } : current)); void counts.reload(); }} />}
 
             <ConfirmDialog open={confirm === 'signout'} onClose={() => setConfirm(null)} title="Sign out of Groundwork?" confirmLabel="Sign out" busyLabel="Signing out" busy={busy === 'signout'} error={actionError} onConfirm={runConfirmed}>You can sign in again any time.</ConfirmDialog>

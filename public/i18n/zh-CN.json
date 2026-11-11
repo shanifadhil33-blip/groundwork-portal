@@ -2858,5 +2858,13 @@
  "Your people, what each one does and his days off.": "你的员工、每个人的工作和他的休息日。",
  "Your profile, your Agent and, for the owner, the company.": "你的个人资料、你的助手，以及所有者可见的公司设置。",
  "Download your records or ask to delete your account.": "下载你的记录，或申请删除你的账户。",
- "Use the company time zone": "使用工作区时区"
+ "Use the company time zone": "使用工作区时区",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "这是使用示例数据的模拟，没有连接到 WhatsApp。",
+ "Which jobs are late today?": "今天哪些工作已经超时？",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "显示等待零件的工作",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

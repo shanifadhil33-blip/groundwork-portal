@@ -11,7 +11,7 @@ export function AgentButton({ open, onClick, onWarm }: { open: boolean; onClick:
   const shortcut = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘J' : 'Ctrl J';
   return (
     <button type="button" className="agent-button" aria-haspopup="dialog" aria-expanded={open} title={`${name ?? 'Agent'} (${shortcut})`} suppressHydrationWarning onClick={onClick} onPointerEnter={onWarm} onFocus={onWarm} onTouchStart={onWarm}>
-      <span className="agent-monogram" aria-hidden="true" data-no-translate>{(name ?? 'Agent')[0].toUpperCase()}</span>
+      <span className="agent-monogram" aria-hidden="true" data-letter={(name ?? 'Agent')[0].toUpperCase()} />
       {name ? <span data-no-translate>{name}</span> : <span>Agent</span>}
     </button>
   );

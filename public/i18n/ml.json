@@ -2869,5 +2869,13 @@
  "Your people, what each one does and his days off.": "നിങ്ങളുടെ ആളുകൾ, ഓരോരുത്തരും ചെയ്യുന്നത്, അവന്റെ അവധി ദിവസങ്ങൾ.",
  "Your profile, your Agent and, for the owner, the company.": "നിങ്ങളുടെ പ്രൊഫൈൽ, നിങ്ങളുടെ ഏജന്റ്, ഉടമയ്ക്ക് കമ്പനി.",
  "Download your records or ask to delete your account.": "നിങ്ങളുടെ രേഖകൾ ഡൗൺലോഡ് ചെയ്യുക അല്ലെങ്കിൽ അക്കൗണ്ട് ഇല്ലാതാക്കാൻ ആവശ്യപ്പെടുക.",
- "Use the company time zone": "വർക്ക്‌സ്‌പേസ് സമയ മേഖല ഉപയോഗിക്കുക"
+ "Use the company time zone": "വർക്ക്‌സ്‌പേസ് സമയ മേഖല ഉപയോഗിക്കുക",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "ഇത് സാമ്പിൾ വിവരങ്ങൾ ഉപയോഗിക്കുന്ന ഒരു അനുകരണമാണ്. ഇത് വാട്ട്സ്ആപ്പുമായി ബന്ധിപ്പിച്ചിട്ടില്ല.",
+ "Which jobs are late today?": "ഇന്ന് ഏതൊക്കെ ജോലികൾ വൈകിയിരിക്കുന്നു?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "ഭാഗങ്ങൾക്കായി കാത്തിരിക്കുന്ന ജോലികൾ കാണിക്കുക",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

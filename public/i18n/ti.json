@@ -2862,5 +2862,13 @@
  "Your people, what each one does and his days off.": "ሰባትኩም፣ ነፍሲ ወከፍ ዝገብሮን መዓልታት ዕረፍቱን።",
  "Your profile, your Agent and, for the owner, the company.": "መገለጺኹም፣ ወኪልኩም ከምኡውን ንወናኒ፣ ትካል።",
  "Download your records or ask to delete your account.": "መዛግብትኹም ኣውርዱ ወይ ሕሳብኩም ክድምሰስ ሕተቱ።",
- "Use the company time zone": "ናይ ስራሕ ቦታ ግዜ ዞባ ተጠቀም"
+ "Use the company time zone": "ናይ ስራሕ ቦታ ግዜ ዞባ ተጠቀም",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "እዚ ብናሙና ሓበሬታ ዝካየድ ኣብነት እዩ። ምስ ዋትሳፕ ኣይተኣሳሰረን።",
+ "Which jobs are late today?": "ሎሚ ዝዘኽተሙ ስራሕቲ እንታይ እዮም?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "ክፋላት ዝጽበዩ ስርሓት ኣርኢ",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

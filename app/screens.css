@@ -5381,7 +5381,7 @@ body:has(.app-shell) .assistant-input-row .assistant-control.assistant-control:n
 }
 @media (min-width:641px) {
   .phone-frame {
-    border-radius: var(--r-chip);
+    border-radius: var(--r-sheet);
     border: 10px solid var(--ink);
   }
 }

@@ -2855,5 +2855,13 @@
  "Your people, what each one does and his days off.": "Mutanenka, abin da kowannensu ke yi da kwanakin hutunsa.",
  "Your profile, your Agent and, for the owner, the company.": "Bayananka, Wakilinka da, ga mai shi, kamfanin.",
  "Download your records or ask to delete your account.": "Sauke bayananka ko nemi a goge asusunka.",
- "Use the company time zone": "Yi amfani da lokacin yankin aiki"
+ "Use the company time zone": "Yi amfani da lokacin yankin aiki",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "Wannan kwaikwayo ne da bayanan misali. Ba a haɗa shi da WhatsApp ba.",
+ "Which jobs are late today?": "Waɗanne ayyuka ne suka makara yau?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "Nuna ayyukan da ke jiran sassa",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

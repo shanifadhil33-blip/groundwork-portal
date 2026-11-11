@@ -2858,5 +2858,13 @@
  "Your people, what each one does and his days off.": "तपाईंका मानिसहरू, प्रत्येकले के गर्छ र उसका बिदाका दिन।",
  "Your profile, your Agent and, for the owner, the company.": "तपाईंको प्रोफाइल, तपाईंको एजेन्ट र मालिकका लागि कम्पनी।",
  "Download your records or ask to delete your account.": "आफ्ना रेकर्डहरू डाउनलोड गर्नुहोस् वा खाता मेटाउन अनुरोध गर्नुहोस्।",
- "Use the company time zone": "कार्यक्षेत्रको समय क्षेत्र प्रयोग गर्नुहोस्"
+ "Use the company time zone": "कार्यक्षेत्रको समय क्षेत्र प्रयोग गर्नुहोस्",
+ "Which jobs are late today?": "आज कुन कामहरू ढिला भएका छन्?",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "यो नमुना जानकारी प्रयोग गर्ने एउटा अभ्यास हो। यो WhatsApp सँग जोडिएको छैन।",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "पुर्जाको पर्खाइमा रहेका कामहरू देखाउनुहोस्",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

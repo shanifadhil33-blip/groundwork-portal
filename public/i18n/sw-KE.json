@@ -2856,5 +2856,13 @@
  "Your people, what each one does and his days off.": "Watu wako, kila mmoja anachofanya na siku zake za mapumziko.",
  "Your profile, your Agent and, for the owner, the company.": "Wasifu wako, Wakala wako na, kwa mmiliki, kampuni.",
  "Download your records or ask to delete your account.": "Pakua rekodi zako au omba akaunti yako ifutwe.",
- "Use the company time zone": "Tumia eneo la saa la eneo hili la kazi"
+ "Use the company time zone": "Tumia eneo la saa la eneo hili la kazi",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "Huu ni mfano tu unaotumia taarifa za majaribio. Hayajaunganishwa na WhatsApp.",
+ "Which jobs are late today?": "Ni kazi gani zimechelewa leo?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "Onyesha kazi zinazosubiri vipuri",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

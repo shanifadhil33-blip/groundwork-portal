@@ -2860,5 +2860,13 @@
  "Your people, what each one does and his days off.": "ستاسو خلک، هر یو څه کوي او د هغه د رخصتۍ ورځې.",
  "Your profile, your Agent and, for the owner, the company.": "ستاسو پروفایل، ستاسو مرستیال او د مالک لپاره، شرکت.",
  "Download your records or ask to delete your account.": "خپل ریکارډونه ښکته کړئ یا د حساب د ړنګولو غوښتنه وکړئ.",
- "Use the company time zone": "د کار ځای وخت زون وکاروئ"
+ "Use the company time zone": "د کار ځای وخت زون وکاروئ",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "دا د نمونې معلوماتو سره یو ازمایښت دی. دا له واټسپ سره نه دی تړلی.",
+ "Which jobs are late today?": "نن کوم کارونه ځنډیدلي دي؟",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "هغه کارونه وښایاست چې د پرزو په تمه دي",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

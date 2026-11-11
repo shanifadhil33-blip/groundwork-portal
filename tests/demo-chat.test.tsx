@@ -24,7 +24,7 @@ describe('demo chat copy', () => {
     }
   });
   it('states that it is a simulation and not WhatsApp', () => {
-    expect(DEMO_CHAT_COPY.label).toBe('Demo chat. This is a simulation using sample data. It is not connected to WhatsApp.');
+    expect(DEMO_CHAT_COPY.label).toBe('This is a simulation using sample data. It is not connected to WhatsApp.');
     expect(DEMO_CHAT_COPY.name).toBe('Groundwork Agent');
     expect(DEMO_CHAT_STARTERS).toHaveLength(3);
   });

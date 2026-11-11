@@ -2855,5 +2855,13 @@
  "Your people, what each one does and his days off.": "Abantu bo, buli omu ky'akola n'ennaku ze ez'okuwummula.",
  "Your profile, your Agent and, for the owner, the company.": "Ebikukwatako, Omuyambi wo era, eri nnannyini, kampuni.",
  "Download your records or ask to delete your account.": "Wanula ebikukwatako oba saba akawunti yo esazibwemu.",
- "Use the company time zone": "Kozesa obudde bw'ekifo ky'emirimu"
+ "Use the company time zone": "Kozesa obudde bw'ekifo ky'emirimu",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "Kino kyakulabirako kyokka nga kikozesa ebikwata ku kyakulabirako. Tekiyungiddwa ku WhatsApp.",
+ "Which jobs are late today?": "Mirimu ki egyakereddwa leero?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "Laga emirim gibulako ebyuma",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

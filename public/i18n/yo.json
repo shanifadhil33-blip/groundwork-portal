@@ -2854,5 +2854,13 @@
  "Your people, what each one does and his days off.": "Àwọn ènìyàn rẹ, ohun tí ọ̀kọ̀ọ̀kan ń ṣe àti ọjọ́ ìsinmi rẹ̀.",
  "Your profile, your Agent and, for the owner, the company.": "Àkọsílẹ̀ rẹ, Aṣojú rẹ àti, fún olùní, ilé-iṣẹ́ náà.",
  "Download your records or ask to delete your account.": "Ṣe ìgbàsílẹ̀ àwọn àkọsílẹ̀ rẹ tàbí béèrè kí a pa àkáǹtì rẹ rẹ́.",
- "Use the company time zone": "Lo àkókò agbègbè ibi iṣẹ́"
+ "Use the company time zone": "Lo àkókò agbègbè ibi iṣẹ́",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "Èyí jẹ́ àfarawé tó ń lo ìwífún àpẹẹrẹ. A kò so ó mọ́ WhatsApp.",
+ "Which jobs are late today?": "Àwọn iṣẹ́ wo ni ó ti pẹ́ lónìí?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "Fihan awon ise ti n duro de awon apa",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

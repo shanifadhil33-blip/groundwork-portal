@@ -2864,5 +2864,13 @@
  "Your people, what each one does and his days off.": "افراد شما، کار هر کدام و روزهای مرخصی او.",
  "Your profile, your Agent and, for the owner, the company.": "نمایه شما، دستیار شما و برای مالک، شرکت.",
  "Download your records or ask to delete your account.": "سوابق خود را دانلود کنید یا حذف حساب را درخواست کنید.",
- "Use the company time zone": "استفاده از منطقه زمانی محیط کاری"
+ "Use the company time zone": "استفاده از منطقه زمانی محیط کاری",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "این یک نمایش با اطلاعات نمونه است و به واتساپ وصل نیست.",
+ "Which jobs are late today?": "امروز کدام کارها از موعدشان گذشته است؟",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "نمایش کارهای در انتظار قطعات",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

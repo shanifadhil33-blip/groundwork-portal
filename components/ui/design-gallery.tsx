@@ -99,7 +99,7 @@ function Showcase({ t }: { t: Words }) {
       </Group>
 
       <Group title={GROUPS.agent}>
-        <div className="row"><button type="button" className="agent-button"><span className="agent-monogram" aria-hidden="true">{t.agent[0]}</span><span>{t.agent}</span></button></div>
+        <div className="row"><button type="button" className="agent-button"><span className="agent-monogram" aria-hidden="true" data-letter={t.agent[0]} /><span>{t.agent}</span></button></div>
       </Group>
     </div>
   );

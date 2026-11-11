@@ -2856,5 +2856,13 @@
  "Your people, what each one does and his days off.": "உங்கள் ஆட்கள், ஒவ்வொருவரும் செய்வது மற்றும் அவரது விடுமுறை நாட்கள்.",
  "Your profile, your Agent and, for the owner, the company.": "உங்கள் சுயவிவரம், உங்கள் ஏஜென்ட் மற்றும் உரிமையாளருக்கு நிறுவனம்.",
  "Download your records or ask to delete your account.": "உங்கள் பதிவுகளைப் பதிவிறக்கவும் அல்லது கணக்கை நீக்கக் கோரவும்.",
- "Use the company time zone": "பணிமண்டல கால மண்டலத்தைப் பயன்படுத்துக"
+ "Use the company time zone": "பணிமண்டல கால மண்டலத்தைப் பயன்படுத்துக",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "இது மாதிரி தகவலைப் பயன்படுத்தும் ஒரு பயிற்சி. இது வாட்ஸ்அப்புடன் இணைக்கப்படவில்லை.",
+ "Which jobs are late today?": "இன்று எந்த வேலைகள் தாமதமாகியுள்ளன?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "உதிரிபாகங்களுக்காகக் காத்திருக்கும் பணிகளைக் காட்டு",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

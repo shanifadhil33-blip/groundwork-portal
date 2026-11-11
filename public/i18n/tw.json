@@ -2854,5 +2854,13 @@
  "Your people, what each one does and his days off.": "Wo nkurɔfoɔ, deɛ obiara yɛ ne ne home nna.",
  "Your profile, your Agent and, for the owner, the company.": "Wo ho nsɛm, wo Ɔboafoɔ ne, ama wura no, adwumakuo no.",
  "Download your records or ask to delete your account.": "Twe wo nkrataa anaa bisa sɛ wɔmpopa wo akawnt.",
- "Use the company time zone": "Fa adwumabea bere a ɛwɔ hɔ"
+ "Use the company time zone": "Fa adwumabea bere a ɛwɔ hɔ",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "Eyi yɛ nhwɛsoɔ a ɛde nsɛm a wɔde yɛ nhwɛsoɔ di dwuma. Ɛnka WhatsApp ho.",
+ "Which jobs are late today?": "Adwuma bɛn na ɛakyɛ ɛnnɛ?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "Kyerɛ adwuma a ɛhwɛ nneɛma so",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

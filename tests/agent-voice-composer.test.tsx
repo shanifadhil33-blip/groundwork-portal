@@ -119,7 +119,7 @@ it('keeps text available without errors when no voice matches or speech is unsup
 });
 it('voice off prevents speech and keeps the desktop placeholder even for a dictated draft',async()=>{
  const synth=synthesis();await chat();await dictate();state.voice=false;await chat();await click('Send');
- expect(synth.speak).not.toHaveBeenCalled();expect(host.querySelector('textarea')?.placeholder).toBe('Ask the agent');expect(host.querySelector('[aria-label="Use microphone"]')).toBeNull();
+ expect(synth.speak).not.toHaveBeenCalled();expect(host.querySelector('textarea')?.placeholder).toBe('Ask Agent');expect(host.querySelector('[aria-label="Use microphone"]')).toBeNull();
 });
 it('reads confirmation text without button labels and leaves writes behind confirmation',async()=>{
  const synth=synthesis();state.post.mockResolvedValue({available:true,pending_action:{id:'pending',summary:'Assign the pump to Ravi',why:'He is free'}});

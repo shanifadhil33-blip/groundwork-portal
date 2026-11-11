@@ -3,7 +3,7 @@ import { plainAssistantReply } from './assistant-replies';
 /** Everything the demo chat says in its own voice. English is the key; the language files carry the rest. */
 export const DEMO_CHAT_COPY = {
   name: 'Groundwork Agent',
-  label: 'Demo chat. This is a simulation using sample data. It is not connected to WhatsApp.',
+  label: 'This is a simulation using sample data. It is not connected to WhatsApp.',
   online: 'Online',
   typing: 'Typing',
   placeholder: 'Type a message',
@@ -19,13 +19,11 @@ export const DEMO_CHAT_COPY = {
   demoOnlyLink: 'Try the demo',
   delivered: 'Delivered',
   read: 'Read',
-  navLabel: 'Demo chat',
-  openLabel: 'Open the demo chat',
   windowLabel: 'Chat with Groundwork Agent',
 } as const;
 
 export const DEMO_CHAT_STARTERS = [
-  'Which jobs are overdue today?',
+  'Which jobs are late today?',
   'Who is free tomorrow morning?',
   'Book a visit for Al Barsha villa',
 ] as const;

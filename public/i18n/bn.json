@@ -2861,5 +2861,13 @@
  "Your people, what each one does and his days off.": "আপনার লোকজন, প্রত্যেকে কী করে এবং তার ছুটির দিন।",
  "Your profile, your Agent and, for the owner, the company.": "আপনার প্রোফাইল, আপনার এজেন্ট এবং মালিকের জন্য কোম্পানি।",
  "Download your records or ask to delete your account.": "আপনার রেকর্ড ডাউনলোড করুন বা অ্যাকাউন্ট মুছতে বলুন।",
- "Use the company time zone": "ওয়ার্কস্পেসের সময় অঞ্চল ব্যবহার করুন"
+ "Use the company time zone": "ওয়ার্কস্পেসের সময় অঞ্চল ব্যবহার করুন",
+ "Which jobs are late today?": "আজ কোন কাজগুলো দেরি হয়ে গেছে?",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "এটি নমুনা তথ্য দিয়ে তৈরি একটি অনুশীলন। এটি WhatsApp এর সাথে যুক্ত নয়।",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "পার্টসের অপেক্ষায় থাকা জবগুলো দেখান",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

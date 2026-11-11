@@ -2855,5 +2855,13 @@
  "Your people, what each one does and his days off.": "Ndị gị, ihe onye ọ bụla na-eme na ụbọchị ezumike ya.",
  "Your profile, your Agent and, for the owner, the company.": "Profaịlụ gị, Onye nnọchite anya gị na, maka onye nwe ya, ụlọ ọrụ.",
  "Download your records or ask to delete your account.": "Budata ndekọ gị ma ọ bụ rịọ ka ehichapụ akaụntụ gị.",
- "Use the company time zone": "Jiri mpaghara oge ebe ọrụ"
+ "Use the company time zone": "Jiri mpaghara oge ebe ọrụ",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "Nke a bụ ihe atụ e jiri data ihe atụ mee. Ejikọghị ya na WhatsApp.",
+ "Which jobs are late today?": "Olee ọrụ ndị gafere oge taa?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "Gosi ọrụ ndị na eche akụkụ ihe",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

@@ -2863,5 +2863,13 @@
  "Your people, what each one does and his days off.": "ሰዎችዎ፣ እያንዳንዳቸው የሚሰሩት እና የእረፍት ቀኖቻቸው።",
  "Your profile, your Agent and, for the owner, the company.": "የእርስዎ መገለጫ፣ የእርስዎ ወኪል እና ለባለቤቱ ድርጅቱ።",
  "Download your records or ask to delete your account.": "መዝገቦችዎን ያውርዱ ወይም መለያዎ እንዲሰረዝ ይጠይቁ።",
- "Use the company time zone": "የስራ ቦታ የሰዓት ሰቆ ይጠቀሙ"
+ "Use the company time zone": "የስራ ቦታ የሰዓት ሰቆ ይጠቀሙ",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "ይህ በናሙና መረጃ የሚሰራ ምሳሌ ነው። ከዋትስአፕ ጋር አልተገናኘም።",
+ "Which jobs are late today?": "ዛሬ የዘገዩ ስራዎች የትኞቹ ናቸው?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "እቃዎችን የሚጠብቁ ስራዎችን አሳይ",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

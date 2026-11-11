@@ -2,8 +2,6 @@
 import { useNameJoin } from './use-name-join';
 import { DemoDecisionText } from './demo-decision-text';
 import { REPLY_LENGTHS, replyLengthLabels, type ReplyLength } from '../../lib/agent/replylength';
-import { AVATARS, AVATAR_LABELS } from '../../lib/avatars';
-import { AgentAvatar } from './agent-avatar';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { LANGUAGES, DEFAULT_LANGUAGE, languageOptions as langOpts } from '../../lib/languages';
@@ -32,7 +30,7 @@ export function PersonalAgentSettings({embedded=false}:{embedded?:boolean}={}){
  }catch(e){setError(e instanceof RequestError?e.message:'We could not save your settings. Please try again.');}finally{setBusy(false);}}
  return <div className={embedded?"stack agent-settings":"page stack agent-settings"}>{!embedded&&<><Link href="/settings">Back to settings</Link><h1>Agent</h1></>}{prefs.loading?<p>Loading settings…</p>:prefs.error?<ErrorState retry={prefs.reload}/>:<form className="stack" onSubmit={e=>{e.preventDefault();void save();}}>
  <label className="form-field">Name<input value={name} maxLength={40} placeholder="Agent" disabled={busy} onChange={e=>setName(e.target.value)}/></label><p>Leave the name empty to use Agent.</p>
- <fieldset className="avatar-pick"><legend>Picture</legend><div className="avatar-grid" role="radiogroup" aria-label="Picture">{AVATARS.map(a=><button key={a} type="button" role="radio" aria-checked={avatar===a} aria-label={AVATAR_LABELS[a]} className={avatar===a?'on':''} disabled={busy} onClick={()=>setAvatar(a)}><AgentAvatar avatar={a} size={24}/></button>)}</div></fieldset>
+
  <div className="form-field"><label htmlFor="agent-language">Language</label><Dropdown id="agent-language" label="Language" value={language} disabled={busy} options={langOpts(joinNames)} onChange={setLanguage}/></div>
  <div><label htmlFor="replylength">Reply length</label><Dropdown id="replylength" label="Reply length" value={replyLength} disabled={busy} options={REPLY_LENGTHS.map(value=>({value,label:replyLengthLabels[value]}))} onChange={value=>setReplyLength(value as ReplyLength)}/></div>
  <label className="choice-row"><input type="checkbox" role="switch" checked={voice} disabled={busy} onChange={e=>setVoice(e.target.checked)}/>Voice {voice?'on':'off'}</label>

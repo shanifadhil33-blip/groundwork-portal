@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2856 | 6 | 1853 | 0 | 1002 | 1 | 0 | 0 |
-| ne | 2856 | 7 | 1409 | 0 | 1446 | 1 | 0 | 0 |
-| hi | 2856 | 5 | 1424 | 0 | 1431 | 1 | 0 | 0 |
-| ur | 2856 | 7 | 1409 | 0 | 1446 | 1 | 0 | 0 |
-| bn | 2856 | 6 | 1425 | 0 | 1430 | 1 | 0 | 0 |
-| ml | 2856 | 19 | 1393 | 0 | 1462 | 1 | 0 | 0 |
-| ta | 2856 | 6 | 1424 | 0 | 1430 | 2 | 0 | 0 |
-| ps | 2856 | 6 | 1407 | 0 | 1448 | 1 | 0 | 0 |
-| fa-AF | 2856 | 15 | 1393 | 0 | 1462 | 1 | 0 | 0 |
-| fa-IR | 2856 | 3 | 1405 | 0 | 1450 | 1 | 0 | 0 |
-| fil | 2856 | 8 | 1392 | 0 | 1462 | 2 | 0 | 0 |
-| zh-CN | 2856 | 19 | 1379 | 0 | 1476 | 1 | 0 | 0 |
-| sw-KE | 2856 | 18 | 1378 | 0 | 1477 | 1 | 0 | 0 |
-| am | 2856 | 18 | 1378 | 0 | 1477 | 1 | 0 | 0 |
-| ti | 2856 | 18 | 1395 | 0 | 1459 | 2 | 0 | 0 |
-| so | 2856 | 18 | 1393 | 0 | 1461 | 1 | 1 | 0 |
-| yo | 2856 | 18 | 1376 | 0 | 1479 | 1 | 0 | 0 |
-| ha | 2856 | 18 | 1394 | 0 | 1461 | 1 | 0 | 0 |
-| ig | 2856 | 18 | 1389 | 0 | 1466 | 1 | 0 | 0 |
-| lg | 2856 | 18 | 1376 | 0 | 1477 | 3 | 0 | 0 |
-| tw | 2856 | 18 | 1387 | 0 | 1468 | 1 | 0 | 0 |
+| ar-AE | 2864 | 6 | 1856 | 0 | 1007 | 1 | 0 | 0 |
+| ne | 2864 | 7 | 1412 | 0 | 1451 | 1 | 0 | 0 |
+| hi | 2864 | 5 | 1427 | 0 | 1436 | 1 | 0 | 0 |
+| ur | 2864 | 7 | 1412 | 0 | 1451 | 1 | 0 | 0 |
+| bn | 2864 | 6 | 1428 | 0 | 1435 | 1 | 0 | 0 |
+| ml | 2864 | 19 | 1396 | 0 | 1467 | 1 | 0 | 0 |
+| ta | 2864 | 6 | 1427 | 0 | 1435 | 2 | 0 | 0 |
+| ps | 2864 | 6 | 1410 | 0 | 1453 | 1 | 0 | 0 |
+| fa-AF | 2864 | 15 | 1396 | 0 | 1467 | 1 | 0 | 0 |
+| fa-IR | 2864 | 3 | 1408 | 0 | 1455 | 1 | 0 | 0 |
+| fil | 2864 | 8 | 1395 | 0 | 1467 | 2 | 0 | 0 |
+| zh-CN | 2864 | 19 | 1382 | 0 | 1481 | 1 | 0 | 0 |
+| sw-KE | 2864 | 18 | 1381 | 0 | 1482 | 1 | 0 | 0 |
+| am | 2864 | 18 | 1381 | 0 | 1482 | 1 | 0 | 0 |
+| ti | 2864 | 18 | 1398 | 0 | 1464 | 2 | 0 | 0 |
+| so | 2864 | 18 | 1396 | 0 | 1466 | 1 | 1 | 0 |
+| yo | 2864 | 18 | 1379 | 0 | 1484 | 1 | 0 | 0 |
+| ha | 2864 | 18 | 1397 | 0 | 1466 | 1 | 0 | 0 |
+| ig | 2864 | 18 | 1392 | 0 | 1471 | 1 | 0 | 0 |
+| lg | 2864 | 18 | 1379 | 0 | 1482 | 3 | 0 | 0 |
+| tw | 2864 | 18 | 1390 | 0 | 1473 | 1 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -140,6 +140,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Admins can mark jobs as paid" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "After photos" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "After photos:" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Agent or WhatsApp preview" — All
 - "Agent settings saved." — All
 - "Agent suggests" — All
 - "Agents using" — All
@@ -194,11 +195,13 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Ask before important changes only. Simple team notes are saved straight away" — All
 - "Ask for days off. Your supervisor answers here." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Ask for work and follow it here." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Ask the Agent" — All
 - "Ask the agent" — All
 - "Ask the client to sign off" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Ask to delete my account" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Ask your company to add your home address." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Ask your maintenance team to add a site." — All
+- "Ask {agentName}" — All
 - "Asked by" — All
 - "Asks for repairs and follows them for Harbor & Pine." — All
 - "Asks for repairs and follows them for Northgate." — All
@@ -500,6 +503,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Home client" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "How did it end?" — All
 - "How did we do?" — All
+- "How it works" — All
 - "How long we keep data" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "How many visits the contract covers, like 12." — All
 - "How much is a visit" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -1341,6 +1345,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "What {value1} can do" — All
 - "What {value1} does" — All
 - "WhatsApp number" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "WhatsApp preview" — All
 - "Where in your home is the problem?" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Which home is this for?" — ne, hi, ur, ps, fa-IR, fil, zh-CN, sw-KE, am, yo, lg
 - "Which part?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw

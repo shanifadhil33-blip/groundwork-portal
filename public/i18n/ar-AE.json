@@ -2859,5 +2859,13 @@
  "Licences, insurance and permits, with a reminder 30 days before each expires.": "التراخيص والتأمين والتصاريح، مع تذكير قبل انتهاء كل منها بـ 30 يوماً.",
  "Invite people and change roles": "دعوة أشخاص وتغيير الأدوار",
  "Download your records or ask to delete your account.": "نزّل سجلاتك أو اطلب حذف حسابك.",
- "Use the company time zone": "استخدم منطقة زمنية العمل"
+ "Use the company time zone": "استخدم منطقة زمنية العمل",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "هذه محاكاة باستخدام بيانات تجريبية. وهي غير مرتبطة بواتساب.",
+ "Which jobs are late today?": "أي الأعمال متأخرة اليوم؟",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "إظهار الوظائف التي تنتظر قطع",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

@@ -2854,5 +2854,13 @@
  "Your people, what each one does and his days off.": "Ang iyong mga tao, ang ginagawa ng bawat isa at ang kanyang mga araw ng pahinga.",
  "Your profile, your Agent and, for the owner, the company.": "Ang iyong profile, ang iyong Katulong at, para sa may-ari, ang kumpanya.",
  "Download your records or ask to delete your account.": "I-download ang iyong mga rekord o hilinging burahin ang iyong account.",
- "Use the company time zone": "Gamitin ang timezone ng workspace"
+ "Use the company time zone": "Gamitin ang timezone ng workspace",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "Simulasyon lang ito na gumagamit ng sample na datos. Hindi ito nakakonekta sa WhatsApp.",
+ "Which jobs are late today?": "Aling mga trabaho ang huli na ngayon?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "Ipakita ang mga trabahong naghihintay ng piyesa",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

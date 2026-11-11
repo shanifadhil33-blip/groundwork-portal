@@ -36,7 +36,7 @@ async function mount(onClose=vi.fn()){
 const button=(label:string)=>Array.from(document.querySelectorAll('button')).find(b=>b.textContent===label||b.getAttribute('aria-label')===label) as HTMLButtonElement|undefined;
 const field=()=>document.querySelector('#assistant-input') as HTMLTextAreaElement;
 async function type(value:string){const f=field();const set=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value')!.set!;await act(async()=>{set.call(f,value);f.dispatchEvent(new Event('input',{bubbles:true}));});}
-async function ask(label='Show jobs waiting on parts'){await act(async()=>button(notificationWords(api.language)[label]??label)!.click());}
+async function ask(label='Show jobs waiting for parts'){await act(async()=>button(notificationWords(api.language)[label]??label)!.click());}
 
 it('while thinking, close works and cancels the question, the box takes the next message, and send becomes Stop',async()=>{
  hang();const onClose=await mount();await ask();
@@ -59,7 +59,7 @@ it('Stop cancels the question, keeps the chat and draft, and the next message se
  hang();await mount();await ask();await type('next one');
  await act(async()=>button('Stop')!.click());await act(async()=>Promise.resolve());
  expect(signals[0].aborted).toBe(true);expect(document.body.textContent).toContain('Stopped. Ask again when you are ready.');
- expect(document.querySelector('.agent-typing')).toBeNull();expect(field().value).toBe('next one');expect(document.body.textContent).toContain('Show jobs waiting on parts');
+ expect(document.querySelector('.agent-typing')).toBeNull();expect(field().value).toBe('next one');expect(document.body.textContent).toContain('Show jobs waiting for parts');
  api.post.mockReset();api.post.mockResolvedValueOnce({available:true,reply:'Two jobs are late.'});
  await act(async()=>button('Send')!.click());
  expect(api.post).toHaveBeenCalledTimes(1);expect(api.post.mock.calls[0][1].messages.at(-1)).toEqual({role:'user',content:'next one'});expect(document.body.textContent).toContain('Two jobs are late.');

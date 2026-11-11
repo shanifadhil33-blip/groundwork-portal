@@ -14,7 +14,8 @@ type Pending = { id: string; summary: string };
 type Reply = { available: boolean; reply?: string; message?: string; localized?: boolean; pending_action?: { id: string; summary: string; why?: string } };
 type Send = { sent: Line[]; confirm?: string };
 
-export function DemoChat() {
+/** embedded: shown as the WhatsApp preview tab inside the Agent panel. */
+export function DemoChat({ embedded = false }: { embedded?: boolean } = {}) {
   const { member, workspace } = useApp();
   const [lines, setLines] = useState<Line[]>([]);
   const [draft, setDraft] = useState('');
@@ -95,7 +96,7 @@ export function DemoChat() {
     setPending(null); setLines(current => [...current, add('agent', C.declined)]);
   }
 
-  return <div className="demo-chat-page">
+  return <div className={embedded ? 'demo-chat-page embedded' : 'demo-chat-page'}>
     <p className="demo-chat-label" role="note">{C.label}</p>
     <section ref={frame} className="phone-frame" aria-label={C.windowLabel}>
       <header className="chat-header">

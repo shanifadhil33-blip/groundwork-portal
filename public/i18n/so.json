@@ -2855,5 +2855,13 @@
  "Your people, what each one does and his days off.": "Dadkaaga, waxa mid walba qabto iyo maalmihiisa fasaxa.",
  "Your profile, your Agent and, for the owner, the company.": "Astaankaaga, Wakiilkaaga iyo, milkiilaha, shirkadda.",
  "Download your records or ask to delete your account.": "Soo deji diiwaanadaada ama codso in akoonkaaga la tirtiro.",
- "Use the company time zone": "Isticmaal aagga waqtiga goobta shaqada"
+ "Use the company time zone": "Isticmaal aagga waqtiga goobta shaqada",
+ "This is a simulation using sample data. It is not connected to WhatsApp.": "Tani waa jilitaan adigoo isticmaalaya xog tusaale ah. Lama xiriirin WhatsApp.",
+ "Which jobs are late today?": "Shaqooyinkee ayaa maanta daahay?",
+"Agent or WhatsApp preview":null,
+"Ask {agentName}":null,
+"How it works":null,
+ "Show jobs waiting for parts": "Tus shaqooyinka sugaya qaybaha",
+"WhatsApp preview":null,
+"Ask the Agent":null
 }

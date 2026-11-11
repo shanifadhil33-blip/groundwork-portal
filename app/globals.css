@@ -1503,6 +1503,11 @@ button.list-row:active {
   line-height: 1;
   font-weight: var(--w-semibold);
 }
+.agent-monogram::before,
+.user-initials::before,
+.avatar[data-letter]::before {
+  content: attr(data-letter);
+}
 [data-theme='dark'] .agent-monogram {
   color: var(--bg);
 }
@@ -2032,4 +2037,24 @@ button.list-row:active {
   font-size: var(--t-meta);
   line-height: var(--t-meta-lh);
   font-weight: var(--w-medium);
+}
+
+/* ---------- Agent panel ---------- */
+.agent-tabs {
+  margin-block-end: var(--s4);
+}
+.agent-how {
+  min-height: var(--tap);
+  font-size: var(--t-meta);
+}
+.demo-chat-page.embedded {
+  padding: 0;
+  max-width: none;
+}
+.demo-chat-page.embedded .phone-frame {
+  max-width: none;
+  height: calc(100dvh - 220px);
+  min-height: 360px;
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--r-card);
 }
