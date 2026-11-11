@@ -1028,6 +1028,11 @@ label {
   max-width: var(--w-content);
   padding: var(--s6) var(--page-pad) var(--s12);
 }
+@media (max-width: 1023px) {
+  .page {
+    padding-block-end: var(--s6);
+  }
+}
 .page-header,
 .heading-row {
   display: flex;

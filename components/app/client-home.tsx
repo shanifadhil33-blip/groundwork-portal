@@ -17,8 +17,7 @@ function ClientRow({ job, reason }: { job: ClientJob; reason?: string }) {
   return <li><Link className="list-row" href={`/work-orders/${job.id}`} onClick={() => sessionStorage.setItem('work-orders-return', '/home')}>
     <span className="list-row-main">
       <span className="list-row-title"><span data-no-translate>{workOrderTitle(job)}</span><StatusBadge status={job.status}>{clientStatusLabel(job)}</StatusBadge></span>
-      <span className="list-row-meta" data-no-translate>{[job.site_name, job.assignee_name].filter(Boolean).join(', ')}</span>
-      {reason && <span className="list-row-meta waiting-reason">{reason}</span>}
+      <span className="list-row-meta">{reason && <><span className="waiting-reason">{reason}</span>. </>}<span data-no-translate>{[job.site_name, job.assignee_name].filter(Boolean).join(', ')}</span></span>
       {late && <span className="list-row-meta late-note">Late</span>}
     </span>
     <ChevronRight className="directional-icon" aria-hidden="true" />
@@ -51,7 +50,7 @@ export function ClientHome() {
     </PageHeader>
     {waiting.length > 0 && <Group title="Waiting for you" jobs={waiting} loading={false} error={null} retry={active.reload} seeAll="/work-orders?active=true" empty="" reason={job => job.quote_status === 'pending' ? 'A price to approve' : 'Confirm the visit time'} />}
     <RequestSuggestions />
-    <Group title="Open" jobs={open} loading={active.loading} error={active.error} retry={active.reload} seeAll="/work-orders?active=true" empty="Nothing is open. Send a request when something needs fixing." />
-    <Group title="Done" limit={2} jobs={done.data?.data ?? []} loading={done.loading} error={done.error} retry={done.reload} seeAll="/work-orders?status=done" empty="Finished work shows here." />
+    <Group title="Open" limit={waiting.length ? 2 : 3} jobs={open} loading={active.loading} error={active.error} retry={active.reload} seeAll="/work-orders?active=true" empty="Nothing is open. Send a request when something needs fixing." />
+    <Group title="Done" limit={waiting.length ? 1 : 2} jobs={done.data?.data ?? []} loading={done.loading} error={done.error} retry={done.reload} seeAll="/work-orders?status=done" empty="Finished work shows here." />
   </div></Translated>;
 }
