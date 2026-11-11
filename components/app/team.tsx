@@ -87,6 +87,6 @@ export function Team() {
       <EmptyState title="Add your first worker">Add a name and phone. We give you a code to send on WhatsApp. They sign in with it. No email needed.</EmptyState>}
     {office && others.length > 0 && <LeaveCalendar base={base} people={team.data ?? []} readOnly={member?.staff_kind==='office'} />}
     {member?.role === 'admin' && <ArchivedMembers key={(team.data ?? []).length} base={base} onChanged={() => void team.reload()} />}
-    {member?.role === 'admin' && <p className="small"><Link href="/settings?tab=members">Change roles or invite by email</Link></p>}
+    {member?.role === 'admin' && <p className="small"><Link href="/settings/team">Invite people and change roles</Link></p>}
   </div>;
 }

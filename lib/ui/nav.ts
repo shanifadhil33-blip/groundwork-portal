@@ -48,6 +48,7 @@ const CLIENTS: NavItem = { href: '/clients', label: 'Clients', icon: Building2 }
 const TEAM: NavItem = { href: '/team', label: 'Team', icon: Users };
 const MESSAGES: NavItem = { href: '/messages', label: 'Messages', icon: MessageSquare, also: ['/team-space'], badge: 'messages' };
 const SETTINGS: NavItem = { href: '/settings', label: 'Settings', icon: Settings, also: ['/documents', '/audit'] };
+// Settings pages are top level screens with their own menu, never a pushed page.
 const HELP: NavItem = { href: '/help', label: 'Help', icon: CircleHelp, also: ['/how-agent-works'] };
 const TODAY: NavItem = { href: '/today', label: 'Today', icon: CalendarCheck, tab: 'today' };
 const MY_JOBS: NavItem = { href: '/work-orders', label: 'My jobs', icon: ClipboardList, tab: 'myjobs' };

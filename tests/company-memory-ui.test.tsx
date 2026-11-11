@@ -66,7 +66,7 @@ it('supervisors have no mutation buttons and other roles see the access message'
   expect(host.textContent).toContain(lesson.body); expect(host.querySelector('button')).toBeNull();
   for (const [role, kind] of [['staff', 'office'], ['technician', null], ['client', null]]) {
     state.role = role!; state.staff_kind = kind; await render();
-    expect(host.textContent).toContain('Company Memory is for owners, admins and supervisors.'); expect(host.textContent).not.toContain(lesson.body);
+    expect(host.textContent).toContain('Only the owner, an admin or a supervisor can see this.'); expect(host.textContent).not.toContain(lesson.body);
   }
 });
 
@@ -100,8 +100,8 @@ it('uses Gulf Arabic and RTL while keeping authored evidence intact at a narrow 
   const fetcher = vi.fn(async () => ({ ok: true, text: async () => dictionary, json: async () => ({ translations: {} }) })); vi.stubGlobal('fetch', fetcher);
   await act(async () => root.render(<><CompanyMemory/><Translator/></>));
   await act(async () => { await new Promise(resolve => setTimeout(resolve, 180)); });
-  expect(document.documentElement.dir).toBe('rtl'); expect(host.textContent).toContain('ذاكرة الشركة'); expect(host.textContent).toContain(lesson.body); expect(host.textContent).toContain('Sam');
-  expect(host.textContent).toContain('الدروس اللي يستخدمها الوكيل لهالشركة.');
+  expect(document.documentElement.dir).toBe('rtl'); expect(host.textContent).toContain('ما تعلّمه المساعد'); expect(host.textContent).toContain(lesson.body); expect(host.textContent).toContain('Sam');
+  expect(host.textContent).toContain('أمور طلب فريقك من المساعد أن يتذكرها.');
   expect(host.textContent).not.toContain('Agent');
   expect(fetcher.mock.calls).toHaveLength(1);
 });

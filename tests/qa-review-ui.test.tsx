@@ -21,7 +21,7 @@ vi.mock('../components/app/resource',()=>({useResource:(url:string|null)=>({data
 const base='/api/workspaces/workspace',member:Membership={workspace_id:'workspace',workspace_name:'Ridgeline',role:'admin',client_id:null,client_name:null};
 function render(element:React.ReactNode,role:Membership['role']='admin') {return renderToStaticMarkup(<AppContext.Provider value={{member:{...member,role},workspace:{id:'workspace',name:'Ridgeline',is_demo:false,timezone:'Asia/Dubai',country:'AE',region:null,currency:'AED'},me:{user:{id:'user',name:'Imran',email:'imran@example.test',image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}>{element}</AppContext.Provider>);}
 it('offers searchable IANA options with workspace fallback only for personal preferences',()=>{
- const options=timezoneOptions('Asia/Dubai');expect(options.length).toBeGreaterThan(300);expect(options).toContainEqual({value:'Asia/Dubai',label:'Asia/Dubai'});expect(options).toContainEqual({value:'UTC',label:'UTC'});expect(timezoneOptions('',true)[0]).toEqual({value:'',label:'Use workspace timezone'});
+ const options=timezoneOptions('Asia/Dubai');expect(options.length).toBeGreaterThan(300);expect(options).toContainEqual({value:'Asia/Dubai',label:'Asia/Dubai',noTranslate:true});expect(options).toContainEqual({value:'UTC',label:'UTC',noTranslate:true});expect(timezoneOptions('',true)[0]).toEqual({value:'',label:'Use the company time zone'});
  for(const {value} of options)expect(()=>new Intl.DateTimeFormat('en',{timeZone:value})).not.toThrow();
 
 });

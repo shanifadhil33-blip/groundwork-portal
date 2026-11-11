@@ -11,7 +11,7 @@ type Lesson = {
   id: string; body: string; created_at: string; recorded_by: string | null;
   context_uses: number;
 };
-export function CompanyMemory() {
+export function CompanyMemory({ embedded = false }: { embedded?: boolean } = {}) {
   const { member } = useApp();
   const allowed = member?.role === 'admin' || (member?.role === 'staff' && member.staff_kind !== 'office');
   const base = member ? `/api/workspaces/${member.workspace_id}` : null;
@@ -28,10 +28,10 @@ export function CompanyMemory() {
     } catch { setError('We couldn’t save that. Please try again.'); }
     finally { setBusy(false); }
   }
-  return <div className="page stack company-memory">
-    <Link href="/settings">Back to settings</Link><h1>Company Memory</h1>
-    {!allowed ? <p>Company Memory is for owners, admins and supervisors.</p> : <>
-      <p>The lessons your Agent uses for this company.</p>
+  return <div className={embedded ? 'stack company-memory' : 'page stack company-memory'}>
+    {embedded ? <h2>What the Agent has learned</h2> : <h1>What the Agent has learned</h1>}
+    {!allowed ? <p>Only the owner, an admin or a supervisor can see this.</p> : <>
+      <p>Things your team told the Agent to remember.</p>
       <p className="small">Uses count when a lesson is included in Agent context. Earlier uses were not recorded.</p>
       {!memory.data?.can_edit && <p>Supervisors can read these lessons. Owners and admins can correct them.</p>}
       {memory.loading ? <p role="status">Loading…</p> : memory.error ? <ErrorState retry={memory.reload}/> :

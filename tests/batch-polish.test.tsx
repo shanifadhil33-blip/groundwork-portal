@@ -41,8 +41,8 @@ it('starts the company name empty and calls the settings tab Company', () => {
   const onboarding = read('components/app/guided-onboarding.tsx');
   expect(onboarding).toContain("a.company_name??''"); expect(onboarding).toContain('Company name');
   expect(onboarding).not.toMatch(/>[^<{]*\bworkspace\b/i);
-  const settings = read('components/app/settings.tsx');
-  expect(settings).toContain("{value:'company',label:'Company'"); expect(settings).toContain("requested==='workspace'?'company'");
+  const groups = read('components/app/settings-groups.tsx'), page = read('app/(app)/settings/page.tsx');
+  expect(groups).toContain("{ key: 'company', label: 'Company'"); expect(page).toContain("workspace: '/settings/company'");
 });
 
 it('renders the getting started checklist complete in the first paint', () => {

@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2834 | 6 | 1830 | 0 | 1003 | 1 | 0 | 0 |
-| ne | 2834 | 7 | 1390 | 0 | 1443 | 1 | 0 | 0 |
-| hi | 2834 | 5 | 1405 | 0 | 1428 | 1 | 0 | 0 |
-| ur | 2834 | 7 | 1390 | 0 | 1443 | 1 | 0 | 0 |
-| bn | 2834 | 6 | 1406 | 0 | 1427 | 1 | 0 | 0 |
-| ml | 2834 | 19 | 1374 | 0 | 1459 | 1 | 0 | 0 |
-| ta | 2834 | 6 | 1405 | 0 | 1427 | 2 | 0 | 0 |
-| ps | 2834 | 6 | 1388 | 0 | 1445 | 1 | 0 | 0 |
-| fa-AF | 2834 | 15 | 1374 | 0 | 1459 | 1 | 0 | 0 |
-| fa-IR | 2834 | 3 | 1386 | 0 | 1447 | 1 | 0 | 0 |
-| fil | 2834 | 8 | 1373 | 0 | 1459 | 2 | 0 | 0 |
-| zh-CN | 2834 | 19 | 1360 | 0 | 1473 | 1 | 0 | 0 |
-| sw-KE | 2834 | 18 | 1359 | 0 | 1474 | 1 | 0 | 0 |
-| am | 2834 | 18 | 1359 | 0 | 1474 | 1 | 0 | 0 |
-| ti | 2834 | 18 | 1376 | 0 | 1456 | 2 | 0 | 0 |
-| so | 2834 | 18 | 1374 | 0 | 1458 | 1 | 1 | 0 |
-| yo | 2834 | 18 | 1357 | 0 | 1476 | 1 | 0 | 0 |
-| ha | 2834 | 18 | 1375 | 0 | 1458 | 1 | 0 | 0 |
-| ig | 2834 | 18 | 1370 | 0 | 1463 | 1 | 0 | 0 |
-| lg | 2834 | 18 | 1357 | 0 | 1474 | 3 | 0 | 0 |
-| tw | 2834 | 18 | 1368 | 0 | 1465 | 1 | 0 | 0 |
+| ar-AE | 2856 | 6 | 1853 | 0 | 1002 | 1 | 0 | 0 |
+| ne | 2856 | 7 | 1409 | 0 | 1446 | 1 | 0 | 0 |
+| hi | 2856 | 5 | 1424 | 0 | 1431 | 1 | 0 | 0 |
+| ur | 2856 | 7 | 1409 | 0 | 1446 | 1 | 0 | 0 |
+| bn | 2856 | 6 | 1425 | 0 | 1430 | 1 | 0 | 0 |
+| ml | 2856 | 19 | 1393 | 0 | 1462 | 1 | 0 | 0 |
+| ta | 2856 | 6 | 1424 | 0 | 1430 | 2 | 0 | 0 |
+| ps | 2856 | 6 | 1407 | 0 | 1448 | 1 | 0 | 0 |
+| fa-AF | 2856 | 15 | 1393 | 0 | 1462 | 1 | 0 | 0 |
+| fa-IR | 2856 | 3 | 1405 | 0 | 1450 | 1 | 0 | 0 |
+| fil | 2856 | 8 | 1392 | 0 | 1462 | 2 | 0 | 0 |
+| zh-CN | 2856 | 19 | 1379 | 0 | 1476 | 1 | 0 | 0 |
+| sw-KE | 2856 | 18 | 1378 | 0 | 1477 | 1 | 0 | 0 |
+| am | 2856 | 18 | 1378 | 0 | 1477 | 1 | 0 | 0 |
+| ti | 2856 | 18 | 1395 | 0 | 1459 | 2 | 0 | 0 |
+| so | 2856 | 18 | 1393 | 0 | 1461 | 1 | 1 | 0 |
+| yo | 2856 | 18 | 1376 | 0 | 1479 | 1 | 0 | 0 |
+| ha | 2856 | 18 | 1394 | 0 | 1461 | 1 | 0 | 0 |
+| ig | 2856 | 18 | 1389 | 0 | 1466 | 1 | 0 | 0 |
+| lg | 2856 | 18 | 1376 | 0 | 1477 | 3 | 0 | 0 |
+| tw | 2856 | 18 | 1387 | 0 | 1468 | 1 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -430,6 +430,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Equipment could not be archived." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Equipment could not be loaded." — All
 - "Equipment could not be saved." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Every change anyone made, newest first." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Every job given to you." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Every job today has a technician." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Every open job has a day." — All
@@ -522,6 +523,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Invite link or code" — All
 - "Invite links" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Invite links let client users join this workspace." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Invite people and change roles" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Invite team" — All
 - "Invite the team" — All
 - "Invite to Groundwork" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -576,6 +578,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Leave it empty to choose the chat in WhatsApp." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Leave selection" — All
 - "Legal" — fil
+- "Licences, insurance and permits, with a reminder 30 days before each expires." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Lift" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Like 2027-03-31." — All
 - "Link copied." — All
@@ -924,7 +927,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Saved. Your Memory page shows it." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Saved. {count} booked {value2} someone else." — All
 - "Saved. {value1} back to Open." — All
-- "Saving" — All
 - "Saving changes…" — All
 - "Say what you found and did, in your language" — All
 - "Scheduled date · earliest" — All
@@ -1331,6 +1333,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "What does a visit cost" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "What is the new phone number?" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "What it can do for you and what it never does alone." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "What the Agent remembers about you" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "What this is" — All
 - "What was the problem?" — bn, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "What we store and why" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw

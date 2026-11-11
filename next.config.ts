@@ -9,6 +9,10 @@ const config: NextConfig = {
     {source:'/team-space',destination:'/messages',permanent:false},
     {source:'/demo-chat',destination:'/dashboard?agent=whatsapp',permanent:false},
     {source:'/supplier',destination:'/work-orders',permanent:false},
+    {source:'/documents',destination:'/settings/company/documents',permanent:false},
+    {source:'/audit',destination:'/settings/company/history',permanent:false},
+    {source:'/settings/agent/log',destination:'/settings/agent',permanent:false},
+    {source:'/settings/company-memory',destination:'/settings/agent',permanent:false},
   ],
   // Hashed /_next/static assets already have Next's immutable one-year policy.
   // Public assets retain a bounded lifetime so replacing an unversioned file is safe.
