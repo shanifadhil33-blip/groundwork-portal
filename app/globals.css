@@ -2058,3 +2058,68 @@ button.list-row:active {
   border: var(--hairline) solid var(--line);
   border-radius: var(--r-card);
 }
+
+/* ---------- Demo picker ---------- */
+.demo-page .persona-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: var(--s3);
+}
+.demo-page .persona-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  min-height: 0;
+  padding: var(--s4);
+  border: 0;
+  border-radius: var(--r-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  text-align: start;
+  transition: transform var(--dur-release) var(--ease-out), background-color var(--dur-fast) var(--ease-hover);
+}
+.demo-page .persona-card:active:not(:disabled) {
+  transform: scale(var(--press-scale));
+  transition-duration: var(--dur-press);
+}
+.demo-page .persona-card.big {
+  min-height: 180px;
+}
+.demo-page .persona-top {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.demo-page .persona-action {
+  margin-block-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  color: var(--accent);
+  font-weight: var(--w-medium);
+}
+.persona-who {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.persona-can {
+  color: var(--text-2);
+}
+.more-people > summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap);
+  color: var(--accent);
+  font-weight: var(--w-medium);
+  cursor: pointer;
+}
+.more-people[open] > summary {
+  margin-block-end: var(--s4);
+}
+
+/* Sign in and the demo picker are the one door on their page: the header shows the logo only. */
+body:has(.auth-page, .demo-page) .public-header nav {
+  display: none;
+}

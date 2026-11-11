@@ -44,6 +44,8 @@ afterEach(async () => {
   vi.unstubAllGlobals();
 });
 
+// Sign in and the demo picker go Back; other public pages go Home.
+const backWord = (name: string) => (name === 'sign-in' || name === 'demo' ? 'Back' : 'Home');
 const pages = [
   ['privacy', () => Privacy()],
   ['terms', () => Terms()],
@@ -59,13 +61,13 @@ for (const [name, page] of pages) {
     expect(shell.getAttribute('lang')).toBe(language ? arabic ? 'ar-AE' : 'en' : null);
     expect(shell.getAttribute('dir')).toBe(language ? arabic ? 'rtl' : 'ltr' : null);
     const header = host.querySelector('.public-header')!;
-    expect(header.querySelector('a[href="/dashboard"]')?.textContent).toBe(arabic ? arabicWords['Go to dashboard'] : 'Go to dashboard');
+    expect(header.querySelector('a[href="/dashboard"]')?.textContent).toBe(arabic ? arabicWords['Open the app'] : 'Open the app');
     expect(header.querySelector('a[href="/sign-in"]')).toBeNull();
     expect(header.querySelector('.brand')?.getAttribute('aria-label')).toBe(arabic ? arabicWords['Groundwork home'] : 'Groundwork home');
     expect(header.querySelector('nav')?.getAttribute('aria-label')).toBe(arabic ? arabicWords['Public navigation'] : 'Public navigation');
     expect(host.querySelector('.public-footer a[href="/privacy"]')?.textContent).toBe(arabic ? arabicWords.Privacy : 'Privacy');
     expect(host.querySelector('.public-footer a[href="/terms"]')?.textContent).toBe(arabic ? arabicWords.Terms : 'Terms');
-    if (name !== 'join') expect(host.querySelector('.back-link')?.textContent).toBe(arabic ? arabicWords.Home : 'Home');
+    if (name !== 'join') expect(host.querySelector('.back-link')?.textContent).toBe(arabic ? arabicWords[backWord(name)] : backWord(name));
     if (name === 'terms') {
       expect(host.querySelector('article h2')?.textContent).toBe(arabic ? 'ما هذا' : 'What this is');
       expect(host.querySelector('article')?.closest('[lang]')?.getAttribute('lang')).toBe(arabic ? 'ar-AE' : 'en');
@@ -85,8 +87,8 @@ for (const [name, page] of pages) {
     expect(host.querySelector('.public-shell')?.hasAttribute('dir')).toBe(false);
     expect(host.querySelector('a[href="/sign-in"]')?.textContent).toBe('Sign in');
     expect(host.querySelector('a[href="/demo"]')?.textContent).toBe('Try the demo');
-    expect(host.querySelector('[data-variant="in"]')?.textContent).toBe('Go to dashboard');
-    if (name !== 'join') expect(host.querySelector('.back-link')?.textContent).toBe('Home');
+    expect(host.querySelector('[data-variant="in"]')?.textContent).toBe('Open the app');
+    if (name !== 'join') expect(host.querySelector('.back-link')?.textContent).toBe(backWord(name));
     expect(mocks.preferences).not.toHaveBeenCalled();
   });
 }
@@ -182,7 +184,7 @@ it('keeps the signed out sign in page chrome in English', async () => {
   mocks.session.mockResolvedValue(null);
   const page = await SignIn({ searchParams: Promise.resolve({}) });
   host.innerHTML = renderToString(await Layout({ children: page }));
-  expect(host.querySelector('.back-link')?.textContent).toBe('Home');
+  expect(host.querySelector('.back-link')?.textContent).toBe('Back');
   expect(host.querySelector('.public-header a[href="/sign-in"]')?.textContent).toBe('Sign in');
   expect(mocks.preferences).not.toHaveBeenCalled();
 });
@@ -196,7 +198,7 @@ it('keeps English chrome for a signed in user without a preference row', async (
   mocks.preferences.mockResolvedValue(undefined);
   host.innerHTML = renderToString(await Layout({ children: <BackLink /> }));
   expect(host.querySelector('.back-link')?.textContent).toBe('Home');
-  expect(host.querySelector('.public-header a[href="/dashboard"]')?.textContent).toBe('Go to dashboard');
+  expect(host.querySelector('.public-header a[href="/dashboard"]')?.textContent).toBe('Open the app');
   expect(host.querySelector('.public-shell')?.hasAttribute('lang')).toBe(false);
   expect(mocks.preferences).toHaveBeenCalledExactlyOnceWith('person', false);
 });

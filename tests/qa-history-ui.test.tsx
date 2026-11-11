@@ -56,7 +56,7 @@ describe('history and local formatting',()=>{
  });
  it('gives real accounts the supplier connection state and session-aware public navigation',()=>{
   mocks.resource.mockReturnValue({loading:false,error:false,data:null});const html=renderToStaticMarkup(<Supplier/>);expect(html).toContain('Connect your parts shop');expect(html).not.toContain('Cobalt');expect(html).not.toContain('Repair all');expect(mocks.resource.mock.calls.every(([url])=>url===null)).toBe(true);
-  const header=renderToStaticMarkup(<PublicHeader signedIn/>);expect(header).toContain('Go to dashboard');expect(header).not.toContain('>Sign in<');expect(header).not.toContain('Try the demo');
+  const header=renderToStaticMarkup(<PublicHeader signedIn/>);expect(header).toContain('Open the app');expect(header).not.toContain('>Sign in<');expect(header).not.toContain('Try the demo');
  });
 });
 
@@ -67,7 +67,7 @@ describe('static public header', () => {
     const { PublicHeader } = await import('../components/public/chrome');
     const html = renderToStaticMarkup(<PublicHeader />);
     expect(html).toContain('data-variant="out"'); expect(html).toContain('data-variant="in"');
-    expect(html).toContain('Try the demo'); expect(html).toContain('Go to dashboard');
+    expect(html).toContain('Try the demo'); expect(html).toContain('Open the app');
   });
 });
 
