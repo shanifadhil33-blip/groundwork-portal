@@ -25,10 +25,10 @@ function ClientRow({ job, reason }: { job: ClientJob; reason?: string }) {
   </Link></li>;
 }
 
-function Group({ title, jobs, loading, error, retry, seeAll, empty, reason }: { title: string; jobs: ClientJob[]; loading: boolean; error: unknown; retry: () => void; seeAll?: string; empty: string; reason?: (job: ClientJob) => string }) {
+function Group({ title, jobs, loading, error, retry, seeAll, empty, reason, limit = 3 }: { title: string; jobs: ClientJob[]; loading: boolean; error: unknown; retry: () => void; seeAll?: string; empty: string; reason?: (job: ClientJob) => string; limit?: number }) {
   return <section className="stack compact">
-    <div className="section-title"><h2>{title}</h2>{seeAll && jobs.length > 3 && <Link className="text-link" href={seeAll}>See all</Link>}</div>
-    <Card>{loading ? <div className="stack compact"><Skeleton className="skeleton-row" /><Skeleton className="skeleton-row" /></div> : error ? <ErrorState retry={retry} /> : jobs.length ? <ul className="list">{jobs.slice(0, 3).map(job => <ClientRow key={job.id} job={job} reason={reason?.(job)} />)}</ul> : <p>{empty}</p>}</Card>
+    <div className="section-title"><h2>{title}</h2>{seeAll && jobs.length > limit && <Link className="text-link" href={seeAll}>See all</Link>}</div>
+    <Card>{loading ? <div className="stack compact"><Skeleton className="skeleton-row" /><Skeleton className="skeleton-row" /></div> : error ? <ErrorState retry={retry} /> : jobs.length ? <ul className="list">{jobs.slice(0, limit).map(job => <ClientRow key={job.id} job={job} reason={reason?.(job)} />)}</ul> : <p>{empty}</p>}</Card>
   </section>;
 }
 
@@ -52,6 +52,6 @@ export function ClientHome() {
     {waiting.length > 0 && <Group title="Waiting for you" jobs={waiting} loading={false} error={null} retry={active.reload} seeAll="/work-orders?active=true" empty="" reason={job => job.quote_status === 'pending' ? 'A price to approve' : 'Confirm the visit time'} />}
     <RequestSuggestions />
     <Group title="Open" jobs={open} loading={active.loading} error={active.error} retry={active.reload} seeAll="/work-orders?active=true" empty="Nothing is open. Send a request when something needs fixing." />
-    <Group title="Done" jobs={done.data?.data ?? []} loading={done.loading} error={done.error} retry={done.reload} seeAll="/work-orders?status=done" empty="Finished work shows here." />
+    <Group title="Done" limit={2} jobs={done.data?.data ?? []} loading={done.loading} error={done.error} retry={done.reload} seeAll="/work-orders?status=done" empty="Finished work shows here." />
   </div></Translated>;
 }

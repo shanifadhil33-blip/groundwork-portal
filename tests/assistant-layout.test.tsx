@@ -24,7 +24,7 @@ const unique = (text: string) => { const lines = text.split('\n'); expect(new Se
 
 describe('quick list answers', () => {
   it('puts each job on one short line, number and title first', () => {
-    expect(job(31, 'Adjust meeting room cooling')).toBe('Job #31: Adjust meeting room cooling, Marina Exchange, Urgent, Unassigned, Due: 18 Oct 2026');
+    expect(job(31, 'Adjust meeting room cooling')).toBe('Job #31: Adjust meeting room cooling, Marina Exchange, Urgent, No technician yet, Due: 18 Oct 2026');
     expect(job(51, 'Repair entry door closer', 'Imran')).toBe('Job #51: Repair entry door closer, Marina Exchange, Urgent, Assigned to: Imran, Due: 18 Oct 2026');
   });
   it('keeps the opening lines first and never repeats a line, even when jobs share every detail', () => {
@@ -35,7 +35,7 @@ describe('quick list answers', () => {
     expect(text).not.toMatch(/[-\u2010-\u2015]/);
   });
   it('keeps a job on one line when a title or site name holds a line break', () => {
-    expect(jobBlock({ number: 7, title: 'Fix\n\nleak', site: 'Tower\nA', assignee: null, priority: 'Low', due: '1 Nov 2026' }, t)).toBe('Job #7: Fix leak, Tower A, Low, Unassigned, Due: 1 Nov 2026');
+    expect(jobBlock({ number: 7, title: 'Fix\n\nleak', site: 'Tower\nA', assignee: null, priority: 'Low', due: '1 Nov 2026' }, t)).toBe('Job #7: Fix leak, Tower A, Low, No technician yet, Due: 1 Nov 2026');
   });
   it.each(LANGUAGES.map(l => l.code))('%s: shared details never repeat a line, with no dashes in the words around the data', code => {
     const w = choiceWords(code);
@@ -45,7 +45,7 @@ describe('quick list answers', () => {
     expect(text.split('\n')).toHaveLength(4);
     for (const [i,line] of jobs.entries()) expect(line.startsWith(jobRef([31,56,51][i],code)+': ')).toBe(true);
     expect(text.replace(/Marina Exchange|\d{1,2} Oct 2026/g, '')).not.toMatch(/[-\u2010-\u2015]/);
-    if (code === 'ar-AE') expect(jobs[0]).toBe('مهمة #31: اضبط تبريد غرفة الاجتماعات، Marina Exchange، عاجل، غير معين، الموعد النهائي: 19 Oct 2026');
+    if (code === 'ar-AE') expect(jobs[0]).toBe('مهمة #31: اضبط تبريد غرفة الاجتماعات، Marina Exchange، عاجل، لا يوجد فني بعد، الموعد النهائي: 19 Oct 2026');
   });
 });
 

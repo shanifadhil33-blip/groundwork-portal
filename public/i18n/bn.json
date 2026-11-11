@@ -2741,7 +2741,7 @@
 "How the Agent works":null,
 "Message your maintenance company":null,
 "No sites yet.":null,
-"No technician yet":null,
+ "No technician yet": "দায়িত্ব দেওয়া হয়নি",
 "Open the menu":null,
 "Plans the day, gives jobs to technicians, checks prices.":null,
 "Runs the company. Sees everything, approves the day plan, sets up the company.":null,
@@ -2888,5 +2888,9 @@
 "Try the demo.":null,
 "We couldn’t leave the demo. Please try again.":null,
 "You are in the demo as":null,
-"You are signed out.":null
+"You are signed out.":null,
+ "New lessons to check": "আপনার হ্যাঁ এর অপেক্ষায় থাকা শিক্ষা",
+"Only the office can open this page.":null,
+"Only the owner or an admin can open this page.":null,
+"This page is for your maintenance company’s team.":null
 }

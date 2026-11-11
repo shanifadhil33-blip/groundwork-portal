@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2883 | 6 | 1869 | 0 | 1013 | 1 | 0 | 0 |
-| ne | 2883 | 7 | 1413 | 0 | 1469 | 1 | 0 | 0 |
-| hi | 2883 | 5 | 1428 | 0 | 1454 | 1 | 0 | 0 |
-| ur | 2883 | 7 | 1413 | 0 | 1469 | 1 | 0 | 0 |
-| bn | 2883 | 6 | 1429 | 0 | 1453 | 1 | 0 | 0 |
-| ml | 2883 | 19 | 1397 | 0 | 1485 | 1 | 0 | 0 |
-| ta | 2883 | 6 | 1428 | 0 | 1453 | 2 | 0 | 0 |
-| ps | 2883 | 6 | 1411 | 0 | 1471 | 1 | 0 | 0 |
-| fa-AF | 2883 | 15 | 1397 | 0 | 1485 | 1 | 0 | 0 |
-| fa-IR | 2883 | 3 | 1409 | 0 | 1473 | 1 | 0 | 0 |
-| fil | 2883 | 8 | 1396 | 0 | 1485 | 2 | 0 | 0 |
-| zh-CN | 2883 | 19 | 1383 | 0 | 1499 | 1 | 0 | 0 |
-| sw-KE | 2883 | 18 | 1382 | 0 | 1500 | 1 | 0 | 0 |
-| am | 2883 | 18 | 1382 | 0 | 1500 | 1 | 0 | 0 |
-| ti | 2883 | 18 | 1399 | 0 | 1482 | 2 | 0 | 0 |
-| so | 2883 | 18 | 1397 | 0 | 1484 | 1 | 1 | 0 |
-| yo | 2883 | 18 | 1380 | 0 | 1502 | 1 | 0 | 0 |
-| ha | 2883 | 18 | 1398 | 0 | 1484 | 1 | 0 | 0 |
-| ig | 2883 | 18 | 1393 | 0 | 1489 | 1 | 0 | 0 |
-| lg | 2883 | 18 | 1380 | 0 | 1500 | 3 | 0 | 0 |
-| tw | 2883 | 18 | 1391 | 0 | 1491 | 1 | 0 | 0 |
+| ar-AE | 2887 | 6 | 1873 | 0 | 1013 | 1 | 0 | 0 |
+| ne | 2887 | 7 | 1415 | 0 | 1471 | 1 | 0 | 0 |
+| hi | 2887 | 5 | 1430 | 0 | 1456 | 1 | 0 | 0 |
+| ur | 2887 | 7 | 1415 | 0 | 1471 | 1 | 0 | 0 |
+| bn | 2887 | 6 | 1431 | 0 | 1455 | 1 | 0 | 0 |
+| ml | 2887 | 19 | 1399 | 0 | 1487 | 1 | 0 | 0 |
+| ta | 2887 | 6 | 1430 | 0 | 1455 | 2 | 0 | 0 |
+| ps | 2887 | 6 | 1413 | 0 | 1473 | 1 | 0 | 0 |
+| fa-AF | 2887 | 15 | 1399 | 0 | 1487 | 1 | 0 | 0 |
+| fa-IR | 2887 | 3 | 1411 | 0 | 1475 | 1 | 0 | 0 |
+| fil | 2887 | 8 | 1398 | 0 | 1487 | 2 | 0 | 0 |
+| zh-CN | 2887 | 19 | 1385 | 0 | 1501 | 1 | 0 | 0 |
+| sw-KE | 2887 | 18 | 1384 | 0 | 1502 | 1 | 0 | 0 |
+| am | 2887 | 18 | 1384 | 0 | 1502 | 1 | 0 | 0 |
+| ti | 2887 | 18 | 1401 | 0 | 1484 | 2 | 0 | 0 |
+| so | 2887 | 18 | 1399 | 0 | 1486 | 1 | 1 | 0 |
+| yo | 2887 | 18 | 1382 | 0 | 1504 | 1 | 0 | 0 |
+| ha | 2887 | 18 | 1400 | 0 | 1486 | 1 | 0 | 0 |
+| ig | 2887 | 18 | 1395 | 0 | 1491 | 1 | 0 | 0 |
+| lg | 2887 | 18 | 1382 | 0 | 1502 | 3 | 0 | 0 |
+| tw | 2887 | 18 | 1393 | 0 | 1493 | 1 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -697,7 +697,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "No suggested jobs waiting." — All
 - "No supplier orders yet" — All
 - "No technician is free" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "No technician yet" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "No technicians yet" — All
 - "No updates yet" — All
 - "No visit charge is set." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -753,9 +752,11 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Only the client or the office can sign off." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Only the client rates the job." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Only the office can archive this." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Only the office can open this page." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Only the owner can keep this draft." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Only the owner can mark jobs as paid. He can hand this to admins in Settings." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Only the owner or an admin can change the company listing." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "Only the owner or an admin can open this page." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Only the owner, an admin or a supervisor can approve today’s plan." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Only the team can mark no photos." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Open Home to see the plan. Nothing is saved until you say yes." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
@@ -1172,6 +1173,7 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "This name is saved for you only." — All
 - "This number matches more than one person. The team will review this request." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "This order still has parts history, so it stays. Archive it instead." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
+- "This page is for your maintenance company’s team." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "This person" — All
 - "This recording is too large. Please record a shorter message." — All
 - "This removes the company workspace and its work records. Personal accounts used in other companies stay open." — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw

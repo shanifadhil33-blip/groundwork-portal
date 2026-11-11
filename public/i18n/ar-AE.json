@@ -259,7 +259,7 @@
  "Go back": "ارجع ورا",
  "Go back or go home.": "ارجع ورا أو روح للرئيسية.",
  "Go home": "روح للرئيسية",
- "Go to Home": "روح للرئيسية",
+ "Go to Home": "الذهاب إلى الرئيسية",
  "Go to dashboard": "روح للوحة التحكم",
  "Good afternoon": "مساء الخير",
  "Good evening": "مساء الخير",
@@ -2886,5 +2886,9 @@
 "No sign up needed. The demo uses a sample company.":null,
 "This is a made up company called Ridgeline Facility Services. Pick a person to see the app through his eyes. Nothing you do here is real or sent to anyone. It resets every 6 hours.":null,
 "You are in the demo as":null,
-"You are signed out.":null
+"You are signed out.":null,
+ "New lessons to check": "دروس جديدة للمراجعة",
+ "This page is for your maintenance company’s team.": "هذه الصفحة لفريق شركة الصيانة.",
+ "Only the office can open this page.": "يمكن للمكتب فقط فتح هذه الصفحة.",
+ "Only the owner or an admin can open this page.": "يمكن للمالك أو المسؤول فقط فتح هذه الصفحة."
 }

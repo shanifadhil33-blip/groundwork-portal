@@ -12,7 +12,7 @@ function render(element:React.ReactNode,role:Membership['role']='client') {retur
 it('offers sign in without a dashboard loop when signed out',()=>{
  const html=renderToStaticMarkup(<NoAccess/>);
  expect(html).toContain('href="/sign-in"');expect(html).toContain('Sign in');expect(html).toContain('Go back');expect(html).not.toContain('/dashboard');
- expect(render(<NoAccess/>)).toContain('Go home');expect(render(<NoAccess/>)).toContain('It is for your maintenance team.');expect(render(<NoAccess/>,'admin')).toContain('Go home');
+ expect(render(<NoAccess/>)).toContain('Go to Home');expect(render(<NoAccess/>)).toContain('This page is for your maintenance company’s team.');expect(render(<NoAccess/>,'admin')).toContain('Go to Home');
 });
 it('shows the client Home as Your requests with Open and Done groups and no duplicate lists',()=>{
  const html=render(<ClientHome/>);

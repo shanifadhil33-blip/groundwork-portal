@@ -2749,7 +2749,7 @@
 "How the Agent works":null,
 "Message your maintenance company":null,
 "No sites yet.":null,
-"No technician yet":null,
+ "No technician yet": "ചുമതലപ്പെടുത്തിയിട്ടില്ല",
 "Open the menu":null,
 "Plans the day, gives jobs to technicians, checks prices.":null,
 "Runs the company. Sees everything, approves the day plan, sets up the company.":null,
@@ -2896,5 +2896,9 @@
 "Try the demo.":null,
 "We couldn’t leave the demo. Please try again.":null,
 "You are in the demo as":null,
-"You are signed out.":null
+"You are signed out.":null,
+ "New lessons to check": "നിങ്ങളുടെ അതെ കാത്തിരിക്കുന്ന പാഠങ്ങൾ",
+"Only the office can open this page.":null,
+"Only the owner or an admin can open this page.":null,
+"This page is for your maintenance company’s team.":null
 }
