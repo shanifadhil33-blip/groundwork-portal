@@ -3,6 +3,7 @@ import { statusLabels } from '../../lib/ui/work-orders';
 import type { HTMLAttributes, ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Button } from './button';
+import { loadCopy } from '../../lib/ui/request-errors';
 
 /** White surface, soft shadow, no border. Never put a card inside a card. */
 export function Card({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
@@ -50,7 +51,9 @@ export function EmptyState({ title, children, action }: { title: string; childre
 }
 
 /** One sentence with the next step, and Try again. Load errors show here only, never as a toast too. */
-export function ErrorState({ retry, messageLocalized = false, message = 'We couldn’t load this. Please try again.' }: { retry: () => void; message?: string; messageLocalized?: boolean }) {
+export function ErrorState({ retry, messageLocalized = false, message, error }: { retry: () => void; message?: string; messageLocalized?: boolean; error?: unknown }) {
+  const status = error && typeof error === 'object' && 'status' in error ? Number((error as { status: unknown }).status) : undefined;
+  message = message ?? loadCopy(status);
   return (
     <div className="error-state" role="alert">
       <AlertCircle aria-hidden="true" />

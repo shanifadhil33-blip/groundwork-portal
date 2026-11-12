@@ -34,7 +34,7 @@ export function CompanyMemory({ embedded = false }: { embedded?: boolean } = {})
       <p>Things your team told the Agent to remember.</p>
       <p className="small">Uses count when a lesson is included in Agent context. Earlier uses were not recorded.</p>
       {!memory.data?.can_edit && <p>Supervisors can read these lessons. Owners and admins can correct them.</p>}
-      {memory.loading ? <p role="status">Loading…</p> : memory.error ? <ErrorState retry={memory.reload}/> :
+      {memory.loading ? <p role="status">Loading…</p> : memory.error ? <ErrorState error={memory.error} retry={memory.reload}/> :
         !memory.data?.data.length ? <p>No company lessons yet.</p> :
           <ul className="stack company-memory-list">{memory.data.data.map(lesson => <li key={lesson.id} className="stack compact company-memory-lesson">
             {editing?.id === lesson.id ? <form className="stack compact" onSubmit={e => {

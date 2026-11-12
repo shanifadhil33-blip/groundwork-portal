@@ -20,7 +20,7 @@ export function ChecklistSettings({ base }: { base: string }) {
   function change(next:string[]){setSteps(next);setSaved(false);}
   function move(index:number,to:number){const next=[...steps];[next[index],next[to]]=[next[to],next[index]];change(next);}
   if(data.loading)return <Skeleton className="skeleton-card"/>;
-  if(data.error)return <ErrorState retry={data.reload}/>;
+  if(data.error)return <ErrorState error={data.error} retry={data.reload}/>;
   return <section className="stack checklist-settings"><h2>Checklists</h2>
     <Dropdown label="Job type" value={trade} options={TRADES.map(t=>({value:t,label:tradeLabels[t]}))} disabled={busy} onChange={v=>{if(steps.join('\n')!==(data.data?.[trade]??[]).join('\n')){setNextTrade(v as Trade);return;}setSaved(false);setTrade(v as Trade);}}/>
     <p className="small muted">Use up to twelve short steps. Saved jobs keep their steps.</p>
@@ -45,7 +45,7 @@ export function JobChecklistCard({ base, id, readOnly=false }: {base:string;id:s
     catch(e){setError(e instanceof RequestError?e.message:'That did not save. Try again.');return false;}finally{setBusy(false);}
   }
   if(result.loading)return <Skeleton className="skeleton-card"/>;
-  if(result.error)return <ErrorState retry={result.reload}/>;
+  if(result.error)return <ErrorState error={result.error} retry={result.reload}/>;
   const data=result.data;if(!data)return null;const editable=data.editable&&!readOnly;
   return <Card className="stack job-checklist"><h2>Checklist</h2>
     <p><span>{data.steps.filter(s=>s.done).length}</span>{' '}<span>of</span>{' '}<span>{data.steps.length}</span>{' '}<span>steps done</span></p>

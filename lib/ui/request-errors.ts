@@ -18,3 +18,14 @@ export function requestErrorCopy(status: number) {
   if (status === 0) return typeof navigator !== 'undefined' && navigator.onLine === false ? 'You are offline. Changes will be sent when you are back online.' : 'We couldn’t reach Groundwork. Please try again.';
   return statusCopy(status);
 }
+
+/** The one line a screen shows when its data did not load, by cause. */
+export function loadCopy(status?: number): string {
+  if (status === 0) return typeof navigator !== 'undefined' && navigator.onLine === false ? 'You are offline. This will load when you are back online.' : 'We couldn’t reach Groundwork. Check your connection and try again.';
+  if (status === 403) return 'You don’t have permission to see this.';
+  if (status === 404) return 'We couldn’t find this. It may have been removed.';
+  if (status === 408) return 'This took too long to load. Please try again.';
+  if (status === 429) return 'Too many tries. Please wait a minute and try again.';
+  if (status !== undefined && status >= 500) return 'We couldn’t load this. Something went wrong on our side.';
+  return 'We couldn’t load this. Please try again.';
+}

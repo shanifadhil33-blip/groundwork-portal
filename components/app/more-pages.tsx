@@ -59,7 +59,7 @@ export function SitesPage() {
     <Translated>
       <div className="page">
         <PageHeader><div className="page-title"><h1>Sites</h1><p>Your buildings and the equipment in each one.</p></div></PageHeader>
-        {sites.error ? <ErrorState retry={sites.reload} />
+        {sites.error ? <ErrorState error={sites.error} retry={sites.reload} />
           : sites.loading ? <div className="stack compact"><Skeleton className="skeleton-row" /><Skeleton className="skeleton-row" /></div>
           : !list.length ? <EmptyState title="No sites yet." action={<Link className="button secondary" href="/messages">Message your maintenance company</Link>}>Your maintenance company adds your buildings. Ask them to add one.</EmptyState>
           : list.map(site => <Card key={site.id} className="stack compact"><h2 data-no-translate>{site.name}</h2><Equipment base={base!} siteId={site.id} /></Card>)}

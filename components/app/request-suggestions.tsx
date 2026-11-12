@@ -15,7 +15,7 @@ export function RequestSuggestions(){
  useVisiblePoll(r.reload,90000,member?.role==='client');
  useEffect(()=>{if(!r.data)return;const next=JSON.stringify(r.data.data.map(s=>[s.id,s.status,s.work_order_id,s.decline_reason]));if(version.current!==null&&version.current!==next)window.dispatchEvent(new Event('groundwork-suggestions-changed'));version.current=next;},[r.data]);
  if(member?.role!=='client')return null;
- if(r.error)return <ErrorState retry={r.reload}/>;
+ if(r.error)return <ErrorState error={r.error} retry={r.reload}/>;
  const rows=r.data?.data.filter(s=>s.status!=='approved')??[];
  if(!rows.length)return null;
  return <section className="stack compact"><div className="section-title"><h2>Sent</h2></div><Card><ul className="list">{rows.map(s=><li key={s.id} className="list-row">
