@@ -76,7 +76,7 @@ it('a model assignment cannot drop a named date',async()=>{
  const result=await ask('Please assign this job to Ravi tomorrow morning');expect(result.reply).toBe('What visit date and time should I use?');expect(result.pending_action).toBeUndefined();
 });
 it('Arabic counts bypass model markdown and cheer',async()=>{
- state.language='ar-AE';state.ai.mockResolvedValue({text:'Ravi خلص **١٣** شغلة هالشهر. موفق!',calls:[]});const r=await ask('كم شغلة خلص Ravi هالشهر؟');expect(r.reply).toContain('Ravi');expect(r.reply).toContain('13');expect(r.reply).not.toMatch(/\*|موفق/);expect(state.ai).not.toHaveBeenCalled();
+ state.language='ar-AE';state.ai.mockResolvedValue({text:'Ravi خلص **١٣** شغلة هذا الشهر. موفق!',calls:[]});const r=await ask('كم شغلة خلص Ravi هذا الشهر؟');expect(r.reply).toContain('Ravi');expect(r.reply).toContain('13');expect(r.reply).not.toMatch(/\*|موفق/);expect(state.ai).not.toHaveBeenCalled();
 });
 it.each(LANGUAGES.map(l=>l.code))('model count calls return factual fixed words in %s',async language=>{
  state.language=language;state.ai.mockResolvedValueOnce({calls:[{id:'count',name:'job_counts',args:{person:'Ravi'}}]}).mockResolvedValue({text:'**13**. Good luck!',calls:[]});
