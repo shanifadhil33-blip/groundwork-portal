@@ -7,7 +7,7 @@ export async function POST(req:Request){
  // Bug 101: expired sandboxes are removed after the answer is sent, never while a visitor waits.
  // cleanupDemo skips at once if another cleanup is running. The daily cron is the safety net.
  const tidy=()=>Promise.resolve().then(()=>Promise.all([cleanupDemo(20),pruneAgentQuota()])).catch(()=>undefined);
- try{after(tidy);}catch{void tidy();} // Outside a request (tests) there is no after().
+ try{after(tidy);}catch{/* Outside a request (tests) there is no after(); the daily cron cleans up. */}
  try{
  const body=await readBody(req);
  const result=await startDemo (body,process.env.VERCEL?req.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim()??'unknown':'local',req.headers.get('cookie')?.split(';').map(c=>c.trim()).find(c=>c.startsWith('groundwork-sandbox='))?.slice(19));
