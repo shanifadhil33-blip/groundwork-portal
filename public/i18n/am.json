@@ -2945,5 +2945,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"ወኪሉ የዛሬውን ገደብ ደርሷል። ነገ ይመለሳል።"
+"The Agent has reached today's limit. It will be back tomorrow.":"ወኪሉ የዛሬውን ገደብ ደርሷል። ነገ ይመለሳል።",
+"Show more":"ተጨማሪ አሳይ",
+"Showing {count} of {total}":"{count} ከ {total} በማሳየት ላይ",
+"More jobs did not load. Try again.":"ተጨማሪ ስራዎች አልተጫኑም። እንደገና ይሞክሩ።"
 }

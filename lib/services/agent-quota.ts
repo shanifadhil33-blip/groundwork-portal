@@ -8,6 +8,8 @@ export const agentPerMinute = () => Math.max(1, Number(process.env.AGENT_PER_MIN
 export const agentDailyLimit = () => Math.max(1, Number(process.env.AGENT_DAILY_LIMIT) || 300);
 export const AGENT_DAY_REST = "The Agent has reached today's limit. It will be back tomorrow.";
 export async function agentQuota(user: string, ws: string): Promise<'ok' | 'minute' | 'day'> {
+ // Tests turn the shared limit off (tests/offline.ts) except in agent-quota.test.ts. Production never sets this.
+ if (process.env.AGENT_QUOTA === 'off') return 'ok';
  return withSystem(async db => {
   const minute = (await db.query(`INSERT INTO agent_quota_minute(user_id, minute, calls) VALUES($1, date_trunc('minute', now()), 1)
    ON CONFLICT (user_id, minute) DO UPDATE SET calls = agent_quota_minute.calls + 1 WHERE agent_quota_minute.calls < $2 RETURNING calls`, [user, agentPerMinute()])).rowCount;

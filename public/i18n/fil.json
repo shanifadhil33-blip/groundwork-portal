@@ -2936,5 +2936,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"Naabot na ng Katulong ang limitasyon ngayong araw. Babalik ito bukas."
+"The Agent has reached today's limit. It will be back tomorrow.":"Naabot na ng Katulong ang limitasyon ngayong araw. Babalik ito bukas.",
+"Show more":"Ipakita pa",
+"Showing {count} of {total}":"Ipinapakita ang {count} sa {total}",
+"More jobs did not load. Try again.":"Hindi na-load ang iba pang trabaho. Subukan ulit."
 }

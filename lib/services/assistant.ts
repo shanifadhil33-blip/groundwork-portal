@@ -124,7 +124,8 @@ async function assistantRequest(user:string,ws:string,body:unknown) {
  if(!input.confirm_action_id&&(await demoAgentAllowed(ws))===false){logAssistantFailure('demo_limit');const word=choiceWords((await getPreferences(user)).language);const sl=safetyLine(input.messages.filter(m=>m.role==='user').at(-1)?.content);const reply=word(DEMO_REST);return {available:true,reply:sl?`${word(sl)}\n\n${reply}`:reply,demo_rest:true,localized:true};}
  // Bug 106: real companies have a daily cap and each person a per minute limit, shared by every server.
  if(!input.confirm_action_id){
-  const quota=await agentQuota(user,ws);
+  // If the limit store can not be read, the Agent still answers; the per instance limiter still applies.
+  const quota=await agentQuota(user,ws).catch(error=>{logAssistantFailure('rate_limit',error);return 'ok' as const;});
   if(quota==='minute'){logAssistantFailure('rate_limit');throw new ApiError(429,'ai_rate_limit',choiceWords((await getPreferences(user)).language)(AI_RATE_LIMIT));}
   if(quota==='day'){logAssistantFailure('day_limit');return {available:true,reply:choiceWords((await getPreferences(user)).language)(AGENT_DAY_REST),day_limit:true,localized:true};}
  }

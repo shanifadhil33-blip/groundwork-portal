@@ -2938,5 +2938,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"முகவர் இன்றைய வரம்பை எட்டிவிட்டது. நாளை மீண்டும் கிடைக்கும்."
+"The Agent has reached today's limit. It will be back tomorrow.":"முகவர் இன்றைய வரம்பை எட்டிவிட்டது. நாளை மீண்டும் கிடைக்கும்.",
+"Show more":"மேலும் காட்டு",
+"Showing {count} of {total}":"{total} இல் {count} காட்டப்படுகிறது",
+"More jobs did not load. Try again.":"மேலும் வேலைகள் ஏற்றப்படவில்லை. மீண்டும் முயலவும்."
 }

@@ -9,6 +9,7 @@ const shapes: readonly [RegExp, string, readonly string[]][] = [
   [/^(\d+) open requests?$/, '{count} open requests', ['count']],
   [/^(\d+) requests?$/, '{count} requests', ['count']],
   [/^(\d+) today$/, '{count} today', ['count']],
+  [/^Showing (\d+) of (\d+)$/, 'Showing {count} of {total}', ['count', 'total']],
   [/^New requests, (\d+) waiting$/, 'New requests, {count} waiting', ['count']],
   [/^Select row (\d+): (.+)$/, 'Select row {count}: {job}', ['count', 'job']],
   [/^Call (.+)$/, 'Call {name}', ['name']],

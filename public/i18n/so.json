@@ -2937,5 +2937,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"Wakiilku wuxuu gaaray xadka maanta. Berri ayuu soo noqon doonaa."
+"The Agent has reached today's limit. It will be back tomorrow.":"Wakiilku wuxuu gaaray xadka maanta. Berri ayuu soo noqon doonaa.",
+"Show more":"Muuji wax badan",
+"Showing {count} of {total}":"Waxaa la muujinayaa {count} ka mid ah {total}",
+"More jobs did not load. Try again.":"Shaqooyin kale ma soo shubmin. Mar kale isku day."
 }

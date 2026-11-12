@@ -86,12 +86,12 @@ it('scheduled requester push includes the visit in workspace time; done includes
 });
 it('words travel notifications and only changes the scheduled client label', () => {
   expect(notificationMessage({ kind: 'on_the_way', actor_name: 'Ravi', work_order_title: 'Tap' })).toBe('Ravi is on the way for Tap.');
-  expect(clientStatusLabel({ status: 'scheduled' })).toBe('Visit Scheduled');
+  expect(clientStatusLabel({ status: 'scheduled' })).toBe('Scheduled');
   expect(clientStatusLabel({ status: 'scheduled', on_way_at: '2032-01-12' })).toBe('On the way');
-  expect(clientStatusLabel({ status: 'done', on_way_at: '2032-01-12' })).toBe('Completed');
+  expect(clientStatusLabel({ status: 'done', on_way_at: '2032-01-12' })).toBe('Done');
   expect(staffStatusLabel({ status: 'scheduled', on_way_at: '2032-01-12' })).toBe('On the way');
   expect(staffStatusLabel({ status: 'scheduled' })).toBe('Scheduled');
-  expect(staffStatusLabel({ status: 'in_progress', on_way_at: '2032-01-12' })).toBe('In Progress');
+  expect(staffStatusLabel({ status: 'in_progress', on_way_at: '2032-01-12' })).toBe('In progress');
 });
 
 it('rescheduled, cancelled and JOB25 approval messages use the same Arabic sentences in push and bell',async()=>{

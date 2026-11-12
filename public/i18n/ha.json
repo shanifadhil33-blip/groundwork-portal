@@ -2937,5 +2937,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"Wakili ya kai iyakar yau. Zai dawo gobe."
+"The Agent has reached today's limit. It will be back tomorrow.":"Wakili ya kai iyakar yau. Zai dawo gobe.",
+"Show more":"Nuna ƙari",
+"Showing {count} of {total}":"Ana nuna {count} daga cikin {total}",
+"More jobs did not load. Try again.":"Ƙarin ayyuka ba su loda ba. Sake gwadawa."
 }

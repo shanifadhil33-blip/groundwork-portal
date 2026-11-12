@@ -2,10 +2,10 @@ import { afterAll, beforeEach, expect, it } from 'vitest';
 import { closePools, withSystem } from '../lib/db';
 import { ids } from '../scripts/seed';
 import { agentQuota, agentPerMinute } from '../lib/services/agent-quota';
-afterAll(async () => { process.env.AGENT_DAILY_LIMIT = '100000'; process.env.AGENT_PER_MINUTE = '100000'; await closePools(); });
+afterAll(async () => { process.env.AGENT_QUOTA = 'off'; await closePools(); });
 const ws = ids.ridgeline;
 beforeEach(async () => {
-  process.env.AGENT_DAILY_LIMIT = '12'; process.env.AGENT_PER_MINUTE = '10';
+  process.env.AGENT_QUOTA = 'on'; process.env.AGENT_DAILY_LIMIT = '12'; process.env.AGENT_PER_MINUTE = '10';
   await withSystem(db => db.query('DELETE FROM agent_quota_minute; DELETE FROM agent_quota_day'));
 });
 

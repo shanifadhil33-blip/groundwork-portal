@@ -2937,5 +2937,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"Onye nnọchite anya eruola oke taa. Ọ ga-alọta echi."
+"The Agent has reached today's limit. It will be back tomorrow.":"Onye nnọchite anya eruola oke taa. Ọ ga-alọta echi.",
+"Show more":"Gosi ọzọ",
+"Showing {count} of {total}":"Na-egosi {count} n’ime {total}",
+"More jobs did not load. Try again.":"Ọrụ ndị ọzọ ebughị. Nwaa ọzọ."
 }

@@ -2951,5 +2951,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"ഏജന്റ് ഇന്നത്തെ പരിധിയിൽ എത്തി. നാളെ വീണ്ടും ലഭ്യമാകും."
+"The Agent has reached today's limit. It will be back tomorrow.":"ഏജന്റ് ഇന്നത്തെ പരിധിയിൽ എത്തി. നാളെ വീണ്ടും ലഭ്യമാകും.",
+"Show more":"കൂടുതൽ കാണിക്കുക",
+"Showing {count} of {total}":"{total} ൽ {count} കാണിക്കുന്നു",
+"More jobs did not load. Try again.":"കൂടുതൽ ജോലികൾ ലോഡ് ആയില്ല. വീണ്ടും ശ്രമിക്കുക."
 }

@@ -2940,5 +2940,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"助手已达到今天的使用上限。明天会恢复。"
+"The Agent has reached today's limit. It will be back tomorrow.":"助手已达到今天的使用上限。明天会恢复。",
+"Show more":"显示更多",
+"Showing {count} of {total}":"显示 {total} 个中的 {count} 个",
+"More jobs did not load. Try again.":"更多工作未能加载。请重试。"
 }

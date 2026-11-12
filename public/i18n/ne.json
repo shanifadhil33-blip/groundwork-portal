@@ -2940,5 +2940,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"सहायक आजको सीमामा पुग्यो। भोलि फेरि उपलब्ध हुनेछ।"
+"The Agent has reached today's limit. It will be back tomorrow.":"सहायक आजको सीमामा पुग्यो। भोलि फेरि उपलब्ध हुनेछ।",
+"Show more":"थप देखाउनुहोस्",
+"Showing {count} of {total}":"{total} मध्ये {count} देखाउँदै",
+"More jobs did not load. Try again.":"थप कामहरू लोड भएनन्। फेरि प्रयास गर्नुहोस्।"
 }

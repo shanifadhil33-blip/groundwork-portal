@@ -2943,5 +2943,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"এজেন্ট আজকের সীমায় পৌঁছেছে। আগামীকাল আবার চালু হবে।"
+"The Agent has reached today's limit. It will be back tomorrow.":"এজেন্ট আজকের সীমায় পৌঁছেছে। আগামীকাল আবার চালু হবে।",
+"Show more":"আরও দেখুন",
+"Showing {count} of {total}":"{total}টির মধ্যে {count}টি দেখানো হচ্ছে",
+"More jobs did not load. Try again.":"আরও কাজ লোড হয়নি। আবার চেষ্টা করুন।"
 }

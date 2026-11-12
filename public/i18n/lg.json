@@ -2937,5 +2937,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"Omuyambi atuuse ku kkomo lya leero. Ajja kukomawo enkya."
+"The Agent has reached today's limit. It will be back tomorrow.":"Omuyambi atuuse ku kkomo lya leero. Ajja kukomawo enkya.",
+"Show more":"Laga ebisingawo",
+"Showing {count} of {total}":"Kiraga {count} ku {total}",
+"More jobs did not load. Try again.":"Emirimu emirala tegiyingidde. Ddamu ogezeeko."
 }

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type SetStateAction } from 'react';
 import { useInitialResource } from './initial-resources';
 import { request, RequestError } from '../../lib/ui/api';
-import { cacheKey, dropCache, isFresh, readCache, seedCache, sharedLoad, subscribeCache, writeCache, type CacheEntry } from '../../lib/ui/resource-cache';
+import { cacheKey, dropCache, isFresh, onRefresh, readCache, seedCache, sharedLoad, subscribeCache, writeCache, type CacheEntry } from '../../lib/ui/resource-cache';
 
 const noop = () => () => {};
 
@@ -51,6 +51,9 @@ export function useResource<T>(url: string | null) {
     if (!isFresh(readCache(key))) void load();
     return () => { ++generation.current; };
   }, [key, load, seedError]);
+
+  // Focus, a shown tab, the 60 s tick and writes in other tabs reload this screen's data if it is stale.
+  useEffect(() => (key ? onRefresh(() => { if (!isFresh(readCache(key))) void load(); }) : undefined), [key, load]);
 
   useEffect(() => {
     const retry = () => { void load(); };

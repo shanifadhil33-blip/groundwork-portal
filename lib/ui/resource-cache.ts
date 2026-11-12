@@ -95,11 +95,30 @@ export function resetCache() {
   scope = '';
 }
 
+/**
+ * Fresh data (bug 107). Every screen on view reloads what is stale when the window gets focus,
+ * when the tab is shown again, every 60 s while it is visible, and right after a write in another tab.
+ */
+export const REFRESH_MS = 60_000;
+const refreshers = new Set<() => void>();
+export function onRefresh(run: () => void) { refreshers.add(run); return () => { refreshers.delete(run); }; }
+function refreshAll() { refreshers.forEach(run => run()); }
+
+/** Warm the cache for a page the person is about to open (hover, focus or touch start). */
+export function prefetchResource(url: string, load: () => Promise<unknown>) {
+  const key = cacheKey(url);
+  if (!browser() || isFresh(readCache(key)) || inflight.has(key)) return;
+  void sharedLoad(key, load).then(data => writeCache(key, data), () => undefined);
+}
+
 if (browser()) {
   window.addEventListener('groundwork-write', markCacheStale);
   try {
     const channel = new BroadcastChannel('groundwork-data');
     window.addEventListener('groundwork-write', () => channel.postMessage('write'));
-    channel.addEventListener('message', markCacheStale);
+    channel.addEventListener('message', () => { markCacheStale(); refreshAll(); });
   } catch { /* Older browsers: other tabs refresh on focus instead. */ }
+  window.addEventListener('focus', refreshAll);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshAll(); });
+  setInterval(() => { if (document.visibilityState === 'visible') { markCacheStale(); refreshAll(); } }, REFRESH_MS);
 }

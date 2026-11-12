@@ -1,6 +1,6 @@
 import { afterAll, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
-import { closePools, withSystem } from '../lib/db';
+import { closePools, withSystem, withUser } from '../lib/db';
 import { ids, siteId } from '../scripts/seed';
 import { addMoney } from '../lib/services/owner-overview';
 import { addTimeOff } from '../lib/services/time-off';
@@ -13,7 +13,7 @@ it('a payment sent twice with one key is saved once', async () => {
   const key = randomUUID(), body = { direction: 'in', amount: 1234.5, note: 'Retry test' };
   const [a, b] = await Promise.all([addMoney(ids.imran, ws, body, key), addMoney(ids.imran, ws, body, key)]);
   expect(b.id).toBe(a.id);
-  expect((await withSystem(db => db.query("SELECT count(*)::int AS n FROM workspace_money WHERE workspace_id=$1 AND note='Retry test'", [ws]))).rows[0].n).toBe(1);
+  expect((await withUser(ids.imran, db => db.query("SELECT count(*)::int AS n FROM workspace_money WHERE workspace_id=$1 AND note='Retry test'", [ws]))).rows[0].n).toBe(1);
 });
 
 it('time off sent twice with one key is saved once', async () => {

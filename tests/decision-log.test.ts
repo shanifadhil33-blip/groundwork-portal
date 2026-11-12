@@ -97,7 +97,7 @@ describe('decision log words', () => {
     expect(outcomeNote({ outcome: 'declined' })).toBe('You said no. Nothing was changed.');
     expect(outcomeNote({ outcome: 'refused', reason: 'Only an admin can make this change.' })).toBe('Not allowed. Only an admin can make this change.');
     expect(outcomeNote({ outcome: 'done' })).toBe('');
-    expect(valueLabel('status', 'waiting_on_parts')).toBe('Waiting on Parts');
+    expect(valueLabel('status', 'waiting_on_parts')).toBe('Waiting for parts');
     expect(valueLabel('payment_status', 'contract')).toBe('Covered by contract');
     expect(valueLabel('priority', null)).toBe('Not set');
     expect(fieldLabel('assignee')).toBe('Assigned to');

@@ -2936,5 +2936,8 @@
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"Aṣojú ti dé ààlà òní. Yóò padà lọ́la."
+"The Agent has reached today's limit. It will be back tomorrow.":"Aṣojú ti dé ààlà òní. Yóò padà lọ́la.",
+"Show more":"Fi kún un hàn",
+"Showing {count} of {total}":"Ń fi {count} nínú {total} hàn",
+"More jobs did not load. Try again.":"Àwọn iṣẹ́ míì kò wọlé. Gbìyànjú lẹ́ẹ̀kan sí i."
 }

@@ -26,9 +26,10 @@ function withKey(init?: RequestInit): RequestInit | undefined {
   return { ...init, headers: Object.fromEntries(headers.entries()) };
 }
 export async function request<T>(url: string, given?: RequestInit): Promise<T> {
+  // Only a key the screen set itself is retried: those endpoints store it. An added key never causes a retry.
+  const keyed = !!given?.method && given.method !== 'GET' && new Headers(given?.headers).has('Idempotency-Key');
   const init = withKey(given);
   const write = !!init?.method && init.method !== 'GET';
-  const keyed = write && new Headers(init?.headers).has('Idempotency-Key');
   const run = async () => {
     const limit = new AbortController();
     const forward = () => limit.abort();

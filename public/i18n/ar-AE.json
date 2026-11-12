@@ -2941,5 +2941,8 @@
  "No updates yet.": "لا توجد تحديثات بعد.",
  "Changes on your jobs show here.": "تظهر هنا التغييرات على مهامك.",
 "{unread_count} unread":null,
-"The Agent has reached today's limit. It will be back tomorrow.":"وصل الوكيل إلى حد اليوم. سيعود غدًا."
+"The Agent has reached today's limit. It will be back tomorrow.":"وصل الوكيل إلى حد اليوم. سيعود غدًا.",
+"Show more":"عرض المزيد",
+"Showing {count} of {total}":"عرض {count} من {total}",
+"More jobs did not load. Try again.":"لم يتم تحميل مزيد من الأعمال. حاول مرة أخرى."
 }

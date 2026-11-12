@@ -29,7 +29,7 @@ it('status notifications exclude the actor, describe from/to, and retain the eve
  expect((await notifications.listNotifications(ids.imran,ws,q('pageSize=100'))).data.filter(n=>n.entity_id===order.id)).toEqual([]);
  order=await orders.patchWorkOrder(ids.sam,ws,order.id,{status:'in_progress',updated_at:order.updated_at.toISOString()});
  const danaBefore=await notifications.unreadCount(ids.imran);order=await orders.patchWorkOrder(ids.imran,ws,order.id,{title:'Renamed title',updated_at:order.updated_at.toISOString()});
- const danas=(await notifications.listNotifications(ids.imran,ws,q('pageSize=100'))).data.filter(n=>n.entity_id===order.id);expect(danas).toHaveLength(1);expect(danas[0].message).toBe('Sam moved Original title from Scheduled to In Progress.');
+ const danas=(await notifications.listNotifications(ids.imran,ws,q('pageSize=100'))).data.filter(n=>n.entity_id===order.id);expect(danas).toHaveLength(1);expect(danas[0].message).toBe('Sam moved Original title from Scheduled to In progress.');
  await notifications.markNotification(ids.imran,ws,danas[0].id,true);expect((await notifications.unreadCount(ids.imran)).unread_count).toBe(danaBefore.unread_count-1);
  await notifications.markNotification(ids.imran,ws,danas[0].id,false);expect((await notifications.unreadCount(ids.imran)).unread_count).toBe(danaBefore.unread_count);
  const old=(await audit.listAudit(ids.imran,ws,q(`entity=work_orders&action=insert&entity_id=${order.id}`))).data[0];expect(old.summary).toBe('Imran created Original title');expect(old.link_target).toEqual({entity:'work_orders',id:order.id});
