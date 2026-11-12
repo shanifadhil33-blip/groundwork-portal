@@ -24,7 +24,8 @@ export function historyActor(name: string): NotificationTemplate {
 }
 
 export function historyEventTemplates(event: Detail['timeline'][number], actor: string, title: string, client=false, timezone='Asia/Dubai', language='en-IN'): NotificationTemplate[] {
- const job=event.work_order_title??title;
+ // On the job's own page every line names the job as it is called now (bug 4): an old name read like another job.
+ const job=title||event.work_order_title||'';
  const values={name:actor,job};
  const make=(key:string,extra:Record<string,string>={},translated:string[]=[]):NotificationTemplate=>({key,values:{...values,...extra},translatedValues:[...(historyActor(actor).translatedValues??[]),...translated]});
  // Preserve client visit/photo notices supplied by the service. Generic updates
@@ -56,7 +57,7 @@ export function historyEventTemplates(event: Detail['timeline'][number], actor: 
 }
 
 export function historyCommentTemplate(comment: Comment, actor: string, title: string): NotificationTemplate {
- return {key:comment.visibility==='internal'?notificationTemplates.internal:notificationTemplates.comment,values:{name:actor,job:comment.work_order_title??title},translatedValues:historyActor(actor).translatedValues};
+ return {key:comment.visibility==='internal'?notificationTemplates.internal:notificationTemplates.comment,values:{name:actor,job:title||comment.work_order_title||''},translatedValues:historyActor(actor).translatedValues};
 }
 export function historyAttribution(item:{actor_kind?:string;via_token_name?:string|null}):NotificationTemplate|null {
  if(item.actor_kind==='assistant')return {key:historyTemplates.assistant,values:{}};
