@@ -33,11 +33,13 @@ export const DEMO_JOB_DESCRIPTIONS: Record<string, string> = {
   "Service water pump": "The water pump runs all night and the pressure is low.",
   'Fix the leaking pantry tap': 'The pantry tap drips all day.',
 };
-export const demoJobDescription = (number: number) => DEMO_JOB_DESCRIPTIONS[DEMO_JOB_TITLES[(number - 1) % DEMO_JOB_TITLES.length]];
+export const demoJobDescription = (number: number) => DEMO_JOB_DESCRIPTIONS[DEMO_JOB_TITLES[(((number - 1) % DEMO_JOB_TITLES.length) + DEMO_JOB_TITLES.length) % DEMO_JOB_TITLES.length]];
+/** The numbered text older sandboxes still hold, exactly as it was seeded. */
+const oldDescription = (number: number) => DEMO_JOB_DESCRIPTION_TEMPLATE.replace('{number}', String(number));
 /** Static files contain the template, never numbered job data. Expand only exact seeded instances. */
 export function demoJobTranslations(words: Record<string, string>): Record<string, string> {
  const template=words[DEMO_JOB_DESCRIPTION_TEMPLATE];
- return {...demoRoundTwoTranslations(words), ...(template?Object.fromEntries(Array.from({length:66},(_,index)=>[demoJobDescription(index+1),template.replace('{number}',String(index+1))])):{})};
+ return {...demoRoundTwoTranslations(words), ...(template?Object.fromEntries(Array.from({length:66},(_,index)=>[oldDescription(index+1),template.replace('{number}',String(index+1))])):{})};
 }
 export const DEMO_JOB_COMMENTS = {
   client: 'We have received your request and confirmed access with the site manager.',

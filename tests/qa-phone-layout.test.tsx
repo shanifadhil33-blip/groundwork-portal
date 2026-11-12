@@ -17,12 +17,15 @@ it('retains table semantics and labels every cell in mapped rows, including Acti
  expect(html).toContain('role="table"');expect(html).toContain('role="rowgroup"');
  expect(html.match(/data-label="Member"/g)).toHaveLength(2);expect(html.match(/data-label="Role"/g)).toHaveLength(2);expect(html.match(/data-label="Actions"/g)).toHaveLength(2);expect(html).toContain('Admin');expect(html).toContain('Staff');
 });
-it('renders complete client phone cards with clean titles, parts status, priority, site, deadline and assignee',()=>{
+it('renders a job row as three lines: title and one chip, client and site, technician and visit',()=>{
  vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-11T10:00:00Z'));
  try {
  const html=renderToStaticMarkup(<WorkOrderCard order={order} client timezone="Asia/Dubai" clientName="Northgate" assigneeName="Sam" onOpen={()=>{}}/>);
- expect(html).toContain('<bdi data-no-translate="true">#54</bdi>');expect(html).toContain('<strong data-no-translate="true">Replace washroom tap</strong>');expect(html).not.toContain('Northgate East / 54');expect(html).toContain('Waiting for parts');expect(html).toContain('High');expect(html).toContain('Northgate · Northgate East');expect(html).toContain('Due ·');expect(html).toContain('Late');expect(html).toContain('<span class="assignee-cell" data-no-translate="true"><span data-no-translate="true">Sam</span></span>');expect(html).toContain('work-row-head');
- const closed=renderToStaticMarkup(<WorkOrderCard order={{...order,status:'done',assignee_id:null,due_on:null}} client={false} clientName="Northgate" assigneeName="No technician yet" onOpen={()=>{}}/>);expect(closed).not.toContain('Late');expect(closed).toContain('No due date');expect(closed).toContain('No technician yet');
+ expect(html).toContain('<strong data-no-translate="true">Replace washroom tap</strong>');expect(html).not.toContain('Northgate East / 54');expect(html).toContain('Northgate · Northgate East');expect(html).toContain('work-row-head');
+ // One chip: Late wins over the status, and there is no priority or order number line.
+ expect(html).toContain('Late');expect(html).not.toContain('Waiting for parts');expect(html).not.toContain('Priority');expect(html).not.toContain('#54');
+ expect(html).toContain('<span data-no-translate="true">Sam</span>');
+ const closed=renderToStaticMarkup(<WorkOrderCard order={{...order,status:'done',assignee_id:null,due_on:null,scheduled_for:null}} client={false} clientName="Northgate" assigneeName="No technician yet" onOpen={()=>{}}/>);expect(closed).not.toContain('Late');expect(closed).toContain('No visit yet');expect(closed).toContain('No technician yet');
  } finally {vi.useRealTimers();}
 });
 it('removes only a matching legacy site and number suffix',()=>{

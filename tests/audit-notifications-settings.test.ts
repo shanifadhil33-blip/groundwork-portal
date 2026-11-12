@@ -41,7 +41,7 @@ it('audit filters, newest/oldest, pages, scoped cursors and validation',async()=
 });
 it('audit redacts nested secrets from list and detail and summarizes status changes',async()=>{
  const id=randomUUID();await withSystem(db=>db.query('INSERT INTO audit_log(id,workspace_id,actor_id,action,entity,entity_id,"before","after") VALUES($1,$2,NULL,$3,$4,$5,$6,$7)',[id,ws,'update','work_orders',orderId(1),{status:'open',token_hash:'hidden'},{status:'scheduled',nested:{secret:'hidden',api_key:'hidden',safe:true}}]));
- const detail=await audit.getAudit(ids.imran,ws,id);expect(detail.actor).toBeNull();expect(detail.summary).toMatch(/^System moved .+ from Open to Scheduled$/);expect(JSON.stringify(detail)).not.toContain('hidden');expect(detail.after).toEqual({status:'scheduled',nested:{safe:true}});
+ const detail=await audit.getAudit(ids.imran,ws,id);expect(detail.actor).toBeNull();expect(detail.summary).toMatch(/^Groundwork moved .+ from Open to Scheduled$/);expect(JSON.stringify(detail)).not.toContain('hidden');expect(detail.after).toEqual({status:'scheduled',nested:{safe:true}});
  const list=await audit.listAudit(ids.imran,ws,q(`entity_id=${orderId(1)}`));expect(JSON.stringify(list)).not.toContain('hidden');
 });
 it('app role cannot INSERT, UPDATE or DELETE audit rows',async()=>{
