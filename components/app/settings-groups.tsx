@@ -1,5 +1,7 @@
 'use client';
 import Link from 'next/link';
+import { isOffice } from '../../lib/roles';
+import { NoAccess } from './no-access';
 import type { ReactNode } from 'react';
 import { Bot, Building2, ChevronRight, UserRound, Users } from 'lucide-react';
 import { Translated } from './app-words';
@@ -122,6 +124,9 @@ export function YourDataPage() {
 /** A Company sub page: documents or change history, inside Settings. */
 export function CompanySubPage({ page }: { page: 'documents' | 'history' }) {
   const { member } = useApp();
-  if (member?.role !== 'admin') return null;
-  return page === 'documents' ? <Translated><div className="page"><Documents embedded /></div></Translated> : <Audit />;
+  if (!member) return null;
+  // Documents are for the owner and admins; History also for supervisors (their own changes). Everyone else sees who can open it.
+  const allowed = page === 'documents' ? member.role === 'admin' : isOffice(member.role);
+  if (!allowed) return <NoAccess />;
+  return page === 'documents' ? <Translated><Documents /></Translated> : <Audit />;
 }
