@@ -14,7 +14,7 @@ import {NeedsAction} from '../components/app/dashboard';
 import {WaitingPrices} from '../components/app/price-change';
 import {AppContext} from '../components/app/context';
 import {LANGUAGES} from '../lib/languages';
-import {demoJobDescription, DEMO_JOB_DESCRIPTION_TEMPLATE} from '../lib/demo-job-copy';
+import {demoJobDescription} from '../lib/demo-job-copy';
 import {formatInLang} from '../lib/date-lang';
 import {scanSource} from '../scripts/i18n-coverage-core';
 const navigation=vi.hoisted(()=>({reload:vi.fn(),replace:vi.fn(),assign:vi.fn(),refresh:vi.fn()}));
@@ -123,7 +123,7 @@ it('uses the server dictionary for exact demo descriptions without another langu
  const host=document.createElement('div');document.body.append(host);const root=createRoot(host);
  try{
  await act(async()=>root.render(<AppWords language="hi" words={words}><AppContext.Provider value={{...context,workspace:{...context.workspace,is_demo:true}}}><InitialResourceProvider resources={{'/api/me/preferences':{data:{language:'hi'}}}}><Translator/><p data-no-translate>{demoJobDescription(1)}</p></InitialResourceProvider></AppContext.Provider></AppWords>));
- expect(host.textContent).toBe(words[DEMO_JOB_DESCRIPTION_TEMPLATE].replace('{number}','1'));
+ expect(host.textContent).toBe(words[demoJobDescription(1)]);
  expect(fetch.mock.calls).toHaveLength(0);
  }finally{await act(async()=>root.unmount());host.remove();}
 });

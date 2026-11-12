@@ -14,7 +14,7 @@ export async function populateProofFixture(db: PoolClient, ids: typeof fixtureId
 
   // Existing Harbor tap job: Ravi's report, Pranav's sign off and thanks.
   const harborJob = orderId(18);
-  await db.query(`UPDATE work_orders SET title='Sample tap repair',description='Sample drawings',trade='plumbing',
+  await db.query(`UPDATE work_orders SET title='Fix the leaking pantry tap',description='The pantry tap drips all day.',trade='plumbing',
     assignee_id=$2,report_by=$2,report_problem=$3,report_work=$4,report_outcome='fixed',
     created_at=$5,scheduled_for=$6,report_at=$7,updated_at=$7,due_on=$8,
     quote_status='approved',quote_amount=320,quote_note=$4,payment_status='paid',
@@ -26,7 +26,7 @@ export async function populateProofFixture(db: PoolClient, ids: typeof fixtureId
   const householdJob = (await db.query(`INSERT INTO work_orders(workspace_id,client_id,site_id,title,description,status,priority,
     source,trade,created_by,assignee_id,order_number,created_at,scheduled_for,due_on,report_by,report_at,report_problem,report_work,
     report_outcome,quote_status,quote_amount,quote_note,updated_at)
-    VALUES($1,$2,$3,'Sample tap repair','Sample drawings','done','normal','client','plumbing',$4,$5,61,$6,$7,$8,$5,$9,$10,$11,
+    VALUES($1,$2,$3,'Fix the leaking pantry tap','The pantry tap drips all day.','done','normal','client','plumbing',$4,$5,61,$6,$7,$8,$5,$9,$10,$11,
       'fixed','approved',320,$11,$9) RETURNING id`,
   [ids.ridgeline, ids.northgate, siteId(4), ids.faisal, ids.ravi, at(-4, 8), at(-2, 9), day(-2), at(-2, 10), problem, work])).rows[0].id as string;
 
@@ -41,7 +41,7 @@ export async function populateProofFixture(db: PoolClient, ids: typeof fixtureId
     VALUES($1,$2,'image/webp',$3,256,160,$4) RETURNING id`, [ids.ridgeline, ids.faisal, fixturePhotos.before, at(-4, 8)])).rows[0].id;
   await db.query("SELECT set_config('app.user_id',$1,true)", [ids.faisal]);
   await db.query(`INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,author_name,photo_ids,created_at)
-    VALUES($1,$2,$3,'Sample drawings','client',$4,'Faisal',$5,$6)`,
+    VALUES($1,$2,$3,'The pantry tap drips all day.','client',$4,'Faisal',$5,$6)`,
   [ids.ridgeline, ids.northgate, householdJob, ids.faisal, JSON.stringify([shared]), at(-4, 8)]);
   await db.query("SELECT set_config('app.user_id',$1,true)", [ids.imran]);
 

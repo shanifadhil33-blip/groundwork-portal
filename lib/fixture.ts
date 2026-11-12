@@ -36,8 +36,15 @@ export function fixtureDates(n:number,today:string,timezone:string) {
  const createdDay=dayOffset(today,-(8+(n*13)%74));
  const created=new Date(scheduledInstant(createdDay,timezone,[8,10,14,16,11,9,15][n%7])!);
  created.setUTCMinutes([5,20,35,45,10,25][n%6]);
- const due=n%11===0?null:dayOffset(today,(n*17)%47-25);
- const visit=fixtureStatus(n)==='open'?null:scheduledInstant(dayOffset(due??today,-(n%3)),timezone,[9,11,14,16][n%4]);
+ // Bug 3: a job is never due before it was created, and its visit falls between the two.
+ // A finished job's visit is in the past.
+ const raw=n%11===0?null:dayOffset(today,(n*17)%47-25);
+ const due=raw===null?null:raw<=createdDay?dayOffset(createdDay,2+n%5):raw;
+ const status=fixtureStatus(n),finished=status==='done'||status==='cancelled';
+ let visitDay=dayOffset(due??today,-(n%3));
+ if(visitDay<=createdDay)visitDay=dayOffset(createdDay,1);
+ if(finished&&visitDay>=today)visitDay=dayOffset(today,-1-(n%3));
+ const visit=status==='open'?null:scheduledInstant(visitDay,timezone,[9,11,14,16][n%4]);
  return {created,due,visit,updated:new Date(created.getTime()+2*86400000+((n*23)%180)*60000)};
 }
 type FixtureIds=typeof ids;
@@ -89,7 +96,7 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
    const batch=batches.get(actor)??{orders:[],events:[],comments:[],supplier:[]};batches.set(actor,batch);
    const dates=fixtureDates(n,today,timezone);
    // Existing Harbor jobs retain their people and titles; their response clock starts near build time.
-   if(n===1||n===7){dates.created=new Date(Date.now()-(n===1?3.5:5)*3600000);dates.updated=new Date(dates.created.getTime()+2*3600000);}
+   if(n===1||n===7){dates.created=new Date(Date.now()-(n===1?3.5:5)*3600000);dates.updated=new Date(dates.created.getTime()+2*3600000);if(dates.due&&dates.due<today)dates.due=dayOffset(today,n===1?1:2);if(dates.visit&&dates.visit<dates.created.toISOString())dates.visit=scheduledInstant(today,timezone,16);}
    const assigned=summit?ids.summitAdmin:[ids.sam,ids.imran,null,ids.ravi,ids.sam,ids.ravi,null][(n-1)%7];
    const title=tasks[(n-1)%tasks.length];
    {const row=[orderId(n),ws,company,siteId(site),title,demoJobDescription(n),fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated];batch.orders.push(Object.fromEntries('id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at'.split(',').map((k,i)=>[k,row[i]])));}

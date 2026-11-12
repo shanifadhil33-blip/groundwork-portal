@@ -27,14 +27,14 @@ it.each([true, false])('sample proof uses file translations only in demo: %s', a
         <InitialResourceProvider resources={{ '/api/me/preferences': { data: { language: 'ar-AE' } } }}>
           {[...DEMO_PROOF_COPY].map(word => <p key={word} data-no-translate data-sample={word}>{word}</p>)}
           <p data-no-translate data-writing>My own words</p>
-          <textarea defaultValue="Sample drawings" />
+          <textarea defaultValue="The pantry tap drips all day." />
           <Translator />
         </InitialResourceProvider>
       </AppContext.Provider>
     ));
     for (const word of DEMO_PROOF_COPY) expect(container.querySelector(`[data-sample="${word}"]`)?.textContent).toBe(demo ? translations[word] : word);
     expect(container.querySelector('[data-writing]')?.textContent).toBe('My own words');
-    expect(container.querySelector('textarea')?.value).toBe('Sample drawings');
+    expect(container.querySelector('textarea')?.value).toBe('The pantry tap drips all day.');
     expect(fetch).toHaveBeenCalledExactlyOnceWith('/i18n/ar-AE.json', expect.any(Object));
   } finally {
     await act(async () => root.unmount());

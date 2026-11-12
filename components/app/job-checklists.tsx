@@ -53,11 +53,11 @@ export function JobChecklistCard({ base, id, readOnly=false }: {base:string;id:s
     {data.steps.map(step=><label key={step.name} className="precheck-item"><input type="checkbox" checked={step.done} disabled={!editable||busy} onChange={e=>void save({action:'tick',step:step.name,done:e.target.checked})}/><span>{step.name}</span></label>)}
     <h3>Materials used</h3>{!data.materials.length&&<p className="small muted">No materials recorded.</p>}
     <ul className="stack compact checklist-materials">{data.materials.map(m=><li key={m.id}><div className="row wrap"><span data-no-translate>{m.quantity} × {m.name}</span>{editable&&<Button variant="ghost" disabled={busy} onClick={()=>void save({action:'remove_material',material_id:m.id})}>Remove</Button>}</div>{m.note&&<p data-no-translate>{m.note}</p>}</li>)}</ul>
-    {editable&&<form className="stack compact" onSubmit={async e=>{e.preventDefault();if(await save({action:'add_material',name,quantity:Number(quantity),note})){setName('');setQuantity('1');setNote('');}}}>
+    {editable&&data.materials.length<30&&<details className="more-panel"><summary>Add material</summary><form className="stack compact" onSubmit={async e=>{e.preventDefault();if(await save({action:'add_material',name,quantity:Number(quantity),note})){setName('');setQuantity('1');setNote('');}}}>
       <label className="field"><span>Material name</span><input required maxLength={80} value={name} disabled={busy} onChange={e=>setName(e.target.value)}/></label>
       <label className="field"><span>Quantity</span><input type="number" required min="0.001" max="100000" step="any" value={quantity} disabled={busy} onChange={e=>setQuantity(e.target.value)}/></label>
       <label className="field"><span>Notes</span><input maxLength={200} value={note} disabled={busy} onChange={e=>setNote(e.target.value)}/></label>
-      <Button variant="secondary" busy={busy} disabled={!name.trim()||!Number(quantity)||data.materials.length>=30} type="submit">Add material</Button>
-    </form>}{editable&&data.materials.length>=30&&<p>Use up to thirty materials.</p>}{error&&<p role="alert">{error}</p>}{saved&&<p role="status">Saved</p>}
+      <Button variant="secondary" busy={busy} disabled={!name.trim()||!Number(quantity)} type="submit">Save material</Button>
+    </form></details>}{editable&&data.materials.length>=30&&<p>Use up to thirty materials.</p>}{error&&<p role="alert">{error}</p>}{saved&&<p role="status">Saved</p>}
   </Card>;
 }
