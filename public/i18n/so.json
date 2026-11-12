@@ -2952,5 +2952,21 @@
 "Water stays in the courtyard after cleaning.":"Biyuhu waxay ku hadhaan barxadda nadiifinta kadib.",
 "The card reader at the side door does not always open it.":"Akhriyaha kaarka ee albaabka dhinaca had iyo jeer ma furo.",
 "A ceiling tile in the corridor is stained and sagging.":"Taayir saqaf ah oo ku yaal marinka waa wasakh wuuna soo laalaadaa.",
-"The water pump runs all night and the pressure is low.":"Bambada biyuhu habeenka oo dhan way shaqeysaa cadaadiskuna waa hooseeyaa."
+"The water pump runs all night and the pressure is low.":"Bambada biyuhu habeenka oo dhan way shaqeysaa cadaadiskuna waa hooseeyaa.",
+"Change details":"Faahfaahinta isbeddelka",
+"Change status":"Beddel xaaladda",
+"Everyone":"Qof walba",
+"Everything":"Wax walba",
+"Mark as in progress":"U calaamadee socda",
+"Mark as open":"U calaamadee furan",
+"Mark as scheduled":"U calaamadee la qorsheeyay",
+"Mark as waiting for parts":"U calaamadee sugaya qalab",
+"More filters":"Shaandhooyin kale",
+"No visit yet":"Weli booqasho ma jirto",
+"Not booked yet":"Weli lama ballansan",
+"Save material":"Kaydi alaabta",
+"Site unavailable":"Goobta lama heli karo",
+"What changed":"Waxa isbeddelay",
+"{count} late":"{count} daahay",
+"{count} open":"{count} furan"
 }

@@ -2958,5 +2958,21 @@
 "Water stays in the courtyard after cleaning.":"পরিষ্কারের পর উঠোনে পানি জমে থাকে।",
 "The card reader at the side door does not always open it.":"পাশের দরজার কার্ড রিডার সবসময় দরজা খোলে না।",
 "A ceiling tile in the corridor is stained and sagging.":"করিডোরের একটি সিলিং টাইলে দাগ পড়েছে আর ঝুলে গেছে।",
-"The water pump runs all night and the pressure is low.":"পানির পাম্প সারারাত চলে আর চাপ কম থাকে।"
+"The water pump runs all night and the pressure is low.":"পানির পাম্প সারারাত চলে আর চাপ কম থাকে।",
+"Change details":"পরিবর্তনের বিবরণ",
+"Change status":"অবস্থা বদলান",
+"Everyone":"সবাই",
+"Everything":"সবকিছু",
+"Mark as in progress":"চলমান হিসেবে চিহ্নিত করুন",
+"Mark as open":"খোলা হিসেবে চিহ্নিত করুন",
+"Mark as scheduled":"নির্ধারিত হিসেবে চিহ্নিত করুন",
+"Mark as waiting for parts":"যন্ত্রাংশের অপেক্ষায় হিসেবে চিহ্নিত করুন",
+"More filters":"আরও ফিল্টার",
+"No visit yet":"এখনও কোনো ভিজিট নেই",
+"Not booked yet":"এখনও বুক করা হয়নি",
+"Save material":"উপকরণ সংরক্ষণ করুন",
+"Site unavailable":"সাইট পাওয়া যাচ্ছে না",
+"What changed":"কী বদলেছে",
+"{count} late":"{count} দেরি",
+"{count} open":"{count} খোলা"
 }

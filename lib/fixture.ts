@@ -241,8 +241,27 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
     await populateCompanyJoiningFixture(client,ids);
     await populateChecklistFixture(client,ids.ridgeline,ids.imran);
     await populateQuoteFixture(client,ids);
+    // Bug 28: Faisal is a home client. His own requests are at his villa and are home jobs, never warehouse work.
+    const villa=(await client.query(`INSERT INTO sites(workspace_id,client_id,name,address,building,area,region,access_notes,contact_name,contact_phone)
+      VALUES($1,$2,'Villa 12','Street 7','Villa 12','Al Barsha South','Dubai','Ring the gate bell. Parking is in front of the villa.','Faisal','+971505550199') RETURNING id`,[ids.ridgeline,ids.northgate])).rows[0].id;
+    await client.query(`WITH mine AS (SELECT id,row_number() OVER (ORDER BY order_number)-1 AS i FROM work_orders WHERE workspace_id=$1 AND created_by=$2),
+      home(i,title,description,trade,note) AS (VALUES
+        (0,'Replace washroom tap','The washroom tap will not turn off fully.','plumbing','Replace the tap cartridge, parts and labour.'),
+        (1,'Service water pump','The water pump runs all night and the pressure is low.','plumbing','New pump motor and two hours of work.'),
+        (2,'Clear courtyard drainage','Water stays in the courtyard after cleaning.','plumbing','Clear the drain and check the flow, parts and labour.'),
+        (3,'Fix the leaking pantry tap','The pantry tap drips all day.','plumbing','Replace the tap cartridge, parts and labour.'),
+        (4,'Repair entry door closer','The front door slams shut instead of closing slowly.','carpentry','New door closer, parts and labour.'))
+      UPDATE work_orders w SET site_id=$3,asset_id=NULL,title=h.title,description=h.description,trade=h.trade,quote_note=CASE WHEN w.quote_amount IS NULL THEN w.quote_note ELSE h.note END
+      FROM mine JOIN home h ON h.i=mine.i%5 WHERE w.id=mine.id`,[ids.ridgeline,ids.faisal,villa]);
     // A private household preview, not a second membership: demo identity rules allow one workspace only.
     await client.query("INSERT INTO idempotency_keys(user_id,scope,key,fingerprint,result) VALUES($1,$2,'household','preview',$3)",[ids.ravi,`household_preview:${ids.ridgeline}`,JSON.stringify({workspace_id:ids.ridgeline,address:'Flat 12, Sample Court',simulated:true})]);
     await client.query("UPDATE users SET phone='+971000000000' WHERE id=$1",[ids.ravi]);
+    // Bug 29: building the sample company is not something a person did. Keep the history a visitor can read:
+    // jobs created, people assigned, status changes, people added. Drop setup edits and "Imran added Imran".
+    await client.query(`DELETE FROM audit_log WHERE workspace_id=$1 AND (
+      (entity='work_orders' AND action='update' AND before->>'assignee_id' IS NOT DISTINCT FROM after->>'assignee_id' AND before->>'status' IS NOT DISTINCT FROM after->>'status')
+      OR (entity='members' AND action='update')
+      OR (entity='members' AND action='insert' AND actor_id::text=after->>'user_id')
+      OR (entity IN ('supplier_orders','comments') AND action='update'))`,[ids.ridgeline]);
   }
 }

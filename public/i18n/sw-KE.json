@@ -2953,5 +2953,21 @@
 "Water stays in the courtyard after cleaning.":"Maji yanabaki uani baada ya kusafisha.",
 "The card reader at the side door does not always open it.":"Kisomaji cha kadi cha mlango wa pembeni hakiufungui kila mara.",
 "A ceiling tile in the corridor is stained and sagging.":"Kigae kimoja cha dari kwenye korido kina madoa na kimelegea.",
-"The water pump runs all night and the pressure is low.":"Pampu ya maji inafanya kazi usiku kucha na shinikizo ni dogo."
+"The water pump runs all night and the pressure is low.":"Pampu ya maji inafanya kazi usiku kucha na shinikizo ni dogo.",
+"Change details":"Maelezo ya badiliko",
+"Change status":"Badilisha hali",
+"Everyone":"Wote",
+"Everything":"Kila kitu",
+"Mark as in progress":"Weka inaendelea",
+"Mark as open":"Weka wazi",
+"Mark as scheduled":"Weka imepangwa",
+"Mark as waiting for parts":"Weka inasubiri vipuri",
+"More filters":"Vichujio zaidi",
+"No visit yet":"Bado hakuna ziara",
+"Not booked yet":"Bado haijapangwa",
+"Save material":"Hifadhi kifaa",
+"Site unavailable":"Eneo halipatikani",
+"What changed":"Kilichobadilika",
+"{count} late":"{count} zimechelewa",
+"{count} open":"{count} wazi"
 }

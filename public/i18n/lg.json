@@ -2952,5 +2952,21 @@
 "Water stays in the courtyard after cleaning.":"Amazzi gasigala mu luggya oluvannyuma lw’okulongoosa.",
 "The card reader at the side door does not always open it.":"Ekisoma kaadi ku luggi olw’oku mabbali tekiruggulawo buli kiseera.",
 "A ceiling tile in the corridor is stained and sagging.":"Ttayiro y’omu kasolya mu kkubo erina amabala era ewanirira.",
-"The water pump runs all night and the pressure is low.":"Ppampu y’amazzi ekola ekiro kyonna era amaanyi g’amazzi matono."
+"The water pump runs all night and the pressure is low.":"Ppampu y’amazzi ekola ekiro kyonna era amaanyi g’amazzi matono.",
+"Change details":"Ebikwata ku nkyukakyuka",
+"Change status":"Kyusa embeera",
+"Everyone":"Buli muntu",
+"Everything":"Buli kintu",
+"Mark as in progress":"Kiteeke ku kikolebwako",
+"Mark as open":"Kiteeke ku kiggule",
+"Mark as scheduled":"Kiteeke ku kitegekeddwa",
+"Mark as waiting for parts":"Kiteeke ku kulinda ebyuma",
+"More filters":"Ebisengejja ebirala",
+"No visit yet":"Tewannabaawo kukyala",
+"Not booked yet":"Tekinnaba kutegekebwa",
+"Save material":"Tereka ekikozesebwa",
+"Site unavailable":"Ekifo tekisangibwa",
+"What changed":"Ekikyuse",
+"{count} late":"{count} ezikeerezze",
+"{count} open":"{count} eziggule"
 }

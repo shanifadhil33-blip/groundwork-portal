@@ -2961,5 +2961,21 @@
 "Water stays in the courtyard after cleaning.":"بعد از نظافت آب در حیاط می‌ماند.",
 "The card reader at the side door does not always open it.":"کارت‌خوان در کناری همیشه آن را باز نمی‌کند.",
 "A ceiling tile in the corridor is stained and sagging.":"یک کاشی سقف در راهرو لکه دارد و افتاده است.",
-"The water pump runs all night and the pressure is low.":"پمپ آب تمام شب کار می‌کند و فشار کم است."
+"The water pump runs all night and the pressure is low.":"پمپ آب تمام شب کار می‌کند و فشار کم است.",
+"Change details":"جزئیات تغییر",
+"Change status":"تغییر وضعیت",
+"Everyone":"همه",
+"Everything":"همه چیز",
+"Mark as in progress":"علامت‌گذاری به در حال انجام",
+"Mark as open":"علامت‌گذاری به باز",
+"Mark as scheduled":"علامت‌گذاری به زمان‌بندی شده",
+"Mark as waiting for parts":"علامت‌گذاری به منتظر قطعه",
+"More filters":"فیلترهای بیشتر",
+"No visit yet":"هنوز بازدیدی نیست",
+"Not booked yet":"هنوز رزرو نشده",
+"Save material":"ذخیره مواد",
+"Site unavailable":"محل در دسترس نیست",
+"What changed":"چه چیزی تغییر کرد",
+"{count} late":"{count} با تأخیر",
+"{count} open":"{count} باز"
 }

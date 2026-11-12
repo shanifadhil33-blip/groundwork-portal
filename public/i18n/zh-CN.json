@@ -2955,5 +2955,21 @@
 "Water stays in the courtyard after cleaning.":"清洁后院子里积水。",
 "The card reader at the side door does not always open it.":"侧门的刷卡器不是每次都能开门。",
 "A ceiling tile in the corridor is stained and sagging.":"走廊有一块天花板砖有污渍并下垂。",
-"The water pump runs all night and the pressure is low.":"水泵整晚运转，水压低。"
+"The water pump runs all night and the pressure is low.":"水泵整晚运转，水压低。",
+"Change details":"更改详情",
+"Change status":"更改状态",
+"Everyone":"所有人",
+"Everything":"全部",
+"Mark as in progress":"标为进行中",
+"Mark as open":"标为待处理",
+"Mark as scheduled":"标为已安排",
+"Mark as waiting for parts":"标为等待配件",
+"More filters":"更多筛选",
+"No visit yet":"还没有上门",
+"Not booked yet":"尚未预约",
+"Save material":"保存材料",
+"Site unavailable":"地点不可用",
+"What changed":"更改了什么",
+"{count} late":"{count} 个逾期",
+"{count} open":"{count} 个待处理"
 }

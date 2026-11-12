@@ -2959,5 +2959,21 @@
 "Water stays in the courtyard after cleaning.":"ድሕሪ ምጽራይ ማይ ኣብ ቀጽሪ ይተርፍ።",
 "The card reader at the side door does not always open it.":"ኣንባቢ ካርድ ናይ ጎድናዊ ማዕጾ ኩሉ ግዜ ኣይኸፍቶን።",
 "A ceiling tile in the corridor is stained and sagging.":"ሓደ ናይ ናሕሲ ጣውላ ኣብ መተሓላለፊ ተረሲሑን ተንጠልጢሉን ኣሎ።",
-"The water pump runs all night and the pressure is low.":"ፓምፕ ማይ ምሉእ ለይቲ ይሰርሕ፣ ጸቕጢ ድማ ትሑት እዩ።"
+"The water pump runs all night and the pressure is low.":"ፓምፕ ማይ ምሉእ ለይቲ ይሰርሕ፣ ጸቕጢ ድማ ትሑት እዩ።",
+"Change details":"ዝርዝር ለውጢ",
+"Change status":"ኩነት ቀይር",
+"Everyone":"ኩሉ ሰብ",
+"Everything":"ኩሉ ነገር",
+"Mark as in progress":"ኣብ መስርሕ ግበሮ",
+"Mark as open":"ክፉት ግበሮ",
+"Mark as scheduled":"ዝተመደበ ግበሮ",
+"Mark as waiting for parts":"ኣቕሓ ዝጽበ ግበሮ",
+"More filters":"ተወሳኺ መጻረዪታት",
+"No visit yet":"ገና ምብጻሕ የለን",
+"Not booked yet":"ገና ኣይተሓዝን",
+"Save material":"ኣቕሓ ዓቅብ",
+"Site unavailable":"እቲ ቦታ ኣይርከብን",
+"What changed":"እንታይ ተቐይሩ",
+"{count} late":"{count} ደንጉዩ",
+"{count} open":"{count} ክፉት"
 }

@@ -2953,5 +2953,21 @@
 "Water stays in the courtyard after cleaning.":"சுத்தம் செய்த பிறகு முற்றத்தில் தண்ணீர் தேங்குகிறது.",
 "The card reader at the side door does not always open it.":"பக்கக் கதவின் கார்டு ரீடர் எப்போதும் கதவைத் திறப்பதில்லை.",
 "A ceiling tile in the corridor is stained and sagging.":"நடைபாதையில் ஒரு கூரை ஓடு கறை படிந்து தொங்குகிறது.",
-"The water pump runs all night and the pressure is low.":"தண்ணீர் பம்ப் இரவு முழுவதும் ஓடுகிறது, அழுத்தம் குறைவாக உள்ளது."
+"The water pump runs all night and the pressure is low.":"தண்ணீர் பம்ப் இரவு முழுவதும் ஓடுகிறது, அழுத்தம் குறைவாக உள்ளது.",
+"Change details":"மாற்ற விவரங்கள்",
+"Change status":"நிலையை மாற்று",
+"Everyone":"அனைவரும்",
+"Everything":"அனைத்தும்",
+"Mark as in progress":"நடப்பில் என மாற்று",
+"Mark as open":"திறந்தது என மாற்று",
+"Mark as scheduled":"திட்டமிடப்பட்டது என மாற்று",
+"Mark as waiting for parts":"பாகங்களுக்காக காத்திருப்பு என மாற்று",
+"More filters":"மேலும் வடிகட்டிகள்",
+"No visit yet":"இன்னும் வருகை இல்லை",
+"Not booked yet":"இன்னும் பதிவு செய்யப்படவில்லை",
+"Save material":"பொருளைச் சேமி",
+"Site unavailable":"இடம் கிடைக்கவில்லை",
+"What changed":"என்ன மாறியது",
+"{count} late":"{count} தாமதம்",
+"{count} open":"{count} திறந்தவை"
 }

@@ -2951,5 +2951,21 @@
 "Water stays in the courtyard after cleaning.":"Nsuo tena adiwo hɔ wɔ ahohoro akyi.",
 "The card reader at the side door does not always open it.":"Card reader a ɛwɔ nkyɛn pon no mmue no bere biara.",
 "A ceiling tile in the corridor is stained and sagging.":"Ceiling tile baako wɔ ɛkwantempon no so wɔ nkekaawa na ɛsɛn fam.",
-"The water pump runs all night and the pressure is low.":"Nsuo pump no yɛ adwuma anadwo mũ nyinaa na ne ahoɔden sua."
+"The water pump runs all night and the pressure is low.":"Nsuo pump no yɛ adwuma anadwo mũ nyinaa na ne ahoɔden sua.",
+"Change details":"Nsakraeɛ ho nsɛm",
+"Change status":"Sesa tebea",
+"Everyone":"Obiara",
+"Everything":"Biribiara",
+"Mark as in progress":"Hyɛ no sɛ ɛrekɔ so",
+"Mark as open":"Hyɛ no sɛ ɛda hɔ",
+"Mark as scheduled":"Hyɛ no sɛ wɔahyehyɛ",
+"Mark as waiting for parts":"Hyɛ no sɛ ɛretwɛn nneɛma",
+"More filters":"Ntetewmu foforɔ",
+"No visit yet":"Nsrahwɛ biara nni hɔ da",
+"Not booked yet":"Wɔnhyehyɛɛ no da",
+"Save material":"Kora adeɛ no so",
+"Site unavailable":"Beaeɛ no nni hɔ",
+"What changed":"Deɛ asesa",
+"{count} late":"{count} atwa bere",
+"{count} open":"{count} ɛda hɔ"
 }

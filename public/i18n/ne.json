@@ -2955,5 +2955,21 @@
 "Water stays in the courtyard after cleaning.":"सफा गरेपछि आँगनमा पानी जम्छ।",
 "The card reader at the side door does not always open it.":"छेउको ढोकाको कार्ड रिडरले सधैं ढोका खोल्दैन।",
 "A ceiling tile in the corridor is stained and sagging.":"करिडोरको एउटा सिलिङ टायलमा दाग छ र झुन्डिएको छ।",
-"The water pump runs all night and the pressure is low.":"पानीको पम्प रातभरि चल्छ र प्रेसर कम छ।"
+"The water pump runs all night and the pressure is low.":"पानीको पम्प रातभरि चल्छ र प्रेसर कम छ।",
+"Change details":"परिवर्तनको विवरण",
+"Change status":"स्थिति बदल्नुहोस्",
+"Everyone":"सबै जना",
+"Everything":"सबै कुरा",
+"Mark as in progress":"प्रगतिमा राख्नुहोस्",
+"Mark as open":"खुला राख्नुहोस्",
+"Mark as scheduled":"तालिकाबद्ध राख्नुहोस्",
+"Mark as waiting for parts":"पार्टपुर्जा पर्खँदै राख्नुहोस्",
+"More filters":"थप फिल्टर",
+"No visit yet":"अहिलेसम्म भ्रमण छैन",
+"Not booked yet":"अहिलेसम्म बुक भएको छैन",
+"Save material":"सामग्री सुरक्षित गर्नुहोस्",
+"Site unavailable":"साइट उपलब्ध छैन",
+"What changed":"के बदलियो",
+"{count} late":"{count} ढिलो",
+"{count} open":"{count} खुला"
 }

@@ -2182,3 +2182,66 @@ body:has(.auth-page, .demo-page) .public-header nav {
   gap: var(--s2);
   padding-block: var(--s4);
 }
+
+/* Job row: title and one chip on the first line, then two quiet lines. */
+.work-list-item .work-row-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+.work-list-item .work-row-head strong {
+  font-size: var(--t-body);
+  line-height: var(--t-body-lh);
+  min-width: 0;
+}
+.work-list-item .work-row-head .badge { flex: none; }
+.work-list-item p { margin: 0; }
+
+/* Form footer: Cancel and the one primary at the end of the form. Sticky above the bottom nav on phones. */
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s2);
+  padding-block: var(--s3);
+  background: var(--bg);
+}
+@media (max-width: 1023px) {
+  .form-footer {
+    position: sticky;
+    bottom: calc(var(--h-nav) + env(safe-area-inset-bottom));
+    z-index: var(--z-header);
+    border-top: var(--hairline) solid var(--line);
+  }
+  .form-footer .button { flex: 1; }
+}
+
+/* Team row: one summary line, the rest folded. */
+.person-summary { margin: 0; color: var(--text-2); }
+.person-summary a { color: inherit; }
+.person-summary a.danger-text { color: var(--st-late); }
+.person-details > summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: var(--t-meta);
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+}
+.person-details[open] > summary { margin-block-end: var(--s2); }
+
+/* History: one sentence per change, who and when under it. */
+.history-list > li + li { border-top: var(--hairline) solid var(--line); }
+.history-row {
+  display: grid;
+  gap: var(--s1);
+  width: 100%;
+  padding: var(--s3) 0;
+  text-align: start;
+  background: none;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+  min-height: var(--tap);
+}
+.history-row .history-what { font-size: var(--t-body); line-height: var(--t-body-lh); }

@@ -2966,5 +2966,21 @@
 "Water stays in the courtyard after cleaning.":"വൃത്തിയാക്കിയ ശേഷം മുറ്റത്ത് വെള്ളം കെട്ടിനിൽക്കുന്നു.",
 "The card reader at the side door does not always open it.":"സൈഡ് വാതിലിലെ കാർഡ് റീഡർ എപ്പോഴും വാതിൽ തുറക്കുന്നില്ല.",
 "A ceiling tile in the corridor is stained and sagging.":"ഇടനാഴിയിലെ ഒരു സീലിംഗ് ടൈലിൽ കറയുണ്ട്, അത് തൂങ്ങിക്കിടക്കുന്നു.",
-"The water pump runs all night and the pressure is low.":"വാട്ടർ പമ്പ് രാത്രി മുഴുവൻ പ്രവർത്തിക്കുന്നു, മർദ്ദം കുറവാണ്."
+"The water pump runs all night and the pressure is low.":"വാട്ടർ പമ്പ് രാത്രി മുഴുവൻ പ്രവർത്തിക്കുന്നു, മർദ്ദം കുറവാണ്.",
+"Change details":"മാറ്റത്തിന്റെ വിശദാംശങ്ങൾ",
+"Change status":"നില മാറ്റുക",
+"Everyone":"എല്ലാവരും",
+"Everything":"എല്ലാം",
+"Mark as in progress":"പുരോഗതിയിൽ ആക്കുക",
+"Mark as open":"തുറന്നതാക്കുക",
+"Mark as scheduled":"ഷെഡ്യൂൾ ചെയ്തതാക്കുക",
+"Mark as waiting for parts":"ഭാഗങ്ങൾക്കായി കാത്തിരിക്കുന്നതാക്കുക",
+"More filters":"കൂടുതൽ ഫിൽട്ടറുകൾ",
+"No visit yet":"ഇതുവരെ സന്ദർശനമില്ല",
+"Not booked yet":"ഇതുവരെ ബുക്ക് ചെയ്തിട്ടില്ല",
+"Save material":"മെറ്റീരിയൽ സേവ് ചെയ്യുക",
+"Site unavailable":"സൈറ്റ് ലഭ്യമല്ല",
+"What changed":"എന്താണ് മാറിയത്",
+"{count} late":"{count} വൈകി",
+"{count} open":"{count} തുറന്നത്"
 }

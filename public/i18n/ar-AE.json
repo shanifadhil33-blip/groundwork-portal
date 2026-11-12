@@ -2956,5 +2956,21 @@
 "Water stays in the courtyard after cleaning.":"يبقى الماء في الفناء بعد التنظيف.",
 "The card reader at the side door does not always open it.":"قارئ البطاقات عند الباب الجانبي لا يفتحه دائمًا.",
 "A ceiling tile in the corridor is stained and sagging.":"بلاطة سقف في الممر عليها بقع ومتدلية.",
-"The water pump runs all night and the pressure is low.":"مضخة الماء تعمل طوال الليل والضغط منخفض."
+"The water pump runs all night and the pressure is low.":"مضخة الماء تعمل طوال الليل والضغط منخفض.",
+"Change details":"تفاصيل التغيير",
+"Change status":"تغيير الحالة",
+"Everyone":"الجميع",
+"Everything":"كل شيء",
+"Mark as in progress":"تحويل إلى قيد التنفيذ",
+"Mark as open":"تحويل إلى مفتوح",
+"Mark as scheduled":"تحويل إلى مجدول",
+"Mark as waiting for parts":"تحويل إلى بانتظار القطع",
+"More filters":"عوامل تصفية إضافية",
+"No visit yet":"لا توجد زيارة بعد",
+"Not booked yet":"لم يُحجز بعد",
+"Save material":"حفظ المادة",
+"Site unavailable":"الموقع غير متاح",
+"What changed":"ما الذي تغيّر",
+"{count} late":"{count} متأخر",
+"{count} open":"{count} مفتوح"
 }

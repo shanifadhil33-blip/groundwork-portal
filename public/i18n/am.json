@@ -2960,5 +2960,21 @@
 "Water stays in the courtyard after cleaning.":"ከጽዳት በኋላ ውሃ በግቢው ውስጥ ይቆማል።",
 "The card reader at the side door does not always open it.":"በጎን በሩ ያለው የካርድ አንባቢ ሁልጊዜ አይከፍትም።",
 "A ceiling tile in the corridor is stained and sagging.":"በኮሪደሩ ያለ የጣሪያ ንጣፍ ቆሽሿል፣ ወደ ታችም ተንጠልጥሏል።",
-"The water pump runs all night and the pressure is low.":"የውሃ ፓምፑ ሌሊቱን ሙሉ ይሰራል፣ ግፊቱም ዝቅተኛ ነው።"
+"The water pump runs all night and the pressure is low.":"የውሃ ፓምፑ ሌሊቱን ሙሉ ይሰራል፣ ግፊቱም ዝቅተኛ ነው።",
+"Change details":"የለውጥ ዝርዝሮች",
+"Change status":"ሁኔታ ቀይር",
+"Everyone":"ሁሉም",
+"Everything":"ሁሉም ነገር",
+"Mark as in progress":"በሂደት ላይ አድርግ",
+"Mark as open":"ክፍት አድርግ",
+"Mark as scheduled":"ቀጠሮ ተይዟል አድርግ",
+"Mark as waiting for parts":"ዕቃ በመጠበቅ ላይ አድርግ",
+"More filters":"ተጨማሪ ማጣሪያዎች",
+"No visit yet":"ገና ጉብኝት የለም",
+"Not booked yet":"ገና አልተያዘም",
+"Save material":"ዕቃ አስቀምጥ",
+"Site unavailable":"ቦታው አይገኝም",
+"What changed":"የተቀየረው",
+"{count} late":"{count} ዘግይቷል",
+"{count} open":"{count} ክፍት"
 }

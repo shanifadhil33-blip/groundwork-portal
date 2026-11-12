@@ -2951,5 +2951,21 @@
 "Water stays in the courtyard after cleaning.":"Naiiwan ang tubig sa courtyard pagkatapos maglinis.",
 "The card reader at the side door does not always open it.":"Hindi laging nabubuksan ng card reader ang pinto sa gilid.",
 "A ceiling tile in the corridor is stained and sagging.":"May mantsa at lumalaylay ang isang tile sa kisame ng pasilyo.",
-"The water pump runs all night and the pressure is low.":"Buong gabing tumatakbo ang water pump at mahina ang presyon."
+"The water pump runs all night and the pressure is low.":"Buong gabing tumatakbo ang water pump at mahina ang presyon.",
+"Change details":"Detalye ng pagbabago",
+"Change status":"Palitan ang status",
+"Everyone":"Lahat",
+"Everything":"Lahat ng bagay",
+"Mark as in progress":"Gawing In progress",
+"Mark as open":"Gawing Bukas",
+"Mark as scheduled":"Gawing Naka-iskedyul",
+"Mark as waiting for parts":"Gawing Naghihintay ng piyesa",
+"More filters":"Iba pang filter",
+"No visit yet":"Wala pang pagbisita",
+"Not booked yet":"Hindi pa naka-book",
+"Save material":"I-save ang materyal",
+"Site unavailable":"Hindi makita ang site",
+"What changed":"Ano ang nagbago",
+"{count} late":"{count} huli",
+"{count} open":"{count} bukas"
 }

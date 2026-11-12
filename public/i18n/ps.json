@@ -2957,5 +2957,21 @@
 "Water stays in the courtyard after cleaning.":"له پاکولو وروسته په انګړ کې اوبه پاتې کېږي.",
 "The card reader at the side door does not always open it.":"د څنګ دروازې کارت لوستونکی تل دروازه نه پرانیزي.",
 "A ceiling tile in the corridor is stained and sagging.":"په دهلېز کې د چت یوه ټایل داغي او ځوړند ده.",
-"The water pump runs all night and the pressure is low.":"د اوبو پمپ ټوله شپه چلېږي او فشار یې کم دی."
+"The water pump runs all night and the pressure is low.":"د اوبو پمپ ټوله شپه چلېږي او فشار یې کم دی.",
+"Change details":"د بدلون جزئیات",
+"Change status":"حالت بدل کړئ",
+"Everyone":"ټول",
+"Everything":"هر څه",
+"Mark as in progress":"د روان په توګه وټاکئ",
+"Mark as open":"د پرانیستي په توګه وټاکئ",
+"Mark as scheduled":"د مهالوېشل شوي په توګه وټاکئ",
+"Mark as waiting for parts":"د پرزو انتظار په توګه وټاکئ",
+"More filters":"نور فلټرونه",
+"No visit yet":"لا کتنه نشته",
+"Not booked yet":"لا نه دی بک شوی",
+"Save material":"توکي خوندي کړئ",
+"Site unavailable":"ځای شتون نه لري",
+"What changed":"څه بدل شول",
+"{count} late":"{count} ځنډېدلي",
+"{count} open":"{count} پرانیستي"
 }

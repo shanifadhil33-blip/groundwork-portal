@@ -8,7 +8,7 @@ export const entityLabels:Record<string,string>={join_requests:'Request to join'
 type Activity={actor?:{name?:string|null}|null;actor_name?:string|null;entity:string;action:string;before?:unknown;after?:unknown;work_order_title?:string|null;member_name?:string|null};
 function record(value:unknown):Record<string,unknown> { return value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{}; }
 export function activitySentence(item:Activity, timezone='Asia/Dubai') {
- const before=record(item.before),after=record(item.after),actor=item.actor?.name??item.actor_name??'System',title=item.work_order_title??after.title??before.title;
+ const before=record(item.before),after=record(item.after),actor=item.actor?.name??item.actor_name??'Groundwork',title=item.work_order_title??after.title??before.title;
  const verb=item.action==='insert'?'created':item.action==='delete'?'deleted':'updated';
  const subject=item.entity==='work_orders'?String(title??'a job'):item.entity==='comments'?`a comment${title?` on ${title}`:''}`:(entityLabels[item.entity]??'Record').toLowerCase();
  if(item.entity==='members'){const name=item.member_name??after.name??before.name??'a team member',role=String(after.role??before.role??'member');return item.action==='insert'?`${actor} added ${name} as ${readableLabel(role)}`:item.action==='delete'?`${actor} removed ${name} from the team`:`${actor} changed ${name}’s role to ${readableLabel(role)}`;}

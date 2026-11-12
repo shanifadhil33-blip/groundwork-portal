@@ -2952,5 +2952,21 @@
 "Water stays in the courtyard after cleaning.":"Mmiri na-anọ n’ogige mgbe a sachara ya.",
 "The card reader at the side door does not always open it.":"Ihe na-agụ kaadị n’ọnụ ụzọ akụkụ anaghị emeghe ya mgbe niile.",
 "A ceiling tile in the corridor is stained and sagging.":"Otu taịl uko ụlọ n’okporo ụzọ nwere ntụpọ ma na-adaba.",
-"The water pump runs all night and the pressure is low.":"Pọmpụ mmiri na-arụ ọrụ abalị niile, ike mmiri dịkwa ala."
+"The water pump runs all night and the pressure is low.":"Pọmpụ mmiri na-arụ ọrụ abalị niile, ike mmiri dịkwa ala.",
+"Change details":"Nkọwa mgbanwe",
+"Change status":"Gbanwee ọnọdụ",
+"Everyone":"Onye ọ bụla",
+"Everything":"Ihe niile",
+"Mark as in progress":"Mee ka ọ na-aga n’ihu",
+"Mark as open":"Mee ka ọ mepere emepe",
+"Mark as scheduled":"Mee ka a haziri ya",
+"Mark as waiting for parts":"Mee ka ọ na-eche akụrụngwa",
+"More filters":"Nzacha ndị ọzọ",
+"No visit yet":"Enweghị nleta ka",
+"Not booked yet":"Edebeghị oge ya",
+"Save material":"Chekwaa ihe eji arụ ọrụ",
+"Site unavailable":"Ebe ahụ adịghị",
+"What changed":"Ihe gbanwere",
+"{count} late":"{count} egbuola oge",
+"{count} open":"{count} mepere emepe"
 }

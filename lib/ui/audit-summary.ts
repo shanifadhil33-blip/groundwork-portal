@@ -25,7 +25,7 @@ const record = (value: unknown): Record<string, any> => value && typeof value ==
 /** Use stored fields, never a sentence containing user names as a dictionary key. */
 export function auditSummaryTemplates(item: AuditSource): NotificationTemplate[] | null {
   const before = record(item.before), after = record(item.after);
-  const name = item.actor?.name ?? item.actor_name ?? 'System';
+  const name = item.actor?.name ?? item.actor_name ?? 'Groundwork';
   const job = String(item.work_order_title ?? after.title ?? before.title ?? 'Job');
   const values = { name, job, action: item.action === 'insert' ? 'Created' : item.action === 'delete' ? 'Deleted' : 'Updated' };
   const make = (key: string, extra: Record<string,string> = {}, translated: string[] = []): NotificationTemplate => ({key, values: {...values, ...extra}, translatedValues: ['action', ...(name === 'System' ? ['name'] : []), ...translated]});

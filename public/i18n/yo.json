@@ -2951,5 +2951,21 @@
 "Water stays in the courtyard after cleaning.":"Omi máa ń dúró sínú àgbàlá lẹ́yìn tí a bá fọ̀ ọ́.",
 "The card reader at the side door does not always open it.":"Ẹ̀rọ kàdì ní ilẹ̀kùn ẹ̀gbẹ́ kì í ṣí i nígbà gbogbo.",
 "A ceiling tile in the corridor is stained and sagging.":"Táìlì òrùlé kan ní ọ̀nà àbáwọlé ní àbàwọ́n, ó sì ń dorí kodò.",
-"The water pump runs all night and the pressure is low.":"Ẹ̀rọ fifa omi ń ṣiṣẹ́ ní gbogbo òru, agbára omi sì kéré."
+"The water pump runs all night and the pressure is low.":"Ẹ̀rọ fifa omi ń ṣiṣẹ́ ní gbogbo òru, agbára omi sì kéré.",
+"Change details":"Àlàyé ìyípadà",
+"Change status":"Yí ipò padà",
+"Everyone":"Gbogbo ènìyàn",
+"Everything":"Gbogbo nǹkan",
+"Mark as in progress":"Fi sí ń lọ lọ́wọ́",
+"Mark as open":"Fi sí ṣíṣí",
+"Mark as scheduled":"Fi sí ti ṣètò",
+"Mark as waiting for parts":"Fi sí ń dúró de ẹ̀yà",
+"More filters":"Àwọn àlẹ̀mọ́ míì",
+"No visit yet":"Kò sí ìbẹ̀wò síbẹ̀",
+"Not booked yet":"A kò tíì ṣètò rẹ̀",
+"Save material":"Fi ohun èlò pamọ́",
+"Site unavailable":"Ibi náà kò sí",
+"What changed":"Ohun tó yí padà",
+"{count} late":"{count} ti pẹ́",
+"{count} open":"{count} ṣí sílẹ̀"
 }

@@ -2959,5 +2959,21 @@
 "Water stays in the courtyard after cleaning.":"صفائی کے بعد صحن میں پانی کھڑا رہتا ہے۔",
 "The card reader at the side door does not always open it.":"سائیڈ دروازے کا کارڈ ریڈر ہمیشہ دروازہ نہیں کھولتا۔",
 "A ceiling tile in the corridor is stained and sagging.":"راہداری کی ایک سیلنگ ٹائل پر داغ ہے اور وہ لٹک رہی ہے۔",
-"The water pump runs all night and the pressure is low.":"پانی کی موٹر پوری رات چلتی ہے اور پریشر کم ہے۔"
+"The water pump runs all night and the pressure is low.":"پانی کی موٹر پوری رات چلتی ہے اور پریشر کم ہے۔",
+"Change details":"تبدیلی کی تفصیل",
+"Change status":"حالت بدلیں",
+"Everyone":"سب",
+"Everything":"سب کچھ",
+"Mark as in progress":"جاری میں کریں",
+"Mark as open":"کھلا کریں",
+"Mark as scheduled":"شیڈول شدہ کریں",
+"Mark as waiting for parts":"پرزوں کے انتظار میں کریں",
+"More filters":"مزید فلٹر",
+"No visit yet":"ابھی کوئی وزٹ نہیں",
+"Not booked yet":"ابھی بُک نہیں ہوا",
+"Save material":"مواد محفوظ کریں",
+"Site unavailable":"سائٹ دستیاب نہیں",
+"What changed":"کیا بدلا",
+"{count} late":"{count} تاخیر سے",
+"{count} open":"{count} کھلے"
 }
