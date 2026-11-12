@@ -1,12 +1,23 @@
 'use client';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from './button';
-import { requestErrorCopy } from '../../lib/ui/request-errors';
-/** Persistent recovery for background requests and mutation failures, preserving drafts. */
+
+/**
+ * One thin line at the top of every screen for the two states that are about the connection, not one screen:
+ * offline, and a request that takes longer than 8 seconds. Load errors show inside their screen and action
+ * errors as one toast, so a failure is never shown twice (bug 91).
+ */
 export function RequestRecovery() {
-  const [status,setStatus]=useState<number|null>(null);
-  useEffect(()=>{const receive=(event:Event)=>setStatus((event as CustomEvent<number>).detail),online=()=>{setStatus(null);window.dispatchEvent(new Event('groundwork-retry-resources'));};window.addEventListener('groundwork-request-error',receive);window.addEventListener('online',online);return()=>{window.removeEventListener('groundwork-request-error',receive);window.removeEventListener('online',online);};},[]);
-  if(status===null)return null;
-  return <aside className="request-recovery card stack compact" role="alert"><p>{requestErrorCopy(status)}</p><small>Nothing you typed is lost.</small><div className="row"><Button variant="secondary" onClick={()=>{setStatus(null);window.dispatchEvent(new Event('groundwork-retry-resources'));}}>Try again</Button>{status===429&&<Link className="button secondary" href="/sign-in">Sign in</Link>}<Button variant="ghost" onClick={()=>setStatus(null)}>Close</Button></div></aside>;
+  const [offline, setOffline] = useState(false), [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const update = () => setOffline(navigator.onLine === false);
+    const back = () => { update(); window.dispatchEvent(new Event('groundwork-retry-resources')); };
+    const slowly = (event: Event) => setSlow(!!(event as CustomEvent<boolean>).detail);
+    update();
+    window.addEventListener('offline', update); window.addEventListener('online', back); window.addEventListener('groundwork-slow', slowly);
+    return () => { window.removeEventListener('offline', update); window.removeEventListener('online', back); window.removeEventListener('groundwork-slow', slowly); };
+  }, []);
+  if (offline) return <div className="status-line" role="status">You are offline. Changes will be sent when you are back online.</div>;
+  if (slow) return <div className="status-line" role="status"><span>This is taking longer than usual.</span><Button variant="ghost" size="sm" onClick={() => window.dispatchEvent(new Event('groundwork-retry-resources'))}>Try again</Button></div>;
+  return null;
 }

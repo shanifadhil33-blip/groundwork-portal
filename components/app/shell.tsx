@@ -99,6 +99,8 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
     void sync();
   }, [me, workspace, sync]);
   useEffect(() => { setCollapsed(localStorage.getItem('groundwork-sidebar') === 'collapsed'); }, []);
+  // The service worker shows an in app offline page when a screen can not load. It caches nothing.
+  useEffect(() => { if (me && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {}); }, [me]);
 
   // Each role has one Home. Anyone on another role's Home, or without a company, is sent to his own first screen.
   useEffect(() => {
@@ -312,7 +314,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
                   </section>
                 )}
                 {member && <div className="outbox-slot"><Outbox key={`${me.user.id}:${member.workspace_id}`} /></div>}
-                <main id="app-content" className="route-content">{blocked ? <NoAccess /> : children}</main>
+                <main id="app-content" className="route-content">{!member && !ENTRY_PATHS.includes(path) ? <PageSkeleton /> : blocked ? <NoAccess /> : children}</main>
               </div>
             </div>
 

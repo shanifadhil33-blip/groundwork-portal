@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ChevronRight, X } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Circle, X } from 'lucide-react';
 import { Translated } from './app-words';
 import { useApp } from './context';
 import { useResource } from './resource';
@@ -16,7 +16,7 @@ import { roleGroup, type RoleGroup } from '../../lib/ui/nav';
 import { workOrderTitle, type Page, type WorkOrder } from '../../lib/ui/work-orders';
 
 type NeedsYouRow = { kind: string; count: number; href: string };
-type Summary = { today: number; late: number; without_technician: number; needs: NeedsYouRow[]; money: { currency: string; in: number; out: number } | null };
+type Summary = { today: number; late: number; without_technician: number; needs: NeedsYouRow[]; money: { currency: string; in: number; out: number } | null; setup?: { clients: boolean; team: boolean; jobs: boolean } | null };
 
 /** Words for each Needs you row: one for a single item, one for many. The number is shown beside them. */
 const NEEDS_WORDS: Record<string, [string, string]> = {
@@ -39,6 +39,37 @@ const TRY_FIRST: Partial<Record<RoleGroup, { text: string; label: string; href: 
 };
 
 function money(value: number, currency: string) { return `${currency} ${Math.round(value).toLocaleString('en-US')}`; }
+
+/** A real new company: four short steps on Home until they are done. Never a forced wizard (bugs 57, 84). */
+function SetupCard({ setup }: { setup: { clients: boolean; team: boolean; jobs: boolean } }) {
+  const { me } = useApp(), key = `groundwork-setup-hidden:${me.user.id}`;
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => { try { setHidden(localStorage.getItem(key) === '1'); } catch { /* Shown in full. */ } }, [key]);
+  const steps = [
+    { done: true, text: 'Create your company.', label: 'Company details', href: '/settings/company' },
+    { done: setup.team, text: 'Invite your team.', label: 'Invite', href: '/settings/team' },
+    { done: setup.clients, text: 'Add your first client.', label: 'Add client', href: '/clients' },
+    { done: setup.jobs, text: 'Add your first job.', label: 'New job', href: '/work-orders/new' },
+  ];
+  const done = steps.filter(step => step.done).length;
+  const toggle = (value: boolean) => { setHidden(value); try { localStorage.setItem(key, value ? '1' : '0'); } catch { /* Kept for this visit. */ } };
+  if (hidden) return <Card className="setup-line"><span><span>Setup</span> <span className="num" data-no-translate>{done}</span> <span>of</span> <span className="num" data-no-translate>{steps.length}</span></span><Button variant="secondary" size="sm" onClick={() => toggle(false)}>Continue</Button></Card>;
+  return (
+    <Card className="stack compact setup-card">
+      <div className="section-title"><h2>Set up Groundwork</h2><Button variant="ghost" size="sm" onClick={() => toggle(true)}>Hide for now</Button></div>
+      <p><span className="num" data-no-translate>{done}</span> <span>of</span> <span className="num" data-no-translate>{steps.length}</span> <span>done</span></p>
+      <ul className="list">
+        {steps.map(step => (
+          <li key={step.label} className="list-row">
+            {step.done ? <CheckCircle2 className="setup-done" aria-label="Done" /> : <Circle className="setup-todo" aria-hidden="true" />}
+            <span className="list-row-main">{step.text}</span>
+            {!step.done && <Link className="button secondary sm" href={step.href}>{step.label}</Link>}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
 
 function TryFirst({ group, onPlan }: { group: RoleGroup; onPlan: () => void }) {
   const { me } = useApp();
@@ -162,6 +193,7 @@ export function OfficeHome() {
         </PageHeader>
         <div className="home-grid">
           <div className="home-main">
+            {data?.setup && <SetupCard setup={data.setup} />}
             {demo && <TryFirst group={group} onPlan={() => setPlanOpen(true)} />}
             <Card className="today-card" aria-labelledby="today-title">
               <h2 id="today-title">Today</h2>

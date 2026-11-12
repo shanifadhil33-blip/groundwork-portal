@@ -36,7 +36,7 @@ it('keeps the same screen mounted while identity reload is pending or fails, inc
  vi.spyOn(window,'scrollTo').mockImplementation(()=>{});
  Object.defineProperty(HTMLElement.prototype,'scrollTo',{value:()=>{},configurable:true});
  const host=document.createElement('div');document.body.append(host);const root=createRoot(host);
- const initial={user:'imran',me:{user:{id:'imran',name:'Imran',is_demo:true},memberships:[]},workspace:null,resources:{}} as any;
+ const initial={user:'imran',me:{user:{id:'imran',name:'Imran',is_demo:true},memberships:[{workspace_id:'w1',workspace_name:'Ridgeline',role:'admin',client_id:null,client_name:null}]},workspace:{id:'w1',name:'Ridgeline',is_demo:true,timezone:'Asia/Dubai',country:'AE',region:null,currency:'AED'},resources:{}} as any;
  let reload!:()=>Promise<void>;
  function Screen(){reload=useApp().reload as ()=>Promise<void>;return <p>आज के काम</p>;}
  const screen=(seed:any)=><AppShell initial={seed}><Screen/></AppShell>;

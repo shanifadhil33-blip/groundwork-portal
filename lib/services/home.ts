@@ -38,7 +38,19 @@ export async function homeSummary(user: string, ws: string) {
     }
     if (jobs.mine_today > 0) needs.push({ kind: 'mine_today', count: jobs.mine_today, href: `/work-orders?assignee_id=${user}&today=true` });
     const money = c.role === 'admin' ? await monthMoney(c) : null;
-    return { today: jobs.today, late: jobs.late, without_technician: jobs.without_technician, needs, money };
+    // Setup for a real new company, worked out from its data, so every phone shows the same progress.
+    let setup: { clients: boolean; team: boolean; jobs: boolean } | null = null;
+    if (c.role === 'admin') {
+      const row = (await c.db.query(
+        `SELECT w.is_demo,
+                EXISTS (SELECT 1 FROM clients WHERE workspace_id=$1) AS clients,
+                EXISTS (SELECT 1 FROM members WHERE workspace_id=$1 AND user_id<>$2 AND role<>'client' AND archived_at IS NULL)
+                  OR EXISTS (SELECT 1 FROM invites WHERE workspace_id=$1) AS team,
+                EXISTS (SELECT 1 FROM work_orders WHERE workspace_id=$1) AS jobs
+           FROM workspaces w WHERE w.id=$1`, [ws, user])).rows[0];
+      if (row && !row.is_demo && !(row.clients && row.team && row.jobs)) setup = { clients: row.clients, team: row.team, jobs: row.jobs };
+    }
+    return { today: jobs.today, late: jobs.late, without_technician: jobs.without_technician, needs, money, setup };
   });
 }
 

@@ -10,7 +10,7 @@ it('sanitizes network and server failures',async()=>{
  await expect(request('/api/me')).rejects.toMatchObject({status:503,message:requestErrorCopy(503)});
 });
 it('describes permissions and rate limits without technical codes',()=>{
- expect(requestErrorCopy(403)).toContain('access');expect(requestErrorCopy(429)).toContain('wait');
+ expect(requestErrorCopy(403)).toContain('permission');expect(requestErrorCopy(403)).not.toMatch(/workspace admin/);expect(requestErrorCopy(429)).toContain('wait');
 });
 it('rejects empty uploads and header-only files with specific reasons',()=>{
  expect(()=>parseFile(Buffer.alloc(0),'empty.csv')).toThrow('empty');

@@ -490,6 +490,13 @@ label {
   border-radius: var(--r-control);
   background: var(--line);
   animation: shimmer var(--dur-shimmer) var(--ease-linear) infinite;
+  /* Hidden for the first 300 ms, so a fast load swaps straight to content with no flash. */
+  transition: opacity var(--dur-fast) var(--ease-out) var(--delay-skeleton);
+}
+@starting-style {
+  .skeleton {
+    opacity: 0;
+  }
 }
 .skeleton-title {
   width: 60%;
@@ -2127,4 +2134,43 @@ button.list-row:active {
 /* Sign in and the demo picker are the one door on their page: the header shows the logo only. */
 body:has(.auth-page, .demo-page) .public-header nav {
   display: none;
+}
+
+/* ---------- Connection line: offline or slow ---------- */
+.status-line {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-start: 0;
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  min-height: var(--h-sm);
+  padding: 0 var(--s4);
+  background: var(--ink);
+  color: var(--ink-fg);
+  font-size: var(--t-meta);
+  line-height: var(--t-meta-lh);
+  text-align: center;
+}
+.status-line .button {
+  color: inherit;
+}
+
+/* ---------- Setup card for a new company ---------- */
+.setup-card .list-row {
+  gap: var(--s3);
+}
+.setup-done {
+  color: var(--st-done);
+}
+.setup-todo {
+  color: var(--line);
+}
+.setup-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
 }
