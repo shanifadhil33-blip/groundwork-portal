@@ -24,7 +24,7 @@ describe('Viewer names',()=>{
  it('has private SQL policies, name bounds, confirmation enforcement and a real name control',()=>{
   const migration=read('db/migrations/0040_contact_nicknames.sql');expect(migration).toContain('PRIMARY KEY(owner_user_id,target_user_id)');expect(migration).toContain('BETWEEN 1 AND 60');expect(migration).toContain('FORCE ROW LEVEL SECURITY');expect(migration).toContain('owner_user_id=app_user_id()');
   expect(read('lib/agent/tools.ts')).toContain("['suggest_contact_name','fill_onboarding'].includes(name)&&!c.approved");
-  expect(read('components/app/contact-name.tsx')).toContain('Real name:');expect(read('components/app/contact-name.tsx')).toContain('Save as...');expect(read('components/app/contact-names-context.tsx')).toContain('groundwork-contact-names');
+  expect(read('components/app/contact-name.tsx')).not.toContain('Save as...');expect(read('components/app/contact-names-context.tsx')).toContain('groundwork-contact-names');
  });
 });
 describe('Company size',()=>{
