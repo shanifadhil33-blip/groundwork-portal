@@ -2975,5 +2975,8 @@
 "We do not email this yet. Copy the link and send it yourself.":"Kino tetunnakiweereza ku email. Koppa link ogiweereze ggwe kennyini.",
 "This file has more than 500 rows. Split it into smaller files and upload each one.":"Fayiro eno erina ennyiriri ezisukka 500. Gyawulemu mu fayiro entono otikke buli emu.",
 "We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"Tetusobodde kusoma fayiro eno. Kozesa fayiro ya Excel oba CSV okutuuka ku 2 MB n’ennyiriri 500.",
-"This file has headings but no rows. Add a row for each job under the headings.":"Fayiro eno erina emitwe naye tesirina nnyiriri. Yongerako olunyiriri ku buli mulimu wansi w’emitwe."
+"This file has headings but no rows. Add a row for each job under the headings.":"Fayiro eno erina emitwe naye tesirina nnyiriri. Yongerako olunyiriri ku buli mulimu wansi w’emitwe.",
+"Only the owner or an admin can reopen this job.":"Nnannyini oba omukulembeze yekka y’asobola okuggulawo omulimu guno nate.",
+"Suggest another job here":"Weereza ekirowoozo ky’omulimu omulala wano",
+"Tell the office the price changed":"Tegeeza ofiisi nti ebbeeyi ekyuse"
 }

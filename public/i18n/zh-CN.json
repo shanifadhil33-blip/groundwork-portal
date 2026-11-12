@@ -2978,5 +2978,8 @@
 "We do not email this yet. Copy the link and send it yourself.":"我们还不会通过电子邮件发送。请复制链接并自行发送。",
 "This file has more than 500 rows. Split it into smaller files and upload each one.":"此文件超过 500 行。请拆分成较小的文件并分别上传。",
 "We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"无法读取此文件。请使用不超过 2 MB 和 500 行的 Excel 或 CSV 文件。",
-"This file has headings but no rows. Add a row for each job under the headings.":"此文件只有标题没有数据行。请在标题下为每项工作添加一行。"
+"This file has headings but no rows. Add a row for each job under the headings.":"此文件只有标题没有数据行。请在标题下为每项工作添加一行。",
+"Only the owner or an admin can reopen this job.":"只有负责人或管理员可以重新打开此工作。",
+"Suggest another job here":"在这里建议另一项工作",
+"Tell the office the price changed":"告诉办公室价格变了"
 }

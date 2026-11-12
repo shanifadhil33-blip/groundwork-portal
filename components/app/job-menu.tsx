@@ -23,7 +23,7 @@ export function JobMenu({job,base,open=true,onChanged,afterDelete,onOptimistic,s
  function pick(v:string){if(v.startsWith('status:'))onStatus?.(v.slice(7));else if(v==='open')router.push(`/work-orders/${job.id}`);else if(v==='cancel')void doCancel();else if(v==='restore')void restore().then(()=>toast(`${label} is back.`)).catch(e=>toast(e instanceof RequestError?e.message:'That did not work. Try again.'));else if(v==='delete')void ask();}
  const history=impact?[impact.notes&&n(impact.notes,'note'),impact.photos&&n(impact.photos,'photo'),impact.parts&&n(impact.parts,'parts order'),impact.changes&&n(impact.changes,'change')].filter(Boolean).join(', '):'';
  return <span className="record-actions" onClick={e=>e.stopPropagation()}>
-  <Dropdown label={`More for ${label}`} icon={<MoreVertical size={18} aria-hidden="true"/>} menuWidth={200} options={options} onChange={pick}/>
+  <Dropdown label={`More for ${label}`} className="job-more" icon={<MoreVertical size={18} aria-hidden="true"/>} menuWidth={200} options={options} onChange={pick}/>
   {asking&&!impact&&<Dialog open onClose={()=>setAsking(false)} title={`Delete ${label}?`} footer={<Button variant="secondary" onClick={()=>setAsking(false)}>Close</Button>}>{error?<p role="alert" className="inline-error">{error}</p>:<p role="status">Checking this job…</p>}</Dialog>}
   {asking&&impact&&(impact.can_delete
    ?<ConfirmDialog open danger onClose={()=>setAsking(false)} title={`Delete ${label}?`} confirmLabel="Delete" busyLabel="Deleting…" busy={busy} error={error} onConfirm={()=>void doDelete()}>This job has no activity yet, so it can be deleted. This can not be undone.</ConfirmDialog>

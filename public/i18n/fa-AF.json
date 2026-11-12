@@ -2978,5 +2978,8 @@
 "We do not email this yet. Copy the link and send it yourself.":"این را هنوز ایمیل نمی‌کنیم. لینک را کاپی کنید و خودتان بفرستید.",
 "This file has more than 500 rows. Split it into smaller files and upload each one.":"این فایل بیش از 500 سطر دارد. آن را به فایل‌های کوچک‌تر تقسیم کنید و هر کدام را آپلود کنید.",
 "We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"این فایل خوانده نشد. یک فایل Excel یا CSV تا 2 مگابایت و 500 سطر استفاده کنید.",
-"This file has headings but no rows. Add a row for each job under the headings.":"این فایل عنوان دارد ولی سطر ندارد. برای هر کار زیر عنوان‌ها یک سطر اضافه کنید."
+"This file has headings but no rows. Add a row for each job under the headings.":"این فایل عنوان دارد ولی سطر ندارد. برای هر کار زیر عنوان‌ها یک سطر اضافه کنید.",
+"Only the owner or an admin can reopen this job.":"فقط مالک یا مدیر می‌تواند این کار را دوباره باز کند.",
+"Suggest another job here":"کار دیگری اینجا پیشنهاد کنید",
+"Tell the office the price changed":"به دفتر بگویید قیمت تغییر کرد"
 }

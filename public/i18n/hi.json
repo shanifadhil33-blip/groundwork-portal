@@ -2981,5 +2981,8 @@
 "We do not email this yet. Copy the link and send it yourself.":"हम इसे अभी ईमेल नहीं करते। लिंक कॉपी करें और खुद भेजें।",
 "This file has more than 500 rows. Split it into smaller files and upload each one.":"इस फ़ाइल में 500 से ज़्यादा पंक्तियाँ हैं। इसे छोटी फ़ाइलों में बाँटें और हर एक अपलोड करें।",
 "We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"हम यह फ़ाइल नहीं पढ़ सके। 2 MB और 500 पंक्तियों तक की Excel या CSV फ़ाइल इस्तेमाल करें।",
-"This file has headings but no rows. Add a row for each job under the headings.":"इस फ़ाइल में शीर्षक हैं पर पंक्तियाँ नहीं। शीर्षकों के नीचे हर काम के लिए एक पंक्ति जोड़ें।"
+"This file has headings but no rows. Add a row for each job under the headings.":"इस फ़ाइल में शीर्षक हैं पर पंक्तियाँ नहीं। शीर्षकों के नीचे हर काम के लिए एक पंक्ति जोड़ें।",
+"Only the owner or an admin can reopen this job.":"यह काम सिर्फ़ मालिक या एडमिन फिर से खोल सकते हैं।",
+"Suggest another job here":"यहाँ एक और काम सुझाएँ",
+"Tell the office the price changed":"दफ़्तर को बताएँ कि क़ीमत बदल गई"
 }

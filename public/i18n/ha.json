@@ -2975,5 +2975,8 @@
 "We do not email this yet. Copy the link and send it yourself.":"Ba mu aika wannan ta imel ba tukuna. Kwafi mahaɗin ka aika da kanka.",
 "This file has more than 500 rows. Split it into smaller files and upload each one.":"Wannan fayil yana da layi fiye da 500. Raba shi zuwa ƙananan fayiloli ka loda kowanne.",
 "We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"Ba mu iya karanta wannan fayil ba. Yi amfani da fayil Excel ko CSV har 2 MB da layi 500.",
-"This file has headings but no rows. Add a row for each job under the headings.":"Wannan fayil yana da take amma babu layi. Ƙara layi ga kowane aiki a ƙarƙashin taken."
+"This file has headings but no rows. Add a row for each job under the headings.":"Wannan fayil yana da take amma babu layi. Ƙara layi ga kowane aiki a ƙarƙashin taken.",
+"Only the owner or an admin can reopen this job.":"Mai shi ko mai gudanarwa ne kawai zai iya sake buɗe wannan aiki.",
+"Suggest another job here":"Ba da shawarar wani aiki a nan",
+"Tell the office the price changed":"Gaya wa ofis cewa farashi ya canza"
 }

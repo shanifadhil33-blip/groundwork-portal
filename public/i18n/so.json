@@ -2975,5 +2975,8 @@
 "We do not email this yet. Copy the link and send it yourself.":"Weli tan iimayl uma dirno. Koobiyee xiriirka adigu dir.",
 "This file has more than 500 rows. Split it into smaller files and upload each one.":"Faylkani wuxuu leeyahay in ka badan 500 saf. U qaybi faylal yaryar oo mid walba soo geli.",
 "We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"Ma akhrin karno faylkan. Isticmaal fayl Excel ama CSV ah oo ilaa 2 MB iyo 500 saf ah.",
-"This file has headings but no rows. Add a row for each job under the headings.":"Faylkani wuxuu leeyahay cinwaanno laakiin saf ma leh. Ku dar saf shaqo kasta oo hoos yimaada cinwaannada."
+"This file has headings but no rows. Add a row for each job under the headings.":"Faylkani wuxuu leeyahay cinwaanno laakiin saf ma leh. Ku dar saf shaqo kasta oo hoos yimaada cinwaannada.",
+"Only the owner or an admin can reopen this job.":"Kaliya milkiilaha ama maamulaha ayaa dib u furi kara shaqadan.",
+"Suggest another job here":"Halkan ku soo jeedi shaqo kale",
+"Tell the office the price changed":"U sheeg xafiiska in qiimuhu isbeddelay"
 }

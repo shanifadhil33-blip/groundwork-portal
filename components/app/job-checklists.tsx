@@ -47,6 +47,8 @@ export function JobChecklistCard({ base, id, readOnly=false }: {base:string;id:s
   if(result.loading)return <Skeleton className="skeleton-card"/>;
   if(result.error)return <ErrorState error={result.error} retry={result.reload}/>;
   const data=result.data;if(!data)return null;const editable=data.editable&&!readOnly;
+  // A finished job whose checklist was never used has nothing to show.
+  if(readOnly&&!data.steps.some(s=>s.done)&&!data.materials.length)return null;
   return <Card className="stack job-checklist"><h2>Checklist</h2>
     <p><span>{data.steps.filter(s=>s.done).length}</span>{' '}<span>of</span>{' '}<span>{data.steps.length}</span>{' '}<span>steps done</span></p>
     {!data.steps.length&&<p className="small muted">No steps set for this job type.</p>}

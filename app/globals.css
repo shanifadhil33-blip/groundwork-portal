@@ -2245,3 +2245,10 @@ body:has(.auth-page, .demo-page) .public-header nav {
   min-height: var(--tap);
 }
 .history-row .history-what { font-size: var(--t-body); line-height: var(--t-body-lh); }
+
+/* Job page: the More menu sits at the top end of the header, next to the title. */
+.work-detail-page .page-header { position: relative; }
+.work-detail-page .page-header > div:first-child { padding-inline-end: calc(var(--tap) + var(--s2)); }
+.work-detail-page .job-more { position: absolute; inset-block-start: 0; inset-inline-end: 0; }
+.work-detail-page .detail-actions:empty { display: none; }
+.late-line { margin: 0; color: var(--st-late); }

@@ -2974,5 +2974,8 @@
 "We do not email this yet. Copy the link and send it yourself.":"A kò tíì fi èyí ránṣẹ́ nípasẹ̀ ímeèlì. Ṣe ẹ̀dà ìjápọ̀ náà kí o fi ránṣẹ́ fúnra rẹ.",
 "This file has more than 500 rows. Split it into smaller files and upload each one.":"Fáìlì yìí ní ju ìlà 500 lọ. Pín in sí fáìlì kéékèèké kí o gbé ọ̀kọ̀ọ̀kan sókè.",
 "We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"A kò lè ka fáìlì yìí. Lo fáìlì Excel tàbí CSV tí kò ju 2 MB àti ìlà 500 lọ.",
-"This file has headings but no rows. Add a row for each job under the headings.":"Fáìlì yìí ní àkọlé ṣùgbọ́n kò ní ìlà. Fi ìlà kan kún un fún iṣẹ́ kọ̀ọ̀kan lábẹ́ àwọn àkọlé."
+"This file has headings but no rows. Add a row for each job under the headings.":"Fáìlì yìí ní àkọlé ṣùgbọ́n kò ní ìlà. Fi ìlà kan kún un fún iṣẹ́ kọ̀ọ̀kan lábẹ́ àwọn àkọlé.",
+"Only the owner or an admin can reopen this job.":"Oníṣẹ́ tàbí alábòójútó nìkan ló lè ṣí iṣẹ́ yìí padà.",
+"Suggest another job here":"Dábàá iṣẹ́ míì níbí",
+"Tell the office the price changed":"Sọ fún ọ́fíìsì pé iye owó ti yí padà"
 }

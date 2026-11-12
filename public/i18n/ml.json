@@ -2989,5 +2989,8 @@
 "We do not email this yet. Copy the link and send it yourself.":"ഇത് ഞങ്ങൾ ഇതുവരെ ഇമെയിൽ ചെയ്യുന്നില്ല. ലിങ്ക് പകർത്തി നിങ്ങൾ തന്നെ അയക്കുക.",
 "This file has more than 500 rows. Split it into smaller files and upload each one.":"ഈ ഫയലിൽ 500-ൽ കൂടുതൽ വരികളുണ്ട്. ചെറിയ ഫയലുകളായി വിഭജിച്ച് ഓരോന്നും അപ്‌ലോഡ് ചെയ്യുക.",
 "We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"ഈ ഫയൽ വായിക്കാനായില്ല. 2 MB യും 500 വരികളും വരെയുള്ള Excel അല്ലെങ്കിൽ CSV ഫയൽ ഉപയോഗിക്കുക.",
-"This file has headings but no rows. Add a row for each job under the headings.":"ഈ ഫയലിൽ തലക്കെട്ടുകളുണ്ട്, പക്ഷേ വരികളില്ല. തലക്കെട്ടുകൾക്ക് താഴെ ഓരോ ജോലിക്കും ഒരു വരി ചേർക്കുക."
+"This file has headings but no rows. Add a row for each job under the headings.":"ഈ ഫയലിൽ തലക്കെട്ടുകളുണ്ട്, പക്ഷേ വരികളില്ല. തലക്കെട്ടുകൾക്ക് താഴെ ഓരോ ജോലിക്കും ഒരു വരി ചേർക്കുക.",
+"Only the owner or an admin can reopen this job.":"ഉടമയ്ക്കോ അഡ്മിനോ മാത്രമേ ഈ ജോലി വീണ്ടും തുറക്കാനാകൂ.",
+"Suggest another job here":"ഇവിടെ മറ്റൊരു ജോലി നിർദ്ദേശിക്കുക",
+"Tell the office the price changed":"വില മാറിയെന്ന് ഓഫീസിനെ അറിയിക്കുക"
 }
