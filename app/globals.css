@@ -2174,3 +2174,11 @@ body:has(.auth-page, .demo-page) .public-header nav {
   justify-content: space-between;
   gap: var(--s3);
 }
+
+/* Jobs list: Show more under the last row. */
+.list-more {
+  display: grid;
+  justify-items: center;
+  gap: var(--s2);
+  padding-block: var(--s4);
+}

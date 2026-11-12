@@ -165,7 +165,6 @@ export function OfficeHome() {
   const base = member ? `/api/workspaces/${member.workspace_id}` : '';
   const summary = useResource<Summary>(base ? `${base}/home` : null);
   const plan = useResource<DayPlanData>(base ? `${base}/day-plan` : null);
-  const dashboard = useResource<unknown>(base ? `${base}/dashboard` : null);
   const visits = useResource<unknown>(base ? `${base}/work-orders?today=true&sort=scheduled_for&dir=asc&pageSize=10` : null);
   const [planOpen, setPlanOpen] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
@@ -178,7 +177,7 @@ export function OfficeHome() {
   const toPlace = plan.data?.lines.filter(line => line.kind === 'place').length ?? 0;
   const canPlan = !!plan.data?.can_plan;
   // Approving changes who does what today: every number on Home and the shell badge refresh at once.
-  const refresh = async () => { await Promise.all([summary.reload(), plan.reload(), dashboard.reload(), visits.reload()]); window.dispatchEvent(new Event('groundwork-queue-changed')); };
+  const refresh = async () => { await Promise.all([summary.reload(), plan.reload(), visits.reload()]); window.dispatchEvent(new Event('groundwork-queue-changed')); };
   const demo = !!me.user.is_demo && !!workspace?.is_demo;
   const needs = data?.needs ?? [];
 

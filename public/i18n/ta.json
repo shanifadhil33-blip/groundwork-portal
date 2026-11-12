@@ -2937,5 +2937,6 @@
 "We couldn’t reach Groundwork. Check your connection and try again.":null,
 "You are offline. This will load when you are back online.":null,
 "You don’t have permission to see this.":null,
-"{unread_count} unread":null
+"{unread_count} unread":null,
+"The Agent has reached today's limit. It will be back tomorrow.":"முகவர் இன்றைய வரம்பை எட்டிவிட்டது. நாளை மீண்டும் கிடைக்கும்."
 }

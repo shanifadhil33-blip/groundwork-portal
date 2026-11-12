@@ -1,7 +1,14 @@
 import { languageCookie } from '../../../../lib/language-cookie';
-import { sandboxCookie, startDemo } from '../../../../lib/services/demo';
+import { after } from 'next/server';
+import { cleanupDemo, sandboxCookie, startDemo } from '../../../../lib/services/demo';
+import { pruneAgentQuota } from '../../../../lib/services/agent-quota';
 import { ApiError,errorResponse,readBody } from '../../../../lib/http';
-export async function POST(req:Request){try{
+export async function POST(req:Request){
+ // Bug 101: expired sandboxes are removed after the answer is sent, never while a visitor waits.
+ // cleanupDemo skips at once if another cleanup is running. The daily cron is the safety net.
+ const tidy=()=>Promise.resolve().then(()=>Promise.all([cleanupDemo(20),pruneAgentQuota()])).catch(()=>undefined);
+ try{after(tidy);}catch{void tidy();} // Outside a request (tests) there is no after().
+ try{
  const body=await readBody(req);
  const result=await startDemo (body,process.env.VERCEL?req.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim()??'unknown':'local',req.headers.get('cookie')?.split(';').map(c=>c.trim()).find(c=>c.startsWith('groundwork-sandbox='))?.slice(19));
  // Buffer the small payload before sending headers so clients can finish by byte count.

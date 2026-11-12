@@ -132,7 +132,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
   useVisiblePoll(counts.reload, 120_000, !!member);
   const messages = useResource<{ unread_count: number; direct_unread_count?: number; team_unread_count?: number }>(base ? `${base}/messages/unread` : null);
   useVisiblePoll(messages.reload, 120_000, !!member);
-  const summary = useResource<{ pending_queue_rows?: number; pending_suggestions?: number }>(base && office ? `${base}/dashboard` : null);
+  const summary = useResource<{ pending_queue_rows?: number; pending_suggestions?: number }>(base && office ? `${base}/to-approve-count` : null);
   useVisiblePoll(summary.reload, 90_000, !!member && office);
   useEffect(() => {
     const refreshMessages = () => void messages.reload(), refreshQueue = () => void summary.reload();

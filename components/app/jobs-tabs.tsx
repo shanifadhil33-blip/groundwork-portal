@@ -10,7 +10,7 @@ const useIsoLayoutEffect = typeof window === 'undefined' ? useEffect : useLayout
 /** Jobs: All and To approve, for office roles. Each tab is its own address, so Back works. */
 export function JobsTabs({ current }: { current: 'all' | 'approve' }) {
   const { member } = useApp(), list = useRef<HTMLDivElement>(null);
-  const summary = useResource<{ pending_queue_rows?: number; pending_suggestions?: number }>(member && isOffice(member.role) ? `/api/workspaces/${member.workspace_id}/dashboard` : null);
+  const summary = useResource<{ pending_queue_rows?: number; pending_suggestions?: number }>(member && isOffice(member.role) ? `/api/workspaces/${member.workspace_id}/to-approve-count` : null);
   useIsoLayoutEffect(() => {
     const el = list.current, tab = el?.querySelector<HTMLElement>('[aria-current="page"]');
     if (!el || !tab) return;

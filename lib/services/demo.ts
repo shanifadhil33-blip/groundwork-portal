@@ -25,16 +25,24 @@ function parsePersona(body:unknown,company?:Company){
  const persona=(c==='dune_harbour'?z.enum(DUNE_PERSONAS):z.enum(RIDGELINE_PERSONAS)).parse(raw.persona);
  return {persona,company:c,language:raw.language};
 }
-const lock=async(db:PoolClient)=>{await db.query('SELECT pg_advisory_xact_lock(78201350)');};
+/**
+ * Bug 101: no global lock. A visitor waits only on his own earlier click (lock per visitor key),
+ * a switch or reset waits only on the same sandbox, and expired sandboxes are removed by the cron every 15 minutes.
+ */
+const lockFor=async(db:PoolClient,key:string)=>{await db.query('SELECT pg_advisory_xact_lock(78201350,hashtext($1))',[key]);};
 async function cleanup(db:PoolClient,limit:number){
- const rows=(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at<=now() ORDER BY demo_expires_at LIMIT $1 FOR UPDATE',[limit])).rows;
+ const rows=(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at<=now() ORDER BY demo_expires_at LIMIT $1 FOR UPDATE SKIP LOCKED',[limit])).rows;
  const ids=rows.map(r=>r.id);
  const sessions=(await db.query('SELECT count(*)::int AS n FROM sessions s JOIN users u ON u.id=s."userId" WHERE u.demo_workspace_id=ANY($1::uuid[])',[ids])).rows[0].n;
  const users=(await db.query('SELECT coalesce(sum(delete_demo_workspace(id)),0)::int AS n FROM unnest($1::uuid[]) AS expired(id)',[ids])).rows[0].n;
  await db.query("DELETE FROM demo_creation_attempts WHERE created_at<now()-interval '1 hour'");
  return {workspaces:rows.length,users,sessions};
 }
-export async function cleanupDemo(limit=1000){return withSystem(async db=>{await lock(db);return cleanup(db,limit);});}
+export async function cleanupDemo(limit=1000){return withSystem(async db=>{
+ // Two cron runs never clean at the same time; the second one simply skips.
+ if(!(await db.query('SELECT pg_try_advisory_xact_lock(78201352) AS ok')).rows[0].ok)return {workspaces:0,users:0,sessions:0,skipped:true};
+ return cleanup(db,limit);
+});}
 async function session(db:PoolClient,user:string,expires:Date,language?:string){
  if(language)await db.query('INSERT INTO user_preferences(user_id,language) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET language=EXCLUDED.language',[user,language]);
  const token=randomBytes(32).toString('base64url');
@@ -75,7 +83,7 @@ export async function startDemo(body:unknown,ip:string,sandbox?:string|null){
  const ipHash=createHmac('sha256',requiredEnv('AUTH_SECRET')).update('demo-ip:'+ip).digest('hex');
  const reuse=sandboxFromToken(sandbox);
  return withSystem(async db=>{
-  await lock(db);await cleanup(db,10);
+  await lockFor(db,'visitor:'+ipHash);
   if(reuse){
    const live=(await db.query('SELECT w.demo_expires_at,u.id FROM workspaces w JOIN users u ON u.demo_workspace_id=w.id AND u.is_demo AND u.demo_persona=$2 WHERE w.id=$1 AND w.is_demo AND w.demo_expires_at>now() AND w.name=$3',[reuse,persona,companyName(company)])).rows[0];
    if(live)return {body:{workspace_id:reuse,persona,expires_at:live.demo_expires_at},cookie:await session(db,live.id,live.demo_expires_at,language)};
@@ -84,7 +92,7 @@ export async function startDemo(body:unknown,ip:string,sandbox?:string|null){
   if(count>=DEMO_NEW_PER_IP_HOUR)throw new ApiError(429,'demo_limit','The demo is busy. Please try again later.');
   const configured=Number(process.env.DEMO_MAX_SANDBOXES??200);const cap=Number.isSafeInteger(configured)&&configured>0?configured:200;
   // At the cap, recycle the oldest sandboxes (earliest to expire) instead of turning anyone away. Keep the newest, so someone who just started never loses his demo.
-  const over=(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at>now() ORDER BY demo_expires_at DESC OFFSET $1',[cap-1])).rows;
+  const over=(await db.query('SELECT id FROM workspaces WHERE is_demo AND demo_expires_at>now() ORDER BY demo_expires_at DESC OFFSET $1 FOR UPDATE SKIP LOCKED',[cap-1])).rows;
   if(over.length)await db.query('SELECT delete_demo_workspace(id) FROM workspaces WHERE id=ANY($1::uuid[])',[over.map(r=>r.id)]);
   await db.query('INSERT INTO demo_creation_attempts(ip_hash) VALUES($1)',[ipHash]);
   return create(db,persona,company,language);
@@ -96,7 +104,7 @@ async function context(db:PoolClient,user:string){
 }
 export async function assertRealUser(user:string){await withUser(user,db=>db.query('SELECT require_real_user()'));}
 export async function switchDemo(user:string,body:unknown){
- return withSystem(async db=>{await lock(db);const m=await context(db,user);const {persona,language}=parsePersona(body,companyOf(m.workspace_name));
+ return withSystem(async db=>{const m=await context(db,user);const {persona,language}=parsePersona(body,companyOf(m.workspace_name));
  const target=(await db.query('SELECT id FROM users WHERE demo_workspace_id=$1 AND is_demo AND demo_persona=$2',[m.workspace_id,persona])).rows[0];if(!target)throw missing();
  await db.query('DELETE FROM sessions WHERE "userId" IN (SELECT id FROM users WHERE demo_workspace_id=$1)',[m.workspace_id]);
  return {body:{workspace_id:m.workspace_id,persona,expires_at:m.demo_expires_at},cookie:await session(db,target.id,m.demo_expires_at,language)};
@@ -104,7 +112,7 @@ export async function switchDemo(user:string,body:unknown){
 }
 export async function resetDemo(user:string,body:unknown){
  z.object({confirm:z.literal(true)}).strict().parse(body);
- return withSystem(async db=>{await lock(db);const m=await context(db,user);const persona=m.demo_persona as Persona;const company=companyOf(m.workspace_name);
+ return withSystem(async db=>{const m=await context(db,user);const persona=m.demo_persona as Persona;const company=companyOf(m.workspace_name);
  if(company==='dune_harbour'&&!duneHarbourEnabled())throw missing();
  const language=(await db.query('SELECT language FROM user_preferences WHERE user_id=$1',[user])).rows[0]?.language;
  await db.query('SELECT delete_demo_workspace($1)',[m.workspace_id]);return create(db,persona,company,language);});

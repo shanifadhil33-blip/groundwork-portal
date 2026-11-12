@@ -11,6 +11,8 @@ import { groundedReply } from '../agent/reply-grounding';
 import { choicePrompt, choiceWords, localizedChoice } from '../agent/choices';
 import { PRACTICE_NOTICE, PRACTICE_CODE, practiceJoinUrl } from '../identity-rehearsal';
 import { demoAgentAllowed, DEMO_REST } from './demo-agent-limit';
+import { agentQuota, AGENT_DAY_REST } from './agent-quota';
+import { AI_RATE_LIMIT } from '../ai-limits';
 import { confirmPlanned, planFromWords } from './planned';
 import { quickJobStep, confirmJobNextStep } from './job-next-step';
 import { listWords,resolveWords } from './agent-words';
@@ -120,6 +122,12 @@ async function assistantRequest(user:string,ws:string,body:unknown) {
  }
  // DEMO14: a question that needs the AI in a demo sandbox counts toward the demo limit; over it, a friendly note.
  if(!input.confirm_action_id&&(await demoAgentAllowed(ws))===false){logAssistantFailure('demo_limit');const word=choiceWords((await getPreferences(user)).language);const sl=safetyLine(input.messages.filter(m=>m.role==='user').at(-1)?.content);const reply=word(DEMO_REST);return {available:true,reply:sl?`${word(sl)}\n\n${reply}`:reply,demo_rest:true,localized:true};}
+ // Bug 106: real companies have a daily cap and each person a per minute limit, shared by every server.
+ if(!input.confirm_action_id){
+  const quota=await agentQuota(user,ws);
+  if(quota==='minute'){logAssistantFailure('rate_limit');throw new ApiError(429,'ai_rate_limit',choiceWords((await getPreferences(user)).language)(AI_RATE_LIMIT));}
+  if(quota==='day'){logAssistantFailure('day_limit');return {available:true,reply:choiceWords((await getPreferences(user)).language)(AGENT_DAY_REST),day_limit:true,localized:true};}
+ }
  const offers:RefusalOffer[]=[];
  const result=await assistantInner(user,ws,body,offers,until);
  if(!offers.length)await refusedOnItsOwn(user,ws,body,result,offers).catch(()=>undefined);

@@ -17,8 +17,18 @@ function slowSignal(delta: 1 | -1) {
   window.dispatchEvent(new CustomEvent('groundwork-slow', { detail: slowCount > 0 }));
 }
 
-export async function request<T>(url: string, init?: RequestInit): Promise<T> {
+/** Every create carries an Idempotency-Key (bug 107). The server keeps the first answer for 24 h, so a retry never makes a second job. */
+function withKey(init?: RequestInit): RequestInit | undefined {
+  if (init?.method !== 'POST') return init;
+  const headers = new Headers(init.headers);
+  if (headers.has('Idempotency-Key')) return init;
+  headers.set('Idempotency-Key', crypto.randomUUID());
+  return { ...init, headers: Object.fromEntries(headers.entries()) };
+}
+export async function request<T>(url: string, given?: RequestInit): Promise<T> {
+  const init = withKey(given);
   const write = !!init?.method && init.method !== 'GET';
+  const keyed = write && new Headers(init?.headers).has('Idempotency-Key');
   const run = async () => {
     const limit = new AbortController();
     const forward = () => limit.abort();
@@ -27,7 +37,9 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
     const timer = setTimeout(() => { timedOut = true; limit.abort(); }, write ? WRITE_TIMEOUT_MS : READ_TIMEOUT_MS);
     const slowTimer = setTimeout(() => { slow = true; slowSignal(1); }, SLOW_AFTER_MS);
     try {
-      return await fetch(url, { ...init, signal: limit.signal, headers: { ...(init?.body && !(init.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}), ...init?.headers }, cache: 'no-store' });
+      const headers = new Headers(init?.headers);
+      if (init?.body && !(init.body instanceof FormData) && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+      return await fetch(url, { ...init, signal: limit.signal, headers, cache: 'no-store' });
     } catch (error) {
       if (timedOut) throw new RequestError(408, 'This is taking too long. Please try again.', undefined, 'timeout');
       throw error;
@@ -43,9 +55,10 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
     if (isAbort(error)) throw new RequestError(0, 'Stopped.', undefined, 'aborted');
     const hidden = pageHidden();
     // Phones freeze background tabs and drop their sockets; that is not being offline. Reads try once more.
-    if (!write) {
+    // A create with a key is safe to send again: the server answers a repeat with the first result.
+    if (!write || keyed) {
       if (hidden) await visible();
-      for (const wait of [600, 1500]) { await pause(wait); try { response = await run(); break; } catch (retryError) { if (retryError instanceof RequestError) throw retryError; if (isAbort(retryError)) throw new RequestError(0, 'Stopped.', undefined, 'aborted'); } }
+      for (const wait of write ? [600] : [600, 1500]) { await pause(wait); try { response = await run(); break; } catch (retryError) { if (retryError instanceof RequestError) throw retryError; if (isAbort(retryError)) throw new RequestError(0, 'Stopped.', undefined, 'aborted'); } }
     }
     if (!response!) throw new RequestError(0, networkCopy(), undefined, 'network');
   }

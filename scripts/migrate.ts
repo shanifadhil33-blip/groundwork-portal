@@ -50,6 +50,8 @@ export async function migrate(client: PoolClient) {
     await client.query(`GRANT EXECUTE ON FUNCTION verify_api_token(text) TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE ON job_suggestions,shared_photos TO ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION my_staff_kind(uuid),my_client_kind(uuid) TO ${role}`);
+    // RLS lookups that run once per query (0072).
+    await client.query(`GRANT EXECUTE ON FUNCTION app_memberships() TO ${role}`);
     await client.query(`GRANT SELECT,INSERT ON conversations,messages TO ${role}`);
     await client.query(`GRANT SELECT,INSERT,UPDATE ON message_reads,message_translations TO ${role}`);
     await client.query(`GRANT EXECUTE ON FUNCTION can_message_person(uuid,uuid),conversation_reader(uuid,uuid),message_people(uuid) TO ${role}`);

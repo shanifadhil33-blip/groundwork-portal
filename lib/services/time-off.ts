@@ -4,7 +4,7 @@ import { LANGUAGES } from '../languages';
 import type { PoolClient } from 'pg';
 import { withSystem } from '../db';
 import { ApiError, invalid, missing } from '../http';
-import { allow, allowTeam, inWorkspace, uuid, type Context } from './shared';
+import { allow, allowTeam, inWorkspace, replay, uuid, type Context } from './shared';
 
 export const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
 export const KIND_LABELS: Record<string, string> = { leave: 'On leave', sick: 'Sick', off: 'Day off' };
@@ -73,11 +73,12 @@ export async function listTimeOff(user: string, ws: string) {
   });
 }
 
-export async function addTimeOff(user: string, ws: string, body: unknown) {
+export async function addTimeOff(user: string, ws: string, body: unknown, key?: string) {
   const data = addSchema.parse(body), ends = data.ends_on ?? data.starts_on;
   if (ends < data.starts_on) throw invalid('The last day is before the first day.', 'ends_on');
   return inWorkspace(user, ws, async c => {
     allowTeam(c); await worker(c, data.user_id);
+    return replay(c.db, user, ws + '/time-off', key, data, async () => {
     const saved = (await c.db.query('INSERT INTO time_off(workspace_id,user_id,kind,starts_on,ends_on,note,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id, user_id, kind, starts_on::text, ends_on::text, note', [ws, data.user_id, data.kind, data.starts_on, ends, data.note || null, user])).rows[0];
     // Jobs already booked on those days stay put but are listed so the office can move them.
     const clashes = (await c.db.query(`SELECT id, order_number, title FROM work_orders w WHERE workspace_id=$1 AND assignee_id=$2 AND status NOT IN ('done','cancelled')
@@ -90,6 +91,7 @@ export async function addTimeOff(user: string, ws: string, body: unknown) {
       reopened = r.rowCount ?? 0;
     }
     return { ...saved, clashes, reopened };
+    });
   });
 }
 

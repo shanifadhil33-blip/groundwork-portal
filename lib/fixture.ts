@@ -79,23 +79,39 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   await client.query("DELETE FROM audit_log WHERE workspace_id=$1 AND entity='workspaces'",[ids.ridgeline]);
   const timezone=(await client.query('SELECT timezone FROM workspaces WHERE id=$1',[ids.ridgeline])).rows[0].timezone;
   const today=localDate(Date.now(),timezone);
+  // Bug 101: rows are collected per acting person and inserted with one statement per table,
+  // so a sandbox costs a few dozen statements instead of about 300. History still names who did each change.
+  type Batch={orders:unknown[];events:unknown[];comments:unknown[];supplier:unknown[]};
+  const batches=new Map<string,Batch>();
   for(let n=1;n<=(demo?60:66);n++) {
    const summit=n>60; const site=summit?7:((n-1)%5)+1;
    const ws=summit?ids.summit:ids.ridgeline; const company=summit?ids.summitClient:site<=3?ids.harbor:ids.northgate; const actor=summit?ids.summitAdmin:n%3===0?ids.sam:ids.imran;
-   await client.query("SELECT set_config('app.user_id',$1,true)",[actor]);
+   const batch=batches.get(actor)??{orders:[],events:[],comments:[],supplier:[]};batches.set(actor,batch);
    const dates=fixtureDates(n,today,timezone);
    // Existing Harbor jobs retain their people and titles; their response clock starts near build time.
    if(n===1||n===7){dates.created=new Date(Date.now()-(n===1?3.5:5)*3600000);dates.updated=new Date(dates.created.getTime()+2*3600000);}
    const assigned=summit?ids.summitAdmin:[ids.sam,ids.imran,null,ids.ravi,ids.sam,ids.ravi,null][(n-1)%7];
    const title=tasks[(n-1)%tasks.length];
-   await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)',[orderId(n),ws,company,siteId(site),title,demoJobDescription(n),fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated]);
+   {const row=[orderId(n),ws,company,siteId(site),title,demoJobDescription(n),fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated];batch.orders.push(Object.fromEntries('id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at'.split(',').map((k,i)=>[k,row[i]])));}
    const history: {kind:string;body:string;details:Record<string,unknown>}[]=[];
    const finalStatus=fixtureStatus(n);
    const stages=finalStatus==='open'?[]:finalStatus==='cancelled'?['scheduled','cancelled']:finalStatus==='scheduled'?['scheduled']:finalStatus==='in_progress'?['scheduled','in_progress']:finalStatus==='waiting_on_parts'?['scheduled','in_progress','waiting_on_parts']:['scheduled','in_progress','done'];
    for(const [index,to_status] of stages.entries())history.push({kind:'status_changed',body:'Status updated',details:{from_status:stages[index-1]??'open',to_status}});
-   for(const [index,event] of history.entries())await client.query('INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[ws,company,orderId(n),actor,event.kind,event.body,JSON.stringify(event.details),new Date(dates.created.getTime()+(index+1)*7200000)]);
-   if(n<=18) for(const [index,visibility] of ['client','internal'].entries()) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,company,orderId(n),DEMO_JOB_COMMENTS[visibility as keyof typeof DEMO_JOB_COMMENTS],visibility,actor,new Date(dates.updated.getTime()-(2-index)*3600000)]);
-   if(n<=4) await client.query('INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,$3)',[ws,orderId(n),`${prefix}COBALT-DEMO-${n}`]);
+   for(const [index,event] of history.entries())batch.events.push({workspace_id:ws,client_id:company,work_order_id:orderId(n),actor_id:actor,kind:event.kind,body:event.body,details:event.details,created_at:new Date(dates.created.getTime()+(index+1)*7200000)});
+   if(n<=18) for(const [index,visibility] of ['client','internal'].entries()) batch.comments.push({workspace_id:ws,client_id:company,work_order_id:orderId(n),body:DEMO_JOB_COMMENTS[visibility as keyof typeof DEMO_JOB_COMMENTS],visibility,author_id:actor,created_at:new Date(dates.updated.getTime()-(2-index)*3600000)});
+   if(n<=4) batch.supplier.push({workspace_id:ws,work_order_id:orderId(n),cobalt_ref:`${prefix}COBALT-DEMO-${n}`});
+  }
+  for(const [actor,batch] of batches){
+   await client.query("SELECT set_config('app.user_id',$1,true)",[actor]);
+   await client.query(`INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at)
+    SELECT id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at
+    FROM jsonb_to_recordset($1::jsonb) AS x(id uuid,workspace_id uuid,client_id uuid,site_id uuid,title text,description text,status work_order_status,priority work_order_priority,assignee_id uuid,scheduled_for timestamptz,due_on date,order_number int,external_ref text,created_by uuid,created_at timestamptz,updated_at timestamptz)`,[JSON.stringify(batch.orders)]);
+   if(batch.events.length)await client.query(`INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at)
+    SELECT workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at FROM jsonb_to_recordset($1::jsonb) AS x(workspace_id uuid,client_id uuid,work_order_id uuid,actor_id uuid,kind text,body text,details jsonb,created_at timestamptz)`,[JSON.stringify(batch.events)]);
+   if(batch.comments.length)await client.query(`INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at)
+    SELECT workspace_id,client_id,work_order_id,body,visibility,author_id,created_at FROM jsonb_to_recordset($1::jsonb) AS x(workspace_id uuid,client_id uuid,work_order_id uuid,body text,visibility text,author_id uuid,created_at timestamptz)`,[JSON.stringify(batch.comments)]);
+   if(batch.supplier.length)await client.query(`INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref)
+    SELECT workspace_id,work_order_id,cobalt_ref FROM jsonb_to_recordset($1::jsonb) AS x(workspace_id uuid,work_order_id uuid,cobalt_ref text)`,[JSON.stringify(batch.supplier)]);
   }
   await client.query("UPDATE work_orders SET tenant_unit='1204',tenant_name='Hassan',tenant_phone='+971 50 000 1204' WHERE id=$1",[orderId(1)]);
   // Trades and areas so assigning by trade and area shows real matches in the demo.

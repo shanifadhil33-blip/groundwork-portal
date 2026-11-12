@@ -15,7 +15,15 @@ type EventAttribution = { work_order_title?:string|null; actor_kind?:string; via
 export type Comment = EventAttribution & { id: string; body: string; visibility: 'client' | 'internal'; author_id: string; created_at: string };
 export type WorkOrder = { price_change?:PriceChange|null; tenant_unit?:string|null; tenant_name?:string|null; tenant_phone?:string|null; on_way_at?: string | null; asset_id?:string|null; asset?:{id:string;name:string;kind:string|null}|null; trade?: string | null; site_name?: string; client_name?: string; assignee_name?: string | null; id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
 export type Detail = WorkOrder & { report_problem?: string | null; report_work?: string | null; report_outcome?: string | null; report_at?: string | null; report_by?: string | null; client: Client; site: Site; assignee: { id: string; name?: string } | null; comments: Comment[]; timeline: (EventAttribution & { id: string; kind: string; actor_id: string | null; message_template?:NotificationTemplate; body?: string; details?: {to_status?:string;from_status?:string;scheduled_for?:string|null;due_on?:string|null;assignee_name?:string|null;priority?:string|null;title_changed?:boolean;description_changed?:boolean}; from_status?: string; to_status?: string; created_at: string })[] };
-export type Page<T> = { data: T[]; total: number; page: number; pageSize: number };
+export type Page<T> = { data: T[]; total: number; page: number; pageSize: number; next_cursor?: string | null };
+/** The Jobs list asks the server for 50 rows at a time. Page words and the tab are for the screen only. */
+export const JOBS_PAGE = 50;
+export function jobsQuery(api: URLSearchParams, role?: string) {
+  for (const key of ['page', 'cursor', 'tab']) api.delete(key);
+  api.set('pageSize', String(JOBS_PAGE));
+  activeByDefault(api, role);
+  return api;
+}
 export function sortOrders(orders: WorkOrder[], sort: string, dir: string) {
   const sign = dir === 'asc' ? 1 : -1;
   return [...orders].sort((a, b) => {

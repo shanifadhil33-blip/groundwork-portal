@@ -1,3 +1,4 @@
+import { isOffice } from '../roles';
 import { requireOwner } from './owner';
 import { companyOptions,sizeRoles } from '../company';
 import { ApiError } from '../http';
@@ -77,6 +78,15 @@ export async function deleteWorkspace(user:string,ws:string,body:unknown) {
   const w=await row(c,'workspaces',ws,true);
   if(data.confirm_name!==w.name)throw invalid('Type the workspace name exactly.','confirm_name');
   await c.db.query('SELECT delete_workspace($1)',[ws]);return {deleted:true};
+ });
+}
+/** The two numbers behind the "To approve" badge. The shell polls this on every page, so it reads two small counts only. */
+export async function toApproveCount(user:string,ws:string) {
+ return inWorkspace(user,ws,async c=>{
+  if(!isOffice(c.role))return {pending_queue_rows:0,pending_suggestions:0};
+  const r=(await c.db.query(`SELECT (SELECT count(*)::int FROM job_suggestions WHERE workspace_id=$1 AND status='pending') AS pending_suggestions,
+   (SELECT count(*)::int FROM import_rows WHERE workspace_id=$1 AND queued AND decision='pending') AS pending_queue_rows`,[ws])).rows[0];
+  return {pending_queue_rows:r.pending_queue_rows as number,pending_suggestions:r.pending_suggestions as number};
  });
 }
 export async function dashboard(user:string,ws:string) {
