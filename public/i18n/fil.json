@@ -2967,5 +2967,12 @@
 "Site unavailable":"Hindi makita ang site",
 "What changed":"Ano ang nagbago",
 "{count} late":"{count} huli",
-"{count} open":"{count} bukas"
+"{count} open":"{count} bukas",
+"Excel or CSV file, up to 500 rows":"Excel o CSV file, hanggang 500 hanay",
+"This file is empty. Choose a file with column headings and one row per job.":"Walang laman ang file na ito. Pumili ng file na may mga heading ng column at isang hanay bawat trabaho.",
+"Up to 2 MB, 500 rows and one heading per column":"Hanggang 2 MB, 500 hanay at isang heading bawat column",
+"We do not email this yet. Copy the link and send it yourself.":"Hindi pa namin ito ini-email. Kopyahin ang link at ikaw ang magpadala.",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"Higit sa 500 hanay ang file na ito. Hatiin ito sa mas maliliit na file at i-upload ang bawat isa.",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"Hindi namin mabasa ang file na ito. Gumamit ng Excel o CSV file na hanggang 2 MB at 500 hanay.",
+"This file has headings but no rows. Add a row for each job under the headings.":"May mga heading ang file na ito pero walang hanay. Magdagdag ng hanay para sa bawat trabaho sa ilalim ng mga heading."
 }

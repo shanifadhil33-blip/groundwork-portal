@@ -2975,5 +2975,12 @@
 "Site unavailable":"سائٹ دستیاب نہیں",
 "What changed":"کیا بدلا",
 "{count} late":"{count} تاخیر سے",
-"{count} open":"{count} کھلے"
+"{count} open":"{count} کھلے",
+"Excel or CSV file, up to 500 rows":"Excel یا CSV فائل، 500 قطاروں تک",
+"This file is empty. Choose a file with column headings and one row per job.":"یہ فائل خالی ہے۔ ایسی فائل منتخب کریں جس میں کالم کے عنوان اور ہر کام کے لیے ایک قطار ہو۔",
+"Up to 2 MB, 500 rows and one heading per column":"2 MB تک، 500 قطاریں اور ہر کالم کا ایک عنوان",
+"We do not email this yet. Copy the link and send it yourself.":"ہم ابھی اسے ای میل نہیں کرتے۔ لنک کاپی کریں اور خود بھیجیں۔",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"اس فائل میں 500 سے زیادہ قطاریں ہیں۔ اسے چھوٹی فائلوں میں تقسیم کر کے ہر ایک اپ لوڈ کریں۔",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"ہم یہ فائل نہیں پڑھ سکے۔ 2 MB اور 500 قطاروں تک کی Excel یا CSV فائل استعمال کریں۔",
+"This file has headings but no rows. Add a row for each job under the headings.":"اس فائل میں عنوان ہیں مگر قطاریں نہیں۔ عنوانوں کے نیچے ہر کام کے لیے ایک قطار شامل کریں۔"
 }

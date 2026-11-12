@@ -2968,5 +2968,12 @@
 "Site unavailable":"Ekifo tekisangibwa",
 "What changed":"Ekikyuse",
 "{count} late":"{count} ezikeerezze",
-"{count} open":"{count} eziggule"
+"{count} open":"{count} eziggule",
+"Excel or CSV file, up to 500 rows":"Fayiro ya Excel oba CSV, okutuuka ku nnyiriri 500",
+"This file is empty. Choose a file with column headings and one row per job.":"Fayiro eno njereere. Londa fayiro erina emitwe gy’ebisanja n’olunyiriri lumu ku buli mulimu.",
+"Up to 2 MB, 500 rows and one heading per column":"Okutuuka ku 2 MB, ennyiriri 500 n’omutwe gumu ku buli kisanja",
+"We do not email this yet. Copy the link and send it yourself.":"Kino tetunnakiweereza ku email. Koppa link ogiweereze ggwe kennyini.",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"Fayiro eno erina ennyiriri ezisukka 500. Gyawulemu mu fayiro entono otikke buli emu.",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"Tetusobodde kusoma fayiro eno. Kozesa fayiro ya Excel oba CSV okutuuka ku 2 MB n’ennyiriri 500.",
+"This file has headings but no rows. Add a row for each job under the headings.":"Fayiro eno erina emitwe naye tesirina nnyiriri. Yongerako olunyiriri ku buli mulimu wansi w’emitwe."
 }

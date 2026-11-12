@@ -2969,5 +2969,12 @@
 "Site unavailable":"இடம் கிடைக்கவில்லை",
 "What changed":"என்ன மாறியது",
 "{count} late":"{count} தாமதம்",
-"{count} open":"{count} திறந்தவை"
+"{count} open":"{count} திறந்தவை",
+"Excel or CSV file, up to 500 rows":"Excel அல்லது CSV கோப்பு, 500 வரிசைகள் வரை",
+"This file is empty. Choose a file with column headings and one row per job.":"இந்தக் கோப்பு காலியாக உள்ளது. நெடுவரிசை தலைப்புகளும் ஒவ்வொரு வேலைக்கும் ஒரு வரிசையும் உள்ள கோப்பைத் தேர்வுசெய்யவும்.",
+"Up to 2 MB, 500 rows and one heading per column":"2 MB வரை, 500 வரிசைகள், ஒவ்வொரு நெடுவரிசைக்கும் ஒரு தலைப்பு",
+"We do not email this yet. Copy the link and send it yourself.":"இதை நாங்கள் இன்னும் மின்னஞ்சலில் அனுப்புவதில்லை. இணைப்பை நகலெடுத்து நீங்களே அனுப்புங்கள்.",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"இந்தக் கோப்பில் 500-க்கும் மேற்பட்ட வரிசைகள் உள்ளன. சிறிய கோப்புகளாகப் பிரித்து ஒவ்வொன்றையும் பதிவேற்றவும்.",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"இந்தக் கோப்பைப் படிக்க முடியவில்லை. 2 MB மற்றும் 500 வரிசைகள் வரையிலான Excel அல்லது CSV கோப்பைப் பயன்படுத்தவும்.",
+"This file has headings but no rows. Add a row for each job under the headings.":"இந்தக் கோப்பில் தலைப்புகள் உள்ளன, ஆனால் வரிசைகள் இல்லை. தலைப்புகளுக்குக் கீழே ஒவ்வொரு வேலைக்கும் ஒரு வரிசையைச் சேர்க்கவும்."
 }

@@ -37,7 +37,7 @@ it.each(LANGUAGES.filter(l => !isEnglish(l.code)))('$code covers every round two
  const label = replaceTranslation('16 Open for Ravi', words);
  expect(label).toContain('16'); expect(label).toContain('Ravi'); expect(label).toContain(words.Open);
  expect(label).not.toContain(' for ');
- for (const source of ['New requests, 1 waiting','23 open requests','42 requests','0 today','Excel or CSV file, up to 500 lines','Up to 2 MB · 500 data rows · unique column headings','Try the flow with a sample file of 40 jobs.','For example, weekday mornings 9 to 12']) expect(replaceTranslation(source, words), source).not.toBe(source);
+ for (const source of ['New requests, 1 waiting','23 open requests','42 requests','0 today','Excel or CSV file, up to 500 rows','Up to 2 MB, 500 rows and one heading per column','Try the flow with a sample file of 40 jobs.','For example, weekday mornings 9 to 12']) expect(replaceTranslation(source, words), source).not.toBe(source);
  expect(replaceTranslation('Remove leave for Ravi', words)).toContain('Ravi');
  expect(words['Remove leave for Ravi']).toBeUndefined();
  expect(replaceTranslation('Move Service rooftop ventilation', words, true)).toContain(words['Service rooftop ventilation']);

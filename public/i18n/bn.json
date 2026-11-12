@@ -2974,5 +2974,12 @@
 "Site unavailable":"সাইট পাওয়া যাচ্ছে না",
 "What changed":"কী বদলেছে",
 "{count} late":"{count} দেরি",
-"{count} open":"{count} খোলা"
+"{count} open":"{count} খোলা",
+"Excel or CSV file, up to 500 rows":"Excel বা CSV ফাইল, 500 সারি পর্যন্ত",
+"This file is empty. Choose a file with column headings and one row per job.":"এই ফাইলটি খালি। কলামের শিরোনাম আর প্রতিটি কাজের জন্য একটি সারি আছে এমন ফাইল বেছে নিন।",
+"Up to 2 MB, 500 rows and one heading per column":"2 MB পর্যন্ত, 500 সারি আর প্রতিটি কলামে একটি শিরোনাম",
+"We do not email this yet. Copy the link and send it yourself.":"আমরা এখনও এটি ইমেল করি না। লিংকটি কপি করে নিজে পাঠান।",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"এই ফাইলে 500টির বেশি সারি আছে। ছোট ফাইলে ভাগ করে প্রতিটি আপলোড করুন।",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"এই ফাইলটি পড়া যায়নি। 2 MB ও 500 সারি পর্যন্ত Excel বা CSV ফাইল ব্যবহার করুন।",
+"This file has headings but no rows. Add a row for each job under the headings.":"এই ফাইলে শিরোনাম আছে কিন্তু সারি নেই। শিরোনামের নিচে প্রতিটি কাজের জন্য একটি সারি যোগ করুন।"
 }

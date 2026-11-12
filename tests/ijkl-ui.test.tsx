@@ -15,14 +15,12 @@ vi.mock('../lib/ui/api',()=>({request:vi.fn().mockImplementation(async(_url,init
 let host:HTMLDivElement,root:ReturnType<typeof createRoot>;
 async function render(node:React.ReactNode){vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT',true);host=document.createElement('div');document.body.append(host);root=createRoot(host);await act(async()=>root.render(node));}
 afterEach(async()=>{if(root)await act(async()=>root.unmount());host?.remove();document.body.innerHTML='';vi.clearAllMocks();state.demo=false;vi.unstubAllGlobals();});
-it('tapping a saved name reveals the real name and a personal name editor',async()=>{
+it('a name shows as plain text, with no rename sheet (bug 123)',async()=>{
  await render(<ContactNamesProvider><ContactName name="Sam" userId="target"/></ContactNamesProvider>);
- expect(host.textContent).toContain('Sam at Tower 3');expect(host.querySelector('[title="Real name: Sam"]')).toBeTruthy();expect(vi.mocked(request)).not.toHaveBeenCalled();
- await act(async()=>(host.querySelector('[role="button"]') as HTMLElement).click());expect(document.body.textContent).toContain('Real name: Sam');expect(document.body.textContent).toContain('Client manager');expect(document.body.textContent).toContain('Save as...');expect(document.body.textContent).toContain('This name is saved for you only.');
- const save=[...document.body.querySelectorAll('button')].find(b=>b.textContent==='Save name')!;await act(async()=>save.click());expect(vi.mocked(request)).toHaveBeenCalledWith('/api/workspaces/workspace/contact-names/target',expect.objectContaining({method:'PATCH',body:JSON.stringify({nickname:'Sam at Tower 3'})}));
+ expect(host.textContent).toContain('Sam at Tower 3');expect(host.querySelector('[role="button"]')).toBeNull();expect(vi.mocked(request)).not.toHaveBeenCalledWith(expect.stringContaining('/contact-names/'),expect.anything());
 });
-it('Agent text uses the same tappable identity',async()=>{
- await render(<ContactNamesProvider><ContactText text="Sam at Tower 3 has two jobs. Sam can help."/></ContactNamesProvider>);expect(host.querySelectorAll('[role="button"]')).toHaveLength(2);expect(host.textContent).toBe('Sam at Tower 3 has two jobs. Sam at Tower 3 can help.');
+it('Agent text keeps names as plain text',async()=>{
+ await render(<ContactNamesProvider><ContactText text="Sam at Tower 3 has two jobs. Sam can help."/></ContactNamesProvider>);expect(host.querySelectorAll('[role="button"]')).toHaveLength(0);expect(host.textContent).toBe('Sam at Tower 3 has two jobs. Sam at Tower 3 can help.');
 });
 it('setup asks language first, has progress dots and saves before moving to the next question',async()=>{
  await render(<GuidedOnboarding/>);expect(host.querySelector('h1')?.textContent).toBe('Which language do you use?');expect(host.textContent).not.toContain('Your name');expect(host.querySelector('a[href="/dashboard"]')?.textContent).toBe('Do this later');expect(host.querySelectorAll('.onboarding-steps li').length).toBeGreaterThan(5);

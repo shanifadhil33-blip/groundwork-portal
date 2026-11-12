@@ -2967,5 +2967,12 @@
 "Site unavailable":"Beaeɛ no nni hɔ",
 "What changed":"Deɛ asesa",
 "{count} late":"{count} atwa bere",
-"{count} open":"{count} ɛda hɔ"
+"{count} open":"{count} ɛda hɔ",
+"Excel or CSV file, up to 500 rows":"Excel anaa CSV fael, kosi nkyerɛwee 500",
+"This file is empty. Choose a file with column headings and one row per job.":"Saa fael yi mu nni hwee. Yi fael a ɛwɔ column ti nsɛm ne nkyerɛwee baako ma adwuma biara.",
+"Up to 2 MB, 500 rows and one heading per column":"Kosi 2 MB, nkyerɛwee 500 ne ti baako ma column biara",
+"We do not email this yet. Copy the link and send it yourself.":"Yɛmfa yei nkɔ email so da. Fa link no ho mfoni na wo ankasa mmrɛ.",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"Saa fael yi wɔ nkyerɛwee boro 500. Kyekyɛ mu yɛ no fael nketewa na fa biara to so.",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"Yɛantumi ankenkan saa fael yi. Fa Excel anaa CSV fael a ɛnboro 2 MB ne nkyerɛwee 500 di dwuma.",
+"This file has headings but no rows. Add a row for each job under the headings.":"Saa fael yi wɔ ti nsɛm nanso nkyerɛwee nni mu. Fa nkyerɛwee baako ka ho ma adwuma biara wɔ ti nsɛm no ase."
 }

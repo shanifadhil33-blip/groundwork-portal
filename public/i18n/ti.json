@@ -2975,5 +2975,12 @@
 "Site unavailable":"እቲ ቦታ ኣይርከብን",
 "What changed":"እንታይ ተቐይሩ",
 "{count} late":"{count} ደንጉዩ",
-"{count} open":"{count} ክፉት"
+"{count} open":"{count} ክፉት",
+"Excel or CSV file, up to 500 rows":"ፋይል Excel ወይ CSV፣ ክሳብ 500 መስመራት",
+"This file is empty. Choose a file with column headings and one row per job.":"እዚ ፋይል ባዶ እዩ። ኣርእስቲ ዓምድታትን ንነፍሲ ወከፍ ስራሕ ሓደ መስመርን ዘለዎ ፋይል ምረጽ።",
+"Up to 2 MB, 500 rows and one heading per column":"ክሳብ 2 MB፣ 500 መስመራትን ንነፍሲ ወከፍ ዓምዲ ሓደ ኣርእስትን",
+"We do not email this yet. Copy the link and send it yourself.":"እዚ ገና ብኢመይል ኣይንሰድዶን ኢና። ሊንኩ ቅዳሕ እሞ ባዕልኻ ስደዶ።",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"እዚ ፋይል ካብ 500 ንላዕሊ መስመራት ኣለዎ። ናብ ንኣሽቱ ፋይላት መቒልካ ነፍሲ ወከፍ ጽዓን።",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"እዚ ፋይል ክንንብቦ ኣይከኣልናን። ክሳብ 2 MBን 500 መስመራትን ዘለዎ ፋይል Excel ወይ CSV ተጠቐም።",
+"This file has headings but no rows. Add a row for each job under the headings.":"እዚ ፋይል ኣርእስትታት ኣለዎ ግን መስመራት የብሉን። ኣብ ትሕቲ ኣርእስትታት ንነፍሲ ወከፍ ስራሕ መስመር ወስኽ።"
 }

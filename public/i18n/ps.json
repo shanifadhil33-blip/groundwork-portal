@@ -2973,5 +2973,12 @@
 "Site unavailable":"ځای شتون نه لري",
 "What changed":"څه بدل شول",
 "{count} late":"{count} ځنډېدلي",
-"{count} open":"{count} پرانیستي"
+"{count} open":"{count} پرانیستي",
+"Excel or CSV file, up to 500 rows":"Excel یا CSV فایل، تر 500 کرښو پورې",
+"This file is empty. Choose a file with column headings and one row per job.":"دا فایل تش دی. داسې فایل وټاکئ چې د ستنو سرلیکونه او د هر کار لپاره یوه کرښه ولري.",
+"Up to 2 MB, 500 rows and one heading per column":"تر 2 MB، 500 کرښې او د هرې ستنې لپاره یو سرلیک",
+"We do not email this yet. Copy the link and send it yourself.":"موږ دا لا په برېښنالیک نه لېږو. لینک کاپي کړئ او پخپله یې ولېږئ.",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"دا فایل له 500 څخه ډېرې کرښې لري. په کوچنیو فایلونو یې ووېشئ او هر یو پورته کړئ.",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"دا فایل ونه لوستل شو. د 2 MB او 500 کرښو پورې Excel یا CSV فایل وکاروئ.",
+"This file has headings but no rows. Add a row for each job under the headings.":"دا فایل سرلیکونه لري خو کرښې نه لري. د سرلیکونو لاندې د هر کار لپاره یوه کرښه زیاته کړئ."
 }

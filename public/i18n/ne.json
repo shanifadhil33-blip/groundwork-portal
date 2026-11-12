@@ -2971,5 +2971,12 @@
 "Site unavailable":"साइट उपलब्ध छैन",
 "What changed":"के बदलियो",
 "{count} late":"{count} ढिलो",
-"{count} open":"{count} खुला"
+"{count} open":"{count} खुला",
+"Excel or CSV file, up to 500 rows":"Excel वा CSV फाइल, 500 पङ्क्तिसम्म",
+"This file is empty. Choose a file with column headings and one row per job.":"यो फाइल खाली छ। स्तम्भ शीर्षक र प्रत्येक कामको लागि एउटा पङ्क्ति भएको फाइल छान्नुहोस्।",
+"Up to 2 MB, 500 rows and one heading per column":"2 MB सम्म, 500 पङ्क्ति र प्रत्येक स्तम्भको एउटा शीर्षक",
+"We do not email this yet. Copy the link and send it yourself.":"हामी यसलाई अझै इमेल गर्दैनौं। लिंक प्रतिलिपि गरेर आफैं पठाउनुहोस्।",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"यो फाइलमा 500 भन्दा बढी पङ्क्ति छन्। साना फाइलमा बाँडेर प्रत्येक अपलोड गर्नुहोस्।",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"हामीले यो फाइल पढ्न सकेनौं। 2 MB र 500 पङ्क्तिसम्मको Excel वा CSV फाइल प्रयोग गर्नुहोस्।",
+"This file has headings but no rows. Add a row for each job under the headings.":"यो फाइलमा शीर्षक छन् तर पङ्क्ति छैनन्। शीर्षकमुनि प्रत्येक कामको लागि एउटा पङ्क्ति थप्नुहोस्।"
 }

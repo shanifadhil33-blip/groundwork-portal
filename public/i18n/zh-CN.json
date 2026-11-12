@@ -2971,5 +2971,12 @@
 "Site unavailable":"地点不可用",
 "What changed":"更改了什么",
 "{count} late":"{count} 个逾期",
-"{count} open":"{count} 个待处理"
+"{count} open":"{count} 个待处理",
+"Excel or CSV file, up to 500 rows":"Excel 或 CSV 文件，最多 500 行",
+"This file is empty. Choose a file with column headings and one row per job.":"此文件为空。请选择带有列标题且每项工作一行的文件。",
+"Up to 2 MB, 500 rows and one heading per column":"最大 2 MB、500 行，每列一个标题",
+"We do not email this yet. Copy the link and send it yourself.":"我们还不会通过电子邮件发送。请复制链接并自行发送。",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"此文件超过 500 行。请拆分成较小的文件并分别上传。",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"无法读取此文件。请使用不超过 2 MB 和 500 行的 Excel 或 CSV 文件。",
+"This file has headings but no rows. Add a row for each job under the headings.":"此文件只有标题没有数据行。请在标题下为每项工作添加一行。"
 }

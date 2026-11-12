@@ -2968,5 +2968,12 @@
 "Site unavailable":"Wurin ba ya samuwa",
 "What changed":"Abin da ya canza",
 "{count} late":"{count} sun makara",
-"{count} open":"{count} a buɗe"
+"{count} open":"{count} a buɗe",
+"Excel or CSV file, up to 500 rows":"Fayil Excel ko CSV, har layi 500",
+"This file is empty. Choose a file with column headings and one row per job.":"Wannan fayil babu komai. Zaɓi fayil mai taken shafi da layi ɗaya ga kowane aiki.",
+"Up to 2 MB, 500 rows and one heading per column":"Har 2 MB, layi 500 da take ɗaya ga kowane shafi",
+"We do not email this yet. Copy the link and send it yourself.":"Ba mu aika wannan ta imel ba tukuna. Kwafi mahaɗin ka aika da kanka.",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"Wannan fayil yana da layi fiye da 500. Raba shi zuwa ƙananan fayiloli ka loda kowanne.",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"Ba mu iya karanta wannan fayil ba. Yi amfani da fayil Excel ko CSV har 2 MB da layi 500.",
+"This file has headings but no rows. Add a row for each job under the headings.":"Wannan fayil yana da take amma babu layi. Ƙara layi ga kowane aiki a ƙarƙashin taken."
 }

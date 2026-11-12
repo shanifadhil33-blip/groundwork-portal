@@ -2967,5 +2967,12 @@
 "Site unavailable":"Ibi náà kò sí",
 "What changed":"Ohun tó yí padà",
 "{count} late":"{count} ti pẹ́",
-"{count} open":"{count} ṣí sílẹ̀"
+"{count} open":"{count} ṣí sílẹ̀",
+"Excel or CSV file, up to 500 rows":"Fáìlì Excel tàbí CSV, títí dé ìlà 500",
+"This file is empty. Choose a file with column headings and one row per job.":"Fáìlì yìí ṣófo. Yan fáìlì tó ní àkọlé òpó àti ìlà kan fún iṣẹ́ kọ̀ọ̀kan.",
+"Up to 2 MB, 500 rows and one heading per column":"Títí dé 2 MB, ìlà 500 àti àkọlé kan fún òpó kọ̀ọ̀kan",
+"We do not email this yet. Copy the link and send it yourself.":"A kò tíì fi èyí ránṣẹ́ nípasẹ̀ ímeèlì. Ṣe ẹ̀dà ìjápọ̀ náà kí o fi ránṣẹ́ fúnra rẹ.",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"Fáìlì yìí ní ju ìlà 500 lọ. Pín in sí fáìlì kéékèèké kí o gbé ọ̀kọ̀ọ̀kan sókè.",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"A kò lè ka fáìlì yìí. Lo fáìlì Excel tàbí CSV tí kò ju 2 MB àti ìlà 500 lọ.",
+"This file has headings but no rows. Add a row for each job under the headings.":"Fáìlì yìí ní àkọlé ṣùgbọ́n kò ní ìlà. Fi ìlà kan kún un fún iṣẹ́ kọ̀ọ̀kan lábẹ́ àwọn àkọlé."
 }

@@ -2968,5 +2968,12 @@
 "Site unavailable":"Goobta lama heli karo",
 "What changed":"Waxa isbeddelay",
 "{count} late":"{count} daahay",
-"{count} open":"{count} furan"
+"{count} open":"{count} furan",
+"Excel or CSV file, up to 500 rows":"Fayl Excel ama CSV ah, ilaa 500 saf",
+"This file is empty. Choose a file with column headings and one row per job.":"Faylkani waa madhan yahay. Dooro fayl leh cinwaannada tiirarka iyo saf kasta oo shaqo ah.",
+"Up to 2 MB, 500 rows and one heading per column":"Ilaa 2 MB, 500 saf iyo hal cinwaan tiir kasta",
+"We do not email this yet. Copy the link and send it yourself.":"Weli tan iimayl uma dirno. Koobiyee xiriirka adigu dir.",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"Faylkani wuxuu leeyahay in ka badan 500 saf. U qaybi faylal yaryar oo mid walba soo geli.",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"Ma akhrin karno faylkan. Isticmaal fayl Excel ama CSV ah oo ilaa 2 MB iyo 500 saf ah.",
+"This file has headings but no rows. Add a row for each job under the headings.":"Faylkani wuxuu leeyahay cinwaanno laakiin saf ma leh. Ku dar saf shaqo kasta oo hoos yimaada cinwaannada."
 }

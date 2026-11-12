@@ -31,7 +31,7 @@ it('renders clients without team management and names each site menu',()=>{
 });
 it('renders one invite creation button, labeled role, title-case invite states and a focus action',()=>{
  state.resources={[base+'/invites']:[],[base+'/clients']:[]};
- const empty=render(<SettingsInvites base={base} demo={false}/>);expect(empty.match(/>Create invite</g)).toHaveLength(1);expect(empty).toContain('Enter an email');expect(empty).toContain('for="invite-role">Role');expect(empty).toContain('Supervisor');expect(empty).toContain('It expires in seven days.');expect(empty).not.toContain('No email');
+ const empty=render(<SettingsInvites base={base} demo={false}/>);expect(empty.match(/>Create invite</g)).toHaveLength(1);expect(empty).toContain('Enter an email');expect(empty).toContain('for="invite-role">Role');expect(empty).toContain('Technician');expect(empty).toContain('It expires in seven days.');expect(empty).not.toContain('No email');
  state.resources[base+'/invites']=[{id:'invite',email:'pranav@example.test',role:'client',status:'revoked',expires_at:'2026-10-15T00:00:00Z',client_id:'harbor'}];
  const revoked=render(<SettingsInvites base={base} demo={false}/>);expect(revoked).toContain('Client manager');expect(revoked).toContain('Revoked');expect(revoked).not.toContain('>Revoke</');expect(revoked).not.toContain('Copy invite');
 });

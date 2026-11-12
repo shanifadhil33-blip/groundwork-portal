@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2969 | 6 | 1952 | 0 | 1016 | 1 | 0 | 0 |
-| ne | 2969 | 7 | 1447 | 0 | 1521 | 1 | 0 | 0 |
-| hi | 2969 | 5 | 1462 | 0 | 1506 | 1 | 0 | 0 |
-| ur | 2969 | 7 | 1447 | 0 | 1521 | 1 | 0 | 0 |
-| bn | 2969 | 6 | 1463 | 0 | 1505 | 1 | 0 | 0 |
-| ml | 2969 | 19 | 1431 | 0 | 1537 | 1 | 0 | 0 |
-| ta | 2969 | 6 | 1462 | 0 | 1505 | 2 | 0 | 0 |
-| ps | 2969 | 6 | 1445 | 0 | 1523 | 1 | 0 | 0 |
-| fa-AF | 2969 | 15 | 1431 | 0 | 1537 | 1 | 0 | 0 |
-| fa-IR | 2969 | 3 | 1443 | 0 | 1525 | 1 | 0 | 0 |
-| fil | 2969 | 8 | 1430 | 0 | 1537 | 2 | 0 | 0 |
-| zh-CN | 2969 | 19 | 1417 | 0 | 1551 | 1 | 0 | 0 |
-| sw-KE | 2969 | 18 | 1416 | 0 | 1552 | 1 | 0 | 0 |
-| am | 2969 | 18 | 1416 | 0 | 1552 | 1 | 0 | 0 |
-| ti | 2969 | 18 | 1433 | 0 | 1534 | 2 | 0 | 0 |
-| so | 2969 | 18 | 1431 | 0 | 1536 | 1 | 1 | 0 |
-| yo | 2969 | 18 | 1414 | 0 | 1554 | 1 | 0 | 0 |
-| ha | 2969 | 18 | 1432 | 0 | 1536 | 1 | 0 | 0 |
-| ig | 2969 | 18 | 1427 | 0 | 1541 | 1 | 0 | 0 |
-| lg | 2969 | 18 | 1414 | 0 | 1552 | 3 | 0 | 0 |
-| tw | 2969 | 18 | 1425 | 0 | 1543 | 1 | 0 | 0 |
+| ar-AE | 2976 | 6 | 1959 | 0 | 1016 | 1 | 0 | 0 |
+| ne | 2976 | 7 | 1454 | 0 | 1521 | 1 | 0 | 0 |
+| hi | 2976 | 5 | 1469 | 0 | 1506 | 1 | 0 | 0 |
+| ur | 2976 | 7 | 1454 | 0 | 1521 | 1 | 0 | 0 |
+| bn | 2976 | 6 | 1470 | 0 | 1505 | 1 | 0 | 0 |
+| ml | 2976 | 19 | 1437 | 0 | 1537 | 1 | 0 | 1 |
+| ta | 2976 | 6 | 1468 | 0 | 1505 | 2 | 0 | 1 |
+| ps | 2976 | 6 | 1452 | 0 | 1523 | 1 | 0 | 0 |
+| fa-AF | 2976 | 15 | 1438 | 0 | 1537 | 1 | 0 | 0 |
+| fa-IR | 2976 | 3 | 1450 | 0 | 1525 | 1 | 0 | 0 |
+| fil | 2976 | 8 | 1437 | 0 | 1537 | 2 | 0 | 0 |
+| zh-CN | 2976 | 19 | 1424 | 0 | 1551 | 1 | 0 | 0 |
+| sw-KE | 2976 | 18 | 1423 | 0 | 1552 | 1 | 0 | 0 |
+| am | 2976 | 18 | 1423 | 0 | 1552 | 1 | 0 | 0 |
+| ti | 2976 | 18 | 1440 | 0 | 1534 | 2 | 0 | 0 |
+| so | 2976 | 18 | 1438 | 0 | 1536 | 1 | 1 | 0 |
+| yo | 2976 | 18 | 1421 | 0 | 1554 | 1 | 0 | 0 |
+| ha | 2976 | 18 | 1439 | 0 | 1536 | 1 | 0 | 0 |
+| ig | 2976 | 18 | 1434 | 0 | 1541 | 1 | 0 | 0 |
+| lg | 2976 | 18 | 1421 | 0 | 1552 | 3 | 0 | 0 |
+| tw | 2976 | 18 | 1432 | 0 | 1543 | 1 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -46,8 +46,10 @@ These values are retained for review and are not counted as usable.
 - ur: "Job #" (wrong script)
 - bn: "Job #" (wrong script)
 - ml: "Job #" (wrong script)
+- ml: "This file has more than 500 rows. Split it into smaller files and upload each one." (invalid)
 - ta: "Job #" (wrong script)
 - ta: "Reported problem" (wrong script)
+- ta: "This file has more than 500 rows. Split it into smaller files and upload each one." (invalid)
 - ps: "Job #" (wrong script)
 - fa-AF: "Job #" (wrong script)
 - fa-IR: "Job #" (wrong script)

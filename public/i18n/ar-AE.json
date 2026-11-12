@@ -2972,5 +2972,12 @@
 "Site unavailable":"الموقع غير متاح",
 "What changed":"ما الذي تغيّر",
 "{count} late":"{count} متأخر",
-"{count} open":"{count} مفتوح"
+"{count} open":"{count} مفتوح",
+"Excel or CSV file, up to 500 rows":"ملف Excel أو CSV، حتى 500 صف",
+"This file is empty. Choose a file with column headings and one row per job.":"هذا الملف فارغ. اختر ملفًا فيه عناوين أعمدة وصف لكل عمل.",
+"Up to 2 MB, 500 rows and one heading per column":"حتى 2 ميغابايت و500 صف وعنوان واحد لكل عمود",
+"We do not email this yet. Copy the link and send it yourself.":"لا نرسل هذا بالبريد الإلكتروني بعد. انسخ الرابط وأرسله بنفسك.",
+"This file has more than 500 rows. Split it into smaller files and upload each one.":"يحتوي هذا الملف على أكثر من 500 صف. قسّمه إلى ملفات أصغر وارفع كل ملف.",
+"We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.":"تعذّرت قراءة هذا الملف. استخدم ملف Excel أو CSV حتى 2 ميغابايت و500 صف.",
+"This file has headings but no rows. Add a row for each job under the headings.":"في هذا الملف عناوين بلا صفوف. أضف صفًا لكل عمل تحت العناوين."
 }
