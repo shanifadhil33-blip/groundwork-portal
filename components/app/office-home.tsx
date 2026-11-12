@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { Comma } from './punctuation';
 import { useEffect, useState } from 'react';
 import { CheckCircle2, ChevronRight, Circle, X } from 'lucide-react';
 import { Translated } from './app-words';
@@ -186,7 +187,7 @@ export function OfficeHome() {
       <div className="page home-page">
         <PageHeader>
           <div className="page-title">
-            <h1><span suppressHydrationWarning>{greetingWord(tz, now ?? undefined)}</span>{first && <>, <bdi data-no-translate>{first}</bdi></>}</h1>
+            <h1><span suppressHydrationWarning>{greetingWord(tz, now ?? undefined)}</span>{first && <><Comma /><bdi data-no-translate>{first}</bdi></>}</h1>
             <p><span data-no-translate suppressHydrationWarning>{now ? formatInLang(now, { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }, lang) : ''}</span>{now && '. '}<span>Here is your company today.</span></p>
           </div>
         </PageHeader>

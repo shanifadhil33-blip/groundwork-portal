@@ -1,5 +1,6 @@
 'use client';
 import { BidiNames } from './bidi-names';
+import { Comma } from './punctuation';
 import { isRtl } from '../../lib/languages';
 import { useNameJoin } from './use-name-join';
 import { JobChecklistCard } from './job-checklists';
@@ -164,12 +165,12 @@ export function MyDay() {
     ? <><span className="late-note">Late since</span> <span data-no-translate>{day(primaryJob.due_on, tz, lang)}</span></>
     : <span data-no-translate className="num">{time(primaryJob.scheduled_for, tz, lang)}</span>) : null;
   return <Translated><div className="page my-day">
-    <PageHeader><div className="page-title"><h1><span suppressHydrationWarning>{greetingWord(tz)}</span>{first && <>, <bdi data-no-translate>{first}</bdi></>}</h1><p><span data-no-translate suppressHydrationWarning>{formatInLang(new Date(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }, lang)}</span>. <span>Here are your jobs today.</span></p></div></PageHeader>
+    <PageHeader><div className="page-title"><h1><span suppressHydrationWarning>{greetingWord(tz)}</span>{first && <><Comma /><bdi data-no-translate>{first}</bdi></>}</h1><p><span data-no-translate suppressHydrationWarning>{formatInLang(new Date(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: tz }, lang)}</span>. <span>Here are your jobs today.</span></p></div></PageHeader>
     {done && <DoneMoment outcome={done.outcome} record={done.record} extra={done.extra} onClose={() => setDone(null)} />}
     {d.loading ? <Skeleton className="skeleton-card" /> : d.error || !data ? <ErrorState error={d.error} retry={d.reload} /> : <>
       {primaryJob ? <NextJobCard key={primaryJob.id} j={primaryJob} base={base} onDone={reload} onFinished={finished} when={when} />
         : <Card><EmptyState title={data.done ? 'All done for today.' : 'No jobs today.'} action={<Link className="button secondary md" href="/work-orders">See my jobs</Link>}>{data.next[0] ? <><span>Your next job is</span> <span data-no-translate>{data.next[0].title}</span>, <span data-no-translate>{day(data.next[0].scheduled_for, tz, lang)}</span>.</> : 'New jobs from the office show here.'}</EmptyState></Card>}
-      {late.length > 0 && <section id="late" className="stack compact"><div className="section-title"><h2><span>Late</span>, <span className="num" data-no-translate>{late.length}</span></h2>{late.length > 3 && <Link className="text-link" href="/work-orders?overdue=true">See all</Link>}</div><Card><ul className="list">{late.slice(0, 3).map(j => <JobRow key={j.id} j={j} when={<span data-no-translate>{day(j.due_on, tz, lang)}</span>} meta={<span className="ds-meta-warn">Late</span>} />)}</ul></Card></section>}
+      {late.length > 0 && <section id="late" className="stack compact"><div className="section-title"><h2><span>Late</span><Comma /><span className="num" data-no-translate>{late.length}</span></h2>{late.length > 3 && <Link className="text-link" href="/work-orders?overdue=true">See all</Link>}</div><Card><ul className="list">{late.slice(0, 3).map(j => <JobRow key={j.id} j={j} when={<span data-no-translate>{day(j.due_on, tz, lang)}</span>} meta={<span className="ds-meta-warn">Late</span>} />)}</ul></Card></section>}
       {rest.length > 0 && <section id="today" className="stack compact"><div className="section-title"><h2>Later today</h2></div><Card><ul className="list">{rest.map(j => <JobRow key={j.id} j={j} when={<span data-no-translate>{time(j.scheduled_for, tz, lang)}</span>} meta={meta(j)} />)}</ul></Card></section>}
     </>}
   </div></Translated>;

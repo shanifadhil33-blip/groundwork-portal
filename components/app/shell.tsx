@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { Comma } from './punctuation';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
@@ -297,7 +298,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
                   <section className="demo-bar" aria-label="Demo">
                     <div className="demo-bar-line">
                       <button type="button" className="demo-bar-who" aria-expanded={demoOpen} onClick={() => setDemoOpen(!demoOpen)}>
-                        <span>Demo. You are</span> <strong data-no-translate>{firstName}</strong>, <span>{roleName}</span>.
+                        <span>Demo. You are</span> <strong data-no-translate>{firstName}</strong><Comma /><span>{roleName}</span>.
                       </button>
                       <button type="button" className="demo-bar-change" onClick={() => open('people')}>Change person</button>
                     </div>
@@ -330,7 +331,7 @@ export function AppShell({ children, initial }: { children: ReactNode; initial?:
 
             <BottomSheet open={overlay === 'more'} onClose={() => setOverlay(null)} title="More">
               <div className="more-sheet">
-                <p className="more-context"><span data-no-translate><bdi>{company}</bdi></span>, <span>{roleName}</span></p>
+                <p className="more-context"><span data-no-translate><bdi>{company}</bdi></span><Comma /><span>{roleName}</span></p>
                 <nav aria-label="More"><div className="nav-links">{nav.more.map(item => navLink(item))}</div></nav>
                 {companies.length > 1 && <Dropdown label="Company" value={member?.workspace_id ?? ''} options={companies.map(m => ({ value: m.workspace_id, label: m.workspace_name, noTranslate: true }))} onChange={id => void switchWorkspace(id)} width={280} />}
                 <div className="more-account">
