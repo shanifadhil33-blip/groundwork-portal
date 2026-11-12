@@ -79,6 +79,6 @@ const FIXES: Record<string, string> = {
  tw: 'Nnwuma {m} bosome yi, {l} bosome a etwaam, ne nyinaa {t}.',
 };
 export function fixesLine(lang: string | null | undefined, v: { month: number; last_month: number; total: number }): string {
- if (base(lang) === 'ar') return `${arabicJobs(v.month)} هالشهر، و${arabicJobs(v.last_month)} الشهر اللي طاف، والمجموع ${arabicJobs(v.total)}.`;
+ if (base(lang) === 'ar') return `${arabicJobs(v.month)} هذا الشهر، و${arabicJobs(v.last_month)} الشهر الماضي، والمجموع ${arabicJobs(v.total)}.`;
  return (FIXES[base(lang)] ?? FIXES.en).replace('{mj}', `${v.month} ${v.month === 1 ? 'job' : 'jobs'}`).replace('{m}', String(v.month)).replace('{l}', String(v.last_month)).replace('{t}', String(v.total));
 }

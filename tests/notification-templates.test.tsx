@@ -192,7 +192,7 @@ it.each([false,true])('an unavailable Arabic file uses saved translations or wai
  const container=document.createElement('div');document.body.append(container);root=createRoot(container);
  await act(async()=>{root!.render(<><Translator/><Notifications open onClose={()=>{}} ws="workspace" onChange={()=>{}}/></>);});
  expect(container.textContent).not.toContain('The technician');
- if(saved)expect(container.textContent).toContain('الفني في الدرب عشان Repair tap.');
+ if(saved)expect(container.textContent).toContain('الفني في الطريق إلى Repair tap.');
  else expect(container.querySelector('[data-loading]')).not.toBeNull();
 });
 

@@ -8,7 +8,7 @@ import { ids } from '../scripts/seed';
 afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs();});
 it.each([
  ['Which work orders are overdue and who should I chase first? Explain briefly.','overdue'],
- ['وش أهم شي لازم أسويه اليوم؟','attention'],
+ ['ما أهم شيء عليّ فعله اليوم؟','attention'],
  ['Summarize this week for my team in two sentences.','week'],
  ['Which work orders are overdue and assign them to Sam',null],
  ['Summarize this week for my team and send it',null],
