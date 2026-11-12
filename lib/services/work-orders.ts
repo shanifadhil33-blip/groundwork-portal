@@ -11,7 +11,7 @@ import { withSystem } from '../db';
 import { TRADES } from '../trades';
 import { publicClient } from './clients';
 import { z } from 'zod';
-import { overdueSql, todaySql, isOverdue, localDate } from '../dates';
+import { companyDaySql, overdueInDaySql, todayInDaySql, isOverdue, localDate } from '../dates';
 import { ApiError, invalid, missing } from '../http';
 import { parseListQuery } from '../pagination';
 import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, update, uuid ,isOfficeStaff} from './shared';
@@ -49,8 +49,8 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   if(query.site_id)add('site_id=?',query.site_id);
   for(const key of ['asset_id','id'] as const){if(query[key])add(key+'=?',query[key]);}
   if(query.assignee_id==='unassigned')clauses.push('assignee_id IS NULL');else if(query.assignee_id)add('assignee_id=?',query.assignee_id);
-  if(query.overdue)clauses.push('('+overdueSql+')');
-  if(query.today)clauses.push('('+todaySql+')');
+  if(query.overdue)clauses.push('('+overdueInDaySql+')');
+  if(query.today)clauses.push('('+todayInDaySql+')');
   if(query.active)clauses.push("status NOT IN ('done','cancelled')");
   clauses.push(query.archived==='true'?'archived_at IS NOT NULL':'archived_at IS NULL');
   const where=clauses.join(' AND ');
@@ -74,13 +74,13 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   const limit=all?'':after?`LIMIT $${pageValues.push(query.pageSize)}`:`LIMIT $${pageValues.push(query.pageSize)} OFFSET $${pageValues.push(offset)}`;
   const [rows,counted]=await Promise.all([
    c.db.query(`SELECT w.*,(SELECT e.details FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id AND e.kind='price_change' ORDER BY e.created_at DESC,e.id DESC LIMIT 1) AS price_change,s.name AS site_name,cl.name AS client_name,a.name AS assignee_name
-   FROM (SELECT work_orders.*,work_orders.${query.sort}::text AS _key FROM work_orders WHERE ${pageWhere}
+   FROM (SELECT work_orders.*,work_orders.${query.sort}::text AS _key FROM work_orders, ${companyDaySql} WHERE ${pageWhere}
     ORDER BY ${query.sort} ${query.dir} NULLS LAST,${extra}id ${query.dir} ${limit}) w
    LEFT JOIN sites s ON s.id=w.site_id AND s.workspace_id=w.workspace_id
    LEFT JOIN clients cl ON cl.id=w.client_id AND cl.workspace_id=w.workspace_id
    LEFT JOIN LATERAL visible_assignee(w.workspace_id,w.id) a ON true
    ORDER BY w.${query.sort} ${query.dir} NULLS LAST,${extra?'w.due_on ASC,':''}w.id ${query.dir}`,pageValues),
-   known===null?c.db.query('SELECT count(*)::int AS n FROM work_orders WHERE '+where,values):Promise.resolve(null),
+   known===null?c.db.query(`SELECT count(*)::int AS n FROM work_orders, ${companyDaySql} WHERE `+where,values):Promise.resolve(null),
   ]);
   const data=rows.rows,total=known??counted!.rows[0].n,last=data.at(-1);
   const lastKey:string|undefined=last?._key??undefined;

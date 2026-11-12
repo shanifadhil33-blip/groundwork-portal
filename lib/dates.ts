@@ -24,6 +24,13 @@ export function isOverdue(order: {due_on?: string | null; status:string}, now: n
 export const overdueSql = "due_on < (CURRENT_TIMESTAMP AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=work_orders.workspace_id))::date AND status NOT IN ('done','cancelled')";
 /** A visit today (workspace day) that isn't finished: the jobs to do today. */
 export const todaySql = "(scheduled_for AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=work_orders.workspace_id))::date = (CURRENT_TIMESTAMP AT TIME ZONE (SELECT timezone FROM workspaces WHERE id=work_orders.workspace_id))::date AND status NOT IN ('done','cancelled')";
+/**
+ * The same two rules for a query over one company, without a time zone lookup per row (bug 103).
+ * Join `companyDaySql` as `d` (it needs the company id as $1), then use these. Same results as todaySql and overdueSql.
+ */
+export const companyDaySql = "(SELECT (now() AT TIME ZONE timezone)::date AS today, ((now() AT TIME ZONE timezone)::date::timestamp AT TIME ZONE timezone) AS starts, (((now() AT TIME ZONE timezone)::date + 1)::timestamp AT TIME ZONE timezone) AS ends FROM workspaces WHERE id=$1) d";
+export const todayInDaySql = "scheduled_for >= d.starts AND scheduled_for < d.ends AND status NOT IN ('done','cancelled')";
+export const overdueInDaySql = "due_on < d.today AND status NOT IN ('done','cancelled')";
 export function scheduledInstant(day: string, timezone = workspaceTimezone, hour = 9): string | null {
  if (!day) return null;
  // Resolve a wall-clock visit time in the workspace, including seasonal offsets.

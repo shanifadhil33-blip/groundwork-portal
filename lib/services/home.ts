@@ -1,5 +1,5 @@
 import { inWorkspace, type Context } from './shared';
-import { overdueSql, todaySql } from '../dates';
+import { companyDaySql, overdueInDaySql, todayInDaySql } from '../dates';
 
 /** One row on Home that asks this person to decide something. Counts are always shown with their words. */
 export type NeedsYouRow = { kind: string; count: number; href: string };
@@ -13,11 +13,11 @@ export async function homeSummary(user: string, ws: string) {
   return inWorkspace(user, ws, async c => {
     const office = c.role === 'admin' || c.role === 'staff';
     const jobs = (await c.db.query(
-      `SELECT count(*) FILTER (WHERE ${todaySql})::int AS today,
-              count(*) FILTER (WHERE ${overdueSql})::int AS late,
+      `SELECT count(*) FILTER (WHERE ${todayInDaySql})::int AS today,
+              count(*) FILTER (WHERE ${overdueInDaySql})::int AS late,
               count(*) FILTER (WHERE assignee_id IS NULL AND status IN ('open','scheduled') AND archived_at IS NULL)::int AS without_technician,
-              count(*) FILTER (WHERE ${todaySql} AND assignee_id = $2)::int AS mine_today
-         FROM work_orders WHERE workspace_id = $1 AND archived_at IS NULL`, [ws, user])).rows[0];
+              count(*) FILTER (WHERE ${todayInDaySql} AND assignee_id = $2)::int AS mine_today
+         FROM work_orders, ${companyDaySql} WHERE workspace_id = $1 AND archived_at IS NULL`, [ws, user])).rows[0];
     const needs: NeedsYouRow[] = [];
     if (office) {
       const q = (await c.db.query(
