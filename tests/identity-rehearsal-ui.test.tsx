@@ -40,7 +40,7 @@ it('join preview shows wrong and sample code results without network requests or
 it.each([true,false])('worker result uses safe local preview only for demo: %s',async demo=>{
   api.post.mockResolvedValue({name:'Yusuf',token:demo?'practice':'real-test-token',code:demo?PRACTICE_CODE:'123456',simulated:demo});
   await mount(<AddFieldWorker base="/api/workspaces/sample" admin demo={demo} onDone={()=>{}}/>,demo);
-  await click('Add field worker');
+  await click('Add person');
   expect(document.querySelector('#fw-name')).toBeInstanceOf(HTMLInputElement);
   await input(document.querySelector('#fw-name')!,'Yusuf');
   await click('Add');

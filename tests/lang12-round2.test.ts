@@ -92,11 +92,11 @@ it.each(['en-IN','en-US','en-GB'])('schedule clocks honor the %s locale as well 
  const date = new Date(Date.UTC(2026,0,1,14));
  expect(scheduleHourLabel(14,code)).toBe(new Intl.DateTimeFormat(code,{hour:'numeric',timeZone:'UTC'}).format(date));
 });
-it('audit import templates keep filenames as data and localize the queue status', () => {
+it('audit import templates keep filenames as data and leave out the internal queued step', () => {
  const words = JSON.parse(readFileSync('public/i18n/ar-AE.json','utf8'));
  const messages = auditSummaryTemplates({actor_name:'Sam',entity:'imports',action:'insert',after:{filename:'sample.csv',status:'queued'}})!;
  const text = messages.map(message => renderNotification(message,words,'ar-AE')).join(' ');
- expect(text).toContain('Sam'); expect(text).toContain('sample.csv'); expect(text).toContain(words.Queued);
+ expect(text).toContain('Sam'); expect(text).toContain('sample.csv'); expect(text).toContain(words['{name} uploaded the file {item}.'].split(' ')[0]); expect(text).not.toContain(words.Queued);
  expect(text).not.toMatch(/created import|Queued/);
  for (const message of messages) expect(message.key).not.toContain('sample.csv');
 });

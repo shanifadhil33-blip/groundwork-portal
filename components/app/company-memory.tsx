@@ -32,7 +32,7 @@ export function CompanyMemory({ embedded = false }: { embedded?: boolean } = {})
     {embedded ? <h2>What the Agent has learned</h2> : <h1>What the Agent has learned</h1>}
     {!allowed ? <p>Only the owner, an admin or a supervisor can see this.</p> : <>
       <p>Things your team told the Agent to remember.</p>
-      <p className="small">Uses count when a lesson is included in Agent context. Earlier uses were not recorded.</p>
+      <p className="small">How many times the Agent used this lesson. Earlier uses were not counted.</p>
       {!memory.data?.can_edit && <p>Supervisors can read these lessons. Owners and admins can correct them.</p>}
       {memory.loading ? <p role="status">Loading…</p> : memory.error ? <ErrorState error={memory.error} retry={memory.reload}/> :
         !memory.data?.data.length ? <p>No company lessons yet.</p> :
@@ -46,8 +46,8 @@ export function CompanyMemory({ embedded = false }: { embedded?: boolean } = {})
               <div className="row"><Button type="submit" busy={busy} disabled={!editing.body.trim() || editing.body.trim() === lesson.body}>Save</Button><Button variant="secondary" disabled={busy} onClick={() => setEditing(null)}>Cancel</Button></div>
             </form> : <p className="company-memory-body" dir="auto" data-no-translate>{lesson.body}</p>}
             <dl className="company-memory-evidence">
-              <div><dt>Evidence</dt><dd><span>Recorded instruction</span><p dir="auto" data-no-translate>{lesson.recorded_by ?? ''}</p><time data-no-translate dateTime={lesson.created_at}>{lesson.created_at.slice(0, 10)}</time></dd></div>
-              <div><dt>Included in Agent context</dt><dd data-no-translate>{lesson.context_uses}</dd></div>
+              <div><dt>Why</dt><dd><span>Recorded instruction</span><p dir="auto" data-no-translate>{lesson.recorded_by ?? ''}</p><time data-no-translate dateTime={lesson.created_at}>{lesson.created_at.slice(0, 10)}</time></dd></div>
+              <div><dt>Used by the Agent</dt><dd data-no-translate>{lesson.context_uses}</dd></div>
             </dl>
             {memory.data?.can_edit && editing?.id !== lesson.id && <div className="row"><Button variant="secondary" disabled={busy} onClick={() => { setEditing({ id: lesson.id, body: lesson.body }); setNotice(''); }}>Edit</Button><Button variant="secondary" disabled={busy} onClick={() => setRemoving(lesson)}>Delete</Button></div>}
           </li>)}</ul>}

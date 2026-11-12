@@ -71,13 +71,13 @@ it.each(['accepted','declined'])('demo %s reply keeps access unchanged and canno
 it.each(['Accept','Decline'])('office demo %s answers a scratch receipt through the private endpoint',async label=>{
  state.demo=true;
  state.resources.set('/api/demo/company-joining?workspace=sample',[{id:'receipt',name:'Yusuf',kind:'household',phone:'+971000000000',address:'Sample Court',note:'',status:'pending'}]);
- mount(<JoinRequests base="/api/workspaces/sample" onChanged={state.reload}/>);expect(el.textContent).toContain('Practice preview.');await tap(label);
+ mount(<JoinRequests base="/api/workspaces/sample" onChanged={state.reload}/>);expect(el.textContent).toContain('This is a demo.');await tap(label);
  expect(state.request).toHaveBeenCalledWith('/api/demo/company-joining',{method:'PATCH',body:JSON.stringify({workspace_id:'sample',id:'receipt',status:label==='Accept'?'accepted':'declined'})});
 });
 it('real office decisions keep using the real workspace route',async()=>{
  state.resources.set('/api/workspaces/sample/join-requests',[{id:'receipt',name:'Yusuf',kind:'household',status:'pending'}]);
  mount(<JoinRequests base="/api/workspaces/sample" onChanged={state.reload}/>);await tap('Accept');
- expect(state.request).toHaveBeenCalledWith('/api/workspaces/sample/join-requests/receipt',{method:'PATCH',body:JSON.stringify({status:'accepted'})});expect(el.textContent).not.toContain('Practice preview.');
+ expect(state.request).toHaveBeenCalledWith('/api/workspaces/sample/join-requests/receipt',{method:'PATCH',body:JSON.stringify({status:'accepted'})});expect(el.textContent).not.toContain('This is a demo.');
 });
 
 it('a demo identity keeps office decisions private while workspace details refresh',async()=>{

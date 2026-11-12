@@ -8,25 +8,25 @@ export const FULL_PRICE='The full price depends on what the technician finds.';
 export async function prepareQuoteVisit(user:string,ws:string,body:unknown) {
  const data=quoteVisitInput.parse(body);
  return inWorkspace(user,ws,async c=>{
-  if(c.role!=='client')throw new ApiError(403,'forbidden','Only clients can request a quote visit.');
+  if(c.role!=='client')throw new ApiError(403,'forbidden','Only clients can ask for a price visit.');
   const site=await row(c,'sites',data.site_id);
   if(site.client_id!==c.client_id||site.archived_at)throw new ApiError(404,'not_found','Choose one of your own sites.');
   const charge=await visitChargeFor(c,site.id);
   const args={...data,visit_charge:charge};
-  const id=(await c.db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,'quote_visit',$3,'Quote visit',$4) RETURNING id",[ws,user,JSON.stringify(args),FULL_PRICE])).rows[0].id;
-  return {available:true,pending_action:{id,tool:'quote_visit',summary:'Quote visit',why:'Nothing is sent until you tap Yes.',fields:{words:data.words,home:site.name,where:null,since:null,photos:0,visit_charge:charge},quote_visit:true}};
+  const id=(await c.db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,'quote_visit',$3,'Price visit',$4) RETURNING id",[ws,user,JSON.stringify(args),FULL_PRICE])).rows[0].id;
+  return {available:true,pending_action:{id,tool:'quote_visit',summary:'Price visit',why:'Nothing is sent until you tap Yes.',fields:{words:data.words,home:site.name,where:null,since:null,photos:0,visit_charge:charge},quote_visit:true}};
  });
 }
 export async function confirmQuoteVisit(c:Context,a:{id:string;args:any}) {
- if(c.role!=='client')throw new ApiError(403,'forbidden','Only clients can request a quote visit.');
+ if(c.role!=='client')throw new ApiError(403,'forbidden','Only clients can ask for a price visit.');
  const {visit_charge,...input}=a.args as {visit_charge:VisitCharge};
  const data=quoteVisitInput.parse(input);
- const saved=await createSuggestion(c.user,c.ws,{site_id:data.site_id,title:'Quote visit',problem:data.words,preferred_window:data.preferred_window},undefined,a.id,undefined,false,undefined,visit_charge);
+ const saved=await createSuggestion(c.user,c.ws,{site_id:data.site_id,title:'Price visit',problem:data.words,preferred_window:data.preferred_window},undefined,a.id,undefined,false,undefined,visit_charge);
  await c.db.query("UPDATE assistant_actions SET consumed_at=now(),outcome='done',after=$2::jsonb WHERE id=$1",[a.id,JSON.stringify(saved)]);
  return {available:true,reply:'Your request was sent. The company will confirm a time.',logged:true};
 }
 const priceQuestion=/\b(?:how much|cost|price|charge|fee)\b|كم|سعر|تكلفة|رسوم|എത്ര|ചാർജ്|വില|எவ்வளவு|செலவ|கட்டணம்|விலை|magkano|presyo/iu;
-const visitChoice=/^(?:quote visit|زيارة تسعير|விலை பார்க்க வருகை|വില അറിയാനുള്ള സന്ദർശനം|pagbisita para sa presyo)$/iu;
+const visitChoice=/^(?:price visit|quote visit|زيارة تسعير|விலை பார்க்க வருகை|വില അറിയാനുള്ള സന്ദർശനം|pagbisita para sa presyo)$/iu;
 /** Offer a visit without making a request. A separate Yes card shows the site and current region charge. */
 export async function quoteVisitFromWords(user:string,ws:string,messages:{role:string;content:string}[]) {
  const words=messages.filter(m=>m.role==='user').at(-1)?.content?.trim()??'';
@@ -45,12 +45,12 @@ export async function quoteVisitFromWords(user:string,ws:string,messages:{role:s
    const original=messages.filter(m=>m.role==='user'&&!visitChoice.test(m.content)).at(-1)?.content??words;
    const site=sites.find(s=>original.toLocaleLowerCase().includes(s.name.toLocaleLowerCase()))??(sites.length===1?sites[0]:null);
    if(site)return prepareQuoteVisit(user,ws,{site_id:site.id,words:original.slice(0,2000)});
-   await c.db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,'quote_visit_intake',$3,'Quote visit','Choose a site.')",[ws,user,JSON.stringify({words:original.slice(0,2000)})]);
+   await c.db.query("INSERT INTO assistant_actions(workspace_id,user_id,tool,args,summary,why) VALUES($1,$2,'quote_visit_intake',$3,'Price visit','Choose a site.')",[ws,user,JSON.stringify({words:original.slice(0,2000)})]);
    return {available:true,reply:'Which site is this for?',choices:sites.map(s=>s.name)};
   }
   if(c.client_kind==='household'||!priceQuestion.test(words)||/\b(?:(?:WO|Job)\s*#?\s*\d|status|paid|invoice|waiting|approve|decline)\b|حالة|موعد|எப்போது|എപ്പോൾ/iu.test(words))return null;
   const site=sites.find(s=>words.toLocaleLowerCase().includes(s.name.toLocaleLowerCase()))??(sites.length===1?sites[0]:null);
   const charge=await visitChargeFor(c,site?.id??null);
-  return {available:true,reply:charge.amount==null?'The office will confirm the price.':`The visit charge is **${charge.currency} ${charge.amount.toFixed(2)}**.\n\n${FULL_PRICE}`,choices:['Quote visit']};
+  return {available:true,reply:charge.amount==null?'The office will confirm the price.':`The visit charge is **${charge.currency} ${charge.amount.toFixed(2)}**.\n\n${FULL_PRICE}`,choices:['Price visit']};
  });
 }

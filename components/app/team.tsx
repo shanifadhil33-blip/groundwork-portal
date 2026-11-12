@@ -26,7 +26,7 @@ function SkillsButton({ p, base, areas, onDone }: { p: TeamPerson; base: string;
   const pick = (all: string[], on: string[], set: (v: string[]) => void, label: (v: string) => string) => <div className="skill-chips">{all.map(v => <button key={v} type="button" className={`chip ${on.includes(v) ? 'chip-on' : ''}`} aria-pressed={on.includes(v)} disabled={busy} onClick={() => set(flip(on, v))}>{label(v)}</button>)}</div>;
   return <><Button variant="secondary" onClick={() => { setTrades(p.trades); setMine(p.areas); setOpen(true); }}>Trade and area</Button>
     <Dialog open={open} onClose={() => setOpen(false)} busy={busy} title={`What ${p.name ?? 'they'} can do`} footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} onClick={save}>Save</Button></>}>
-      <div className="stack"><span className="field-label">Trade</span>{pick([...TRADES], trades, setTrades, v => tradeLabels[v as Trade])}
+      <div className="stack"><span className="field-label">Type of work</span>{pick([...TRADES], trades, setTrades, v => tradeLabels[v as Trade])}
         <span className="field-label">Area</span>{areas.length ? pick(areas, mine, setMine, v => v) : <p className="small muted">Add an area to your sites first.</p>}
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
 }

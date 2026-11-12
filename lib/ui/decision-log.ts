@@ -25,7 +25,7 @@ export function outcomeNote(d: { outcome: DecisionOutcome; reason?: string | nul
   return '';
 }
 const FIELD_LABELS: Record<string, string> = {
-  status: 'Status', assignee: 'Assigned to', scheduled_for: 'Visit', due_on: 'Due', priority: 'Priority', trade: 'Trade', payment_status: 'Payment',
+  status: 'Status', assignee: 'Assigned to', scheduled_for: 'Visit', due_on: 'Due', priority: 'Priority', trade: 'Type of work', payment_status: 'Payment',
   name: 'Name', address: 'Address', phone: 'Phone', email: 'Email', notes: 'Notes', country: 'Country', region: 'Region', contract_visits: 'Contract visits', contract_ends_on: 'Contract ends',
 };
 const PAYMENT: Record<string, string> = { to_bill: 'To bill', contract: 'Covered by contract', paid: 'Paid' };

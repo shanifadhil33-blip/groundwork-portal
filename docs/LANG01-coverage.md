@@ -14,27 +14,27 @@ Recovered 269 translations from static repository tables, local Git history, and
 
 | Language | Sources | Saved refills | Usable | Missing | Pending | Wrong script | Unchanged English | Invalid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ar-AE | 2979 | 6 | 1962 | 0 | 1016 | 1 | 0 | 0 |
-| ne | 2979 | 7 | 1457 | 0 | 1521 | 1 | 0 | 0 |
-| hi | 2979 | 5 | 1472 | 0 | 1506 | 1 | 0 | 0 |
-| ur | 2979 | 7 | 1457 | 0 | 1521 | 1 | 0 | 0 |
-| bn | 2979 | 6 | 1473 | 0 | 1505 | 1 | 0 | 0 |
-| ml | 2979 | 19 | 1440 | 0 | 1537 | 1 | 0 | 1 |
-| ta | 2979 | 6 | 1471 | 0 | 1505 | 2 | 0 | 1 |
-| ps | 2979 | 6 | 1455 | 0 | 1523 | 1 | 0 | 0 |
-| fa-AF | 2979 | 15 | 1441 | 0 | 1537 | 1 | 0 | 0 |
-| fa-IR | 2979 | 3 | 1453 | 0 | 1525 | 1 | 0 | 0 |
-| fil | 2979 | 8 | 1440 | 0 | 1537 | 2 | 0 | 0 |
-| zh-CN | 2979 | 19 | 1427 | 0 | 1551 | 1 | 0 | 0 |
-| sw-KE | 2979 | 18 | 1426 | 0 | 1552 | 1 | 0 | 0 |
-| am | 2979 | 18 | 1426 | 0 | 1552 | 1 | 0 | 0 |
-| ti | 2979 | 18 | 1443 | 0 | 1534 | 2 | 0 | 0 |
-| so | 2979 | 18 | 1441 | 0 | 1536 | 1 | 1 | 0 |
-| yo | 2979 | 18 | 1424 | 0 | 1554 | 1 | 0 | 0 |
-| ha | 2979 | 18 | 1442 | 0 | 1536 | 1 | 0 | 0 |
-| ig | 2979 | 18 | 1437 | 0 | 1541 | 1 | 0 | 0 |
-| lg | 2979 | 18 | 1424 | 0 | 1552 | 3 | 0 | 0 |
-| tw | 2979 | 18 | 1435 | 0 | 1543 | 1 | 0 | 0 |
+| ar-AE | 3005 | 6 | 1989 | 0 | 1015 | 1 | 0 | 0 |
+| ne | 3005 | 7 | 1484 | 0 | 1520 | 1 | 0 | 0 |
+| hi | 3005 | 5 | 1499 | 0 | 1505 | 1 | 0 | 0 |
+| ur | 3005 | 7 | 1484 | 0 | 1520 | 1 | 0 | 0 |
+| bn | 3005 | 6 | 1500 | 0 | 1504 | 1 | 0 | 0 |
+| ml | 3005 | 19 | 1468 | 0 | 1536 | 1 | 0 | 0 |
+| ta | 3005 | 6 | 1499 | 0 | 1504 | 2 | 0 | 0 |
+| ps | 3005 | 6 | 1482 | 0 | 1522 | 1 | 0 | 0 |
+| fa-AF | 3005 | 15 | 1468 | 0 | 1536 | 1 | 0 | 0 |
+| fa-IR | 3005 | 3 | 1480 | 0 | 1524 | 1 | 0 | 0 |
+| fil | 3005 | 8 | 1467 | 0 | 1536 | 2 | 0 | 0 |
+| zh-CN | 3005 | 19 | 1454 | 0 | 1550 | 1 | 0 | 0 |
+| sw-KE | 3005 | 18 | 1453 | 0 | 1551 | 1 | 0 | 0 |
+| am | 3005 | 18 | 1453 | 0 | 1551 | 1 | 0 | 0 |
+| ti | 3005 | 18 | 1470 | 0 | 1533 | 2 | 0 | 0 |
+| so | 3005 | 18 | 1468 | 0 | 1535 | 1 | 1 | 0 |
+| yo | 3005 | 18 | 1451 | 0 | 1553 | 1 | 0 | 0 |
+| ha | 3005 | 18 | 1469 | 0 | 1535 | 1 | 0 | 0 |
+| ig | 3005 | 18 | 1464 | 0 | 1540 | 1 | 0 | 0 |
+| lg | 3005 | 18 | 1451 | 0 | 1551 | 3 | 0 | 0 |
+| tw | 3005 | 18 | 1462 | 0 | 1542 | 1 | 0 | 0 |
 
 ## Existing values needing review
 
@@ -46,10 +46,8 @@ These values are retained for review and are not counted as usable.
 - ur: "Job #" (wrong script)
 - bn: "Job #" (wrong script)
 - ml: "Job #" (wrong script)
-- ml: "This file has more than 500 rows. Split it into smaller files and upload each one." (invalid)
 - ta: "Job #" (wrong script)
 - ta: "Reported problem" (wrong script)
-- ta: "This file has more than 500 rows. Split it into smaller files and upload each one." (invalid)
 - ps: "Job #" (wrong script)
 - fa-AF: "Job #" (wrong script)
 - fa-IR: "Job #" (wrong script)
@@ -1418,7 +1416,6 @@ Each key below is missing or explicitly pending in the listed language files. �
 - "Who handles your data" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Who in your company can see it" — ne, hi, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
 - "Who is this for" — ne, ur, bn, ml, ta, ps, fa-AF, fa-IR, fil, zh-CN, sw-KE, am, ti, so, yo, ha, ig, lg, tw
-- "Why" — All
 - "Withdraw" — All
 - "Withdraw this request?" — All
 - "Withdraw your request {value1}. The office will not see it any more." — All
