@@ -367,7 +367,7 @@
   gap: var(--s3);
   flex-wrap: wrap;
   font-size: var(--t-meta);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .metadata {
   display: grid;
@@ -955,7 +955,7 @@
   border-radius: var(--r-control);
 }
 .num {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .import-page,
 .queue-page {
@@ -1246,12 +1246,12 @@
   font-family: monospace;
   font-size: var(--t-meta);
   color: var(--text-2);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
   display: block;
 }
 .date-cell {
   text-align: end;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
   font-size: var(--t-meta);
 }
 .work-list-page td.overdue,
@@ -1370,7 +1370,7 @@
   font-size: var(--t-meta);
   color: var(--text-2);
   margin-inline-start: auto;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .work-detail-page .comment p {
   font-size: var(--t-meta);
@@ -1778,12 +1778,18 @@
   gap: 0;
 }
 .settings-page form>.form-field {
+  /* Label above the field, help under it (DESIGN-SPEC form). */
   display: grid;
-  grid-template-columns: 200px minmax(0,1fr);
-  align-items: center;
-  padding: var(--s4) 0;
-  border-bottom: 1px solid var(--line);
-  gap: var(--s4);
+  grid-template-columns: minmax(0,1fr);
+  align-items: start;
+  padding: var(--s3) 0;
+  gap: var(--s1);
+  max-width: var(--w-form);
+}
+.settings-page form>.form-field :is(input:not([type=checkbox]):not([type=radio]),select,.dropdown-trigger) {
+  height: var(--h-md);
+  min-height: var(--h-md);
+  padding-block: 0;
 }
 .settings-page form>.queue-check {
   border-bottom: 1px solid var(--line);
@@ -1939,7 +1945,7 @@
   background: var(--accent);
 }
 .notification-item .row time {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
   margin-inline-start: auto;
   order: 2;
 }
@@ -2081,7 +2087,7 @@
 .local-time,
 .time-button {
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .table-wrap td .local-time {
   overflow-wrap: normal;
@@ -2820,7 +2826,7 @@ html:not([data-session]) .public-header [data-variant=out] > * {
 .tile strong {
   font-size: var(--t-title);
   line-height: 1.1;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .tile span {
   font-size: var(--t-body);
@@ -2881,7 +2887,7 @@ html:not([data-session]) .public-header [data-variant=out] > * {
   letter-spacing: .3em;
   text-align: center;
   height: 64px;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .join-form label {
   font-weight: var(--w-semibold);
@@ -2895,7 +2901,7 @@ html:not([data-session]) .public-header [data-variant=out] > * {
   font-weight: var(--w-semibold);
   letter-spacing: .15em;
   text-align: center;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
   margin: var(--s2) 0;
 }
 .person-list {
@@ -3035,7 +3041,7 @@ button.chip {
 .sched-time {
   font-size: var(--t-meta);
   font-weight: var(--w-semibold);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .sched-days {
   display: grid;
@@ -4481,7 +4487,7 @@ body:has(.app-shell) .person-card {
 }
 .voice-recording-time {
   flex: 0 0 auto;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .voice-recording .recording-dot {
   flex: 0 0 auto;
@@ -5710,7 +5716,7 @@ body:has(.app-shell) .assistant-input-row .assistant-control.assistant-control:n
 }
 .ds-row .ds-time {
   font-weight: var(--w-semibold);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
   min-width: 52px;
 }
 .ds-row .ds-main {
@@ -6432,7 +6438,7 @@ body:has(.app-shell) .schedule-page .sched-head {
   font-weight: var(--w-semibold);
 }
 body:has(.app-shell) .schedule-page .sched-time {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
   font-weight: var(--w-semibold);
 }
 body:has(.app-shell) .messages-page :is(.message-list,.message-thread) {

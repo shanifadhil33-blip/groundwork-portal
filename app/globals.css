@@ -115,9 +115,11 @@ svg {
 [hidden] {
   display: none !important;
 }
+/* The UI font's default digits are fixed width, which leaves a 1 floating with gaps ("1 7 late"). */
+body,
 time,
 .num {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .directional-icon:dir(rtl) {
   transform: scaleX(-1);
@@ -1345,7 +1347,7 @@ button.list-row:active {
   font-size: var(--t-meta);
   line-height: 20px;
   text-align: center;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: proportional-nums;
 }
 .nav-link[aria-current='page'] .nav-count {
   background: var(--surface);

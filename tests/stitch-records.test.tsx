@@ -24,7 +24,7 @@ function fixture(extra:object={}){state.order={id:'order',order_number:54,title:
 function render(node:React.ReactNode,role:Membership['role'],demo=true){const member:Membership={workspace_id:'workspace',workspace_name:'Company',role,client_id:role==='client'?'client':null,client_name:null};return renderToStaticMarkup(<AppContext.Provider value={{member,workspace:{id:'workspace',name:'Company',timezone:'Asia/Dubai',is_demo:demo,country:'AE',region:null,currency:'AED'},me:{user:{id:'user',name:'Imran',email:null,image:null},memberships:[member]},reload:()=>{},updateName:()=>{}}}>{node}</AppContext.Provider>);}
 function primaries(html:string){return html.match(/class="button primary(?: |")/g)??[];}
 it('keeps operational columns, priority, menus and record links in the simplified list',()=>{
- fixture();const html=render(<WorkOrderList/>,'admin');expect(html).toContain('<h1>Jobs</h1>');expect(html).toContain('data-label="Technician"');expect(html).toContain('data-label="Status"');expect(html).toContain('Priority: High');expect(html).toContain('Northgate');expect(html).toContain('Ravi');expect(html).toContain('href="/work-orders/order"');expect(html).toContain('row-menu');expect(primaries(html)).toHaveLength(1);
+ fixture();const html=render(<WorkOrderList/>,'admin');expect(html).toContain('<h1>Jobs</h1>');expect(html).toContain('data-label="Technician"');expect(html).toContain('data-label="Status"');expect(html).not.toContain('Priority:');expect(html).toContain('Northgate');expect(html).toContain('Ravi');expect(html).toContain('href="/work-orders/order"');expect(html).toContain('row-menu');expect(primaries(html)).toHaveLength(1);
 });
 for(const role of ['admin','staff','technician','client'] as const){
  it(`retains ${role} job features with one primary action`,()=>{
@@ -93,7 +93,8 @@ for(const {code} of LANGUAGES){
    state.words=isEnglish(code)?{}:readTranslationCache(readFileSync(`public/i18n/${code}.json`,'utf8'),code);
    const title=DEMO_JOB_TITLES[0];
    const timeline=historyEvents.map((event,index)=>({...event,id:`event-${index}`,actor_id:index===0?null:'user',work_order_title:title,created_at:'2026-11-12T11:00:00Z',actor_kind:index===1?'assistant':index===2?'agent':'user',via_token_name:'My agent key'}));
-   fixture({title:'Renamed job',timeline,comments:[
+   // The job page names the job as it is called now (bug 4), so the job carries the demo title.
+   fixture({title,timeline,comments:[
     {id:'shared',body:'Please keep my typed words.',author_id:'user',visibility:'client',work_order_title:title,created_at:'2026-11-12T11:00:00Z'},
     {id:'private',body:'Private words.',author_id:'user',visibility:'internal',work_order_title:title,created_at:'2026-11-12T11:00:00Z'},
    ]});
@@ -101,7 +102,6 @@ for(const {code} of LANGUAGES){
    const history=doc.querySelector('.timeline')!;
    expect(history.textContent).not.toMatch(/[<{]/);
    expect(history.querySelectorAll('li')).toHaveLength(timeline.length+(role==='client'?1:2));
-   expect(history.textContent).not.toContain('Renamed job');
    expect(history.textContent).toContain('Imran');
    expect(history.textContent).toContain('Ravi');
    expect(history.textContent).toContain(state.words[title]??title);
