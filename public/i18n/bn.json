@@ -3010,5 +3010,6 @@
 "{name} changed the site ‘{record}’":"{name} সাইট ‘{record}’ বদলেছেন",
 "{name} uploaded the file {item}.":"{name} ফাইল {item} আপলোড করেছেন।",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"দলে এখনও কেউ এই এলাকায় এই ধরনের কাজ করেন না। দল পাতায় এটি ঠিক করুন।",
-"Waiting to approve":"অনুমোদনের অপেক্ষায়"
+"Waiting to approve":"অনুমোদনের অপেক্ষায়",
+"We could not save the language. Try again.":"ভাষা সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।"
 }

@@ -3005,5 +3005,6 @@
 "{name} changed the site ‘{record}’":"{name} alibadilisha eneo ‘{record}’",
 "{name} uploaded the file {item}.":"{name} alipakia faili {item}.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"Bado hakuna kwenye timu anayefanya aina hii ya kazi katika eneo hili. Iweke kwenye ukurasa wa Timu.",
-"Waiting to approve":"Inasubiri kuidhinishwa"
+"Waiting to approve":"Inasubiri kuidhinishwa",
+"We could not save the language. Try again.":"Hatukuweza kuhifadhi lugha. Jaribu tena."
 }

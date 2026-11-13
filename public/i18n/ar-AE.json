@@ -3008,5 +3008,6 @@
 "{name} changed the site ‘{record}’":"غيّر {name} بيانات الموقع ‘{record}’",
 "{name} uploaded the file {item}.":"رفع {name} الملف {item}.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"لا يوجد في الفريق بعد من يؤدي هذا النوع من العمل في هذه المنطقة. حدّد ذلك في صفحة الفريق.",
-"Waiting to approve":"بانتظار الموافقة"
+"Waiting to approve":"بانتظار الموافقة",
+"We could not save the language. Try again.":"تعذّر حفظ اللغة. حاول مرة أخرى."
 }

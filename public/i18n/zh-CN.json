@@ -3007,5 +3007,6 @@
 "{name} changed the site ‘{record}’":"{name} 更改了地点“{record}”",
 "{name} uploaded the file {item}.":"{name} 上传了文件 {item}。",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"团队里还没有人在这个区域做这类工作。请在团队页面设置。",
-"Waiting to approve":"等待批准"
+"Waiting to approve":"等待批准",
+"We could not save the language. Try again.":"无法保存语言。请重试。"
 }

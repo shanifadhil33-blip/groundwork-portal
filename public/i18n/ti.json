@@ -3011,5 +3011,6 @@
 "{name} changed the site ‘{record}’":"{name} ቦታ ‘{record}’ ቀይሩ",
 "{name} uploaded the file {item}.":"{name} ፋይል {item} ጽዒኑ።",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"ኣብ ጉጅለ ገና ነዚ ዓይነት ስራሕ ኣብዚ ከባቢ ዝሰርሕ የለን። ኣብ ገጽ ጉጅለ ኣዳልዎ።",
-"Waiting to approve":"ንምጽዳቕ ይጽበ"
+"Waiting to approve":"ንምጽዳቕ ይጽበ",
+"We could not save the language. Try again.":"ቋንቋ ክንዕቅብ ኣይከኣልናን። እንደገና ፈትን።"
 }

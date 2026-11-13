@@ -3004,5 +3004,6 @@
 "{name} changed the site ‘{record}’":"{name} ya canza wurin ‘{record}’",
 "{name} uploaded the file {item}.":"{name} ya loda fayil {item}.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"Har yanzu babu wanda ke wannan irin aiki a wannan yanki a ƙungiyar. Saita shi a shafin Ƙungiya.",
-"Waiting to approve":"Ana jiran amincewa"
+"Waiting to approve":"Ana jiran amincewa",
+"We could not save the language. Try again.":"Ba mu iya ajiye harshen ba. Sake gwadawa."
 }

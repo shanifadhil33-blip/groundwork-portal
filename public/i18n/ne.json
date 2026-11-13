@@ -3007,5 +3007,6 @@
 "{name} changed the site ‘{record}’":"{name} ले साइट ‘{record}’ बदल्नुभयो",
 "{name} uploaded the file {item}.":"{name} ले फाइल {item} अपलोड गर्नुभयो।",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"टिममा अझै कसैले यो क्षेत्रमा यस्तो काम गर्दैन। यसलाई टिम पृष्ठमा सेट गर्नुहोस्।",
-"Waiting to approve":"स्वीकृतिको प्रतीक्षामा"
+"Waiting to approve":"स्वीकृतिको प्रतीक्षामा",
+"We could not save the language. Try again.":"भाषा सुरक्षित गर्न सकिएन। फेरि प्रयास गर्नुहोस्।"
 }

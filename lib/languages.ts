@@ -11,7 +11,7 @@ export const LANGUAGES: Language[] = [
   { code: 'en-IN', name: 'English (India)', native: 'English (India)', group: 'English' },
   { code: 'en-US', name: 'English (US)', native: 'English (US)', group: 'English' },
   { code: 'en-GB', name: 'English (UK)', native: 'English (UK)', group: 'English' },
-  { code: 'ar-AE', name: 'Gulf Arabic', native: 'العربية الخليجية', group: 'Arabic', rtl: true },
+  { code: 'ar-AE', name: 'Arabic', native: 'العربية', group: 'Arabic', rtl: true },
   { code: 'ne', name: 'Nepali', native: 'नेपाली', group: 'South Asia' },
   { code: 'hi', name: 'Hindi', native: 'हिन्दी', group: 'South Asia' },
   { code: 'ur', name: 'Urdu', native: 'اردو', group: 'South Asia', rtl: true },

@@ -3004,5 +3004,6 @@
 "{name} changed the site ‘{record}’":"{name} gbanwere ebe ‘{record}’",
 "{name} uploaded the file {item}.":"{name} bulitere faịlụ {item}.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"Ọ dịbeghị onye na otu na-arụ ụdị ọrụ a n’ebe a. Hazie ya na peeji Otu.",
-"Waiting to approve":"Na-eche nkwado"
+"Waiting to approve":"Na-eche nkwado",
+"We could not save the language. Try again.":"Anyị enweghị ike ịchekwa asụsụ ahụ. Nwaa ọzọ."
 }

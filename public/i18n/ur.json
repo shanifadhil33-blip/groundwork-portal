@@ -3011,5 +3011,6 @@
 "{name} changed the site ‘{record}’":"{name} نے سائٹ ‘{record}’ بدلی",
 "{name} uploaded the file {item}.":"{name} نے فائل {item} اپ لوڈ کی۔",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"ٹیم میں ابھی کوئی اس علاقے میں یہ کام نہیں کرتا۔ اسے ٹیم صفحے پر سیٹ کریں۔",
-"Waiting to approve":"منظوری کا انتظار"
+"Waiting to approve":"منظوری کا انتظار",
+"We could not save the language. Try again.":"زبان محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔"
 }
