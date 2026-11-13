@@ -3012,5 +3012,6 @@
 "{name} changed the site ‘{record}’":"{name} ቦታውን ‘{record}’ ቀየረ",
 "{name} uploaded the file {item}.":"{name} ፋይሉን {item} ሰቀለ።",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"በቡድኑ ውስጥ ይህን አይነት ስራ በዚህ አካባቢ የሚሰራ ገና የለም። በቡድን ገጽ ላይ አዘጋጅ።",
-"Waiting to approve":"ለማጽደቅ በመጠበቅ ላይ"
+"Waiting to approve":"ለማጽደቅ በመጠበቅ ላይ",
+"We could not save the language. Try again.":"ቋንቋውን ማስቀመጥ አልቻልንም። እንደገና ይሞክሩ።"
 }

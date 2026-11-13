@@ -3009,5 +3009,6 @@
 "{name} changed the site ‘{record}’":"{name} ځای ‘{record}’ بدل کړ",
 "{name} uploaded the file {item}.":"{name} فایل {item} پورته کړ.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"په ټیم کې لا څوک په دې سیمه کې دا ډول کار نه کوي. دا د ټیم په پاڼه کې وټاکئ.",
-"Waiting to approve":"د منظورۍ په تمه"
+"Waiting to approve":"د منظورۍ په تمه",
+"We could not save the language. Try again.":"ژبه خوندي نه شوه. بیا هڅه وکړئ."
 }

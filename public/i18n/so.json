@@ -3004,5 +3004,6 @@
 "{name} changed the site ‘{record}’":"{name} wuxuu beddelay goobta ‘{record}’",
 "{name} uploaded the file {item}.":"{name} wuxuu soo geliyay faylka {item}.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"Kooxda weli qof ma jiro oo shaqadan noocaas ah ka qabta aaggan. Ku dheji bogga Kooxda.",
-"Waiting to approve":"Sugaya ansixin"
+"Waiting to approve":"Sugaya ansixin",
+"We could not save the language. Try again.":"Luqadda lama kaydin karin. Mar kale isku day."
 }

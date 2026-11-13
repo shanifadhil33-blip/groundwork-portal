@@ -3003,5 +3003,6 @@
 "{name} changed the site ‘{record}’":"Binago ni {name} ang site na ‘{record}’",
 "{name} uploaded the file {item}.":"In-upload ni {name} ang file na {item}.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"Wala pang sinuman sa team ang gumagawa ng ganitong trabaho sa lugar na ito. Itakda ito sa pahina ng Team.",
-"Waiting to approve":"Naghihintay ng pag-apruba"
+"Waiting to approve":"Naghihintay ng pag-apruba",
+"We could not save the language. Try again.":"Hindi namin ma-save ang wika. Subukan ulit."
 }

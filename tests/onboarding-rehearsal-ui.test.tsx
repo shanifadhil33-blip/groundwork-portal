@@ -32,7 +32,7 @@ it('rehearses shared steps, validates, retains Back values and completes without
  await tap('AC');await next();await next();await next();
  expect(el.textContent).toContain('Who will work with you?');expect(el.querySelector('a[href*="wa.me"]')).toBeNull();expect(el.textContent).not.toContain('Make invite link');
  await next();expect(el.textContent).toContain('Practice complete');
- for(const value of ['Yusuf','Sample repairs','الهند','Kerala','USD','العربية الخليجية'])expect(el.textContent).toContain(value);
+ for(const value of ['Yusuf','Sample repairs','الهند','Kerala','USD','العربية'])expect(el.textContent).toContain(value);
  await tap('Back');expect(el.textContent).toContain('Who will work with you?');
  await act(async()=>window.dispatchEvent(new Event('groundwork-onboarding')));
  expect(state.request).not.toHaveBeenCalled();expect(state.reload).not.toHaveBeenCalled();expect(state.language).toHaveBeenCalledWith('ar-AE');

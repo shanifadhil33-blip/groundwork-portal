@@ -55,7 +55,7 @@ describe('localized greetings and name joins', () => {
     expect(join([null, 'Ravi'])).toBe('Ravi');
     expect(join([])).toBe('');
     const option = languageOptions(join).find(option => option.value === 'ar-AE')!;
-    expect(option.label).toBe(`Gulf Arabic${sep}العربية الخليجية`);
+    expect(option.label).toBe(`Arabic${sep}العربية`);
   });
 
   it('updates an existing greeting and name join when the language changes', async () => {

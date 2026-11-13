@@ -3003,5 +3003,6 @@
 "{name} changed the site ‘{record}’":"{name} yí ibi ‘{record}’ padà",
 "{name} uploaded the file {item}.":"{name} gbé fáìlì {item} sókè.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"Kò sí ẹnikẹ́ni nínú ẹgbẹ́ tó ń ṣe irú iṣẹ́ yìí ní agbègbè yìí síbẹ̀. Ṣètò rẹ̀ ní ojú-ìwé Ẹgbẹ́.",
-"Waiting to approve":"Ń dúró de ìfọwọ́sí"
+"Waiting to approve":"Ń dúró de ìfọwọ́sí",
+"We could not save the language. Try again.":"A kò lè fi èdè náà pamọ́. Gbìyànjú lẹ́ẹ̀kan sí i."
 }

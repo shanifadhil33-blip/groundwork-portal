@@ -3018,5 +3018,6 @@
 "{name} changed the site ‘{record}’":"{name} സൈറ്റ് ‘{record}’ മാറ്റി",
 "{name} uploaded the file {item}.":"{name} ഫയൽ {item} അപ്‌ലോഡ് ചെയ്തു.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"ഈ പ്രദേശത്ത് ഈ തരം ജോലി ചെയ്യുന്ന ആരും ടീമിൽ ഇതുവരെ ഇല്ല. ടീം പേജിൽ ഇത് സജ്ജമാക്കുക.",
-"Waiting to approve":"അംഗീകാരത്തിനായി കാത്തിരിക്കുന്നു"
+"Waiting to approve":"അംഗീകാരത്തിനായി കാത്തിരിക്കുന്നു",
+"We could not save the language. Try again.":"ഭാഷ സേവ് ചെയ്യാനായില്ല. വീണ്ടും ശ്രമിക്കുക."
 }

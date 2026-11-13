@@ -3004,5 +3004,6 @@
 "{name} changed the site ‘{record}’":"{name} yakyusizza ekifo ‘{record}’",
 "{name} uploaded the file {item}.":"{name} yatisse fayiro {item}.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"Tewannabaawo mu ttiimu akola mulimu guno mu kitundu kino. Kiteeke ku lupapula lwa Ttiimu.",
-"Waiting to approve":"Kirindiridde okukkirizibwa"
+"Waiting to approve":"Kirindiridde okukkirizibwa",
+"We could not save the language. Try again.":"Tetusobodde kutereka lulimi. Ddamu ogezeeko."
 }

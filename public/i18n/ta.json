@@ -3005,5 +3005,6 @@
 "{name} changed the site ‘{record}’":"{name} இடம் ‘{record}’ ஐ மாற்றினார்",
 "{name} uploaded the file {item}.":"{name} கோப்பு {item} ஐப் பதிவேற்றினார்.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"இந்தப் பகுதியில் இந்த வகை வேலையைச் செய்பவர் குழுவில் இன்னும் யாரும் இல்லை. குழு பக்கத்தில் அதை அமைக்கவும்.",
-"Waiting to approve":"ஒப்புதலுக்காகக் காத்திருக்கிறது"
+"Waiting to approve":"ஒப்புதலுக்காகக் காத்திருக்கிறது",
+"We could not save the language. Try again.":"மொழியைச் சேமிக்க முடியவில்லை. மீண்டும் முயலவும்."
 }

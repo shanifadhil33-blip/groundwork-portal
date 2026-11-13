@@ -683,13 +683,14 @@ label {
     max-height: none;
     border-radius: 0;
     box-shadow: none;
-    transition:
-      opacity var(--dur-page) var(--ease-out),
-      transform var(--dur-page) var(--ease-out);
+    /* A full screen page stays solid and slides in, so the page below never shows through. */
+    background-color: var(--surface);
+    opacity: 1;
+    transition: transform var(--dur-page) var(--ease-out);
   }
   .presentation-assistant.closing .dialog.sheet {
-    opacity: 0;
-    transform: translateX(calc(var(--push) * var(--push-dir, 1)));
+    opacity: 1;
+    transform: translateX(calc(100% * var(--push-dir, 1)));
     transition-duration: var(--dur-page-back);
   }
   .presentation-assistant .dialog.sheet:dir(rtl) {
@@ -697,8 +698,8 @@ label {
   }
   @starting-style {
     .presentation-assistant .dialog.sheet {
-      opacity: 0;
-      transform: translateX(calc(var(--push) * var(--push-dir, 1)));
+      opacity: 1;
+      transform: translateX(calc(100% * var(--push-dir, 1)));
     }
   }
   .presentation-assistant .grab-handle {

@@ -3013,5 +3013,6 @@
 "{name} changed the site ‘{record}’":"{name} محل ‘{record}’ را تغییر داد",
 "{name} uploaded the file {item}.":"{name} فایل {item} را بارگذاری کرد.",
 "Nobody on the team does this type of work in this area yet. Set it on the Team page.":"هنوز کسی در تیم این نوع کار را در این منطقه انجام نمی‌دهد. آن را در صفحه تیم تنظیم کنید.",
-"Waiting to approve":"در انتظار تأیید"
+"Waiting to approve":"در انتظار تأیید",
+"We could not save the language. Try again.":"زبان ذخیره نشد. دوباره تلاش کنید."
 }
