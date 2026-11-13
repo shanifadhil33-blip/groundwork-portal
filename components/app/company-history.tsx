@@ -25,6 +25,6 @@ export function CompanyHistoryCard({ base, id }: { base: string; id: string }) {
   <div className="flip-face flip-front ds-panel stack compact" inert={flipped} aria-hidden={flipped}><h2 id="company-history-h">From your company’s history</h2><p className="ds-sub">After learning</p>{after}
    <button type="button" ref={frontBtn} className="ds-flip-btn ds-flip-light" aria-pressed={false} aria-controls="company-history-back" onClick={() => flip(true)}>Before learning</button></div>
   <div id="company-history-back" className="flip-face flip-back ds-panel stack compact" inert={!flipped} aria-hidden={!flipped}><h2>Before learning</h2><p>A new company with no finished jobs.</p><p>Not enough finished jobs yet to say how long this takes.</p>
-   <button type="button" ref={backBtn} className="ds-flip-btn ds-flip-light" aria-pressed={true} aria-controls="company-history-back" onClick={() => flip(false)}>Flip back</button></div>
+   <button type="button" ref={backBtn} className="ds-flip-btn ds-flip-light" aria-pressed={true} aria-controls="company-history-back" onClick={() => flip(false)}>Back</button></div>
  </div></section>;
 }

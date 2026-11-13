@@ -6,7 +6,7 @@
   "painting": {},
   "cleaning": {},
   "general": {},
-  "Electric": {
+  "Electrical": {
     "ar-AE": "كهرباء",
     "ne": "विद्युतीय",
     "hi": "बिजली",
@@ -75,7 +75,7 @@
     "lg": "Ekiwummuliro",
     "tw": "Mframa adwinnade"
   },
-  "Wood": {
+  "Carpentry": {
     "ar-AE": "خشب",
     "ne": "काठ",
     "hi": "लकड़ी",
@@ -98,7 +98,7 @@
     "lg": "Enku",
     "tw": "Dua"
   },
-  "Paint": {
+  "Painting": {
     "ar-AE": "دهان",
     "ne": "रङ लगाउने काम",
     "hi": "रंगाई",
@@ -167,9 +167,6 @@
     "lg": "Bya bulijjo",
     "tw": "Ne nyinaa"
   },
-  "Electrical": {},
-  "Carpentry": {},
-  "Painting": {},
   "leak": {},
   "tap": {},
   "drain": {},

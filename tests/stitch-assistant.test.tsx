@@ -33,7 +33,7 @@ async function click(label:string){const button=Array.from(host.querySelectorAll
 for(const role of ['admin','staff','technician','client'] as const){
  it(`${role} confirms with Yes inside the reply using the existing backend`,async()=>{
   api.post.mockResolvedValueOnce({available:true,pending_action:{id:'approval',summary:'Save this job change?',why:'Requested by you.'}}).mockResolvedValueOnce({available:true,reply:'Saved.'});
-  await mount(role);await click('Show jobs waiting on parts');
+  await mount(role);await click(role==='client'?'How are my requests going?':'Show jobs waiting for parts');
   const reply=host.querySelector('.pending-reply');expect(reply?.textContent).toContain('Save this job change?');expect(reply?.textContent).toContain('YesChange');
   expect(host.querySelectorAll('.assistant-control')).toHaveLength(2);
   await click('Yes');expect(api.post).toHaveBeenLastCalledWith('/api/workspaces/workspace/assistant',{messages:[],confirm_action_id:'approval'},{signal:expect.any(AbortSignal)});expect(host.textContent).toContain('Saved.');expect(host.querySelector('.pending-reply')).toBeNull();
@@ -41,12 +41,12 @@ for(const role of ['admin','staff','technician','client'] as const){
 }
 it('Change restores the request for editing without applying the pending action',async()=>{
  api.post.mockResolvedValue({available:true,pending_action:{id:'approval',summary:'Save this change?'}});
- await mount('client',false);await click('Show jobs waiting on parts');await click('Change');
+ await mount('client',false);await click('How are my requests going?');await click('Change');
  // AGENT05: Change only records that he said no; it never confirms the action.
- expect(api.post).toHaveBeenCalledTimes(2);expect(api.post.mock.calls[1][0]).toMatch(/\/assistant\/log\/approval\/decline$/);expect(api.post.mock.calls.some((c:any[])=>c[1]?.confirm_action_id)).toBe(false);expect(host.querySelector('textarea')?.value).toBe('Show jobs waiting on parts');expect(host.querySelector('.pending-reply')).toBeNull();expect(host.textContent).toContain('No change was made.');
+ expect(api.post).toHaveBeenCalledTimes(2);expect(api.post.mock.calls[1][0]).toMatch(/\/assistant\/log\/approval\/decline$/);expect(api.post.mock.calls.some((c:any[])=>c[1]?.confirm_action_id)).toBe(false);expect(host.querySelector('textarea')?.value).toBe('How are my requests going?');expect(host.querySelector('.pending-reply')).toBeNull();expect(host.textContent).toContain('No change was made.');
 });
 it('keeps server choice answers inside the agent reply',async()=>{
- api.post.mockResolvedValue({available:true,reply:'Save this report?',choices:['Yes','Change']});await mount('technician');await click('Show jobs waiting on parts');
+ api.post.mockResolvedValue({available:true,reply:'Save this report?',choices:['Yes','Change']});await mount('technician');await click('Show jobs waiting for parts');
  expect(host.querySelector('article.assistant')?.textContent).toContain('Save this report?YesChange');await click('Change');expect(api.post.mock.calls[1][1].messages.at(-1)).toEqual({role:'user',content:'Change'});
 });
 it('handles an unavailable microphone without sending or losing the draft',async()=>{
@@ -74,9 +74,9 @@ it('links the custom name from both chat headers and respects voice off',async()
 const refusalOffer={to_name:'Sam',label:'Ask Sam',question:'Ravi asked to give WO 58 to Yusuf. Can you help?',proposed:'Assign WO 58 to Yusuf',work_order_id:'job'};
 it('sends a refusal offer once, protects the name, and keeps the sent line after reopening',async()=>{
  api.post.mockResolvedValueOnce({available:true,reply:"I can't change that. I can ask Sam for you.",offers:[refusalOffer],choices:['Thanks']});
- await mount('technician');await click('Show jobs waiting on parts');
+ await mount('technician');await click('Show jobs waiting for parts');
  const button=Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Ask Sam')!;
- expect(button.style.minHeight).toBe('44px');expect(button.querySelector('[data-no-translate]')?.textContent).toBe('Sam');
+ expect(button.className).toContain('tap');expect(button.querySelector('[data-no-translate]')?.textContent).toBe('Sam');
  let finish!:(value:unknown)=>void;api.post.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
  await act(async()=>{button.click();button.click();});
  expect(button.disabled).toBe(true);expect(button.getAttribute('aria-busy')).toBe('true');expect(api.post).toHaveBeenCalledTimes(2);
@@ -93,7 +93,7 @@ it('sends a refusal offer once, protects the name, and keeps the sent line after
 });
 it('shows a plain retry line for a failed offer and supports another tap in a right to left layout',async()=>{
  host.dir='rtl';api.post.mockResolvedValueOnce({available:true,reply:"I can't change that.",offers:[refusalOffer]}).mockRejectedValueOnce(new Error('private database details')).mockResolvedValueOnce({id:'question'});
- await mount('technician');await click('Show jobs waiting on parts');await click('Ask Sam');
+ await mount('technician');await click('Show jobs waiting for parts');await click('Ask Sam');
  expect(host.textContent).toContain('Could not send. Tap Ask to try again.');expect(host.textContent).not.toContain('private database details');
  await click('Ask Sam');expect(host.textContent).toContain('Sent to Sam. Nothing changes until he answers.');
  expect(host.querySelector('bdi')?.textContent).toBe('Sam');
@@ -105,7 +105,7 @@ it('applies an Agent theme receipt and Undo in the page immediately',async()=>{
  api.post.mockResolvedValueOnce({available:true,reply:'Theme set to Dark (was Light).',choices:['Undo'],setting_change:{setting:'theme',value:'dark'}})
   .mockResolvedValueOnce({available:true,reply:'Theme restored to Light.',choices:[],setting_change:{setting:'theme',value:'light'}});
  await mount('technician',true,true);
- await click('Show jobs waiting on parts');
+ await click('Show jobs waiting for parts');
  expect(document.documentElement.dataset.theme).toBe('dark');expect(host.textContent).toContain('Theme set to Dark (was Light).');expect(host.querySelector('.pending-reply')).toBeNull();
  await click('Undo');expect(document.documentElement.dataset.theme).toBe('light');expect(host.textContent).toContain('Theme restored to Light.');
  localStorage.clear();
@@ -114,7 +114,7 @@ it('uses the existing language change path for a setting and its Undo',async()=>
  vi.mocked(changeAppLanguage).mockClear();
  api.post.mockResolvedValueOnce({available:true,reply:'Language set to Hindi (was Default).',choices:['Undo'],setting_change:{setting:'language',value:'hi'}})
   .mockResolvedValueOnce({available:true,reply:'Language restored to Default.',choices:[],setting_change:{setting:'language',value:null}});
- await mount('client');await click('Show jobs waiting on parts');
+ await mount('client');await click('How are my requests going?');
  expect(changeAppLanguage).toHaveBeenLastCalledWith('hi');await click('Undo');expect(changeAppLanguage).toHaveBeenLastCalledWith(LANGUAGES[0].code);
 });
 

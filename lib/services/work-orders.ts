@@ -11,7 +11,7 @@ import { withSystem } from '../db';
 import { TRADES } from '../trades';
 import { publicClient } from './clients';
 import { z } from 'zod';
-import { overdueSql, todaySql, isOverdue, localDate } from '../dates';
+import { companyDaySql, overdueInDaySql, todayInDaySql, isOverdue, localDate } from '../dates';
 import { ApiError, invalid, missing } from '../http';
 import { parseListQuery } from '../pagination';
 import { allow, hash, inWorkspace, insert, name, priority, replay, row, status, update, uuid ,isOfficeStaff} from './shared';
@@ -49,31 +49,43 @@ export async function listWorkOrders(user:string,ws:string,params:URLSearchParam
   if(query.site_id)add('site_id=?',query.site_id);
   for(const key of ['asset_id','id'] as const){if(query[key])add(key+'=?',query[key]);}
   if(query.assignee_id==='unassigned')clauses.push('assignee_id IS NULL');else if(query.assignee_id)add('assignee_id=?',query.assignee_id);
-  if(query.overdue)clauses.push('('+overdueSql+')');
-  if(query.today)clauses.push('('+todaySql+')');
+  if(query.overdue)clauses.push('('+overdueInDaySql+')');
+  if(query.today)clauses.push('('+todayInDaySql+')');
   if(query.active)clauses.push("status NOT IN ('done','cancelled')");
   clauses.push(query.archived==='true'?'archived_at IS NOT NULL':'archived_at IS NULL');
   const where=clauses.join(' AND ');
   const signature=hash(JSON.stringify({user,ws,...query,cursor:undefined,page:undefined}));
-  let offset=(query.page-1)*query.pageSize;
+  // Sorts on a column that is never empty page by keyset: the next page starts after the last row,
+  // so a late page costs the same as the first. The two date sorts can be empty and keep an offset.
+  const extra=query.overdue&&query.sort==='priority'?'due_on ASC,':'';
+  const keyset=!all&&!extra&&['updated_at','created_at','title','priority'].includes(query.sort);
+  const cast=({updated_at:'timestamptz',created_at:'timestamptz',title:'text',priority:'work_order_priority'} as Record<string,string>)[query.sort]??'text';
+  let offset=(query.page-1)*query.pageSize,after:{v:string;id:string}|null=null,known:number|null=null;
   if(query.cursor) {
    try {
-    const cursor=z.object({offset:z.number().int().nonnegative().max(100000000),signature:z.string()}).parse(JSON.parse(Buffer.from(query.cursor,'base64url').toString()));
+    const cursor=z.object({offset:z.number().int().nonnegative().max(100000000),signature:z.string(),total:z.number().int().nonnegative().optional(),v:z.string().max(2000).optional(),id:z.string().uuid().optional()}).parse(JSON.parse(Buffer.from(query.cursor,'base64url').toString()));
     if(cursor.signature!==signature)throw new Error();
-    offset=cursor.offset;
+    offset=cursor.offset;known=cursor.total??null;
+    if(keyset&&cursor.v!==undefined&&cursor.id)after={v:cursor.v,id:cursor.id};
    }catch{throw invalid('This cursor does not match the list filters.','cursor');}
   }
-  const data=(await c.db.query(`SELECT w.*,(SELECT e.details FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id AND e.kind='price_change' ORDER BY e.created_at DESC,e.id DESC LIMIT 1) AS price_change,s.name AS site_name,cl.name AS client_name,a.name AS assignee_name
-   FROM (SELECT work_orders.*,count(*) OVER()::int AS _total FROM work_orders WHERE ${where}
-    ORDER BY ${query.sort} ${query.dir} NULLS LAST,${query.overdue&&query.sort==='priority'?'due_on ASC,':''}id ${query.dir} ${all?'':`LIMIT $${values.length+1} OFFSET $${values.length+2}`}) w
+  const pageValues=[...values];let pageWhere=where;
+  if(after){pageValues.push(after.v,after.id);pageWhere+=` AND (${query.sort},id) ${query.dir==='desc'?'<':'>'} ($${pageValues.length-1}::${cast},$${pageValues.length}::uuid)`;}
+  const limit=all?'':after?`LIMIT $${pageValues.push(query.pageSize)}`:`LIMIT $${pageValues.push(query.pageSize)} OFFSET $${pageValues.push(offset)}`;
+  const [rows,counted]=await Promise.all([
+   c.db.query(`SELECT w.*,(SELECT e.details FROM work_order_events e WHERE e.workspace_id=w.workspace_id AND e.work_order_id=w.id AND e.kind='price_change' ORDER BY e.created_at DESC,e.id DESC LIMIT 1) AS price_change,s.name AS site_name,cl.name AS client_name,a.name AS assignee_name
+   FROM (SELECT work_orders.*,work_orders.${query.sort}::text AS _key FROM work_orders, ${companyDaySql} WHERE ${pageWhere}
+    ORDER BY ${query.sort} ${query.dir} NULLS LAST,${extra}id ${query.dir} ${limit}) w
    LEFT JOIN sites s ON s.id=w.site_id AND s.workspace_id=w.workspace_id
    LEFT JOIN clients cl ON cl.id=w.client_id AND cl.workspace_id=w.workspace_id
    LEFT JOIN LATERAL visible_assignee(w.workspace_id,w.id) a ON true
-   ORDER BY w.${query.sort} ${query.dir} NULLS LAST,${query.overdue&&query.sort==='priority'?'w.due_on ASC,':''}w.id ${query.dir}`,all?values:[...values,query.pageSize,offset])).rows;
-  // Empty/out-of-range pages still return the full filtered count.
-  const total=data[0]?data[0]._total:(await c.db.query('SELECT count(*)::int AS n FROM work_orders WHERE '+where,values)).rows[0].n;
-  for(const order of data){delete order._total;visibleTenant(c,order);}
-  const next_cursor=offset+data.length<total?Buffer.from(JSON.stringify({offset:offset+data.length,signature})).toString('base64url'):null;
+   ORDER BY w.${query.sort} ${query.dir} NULLS LAST,${extra?'w.due_on ASC,':''}w.id ${query.dir}`,pageValues),
+   known===null?c.db.query(`SELECT count(*)::int AS n FROM work_orders, ${companyDaySql} WHERE `+where,values):Promise.resolve(null),
+  ]);
+  const data=rows.rows,total=known??counted!.rows[0].n,last=data.at(-1);
+  const lastKey:string|undefined=last?._key??undefined;
+  for(const order of data){delete order._key;visibleTenant(c,order);}
+  const next_cursor=!all&&last&&offset+data.length<total?Buffer.from(JSON.stringify({offset:offset+data.length,signature,total,...(keyset&&lastKey!==undefined?{v:lastKey,id:last.id}:{})})).toString('base64url'):null;
   return {data:data.map(order=>({...order,overdue:isOverdue(order,now,timezone)})),timezone,today:localDate(now,timezone),total,page:Math.floor(offset/query.pageSize)+1,pageSize:query.pageSize,next_cursor};
  });
 }

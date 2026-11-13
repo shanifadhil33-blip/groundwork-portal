@@ -1,34 +1,22 @@
-import { waitingPrices } from '../../../lib/services/price-changes';
-import { OwnerOverview } from '../../../components/app/owner-overview';
-import { listWorkOrders } from '../../../lib/services/work-orders';
-import { Dashboard } from '../../../components/app/dashboard';
+import { OfficeHome } from '../../../components/app/office-home';
 import { InitialResourceProvider } from '../../../components/app/initial-resources';
 import { getAppPageData, initialResources } from '../../../lib/server-page-data';
-import { cookies } from 'next/headers';
-import { firstUseCookie } from '../../../lib/ui/first-use';
-import { listClients } from '../../../lib/services/clients';
-import { listImports } from '../../../lib/services/imports';
-import { listMembers } from '../../../lib/services/members';
-import { listInvites } from '../../../lib/services/invites';
+import { homeSummary } from '../../../lib/services/home';
+import { getDayPlan } from '../../../lib/services/day-plan';
+import { listWorkOrders } from '../../../lib/services/work-orders';
+
+export const metadata = { title: 'Home' };
+const TODAY = 'today=true&sort=scheduled_for&dir=asc&pageSize=10';
+
+/** Home for office roles. Its numbers arrive with the page, so the first paint is complete. */
 export default async function Page() {
-  const app=await getAppPageData(),member=app?.me.memberships[0];
-  if(member?.is_owner&&app?.workspace?.company_size==='big'&&app.workspace.enabled_dashboards?.includes('overview'))return <OwnerOverview/>;
-  if(!app||!member||member.role==='client')return <Dashboard/>;
-  const base=`/api/workspaces/${member.workspace_id}`,ws=member.workspace_id,admin=member.role==='admin';
-  // Getting started checklist: shown for a new workspace until it's done or dismissed. When it shows, its data loads
-  // here too, so it renders complete in the first paint instead of filling in.
-  const counts=(app.resources[`${base}/dashboard`] as {data?:{by_status:Record<string,number>;today_jobs?:number}}|undefined)?.data;
-  const total=counts?Object.values(counts.by_status).reduce((a,b)=>a+b,0):0,state=(await cookies()).get(firstUseCookie(ws))?.value;
-  const firstUse=state!=='dismissed'&&(state==='started'||!!app.workspace?.is_demo||(!!counts&&total===0));
-  const resources=await initialResources(app.user,[
-    [`${base}/waiting-prices`,()=>waitingPrices(app.user,ws)] as const,
-    ...['overdue=true&sort=due_on&dir=asc&pageSize=5','status=open&status=waiting_on_parts&sort=updated_at&dir=asc&pageSize=100'].map(query=>[`${base}/work-orders?${query}`,()=>listWorkOrders(app.user,ws,new URLSearchParams(query))] as const),
-    ...((counts?.today_jobs??0)>0?[[`${base}/work-orders?today=true&sort=scheduled_for&dir=asc&pageSize=10`,()=>listWorkOrders(app.user,ws,new URLSearchParams('today=true&sort=scheduled_for&dir=asc&pageSize=10'))] as const]:[]),
-    ...(firstUse?[
-      [`${base}/clients`,()=>listClients(app.user,ws)] as const,
-      [`${base}/imports`,()=>listImports(app.user,ws)] as const,
-      ...(admin?[[`${base}/members`,()=>listMembers(app.user,ws)] as const,[`${base}/invites`,()=>listInvites(app.user,ws)] as const]:[]),
-    ]:[]),
+  const app = await getAppPageData(), member = app?.me.memberships[0];
+  if (!app || !member || member.role === 'client' || member.role === 'technician') return <OfficeHome />;
+  const ws = member.workspace_id, base = `/api/workspaces/${ws}`;
+  const resources = await initialResources(app.user, [
+    [`${base}/home`, () => homeSummary(app.user, ws)],
+    [`${base}/day-plan`, () => getDayPlan(app.user, ws)],
+    [`${base}/work-orders?${TODAY}`, () => listWorkOrders(app.user, ws, new URLSearchParams(TODAY))],
   ]);
-  return <InitialResourceProvider resources={resources}><Dashboard firstUse={firstUse}/></InitialResourceProvider>;
+  return <InitialResourceProvider resources={resources}><OfficeHome /></InitialResourceProvider>;
 }

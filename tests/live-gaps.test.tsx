@@ -11,12 +11,12 @@ import { InitialResourceProvider } from '../components/app/initial-resources';
 const job={id:'job',order_number:25,title:'إصلاح الباب',assignee_name:'Sam',site_name:'Harbor Annex',status:'in_progress',scheduled_for:'2026-11-05T07:00:00Z',due_on:'2020-10-13'};
 it('separates account text and excludes decorative initials from the accessible text',()=>{
   const host=document.createElement('div');
-  host.innerHTML=renderToStaticMarkup(<AccountIdentity name="Imran" role="المالك" context="Ridgeline Facility Services"/>);
-  expect(host.textContent).toBe('I Imran المالك · Ridgeline Facility Services');
+  host.innerHTML=renderToStaticMarkup(<AccountIdentity name="Imran" role="المالك"/>);
+  expect(host.querySelector('.account-copy')?.children.length).toBe(2);
   host.querySelector('[aria-hidden=true]')?.remove();
-  expect(host.textContent?.trim()).toBe('Imran المالك · Ridgeline Facility Services');
+  expect(host.textContent?.trim()).toBe('Imranالمالك');
   expect(host.querySelector('.account-copy strong')?.getAttribute('dir')).toBe('auto');
-  expect(host.querySelectorAll('bdi')).toHaveLength(2);
+  expect(host.querySelectorAll('bdi')).toHaveLength(1);
 });
 it.each([['ar-AE','rtl'],['en-IN','ltr']])('isolates mixed job titles, names, times and statuses in %s', (language,dir)=>{
   const resources=Object.fromEntries(['today=true&sort=scheduled_for&dir=asc&pageSize=10','overdue=true&sort=due_on&dir=asc&pageSize=5'].map(query=>[`/demo/work-orders?${query}`,{data:{data:[job],total:1}}]));

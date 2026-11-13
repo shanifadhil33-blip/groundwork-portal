@@ -17,7 +17,7 @@ async function type(selector:string,value:string){const element=document.querySe
 it('technician records words with no amount input; failed save keeps text and retry key',async()=>{
  const reload=vi.fn();state.request.mockRejectedValueOnce(new Error('offline')).mockResolvedValue({});
  await act(async()=>root.render(<PriceChangeCard base="/company" job={{id:'job',status:'in_progress'}} reload={reload}/>));
- await act(async()=>button('Price changed').click());await type('textarea','The fan motor needs replacing. I told him 900.');
+ await act(async()=>button('Tell the office the price changed').click());await type('textarea','The fan motor needs replacing. I told him 900.');
  expect(document.querySelector('input')).toBeNull();
  await act(async()=>button('Save').click());expect(document.querySelector('textarea')?.value).toContain('I told him 900.');expect(document.querySelector('[role="alert"]')).not.toBeNull();
  await act(async()=>button('Save').click());expect(state.request.mock.calls[1][1].headers).toEqual(state.request.mock.calls[0][1].headers);
@@ -55,5 +55,5 @@ it('waiting prices gives each held job a link and the refusal status',async()=>{
 it('client can start a new linked request from a refused visit',async()=>{
  state.member={role:'client'};
  await act(async()=>root.render(<PriceChangeCard base="/company" job={{id:'old',site_id:'site',status:'cancelled',price_change:{state:'refused',words:'New motor',technician_name:'Ravi'}}} reload={vi.fn()}/>));
- expect(host.querySelector('a')?.getAttribute('href')).toBe('/work-orders/new?site=site&from=old');expect(button('Price changed')).toBeUndefined();
+ expect(host.querySelector('a')?.getAttribute('href')).toBe('/work-orders/new?site=site&from=old');expect(button('Tell the office the price changed')).toBeUndefined();
 });

@@ -14,19 +14,20 @@ export function guessMapping(headers:string[]):Mapping {
  return mapping;
 }
 export function parseFile(content:Buffer,filename:string) {
- if(!content.length)throw invalid('This file is empty. Choose a file with column headings and data rows.','file');
+ if(!content.length)throw invalid('This file is empty. Choose a file with column headings and one row per job.','file');
  if(content.length>2*1024*1024)throw invalid(`${filename}: the file limit is 2 MB.`,'file');
  if(!/\.(csv|xlsx)$/i.test(filename))throw invalid(`${filename}: use a CSV or XLSX file (maximum 2 MB).`,'file');
  try {
-  const book=XLSX.read(content,{type:'buffer',cellDates:false,sheetRows:502,codepage:65001});
+  // A CSV is read as typed, so a date like 2026-02-30 stays wrong and is reported, never rolled over to March.
+  const book=XLSX.read(content,{type:'buffer',cellDates:false,sheetRows:502,codepage:65001,raw:/\.csv$/i.test(filename)});
   const sheet=book.Sheets[book.SheetNames[0]];
   if(!sheet)throw new Error();
   const grid=XLSX.utils.sheet_to_json<unknown[]>(sheet,{header:1,defval:'',raw:false,blankrows:false});
   const headers=(grid.shift()??[]).map(v=>String(v).trim());
   if(!headers.length||new Set(headers).size!==headers.length||headers.some(h=>!h))throw invalid(`${filename}: give every column a unique header.`,'file');
-  if(!grid.length)throw invalid('This file has no data rows. Add rows beneath the column headings.','file');
-  if(grid.length>500)throw invalid(`${filename}: the limit is 500 data rows.`,'file');
+  if(!grid.length)throw invalid('This file has headings but no rows. Add a row for each job under the headings.','file');
+  if(grid.length>500)throw invalid('This file has more than 500 rows. Split it into smaller files and upload each one.','file');
   const rows=grid.map(values=>Object.fromEntries(headers.map((h,i)=>[h,String(values[i]??'').trim()])));
   return {headers,rows,mapping:guessMapping(headers)};
- }catch(e){if(e instanceof Error && 'status' in e)throw e;throw invalid(`${filename}: this file could not be read as CSV or XLSX (maximum 2 MB, 500 data rows).`,'file');}
+ }catch(e){if(e instanceof Error && 'status' in e)throw e;throw invalid('We could not read this file. Use an Excel or CSV file up to 2 MB and 500 rows.','file');}
 }

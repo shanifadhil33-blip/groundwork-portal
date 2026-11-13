@@ -19,23 +19,33 @@ export const auditTemplates = {
   due: '{name} set the due date for {job} to {date}',
   noDue: '{name} cleared the due date on {job}',
   status: '{name} changed {job} status to {status}',
+  company: '{name} changed the company details.',
+  clientAdded: '{name} added the client ‘{record}’',
+  clientChanged: '{name} changed the client ‘{record}’',
+  siteAdded: '{name} added the site ‘{record}’',
+  siteChanged: '{name} changed the site ‘{record}’',
+  upload: '{name} uploaded the file {item}.',
 } as const;
 type AuditSource = { actor_name?: string | null; actor?: {name?: string | null} | null; member_name?: string | null; entity: string; action: string; before?: unknown; after?: unknown; work_order_title?: string | null };
 const record = (value: unknown): Record<string, any> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, any> : {};
 /** Use stored fields, never a sentence containing user names as a dictionary key. */
 export function auditSummaryTemplates(item: AuditSource): NotificationTemplate[] | null {
   const before = record(item.before), after = record(item.after);
-  const name = item.actor?.name ?? item.actor_name ?? 'System';
+  const name = item.actor?.name ?? item.actor_name ?? 'Groundwork';
   const job = String(item.work_order_title ?? after.title ?? before.title ?? 'Job');
   const values = { name, job, action: item.action === 'insert' ? 'Created' : item.action === 'delete' ? 'Deleted' : 'Updated' };
   const make = (key: string, extra: Record<string,string> = {}, translated: string[] = []): NotificationTemplate => ({key, values: {...values, ...extra}, translatedValues: ['action', ...(name === 'System' ? ['name'] : []), ...translated]});
   if (item.entity === 'members') return [make(item.action === 'insert' ? auditTemplates.added : item.action === 'delete' ? auditTemplates.removed : auditTemplates.member, {person: String(item.member_name ?? after.name ?? before.name ?? 'Team member'), role: rolesLabel({...before,...after,role: String(after.role ?? before.role ?? 'member')})}, ['role'])];
+  // Bug 29: plain sentences, no table names and no capital Updated.
+  if (item.entity === 'workspaces' && item.action === 'update') return [make(auditTemplates.company)];
+  if ((item.entity === 'clients' || item.entity === 'sites') && item.action !== 'delete') return [make(item.entity === 'clients' ? (item.action === 'insert' ? auditTemplates.clientAdded : auditTemplates.clientChanged) : (item.action === 'insert' ? auditTemplates.siteAdded : auditTemplates.siteChanged), {record: String(after.name ?? before.name ?? '')})];
   if (['clients','sites','workspaces'].includes(item.entity)) return [make(auditTemplates.record, {entity: entityLabels[item.entity], record: String(after.name ?? before.name ?? '')}, ['entity'])];
   if (item.entity === 'supplier_orders') return [make(auditTemplates.supplier, {reference: supplierReference(String(after.cobalt_ref ?? before.cobalt_ref ?? '')), status: readableLabel(String(after.local_status ?? after.status ?? 'Ordered'))}, ['status'])];
   if (item.entity === 'imports') {
-    const key = item.action === 'insert' ? '{name} created {type}: {item}.' : item.action === 'delete' ? '{name} deleted {type}: {item}.' : '{name} updated {type}: {item}.';
+    const key = item.action === 'insert' ? auditTemplates.upload : item.action === 'delete' ? '{name} deleted {type}: {item}.' : '{name} updated {type}: {item}.';
     const messages = [make(key, {type: 'Import', item: String(after.filename ?? before.filename ?? '')}, ['type'])];
-    if (after.status && after.status !== before.status) messages.push({key: '{status}', values: {status: readableLabel(String(after.status))}, translatedValues: ['status']});
+    // Queued is an internal step; the file's rows show under To approve.
+    if (after.status && after.status !== before.status && after.status !== 'queued') messages.push({key: '{status}', values: {status: readableLabel(String(after.status))}, translatedValues: ['status']});
     return messages;
   }
   if (item.entity === 'comments') {

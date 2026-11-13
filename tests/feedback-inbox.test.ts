@@ -31,8 +31,9 @@ describe('help and feedback', () => {
     expect(deviceSummary('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Version/18.0 Mobile Safari/604.1', 390, 844)).toBe('iPhone · Safari 18 · 390x844');
   });
   it('is in Settings for every role and never sends email', () => {
-    const settings = readFileSync(new URL('../components/app/settings.tsx', import.meta.url), 'utf8');
-    expect(settings).toContain("{value:'help',label:'Ideas and help',content:<HelpFeedback/>}");
+    // Help is reached from More and the account menu for every role (cut list section 9).
+    const help = readFileSync(new URL('../components/app/more-pages.tsx', import.meta.url), 'utf8'), nav = readFileSync(new URL('../lib/ui/nav.ts', import.meta.url), 'utf8');
+    expect(help).toContain('<HelpFeedback />'); expect(nav).toContain("href: '/help'");
     const route = readFileSync(new URL('../app/api/feedback/route.ts', import.meta.url), 'utf8');
     expect(route).not.toMatch(/resend|nodemailer|sendMail/i);
     expect(route).toContain("requireUser(req)");

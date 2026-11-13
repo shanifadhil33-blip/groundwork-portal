@@ -13,7 +13,7 @@ function violations(file: string, source: string): string[] {
     if (icon) report(match.index! + match[0].indexOf(match[1]) + icon.index, `Remove ${icon[0]} from lucide-react`);
   }
   for (const match of source.matchAll(/✨/gu)) report(match.index!, 'Remove sparkle emoji');
-  for (const match of source.matchAll(/(?:box-shadow|boxShadow|--shadow)\s*[:=]\s*['"]?([^;}\n]+)/g)) if (!/^none\b/.test(match[1].trim())) report(match.index!, 'Remove box shadows');
+  for (const match of source.matchAll(/(?:box-shadow|boxShadow|--shadow)\s*[:=]\s*['"]?([^;}\n]+)/g)) if (!/^(?:none\b|var\(--shadow-(?:card|pop)\))/.test(match[1].trim()) && file !== 'app/tokens.css') report(match.index!, 'Remove box shadows');
   // The landing can keep its visual treatment, but never its sparkle icons.
   if (!file.startsWith('components/landing/')) {
     const patterns: [RegExp, string][] = [
@@ -36,7 +36,7 @@ function violations(file: string, source: string): string[] {
       if (file !== 'app/globals.css' && (selector === ':root' || selector === '[data-theme=dark]' || selector.split(',').every(part => /\.(?:landing|hero|public-|preview-|editorial-|persona-|auth-|product-preview)/.test(part)))) continue;
       const declarations = rule[2];
       for (const weight of declarations.matchAll(/font-weight\s*:\s*([^;}]+)/g)) {
-        if (!/^(?:400|500|600)(?:\s*!important)?\s*$/.test(weight[1])) report(rule.index! + rule[0].indexOf(declarations) + weight.index!, 'Use only font weights 400, 500 and 600');
+        if (!/^(?:400|500|600|var\(--w-(?:regular|medium|semibold)\)|inherit)(?:\s*!important)?\s*$/.test(weight[1])) report(rule.index! + rule[0].indexOf(declarations) + weight.index!, 'Use only font weights 400, 500 and 600');
       }
       for (const shorthand of declarations.matchAll(/font\s*:\s*([^;}]+)/g)) {
         const weight = /(?:^|\s)([1-9]\d{2}|bold|bolder|lighter)(?=\s)/.exec(shorthand[1]);

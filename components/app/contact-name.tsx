@@ -1,18 +1,13 @@
 'use client';
-import { useState } from 'react';
 import { useContactNames } from './contact-names-context';
-import { request,RequestError } from '../../lib/ui/api';
-import { BottomSheet,Button } from '../ui';
-import type { Contact } from '../../lib/contact-names';
-import { rolesLabel } from '../../lib/roles';
+/**
+ * A person's name, as plain text. The tap to rename sheet is gone (bug 123): a nickname for a coworker
+ * was a confusing extra. A saved nickname still shows; real names show otherwise.
+ */
 export function ContactName({name,userId}:{name:string|null|undefined;userId?:string|null}){
- const context=useContactNames(),base=context?.base;
- const [open,setOpen]=useState(false),[nickname,setNickname]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const context=useContactNames();
  const person=context?.people.find(p=>userId?p.user_id===userId:p.name===name||p.real_name===name);
- async function save(clear=false){if(!person||busy)return;setBusy(true);setError('');try{await request(`${base}/${person.user_id}`,{method:'PATCH',body:JSON.stringify({nickname:clear?null:nickname.trim()})});await context?.reload();window.dispatchEvent(new Event('groundwork-contact-names'));setOpen(false);}catch(e){setError(e instanceof RequestError?e.message:'We could not save that name. Try again.');}finally{setBusy(false);}}
- if(!person)return <span data-no-translate>{name??'Team member'}</span>;
- const show=()=>{setNickname(person.nickname??'');setError('');setOpen(true);};
- return <><span className="contact-name" data-translate-attributes data-no-translate role="button" tabIndex={0} title={`Real name: ${person.real_name}`} onClick={e=>{e.preventDefault();e.stopPropagation();show();}} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();show();}}}>{person.name}</span><BottomSheet open={open} onClose={()=>setOpen(false)} title="Contact name"><form className="stack" onSubmit={e=>{e.preventDefault();void save();}}><p>Real name: <strong data-no-translate>{person.real_name}</strong></p><p>{rolesLabel(person)}</p><label className="form-field">Save as...<input value={nickname} maxLength={60} required onChange={e=>setNickname(e.target.value)} /></label><p>This name is saved for you only.</p>{error&&<p className="inline-error" role="alert">{error}</p>}<div className="row"><Button type="submit" busy={busy} disabled={!nickname.trim()}>Save name</Button>{person.nickname&&<Button type="button" variant="secondary" disabled={busy} onClick={()=>void save(true)}>Use real name</Button>}</div></form></BottomSheet></>;
+ return <span data-no-translate>{person?.name??name??'Team member'}</span>;
 }
 
 /** Only known contact names are made tappable. Arbitrary message text remains unchanged. */

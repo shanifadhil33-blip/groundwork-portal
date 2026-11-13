@@ -1,0 +1,222 @@
+/*
+  Groundwork design tokens.
+  This is the only file that may hold a raw colour, font size, radius, shadow,
+  layer number, duration or easing curve. Every other stylesheet and component
+  reads these names. tests/design-system.test.ts enforces that.
+*/
+:root {
+  color-scheme: light;
+
+  /* Colour */
+  --bg: #F6F5F2;
+  --surface: #FFFFFF;
+  --surface-2: #F1EFEA;
+  --line: #E7E4DD;
+  --text: #1C1B19;
+  --text-2: #5F5B54;
+  --ink: #1F1D1A;
+  --ink-fg: #FFFFFF;
+  --ink-hover: #35322F;
+  --ink-press: #151412;
+  --accent: #8B5E34;
+  --accent-soft: #F3EBE1;
+  --backdrop: rgba(28, 27, 25, 0.32);
+
+  /* Status colours. Only on status chips and the Late note, always with the word. */
+  --st-late: #B42318;
+  --st-late-bg: #FDECEA;
+  --st-wait: #8A5300;
+  --st-wait-bg: #FFF4E0;
+  --st-prog: #1D4F91;
+  --st-prog-bg: #EAF1FB;
+  --st-done: #1E6B3A;
+  --st-done-bg: #E9F5EC;
+  --st-open: #4A4741;
+  --st-open-bg: #F1EFEA;
+
+  /* Type: four sizes only. Phone values here, laptop values below. */
+  --t-title: 24px;
+  --t-title-lh: 30px;
+  --t-section: 18px;
+  --t-section-lh: 24px;
+  --t-body: 16px;
+  --t-body-lh: 24px;
+  --t-meta: 14px;
+  --t-meta-lh: 20px;
+  --w-regular: 400;
+  --w-medium: 500;
+  --w-semibold: 600;
+
+  /* Space */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s6: 24px;
+  --s8: 32px;
+  --s12: 48px;
+  --page-pad: 16px;
+  --section-gap: 24px;
+
+  /* Size */
+  --tap: 44px;
+  --h-lg: 48px;
+  --h-md: 44px;
+  --h-sm: 36px;
+  --h-header: 56px;
+  --h-nav: 64px;
+  --h-row: 52px;
+  --w-sidebar: 240px;
+  --w-sidebar-collapsed: 64px;
+  --w-panel: 480px;
+  --w-agent: 400px;
+  --w-content: 1200px;
+  --w-form: 640px;
+  --w-dialog: 440px;
+  --icon: 20px;
+  --icon-stroke: 1.75;
+  --hairline: 1px;
+  --ring: 2px;
+
+  /* Radius */
+  --r-control: 10px;
+  --r-chip: 999px;
+  --r-card: 16px;
+  --r-sheet: 20px;
+  --r-panel: 0px;
+
+  /* Shadow */
+  --shadow-card: 0 1px 2px rgba(28, 27, 25, 0.04), 0 4px 16px rgba(28, 27, 25, 0.04);
+  --shadow-pop: 0 8px 32px rgba(28, 27, 25, 0.12);
+
+  /* Layers: one scale only */
+  --z-header: 10;
+  --z-nav: 20;
+  --z-menu: 30;
+  --z-backdrop: 40;
+  --z-sheet: 41;
+  --z-dialog: 50;
+  --z-menu-in-dialog: 55;
+  --z-toast: 60;
+
+  /* Motion */
+  --dur-instant: 0ms;
+  --dur-press: 100ms;
+  --dur-release: 160ms;
+  --dur-fast: 120ms;
+  --dur-menu: 140ms;
+  --dur-menu-out: 100ms;
+  --dur-sheet: 220ms;
+  --dur-exit: 160ms;
+  --dur-page: 200ms;
+  --dur-page-back: 160ms;
+  --dur-shimmer: 1200ms;
+  --dur-spin: 800ms;
+  --delay-skeleton: 300ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-move: cubic-bezier(0.2, 0, 0, 1);
+  --ease-hover: ease;
+  --ease-linear: linear;
+  --press-scale: 0.97;
+  --pop-scale: 0.97;
+  --rise: 4px;
+  --push: 24px;
+}
+
+/* The font variables are set on body by next/font, so the stack is declared there too. */
+body {
+  --font: var(--font-ui), var(--font-noto), var(--font-tamil), var(--font-malayalam), var(--font-devanagari), var(--font-bengali), var(--font-arabic), var(--font-sinhala), var(--font-ethiopic), var(--font-chinese), Arial, sans-serif;
+}
+
+/* Laptop: 1024 and wider. */
+@media (min-width: 1024px) {
+  :root {
+    --t-title: 28px;
+    --t-title-lh: 34px;
+    --t-body: 15px;
+    --t-body-lh: 22px;
+    --t-meta: 13px;
+    --t-meta-lh: 18px;
+    --page-pad: 32px;
+    --section-gap: 32px;
+    --icon: 18px;
+  }
+}
+
+/* Fine pointers get denser controls. Touch keeps 44 px everywhere. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  :root {
+    --tap: 32px;
+    --h-lg: 40px;
+    --h-md: 36px;
+    --h-sm: 32px;
+  }
+}
+
+/* Arabic script needs a little more line height on every step. */
+:root:lang(ar),
+:root:lang(ur),
+:root:lang(fa),
+:root:lang(ps) {
+  --t-title-lh: 32px;
+  --t-section-lh: 26px;
+  --t-body-lh: 26px;
+  --t-meta-lh: 22px;
+}
+
+@media (min-width: 1024px) {
+  :root:lang(ar),
+  :root:lang(ur),
+  :root:lang(fa),
+  :root:lang(ps) {
+    --t-title-lh: 36px;
+    --t-body-lh: 24px;
+    --t-meta-lh: 20px;
+  }
+}
+
+/* Dark theme maps the same names. */
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #151412;
+  --surface: #1E1C19;
+  --surface-2: #2A2723;
+  --line: #36322C;
+  --text: #F2EFEA;
+  --text-2: #ADA79E;
+  --ink: #F2EFEA;
+  --ink-fg: #1C1B19;
+  --ink-hover: #FFFFFF;
+  --ink-press: #DCD8D0;
+  --accent: #D9AE7E;
+  --accent-soft: #33291F;
+  --backdrop: rgba(0, 0, 0, 0.56);
+  --st-late: #F4A59C;
+  --st-late-bg: #3B1F1B;
+  --st-wait: #EDBE78;
+  --st-wait-bg: #3A2D15;
+  --st-prog: #A3C3F2;
+  --st-prog-bg: #1C2B41;
+  --st-done: #93D3A8;
+  --st-done-bg: #193221;
+  --st-open: #CBC6BD;
+  --st-open-bg: #2A2723;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.24), 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-pop: 0 8px 32px rgba(0, 0, 0, 0.48);
+}
+
+/* Reduced motion: no movement anywhere, opacity only at the fast duration. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-sheet: 120ms;
+    --dur-exit: 120ms;
+    --dur-page: 120ms;
+    --dur-page-back: 120ms;
+    --dur-menu: 120ms;
+    --press-scale: 1;
+    --pop-scale: 1;
+    --rise: 0px;
+    --push: 0px;
+  }
+}

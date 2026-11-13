@@ -1,8 +1,9 @@
+import { isOffice } from '../roles';
 import { requireOwner } from './owner';
 import { companyOptions,sizeRoles } from '../company';
 import { ApiError } from '../http';
 import { assertRealUser } from './demo';
-import { localDate, overdueSql, todaySql } from '../dates';
+import { companyDaySql, localDate, overdueInDaySql, todayInDaySql } from '../dates';
 import { z } from 'zod';
 import { an, currencyFor, isCountry, isCurrency, normalizeRegion, regionField } from '../countries/rules';
 import { withUser } from '../db';
@@ -79,17 +80,26 @@ export async function deleteWorkspace(user:string,ws:string,body:unknown) {
   await c.db.query('SELECT delete_workspace($1)',[ws]);return {deleted:true};
  });
 }
+/** The two numbers behind the "To approve" badge. The shell polls this on every page, so it reads two small counts only. */
+export async function toApproveCount(user:string,ws:string) {
+ return inWorkspace(user,ws,async c=>{
+  if(!isOffice(c.role))return {pending_queue_rows:0,pending_suggestions:0};
+  const r=(await c.db.query(`SELECT (SELECT count(*)::int FROM job_suggestions WHERE workspace_id=$1 AND status='pending') AS pending_suggestions,
+   (SELECT count(*)::int FROM import_rows WHERE workspace_id=$1 AND queued AND decision='pending') AS pending_queue_rows`,[ws])).rows[0];
+  return {pending_queue_rows:r.pending_queue_rows as number,pending_suggestions:r.pending_suggestions as number};
+ });
+}
 export async function dashboard(user:string,ws:string) {
  return inWorkspace(user,ws,async c=>{
   const statuses=['open','scheduled','in_progress','waiting_on_parts','done','cancelled'];
   const counts=(await c.db.query(`SELECT ${statuses.map(s=>`count(*) FILTER (WHERE status='${s}')::int AS ${s}`).join(',')},
-   count(*) FILTER (WHERE ${overdueSql})::int AS overdue,
-   count(*) FILTER (WHERE ${todaySql})::int AS today_jobs,
+   count(*) FILTER (WHERE ${overdueInDaySql})::int AS overdue,
+   count(*) FILTER (WHERE ${todayInDaySql})::int AS today_jobs,
    (SELECT count(*)::int FROM job_suggestions WHERE workspace_id=$1 AND status='pending') AS pending_suggestions,
    (SELECT count(*)::int FROM import_rows WHERE workspace_id=$1 AND queued AND decision='pending') AS pending_queue_rows,
    (SELECT max(finished_at) FROM supplier_sync_runs WHERE workspace_id=$1) AS last_supplier_sync_at,
    (SELECT timezone FROM workspaces WHERE id=$1) AS timezone
-   FROM work_orders WHERE workspace_id=$1`,[ws])).rows[0];
+   FROM work_orders, ${companyDaySql} WHERE workspace_id=$1`,[ws])).rows[0];
   const by_status=Object.fromEntries(statuses.map(s=>[s,counts[s]]));
   const {timezone,overdue,today_jobs,pending_queue_rows,pending_suggestions,last_supplier_sync_at}=counts;
   return {contract_watch:[],timezone,today:localDate(Date.now(),timezone),by_status,overdue,today_jobs,waiting_on_parts:by_status.waiting_on_parts,pending_queue_rows,pending_suggestions,last_supplier_sync_at};

@@ -5,12 +5,12 @@ import { ids } from '../scripts/seed';
 import type { Comment, Detail } from '../lib/ui/work-orders';
 describe('client presentation and lookups',()=>{
  it('uses client wording without exposing raw timeline bodies or internal comments',()=>{
-  expect(clientStatusLabels.waiting_on_parts).toBe('Waiting on Parts');
+  expect(clientStatusLabels.waiting_on_parts).toBe('Waiting for parts');
   const comments=[{visibility:'internal',body:'Private note'},{visibility:'client',body:'Public update'}] as Comment[];
   expect(visibleComments(comments,true).map(c=>c.body)).toEqual(['Public update']);
   expect(visibleComments(comments,false)).toHaveLength(2);
   expect(clientEvent({kind:'assignment',body:'Private operational detail'} as Detail['timeline'][number])).toBe('Request updated');
-  expect(clientEvent({to_status:'done'} as Detail['timeline'][number])).toBe('Completed');
+  expect(clientEvent({to_status:'done'} as Detail['timeline'][number])).toBe('Done');
  });
  it('guards provider paths and allows client navigation',()=>{
   for(const path of ['/dashboard','/import','/imports/123','/queue','/supplier/orders','/clients/123','/audit','/work-orders/123/edit'])expect(providerOnlyPath(path)).toBe(true);

@@ -214,7 +214,9 @@ describe('compositor driven phone stage', () => {
 it('shows exactly two hero actions and the verified language count', () => {
   const html = renderToStaticMarkup(<Landing />);
   const hero = html.split('<section class="lx-hero"')[1].split('</section>')[0];
-  expect(hero.match(/<a\s/g)).toHaveLength(2);
+  // Two actions for a visitor; a signed in person sees only Open the app instead.
+  const visitor = hero.split('data-variant="out"')[1].split('data-variant="in"')[0];
+  expect(visitor.match(/<a\s/g)).toHaveLength(2);
   expect(hero).toContain('Try the demo');
   expect(hero).toContain('Sign in');
   expect(hero).toContain('Owners, office and technicians in one app. Voice notes in 22 languages.');

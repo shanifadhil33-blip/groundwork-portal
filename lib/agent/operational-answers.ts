@@ -26,7 +26,7 @@ export const chaseOrder=(a:any,b:any)=>(rank[a.priority]??4)-(rank[b.priority]??
 /** One job on one line: number and title first, then site, priority, who has it and the due date. Starting with the
  * WO number keeps every line different, even when jobs share a site, priority, owner and due date. */
 export function jobBlock(j:{number:number|string;title:string;site?:string|null;assignee:string|null;priority:string;due:string},t:(key:string)=>string,lang?:string|null){
- return jobLine(j.number,j.title,[j.site,j.priority,j.assignee?`${t('Assigned to')}: ${j.assignee}`:t('Unassigned'),`${t('Due')}: ${j.due}`],lang);
+ return jobLine(j.number,j.title,[j.site,j.priority,j.assignee?`${t('Assigned to')}: ${j.assignee}`:t('No technician yet'),`${t('Due')}: ${j.due}`],lang);
 }
 /** Opening lines, then one line per job. No blank lines, so no line in a reply is ever repeated. */
 export const stack=(opening:string[],jobs:string[])=>[...opening,...jobs].filter(Boolean).join('\n');
@@ -35,7 +35,7 @@ export async function operationalAnswer(user:string,ws:string,kind:OperationalIn
  const fill=(key:string,values:Record<string,number>)=>t(key).replace(/\{(\w+)\}/g,(_,k)=>String(values[k]));
  if(kind==='workload'){
   const rows=await assistantWorkload(user,ws);
-  return [`${t('Open')}: ${rows.reduce((sum,row)=>sum+row.open,0)}.`,...rows.map(row=>`${t('Assigned to')}: ${row.name||t('Unassigned')}. ${t('Open')}: ${row.open}.`),t('Visible open jobs only. The records do not explain why workloads differ.')].join('\n');
+  return [`${t('Open')}: ${rows.reduce((sum,row)=>sum+row.open,0)}.`,...rows.map(row=>`${t('Assigned to')}: ${row.name||t('No technician yet')}. ${t('Open')}: ${row.open}.`),t('Visible open jobs only. The records do not explain why workloads differ.')].join('\n');
  }
  if(kind==='week'){
   const counts=await assistantWeek(user,ws);

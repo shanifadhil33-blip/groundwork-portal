@@ -44,5 +44,6 @@
   "Bearer": "Internal protocol token or developer error/style, never interface copy.",
   "App context required": "Internal protocol token or developer error/style, never interface copy.",
   "Arial, sans-serif": "Internal protocol token or developer error/style, never interface copy.",
-  "No company yet": "Internal protocol token or developer error/style, never interface copy."
+  "No company yet": "Internal protocol token or developer error/style, never interface copy.",
+  "Harbor and Pine Coworking": "Seeded person, organisation or place name; not interface copy."
 }

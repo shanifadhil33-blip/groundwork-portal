@@ -248,10 +248,13 @@ describe('work order consistency and listing',()=>{
   expect(new Set([...first.body.data,...page.body.data].map(o=>o.id)).size).toBe(4);
   const all=await call(ordersRoute.GET,'GET',undefined,{},base.replace('pageSize=2','pageSize=100'));
   expect(all.body.data.map((o:{title:string})=>o.title)).toEqual([...all.body.data.map((o:{title:string})=>o.title)].sort());
-  const search=await call(ordersRoute.GET,'GET',undefined,{},'?q=Routine%20facilities%20request%201&assignee_id='+ids.sam+'&sort=created_at&dir=asc');
+  const search=await call(ordersRoute.GET,'GET',undefined,{},'?q=pressure%20is%20low&assignee_id='+ids.sam+'&sort=created_at&dir=asc');
   expect(search.status).toBe(200);expect(search.body.total).toBeGreaterThan(0);
-  expect(search.body.data.every((o:{description:string;assignee_id:string})=>o.description.includes('Routine facilities request 1') && o.assignee_id===ids.sam)).toBe(true);
-  for(const query of ['?pageSize=101','?sort=bad','?status[]=bad','?page=0','?cursor=bad','?cursor=bad&page=1'])expect((await call(ordersRoute.GET,'GET',undefined,{},query)).status).toBe(422);
+  expect(search.body.data.every((o:{description:string;assignee_id:string})=>o.description.includes('pressure is low') && o.assignee_id===ids.sam)).toBe(true);
+  // Old or shared links with words the list does not know still open the list (the value is ignored).
+  for(const query of ['?pageSize=101','?sort=bad','?status[]=bad','?page=0'])expect((await call(ordersRoute.GET,'GET',undefined,{},query)).status).toBe(200);
+  // A cursor is made by the server, so a broken one is refused.
+  for(const query of ['?cursor=bad','?cursor=bad&page=1'])expect((await call(ordersRoute.GET,'GET',undefined,{},query)).status).toBe(422);
  });
  it('concurrent identical keys create exactly one work order',async()=>{
   const input={title:'Concurrent replay',site_id:siteId(1)},headers={'Idempotency-Key':'concurrent'};

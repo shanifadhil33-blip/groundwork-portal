@@ -1,160 +1,375 @@
 'use client';
-import { Translated } from './app-words';
-import { useVisiblePoll } from '../../lib/hooks/use-visible-poll';
-import { tabKey, tabWord } from '../../lib/tab-words';
-import { Outbox } from './outbox';
-import { ContactNamesProvider } from './contact-names-context';
-import { menuEnabled } from '../../lib/company';
-import { demoEmail } from '../../lib/ui/polish';
-import { doesJobs, isOffice, labelsFor,rolesLabel } from '../../lib/roles';
-import { LAST_PAGE_KEY } from '../../lib/ui/device';
 import Link from 'next/link';
+import { Comma } from './punctuation';
 import dynamic from 'next/dynamic';
-import type { AppPageData } from '../../lib/server-page-data';
-import { InitialResourceProvider } from './initial-resources';
-import { useUiLang } from './use-ui-lang';
 import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState, type ReactNode, type ComponentProps } from 'react';
-import { FileText, Building2, Users, CalendarCheck, CalendarDays, ClipboardList, ClipboardCheck, Bell, House, LayoutDashboard, ChartPie, Menu, PanelLeftClose, PanelLeftOpen, Settings, Upload, ListChecks, History, Truck, MessageSquare, MessageCircle, Mic } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
+import { ArrowLeft, Bell, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import type { AppPageData } from '../../lib/server-page-data';
+import { useVisiblePoll } from '../../lib/hooks/use-visible-poll';
+import { tabWord } from '../../lib/tab-words';
+import { isOffice } from '../../lib/roles';
+import { HELP_ITEM, isCurrent, navFor, parentOf, ROLE_CAN_DO, ROLE_NAME, roleGroup, SETTINGS_ITEM, type NavItem } from '../../lib/ui/nav';
+import { LAST_PAGE_KEY } from '../../lib/ui/device';
+import { demoEmail } from '../../lib/ui/polish';
 import { request, post, RequestError } from '../../lib/ui/api';
 import { demoLanguage } from '../../lib/ui/demo-language';
-import { DEMO_CHAT_COPY } from '../../lib/ui/demo-chat';
 import { homeForPersona } from '../../lib/ui/helpers';
-import { Badge, BottomSheet, Button, ConfirmDialog, Dropdown, ErrorState, IconButton, PageSkeleton, useToast } from '../ui';
-import { useTheme } from '../ui/theme';
+import { officeOnlyPath, providerOnlyPath } from '../../lib/ui/work-orders';
+import { useCacheScope } from '../../lib/ui/resource-cache';
 import { rememberSession } from '../../lib/head-scripts';
+import { BottomSheet, Button, ConfirmDialog, Dropdown, ErrorState, IconButton, PageSkeleton, useToast } from '../ui';
+import { useTheme } from '../ui/theme';
 import { Brand, Mark } from '../public/chrome';
 import { personas } from '../public/demo-picker';
-import { AppContext, type Me, type Workspace } from './context';
-import { guardedAction } from './draft-guard';
-import { officeOnlyPath, providerOnlyPath } from '../../lib/ui/work-orders';
-import { useResource } from './resource';
-import { NoAccess } from './no-access';
-import { OwnerAttention } from './owner-attention';
-import { Notifications } from './notifications';
-import { Translator } from './translator';
+import { Translated } from './app-words';
 import { AccountIdentity } from './account-identity';
-let assistantCode:typeof import('./assistant')|null=null;
-const loadAssistant=()=>import('./assistant').then(m=>(assistantCode=m));
-// Rendered directly once loaded (a lazy component waits about 300 ms on first show); chosen once per mount so it never remounts.
-function AssistantHost(props:ComponentProps<typeof import('./assistant').Assistant>){const [m]=useState(()=>assistantCode);return m?<m.Assistant {...props}/>:<Assistant {...props}/>;}
-const Assistant=dynamic(()=>loadAssistant().then(m=>m.Assistant),{ssr:false});
-export function AppShell({ children, initial }: { children: ReactNode; initial?:AppPageData|null }) {
-  const path = usePathname(), router = useRouter(), { sync } = useTheme(),toast=useToast();
-  const [me, setMe] = useState<Me | null>(initial?.me??null), [workspace, setWorkspace] = useState<Workspace | null>(initial?.workspace??null), [error, setError] = useState(false), [loading, setLoading] = useState(!initial);
-  const [collapsed, setCollapsed] = useState(false), [drawer, setDrawer] = useState(false), [assistant, setAssistant] = useState(false), [notifications, setNotifications] = useState(false), [unread, setUnread] = useState<number | null>(()=>{const r=initial?.resources['/api/notifications/unread-count'];return r&&'data' in r?(r.data as {unread_count:number}).unread_count:null;}), [countError, setCountError] = useState(false), [pending, setPending] = useState<number | null>(()=>{const r=initial?.resources[`/api/workspaces/${initial.me.memberships[0]?.workspace_id}/dashboard`];return r&&'data' in r?(r.data as {pending_queue_rows:number}).pending_queue_rows:null;});
-  const [confirm, setConfirm] = useState<'signout' | 'reset' | 'switch' | null>(null), [busy, setBusy] = useState(false), [actionError, setActionError] = useState<string | null>(null), [persona, setPersona] = useState('imran');
-  const pendingStarted=useRef(false);
-  const [demoOptions, setDemoOptions] = useState(false);
-  const [assistantLoaded,setAssistantLoaded]=useState(false),[desktop,setDesktop]=useState(false);
-  useEffect(()=>{const query=matchMedia('(min-width:1024px)');const update=()=>setDesktop(query.matches);update();query.addEventListener('change',update);return()=>query.removeEventListener('change',update);},[]);
-  const [ask,setAsk]=useState<{text:string;n:number}|null>(null);
-  useEffect(()=>{if(assistant)setAssistantLoaded(true);},[assistant]);
-  // Signed in: public pages opened later show 'Go to dashboard' from their first frame.
-  useEffect(()=>{if(me)rememberSession('in');},[me]);
-  const [shortcut, setShortcut] = useState('Ctrl J');
+import { AgentButton } from './agent-button';
+import { AppContext, type Me, type Workspace } from './context';
+import { ContactNamesProvider } from './contact-names-context';
+import { guardedAction } from './draft-guard';
+import { InitialResourceProvider } from './initial-resources';
+import { NoAccess } from './no-access';
+import { Notifications } from './notifications';
+import { Outbox } from './outbox';
+import { useResource } from './resource';
+import { Translator } from './translator';
+import { useUiLang } from './use-ui-lang';
+
+// The Agent code loads on hover, focus or touch start of its button, so the first open is instant.
+let assistantCode: typeof import('./assistant') | null = null;
+const loadAssistant = () => import('./assistant').then(m => (assistantCode = m));
+const LazyAssistant = dynamic(() => loadAssistant().then(m => m.Assistant), { ssr: false });
+// Rendered directly once loaded. Chosen once per mount so it never remounts.
+function AssistantHost(props: ComponentProps<typeof import('./assistant').Assistant>) {
+  const [loaded] = useState(() => assistantCode);
+  return loaded ? <loaded.Assistant {...props} /> : <LazyAssistant {...props} />;
+}
+
+type Overlay = 'more' | 'people' | 'notifications' | 'agent' | null;
+const bellLabel = (count: number) => (count > 0 ? `Notifications, ${count} unread` : 'Notifications');
+type Counts = { unread_count: number; company_replies?: number };
+const ENTRY_PATHS = ['/onboarding', '/find-company', '/invites/accept'];
+
+export function AppShell({ children, initial }: { children: ReactNode; initial?: AppPageData | null }) {
+  const path = usePathname(), router = useRouter(), { sync } = useTheme(), toast = useToast(), lang = useUiLang();
+  const [me, setMe] = useState<Me | null>(initial?.me ?? null);
+  const [workspace, setWorkspace] = useState<Workspace | null>(initial?.workspace ?? null);
+  const [loadError, setLoadError] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  // Only one sheet or panel is open at a time.
+  const [overlay, setOverlay] = useState<Overlay>(null);
+  const [agentMounted, setAgentMounted] = useState(false);
+  const [agentTab, setAgentTab] = useState<'agent' | 'whatsapp'>('agent');
+  const [ask, setAsk] = useState<{ text: string; n: number } | null>(null);
+  const [confirm, setConfirm] = useState<'signout' | 'reset' | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [demoOpen, setDemoOpen] = useState(false);
+  const visits = useRef(0);
+
+  const member = me?.memberships[0] ?? null;
+  const group = roleGroup(member);
+  const nav = navFor(member);
+  const office = isOffice(member?.role);
+  const base = member ? `/api/workspaces/${member.workspace_id}` : null;
+  useCacheScope(me ? `${me.user.id}:${member?.workspace_id ?? ''}` : '');
+
+  const load = useCallback(async () => {
+    setLoadError(false);
+    try {
+      const result = await request<Me>('/api/me');
+      const selected = localStorage.getItem('groundwork-workspace');
+      result.memberships.sort((a, b) => Number(b.workspace_id === selected) - Number(a.workspace_id === selected));
+      const first = result.memberships[0];
+      const ws = first ? await request<Workspace>(`/api/workspaces/${first.workspace_id}`) : null;
+      setMe(result); setWorkspace(ws);
+    } catch (e) {
+      if (e instanceof RequestError && e.status === 401) return;
+      setLoadError(true);
+    }
+  }, []);
+  // Runs once. A later page payload without a seed must not reload the person and blank the screen.
+  const started = useRef(false);
+  useEffect(() => { if (started.current) return; started.current = true; if (!initial) void load(); }, [initial, load]);
   useEffect(() => {
-    setShortcut(/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘J' : 'Ctrl J');
-    const toggle = (event: KeyboardEvent) => { if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); setAssistant(open => !open); } };
+    if (!me) return;
+    rememberSession('in');
+    document.cookie = 'groundwork-session=1; Path=/; SameSite=Lax; Max-Age=31536000';
+    if (workspace?.is_demo) document.cookie = 'groundwork-demo=1; Path=/; SameSite=Lax; Max-Age=2592000';
+    void sync();
+  }, [me, workspace, sync]);
+  useEffect(() => { setCollapsed(localStorage.getItem('groundwork-sidebar') === 'collapsed'); }, []);
+  // The service worker shows an in app offline page when a screen can not load. It caches nothing.
+  useEffect(() => { if (me && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {}); }, [me]);
+
+  // Each role has one Home. Anyone on another role's Home, or without a company, is sent to his own first screen.
+  useEffect(() => {
+    if (!me) return;
+    if (!member) { if (!ENTRY_PATHS.includes(path)) router.replace('/onboarding'); return; }
+    // Company setup is only for a person with no company. In the demo there is nothing to join either.
+    if (path === '/onboarding' || (path === '/find-company' && me.user.is_demo)) { router.replace(nav.home); return; }
+    if ((path === '/dashboard' || path === '/home' || path === '/overview') && path !== nav.home) router.replace(nav.home);
+  }, [me, member, path, nav.home, router]);
+
+  useEffect(() => {
+    visits.current += 1;
+    setOverlay(current => (current === 'agent' ? current : null));
+    // ?agent=whatsapp (from the demo bar or the old Demo chat link) opens the WhatsApp preview in the Agent.
+    if (new URLSearchParams(window.location.search).get('agent') === 'whatsapp') { setAgentTab('whatsapp'); setAgentMounted(true); setOverlay('agent'); }
+    setDemoOpen(false);
+    if (!path.startsWith('/settings')) sessionStorage.setItem(LAST_PAGE_KEY, path);
+  }, [path]);
+
+  useEffect(() => {
+    if (workspace?.is_demo && sessionStorage.getItem('groundwork-demo-restored')) {
+      sessionStorage.removeItem('groundwork-demo-restored');
+      toast('The demo is back to how it started.');
+    }
+  }, [workspace, toast]);
+
+  // Counts for the bell, the Jobs badge and the Messages dot.
+  const counts = useResource<Counts>(member ? '/api/notifications/unread-count' : null);
+  useVisiblePoll(counts.reload, 120_000, !!member);
+  const messages = useResource<{ unread_count: number; direct_unread_count?: number; team_unread_count?: number }>(base ? `${base}/messages/unread` : null);
+  useVisiblePoll(messages.reload, 120_000, !!member);
+  const summary = useResource<{ pending_queue_rows?: number; pending_suggestions?: number }>(base && office ? `${base}/to-approve-count` : null);
+  useVisiblePoll(summary.reload, 90_000, !!member && office);
+  useEffect(() => {
+    const refreshMessages = () => void messages.reload(), refreshQueue = () => void summary.reload();
+    window.addEventListener('groundwork-messages-changed', refreshMessages);
+    window.addEventListener('groundwork-queue-changed', refreshQueue);
+    return () => { window.removeEventListener('groundwork-messages-changed', refreshMessages); window.removeEventListener('groundwork-queue-changed', refreshQueue); };
+  }, [messages.reload, summary.reload]);
+  const unread = counts.data?.unread_count ?? 0;
+  const toApprove = (summary.data?.pending_queue_rows ?? 0) + (summary.data?.pending_suggestions ?? 0);
+  const unreadMessages = messages.data?.unread_count ?? 0;
+
+  // Keyboard shortcut for the Agent. Shown only in the tooltip on laptop.
+  useEffect(() => {
+    const toggle = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') { event.preventDefault(); warmAgent(); setOverlay(current => (current === 'agent' ? null : 'agent')); }
+    };
     window.addEventListener('keydown', toggle);
     return () => window.removeEventListener('keydown', toggle);
   }, []);
+  function warmAgent() { setAgentMounted(true); void loadAssistant(); }
+  // On a phone the tap and the touch start are too close together to load code in between, so it also loads when the page is idle.
   useEffect(() => {
-    document.getElementById('app-content')?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    document.querySelector('.app-main')?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [path, loading]);
-  useEffect(()=>{if(!loading&&workspace?.is_demo&&sessionStorage.getItem('groundwork-demo-restored')){sessionStorage.removeItem('groundwork-demo-restored');toast('Demo data restored');}},[loading,workspace,toast]);
-  const member = me?.memberships[0] ?? null;
-  const home = member?.is_owner && workspace?.company_size==='big' && workspace?.enabled_dashboards?.includes('overview') ? '/overview' : member?.role === 'client' ? '/home' : member?.role === 'technician' ? '/today' : '/dashboard', office = isOffice(member?.role);
-  const dashboardAssistant=!!member&&(path===home||(path==='/dashboard'&&member.role!=='client'));
-  const docked=dashboardAssistant&&desktop;
-  useEffect(()=>{if(docked)setAssistantLoaded(true);},[docked]);
-  const companyReplies=useResource<{company_replies:number}>('/api/notifications/unread-count');
-  useVisiblePoll(companyReplies.reload,90000);
-  const messageCounts=useResource<{unread_count:number;direct_unread_count?:number;team_unread_count?:number}>(member?`/api/workspaces/${member.workspace_id}/messages/unread`:null);
-  useVisiblePoll(messageCounts.reload,120000);
-  useEffect(()=>{const refresh=()=>void messageCounts.reload();window.addEventListener('groundwork-messages-changed',refresh);return()=>window.removeEventListener('groundwork-messages-changed',refresh);},[messageCounts.reload]);
-  const suggestions=useResource<{pending_suggestions:number}>(member&&office?`/api/workspaces/${member.workspace_id}/dashboard`:null);
-  useVisiblePoll(suggestions.reload,90000,!!member&&office);
-  useEffect(()=>{if(!member||!office)return;const refresh=()=>void suggestions.reload();window.addEventListener('groundwork-queue-changed',refresh);return()=>window.removeEventListener('groundwork-queue-changed',refresh);},[member,office,suggestions.reload]);
-  const clientDetail=useResource<{name:string}>(member&&office&&/^\/clients\/[^/]+$/.test(path)?`/api/workspaces/${member.workspace_id}${path}`:null);
-  const load = useCallback(async () => { setLoading(true); setError(false); try { const result = await request<Me>('/api/me'); const selected=localStorage.getItem('groundwork-workspace');result.memberships.sort((a,b)=>Number(b.workspace_id===selected)-Number(a.workspace_id===selected));const membership = result.memberships[0]; const ws = membership ? await request<Workspace>(`/api/workspaces/${membership.workspace_id}`) : null; setMe(result); setWorkspace(ws);document.cookie='groundwork-session=1; Path=/; SameSite=Lax; Max-Age=31536000'; if(ws?.is_demo)document.cookie='groundwork-demo=1; Path=/; SameSite=Lax; Max-Age=2592000'; await sync(); } catch (e) { if (e instanceof RequestError && e.status === 401) return; setError(true); } finally { setLoading(false); } }, [sync]);
-  useEffect(() => { if(!initial)void load();else {document.cookie='groundwork-session=1; Path=/; SameSite=Lax; Max-Age=31536000';if(initial.workspace?.is_demo)document.cookie='groundwork-demo=1; Path=/; SameSite=Lax; Max-Age=2592000';void sync();} setCollapsed(localStorage.getItem('groundwork-sidebar') === 'collapsed'); }, [load]);
-  useEffect(() => { if (!me) return; if (!me.user.is_demo && !workspace?.is_demo && !me.onboarding_started && path !== '/find-company' && path !== '/onboarding' && path !== '/invites/accept' && !sessionStorage.getItem(`onboardingShown:${me.user.id}`)){sessionStorage.setItem(`onboardingShown:${me.user.id}`,'1');router.replace('/onboarding');} if (member && (path === (member.role === 'client' ? '/dashboard' : '/home') || (member.role === 'technician' && path === '/dashboard'))) router.replace(home); }, [me, member, path, home, router]);
-  useEffect(() => { setDrawer(false); }, [path]);
-  const refreshUnread = useCallback(async () => { try { const result = await request<{ unread_count: number }>('/api/notifications/unread-count'); setUnread(result.unread_count); setCountError(false); } catch { setCountError(true); } }, []);
-  useVisiblePoll(refreshUnread,120000,!!member);
-  useEffect(()=>{if(member&&!initial)void refreshUnread();},[member,refreshUnread]);
-  useEffect(() => {
-    if (!member || !isOffice(member.role)) { setPending(null); return; }
-    let active = true;
-    const refresh = async () => { try { const result = await request<{ pending_queue_rows: number }>(`/api/workspaces/${member.workspace_id}/dashboard`); if (active) setPending(result.pending_queue_rows); } catch { if (active) setPending(null); } };
-    if(!initial||pendingStarted.current)void refresh();
-    pendingStarted.current=true;
-    window.addEventListener('groundwork-queue-changed', refresh); window.addEventListener('focus', refresh);
-    return () => { active = false; window.removeEventListener('groundwork-queue-changed', refresh); window.removeEventListener('focus', refresh); };
-  }, [member, path]);
-  const [lateBusy, setLateBusy] = useState(false), [lateNote, setLateNote] = useState<string | null>(null);
-  // The phone sheet steps history back when it closes (lib/ui/phone-back.ts), so open the job just after that.
-  async function showLearning() { if (lateBusy) return; setLateBusy(true); setLateNote(null); try { const r = await post<{ work_order_id: string }>('/api/demo/learning'); setDemoOptions(false); setTimeout(() => router.push(`/work-orders/${r.work_order_id}?learning=1`), 120); } catch { setLateNote('No job has enough finished jobs behind it yet.'); } finally { setLateBusy(false); } }
-  async function makeLate() { if (lateBusy) return; setLateBusy(true); setLateNote(null); try { const r = await post<{ work_order_id: string }>('/api/demo/late'); setDemoOptions(false); setTimeout(() => router.push(`/work-orders/${r.work_order_id}`), 120); } catch { setLateNote('We couldn’t make a job late. Please try again.'); } finally { setLateBusy(false); } }
-  function openConfirm(action: typeof confirm) { guardedAction(() => { if(action==='switch')setPersona(personas.find(p=>p.key!==(me?.user.email??'').split('.')[0])?.key??'imran');setActionError(null); setConfirm(action); }); }
-  async function execute() {
-    if (busy) return; setBusy(true); setActionError(null);
-    try { if (confirm === 'signout') { await post('/api/auth/sign-out'); sessionStorage.clear(); rememberSession('out'); window.location.replace('/sign-in?signed_out=1'); } else if (confirm === 'reset') { await post('/api/demo/reset', { confirm: true });sessionStorage.setItem('groundwork-demo-restored','1'); window.location.replace(home); } else { await post('/api/demo/switch', { persona, language: demoLanguage(document.documentElement.lang) }); window.location.replace(homeForPersona(persona)); } }
-    catch { setActionError(confirm === 'signout' ? 'We couldn’t sign you out. Please try again.' : 'We couldn’t update your demo. Please try again.'); setBusy(false); }
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, options?: { timeout: number }) => number }).requestIdleCallback;
+    const warm = () => { void loadAssistant().then(() => setAgentMounted(true)).catch(() => {}); };
+    if (idle) idle(warm, { timeout: 3000 }); else setTimeout(warm, 1500);
+  }, []);
+  useEffect(() => { if (overlay === 'agent') setAgentMounted(true); }, [overlay]);
+
+  async function switchWorkspace(id: string) {
+    if (!me) return;
+    try {
+      const ws = await request<Workspace>(`/api/workspaces/${id}`);
+      document.cookie = `groundwork-workspace=${id}; Path=/; SameSite=Lax; Max-Age=31536000`;
+      localStorage.setItem('groundwork-workspace', id);
+      const memberships = [...me.memberships].sort((a, b) => Number(b.workspace_id === id) - Number(a.workspace_id === id));
+      setMe({ ...me, memberships }); setWorkspace(ws);
+      router.push(navFor(memberships[0]).home);
+    } catch { setLoadError(true); }
   }
-  useEffect(() => { if (!path.startsWith('/settings')) sessionStorage.setItem(LAST_PAGE_KEY, path); }, [path]);
-  const htmlLang = useUiLang();
-  if (error && !me) return <Translated><div className="public-page"><Brand /><ErrorState message="We couldn’t open your workspace. Please try again." retry={load} /></div></Translated>;
-  // Refreshes retain the authenticated screen; only the first identity load needs a fallback.
-  if (!me || (member && !workspace) || (member?.role === 'client' && path === '/dashboard') || (member?.role === 'technician' && path === '/dashboard') || (member && member.role !== 'client' && path === '/home')) return <Translated><><div className="public-header"><Brand /></div><PageSkeleton /></></Translated>;
-  const nav = member?.role === 'technician' ? [{ href: '/today', label: 'Today', icon: CalendarCheck }, { href: '/work-orders', label: 'My jobs', icon: ClipboardList }, { href: '/suggestions/new', label: 'Suggest a job', icon: ClipboardCheck }, { href: '/settings', label: 'Settings', icon: Settings }] : [{ href: home, label: 'Home', icon: member?.role === 'client' ? House : LayoutDashboard }, ...(office && doesJobs(member) ? [{ href: '/today', label: 'My day', icon: CalendarCheck }, { href: `/work-orders?assignee_id=${me.user.id}&active=true`, label: 'My jobs', icon: ClipboardCheck }] : []), ...(member && office ? [{ href: '/work-orders', label: 'Jobs', icon: ClipboardList }, { href: '/schedule', label: 'Schedule', icon: CalendarDays }, { href: '/documents', label: 'Documents', icon: FileText }, { href: '/queue', label: 'New requests', icon: ListChecks }, { href: '/suggestions', label: 'Suggested', icon: ClipboardCheck }, { href: '/team', label: 'Team', icon: Users }, { href: '/clients', label: 'Clients', icon: Building2 }, { href: '/import', label: 'Add from Excel', icon: Upload }] : member ? [{href:'/work-orders',label:'Requests',icon:ClipboardList}] : []), { href: '/settings', label: 'Settings', icon: Settings }];
-  if(member)nav.splice(nav.length-1,0,{href:'/messages',label:'Messages',icon:MessageSquare});
-  if(member&&workspace?.is_demo)nav.splice(nav.length-1,0,{href:'/demo-chat',label:DEMO_CHAT_COPY.navLabel,icon:MessageCircle});
-  if(member&&member.role!=='client')nav.splice(nav.length-1,0,{href:'/team-space',label:'Team space',icon:Users});
-  if(member?.role==='admin'&&!nav.some(n=>n.href==='/overview')&&(workspace?.enabled_dashboards?.includes('overview')??true))nav.unshift({href:'/overview',label:'Company overview',icon:ChartPie});
-  for(let i=nav.length-1;i>=0;i--)if(!menuEnabled(nav[i].href,workspace?.enabled_dashboards))nav.splice(i,1);
-  // Close the sheet only once the address has changed. Closing it first lets the phone Back handling undo a slow navigation.
-  const closeAfterNavigation = (href?: string) => {
-    const here = location.pathname + location.search;
-    if (!href || href === here) { setDrawer(false); return; }
-    const started = Date.now();
-    const timer = window.setInterval(() => {
-      if (location.pathname + location.search !== here || Date.now() - started > 20000) { window.clearInterval(timer); setDrawer(false); }
-    }, 100);
+
+  function askToConfirm(action: 'signout' | 'reset') {
+    guardedAction(() => { setOverlay(null); setDemoOpen(false); setActionError(null); setConfirm(action); });
+  }
+  async function runConfirmed() {
+    if (busy) return;
+    setBusy(confirm); setActionError(null);
+    try {
+      if (confirm === 'signout') {
+        await post('/api/auth/sign-out');
+        sessionStorage.clear(); rememberSession('out');
+        window.location.replace('/?signed_out=1');
+      } else {
+        await post('/api/demo/reset', { confirm: true });
+        sessionStorage.setItem('groundwork-demo-restored', '1');
+        window.location.replace(nav.home);
+      }
+    } catch {
+      setActionError(confirm === 'signout' ? 'We couldn’t sign you out. Please try again.' : 'We couldn’t start the demo over. Please try again.');
+      setBusy(null);
+    }
+  }
+  async function changePerson(key: string) {
+    if (busy) return;
+    setBusy(key); setActionError(null);
+    try {
+      await post('/api/demo/switch', { persona: key, language: demoLanguage(document.documentElement.lang) });
+      window.location.replace(homeForPersona(key));
+    } catch { setActionError('We couldn’t change the person. Please try again.'); setBusy(null); }
+  }
+
+  if (loadError && !me) return <Translated><div className="public-page"><Brand /><ErrorState message="We couldn’t open Groundwork. Please try again." retry={load} /></div></Translated>;
+  // Only the very first identity load needs a fallback. Refreshes keep the signed in screen.
+  if (!me || (member && !workspace)) return <Translated><><div className="app-header"><span className="header-brand"><Mark /></span></div><PageSkeleton /></></Translated>;
+
+  const demo = !!me.user.is_demo && !!workspace?.is_demo;
+  const personaKey = (me.user.email ?? '').split('.')[0];
+  const firstName = (personas.find(p => p.key === personaKey)?.name ?? me.user.name ?? '').split(' ')[0];
+  const roleName = group ? ROLE_NAME[group] : 'Account';
+  const company = member?.client_name ?? workspace?.name ?? member?.workspace_name ?? '';
+  const workMemberships = me.memberships.filter(m => m.role !== 'client'), clientMemberships = me.memberships.filter(m => m.role === 'client');
+  const mixed = workMemberships.length > 0 && clientMemberships.length > 0;
+  const companies = mixed ? (member?.role === 'client' ? clientMemberships : workMemberships) : me.memberships;
+  const back = parentOf(path, nav);
+  const blocked = (member?.role === 'client' && providerOnlyPath(path)) || (member?.role === 'technician' && officeOnlyPath(path));
+  const moreCurrent = nav.more.some(item => isCurrent(item, path)) && !nav.tabs.some(item => isCurrent(item, path));
+  const open = (next: Exclude<Overlay, null>) => setOverlay(current => (current === next ? null : next));
+
+  const countLabel = (kind: NavItem['badge']) => { const count = kind === 'approve' ? toApprove : unreadMessages; return kind === 'approve' ? `${count} to approve` : `${count} unread`; };
+  const badge = (item: NavItem) => {
+    const count = item.badge === 'approve' ? toApprove : item.badge === 'messages' ? unreadMessages : 0;
+    return count > 0 ? <span className="nav-count" aria-label={countLabel(item.badge)}>{count > 99 ? '99+' : count}</span> : null;
   };
-  const navLinks = nav.map(item => <Link href={item.href} prefetch={true} key={item.href} className="nav-link" aria-label={item.href === '/queue' && pending ? `${item.label}, ${pending} waiting` : item.label} aria-current={path === item.href || path.startsWith(item.href + '/') ? 'page' : undefined} title={collapsed ? item.label : undefined} onClick={() => closeAfterNavigation(item.href)}><item.icon size={18} aria-hidden="true" /><span className="nav-label">{item.label}</span>{item.href==='/team-space'&&!!messageCounts.data?.team_unread_count&&<span className="unread-message-dot" aria-label="Unread Team space messages">●</span>}{item.href==='/messages'&&!!(messageCounts.data?.direct_unread_count??messageCounts.data?.unread_count)&&<span className="unread-message-dot" aria-label="Unread messages">●</span>}{item.href==='/suggestions'&&!!suggestions.data?.pending_suggestions&&<span className="nav-queue-count">{suggestions.data.pending_suggestions}</span>}{item.href === '/queue' && pending !== null && pending > 0 && <span className="nav-queue-count"><span className="num">{pending > 99 ? '99+' : pending}</span></span>}</Link>);
-  const currentPersona = personas.find(p => p.key === (me.user.email??'').split('.')[0])?.name ?? me.user.name ?? 'a demo user';
-  const canSetup = member?.role === 'admin';
-  const accountOptions = [{ value: 'settings', label: 'Settings' }, ...(canSetup ? [{ value: 'setup', label: 'Continue setup' }] : []), { value: 'signout', label: 'Sign out' }];
-  const context = member?.client_name ?? workspace?.name ?? member?.workspace_name ?? 'Your workspace';
-  const role = member?.role ? rolesLabel(member,labelsFor(workspace?.role_names)) : 'Account';
-  async function switchWorkspace(id:string){if(!me)return;setLoading(true);try{const ws=await request<Workspace>(`/api/workspaces/${id}`);document.cookie=`groundwork-workspace=${id}; Path=/; SameSite=Lax; Max-Age=31536000`;localStorage.setItem('groundwork-workspace',id);setMe({...me,memberships:[...me.memberships].sort((a,b)=>Number(b.workspace_id===id)-Number(a.workspace_id===id))});setWorkspace(ws);router.push(ws.enabled_dashboards?.includes('overview')&&me.memberships.find(m=>m.workspace_id===id)?.is_owner?'/overview':'/dashboard');}catch{setError(true);}finally{setLoading(false);}}
-  const workMemberships=me.memberships.filter(m=>m.role!=='client'),clientMemberships=me.memberships.filter(m=>m.role==='client');
-  const mixed=workMemberships.length>0&&clientMemberships.length>0;
-  const group=member?.role==='client'?clientMemberships:workMemberships;
-  const practiceHome=!!me.user.is_demo&&!!workspace?.is_demo&&!!me.household_preview&&me.household_preview.workspace_id===member?.workspace_id;
-  const modeSwitch=practiceHome?<div className="segmented-control company-mode" role="group" aria-label="Account mode"><Button variant="ghost" aria-pressed={path!=='/home'} onClick={()=>router.push('/today')}>Work</Button><Button variant="ghost" aria-pressed={path==='/home'} onClick={()=>router.push('/home')}>My home</Button></div>:mixed?<div className="segmented-control company-mode" role="group" aria-label="Account mode"><Button variant="ghost" aria-pressed={member?.role!=='client'} onClick={()=>void switchWorkspace(workMemberships[0].workspace_id)}>Work</Button><Button variant="ghost" aria-pressed={member?.role==='client'} onClick={()=>void switchWorkspace(clientMemberships[0].workspace_id)}>{(member?.role==='client'?member:clientMemberships[0])?.client_kind==='household'?'My home':'As client'}</Button></div>:null;
-  const workspaceContext = <div className="workspace-context"><strong data-no-translate>{context}</strong><Badge>{role}</Badge>{(mixed?group:me.memberships).length>1&&<Dropdown label="Company" value={member?.workspace_id??''} options={(mixed?group:me.memberships).map(m=>({value:m.workspace_id,label:m.workspace_name}))} onChange={id=>void switchWorkspace(id)}/>}{!me.user.is_demo&&!workspace?.is_demo&&<Link href="/find-company">Add another company</Link>}{canSetup&&<Link href="/onboarding">Continue setup</Link>}</div>;
-  const mainNav = nav.filter(item => !['/settings','/today','/documents','/queue','/team','/clients','/import','/supplier'].includes(item.href) || item.href === home || item.href === '/schedule').slice(0,4);
-  // Desert Stone phone bar: home, jobs, the Agent mic in the middle, chats, then More.
-  const phoneTabs = [nav.find(n => n.href === (member?.role === 'technician' ? '/today' : home)), nav.find(n => n.href === '/work-orders') ?? nav.find(n => n.href.startsWith('/work-orders')), nav.find(n => n.href === '/messages')].filter((n): n is typeof nav[number] => !!n);
-  const tabLink = (item: typeof nav[number]) => <Link key={item.href} aria-label={tabWord(htmlLang, item.href === '/today' && member?.role === 'technician' ? 'home' : tabKey(item.href.split('?')[0], member?.role), false)} data-no-translate href={item.href} prefetch={true} aria-current={path === item.href || path.startsWith(item.href.split('?')[0] + '/') || (path === item.href.split('?')[0] && item.href.includes('?')) ? 'page' : undefined}><item.icon size={20} aria-hidden="true" /><span className="tab-label" data-no-translate>{tabWord(htmlLang, item.href === '/today' && member?.role === 'technician' ? 'home' : tabKey(item.href.split('?')[0], member?.role), false)}</span></Link>;
-  const mainLinks = navLinks.filter((_, i) => mainNav.includes(nav[i]));
-  const navigation = <div className="nav-links">{mainLinks}<button className="nav-link" type="button" onClick={() => setDrawer(true)}><Menu size={18}/><span className="nav-label">More</span></button></div>;
-  const overflowNavigation = <div className="nav-links">{navLinks}</div>;
-  const accountMenu = (compact = false) => <Dropdown label="Account menu" width={compact ? 44 : 240} menuWidth={240} options={accountOptions} header={<div className="account-info"><strong data-no-translate>{me.user.name ?? 'Your account'}</strong><small>{demoEmail(me.user.email)}</small><Badge>{role}</Badge></div>} onChange={value => { setDrawer(false); value === 'signout' ? openConfirm('signout') : guardedAction(() => router.push(value === 'setup' ? '/onboarding' : '/settings')); }}>
-    <AccountIdentity name={me.user.name} role={role} context={context} compact={compact}/>
-  </Dropdown>;
-  return <Translated><InitialResourceProvider resources={initial?.user===me.user.id?initial.resources:{}}><AppContext.Provider key={`${me.user.id}:${member?.workspace_id??''}`} value={{ me, member, workspace, reload: load, homeDocked:docked, askAssistant: text => { setAsk(a => ({ text, n: (a?.n ?? 0) + 1 })); setAssistant(true); }, updateName: name => setMe(current => current ? { ...current, user: { ...current.user, name } } : current) }}>
-    <ContactNamesProvider><Translator />
-    <a href="#app-content" className="skip-link">Skip to content</a>
-    <div className={`app-shell ${collapsed ? 'collapsed' : ''} ${dashboardAssistant ? 'with-dashboard-assistant' : ''}`}>
-      <aside className="sidebar">
-        <div className="sidebar-brand"><Brand href={home} /></div>
-        <nav aria-label="Main navigation">{navigation}</nav>
-        <div className="sidebar-bottom">{accountMenu(collapsed)}{(mixed?group:me.memberships).length>1&&<Dropdown label="Company" value={member?.workspace_id??''} options={(mixed?group:me.memberships).map(m=>({value:m.workspace_id,label:m.workspace_name}))} onChange={id=>void switchWorkspace(id)}/>}<IconButton label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => { setCollapsed(!collapsed); localStorage.setItem('groundwork-sidebar', !collapsed ? 'collapsed' : 'expanded'); }}>{collapsed ? <PanelLeftOpen className="directional-icon" size={20} /> : <PanelLeftClose className="directional-icon" size={20} />}</IconButton></div>
-      </aside><div className="app-main"><header className={`app-header ${dashboardAssistant ? 'home-header' : ''}`}><span className="phone-brand"><Mark /></span><div className="header-context">{modeSwitch}<span className={dashboardAssistant?'sr-only':undefined}>{clientDetail.data?.name?<>Clients / <span data-no-translate>{clientDetail.data.name}</span></>:member?.role==='client'&&providerOnlyPath(path)?'Home':nav.find(item => path === item.href || path.startsWith(item.href + '/'))?.label ?? 'Workspace'}</span></div><div className="header-actions">{!!companyReplies.data?.company_replies&&<Link className="button ghost company-replies" href="/find-company">Company replies <Badge>{companyReplies.data.company_replies}</Badge></Link>}{member && <><Button variant="ghost" className="assistant-launcher" aria-label="Open Agent" onClick={()=>setAssistant(open => !open)}><MessageSquare size={16}/>Agent <kbd data-no-translate>{shortcut}</kbd></Button></>}{member && <span className="notification-trigger"><IconButton label={countError ? 'Notifications: count unavailable' : `Notifications${unread !== null ? `, ${unread} unread` : ''}`} onClick={() => { setNotifications(true); void refreshUnread(); }}><Bell size={20} /></IconButton>{unread !== null && unread > 0 && <span className="count-dot num">{unread > 9 ? '9+' : unread}</span>}</span>}</div></header>{workspace?.is_demo && <div className="demo-banner"><span className="demo-description">Practice data. It resets every 6 hours.</span><span data-no-translate className="demo-persona">{currentPersona}</span><Button className="phone-demo-options" variant="ghost" size="sm" onClick={()=>setDemoOptions(true)}>Switch person</Button></div>}<div className="outbox-slot"><Outbox key={`${me.user.id}:${member?.workspace_id}`}/></div><main id="app-content" className="route-content" key={path}>{(member?.role==='client'&&providerOnlyPath(path))||(member?.role==='technician'&&officeOnlyPath(path))?<NoAccess/>:children}</main></div></div><nav className="bottom-tabs" aria-label="Phone navigation">{phoneTabs.slice(0,2).map(tabLink)}{member&&<button type="button" className="tab-mic phone-assistant" aria-label="Agent" onClick={()=>setAssistant(true)}><span className="tab-mic-disc"><Mic size={22} aria-hidden="true"/></span></button>}{phoneTabs.slice(2).map(tabLink)}<button type="button" aria-label={tabWord(htmlLang, 'more', false)} data-no-translate onClick={() => setDrawer(true)}><Menu size={20} /><span className="tab-label" data-no-translate>{tabWord(htmlLang, 'more', false)}</span></button></nav><BottomSheet open={demoOptions} onClose={()=>setDemoOptions(false)} title="Switch person"><div className="stack compact">{member?.role==='admin'&&<Link className="button ghost" href="/isolation" onClick={()=>setDemoOptions(false)}>Isolation check</Link>}<Link className="button ghost" href="/demo-chat" onClick={()=>setDemoOptions(false)}>{DEMO_CHAT_COPY.openLabel}</Link><Button variant="ghost" onClick={()=>{setDemoOptions(false);openConfirm('switch');}}>Switch persona</Button>{isOffice(member?.role)&&<Button variant="ghost" disabled={lateBusy} onClick={()=>void makeLate()}>Demo: make a job late</Button>}{isOffice(member?.role)&&<Button variant="ghost" disabled={lateBusy} onClick={()=>void showLearning()}>Demo: before and after learning</Button>}{lateNote&&<p className="small" role="status">{lateNote}</p>}<Button variant="ghost" onClick={()=>{setDemoOptions(false);openConfirm('reset');}}>Reset demo</Button></div></BottomSheet><BottomSheet open={drawer} onClose={() => setDrawer(false)} title="Your workspace"><div className="workspace-drawer"><Link href={home} className="brand" aria-label="Groundwork home" onClick={() => closeAfterNavigation(home)}><Mark /><span className="brand-label">Groundwork</span></Link>{workspaceContext}<nav aria-label="Drawer navigation">{overflowNavigation}</nav><div className="drawer-account">{accountMenu()}<small className="muted">{demoEmail(me.user.email)}</small></div><Button variant="ghost" onClick={() => { setDrawer(false); openConfirm('signout'); }}>Sign out</Button></div></BottomSheet>{member && (assistantLoaded||docked) && <AssistantHost key={`agent:${me.user.id}:${member.workspace_id}`} ws={member.workspace_id} open={assistant} docked={docked} homeContent={member.role==='admin'&&(path==='/overview'||(member.is_owner&&workspace?.company_size==='big'&&workspace.enabled_dashboards?.includes('overview')))?<OwnerAttention compact/>:undefined} ask={ask} onClose={()=>setAssistant(false)}/>} {member && <Notifications key={`notifications:${me.user.id}:${member.workspace_id}`} open={notifications} onClose={() => setNotifications(false)} ws={member.workspace_id} onChange={delta=>{if(delta)setUnread(n=>n===null?null:Math.max(0,n+delta));void refreshUnread();}} />}<ConfirmDialog open={confirm === 'signout'} onClose={() => setConfirm(null)} title="Sign out of Groundwork?" confirmLabel="Sign out" busyLabel="Signing out…" busy={busy} error={actionError} onConfirm={execute}>Your session will end. Sign in again or start a demo to continue.</ConfirmDialog><ConfirmDialog open={confirm === 'reset'} onClose={() => setConfirm(null)} title="Reset your demo?" confirmLabel="Reset demo" busyLabel="Resetting demo…" busy={busy} danger error={actionError} onConfirm={execute}>This deletes changes in your sandbox and creates fresh sample data. This can’t be undone.</ConfirmDialog><BottomSheet open={confirm === 'switch'} onClose={() => setConfirm(null)} title="Switch persona?" busy={busy} footer={<><Button variant="secondary" disabled={busy} onClick={() => setConfirm(null)}>Cancel</Button><Button busy={busy} busyLabel="Switching persona…" onClick={execute}>Switch persona</Button></>}><div className="stack"><p>You’ll stay in this sandbox and continue with the selected role.</p><Dropdown label="Persona" disabled={busy} options={personas.map(p => ({ value: p.key, label: `${p.name} · ${p.role}${p.key===(me.user.email??'').split('.')[0]?' (current)':''}`,disabled:p.key===(me.user.email??'').split('.')[0] }))} value={persona} onChange={setPersona} width={320} />{actionError && <p className="inline-error" role="alert">{actionError}</p>}</div></BottomSheet></ContactNamesProvider></AppContext.Provider></InitialResourceProvider></Translated>;
+  const navLink = (item: NavItem, onClick?: () => void) => (
+    <Link key={item.href + item.label} href={item.href} prefetch className="nav-link" aria-current={isCurrent(item, path) ? 'page' : undefined} title={collapsed ? item.label : undefined} onClick={onClick}>
+      <item.icon aria-hidden="true" /><span className="nav-label">{item.label}</span>{badge(item)}
+    </Link>
+  );
+  const tabLink = (item: NavItem) => {
+    const word = item.tab ? tabWord(lang, item.tab, false) : null;
+    return (
+      <Link key={item.href + item.label} href={item.href} prefetch aria-current={isCurrent(item, path) ? 'page' : undefined} onClick={() => { if (isCurrent(item, path) && path === item.href) window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+        <item.icon aria-hidden="true" />
+        {word ? <span className="tab-label" data-no-translate>{word}</span> : <span className="tab-label">{item.label}</span>}
+        {((item.badge === 'approve' && toApprove > 0) || (item.badge === 'messages' && unreadMessages > 0)) && <span className="nav-dot" aria-label={countLabel(item.badge)} />}
+      </Link>
+    );
+  };
+  const accountOptions = [
+    { value: 'help', label: 'Help' },
+    ...(mixed ? [{ value: 'mode', label: member?.role === 'client' ? 'Switch to work' : 'Switch to my requests' }] : []),
+    ...(!demo ? [{ value: 'add', label: 'Add another company' }] : []),
+    { value: 'signout', label: 'Sign out' },
+  ];
+  function accountAction(value: string) {
+    if (value === 'signout') askToConfirm('signout');
+    else if (value === 'mode') void switchWorkspace((member?.role === 'client' ? workMemberships : clientMemberships)[0].workspace_id);
+    else guardedAction(() => router.push(value === 'add' ? '/find-company' : HELP_ITEM.href));
+  }
+
+  return (
+    <Translated>
+      <InitialResourceProvider resources={initial?.user === me.user.id ? initial.resources : {}}>
+        <AppContext.Provider key={`${me.user.id}:${member?.workspace_id ?? ''}`} value={{ me, member, workspace, reload: load, askAssistant: text => { setAsk(a => ({ text, n: (a?.n ?? 0) + 1 })); warmAgent(); setOverlay('agent'); }, updateName: name => setMe(current => (current ? { ...current, user: { ...current.user, name } } : current)) }}>
+          <ContactNamesProvider>
+            <Translator />
+            <a href="#app-content" className="skip-link">Skip to content</a>
+            <div className={`app-shell ${collapsed ? 'collapsed' : ''}`}>
+              <aside className="sidebar">
+                <div className="sidebar-top">
+                  <Brand href={nav.home} label={false} />
+                  <span className="sidebar-company" data-no-translate><bdi>{company}</bdi></span>
+                </div>
+                <nav className="sidebar-nav" aria-label="Main navigation"><div className="nav-links">{nav.sidebar.map(item => navLink(item))}</div></nav>
+                <div className="sidebar-bottom">
+                  {member && navLink(SETTINGS_ITEM)}
+                  {companies.length > 1 && <Dropdown label="Company" value={member?.workspace_id ?? ''} options={companies.map(m => ({ value: m.workspace_id, label: m.workspace_name, noTranslate: true }))} onChange={id => void switchWorkspace(id)} width={216} />}
+                  <Dropdown label="Account menu" className="account-row" menuWidth={216} options={accountOptions} onChange={accountAction}>
+                    <AccountIdentity name={me.user.name} role={roleName} compact={collapsed} />
+                  </Dropdown>
+                  <IconButton label={collapsed ? 'Open the menu' : 'Close the menu'} onClick={() => { setCollapsed(!collapsed); localStorage.setItem('groundwork-sidebar', collapsed ? 'expanded' : 'collapsed'); }}>
+                    {collapsed ? <PanelLeftOpen className="directional-icon" /> : <PanelLeftClose className="directional-icon" />}
+                  </IconButton>
+                </div>
+              </aside>
+              <div className="app-main">
+                <header className="app-header">
+                  {back
+                    ? <IconButton className="header-back" label="Back" onClick={() => { if (visits.current > 1) router.back(); else router.push(back); }}><ArrowLeft className="directional-icon" /></IconButton>
+                    : <Link href={nav.home} className="header-brand" aria-label="Home"><Mark /></Link>}
+                  <span className="header-spacer" />
+                  {member && (
+                    <div className="header-actions">
+                      <AgentButton open={overlay === 'agent'} onWarm={warmAgent} onClick={() => { warmAgent(); open('agent'); }} />
+                      <span className="bell">
+                        <IconButton label={bellLabel(unread)} onClick={() => open('notifications')}><Bell /></IconButton>
+                        {unread > 0 && <span className="bell-count num" aria-hidden="true">{unread > 99 ? '99+' : unread}</span>}
+                      </span>
+                    </div>
+                  )}
+                </header>
+                {demo && group && (
+                  <section className="demo-bar" aria-label="Demo">
+                    <div className="demo-bar-line">
+                      <button type="button" className="demo-bar-who" aria-expanded={demoOpen} onClick={() => setDemoOpen(!demoOpen)}>
+                        <span>Demo. You are</span> <strong data-no-translate>{firstName}</strong><Comma /><span>{roleName}</span>.
+                      </button>
+                      <button type="button" className="demo-bar-change" onClick={() => open('people')}>Change person</button>
+                    </div>
+                    {demoOpen && (
+                      <div className="demo-bar-more">
+                        <p>{ROLE_CAN_DO[group]}</p>
+                        <p><span data-no-translate><bdi>{company}</bdi></span>. <span>Sample data, resets every 6 hours.</span></p>
+                        <div className="row">
+                          {(group === 'owner' || group === 'admin') && <Button variant="secondary" size="sm" onClick={() => { setDemoOpen(false); setAgentTab('whatsapp'); warmAgent(); setOverlay('agent'); }}>See a WhatsApp request arrive</Button>}
+                          <Button variant="secondary" size="sm" onClick={() => askToConfirm('reset')}>Start over</Button>
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                )}
+                {member && <div className="outbox-slot"><Outbox key={`${me.user.id}:${member.workspace_id}`} /></div>}
+                <main id="app-content" className="route-content">{!member && !ENTRY_PATHS.includes(path) ? <PageSkeleton /> : blocked ? <NoAccess /> : children}</main>
+              </div>
+            </div>
+
+            {member && (
+              <nav className="bottom-nav" aria-label="Main navigation">
+                {nav.tabs.map(tabLink)}
+                <button type="button" aria-current={moreCurrent ? 'page' : undefined} aria-haspopup="dialog" onClick={() => open('more')}>
+                  <Menu aria-hidden="true" /><span className="tab-label" data-no-translate>{tabWord(lang, 'more', false)}</span>
+                  {unreadMessages > 0 && nav.more.some(item => item.badge === 'messages') && <span className="nav-dot" aria-label={countLabel('messages')} />}
+                </button>
+              </nav>
+            )}
+
+            <BottomSheet open={overlay === 'more'} onClose={() => setOverlay(null)} title="More">
+              <div className="more-sheet">
+                <p className="more-context"><span data-no-translate><bdi>{company}</bdi></span><Comma /><span>{roleName}</span></p>
+                <nav aria-label="More"><div className="nav-links">{nav.more.map(item => navLink(item))}</div></nav>
+                {companies.length > 1 && <Dropdown label="Company" value={member?.workspace_id ?? ''} options={companies.map(m => ({ value: m.workspace_id, label: m.workspace_name, noTranslate: true }))} onChange={id => void switchWorkspace(id)} width={280} />}
+                <div className="more-account">
+                  <span className="account-row"><AccountIdentity name={me.user.name} role={demoEmail(me.user.email) ?? roleName} /></span>
+                  <Button variant="secondary" onClick={() => askToConfirm('signout')}>Sign out</Button>
+                </div>
+              </div>
+            </BottomSheet>
+
+            <BottomSheet open={overlay === 'people'} onClose={() => setOverlay(null)} title="Change person" busy={!!busy}>
+              <div className="stack compact">
+                <p>See the same company through another person. Your changes in this demo stay.</p>
+                <ul className="list">
+                  {personas.map(p => (
+                    <li key={p.key}>
+                      <button type="button" className="list-row" disabled={!!busy || p.key === personaKey} aria-busy={busy === p.key || undefined} onClick={() => void changePerson(p.key)}>
+                        <span className="avatar" aria-hidden="true" data-no-translate>{p.name[0]}</span>
+                        <span className="list-row-main">
+                          <span className="list-row-title"><span data-no-translate>{p.name}</span></span>
+                          <span className="list-row-meta">{p.key === personaKey ? <><span>{p.role}</span>. <span>This is you now.</span></> : p.role}</span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {actionError && <p className="inline-error" role="alert">{actionError}</p>}
+                <Button variant="secondary" onClick={() => askToConfirm('reset')}>Start over</Button>
+              </div>
+            </BottomSheet>
+
+            {member && agentMounted && <AssistantHost key={`agent:${me.user.id}:${member.workspace_id}`} ws={member.workspace_id} open={overlay === 'agent'} ask={ask} tab={agentTab} onTab={setAgentTab} onClose={() => setOverlay(current => (current === 'agent' ? null : current))} />}
+            {member && <Notifications key={`notifications:${me.user.id}:${member.workspace_id}`} open={overlay === 'notifications'} onClose={() => setOverlay(current => (current === 'notifications' ? null : current))} ws={member.workspace_id} onChange={delta => { if (delta) counts.setData(current => (current ? { ...current, unread_count: Math.max(0, current.unread_count + delta) } : current)); void counts.reload(); }} />}
+
+            <ConfirmDialog open={confirm === 'signout'} onClose={() => setConfirm(null)} title="Sign out of Groundwork?" confirmLabel="Sign out" busyLabel="Signing out" busy={busy === 'signout'} error={actionError} onConfirm={runConfirmed}>You can sign in again any time.</ConfirmDialog>
+            <ConfirmDialog open={confirm === 'reset'} onClose={() => setConfirm(null)} title="Start the demo over?" confirmLabel="Start over" busyLabel="Starting over" busy={busy === 'reset'} danger error={actionError} onConfirm={runConfirmed}>Everything you changed in this demo goes back to how it started.</ConfirmDialog>
+          </ContactNamesProvider>
+        </AppContext.Provider>
+      </InitialResourceProvider>
+    </Translated>
+  );
 }

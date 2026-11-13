@@ -41,7 +41,8 @@ describe('coming back to the app on a phone', () => {
     const pending = request('/api/x').catch((e: Error) => e);
     await vi.advanceTimersByTimeAsync(3000);
     expect((await pending as Error).message).toBe('We couldn’t reach Groundwork. Please try again.');
-    expect(fetch).toHaveBeenCalledTimes(3); expect(events).toHaveLength(1);
+    // Two quiet retries, then the screen shows its own error. No global card on top of it (bug 91).
+    expect(fetch).toHaveBeenCalledTimes(3); expect(events).toHaveLength(0);
   });
   it('does not retry a change, so nothing is saved twice', async () => {
     setup(false);
@@ -51,7 +52,7 @@ describe('coming back to the app on a phone', () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
   it('says offline in plain words only when the phone is offline', () => {
-    setup(false, false); expect(requestErrorCopy(0)).toBe('You are offline. Please check your internet.');
+    setup(false, false); expect(requestErrorCopy(0)).toBe('You are offline. Changes will be sent when you are back online.');
     setup(false, true); expect(requestErrorCopy(0)).toBe('We couldn’t reach Groundwork. Please try again.');
   });
 });

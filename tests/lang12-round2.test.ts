@@ -37,7 +37,7 @@ it.each(LANGUAGES.filter(l => !isEnglish(l.code)))('$code covers every round two
  const label = replaceTranslation('16 Open for Ravi', words);
  expect(label).toContain('16'); expect(label).toContain('Ravi'); expect(label).toContain(words.Open);
  expect(label).not.toContain(' for ');
- for (const source of ['New requests, 1 waiting','23 open requests','42 requests','0 today','Excel or CSV file, up to 500 lines','Up to 2 MB · 500 data rows · unique column headings','Try the flow with a sample file of 40 jobs.','For example, weekday mornings 9 to 12']) expect(replaceTranslation(source, words), source).not.toBe(source);
+ for (const source of ['New requests, 1 waiting','23 open requests','42 requests','0 today','Excel or CSV file, up to 500 rows','Up to 2 MB, 500 rows and one heading per column','Try the flow with a sample file of 40 jobs.','For example, weekday mornings 9 to 12']) expect(replaceTranslation(source, words), source).not.toBe(source);
  expect(replaceTranslation('Remove leave for Ravi', words)).toContain('Ravi');
  expect(words['Remove leave for Ravi']).toBeUndefined();
  expect(replaceTranslation('Move Service rooftop ventilation', words, true)).toContain(words['Service rooftop ventilation']);
@@ -62,7 +62,7 @@ it('audit templates retain each simultaneous change and carry ISO dates for the 
  }
  expect(renderNotification(messages[2],words,'ar-AE')).not.toMatch(/\d{1,2}:\d{2}/);
  const member = auditSummaryTemplates({actor_name:'Imran',member_name:'Pranav',entity:'members',action:'update',after:{role:'client'}})![0];
- expect(renderNotification(member,words,'ar-AE')).toContain(words['Facility manager']);
+ expect(renderNotification(member,words,'ar-AE')).toContain(words['Client manager']);
 });
 it('legacy Agent priority summaries use templates, preserve identifiers and translate both priorities', () => {
  const source = 'Change priority for WO 1 My repair: low to high';
@@ -92,11 +92,11 @@ it.each(['en-IN','en-US','en-GB'])('schedule clocks honor the %s locale as well 
  const date = new Date(Date.UTC(2026,0,1,14));
  expect(scheduleHourLabel(14,code)).toBe(new Intl.DateTimeFormat(code,{hour:'numeric',timeZone:'UTC'}).format(date));
 });
-it('audit import templates keep filenames as data and localize the queue status', () => {
+it('audit import templates keep filenames as data and leave out the internal queued step', () => {
  const words = JSON.parse(readFileSync('public/i18n/ar-AE.json','utf8'));
  const messages = auditSummaryTemplates({actor_name:'Sam',entity:'imports',action:'insert',after:{filename:'sample.csv',status:'queued'}})!;
  const text = messages.map(message => renderNotification(message,words,'ar-AE')).join(' ');
- expect(text).toContain('Sam'); expect(text).toContain('sample.csv'); expect(text).toContain(words.Queued);
+ expect(text).toContain('Sam'); expect(text).toContain('sample.csv'); expect(text).toContain(words['{name} uploaded the file {item}.'].split(' ')[0]); expect(text).not.toContain(words.Queued);
  expect(text).not.toMatch(/created import|Queued/);
  for (const message of messages) expect(message.key).not.toContain('sample.csv');
 });

@@ -2,7 +2,8 @@ import type { NotificationTemplate } from './notifications';
 import { priceHeld, priceChangeLabel, type PriceChange } from '../price-change';
 import { localDate, formatDate, scheduledInstant, workspaceTimezone } from '../dates';
 export { isOverdue } from '../dates';
-export const statusLabels: Record<string, string> = { open: 'Open', scheduled: 'Scheduled', in_progress: 'In Progress', waiting_on_parts: 'Waiting on Parts', done: 'Done', cancelled: 'Cancelled' };
+/** One set of status words for everyone, staff and clients, in sentence case. */
+export const statusLabels: Record<string, string> = { open: 'Open', scheduled: 'Scheduled', in_progress: 'In progress', waiting_on_parts: 'Waiting for parts', done: 'Done', cancelled: 'Cancelled' };
 export const statusTransitions: Record<string, string[]> = { open: ['scheduled', 'cancelled'], scheduled: ['in_progress', 'open', 'cancelled'], in_progress: ['waiting_on_parts', 'done', 'scheduled', 'cancelled'], waiting_on_parts: ['in_progress', 'done', 'cancelled'], done: [], cancelled: [] };
 export const priorities = ['low', 'normal', 'high', 'urgent'];
 export const label = (value: string) => statusLabels[value] ?? value.replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
@@ -14,7 +15,15 @@ type EventAttribution = { work_order_title?:string|null; actor_kind?:string; via
 export type Comment = EventAttribution & { id: string; body: string; visibility: 'client' | 'internal'; author_id: string; created_at: string };
 export type WorkOrder = { price_change?:PriceChange|null; tenant_unit?:string|null; tenant_name?:string|null; tenant_phone?:string|null; on_way_at?: string | null; asset_id?:string|null; asset?:{id:string;name:string;kind:string|null}|null; trade?: string | null; site_name?: string; client_name?: string; assignee_name?: string | null; id: string; order_number: number; due_on: string | null; title: string; description: string; client_id: string; site_id: string; status: string; priority: string; assignee_id: string | null; scheduled_for: string | null; updated_at: string; created_at: string };
 export type Detail = WorkOrder & { report_problem?: string | null; report_work?: string | null; report_outcome?: string | null; report_at?: string | null; report_by?: string | null; client: Client; site: Site; assignee: { id: string; name?: string } | null; comments: Comment[]; timeline: (EventAttribution & { id: string; kind: string; actor_id: string | null; message_template?:NotificationTemplate; body?: string; details?: {to_status?:string;from_status?:string;scheduled_for?:string|null;due_on?:string|null;assignee_name?:string|null;priority?:string|null;title_changed?:boolean;description_changed?:boolean}; from_status?: string; to_status?: string; created_at: string })[] };
-export type Page<T> = { data: T[]; total: number; page: number; pageSize: number };
+export type Page<T> = { data: T[]; total: number; page: number; pageSize: number; next_cursor?: string | null };
+/** The Jobs list asks the server for 50 rows at a time. Page words and the tab are for the screen only. */
+export const JOBS_PAGE = 50;
+export function jobsQuery(api: URLSearchParams, role?: string) {
+  for (const key of ['page', 'cursor', 'tab']) api.delete(key);
+  api.set('pageSize', String(JOBS_PAGE));
+  activeByDefault(api, role);
+  return api;
+}
 export function sortOrders(orders: WorkOrder[], sort: string, dir: string) {
   const sign = dir === 'asc' ? 1 : -1;
   return [...orders].sort((a, b) => {
@@ -31,7 +40,7 @@ export type Draft = { tenant_unit?:string; tenant_name?:string; tenant_phone?:st
 export function draftErrors(draft: Draft) { const errors: Record<string, string> = {}; if (!draft.title.trim()) errors.title = 'Enter a title.'; else if (draft.title.trim().length > 200) errors.title = 'Use 200 characters or fewer.'; if (draft.description.length > 20000) errors.description = 'Use 20,000 characters or fewer.'; if (!draft.client_id) errors.client_id = 'Choose a client.'; if (!draft.site_id) errors.site_id = 'Choose a site.'; return errors; }
 
 export const clientStatusHints:Record<string,string> = {waiting_on_parts:"We've ordered what's needed."};
-export const clientStatusLabels:Record<string,string> = {open:'Request Received',scheduled:'Visit Scheduled',in_progress:'Work in Progress',waiting_on_parts:'Waiting on Parts',done:'Completed',cancelled:'Cancelled'};
+export const clientStatusLabels:Record<string,string> = statusLabels;
 /** NOTIF08: the team sees On the way too once the technician has set off (the job is still Scheduled). */
 export function staffStatusLabel(job: { status: string; on_way_at?: string | null; price_change?:PriceChange|null }) {
  if(job.price_change&&(priceHeld(job.price_change)||job.price_change.state==='refused'))return priceChangeLabel(job.price_change);

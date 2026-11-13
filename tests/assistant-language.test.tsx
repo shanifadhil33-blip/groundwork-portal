@@ -70,8 +70,8 @@ it.each(locales)('$code renders the translated listening bar in language order w
  expect(cancel).toHaveBeenCalledOnce();expect(stop).toHaveBeenCalledOnce();
 });
 it('keeps bar contents shrinkable and tap targets inside its inline size',()=>{
- const css=readFileSync('app/globals.css','utf8');
- const rule=(selector:string)=>css.slice(css.indexOf(`${selector} {`)).split('}')[0];
+ const css=readFileSync('app/screens.css','utf8').replace(/\s*([{};:,])\s*/g,'$1').replace(/;\}/g,'}');
+ const rule=(selector:string)=>css.slice(css.indexOf(`${selector}{`)).split('}')[0];
  expect(rule('.voice-recording')).toContain('max-inline-size:100%');
  expect(rule('.voice-recording')).toContain('min-width:0');
  expect(rule('.voice-recording-label')).toContain('flex:1 1 0');

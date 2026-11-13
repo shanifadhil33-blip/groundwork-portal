@@ -29,7 +29,7 @@ const keys=[
  "Close visit",
  "Waiting prices",
  "No prices waiting.",
- "Quote visit",
+ "Price visit",
  "The full price depends on what the technician finds.",
  "Only clients can request a quote visit.",
  "Ask the company to add your site before sending a request.",

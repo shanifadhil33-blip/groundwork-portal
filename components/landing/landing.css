@@ -184,7 +184,7 @@ html:not([data-theme=dark]) .lx-root .lx-media img,html:not([data-theme=dark]) .
 html[data-theme=dark] .lx-root .lx-seq-pic[data-tone=light],html:not([data-theme=dark]) .lx-root .lx-seq-pic[data-tone=dark]{display:none}
 
 /* Product first hero. The existing scene and its scroll story keep their own layout rules. */
-.lx-root{--lx-accent:#7955db;--lx-surface:#000}
+.lx-root{--lx-accent:#9A6A3E;--lx-surface:#000}
 html:not([data-theme=dark]) .lx-root{--lx-surface:#fff}
 
 .lx-root h1,.lx-root h2{font-family:var(--font-landing-display),Georgia,serif;font-weight:400;letter-spacing:-.035em}
@@ -228,3 +228,9 @@ html[data-theme=dark] .lx-root .lx-brand{--primary-fg:#000}
 
 /* Reassurance belongs immediately below the hero actions. */
 .lx-root .lx-hero .lx-note{font-size:12px;line-height:1.6;margin-top:10px;max-width:350px}
+
+/* Visitors see Try the demo and Sign in; a signed in person sees Open the app. */
+.lx-root .lx-variant{display:contents}
+html:not([data-session]) .lx-root [data-variant=in],html[data-session=out] .lx-root [data-variant=in],html[data-session=in] .lx-root [data-variant=out]{display:none}
+.lx-root .lx-for{margin-top:16px;max-width:560px}
+.lx-root .lx-signed-out{display:inline-block;margin-bottom:16px;padding:8px 14px;border-radius:999px;background:#1c1c1c;color:#d6d6d6;font-size:14px}

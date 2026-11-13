@@ -10,9 +10,9 @@ const read=(p:string)=>readFileSync(p,'utf8');
 const contacts:Contact[]=[{user_id:'sam',real_name:'Sam',nickname:'Sam at Tower 3',name:'Sam at Tower 3'}];
 describe('Customer labels follow permissions',()=>{
  it('keeps maintenance Office staff distinct from facility contacts',()=>{
-  expect(customerRoleLabel('manager')).toBe('Facility manager');expect(customerRoleLabel('office')).toBe('Facility staff');
-  expect(rolesLabel({role:'client',client_kind:'office'})).toBe('Facility staff');expect(rolesLabel({role:'staff',staff_kind:'office'})).toBe('Office staff');
-  const picker=read('components/public/demo-picker.tsx');expect(picker).toContain("name: 'Pranav', role: 'Facility manager'");expect(picker).toContain("name: 'Kevin', role: 'Facility staff'");expect(picker).toContain("name: 'Nabil', role: 'Office staff'");
+  expect(customerRoleLabel('manager')).toBe('Client manager');expect(customerRoleLabel('office')).toBe('Client staff');expect(customerRoleLabel('household')).toBe('Home client');
+  expect(rolesLabel({role:'client',client_kind:'office'})).toBe('Client staff');expect(rolesLabel({role:'staff',staff_kind:'office'})).toBe('Office staff');
+  const picker=read('components/public/demo-picker.tsx');expect(picker).toContain("name: 'Pranav', group: 'client_manager'");expect(picker).toContain("name: 'Kevin', group: 'client_staff'");expect(picker).toContain("name: 'Nabil', group: 'office'");
  });
 });
 describe('Viewer names',()=>{
@@ -24,7 +24,7 @@ describe('Viewer names',()=>{
  it('has private SQL policies, name bounds, confirmation enforcement and a real name control',()=>{
   const migration=read('db/migrations/0040_contact_nicknames.sql');expect(migration).toContain('PRIMARY KEY(owner_user_id,target_user_id)');expect(migration).toContain('BETWEEN 1 AND 60');expect(migration).toContain('FORCE ROW LEVEL SECURITY');expect(migration).toContain('owner_user_id=app_user_id()');
   expect(read('lib/agent/tools.ts')).toContain("['suggest_contact_name','fill_onboarding'].includes(name)&&!c.approved");
-  expect(read('components/app/contact-name.tsx')).toContain('Real name:');expect(read('components/app/contact-name.tsx')).toContain('Save as...');expect(read('components/app/contact-names-context.tsx')).toContain('groundwork-contact-names');
+  expect(read('components/app/contact-name.tsx')).not.toContain('Save as...');expect(read('components/app/contact-names-context.tsx')).toContain('groundwork-contact-names');
  });
 });
 describe('Company size',()=>{
@@ -34,7 +34,7 @@ describe('Company size',()=>{
   expect(sizeRoles(['staff','technician'],[],'big').extra_roles).toEqual(['staff','technician']);
   expect(sizeRoles(small.extra_roles,small.size_added_roles,'small')).toEqual(small);
  });
- it('shows owner and manager labels while preserving the permission role',()=>{expect(rolesLabel({role:'admin',is_owner:true})).toBe('Owner');expect(rolesLabel({role:'staff',is_manager:true})).toBe('Manager');});
+ it('shows owner and manager labels while preserving the permission role',()=>{expect(rolesLabel({role:'admin',is_owner:true})).toBe('Owner');expect(rolesLabel({role:'staff',is_manager:true})).toBe('Supervisor');});
  it('hides unused screens, keeps required roles and validates company size',()=>{
   expect(menuEnabled('/schedule',['work'])).toBe(false);expect(menuEnabled('/settings',['work'])).toBe(true);
   expect(z.object(companyOptions).safeParse({enabled_roles:['technician']}).success).toBe(false);

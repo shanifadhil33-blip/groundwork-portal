@@ -21,10 +21,10 @@ afterAll(async()=>{await closePools();});
 const q=async(sql:string,args:unknown[])=>withSystem(async db=>(await db.query(sql,args)).rows);
 async function post(handler:(req:Request)=>Promise<Response>,body?:unknown,cookie?:string){const r=await handler(new Request('http://localhost/api',{method:'POST',headers:cookie?{cookie}:{},body:body===undefined?undefined:JSON.stringify(body)}));return {status:r.status,body:await r.json(),cookie:r.headers.get('set-cookie')??''};}
 it('the demo page has a judge login for every user type',()=>{
- expect(new Set(personas.map(p=>p.role))).toEqual(new Set(['Owner','Admin','Supervisor','Technician','Office staff','Facility manager','Facility staff','Household']));
+ expect(new Set(personas.map(p=>p.role))).toEqual(new Set(['Owner','Admin','Supervisor','Technician','Office staff','Client manager','Client staff','Home client']));
 });
 const judgeHomes={imran:'/dashboard',hassan:'/dashboard',sam:'/dashboard',ravi:'/today',nabil:'/dashboard',pranav:'/home',omar:'/home',kevin:'/home',faisal:'/home'};
-const judgeRoles={Owner:{role:'admin',is_owner:true},Admin:{role:'admin',is_owner:false},Supervisor:{role:'staff',staff_kind:null},Technician:{role:'technician'},'Office staff':{role:'staff',staff_kind:'office'},'Facility manager':{role:'client',client_kind:'manager'},'Facility staff':{role:'client',client_kind:'office'},Household:{role:'client',client_kind:'household'}};
+const judgeRoles={Owner:{role:'admin',is_owner:true},Admin:{role:'admin',is_owner:false},Supervisor:{role:'staff',staff_kind:null},Technician:{role:'technician'},'Office staff':{role:'staff',staff_kind:'office'},'Client manager':{role:'client',client_kind:'manager'},'Client staff':{role:'client',client_kind:'office'},'Home client':{role:'client',client_kind:'household'}} as Record<string,Record<string,unknown>>;
 for(const language of ['en-IN','ar-AE'])it(`every public login opens the right sandbox person and home in ${language}`,async()=>{
  let ws:string|undefined;
  for(const persona of personas){
@@ -66,10 +66,9 @@ it('a technician, a client and a real (non demo) account are refused',async()=>{
  setAuthResolverForTests(async()=>ids.imran);
  expect((await post(late.POST)).status).toBe(404);
 });
-it('the control is labelled as a demo control in the demo menu, for the office only',()=>{
+it('keeps practice controls out of the demo menu (cut list, section 4)',()=>{
  const shell=readFileSync('components/app/shell.tsx','utf8');
- expect(shell).toContain('{isOffice(member?.role)&&<Button variant="ghost" disabled={lateBusy} onClick={()=>void makeLate()}>Demo: make a job late</Button>}');
- expect(JSON.parse(readFileSync('public/i18n/ar-AE.json','utf8'))['Demo: make a job late']).toBeTruthy();
+ for(const label of ['Demo: make a job late','Demo: before and after learning','Isolation check','Switch persona','Open the demo chat'])expect(shell).not.toContain(label);
 });
 it('Demo: before and after learning picks the open job with the most history, changes nothing, office only',async()=>{
  const s=await post(start.POST,{persona:'imran'});const ws=s.body.workspace_id;
@@ -82,7 +81,7 @@ it('Demo: before and after learning picks the open job with the most history, ch
  expect(await snap()).toBe(before);
  for(const persona of ['ravi','pranav']){const t=await post(start.POST,{persona});expect((await post(learning.POST,undefined,t.cookie)).status).toBe(403);}
  setAuthResolverForTests(async()=>ids.imran);expect((await post(learning.POST)).status).toBe(404);
- const shell=readFileSync('components/app/shell.tsx','utf8');expect(shell).toContain('{isOffice(member?.role)&&<Button variant="ghost" disabled={lateBusy} onClick={()=>void showLearning()}>Demo: before and after learning</Button>}');
+ 
  const card=readFileSync('components/app/company-history.tsx','utf8');expect(card).toContain('Before learning');expect(card).toContain('After learning');
 });
 it('the history card and the demo controls are written in all 21 languages, min in Arabic too',()=>{

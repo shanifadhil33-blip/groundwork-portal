@@ -121,7 +121,7 @@ it('saves the same technician preference, carries it to the job and ranks it fir
  await leave();ranked=await suggestWorkers(ids.nabil,ws,id);expect(ranked.preference_reason).toContain('on leave');expect(ranked.workers.find(w=>w.user_id===ids.ravi).off).toBeTruthy();
  const j=await getWorkOrder(ids.imran,ws,id);await expect(patchWorkOrder(ids.imran,ws,id,{assignee_id:ids.ravi,updated_at:version(j)})).rejects.toMatchObject({status:422});
  await withSystem(db=>db.query('DELETE FROM time_off WHERE workspace_id=$1 AND user_id=$2',[ws,ids.ravi]));
- await withSystem(db=>db.query("UPDATE members SET trades=ARRAY['electrical'] WHERE workspace_id=$1 AND user_id=$2",[ws,ids.ravi]));ranked=await suggestWorkers(ids.nabil,ws,id);expect(ranked.preference_reason).toContain('does not cover');
+ await withSystem(db=>db.query("UPDATE members SET trades=ARRAY['electrical'] WHERE workspace_id=$1 AND user_id=$2",[ws,ids.ravi]));ranked=await suggestWorkers(ids.nabil,ws,id);expect(ranked.preference_reason).toContain('does not do this type of work');
  expect(await previousTechnician(ids.kevin,ws)).toMatchObject({user_id:ids.ravi});
 });
 it('rechecks a competing booking and a changed job before confirming the move',async()=>{

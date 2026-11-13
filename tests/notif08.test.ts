@@ -49,7 +49,7 @@ it('travel tells exactly the client side followers once, and pushes only the req
   const rows = await notices();
   expect(rows.map(r => r.user_id).sort()).toEqual([ids.faisal, ids.omar, manager, office].sort());
   for (const row of rows) expect(row).toMatchObject({ workspace_id: ws, entity: 'work_orders', actor_id: ids.ravi, actor_name: 'Ravi', work_order_title: j.title });
-  expect(sent).toEqual([{ endpoint: `https://push.example/notif08/${ids.faisal}`, message: { title: 'الإشعارات', body: 'الفني في الدرب عشان Repair tap.', tag: `status-${j.id}`, url: `/work-orders/${j.id}` } }]);
+  expect(sent).toEqual([{ endpoint: `https://push.example/notif08/${ids.faisal}`, message: { title: 'الإشعارات', body: 'الفني في الطريق إلى Repair tap.', tag: `status-${j.id}`, url: `/work-orders/${j.id}` } }]);
   await expect(patchWorkOrder(ids.ravi, ws, j.id, { on_way: true, updated_at: version(saved) })).rejects.toMatchObject({ status: 422 });
   expect(await notices()).toHaveLength(4); expect(sent).toHaveLength(1);
   const detail = await getWorkOrder(ids.faisal, ws, j.id);
@@ -58,7 +58,7 @@ it('travel tells exactly the client side followers once, and pushes only the req
   expect(clientStatusLabel(detail)).toBe('On the way');
   const item = (await listNotifications(ids.faisal, ws, new URLSearchParams('pageSize=100'))).data.find(r => r.kind === 'on_the_way' && r.entity_id === j.id)!;
   expect(item.link_target).toEqual({ entity: 'work_orders', id: j.id });
-  expect(item.message).toBe('الفني في الدرب عشان Repair tap.');
+  expect(item.message).toBe('الفني في الطريق إلى Repair tap.');
   expect(detail.timeline.find((event:any)=>event.kind==='on_the_way')?.message_template.key).toBe(notificationTemplates.client_way);
   const mark = vi.fn(), navigate = vi.fn();
   expect(await openNotificationTarget(item, mark, navigate)).toBe(true); expect(navigate).toHaveBeenCalledWith(j.id);
@@ -78,20 +78,20 @@ it('scheduled requester push includes the visit in workspace time; done includes
   await pushJobChange(ids.ravi, j, { ...j, status: 'done' });
   const asker = sent.filter(s => s.endpoint.endsWith(ids.faisal));
   expect(asker).toHaveLength(1);
-  expect(asker[0].message.body).toBe('خلصنا Repair tap. فيه 2 صور عقب الشغل. افتح الطلب عشان تشوفها.');
+  expect(asker[0].message.body).toBe('اكتملت Repair tap. توجد 2 صور بعد العمل. افتح المهمة لرؤيتها.');
   expect(asker[0].message.url).toBe(`/work-orders/${j.id}#photos`);
   const empty = await job('in_progress'); sent.length = 0;
   await pushJobChange(ids.ravi, empty, { ...empty, status: 'done' });
-  expect(sent.find(s => s.endpoint.endsWith(ids.faisal))?.message.body).toBe('خلصنا Repair tap. فيه 0 صور عقب الشغل. افتح الطلب عشان تشوفها.');
+  expect(sent.find(s => s.endpoint.endsWith(ids.faisal))?.message.body).toBe('اكتملت Repair tap. توجد 0 صور بعد العمل. افتح المهمة لرؤيتها.');
 });
 it('words travel notifications and only changes the scheduled client label', () => {
   expect(notificationMessage({ kind: 'on_the_way', actor_name: 'Ravi', work_order_title: 'Tap' })).toBe('Ravi is on the way for Tap.');
-  expect(clientStatusLabel({ status: 'scheduled' })).toBe('Visit Scheduled');
+  expect(clientStatusLabel({ status: 'scheduled' })).toBe('Scheduled');
   expect(clientStatusLabel({ status: 'scheduled', on_way_at: '2032-01-12' })).toBe('On the way');
-  expect(clientStatusLabel({ status: 'done', on_way_at: '2032-01-12' })).toBe('Completed');
+  expect(clientStatusLabel({ status: 'done', on_way_at: '2032-01-12' })).toBe('Done');
   expect(staffStatusLabel({ status: 'scheduled', on_way_at: '2032-01-12' })).toBe('On the way');
   expect(staffStatusLabel({ status: 'scheduled' })).toBe('Scheduled');
-  expect(staffStatusLabel({ status: 'in_progress', on_way_at: '2032-01-12' })).toBe('In Progress');
+  expect(staffStatusLabel({ status: 'in_progress', on_way_at: '2032-01-12' })).toBe('In progress');
 });
 
 it('rescheduled, cancelled and JOB25 approval messages use the same Arabic sentences in push and bell',async()=>{
@@ -104,7 +104,7 @@ it('rescheduled, cancelled and JOB25 approval messages use the same Arabic sente
  sent.length=0;
  await reportPriceChange(ids.ravi,ws,j.id,{words:'The valve needs replacing'});
  await sendQuote(ids.imran,ws,j.id,{amount:170});
- const approval='سعر Repair tap ينتظر موافقتك. افتح الطلب عشان توافق أو ترفض.';
+ const approval='سعر Repair tap بانتظار موافقتك. افتح المهمة للموافقة عليه أو رفضه.';
  expect(sent.find(s=>s.endpoint.endsWith(ids.faisal))?.message.body).toBe(approval);
  const bell=await listNotifications(ids.faisal,ws,new URLSearchParams('pageSize=100'));
  expect(bell.data.find(n=>n.entity_id===j.id&&n.kind==='quote_sent')?.message).toBe(approval);

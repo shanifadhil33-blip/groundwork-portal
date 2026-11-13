@@ -58,7 +58,7 @@ it.each([360,390])('ships English and Gulf Arabic with RTL at a %s phone viewpor
  await act(async()=>button('العربية').click());
  const notice=host.querySelector('.privacy-notice')!;
  expect(notice.getAttribute('dir')).toBe('rtl');expect(notice.getAttribute('lang')).toBe('ar-AE');
- expect(host.querySelector('h1')?.textContent).toBe('الخصوصية وبياناتك');expect(host.textContent).toContain('كم مدة حفظ البيانات');
+ expect(host.querySelector('h1')?.textContent).toBe('الخصوصية وبياناتك');expect(host.textContent).toContain('مدة حفظ البيانات');
  for(const section of host.querySelectorAll('article section')) expect(section.textContent).toMatch(/\p{Script=Arabic}/u);
  expect(host.textContent).not.toMatch(/[-–—]/);expect(fetch).not.toHaveBeenCalled();
  await act(async()=>button('English').click());expect(notice.getAttribute('dir')).toBe('ltr');

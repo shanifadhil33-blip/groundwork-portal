@@ -105,6 +105,6 @@ it('feedback reaches the inbox payload without sending to the real service',asyn
  setAuthResolverForTests(async()=>ids.pranav);vi.stubEnv('FEEDBACK_SECRET','f'.repeat(40));
  const inbox=vi.fn(async()=>Response.json({ok:true}));vi.stubGlobal('fetch',inbox);
  try{const response=await POST(new Request('http://local/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Please add a visit reminder',page:'/home',device:'Phone'})}));
- expect(response.status).toBe(201);const received=JSON.parse((inbox.mock.calls as any)[0][1].body);expect(received).toMatchObject({app:'Groundwork',message:'Please add a visit reminder',role:'Facility manager'});expect(received.sender).not.toContain(ids.pranav);
+ expect(response.status).toBe(201);const received=JSON.parse((inbox.mock.calls as any)[0][1].body);expect(received).toMatchObject({app:'Groundwork',message:'Please add a visit reminder',role:'Client manager'});expect(received.sender).not.toContain(ids.pranav);
  }finally{setAuthResolverForTests();vi.unstubAllGlobals();vi.unstubAllEnvs();}
 });

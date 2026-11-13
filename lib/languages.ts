@@ -43,5 +43,5 @@ export function languageQuality(code: string): 'Ready' | 'Early' { return code.s
 export function languageVoice(code: string): 'Voice' | 'Voice early' { return VOICE_EARLY.has(code) ? 'Voice early' : 'Voice'; }
 /** Options for the Language dropdown: grouped by region, searchable by English name, own script, code or region, with quality and voice shown. */
 export function languageOptions(join: typeof joinNames = joinNames) {
-  return LANGUAGES.map(l => ({ value: l.code, noTranslate: true, group: l.group, label: l.native === l.name ? l.name : join([l.name, l.native]), hint: `${languageQuality(l.code)} · ${languageVoice(l.code)}`, keywords: [l.code, ...l.group.split(/[: ]+/).filter(Boolean)] }));
+  return LANGUAGES.map(l => ({ value: l.code, noTranslate: true, group: l.group, label: l.native === l.name ? l.name : join([l.name, l.native]), keywords: [l.code, ...l.group.split(/[: ]+/).filter(Boolean)] }));
 }

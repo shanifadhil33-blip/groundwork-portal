@@ -36,8 +36,15 @@ export function fixtureDates(n:number,today:string,timezone:string) {
  const createdDay=dayOffset(today,-(8+(n*13)%74));
  const created=new Date(scheduledInstant(createdDay,timezone,[8,10,14,16,11,9,15][n%7])!);
  created.setUTCMinutes([5,20,35,45,10,25][n%6]);
- const due=n%11===0?null:dayOffset(today,(n*17)%47-25);
- const visit=fixtureStatus(n)==='open'?null:scheduledInstant(dayOffset(due??today,-(n%3)),timezone,[9,11,14,16][n%4]);
+ // Bug 3: a job is never due before it was created, and its visit falls between the two.
+ // A finished job's visit is in the past.
+ const raw=n%11===0?null:dayOffset(today,(n*17)%47-25);
+ const due=raw===null?null:raw<=createdDay?dayOffset(createdDay,2+n%5):raw;
+ const status=fixtureStatus(n),finished=status==='done'||status==='cancelled';
+ let visitDay=dayOffset(due??today,-(n%3));
+ if(visitDay<=createdDay)visitDay=dayOffset(createdDay,1);
+ if(finished&&visitDay>=today)visitDay=dayOffset(today,-1-(n%3));
+ const visit=status==='open'?null:scheduledInstant(visitDay,timezone,[9,11,14,16][n%4]);
  return {created,due,visit,updated:new Date(created.getTime()+2*86400000+((n*23)%180)*60000)};
 }
 type FixtureIds=typeof ids;
@@ -79,23 +86,39 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
   await client.query("DELETE FROM audit_log WHERE workspace_id=$1 AND entity='workspaces'",[ids.ridgeline]);
   const timezone=(await client.query('SELECT timezone FROM workspaces WHERE id=$1',[ids.ridgeline])).rows[0].timezone;
   const today=localDate(Date.now(),timezone);
+  // Bug 101: rows are collected per acting person and inserted with one statement per table,
+  // so a sandbox costs a few dozen statements instead of about 300. History still names who did each change.
+  type Batch={orders:unknown[];events:unknown[];comments:unknown[];supplier:unknown[]};
+  const batches=new Map<string,Batch>();
   for(let n=1;n<=(demo?60:66);n++) {
    const summit=n>60; const site=summit?7:((n-1)%5)+1;
    const ws=summit?ids.summit:ids.ridgeline; const company=summit?ids.summitClient:site<=3?ids.harbor:ids.northgate; const actor=summit?ids.summitAdmin:n%3===0?ids.sam:ids.imran;
-   await client.query("SELECT set_config('app.user_id',$1,true)",[actor]);
+   const batch=batches.get(actor)??{orders:[],events:[],comments:[],supplier:[]};batches.set(actor,batch);
    const dates=fixtureDates(n,today,timezone);
    // Existing Harbor jobs retain their people and titles; their response clock starts near build time.
-   if(n===1||n===7){dates.created=new Date(Date.now()-(n===1?3.5:5)*3600000);dates.updated=new Date(dates.created.getTime()+2*3600000);}
+   if(n===1||n===7){dates.created=new Date(Date.now()-(n===1?3.5:5)*3600000);dates.updated=new Date(dates.created.getTime()+2*3600000);if(dates.due&&dates.due<today)dates.due=dayOffset(today,n===1?1:2);if(dates.visit&&dates.visit<dates.created.toISOString())dates.visit=scheduledInstant(today,timezone,16);}
    const assigned=summit?ids.summitAdmin:[ids.sam,ids.imran,null,ids.ravi,ids.sam,ids.ravi,null][(n-1)%7];
    const title=tasks[(n-1)%tasks.length];
-   await client.query('INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)',[orderId(n),ws,company,siteId(site),title,demoJobDescription(n),fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated]);
+   {const row=[orderId(n),ws,company,siteId(site),title,demoJobDescription(n),fixtureStatus(n),n===1?'low':priorities[(n*7+Math.floor(n/5))%4],assigned,dates.visit,dates.due,summit?n-60:n,n===1?'QA-1001':null,actor,dates.created,dates.updated];batch.orders.push(Object.fromEntries('id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at'.split(',').map((k,i)=>[k,row[i]])));}
    const history: {kind:string;body:string;details:Record<string,unknown>}[]=[];
    const finalStatus=fixtureStatus(n);
    const stages=finalStatus==='open'?[]:finalStatus==='cancelled'?['scheduled','cancelled']:finalStatus==='scheduled'?['scheduled']:finalStatus==='in_progress'?['scheduled','in_progress']:finalStatus==='waiting_on_parts'?['scheduled','in_progress','waiting_on_parts']:['scheduled','in_progress','done'];
    for(const [index,to_status] of stages.entries())history.push({kind:'status_changed',body:'Status updated',details:{from_status:stages[index-1]??'open',to_status}});
-   for(const [index,event] of history.entries())await client.query('INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[ws,company,orderId(n),actor,event.kind,event.body,JSON.stringify(event.details),new Date(dates.created.getTime()+(index+1)*7200000)]);
-   if(n<=18) for(const [index,visibility] of ['client','internal'].entries()) await client.query('INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7)',[ws,company,orderId(n),DEMO_JOB_COMMENTS[visibility as keyof typeof DEMO_JOB_COMMENTS],visibility,actor,new Date(dates.updated.getTime()-(2-index)*3600000)]);
-   if(n<=4) await client.query('INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref) VALUES($1,$2,$3)',[ws,orderId(n),`${prefix}COBALT-DEMO-${n}`]);
+   for(const [index,event] of history.entries())batch.events.push({workspace_id:ws,client_id:company,work_order_id:orderId(n),actor_id:actor,kind:event.kind,body:event.body,details:event.details,created_at:new Date(dates.created.getTime()+(index+1)*7200000)});
+   if(n<=18) for(const [index,visibility] of ['client','internal'].entries()) batch.comments.push({workspace_id:ws,client_id:company,work_order_id:orderId(n),body:DEMO_JOB_COMMENTS[visibility as keyof typeof DEMO_JOB_COMMENTS],visibility,author_id:actor,created_at:new Date(dates.updated.getTime()-(2-index)*3600000)});
+   if(n<=4) batch.supplier.push({workspace_id:ws,work_order_id:orderId(n),cobalt_ref:`${prefix}COBALT-DEMO-${n}`});
+  }
+  for(const [actor,batch] of batches){
+   await client.query("SELECT set_config('app.user_id',$1,true)",[actor]);
+   await client.query(`INSERT INTO work_orders(id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at)
+    SELECT id,workspace_id,client_id,site_id,title,description,status,priority,assignee_id,scheduled_for,due_on,order_number,external_ref,created_by,created_at,updated_at
+    FROM jsonb_to_recordset($1::jsonb) AS x(id uuid,workspace_id uuid,client_id uuid,site_id uuid,title text,description text,status work_order_status,priority work_order_priority,assignee_id uuid,scheduled_for timestamptz,due_on date,order_number int,external_ref text,created_by uuid,created_at timestamptz,updated_at timestamptz)`,[JSON.stringify(batch.orders)]);
+   if(batch.events.length)await client.query(`INSERT INTO work_order_events(workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at)
+    SELECT workspace_id,client_id,work_order_id,actor_id,kind,body,details,created_at FROM jsonb_to_recordset($1::jsonb) AS x(workspace_id uuid,client_id uuid,work_order_id uuid,actor_id uuid,kind text,body text,details jsonb,created_at timestamptz)`,[JSON.stringify(batch.events)]);
+   if(batch.comments.length)await client.query(`INSERT INTO comments(workspace_id,client_id,work_order_id,body,visibility,author_id,created_at)
+    SELECT workspace_id,client_id,work_order_id,body,visibility,author_id,created_at FROM jsonb_to_recordset($1::jsonb) AS x(workspace_id uuid,client_id uuid,work_order_id uuid,body text,visibility text,author_id uuid,created_at timestamptz)`,[JSON.stringify(batch.comments)]);
+   if(batch.supplier.length)await client.query(`INSERT INTO supplier_orders(workspace_id,work_order_id,cobalt_ref)
+    SELECT workspace_id,work_order_id,cobalt_ref FROM jsonb_to_recordset($1::jsonb) AS x(workspace_id uuid,work_order_id uuid,cobalt_ref text)`,[JSON.stringify(batch.supplier)]);
   }
   await client.query("UPDATE work_orders SET tenant_unit='1204',tenant_name='Hassan',tenant_phone='+971 50 000 1204' WHERE id=$1",[orderId(1)]);
   // Trades and areas so assigning by trade and area shows real matches in the demo.
@@ -218,8 +241,27 @@ export async function populateFixture(client:PoolClient,ids:FixtureIds,siteId:(n
     await populateCompanyJoiningFixture(client,ids);
     await populateChecklistFixture(client,ids.ridgeline,ids.imran);
     await populateQuoteFixture(client,ids);
+    // Bug 28: Faisal is a home client. His own requests are at his villa and are home jobs, never warehouse work.
+    const villa=(await client.query(`INSERT INTO sites(workspace_id,client_id,name,address,building,area,region,access_notes,contact_name,contact_phone)
+      VALUES($1,$2,'Villa 12','Street 7','Villa 12','Al Barsha South','Dubai','Ring the gate bell. Parking is in front of the villa.','Faisal','+971505550199') RETURNING id`,[ids.ridgeline,ids.northgate])).rows[0].id;
+    await client.query(`WITH mine AS (SELECT id,row_number() OVER (ORDER BY order_number)-1 AS i FROM work_orders WHERE workspace_id=$1 AND created_by=$2),
+      home(i,title,description,trade,note) AS (VALUES
+        (0,'Replace washroom tap','The washroom tap will not turn off fully.','plumbing','Replace the tap cartridge, parts and labour.'),
+        (1,'Service water pump','The water pump runs all night and the pressure is low.','plumbing','New pump motor and two hours of work.'),
+        (2,'Clear courtyard drainage','Water stays in the courtyard after cleaning.','plumbing','Clear the drain and check the flow, parts and labour.'),
+        (3,'Fix the leaking pantry tap','The pantry tap drips all day.','plumbing','Replace the tap cartridge, parts and labour.'),
+        (4,'Repair entry door closer','The front door slams shut instead of closing slowly.','carpentry','New door closer, parts and labour.'))
+      UPDATE work_orders w SET site_id=$3,asset_id=NULL,title=h.title,description=h.description,trade=h.trade,quote_note=CASE WHEN w.quote_amount IS NULL THEN w.quote_note ELSE h.note END
+      FROM mine JOIN home h ON h.i=mine.i%5 WHERE w.id=mine.id`,[ids.ridgeline,ids.faisal,villa]);
     // A private household preview, not a second membership: demo identity rules allow one workspace only.
     await client.query("INSERT INTO idempotency_keys(user_id,scope,key,fingerprint,result) VALUES($1,$2,'household','preview',$3)",[ids.ravi,`household_preview:${ids.ridgeline}`,JSON.stringify({workspace_id:ids.ridgeline,address:'Flat 12, Sample Court',simulated:true})]);
     await client.query("UPDATE users SET phone='+971000000000' WHERE id=$1",[ids.ravi]);
+    // Bug 29: building the sample company is not something a person did. Keep the history a visitor can read:
+    // jobs created, people assigned, status changes, people added. Drop setup edits and "Imran added Imran".
+    await client.query(`DELETE FROM audit_log WHERE workspace_id=$1 AND (
+      (entity='work_orders' AND action='update' AND before->>'assignee_id' IS NOT DISTINCT FROM after->>'assignee_id' AND before->>'status' IS NOT DISTINCT FROM after->>'status')
+      OR (entity='members' AND action='update')
+      OR (entity='members' AND action='insert' AND actor_id::text=after->>'user_id')
+      OR (entity IN ('supplier_orders','comments') AND action='update'))`,[ids.ridgeline]);
   }
 }

@@ -26,14 +26,13 @@ it('adds a sticky search to any list longer than 15, and a trigger wide panel', 
   expect(src).toContain('options.length > SEARCH_AFTER');
   expect(src).toContain('Math.max(r.width, menuWidth ?? 0)');
   const css = read('app/globals.css');
-  expect(css).toMatch(/\.dropdown-search\{position:sticky;[^}]*background:var\(--surface\)/);
-  // menus and sheets slide in opaque; they never fade in over the page
-  expect(css).not.toMatch(/\.dropdown-menu[^{]*\{[^}]*animation:fade/);
-  expect(css).not.toMatch(/\.dialog\{[^}]*animation:fade/);
+  expect(css).toMatch(/\.dropdown-search \{\s*position: sticky;[^}]*background: var\(--surface\)/);
+  // menus and sheets enter with transitions from the tokens, never with a keyframe fade
+  expect(css).not.toMatch(/animation:\s*fade/);
 });
 
 it('lands on sign in with a note after signing out, with the form in the first paint', () => {
-  expect(read('components/app/shell.tsx')).toContain("window.location.replace('/sign-in?signed_out=1')");
+  expect(read('components/app/shell.tsx')).toContain("window.location.replace('/?signed_out=1')");
   expect(read('app/(public)/sign-in/page.tsx')).toContain('You’re signed out.');
   expect(existsSync('app/(public)/sign-in/loading.tsx')).toBe(false);
 });
@@ -42,8 +41,8 @@ it('starts the company name empty and calls the settings tab Company', () => {
   const onboarding = read('components/app/guided-onboarding.tsx');
   expect(onboarding).toContain("a.company_name??''"); expect(onboarding).toContain('Company name');
   expect(onboarding).not.toMatch(/>[^<{]*\bworkspace\b/i);
-  const settings = read('components/app/settings.tsx');
-  expect(settings).toContain("{value:'company',label:'Company'"); expect(settings).toContain("requested==='workspace'?'company'");
+  const groups = read('components/app/settings-groups.tsx'), page = read('app/(app)/settings/page.tsx');
+  expect(groups).toContain("{ key: 'company', label: 'Company'"); expect(page).toContain("workspace: '/settings/company'");
 });
 
 it('renders the getting started checklist complete in the first paint', () => {

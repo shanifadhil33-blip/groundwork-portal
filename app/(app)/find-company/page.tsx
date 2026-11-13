@@ -1,2 +1,3 @@
 import { FindCompany } from '../../../components/app/company-joining';
-export default function Page(){return <FindCompany/>;}
+import { entryOnly } from '../../../lib/entry-redirect';
+export default async function Page() { await entryOnly({ allowReal: true }); return <FindCompany />; }

@@ -1,22 +1,76 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type SetStateAction } from 'react';
 import { useInitialResource } from './initial-resources';
 import { request, RequestError } from '../../lib/ui/api';
+import { cacheKey, dropCache, isFresh, onRefresh, readCache, seedCache, sharedLoad, subscribeCache, writeCache, type CacheEntry } from '../../lib/ui/resource-cache';
+
+const noop = () => () => {};
+
+/**
+ * Read one API resource.
+ * Shows cached or server sent data at once and refreshes it in the background when it is stale,
+ * so a screen visited before never shows a skeleton again. `loading` is only true while there
+ * is nothing at all to show.
+ */
 export function useResource<T>(url: string | null) {
-  const initial=useInitialResource(url);
-  const initialError=initial&&'error' in initial?new RequestError(initial.error.status,initial.error.message,initial.error.fields,initial.error.code):null;
-  const [data, setData] = useState<T | null>(()=>initial&&'data' in initial?initial.data as T:null), [error, setError] = useState<RequestError | Error | null>(initialError), [loading, setLoading] = useState(!initial), generation = useRef(0), previousUrl = useRef(url);
-  const load = useCallback(async () => { const run = ++generation.current; if (!url) { setData(null); setLoading(false); return; } setLoading(true); setError(null); try { const result = await request<T>(url); if (run === generation.current) setData(result); } catch (e) { if (run === generation.current) setError(e as Error); } finally { if (run === generation.current) setLoading(false); } }, [url]);
+  const seed = useInitialResource(url);
+  const key = url ? cacheKey(url) : null;
+  const seedEntry = useMemo<CacheEntry | undefined>(() => (seed && 'data' in seed ? { data: seed.data, at: 0 } : undefined), [seed]);
+  if (key && seedEntry) seedCache(key, seedEntry.data);
+
+  const subscribe = useCallback((notify: () => void) => (key ? subscribeCache(key, notify) : noop()), [key]);
+  const entry = useSyncExternalStore(subscribe, () => (key ? readCache(key) : undefined), () => seedEntry);
+
+  const seedError = seed && 'error' in seed ? seed.error : null;
+  const [failure, setFailure] = useState<{ key: string | null; error: RequestError | Error } | null>(() => (seedError ? { key, error: new RequestError(seedError.status, seedError.message, seedError.fields, seedError.code) } : null));
+  const [pending, setPending] = useState<string | null>(null);
+  const generation = useRef(0);
+
+  const load = useCallback(async () => {
+    const run = ++generation.current;
+    if (!url || !key) return;
+    setPending(key);
+    setFailure(null);
+    try {
+      const result = await sharedLoad(key, () => request<T>(url));
+      writeCache(key, result);
+    } catch (e) {
+      const status = e instanceof RequestError ? e.status : 0;
+      // No access any more, or the record is gone: stop showing the old copy.
+      if (status === 403 || status === 404) dropCache(key);
+      // A background refresh that fails keeps what is on screen. Only an empty screen shows the error.
+      if (run === generation.current && !readCache(key)) setFailure({ key, error: e as Error });
+    } finally {
+      if (run === generation.current) setPending(null);
+    }
+  }, [url, key]);
+
   useEffect(() => {
-    const changed = previousUrl.current !== url;
-    previousUrl.current = url;
-    const seed=initial;
-    if(seed) {setData('data' in seed?seed.data as T:null);setError('error' in seed?new RequestError(seed.error.status,seed.error.message,seed.error.fields,seed.error.code):null);setLoading(false);}
-    // A new server payload can omit a seed for the same URL. Keep its last
-    // successful result while fetching; changing scope must still clear it.
-    else {if(changed)setData(null);void load();}
+    if (!key) return;
+    if (seedError && !readCache(key)) return;
+    if (!isFresh(readCache(key))) void load();
     return () => { ++generation.current; };
-  }, [load,url,initial]);
-  useEffect(()=>{const retry=()=>{void load();};window.addEventListener('groundwork-retry-resources',retry);return()=>window.removeEventListener('groundwork-retry-resources',retry);},[load]);
-  return { data, error, loading: loading && data === null, reload: load, setData };
+  }, [key, load, seedError]);
+
+  // Focus, a shown tab, the 60 s tick and writes in other tabs reload this screen's data if it is stale.
+  useEffect(() => (key ? onRefresh(() => { if (!isFresh(readCache(key))) void load(); }) : undefined), [key, load]);
+
+  useEffect(() => {
+    const retry = () => { void load(); };
+    window.addEventListener('groundwork-retry-resources', retry);
+    return () => window.removeEventListener('groundwork-retry-resources', retry);
+  }, [load]);
+
+  const setData = useCallback((next: SetStateAction<T | null>) => {
+    if (!key) return;
+    const current = (readCache(key)?.data ?? null) as T | null;
+    const value = typeof next === 'function' ? (next as (old: T | null) => T | null)(current) : next;
+    if (value === null) dropCache(key); else writeCache(key, value);
+  }, [key]);
+
+  const data = (entry?.data ?? null) as T | null;
+  const error = failure && failure.key === key ? failure.error : null;
+  // Until the first effect runs, a URL with nothing cached and no error is about to load.
+  const loading = !!key && data === null && !error && (pending === key || pending === null);
+  return { data, error, loading, reload: load, setData };
 }

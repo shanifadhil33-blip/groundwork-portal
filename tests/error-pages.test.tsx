@@ -22,10 +22,12 @@ it('keeps session callback destinations local',async()=>{
 });
 it('offers recovery for expired demos, missing pages, forbidden pages, fetch and global errors',async()=>{
  expect(renderToStaticMarkup(<DemoEnded/>)).toContain('Start a new demo');
- for(const element of [await NotFound(),<ErrorState retry={()=>{}}/>,<GlobalError retry={()=>{}}/>]) expect(renderToStaticMarkup(element)).toContain('Back to home');
+ for(const element of [await NotFound(),<GlobalError retry={()=>{}}/>]) expect(renderToStaticMarkup(element)).toContain('Back to home');
+ // A load error inside a screen offers Try again only. It never sends a signed in person to the public site or to sign in.
+ const inline=renderToStaticMarkup(<ErrorState retry={()=>{}}/>);expect(inline).toContain('Try again');expect(inline).not.toContain('Back to home');expect(inline).not.toContain('Sign in');
  expect(renderToStaticMarkup(<NoAccess/>)).toContain('Go back');
  const missing=renderToStaticMarkup(await NotFound());expect(missing).not.toContain('Try again');expect(missing).toMatch(/<a\b[^>]*href="\/sign-in"[^>]*>Sign in<\/a>/);expect(missing).toMatch(/<a\b[^>]*href="\/"[^>]*>Back to home<\/a>/);expect(missing).toContain('public-footer');
- const global=renderToStaticMarkup(<GlobalError retry={()=>{}}/>);expect(global).toContain('<html');expect(global).toContain('<body');expect(global).toContain('#FFFFFF');expect(global).toContain('Try again');
+ const global=renderToStaticMarkup(<GlobalError retry={()=>{}}/>);expect(global).toContain('<html');expect(global).toContain('<body');expect(global).toContain('class="global-error"');expect(global).toContain('Try again');
 });
 
 it('redirects signed-in users away from sign-in and session-ended and gives missing pages signed-in navigation',async()=>{

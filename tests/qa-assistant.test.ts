@@ -32,7 +32,7 @@ beforeEach(()=>{state.turn.mockReset();state.call.mockReset();state.actions.clea
 async function propose(name:string,args:object,text='Change the work order'){state.turn.mockResolvedValue({calls:[{id:'1',name,args}],text:'Action completed.'});return assistant(user,ws,{messages:[{role:'user',content:text}]});}
 it('removes complete/truncated IDs and raw words, while retaining safe work-order destinations',()=>{
  const result=plainAssistantReply(`site ID e4ca7ce3…: in_progress; waiting_on_parts; list_sites. [WO 58](/work-orders/${state.order.id}) ${state.order.id}`);
- expect(result).not.toMatch(/site ID|e4ca7ce3|in_progress|waiting_on_parts|list_sites/);expect(result).toContain('In Progress');expect(result).toContain('Waiting on Parts');expect(result).toContain(`](/work-orders/${state.order.id})`);expect(result.split(`](/work-orders/${state.order.id})`)[1]).not.toContain(state.order.id);
+ expect(result).not.toMatch(/site ID|e4ca7ce3|in_progress|waiting_on_parts|list_sites/);expect(result).toContain('In progress');expect(result).toContain('Waiting for parts');expect(result).toContain(`](/work-orders/${state.order.id})`);expect(result.split(`](/work-orders/${state.order.id})`)[1]).not.toContain(state.order.id);
  expect(plainAssistantReply('there is no available tool to modify priority')).toContain('Open the job and use Edit');
 });
 it('saves a team note straight away, with no confirmation card, and logs it',async()=>{
@@ -46,8 +46,8 @@ it('confirms priority with old/new values, then returns a concrete linked result
  await expect(assistant(user,ws,{messages:[],confirm_action_id:pending!.id})).rejects.toMatchObject({status:409});expect(state.call).toHaveBeenCalledTimes(1);
 });
 it('shows status from/to before the write and names the confirmed change afterward',async()=>{
- const proposal=await propose('update_work_order_status',{id:state.order.id,status:'in_progress',updated_at:'2026-10-11T00:00:00Z'});const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('Scheduled → In Progress');expect(('reply' in proposal?proposal.reply:'')).not.toContain('Action completed');expect(state.call).not.toHaveBeenCalled();
- const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Done. Moved [Job #58 Test access control reader](/work-orders/${state.order.id}) to In Progress.`);
+ const proposal=await propose('update_work_order_status',{id:state.order.id,status:'in_progress',updated_at:'2026-10-11T00:00:00Z'});const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('Scheduled → In progress');expect(('reply' in proposal?proposal.reply:'')).not.toContain('Action completed');expect(state.call).not.toHaveBeenCalled();
+ const result=await assistant(user,ws,{messages:[],confirm_action_id:pending!.id});expect(('reply' in result?result.reply:'')).toBe(`Done. Moved [Job #58 Test access control reader](/work-orders/${state.order.id}) to In progress.`);
 });
 it('keeps explicitly client-visible text in both proposal and result',async()=>{
  const proposal=await propose('add_comment',{work_order_id:state.order.id,body:'Please keep the entrance clear.',visibility:'client'},'Add a client-visible comment to Job #58');const pending='pending_action' in proposal?proposal.pending_action:null;expect(pending?.summary).toContain('visible to the client');
@@ -78,9 +78,9 @@ it('shows a household client the chosen visit window before confirming a request
 it('formats client model replies and staff replies using their audience labels',async()=>{
  state.turn.mockResolvedValue({calls:[],text:'Status: in_progress. Next: Scheduled.'});
  state.role='client';
- expect(await assistant(user,ws,{messages:[{role:'user',content:'What is the status?'}]})).toMatchObject({reply:'Status: Work in Progress. Next: Visit Scheduled.'});
+ expect(await assistant(user,ws,{messages:[{role:'user',content:'What is the status?'}]})).toMatchObject({reply:'Status: In progress. Next: Scheduled.'});
  state.role='staff';
- expect(await assistant(user,ws,{messages:[{role:'user',content:'What is the status?'}]})).toMatchObject({reply:'Status: In Progress. Next: Scheduled.'});
+ expect(await assistant(user,ws,{messages:[{role:'user',content:'What is the status?'}]})).toMatchObject({reply:'Status: In progress. Next: Scheduled.'});
 });
 
 it('asks one short question with tap answers instead of guessing, and writes nothing',async()=>{

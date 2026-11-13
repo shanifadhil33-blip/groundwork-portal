@@ -14,11 +14,11 @@ export async function populateFollowUpFixture(db: PoolClient, ids: typeof fixtur
   for (const n of [62, 63, 64, 65, 66]) {
     const home = n === 65, follow = n === 64, fixed = n === 66;
     const status = fixed ? 'done' : home ? 'scheduled' : 'waiting_on_parts';
-    const title = follow ? 'Follow up: Sample tap repair' : 'Sample tap repair';
+    const title = follow ? 'Follow up: Fix the leaking pantry tap' : 'Fix the leaking pantry tap';
     const job = (await db.query(`INSERT INTO work_orders(workspace_id,client_id,site_id,title,description,trade,status,priority,source,
       created_by,assignee_id,preferred_technician_id,order_number,created_at,scheduled_for,due_on,
       report_by,report_at,report_problem,report_work,report_part,report_outcome,follow_up_of)
-      VALUES($1,$2,$3,$4,'Sample drawings','plumbing',$5,'normal','client',$6,$7,$7,$8,$9,$10,$11,
+      VALUES($1,$2,$3,$4,'The pantry tap drips all day.','plumbing',$5,'normal','client',$6,$7,$7,$8,$9,$10,$11,
         $12,$13,$14,$15,$16,$17,$18) RETURNING id`,
     [ids.ridgeline, home ? ids.northgate : ids.harbor, siteId(home ? 4 : 1), title, status,
       home ? ids.faisal : ids.pranav, ids.ravi, n, at(follow ? -2 : -5, 8), follow ? null : at(-3, 9), day(follow ? 7 : -3),
@@ -44,7 +44,7 @@ export async function populateFollowUpFixture(db: PoolClient, ids: typeof fixtur
     await db.query(`INSERT INTO job_suggestions(workspace_id,source,sender_user_id,sender_name,client_id,site_id,
       from_work_order_id,report_follow_up_of,title,problem,priority,preferred_technician_id,
       status,work_order_id,decided_by,created_at,decided_at)
-      VALUES($1,'agent',$2,'Ravi',$3,$4,$5,$5,'Follow up: Sample tap repair','Seal','normal',$2,$6,$7,$8,$9,$10)`,
+      VALUES($1,'agent',$2,'Ravi',$3,$4,$5,$5,'Follow up: Fix the leaking pantry tap','Seal','normal',$2,$6,$7,$8,$9,$10)`,
     [ids.ridgeline, ids.ravi, ids.harbor, siteId(1), source, index === 0 ? 'pending' : 'approved',
       index === 0 ? null : jobs[2], index === 0 ? null : ids.sam, at(-3, 10), index === 0 ? null : at(-2, 8)]);
   }

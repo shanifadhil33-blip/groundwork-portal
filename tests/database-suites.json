@@ -97,5 +97,9 @@
   "tests/technician-ratings.test.ts",
   "tests/technician-role.test.ts",
   "tests/visit-charge.test.ts",
-  "tests/workspace-country.test.ts"
+  "tests/workspace-country.test.ts",
+  "tests/rls-once-per-query.test.ts",
+  "tests/jobs-paging.test.ts",
+  "tests/agent-quota.test.ts",
+  "tests/idempotent-creates.test.ts"
 ]

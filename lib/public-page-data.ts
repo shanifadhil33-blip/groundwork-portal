@@ -5,7 +5,7 @@ import { getPreferences } from './services/settings';
 import { notificationLanguage, notificationWords } from './notification-words';
 import { replaceTranslation } from './i18n';
 
-const chromeCopy = ['Groundwork home', 'Public navigation', 'Sign in', 'Try the demo', 'Go to dashboard', 'Home', 'Legal', 'Privacy', 'Terms'];
+const chromeCopy = ['Groundwork home', 'Public navigation', 'Sign in', 'Try the demo', 'Go to dashboard', 'Open the app', 'Home', 'Back', 'Legal', 'Privacy', 'Terms'];
 
 // Like app page data, deduplicate only within the request. Never cache a user's preference globally.
 export const getPublicPageData = cache(async () => {

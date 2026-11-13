@@ -20,6 +20,10 @@ export function errorResponse(error: unknown) {
   if (code === 'P0403') return errorResponse(forbidden());
   if (code === 'P0404') return errorResponse(missing());
   if (code === 'P0401') return errorResponse(new ApiError(401,'unauthenticated','Sign in to continue.'));
+  // A query over the time limit (Postgres 57014) or a pool that could not hand out a connection in time.
+  // The browser shows "This is taking too long. Please try again." for 408.
+  const message = error instanceof Error ? error.message : '';
+  if (code === '57014' || /timeout exceeded when trying to connect|Query read timeout/i.test(message)) return json({error:{code:'timeout',message:'This is taking too long. Please try again.'}},408);
   return json({error:{code:'internal',message:"Something went wrong on our side. Your changes weren't saved. Try again."}},500);
 }
 export async function readBody(req: Request): Promise<unknown> {

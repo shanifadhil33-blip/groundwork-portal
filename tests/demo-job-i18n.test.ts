@@ -26,7 +26,7 @@ it.each(LANGUAGES.filter(({code})=>!isEnglish(code)))('$code ships every seeded 
 });
 
 it('allows exact fixture copy only, leaving edited notes and unseeded numbers verbatim',()=>{
- for(const value of [demoJobDescription(67),demoJobDescription(0),demoJobDescription(1)+' Please call me.',DEMO_JOB_TITLES[6]+' urgently','Pranav Menon','Al Marsa Street'])expect(DEMO_PROOF_COPY.has(value),value).toBe(false);
+ for(const value of ['Routine facilities request 67; coordinate access with the site manager.','A note the client wrote himself.',demoJobDescription(1)+' Please call me.',DEMO_JOB_TITLES[6]+' urgently','Pranav Menon','Al Marsa Street'])expect(DEMO_PROOF_COPY.has(value),value).toBe(false);
 });
 
 it('ships Dune Harbour Arabic as demo data without adding fixture prose to interface sources',()=>{

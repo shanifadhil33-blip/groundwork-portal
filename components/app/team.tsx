@@ -26,7 +26,7 @@ function SkillsButton({ p, base, areas, onDone }: { p: TeamPerson; base: string;
   const pick = (all: string[], on: string[], set: (v: string[]) => void, label: (v: string) => string) => <div className="skill-chips">{all.map(v => <button key={v} type="button" className={`chip ${on.includes(v) ? 'chip-on' : ''}`} aria-pressed={on.includes(v)} disabled={busy} onClick={() => set(flip(on, v))}>{label(v)}</button>)}</div>;
   return <><Button variant="secondary" onClick={() => { setTrades(p.trades); setMine(p.areas); setOpen(true); }}>Trade and area</Button>
     <Dialog open={open} onClose={() => setOpen(false)} busy={busy} title={`What ${p.name ?? 'they'} can do`} footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} onClick={save}>Save</Button></>}>
-      <div className="stack"><span className="field-label">Trade</span>{pick([...TRADES], trades, setTrades, v => tradeLabels[v as Trade])}
+      <div className="stack"><span className="field-label">Type of work</span>{pick([...TRADES], trades, setTrades, v => tradeLabels[v as Trade])}
         <span className="field-label">Area</span>{areas.length ? pick(areas, mine, setMine, v => v) : <p className="small muted">Add an area to your sites first.</p>}
         {error && <p className="inline-error" role="alert">{error}</p>}</div></Dialog></>;
 }
@@ -62,14 +62,16 @@ function PersonCard({ p, base, canLink, canEdit, canRoles, areas, onDone, self }
     { label: 'Open', value: p.open, icon: ClipboardList, href: jobs('&active=true') },
   ];
   return <li className="person-card">
-    <div className="heading-row"><div><strong data-no-translate><ContactName name={p.name} userId={p.user_id}/></strong><p className="small muted">{rolesLabel(p, roleLabels)}</p></div>
+    <div className="heading-row"><div><strong data-no-translate>{p.name}</strong><p className="small muted">{rolesLabel(p, roleLabels)}</p></div>
       <div className="person-head-actions">
       {p.phone && !demo && <a className="button secondary" href={`tel:${p.phone.replace(/[^+0-9]/g, '')}`} aria-label={`Call ${p.name ?? 'them'}`}><Phone size={16} aria-hidden="true" />Call</a>}{canRoles && !self && <MemberMenu person={p} base={base} onChanged={onDone} />}</div></div>
-    {demo&&p.contact_preview&&<div className="stack compact"><p className="small">Sample contact. Calls are unavailable.</p><p data-no-translate dir="ltr">{p.phone}</p>{p.signs_in_with==='code'&&<p className="small">Code sign in preview</p>}</div>}
-    <nav className="person-job-links" aria-label="Worker jobs">{nums.map(n => <Link key={n.label} href={n.href} aria-label={`${n.value} ${n.label} for ${p.name ?? 'them'}`}>{n.label} {n.value}</Link>)}</nav>
+    {/* One line of numbers, each with its word, each opening that person's jobs. */}
+    {worker && <p className="person-summary small">{nums.map((n, i) => <span key={n.label}>{i > 0 && ' · '}<Link href={n.href} className={n.tone === 'danger' ? 'danger-text' : undefined}>{`${n.value} ${n.label.toLowerCase()}`}</Link></span>)}</p>}
+    <details className="person-details"><summary>Details</summary><div className="stack compact">
     {(p.trades.length > 0 || p.areas.length > 0) && <div className="skill-chips">{p.trades.map(t => <span key={t} className="chip">{tradeLabels[t as Trade] ?? t}</span>)}{p.areas.map(a => <span key={a} className="chip chip-area">{a}</span>)}</div>}
     {worker && <p className="small muted person-record">Jobs done: {p.done_month} this month, {p.done_total} in total{p.off_days?.length ? ` · Off every ${p.off_days.map(d => DAYS[d]).join(', ')}` : ''}</p>}
     {(canEdit || canLink || canRoles) && <div className="row">{canRoles && <RolesButton p={p} base={base} onDone={onDone} />}{canEdit && worker && <><SkillsButton p={p} base={base} areas={areas} onDone={onDone} /><OffDaysButton p={p} base={base} onDone={onDone} /></>}{canLink && (demo || p.signs_in_with === 'code') && <NewLinkButton base={base} userId={p.user_id} name={p.name ?? 'them'} phone={p.phone} />}</div>}
+    </div></details>
   </li>;
 }
 
@@ -81,12 +83,11 @@ export function Team() {
   return <div className="page stack team-page">
     <PageHeader><div><h1>Team</h1></div>
       {(!demo || member?.staff_kind!=='office') && <AddFieldWorker key={`${me.user.id}:${base}`} base={base} admin={member?.role === 'admin'} demo={demo} onDone={() => void team.reload()} />}</PageHeader>
-    {demo && <p className="small muted">{PRACTICE_NOTICE}</p>}
-    {team.loading ? <Skeleton className="skeleton-card" /> : team.error ? <ErrorState retry={team.reload} /> :
+    {team.loading ? <Skeleton className="skeleton-card" /> : team.error ? <ErrorState error={team.error} retry={team.reload} /> :
       others.length ? <ul className="person-list">{(team.data ?? []).map(p => <PersonCard key={p.user_id} p={p} base={base} canLink={member?.staff_kind!=='office' && (!demo || p.role==='technician' || member?.role==='admin' && p.role==='staff')} canEdit={office&&member?.staff_kind!=='office'} canRoles={member?.role === 'admin'} areas={areas.data ?? []} self={p.user_id === me.user.id} onDone={() => { void team.reload(); if (p.user_id === me.user.id) reload(); }} />)}</ul> :
       <EmptyState title="Add your first worker">Add a name and phone. We give you a code to send on WhatsApp. They sign in with it. No email needed.</EmptyState>}
     {office && others.length > 0 && <LeaveCalendar base={base} people={team.data ?? []} readOnly={member?.staff_kind==='office'} />}
     {member?.role === 'admin' && <ArchivedMembers key={(team.data ?? []).length} base={base} onChanged={() => void team.reload()} />}
-    {member?.role === 'admin' && <p className="small"><Link href="/settings?tab=members">Change roles or invite by email</Link></p>}
+    {member?.role === 'admin' && <p className="small"><Link href="/settings/team">Invite people and change roles</Link></p>}
   </div>;
 }

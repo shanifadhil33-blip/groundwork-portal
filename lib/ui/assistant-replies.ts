@@ -10,7 +10,9 @@ import { countryName, formatPhone, regionField } from '../countries/rules';
 
 export function audienceStatusReply(value:string, client=false) {
  const labels=client?clientStatusLabels:statusLabels;
- const names=Object.keys(statusLabels).flatMap(status=>[status,statusLabels[status],clientStatusLabels[status]].map(name=>({name,status}))).sort((a,b)=>b.name.length-a.name.length);
+ // Older words a model may still write map to today's one set of status words.
+ const LEGACY:Record<string,string[]>={open:['Request Received'],scheduled:['Visit Scheduled'],in_progress:['In Progress','Work in Progress'],waiting_on_parts:['Waiting on Parts'],done:['Completed']};
+ const names=Object.keys(statusLabels).flatMap(status=>[status,statusLabels[status],clientStatusLabels[status],...(LEGACY[status]??[])].map(name=>({name,status}))).sort((a,b)=>b.name.length-a.name.length);
  const escape=(name:string)=>name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
  const pattern=new RegExp(`\\b(?:${names.map(({name})=>escape(name)).join('|')})(?=$|\\W)`,'gi');
  // The friendly "Done, Kevin." opener is a word, not a job status: never turn it into Completed.
@@ -18,7 +20,7 @@ export function audienceStatusReply(value:string, client=false) {
  const out=(opener?value.slice(4):value).replace(pattern,(name:string,offset:number,text:string)=>{
   const entry=names.find(entry=>entry.name.toLowerCase()===name.toLowerCase())!;
   const machineStatus=name===entry.status&&name.includes('_');
-  const exactLabel=name===statusLabels[entry.status]||name===clientStatusLabels[entry.status];
+  const exactLabel=name===statusLabels[entry.status]||name===clientStatusLabels[entry.status]||!!LEGACY[entry.status]?.includes(name);
   const statusContext=/\bstatus\s*(?::|is\b)\s*$/i.test(text.slice(0,offset));
   return machineStatus||exactLabel||statusContext?labels[entry.status]:name;
  });

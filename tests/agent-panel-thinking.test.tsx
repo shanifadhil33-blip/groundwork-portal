@@ -36,18 +36,18 @@ async function mount(onClose=vi.fn()){
 const button=(label:string)=>Array.from(document.querySelectorAll('button')).find(b=>b.textContent===label||b.getAttribute('aria-label')===label) as HTMLButtonElement|undefined;
 const field=()=>document.querySelector('#assistant-input') as HTMLTextAreaElement;
 async function type(value:string){const f=field();const set=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value')!.set!;await act(async()=>{set.call(f,value);f.dispatchEvent(new Event('input',{bubbles:true}));});}
-async function ask(label='Show jobs waiting on parts'){await act(async()=>button(notificationWords(api.language)[label]??label)!.click());}
+async function ask(label='Show jobs waiting for parts'){await act(async()=>button(notificationWords(api.language)[label]??label)!.click());}
 
 it('while thinking, close works and cancels the question, the box takes the next message, and send becomes Stop',async()=>{
  hang();const onClose=await mount();await ask();
  expect(document.querySelector('.agent-typing')?.textContent).toContain('Thinking');
- expect(button('Close dialog')!.disabled).toBe(false);
+ expect(button('Close')!.disabled).toBe(false);
  expect(field().disabled).toBe(false);
  await type('and the late ones');expect(field().value).toBe('and the late ones');
  expect(button('Stop')).toBeTruthy();expect(button('Send')).toBeUndefined();
  // Enter while it thinks keeps his draft and sends nothing new.
  await act(async()=>field().dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true})));expect(api.post).toHaveBeenCalledTimes(1);expect(field().value).toBe('and the late ones');
- await act(async()=>button('Close dialog')!.click());await act(async()=>new Promise(r=>setTimeout(r,250)));
+ await act(async()=>button('Close')!.click());await act(async()=>new Promise(r=>setTimeout(r,250)));
  expect(onClose).toHaveBeenCalledOnce();expect(signals[0].aborted).toBe(true);
 });
 it('Escape closes while thinking',async()=>{
@@ -59,7 +59,7 @@ it('Stop cancels the question, keeps the chat and draft, and the next message se
  hang();await mount();await ask();await type('next one');
  await act(async()=>button('Stop')!.click());await act(async()=>Promise.resolve());
  expect(signals[0].aborted).toBe(true);expect(document.body.textContent).toContain('Stopped. Ask again when you are ready.');
- expect(document.querySelector('.agent-typing')).toBeNull();expect(field().value).toBe('next one');expect(document.body.textContent).toContain('Show jobs waiting on parts');
+ expect(document.querySelector('.agent-typing')).toBeNull();expect(field().value).toBe('next one');expect(document.body.textContent).toContain('Show jobs waiting for parts');
  api.post.mockReset();api.post.mockResolvedValueOnce({available:true,reply:'Two jobs are late.'});
  await act(async()=>button('Send')!.click());
  expect(api.post).toHaveBeenCalledTimes(1);expect(api.post.mock.calls[0][1].messages.at(-1)).toEqual({role:'user',content:'next one'});expect(document.body.textContent).toContain('Two jobs are late.');
@@ -74,7 +74,7 @@ it('a slow answer shows progress, then stops at 48 seconds with a friendly line 
 it('on a phone the panel is full screen and modal, yet close still works while thinking',async()=>{
  hang();await mount();await ask();
  expect(document.querySelector('[role="dialog"]')?.getAttribute('aria-modal')).toBe('true');expect(page.inert).toBe(true);
- expect(button('Close dialog')!.disabled).toBe(false);
+ expect(button('Close')!.disabled).toBe(false);
 });
 it('on a laptop the panel never covers or locks the page behind it',async()=>{
  api.wide=true;hang();await mount();await ask();
@@ -112,7 +112,7 @@ it('voice: a tap keeps listening, works while the Agent thinks, Stop keeps the w
   // A blocked microphone gets friendly words, and the panel still closes.
   await act(async()=>speech.onerror?.({error:'not-allowed'}));
   await press(0);await act(async()=>speech.onerror?.({error:'not-allowed'}));expect(document.body.textContent).toMatch(/microphone/i);expect(document.body.textContent).not.toContain('not-allowed');
-  expect(button('Close dialog')!.disabled).toBe(false);
+  expect(button('Close')!.disabled).toBe(false);
  }finally{Reflect.deleteProperty(window,'SpeechRecognition');}
 });
 

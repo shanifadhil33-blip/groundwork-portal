@@ -50,7 +50,7 @@ const changeValue=(field:string,value:string|null)=>value&&DATE_FIELDS.includes(
 export function AgentLog({base,full=false}:{base:string;full?:boolean}){const log=useResource<Decision[]>(`${base}/assistant/log${full?'?limit=100':''}`),[undo,setUndo]=useState<Decision|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[filter,setFilter]=useState<DecisionFilter>('all');
  useVisiblePoll(log.reload,60000);
  useEffect(()=>{const again=()=>void log.reload();window.addEventListener('groundworkAgentLog',again);return()=>window.removeEventListener('groundworkAgentLog',again);},[log.reload]);
- const all=Array.isArray(log.data)?log.data:[],items=full?all.filter(d=>matchesFilter(d,filter)):all.slice(0,5);if(log.error)return <Translated><ErrorState retry={log.reload}/></Translated>;if(log.loading)return <Translated><p>Loading history…</p></Translated>;if(!all.length)return <Translated><p>No changes saved yet.</p></Translated>;
+ const all=Array.isArray(log.data)?log.data:[],items=full?all.filter(d=>matchesFilter(d,filter)):all.slice(0,5);if(log.error)return <Translated><ErrorState error={log.error} retry={log.reload}/></Translated>;if(log.loading)return <Translated><p>Loading history…</p></Translated>;if(!all.length)return <Translated><p>No changes saved yet.</p></Translated>;
  async function run(){if(!undo)return;setBusy(true);setError('');try{await post(`${base}/assistant/log/${undo.id}/undo`,{});setUndo(null);void log.reload();}catch(e){setError(e instanceof RequestError?e.message:'We could not undo that. Try again.');}finally{setBusy(false);}}
  return <Translated><section className="agent-log stack compact" aria-label="What Groundwork did"><div className="agent-log-head"><h3>{full?'Decision log':'What I did'}</h3>{!full&&<Link href="/settings/agent/log#decision-log" className="small">See all</Link>}</div>
  {full&&<div className="agent-log-filters" role="group" aria-label="Show">{DECISION_FILTERS.map(f=><Button key={f.key} variant="secondary" size="sm" aria-pressed={filter===f.key} onClick={()=>setFilter(f.key)}>{f.label}</Button>)}</div>}
@@ -89,8 +89,8 @@ export function NeedsAction({base,client=false}:{base:string;client?:boolean}) {
 export function ContractTimes({items}:{items:ResponseWatchItem[]}){
  const {member}=useApp();
  if(!['admin','staff'].includes(member?.role??'')||!items.length)return null;
- return <Translated><Card className="stack"><h2>Contract times</h2><ul className="stack" style={{listStyle:'none',padding:0,margin:0,minWidth:0}}>{items.slice(0,5).map(j=><li key={j.id} className="stack compact" style={{minWidth:0,overflowWrap:'anywhere'}}>
-  <Link href={`/work-orders/${j.id}`} className="row" style={{minHeight:44}}><span data-no-translate>#{j.order_number}</span><strong data-no-translate>{j.title}</strong></Link>
+ return <Translated><Card className="stack"><h2>Contract times</h2><ul className="stack plain-list min-0" >{items.slice(0,5).map(j=><li key={j.id} className="stack compact wrap-anywhere" >
+  <Link href={`/work-orders/${j.id}`} className="row tap" ><span data-no-translate>#{j.order_number}</span><strong data-no-translate>{j.title}</strong></Link>
   <p className="small muted"><span data-no-translate>{j.client_name}</span> · <span data-no-translate>{j.site_name}</span></p>
   <Badge tone={j.state==='missed'?'danger':'warning'}>{j.state==='missed'?'Promised time missed':'Close to promised time'}</Badge>
   <p>{j.why}</p><p className="small"><span>Promised by</span>{' '}<LocalTime value={j.due_at}/></p>

@@ -4,7 +4,8 @@ export const themes: Theme[] = ['light', 'dark', 'system'];
 export function safeRedirect(value?: string | null) {
   return value && value.startsWith('/') && !value.startsWith('//') && !/[\\\r\n]/.test(value) ? value : '/dashboard';
 }
-export function shouldDismissSheet(distance: number, velocity: number) { return distance > 100 || (distance > 24 && velocity > 0.6); }
+/** A sheet closes when dragged far enough, or flicked down faster than 0.11 px per ms. */
+export function shouldDismissSheet(distance: number, velocity: number) { return distance > 100 || (distance > 24 && velocity > 0.11); }
 export function homeForPersona(persona: string) { return persona === 'ravi' ? '/today' : ['pranav', 'omar', 'kevin', 'faisal'].includes(persona) ? '/home' : '/dashboard'; }
 export function relativeLabel(value: string, now: number, language = 'en') {
   const locale=language === 'tw' ? 'ak' : language;

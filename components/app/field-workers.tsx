@@ -38,8 +38,8 @@ export function AddFieldWorker({ base, admin, demo, onDone }: { base: string; ad
     finally { setBusy(false); }
   }
   return <>
-    <Button className="big-action" onClick={() => { setOpen(true); setName(''); setPhone(''); setError(''); }}><UserPlus size={18} aria-hidden="true" />Add field worker</Button>
-    <Dialog open={open} onClose={() => setOpen(false)} title="Add field worker" busy={busy} footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} onClick={() => void add()}>Add</Button></>}>
+    <Button className="big-action" onClick={() => { setOpen(true); setName(''); setPhone(''); setError(''); }}><UserPlus size={18} aria-hidden="true" />Add person</Button>
+    <Dialog open={open} onClose={() => setOpen(false)} title="Add person" busy={busy} footer={<><Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>Cancel</Button><Button busy={busy} onClick={() => void add()}>Add</Button></>}>
       <form className="stack" noValidate onSubmit={e => { e.preventDefault(); void add(); }}>
         {demo && <p>{PRACTICE_NOTICE}</p>}
         <label htmlFor="fw-name">Name</label><input id="fw-name" value={name} maxLength={120} onChange={e => setName(e.target.value)} autoFocus />

@@ -59,8 +59,9 @@ it('Connect AI keys are only for an admin of a real company', async () => {
   await expect(assertKeyMaker(ids.sam, ws)).rejects.toMatchObject({ status: 403 });
   await expect(assertKeyMaker(ids.imran, ws)).resolves.toBeUndefined();
   expect(readFileSync('app/api/workspaces/[ws]/tokens/route.ts', 'utf8')).toContain('await assertKeyMaker(user,params.ws)');
-  const settings = readFileSync('components/app/settings.tsx', 'utf8');
-  expect(settings).toContain("...(admin&&!workspace?.is_demo?[{value:'agent-access'");
+  // Settings > Agent shows the keys card only to an admin of a real company.
+  const settings = readFileSync('components/app/settings-groups.tsx', 'utf8');
+  expect(settings).toContain('{admin && !workspace?.is_demo && <Card><AgentAccess');
   expect(readFileSync('components/app/dashboard.tsx', 'utf8')).not.toContain('Connect your AI agent');
 });
 

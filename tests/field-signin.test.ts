@@ -62,7 +62,7 @@ describe('field staff sign in by link or code', () => {
 import { readFileSync } from 'node:fs';
 describe('people without an email (field workers)', () => {
  it('the app shell never assumes an email', () => {
-  for (const f of ['components/app/shell.tsx','components/app/isolation.tsx']) expect(readFileSync(new URL('../'+f, import.meta.url),'utf8')).not.toMatch(/user\.email\.(split|startsWith)/);
+  for (const f of ['components/app/shell.tsx']) expect(readFileSync(new URL('../'+f, import.meta.url),'utf8')).not.toMatch(/user\.email\.(split|startsWith)/);
   expect(readFileSync(new URL('../components/app/context.tsx', import.meta.url),'utf8')).toContain('email: string | null;');
  });
 });

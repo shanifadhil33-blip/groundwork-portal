@@ -10,7 +10,7 @@ type Suggestion = { id: string; text: string; area?: string };
 export function HabitView({ suggestions, busy, notice, error, onRemember }: { suggestions: Suggestion[]; busy: boolean; notice: string; error: string; onRemember: (area: string) => void }) {
   if (!suggestions.length && !notice) return null;
   return <Card className="stack habit-card"><h2>{LEARN_REPLIES.rememberArea}</h2>
-    <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{suggestions.map(item => <li key={item.id} className="stack compact">
+    <ul className="stack plain-list" >{suggestions.map(item => <li key={item.id} className="stack compact">
       <p>{item.text}</p>
       {item.area && <><p data-no-translate>{item.area}</p><Button busy={busy} onClick={() => onRemember(item.area!)}>Remember</Button></>}
     </li>)}</ul>

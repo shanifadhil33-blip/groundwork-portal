@@ -70,7 +70,7 @@ export function Schedule() {
   return <div className="page stack schedule-page">
     <PageHeader><div><h1>Schedule</h1></div></PageHeader>
     <div className="sched-nav"><Button variant="secondary" aria-label="Last week" onClick={() => shift(-1)}><ChevronLeft className="directional-icon" size={18} aria-hidden="true" /></Button><strong><span data-no-translate>{dayName(days[0], false, lang)}</span> to <span data-no-translate>{dayName(days[6], false, lang)}</span></strong><Button variant="secondary" aria-label="Next week" onClick={() => shift(1)}><ChevronRight className="directional-icon" size={18} aria-hidden="true" /></Button>{from !== weekStart(today) && <Button variant="secondary" onClick={() => { setFrom(weekStart(today)); setDay(today); }}>Today</Button>}</div>
-    {board.loading ? <Skeleton className="skeleton-card" /> : board.error || !b ? <ErrorState retry={board.reload} /> : <>
+    {board.loading ? <Skeleton className="skeleton-card" /> : board.error || !b ? <ErrorState error={board.error} retry={board.reload} /> : <>
       {/* Phone: one day, grouped by person */}
       <div className="sched-phone stack compact">
         <div className="sched-days" role="tablist" aria-label="Day">{days.map(d => { const n = (b.jobs).filter(j => j.day === d).length; return <button key={d} role="tab" aria-selected={d === day} className={`sched-day ${d === day ? 'on' : ''} ${d === today ? 'today' : ''}`} onClick={() => pick(d)}><span data-no-translate>{part(d, { weekday: 'short' }, lang)}</span><strong data-no-translate>{part(d, { day: 'numeric' }, lang)}</strong><small>{n || ''}</small></button>; })}</div>

@@ -128,7 +128,7 @@ it('D1 reset removes edited evidence and restores just the initial sample rows',
 });
 
 it('D1 sample copy is present in all language files', () => {
-  const keys = ['Sample tap repair', 'Sample drawings', 'The tap was leaking.', 'Replaced the seal and tested the tap.', 'Thank you for fixing the tap.', 'Please check this repair again.'];
+  const keys = ['Fix the leaking pantry tap', 'The pantry tap drips all day.', 'The tap was leaking.', 'Replaced the seal and tested the tap.', 'Thank you for fixing the tap.', 'Please check this repair again.'];
   for (const file of readdirSync('public/i18n')) {
     const text = JSON.parse(readFileSync(`public/i18n/${file}`, 'utf8'));
     for (const key of keys) expect(text[key], `${file}: ${key}`).toBeTruthy();

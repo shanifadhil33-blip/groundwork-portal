@@ -14,7 +14,7 @@ export function BestMatch({ base, id, version, current, busy, onAssign }: { base
   const data = s.data as Suggest, best = data.workers.find(w => !w.off);
   if (!best) return <p className="small muted">{data.preference_reason} {data.workers.length ? 'Everyone on the team is off that day. Pick another day.' : 'Add a technician on the Team page to assign this job.'}</p>;
   if (!data.trade && !data.area) return <p className="small muted">{data.preference_reason} Pick a trade for this job to see who fits best.</p>;
-  if (!best.trade_match && !best.area_match) return <p className="small muted">{data.preference_reason} Nobody on the team has this trade or area yet. Set them on the Team page.</p>;
+  if (!best.trade_match && !best.area_match) return <p className="small muted">{data.preference_reason} Nobody on the team does this type of work in this area yet. Set it on the Team page.</p>;
   const why = <>{best.trade_match && data.trade && <>{tradeLabels[data.trade]} · </>}{best.area_match && <><span data-no-translate>{data.area}</span> · </>}<span>{`${best.today} today`}</span></>;
   const name = best.name ?? 'Team member';
   return <div className="best-match"><div>{data.preference_reason&&<p>{data.preference_reason}</p>}<strong>Best for this job: <ContactName name={name} userId={best.user_id}/></strong><p className="small">{why}</p></div>

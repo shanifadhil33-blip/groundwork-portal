@@ -16,11 +16,17 @@ const querySchema=z.object({
  archived:z.enum(['true','false']).optional(),
 });
 export function parseListQuery(params: URLSearchParams) {
- const known=new Set(['archived','overdue','active','today','q','status','status[]','priority','priority[]','id','asset_id','client_id','site_id','assignee_id','sort','dir','page','pageSize','cursor']);
- for(const key of params.keys())if(!known.has(key))throw invalid('Unknown query parameter.',key);
+ // A shared or old link may carry words this list does not know (?tab=approve, ?status=late).
+ // Those are ignored, never turned into an error page. Each known value that does not fit is dropped too.
+ const shape=querySchema.shape;
  const obj:Record<string,unknown>={};
- for(const key of ['archived','overdue','active','today','q','id','asset_id','client_id','site_id','assignee_id','sort','dir','page','pageSize','cursor'])if(params.has(key))obj[key]=params.get(key);
- for(const key of ['status','priority'])obj[key]=[...params.getAll(key),...params.getAll(key+'[]')];
+ for(const key of ['archived','overdue','active','today','q','id','asset_id','client_id','site_id','assignee_id','sort','dir','page','pageSize','cursor'] as const){
+  if(!params.has(key))continue;
+  const value=params.get(key);
+  if(shape[key].safeParse(value).success)obj[key]=value;
+ }
+ obj.status=[...params.getAll('status'),...params.getAll('status[]')].filter(v=>status.safeParse(v).success);
+ obj.priority=[...params.getAll('priority'),...params.getAll('priority[]')].filter(v=>priority.safeParse(v).success);
  const query=querySchema.parse(obj);
  if(query.cursor && params.has('page'))throw invalid('Use a cursor or page, not both.','cursor');
  return query;

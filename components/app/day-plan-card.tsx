@@ -26,7 +26,7 @@ function Why({ text, names }: { text: string; names: string[] }) {
 }
 
 function Line({ line, names = [] }: { line: PlanLine; names?: string[] }) {
-  return <Translated><li className="stack compact" style={{ minWidth: 0 }}>
+  return <Translated><li className="stack compact min-0" >
     <strong><bdi data-no-translate>#{line.order} {line.title}</bdi></strong>
     {line.assignee_name && <p data-no-translate>{line.assignee_name}</p>}
     <Why text={line.why} names={[line.assignee_name ?? '', ...names]} />
@@ -46,11 +46,11 @@ export function DayPlanView({ data, busy, error, notice, onApprove, onLate }: {
   return <Translated><div className="stack day-plan">
     {(data.can_plan || data.lines.length > 0) && <Card className="stack day-plan"><h2>{DAY_REPLIES.planAsk}</h2>
       {data.lines.length ? <p><bdi dir="ltr" data-no-translate>{data.lines.filter(l => l.kind === 'place').length}/{data.lines.length}</bdi> <span>open jobs can be placed.</span> <span>Nothing is saved until you say yes.</span></p> : <p>{DAY_REPLIES.nothingToPlan}</p>}
-      {!!data.lines.length && <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{data.lines.map(line => <Line key={`${line.job_id}:${line.kind}`} line={line} names={people.map(p => p.name)} />)}</ul>}
+      {!!data.lines.length && <ul className="stack plain-list" >{data.lines.map(line => <Line key={`${line.job_id}:${line.kind}`} line={line} names={people.map(p => p.name)} />)}</ul>}
       {data.can_plan && !!data.lines.some(line => line.kind === 'place') && <Button busy={busy === 'morning'} onClick={() => onApprove('morning', data.fingerprint)}>Approve the plan</Button>}
     </Card>}
     {!!data.watch.length && <Card className="stack day-plan"><h2>Running late</h2>
-      <ul className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{data.watch.map(line => <li key={line.job_id}><Line line={line} />{data.can_plan && line.kind === 'place' && <Button busy={busy === line.job_id} onClick={() => onApprove('watch', line.fingerprint, line.job_id)}>Yes</Button>}</li>)}</ul>
+      <ul className="stack plain-list" >{data.watch.map(line => <li key={line.job_id}><Line line={line} />{data.can_plan && line.kind === 'place' && <Button busy={busy === line.job_id} onClick={() => onApprove('watch', line.fingerprint, line.job_id)}>Yes</Button>}</li>)}</ul>
     </Card>}
     {data.demo && !!visits.length && <Card className="stack day-plan"><h2>Mark this job late</h2><p>This practice control marks the job late. No message is sent.</p>
       <Button variant="secondary" busy={busy === 'late'} onClick={() => onLate(visits[0].id)}>Mark this job late</Button>
